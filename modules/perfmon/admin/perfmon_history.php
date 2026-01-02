@@ -82,7 +82,7 @@ $lAdmin->NavText($rsData->GetNavPrint(GetMessage('PERFMON_HIST_PAGE')));
 
 while ($arRes = $rsData->GetNext())
 {
-	$row =& $lAdmin->AddRow($arRes['ID'], $arRes);
+	$row = $lAdmin->AddRow($arRes['ID'], $arRes);
 
 	$row->AddViewField('TOTAL_MARK', perfmon_NumberFormat($arRes['TOTAL_MARK'], 2));
 	$row->AddCheckField('ACCELERATOR_ENABLED', false);

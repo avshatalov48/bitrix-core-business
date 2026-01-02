@@ -1,0 +1,193 @@
+.vote-creation-form {
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
+}
+
+.vote-creation-form__questions,
+.vote-creation-form__settings {
+	background: var( --ui-color-palette-white-base);
+	padding: 18px 24px;
+	border-radius: 12px;
+	-webkit-box-shadow: 0 2px 4px 0 #00000005;
+	        box-shadow: 0 2px 4px 0 #00000005;
+}
+
+.vote-creation-form__question:not(:last-child) {
+	border-bottom: 1px solid #e2e2e2;
+	padding-bottom: 25px;
+}
+
+.vote-creation-form__question:not(:first-child) {
+	margin-top: 25px;
+}
+
+.vote-creation-form .ui-ctl-textarea {
+	width: 100%;
+	height: auto;
+	min-height: auto;
+}
+
+.vote-creation-form .ui-ctl-textarea textarea.ui-ctl-element {
+	border-radius: var(--ui-border-radius-sm);
+	padding-top: 14px;
+	padding-bottom: 14px;
+	padding-right: 35px;
+	overflow-y: hidden;
+	height: 48px;
+	line-height: 18px;
+}
+
+.vote-creation-form__question_label,
+.vote-creation-form__settings_title {
+	font-size: 17px;
+	font-weight: var(--ui-font-weight-medium);
+	line-height: var(--ui-font-line-height-sm);
+	color: var(--ui-color-palette-black-base);
+	margin: 0 0 22px 0;
+}
+
+.vote-creation-form__question_answer-options {
+	color: var(--ui-color-palette-black-base);
+	margin: 23px 0 21px;
+}
+
+.vote-creation-form__question_answer-options,
+.vote-creation-form__question_add-answer {
+	font-size: 15px;
+	line-height: var(--ui-font-line-height-2xs);
+}
+
+.vote-creation-form__answers {
+	position: relative;
+}
+
+.vote-creation-form__answers.--pointer-events-disabled,
+.vote-creation-form__answers:not(.--pointer-events-disabled) .vote-creation-form__answer_ghost {
+	pointer-events: none;
+}
+
+.vote-creation-form__answer {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	margin-bottom: 14px;
+}
+
+.vote-creation-form__answer:last-child {
+	margin-bottom: 0;
+}
+
+.vote-creation-form__answer_dnd-icon {
+	cursor: -webkit-grab;
+	cursor: grab;
+	--ui-icon-set__icon-color: #d0d0d0;
+}
+
+.vote-creation-form__answer_dnd-icon:active {
+	cursor: -webkit-grabbing;
+	cursor: grabbing;
+}
+
+.vote-creation-form__answer_ghost {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	width: 100%;
+	margin-bottom: 0;
+}
+
+.vote-creation-form__answer_position-pointer {
+	width: 100%;
+	border: 1px dashed var(--ui-color-palette-blue-40);
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.vote-creation-form__answer_delete {
+	cursor: pointer;
+	width: 22px;
+	height: 22px;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none'%3E%3Cpath fill='%233B434D' fill-rule='evenodd' d='M5.48 14.52a.5.5 0 010-.707L9.293 10 5.48 6.189a.5.5 0 11.707-.707L10 9.293l3.813-3.813a.5.5 0 11.707.708L10.707 10l3.813 3.813a.5.5 0 11-.707.707L10 10.708 6.187 14.52a.5.5 0 01-.707 0z' clip-rule='evenodd'/%3E%3C/svg%3E");
+	background-position: center;
+	background-repeat: no-repeat;
+	display: inline-block;
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	-webkit-transform: translateY(-50%);
+	    -ms-transform: translateY(-50%);
+	        transform: translateY(-50%);
+	opacity: .35;
+	-webkit-transition: opacity .2s linear;
+	-o-transition: opacity .2s linear;
+	transition: opacity .2s linear;
+}
+
+.vote-creation-form__answers.--removable .vote-creation-form__answer_delete {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='22' height='22' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M17.012 6.126h-2.428L14.25 4.6a2.383 2.383 0 00-2.328-1.874H10.17a2.383 2.383 0 00-2.337 1.915l-.298 1.485H5.127a.642.642 0 100 1.283h11.885a.642.642 0 000-1.283zm-8.125-.213l.204-1.02a1.1 1.1 0 011.079-.883h1.752a1.1 1.1 0 011.074.865l.227 1.038H8.887zm1.247 5.719a.642.642 0 10-1.283 0v4.032a.642.642 0 101.283 0v-4.032zm2.958 0a.642.642 0 00-1.284 0v4.032a.642.642 0 001.284 0v-4.032zM4.997 9.303a.917.917 0 01.908-1.038h10.089c.559 0 .988.496.907 1.05l-1.208 8.274a1.833 1.833 0 01-1.815 1.569H7.92c-.918 0-1.695-.68-1.817-1.59L4.997 9.302zm2.378 8.094L6.325 9.55h9.245l-1.147 7.855a.55.55 0 01-.545.47H7.92a.55.55 0 01-.545-.477z' opacity='.7' fill='%233B434D'/%3E%3C/svg%3E");
+}
+
+.vote-creation-form__answer_delete:hover {
+	opacity: .6;
+}
+
+.vote-creation-form__question_add-answer {
+	margin: 13px 0 5px;
+	color: #a7a7a7;
+	display: -webkit-inline-box;
+	display: -ms-inline-flexbox;
+	display: inline-flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	gap: 3px;
+	cursor: pointer;
+}
+
+.vote-creation-form__question_plus {
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='20' height='20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10 15.833a.583.583 0 01-.583-.583v-4.667H4.75a.583.583 0 010-1.167h4.667V4.75a.583.583 0 011.167 0v4.666h4.666a.583.583 0 110 1.167h-4.666v4.667a.583.583 0 01-.584.583z' fill='%23A7A7A7'/%3E%3C/svg%3E") no-repeat;
+	width: 20px;
+	height: 20px;
+}
+
+.vote-creation-form__question_multiple-answers,
+.vote-creation-form__settings_setting {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-webkit-box-pack: justify;
+	    -ms-flex-pack: justify;
+	        justify-content: space-between;
+	font-size: 14px;
+	line-height: var(--ui-font-line-height-sm);
+	color: var(--ui-color-palette-black-base);
+	margin-top: 20px;
+}
+
+.vote-creation-form__add-question-btn.ui-btn {
+	margin-top: 25px;
+	--ui-btn-padding: 0 8px;
+	border-radius: var(--ui-border-radius-xs);
+}
+
+.vote-creation-form__add-question-btn.ui-btn::before {
+	content: '';
+	background-color: #555555;
+	background-size: contain;
+    -webkit-mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='20' height='20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10 15.833a.583.583 0 01-.583-.583v-4.667H4.75a.583.583 0 010-1.167h4.667V4.75a.583.583 0 011.167 0v4.666h4.666a.583.583 0 110 1.167h-4.666v4.667a.583.583 0 01-.584.583z' fill='%23A7A7A7'/%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='20' height='20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10 15.833a.583.583 0 01-.583-.583v-4.667H4.75a.583.583 0 010-1.167h4.667V4.75a.583.583 0 011.167 0v4.666h4.666a.583.583 0 110 1.167h-4.666v4.667a.583.583 0 01-.584.583z' fill='%23A7A7A7'/%3E%3C/svg%3E");
+	width: 20px;
+	height: 20px;
+	margin-right: 5px;
+}
+
+.vote-creation-form__settings {
+	margin-top: 15px;
+}

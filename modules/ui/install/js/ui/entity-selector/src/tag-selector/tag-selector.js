@@ -1,6 +1,8 @@
 import { Cache, Dom, Tag, Text, Type, Loc, Browser } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 
+import 'ui.icon-set.outline';
+
 import Dialog from '../dialog/dialog';
 import TagItem from './tag-item';
 
@@ -371,7 +373,7 @@ export default class TagSelector extends EventEmitter
 			className += this.isLocked() ? ' ui-tag-selector-container-locked' : '';
 
 			return Tag.render`
-				<div class="ui-tag-selector-outer-container${className}">${this.getContainer()}</div>
+				<div class="ui-tag-selector-outer-container --air --ui-context-content-light${className}">${this.getContainer()}</div>
 			`;
 		});
 	}
@@ -431,7 +433,7 @@ export default class TagSelector extends EventEmitter
 			const width = this.getTextBoxWidth();
 			if (width !== null)
 			{
-				Dom.style(input, 'width', Type.isStringFilled(width) ? width : `${width}px`);
+				Dom.style(input, 'min-width', Type.isStringFilled(width) ? width : `${width}px`);
 			}
 
 			if (this.isLocked())
@@ -506,7 +508,7 @@ export default class TagSelector extends EventEmitter
 			this.textBoxWidth = width;
 			if (this.isRendered())
 			{
-				Dom.style(this.getTextBox(), 'width', width);
+				Dom.style(this.getTextBox(), 'min-width', width);
 			}
 		}
 		else if (Type.isNumber(width) && width > 0)
@@ -514,7 +516,7 @@ export default class TagSelector extends EventEmitter
 			this.textBoxWidth = width;
 			if (this.isRendered())
 			{
-				Dom.style(this.getTextBox(), 'width', `${width}px`);
+				Dom.style(this.getTextBox(), 'min-width', `${width}px`);
 			}
 		}
 	}

@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Bitrix\Socialnetwork\Collab\Integration\IM\Message;
 
 use Bitrix\Main\Loader;
-use Bitrix\Socialnetwork\Collab\Integration\IM\ActionType;
-use Bitrix\Socialnetwork\Item\UserToGroup;
+use Bitrix\Main\Localization\Loc;
 
 class JoinUserActionMessage implements ActionMessageInterface
 {
-	use GetMessageSenderTrait;
+	use MessageTrait;
 
 	protected int $collabId;
 	protected int $senderId;
@@ -21,19 +20,20 @@ class JoinUserActionMessage implements ActionMessageInterface
 		$this->senderId = $senderId;
 	}
 	
-	public function runAction(array $recipientIds = [], array $parameters = []): int
+	public function send(array $recipientIds = [], array $parameters = []): int
 	{
 		if (!Loader::includeModule('im'))
 		{
 			return 0;
 		}
 
-		$sender = $this->getMessageSender($this->collabId, $this->senderId);
-		if ($sender === null)
-		{
-			return 0;
-		}
+		$message = (string)Loc::getMessage(
+			'SOCIALNETWORK_COLLAB_CHAT_USER_JOIN' . $this->getGenderSuffix($this->senderId),
+			[
+				'#SENDER_NAME#' => $this->getName($this->senderId, $this->senderId, $this->collabId),
+			],
+		);
 
-		return $sender->sendActionMessage(ActionType::JoinUser);
+		return $this->sendMessage($message, $this->senderId, $this->collabId);
 	}
 }

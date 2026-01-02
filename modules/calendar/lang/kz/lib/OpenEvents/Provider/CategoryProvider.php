@@ -1,0 +1,4 @@
+<?php
+$MESS["CALENDAR_OPEN_EVENTS_ALL_EVENTS"] = "Барлық оқиғалар";
+$MESS["CALENDAR_OPEN_EVENTS_DEFAULT_CATEGORY_DESCRIPTION"] = "Әдепкі оқиғалар тақырыбы";
+$MESS["CALENDAR_OPEN_EVENTS_DEFAULT_CATEGORY_NAME"] = "Компания оқиғалары";

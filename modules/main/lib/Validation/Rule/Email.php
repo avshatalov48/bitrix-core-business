@@ -8,7 +8,7 @@ use Attribute;
 use Bitrix\Main\Localization\LocalizableMessageInterface;
 use Bitrix\Main\Validation\Validator\EmailValidator;
 
-#[Attribute(Attribute::TARGET_PROPERTY)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Email extends AbstractPropertyValidationAttribute
 {
 	public function __construct(

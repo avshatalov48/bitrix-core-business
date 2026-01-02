@@ -6,7 +6,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Bizproc;
+
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+
+use Bitrix\Crm\Integration\Analytics\Dictionary;
 
 /**
  * @property $ChatName
@@ -105,6 +109,19 @@ class CBPImCreateGroupChatActivity extends CBPActivity
 			0,
 			CBPTrackingType::AttachedEntity
 		);
+
+		if (
+			Loader::includeModule('crm')
+			&& method_exists(CCrmBizProcHelper::class, 'sendOperationsAnalytics')
+		)
+		{
+			$documentType = $this->getDocumentType();
+			\CCrmBizProcHelper::sendOperationsAnalytics(
+				Dictionary::EVENT_ENTITY_SOCIAL,
+				$this,
+				$documentType[2] ?? '',
+			);
+		}
 
 		return CBPActivityExecutionStatus::Closed;
 	}

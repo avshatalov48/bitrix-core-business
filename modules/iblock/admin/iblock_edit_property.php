@@ -1905,6 +1905,7 @@ elseif($message)
 		elseif (
 			$arProperty['PROPERTY_TYPE'] === \Bitrix\Iblock\PropertyTable::TYPE_ELEMENT
 			&& $arProperty['USER_TYPE'] === \Bitrix\Iblock\PropertyTable::USER_TYPE_SKU
+			&& $useCatalog
 		)
 		{
 			$restrictedIblocks = [$intIBlockID];

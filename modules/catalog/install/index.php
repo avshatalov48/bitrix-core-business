@@ -254,6 +254,22 @@ class catalog extends CModule
 			'onTuningLoad',
 		);
 
+		$eventManager->registerEventHandler(
+			'crm',
+			'OnCrmDealRecoverFromRecycleBin',
+			'catalog',
+			'\Bitrix\Catalog\Integration\Crm\EventsHandler',
+			'OnCrmDealRecoverFromRecycleBin'
+		);
+
+		$eventManager->registerEventHandler(
+			'crm',
+			'OnCrmDealEraseFromRecycleBin',
+			'catalog',
+			'\Bitrix\Catalog\Integration\Crm\EventsHandler',
+			'OnCrmDealEraseFromRecycleBin'
+		);
+
 		if ($this->bitrix24mode)
 		{
 			Main\Config\Option::set('catalog', 'enable_viewed_products', 'Y');
@@ -508,6 +524,22 @@ class catalog extends CModule
 			'catalog',
 			'\Bitrix\Catalog\Integration\AI\Settings',
 			'onTuningLoad',
+		);
+
+		$eventManager->unregisterEventHandler(
+			'crm',
+			'OnCrmDealRecoverFromRecycleBin',
+			'catalog',
+			'\Bitrix\Catalog\Integration\Crm\EventsHandler',
+			'OnCrmDealRecoverFromRecycleBin'
+		);
+
+		$eventManager->unregisterEventHandler(
+			'crm',
+			'OnCrmDealEraseFromRecycleBin',
+			'catalog',
+			'\Bitrix\Catalog\Integration\Crm\EventsHandler',
+			'OnCrmDealEraseFromRecycleBin'
 		);
 
 		$eventManager->unRegisterEventHandler('report', 'onAnalyticPageBatchCollect', 'catalog', '\Bitrix\Catalog\Integration\Report\EventHandler', 'onAnalyticPageBatchCollect');

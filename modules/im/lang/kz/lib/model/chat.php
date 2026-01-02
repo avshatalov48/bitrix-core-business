@@ -1,0 +1,15 @@
+<?php
+$MESS["CHAT_ENTITY_AUTHOR_ID_FIELD"] = "Чат авторының ID";
+$MESS["CHAT_ENTITY_CALL_NUMBER_FIELD"] = "Қоңырау нөмірі";
+$MESS["CHAT_ENTITY_CALL_TYPE_FIELD"] = "Қоңырау түрі";
+$MESS["CHAT_ENTITY_COLOR_FIELD"] = "Чат түсі";
+$MESS["CHAT_ENTITY_DESCRIPTION_FIELD"] = "Чат сипаттамасы";
+$MESS["CHAT_ENTITY_ENTITY_DATA_1_FIELD"] = "1 Мән деректері";
+$MESS["CHAT_ENTITY_ENTITY_DATA_2_FIELD"] = "2 Мән деректері ";
+$MESS["CHAT_ENTITY_ENTITY_DATA_3_FIELD"] = "3 Мән деректері";
+$MESS["CHAT_ENTITY_ENTITY_ID_FIELD"] = "Мән ID-і";
+$MESS["CHAT_ENTITY_ENTITY_TYPE_FIELD"] = "Мән";
+$MESS["CHAT_ENTITY_EXTRANET_FIELD"] = "Экстранет";
+$MESS["CHAT_ENTITY_ID_FIELD"] = "ID";
+$MESS["CHAT_ENTITY_TITLE_FIELD"] = "Чат тақырыпаты";
+$MESS["CHAT_ENTITY_TYPE_FIELD"] = "Чат түрі";

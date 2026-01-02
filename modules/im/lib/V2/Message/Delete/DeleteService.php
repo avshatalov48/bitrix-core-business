@@ -3,34 +3,27 @@
 namespace Bitrix\Im\V2\Message\Delete;
 
 use Bitrix\Disk\SystemUser;
-use Bitrix\Im\Bot;
 use Bitrix\Im\Common;
 use Bitrix\Im\Model\MessageIndexTable;
-use Bitrix\Im\Model\MessageTable;
-use Bitrix\Im\Model\RecentTable;
 use Bitrix\Im\Recent;
 use Bitrix\Im\V2\Analytics\MessageAnalytics;
 use Bitrix\Im\V2\Analytics\MessageContent;
+use Bitrix\Im\V2\Anchor\DI\AnchorContainer;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Common\ContextCustomer;
-use Bitrix\Im\V2\Link\Calendar\CalendarItem;
-use Bitrix\Im\V2\Link\Calendar\CalendarService;
-use Bitrix\Im\V2\Link\Task\TaskItem;
-use Bitrix\Im\V2\Link\Task\TaskService;
 use Bitrix\Im\V2\Link\Url\UrlService;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Permission\Action;
+use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Relation;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
-use Bitrix\Im\V2\Sync;
-use Bitrix\ImOpenlines\Connector;
-use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Pull\Event;
+use ReflectionNamedType;
 
 class DeleteService
 {
@@ -39,63 +32,97 @@ class DeleteService
 		setContext as private defaultSetContext;
 	}
 
-	public const DELETE_NONE = 0; // cannot be deleted
-	public const DELETE_SOFT = 1; // replacement with the text "message deleted"
-	public const DELETE_HARD = 2; // complete removal if no one has read
-	public const DELETE_COMPLETE = 3; // unconditional deletion
-
-	private const MESSAGE_OWN_SELF = self::DELETE_NONE;
-	private const MESSAGE_OWN_OTHER = 4;
-
-	private const ROLE_USER = self::DELETE_SOFT;
-	private const ROLE_MANAGER = self::DELETE_HARD;
-	private const ROLE_OWNER = self::DELETE_COMPLETE;
-
 	public const EVENT_AFTER_MESSAGE_DELETE = 'OnAfterMessagesDelete';
 	public const OPTION_KEY_DELETE_AFTER = 'complete_delete_message_start_date';
-	public const MODE_AUTO = self::DELETE_NONE;
-	public const MODE_SOFT = self::DELETE_SOFT;
-	public const MODE_HARD = self::DELETE_HARD;
-	public const MODE_COMPLETE = self::DELETE_COMPLETE;
-
-	private Message $message;
-	private array $messageForEvent;
+	private MessageCollection $messages;
+	private array $messagesForEvent = [];
+	private array $messagesDeletionModes = [];
 	private bool $byEvent = false;
 	private Chat $chat;
-	private ?array $chatLastMessage = null;
-	private ?int $chatPrevMessageId = null;
-	private int $mode = self::MODE_AUTO;
+	private bool $isModeSpecified = false;
 	private bool $needUpdateRecent = false;
 	private array $counters;
 	private array $lastMessageViewers;
-	private int $previousMessageId;
+	private bool $isPermissionFilled = false;
+	private \WeakMap $deletionTypeMap;
+	private \WeakMap $sortedMessagesByMode;
 
-	public function __construct(Message $message)
+	public function __construct(MessageCollection $messages)
 	{
-		$this->setMessage($message);
+		$this->setMessages($messages);
+		$this->initializeDefaultValues();
 	}
 
-	public function setMessage(Message $message): self
+	protected function initializeDefaultValues(): self
 	{
-		$this->message = $message;
-		Chat::cleanCache($this->message->getChatId() ?? 0);
-		$this->chat = Chat\ChatFactory::getInstance()->getChatById($this->message->getChatId() ?? 0);
+		$this->deletionTypeMap = new \WeakMap();
+		foreach (MessageType::cases() as $type)
+		{
+			$this->deletionTypeMap[$type] = DeletionMode::None;
+		}
+
+		$this->sortedMessagesByMode = new \WeakMap();
+		foreach (DeletionMode::cases() as $case)
+		{
+			$this->sortedMessagesByMode[$case] = [];
+		}
+
+		return $this;
+	}
+
+	public static function getInstanceByMessage(Message $message): self
+	{
+		$collection = new MessageCollection();
+		$collection->add($message);
+
+		return (new self($collection));
+	}
+
+	protected function setMessages(MessageCollection $messages): self
+	{
+		$this->messages = $messages;
+		$chatId = $this->messages->getCommonChatId() ?? 0;
+		Chat::cleanCache($chatId);
+		$this->chat = Chat::getInstance($chatId);
 
 		return $this;
 	}
 
 	/**
-	 * @param int $mode MODE_AUTO|MODE_SOFT|MODE_HARD|MODE_COMPLETE
+	 * @param ?DeletionMode $mode
 	 * @return $this
 	 */
-	public function setMode(int $mode): self
+	public function setMode(?DeletionMode $mode = null): self
 	{
-		if (in_array($mode, [self::MODE_AUTO, self::MODE_SOFT, self::MODE_HARD, self::MODE_COMPLETE], true))
+		if (!isset($mode) || ($mode === DeletionMode::None))
 		{
-			$this->mode = $mode;
+			$this->isModeSpecified = false;
+			return $this;
 		}
 
+		$this->isModeSpecified = true;
+		$this->setDeletionMode(MessageType::OwnMessageRead, $mode)
+			->setDeletionMode(MessageType::OwnMessageUnread, $mode)
+			->setDeletionMode(MessageType::OtherMessage, $mode)
+		;
+
 		return $this;
+	}
+
+	public function canDelete(int $messageId): DeletionMode
+	{
+		if (!isset($this->messages[$messageId]))
+		{
+			return DeletionMode::None;
+		}
+
+		if (!$this->isModeSpecified && !$this->isPermissionFilled)
+		{
+			$this->fillPermissions();
+		}
+
+		$messageType = $this->defineMessageType($this->messages[$messageId]);
+		return $this->getDeletionMode($messageType);
 	}
 
 	public function setByEvent(bool $byEvent): self
@@ -110,225 +137,301 @@ class DeleteService
 	 */
 	public function delete(): Result
 	{
-		if (!$this->message->getId() || $this->chat instanceof Chat\NullChat)
+		if ($this->chat instanceof Chat\NullChat)
 		{
 			return new Result();
 		}
 
-		$message = $this->getMessageForEvent();
-		if (!$this->mode)
+		if (!$this->isModeSpecified)
 		{
-			$this->mode = $this->canDelete();
-		}
-
-		$files = $this->message->getFiles();
-
-		$messageType = (new MessageContent($this->message))->getComponentName();
-
-		switch ($this->mode)
-		{
-			case self::DELETE_SOFT:
-				$result = $this->deleteSoft();
-				\Bitrix\Im\Bot::onMessageDelete($this->message->getId(), $message);
-				$this->fireEventAfterMessageDelete($message);
-				break;
-			case self::DELETE_HARD:
-				$this->getChatPreviousMessages();
-				\Bitrix\Im\Bot::onMessageDelete($this->message->getId(), $message);
-				$result = $this->deleteHard();
-				$this->fireEventAfterMessageDelete($message, true);
-				break;
-			case self::DELETE_COMPLETE:
-				$this->getChatPreviousMessages();
-				\Bitrix\Im\Bot::onMessageDelete($this->message->getId(), $message);
-				$result = $this->deleteHard(true);
-				$this->fireEventAfterMessageDelete($message, true);
-				break;
-			default:
+			if (!$this->chat->checkAccess($this->getContext()->getUserId())->isSuccess())
+			{
 				return (new Result())->addError(new Message\MessageError(Message\MessageError::ACCESS_DENIED));
+			}
+
+			$this->fillPermissions();
 		}
+
+		$chatLastMessageId = $this->chat->getLastMessageId();
+		$this->messages->fillFiles();
+		$this->assignToGroups();
+		$this->fillMessagesForEvent();
+
+		foreach (DeletionMode::cases() as $deletionMode)
+		{
+			Message\Delete\Strategy\DeletionStrategy::getInstance(
+				$this->getMessageCollectionByMode($deletionMode),
+				$deletionMode
+			)
+				->setContext($this->getContext())
+				->delete()
+			;
+		}
+
+		$this->needUpdateRecent = $this->chat->getLastMessageId() !== $chatLastMessageId;
+		$this->onAfterDelete();
+
+		return new Result();
+	}
+
+	private function onAfterDelete(): void
+	{
+		$ids = $this->sortedMessagesByMode[DeletionMode::None] ?? [];
+		$this->clearMessagesByIds($ids);
+
+		$this->fireEventAfterMessagesDelete();
+
+		$this->sendPullMessage();
 
 		if (Option::get('im', 'message_history_index'))
 		{
-			MessageIndexTable::delete($this->message->getId());
+			MessageIndexTable::deleteByFilter(['=MESSAGE_ID' => $this->messages->getPrimaryIds()]);
 		}
 
-		(new UrlService())->deleteUrlsByMessage($this->message);
-		foreach ($files as $file)
+		(new UrlService())->deleteUrlsByMessages($this->messages);
+
+		$this->deleteAnchors();
+
+		$this->sendAnalyticsData();
+	}
+
+	private function clearMessagesByIds(array $ids): void
+	{
+		$this->messages->unsetByKeys($ids);
+		foreach ($ids as $id)
 		{
-			$file->getDiskFile()->delete(SystemUser::SYSTEM_USER_ID);
+			if (isset($this->messagesForEvent[$id]))
+			{
+				unset($this->messagesForEvent[$id]);
+			}
+		}
+	}
+
+	private function isCompleteDelete(int $messageId): bool
+	{
+		/**
+		 * @var DeletionMode $mode
+		 */
+		$mode = $this->messagesDeletionModes[$messageId];
+
+		return $mode === DeletionMode::Complete;
 		}
 
-		if ($result->isSuccess())
-		{
-			(new MessageAnalytics($this->message))->addDeleteMessage($messageType);
-		}
-
-		return $result;
+	/**
+	 * Set deletion mode for one of the message type
+	 * @param MessageType $messageType
+	 * @param DeletionMode $mode
+	 * @return $this
+	 */
+	protected function setDeletionMode(MessageType $messageType, DeletionMode $mode): self
+	{
+		$this->deletionTypeMap[$messageType] = $mode;
+		return $this;
 	}
 
 	/**
-	 * The method returns the available message deletion level for a specific user:
-	 * 0 - none
-	 * 1 - soft delete with text replacement
-	 * 2 - permanent removal of the message created after installing this update
-	 * 3 - complete deletion of any message
-	 *
-	 * @return int
+	 * Get deletion mode for one of the message type
+	 * @param MessageType $messageType
+	 * @return DeletionMode
 	 */
-	public function canDelete(): int
+	protected function getDeletionMode(MessageType $messageType): DeletionMode
 	{
+		return $this->deletionTypeMap[$messageType] ?? DeletionMode::None;
+	}
+
+	protected function assignToGroups(): void
+	{
+		foreach ($this->messages as $message)
+		{
+			if ($message->getId() === null)
+			{
+				continue;
+			}
+
+			$messageType = $this->defineMessageType($message);
+			$mode = $this->getDeletionMode($messageType);
+			$this->sortedMessagesByMode[$mode][] = $message->getId();
+			$this->messagesDeletionModes[$message->getId()] = $mode;
+		}
+	}
+
+	/**
+	 * @param DeletionMode $mode
+	 * @return MessageCollection
+	 */
+	protected function getMessageCollectionByMode(DeletionMode $mode = DeletionMode::None): MessageCollection
+	{
+		$ids = $this->sortedMessagesByMode[$mode] ?? [];
+		$collection = $this->messages->filter(
+			fn (Message $message) => in_array($message->getId(), $ids, true)
+		);
+
+		return $collection;
+	}
+
+	protected function defineMessageType(Message $message): MessageType
+	{
+		if ($this->isOwnMessage($message))
+		{
+			return $message->isViewedByOthers() ? MessageType::OwnMessageRead : MessageType::OwnMessageUnread;
+		}
+
+		return MessageType::OtherMessage;
+	}
+
+	private function fillPermissions(): void
+	{
+		if ($this->isPermissionFilled)
+		{
+			return;
+		}
+		$this->isPermissionFilled = true;
+
+		// case of deletion, if user is SuperAdmin
 		if ($this->getContext()->getUser()->isSuperAdmin())
 		{
-			return self::DELETE_COMPLETE;
+			$this->setDeletionMode(MessageType::OwnMessageUnread, DeletionMode::Complete)
+				->setDeletionMode(MessageType::OwnMessageRead, DeletionMode::Complete)
+				->setDeletionMode(MessageType::OtherMessage, DeletionMode::Complete)
+			;
+
+			return;
 		}
 
-		if (!$this->chat->checkAccess($this->getContext()->getUserId())->isSuccess())
-		{
-			return self::DELETE_NONE;
-		}
-
+		// case of deletion in OpenLineChat
 		if ($this->chat instanceof Chat\OpenLineChat && Loader::includeModule('imopenlines'))
 		{
-			$resultForOpenLine = $this->checkForOpenLine();
+			$this->fillPermissionsForOpenLine();
 
-			if ($resultForOpenLine !== null)
-			{
-				return $resultForOpenLine;
-			}
+			return;
 		}
 
-		if (!$this->isOwnMessage())
+		// case of deletion other users messages
+		if ($this->chat->canDo(Action::DeleteOthersMessage))
 		{
-			if ($this->chat->canDo(Action::DeleteOthersMessage))
-			{
-				return $this->chat instanceof Chat\CommentChat ? self::DELETE_SOFT : self::DELETE_COMPLETE;
-			}
-
-			return self::DELETE_NONE;
+			$deletionModeOtherMessage = $this->chat instanceof Chat\CommentChat ? DeletionMode::Soft : DeletionMode::Complete;
+			$this->setDeletionMode(MessageType::OtherMessage, $deletionModeOtherMessage);
 		}
 
+		// case of deletion own messages(read/unread) in ChannelChat and GeneralChat
 		if ($this->chat instanceof Chat\ChannelChat || $this->chat instanceof Chat\GeneralChat)
 		{
 			if ($this->chat->canDo(Action::Send))
 			{
-				return self::DELETE_COMPLETE;
+				$this->setDeletionMode(MessageType::OwnMessageUnread, DeletionMode::Complete)
+					->setDeletionMode(MessageType::OwnMessageRead, DeletionMode::Complete)
+				;
 			}
 
-			return self::DELETE_NONE;
+			return;
 		}
 
-		if ($this->chat instanceof Chat\CommentChat)
-		{
-			return self::DELETE_SOFT;
-		}
-
-		if (!$this->message->isViewedByOthers())
-		{
-			return $this->chat instanceof Chat\OpenLineChat ? self::DELETE_SOFT : self::DELETE_HARD;
-		}
-
-		return self::DELETE_SOFT;
+		// if viewed by others -> "complete"(CommentChat - "soft")
+		// if not viewed by others -> "soft"
+		$deletionModeSelfMessage = $this->chat instanceof Chat\CommentChat ? DeletionMode::Soft : DeletionMode::Complete;
+		$this->setDeletionMode(MessageType::OwnMessageRead, DeletionMode::Soft)
+			->setDeletionMode(MessageType::OwnMessageUnread, $deletionModeSelfMessage)
+		;
 	}
 
-	protected function checkForOpenLine(): ?int
+	protected function fillPermissionsForOpenLine(): void
 	{
+		if (!($this->chat instanceof Chat\OpenLineChat))
+		{
+			return;
+		}
+
 		if ($this->getContext()->getUser()->isBot())
 		{
-			return self::DELETE_COMPLETE;
+			$this->setDeletionMode(MessageType::OwnMessageUnread, DeletionMode::Complete)
+				->setDeletionMode(MessageType::OwnMessageRead, DeletionMode::Complete)
+				->setDeletionMode(MessageType::OtherMessage, DeletionMode::Complete)
+			;
+
+			return;
 		}
 
-		if ($this->isOwnMessage() && !$this->chat->canDeleteOwnMessage())
+		if ($this->chat->canDeleteOwnMessage())
 		{
-			return self::DELETE_NONE;
+			$this->setDeletionMode(MessageType::OwnMessageUnread, DeletionMode::Soft)
+				->setDeletionMode(MessageType::OwnMessageRead, DeletionMode::Soft)
+			;
 		}
 
-		if (!$this->isOwnMessage() && !$this->chat->canDeleteMessage())
+		if (
+			$this->chat->canDeleteMessage()
+			&& $this->chat->canDo(Action::DeleteOthersMessage)
+		)
 		{
-			return self::DELETE_NONE;
+			$this->setDeletionMode(MessageType::OtherMessage, DeletionMode::Soft);
 		}
-
-		return null;
 	}
 
-	protected function isOwnMessage(): bool
+	protected function isOwnMessage(Message $message): bool
 	{
 		return
-			$this->getContext()->getUserId() === $this->message->getAuthorId()
-			&& !$this->message->isSystem()
-			;
+			$this->getContext()->getUserId() === $message->getAuthorId()
+			&& !$message->isSystem()
+		;
 	}
 
-	private function deleteSoft(): Result
+	private function getMessageOut(Message $message): string
 	{
-		$this->message->setMessage(Loc::getMessage('IM_MESSAGE_DELETED'));
-		$this->message->setMessageOut($this->getMessageOut());
-		$this->message->resetParams([
-			'IS_DELETED' => 'Y'
-		]);
-		$this->message->save();
-		Sync\Logger::getInstance()->add(
-			new Sync\Event(Sync\Event::DELETE_EVENT, Sync\Event::UPDATED_MESSAGE_ENTITY, $this->message->getId()),
-			fn () => $this->chat->getRelations()->getUserIds(),
-			$this->chat->getType()
-		);
+		$date = $message->getDateCreate()?->toString();
 
-		$this->sendPullMessage();
-
-		return new Result();
+		return Loc::getMessage('IM_MESSAGE_DELETED_OUT', ['#DATE#' => $date]) ?? '';
 	}
 
-	private function getMessageOut(): string
+	protected function sendPullOpenLineMessages(): Result
 	{
-		$date = $this->message->getDateCreate()->toString();
-
-		return Loc::getMessage('IM_MESSAGE_DELETED_OUT', ['#DATE#' => $date]);
-	}
-
-	private function deleteHard($removeAny = false): Result
-	{
-		if (!$removeAny)
+		if (!($this->chat instanceof Chat\OpenLineChat || $this->chat instanceof Chat\OpenLineLiveChat))
 		{
-			$deleteAfter = \COption::GetOptionInt('im', self::OPTION_KEY_DELETE_AFTER);
-			if ($deleteAfter > $this->message->getDateCreate()->getTimestamp())
+			return new Result;
+		}
+
+		$relations = $this->chat->getRelations()->getUserIds();
+
+		foreach ($this->messages as $message)
+		{
+			$pullMessage = $this->getFormatOpenLinePullMessage($message);
+			\Bitrix\Pull\Event::add($relations, $pullMessage);
+
+			$pullMessage['extra']['is_shared_event'] = true;
+			if ($this->chat->needToSendPublicPull())
 			{
-				return (new Result())->addError(new Message\MessageError(Message\MessageError::MESSAGE_TOO_OLD_FOR_DELETION));
+				\CPullWatch::AddToStack('IM_PUBLIC_' . $this->chat->getChatId(), $pullMessage);
 			}
 		}
 
-		$this->deleteLinks();
-		$this->recountChat();
-		$this->sendPullMessage(true);
-		$this->message->delete();
-		Sync\Logger::getInstance()->add(
-			new Sync\Event(Sync\Event::COMPLETE_DELETE_EVENT, Sync\Event::MESSAGE_ENTITY, $this->message->getId()),
-			fn () => $this->chat->getRelations()->getUserIds(),
-			$this->chat->getType()
-		);
-
-		return new Result();
+		return new Result;
 	}
 
-	private function sendPullMessage(bool $completeDelete = false): Result
+	private function sendPullMessage(): Result
 	{
-		$pullMessage = $this->getFormatPullMessage($completeDelete);
+		if ($this->chat instanceof Chat\OpenLineChat || $this->chat instanceof Chat\OpenLineLiveChat)
+		{
+			return $this->sendPullOpenLineMessages();
+		}
+
+		$pullMessage = $this->getFormatPullMessage();
 
 		if ($this->chat instanceof Chat\PrivateChat)
 		{
 			$userId = $this->chat->getAuthorId();
 			$companionUserId = $this->chat->getCompanion($userId)->getId();
-			$this->sendPullMessagePrivate($userId, $companionUserId, $pullMessage, $completeDelete);
-			$this->sendPullMessagePrivate($companionUserId, $userId, $pullMessage, $completeDelete);
+			$this->sendPullMessagePrivate($userId, $companionUserId, $pullMessage);
+			$this->sendPullMessagePrivate($companionUserId, $userId, $pullMessage);
 		}
 		else
 		{
-			$groupedPullMessage = $this->groupPullByCounter($pullMessage, $completeDelete);
+			$groupedPullMessage = $this->groupPullByCounter($pullMessage);
 			foreach ($groupedPullMessage as $pullForGroup)
 			{
 				Event::add($pullForGroup['users'], $pullForGroup['event']);
 			}
 
 			$pullMessage['extra']['is_shared_event'] = true;
+			$pullMessage['params']['recentConfig']['sections'] = $this->chat->getRecentSectionsForGuest();
 
 			if ($this->chat->getType() === Chat::IM_TYPE_COMMENT)
 			{
@@ -348,7 +451,7 @@ class DeleteService
 		return new Result;
 	}
 
-	private function sendPullMessagePrivate(int $fromUser, int $toUser, array $pullMessage, bool $completeDelete): void
+	private function sendPullMessagePrivate(int $fromUser, int $toUser, array $pullMessage): void
 	{
 		$isMuted = false;
 		$relation = $this->chat->getRelations()->getByUserId($toUser, $this->chat->getChatId());
@@ -362,38 +465,76 @@ class DeleteService
 		$pullMessage['params']['counter'] = $this->getCounter($toUser);
 		$pullMessage['params']['unread'] = Recent::isUnread($toUser, $this->chat->getType(), $fromUser);
 		$pullMessage['params']['muted'] = $isMuted;
-		if ($completeDelete && $this->needUpdateRecent)
+		if ($this->needUpdateRecent)
 		{
 			$pullMessage['params']['lastMessageViews'] = $this->getLastViewers($toUser);
 		}
 		Event::add($toUser, $pullMessage);
 	}
 
-	public function getFormatPullMessage(bool $completeDelete): array
+	private function getFormatMessageForPull(Message $message, bool $completeDelete): array
+	{
+		return [
+			'id' => (int)$message->getId(),
+			'text' => Loc::getMessage('IM_MESSAGE_DELETED'),
+			'senderId' => $message->getAuthorId(),
+			'params' => ['IS_DELETED' => 'Y', 'URL_ID' => [], 'FILE_ID' => [], 'KEYBOARD' => 'N', 'ATTACH' => []],
+			'completelyDeleted' => $completeDelete,
+		];
+	}
+
+	private function getFormatOpenLinePullMessage(Message $message): array
 	{
 		$params = [
-			'id' => (int)$this->message->getId(),
-			'type' => $this->chat->getType() === Chat::IM_TYPE_PRIVATE ? 'private' : 'chat',
+			'id' => (int)$message->getId(),
+			'type' => 'chat',
 			'text' => Loc::getMessage('IM_MESSAGE_DELETED'),
-			'senderId' => $this->message->getAuthorId(),
+			'senderId' => $message->getAuthorId(),
 			'params' => ['IS_DELETED' => 'Y', 'URL_ID' => [], 'FILE_ID' => [], 'KEYBOARD' => 'N', 'ATTACH' => []],
 			'chatId' => $this->chat->getChatId(),
+			'dialogId' => $this->chat->getDialogId(),
+		];
+		$isComplete = $this->isCompleteDelete((int)$message->getId());
+
+		return [
+			'module_id' => 'im',
+			'command' => $isComplete ? 'messageDeleteComplete' : 'messageDelete',
+			'params' => $params,
+			'push' => $isComplete ? ['badge' => 'Y'] : [],
+			'extra' => Common::getPullExtra()
+		];
+	}
+
+	public function getFormatPullMessage(): array
+	{
+		$params = [
+			'messages' => [],
+			'chatId' => $this->chat->getChatId(),
+			'type' => $this->chat->getType() === Chat::IM_TYPE_PRIVATE ? 'private' : 'chat',
 			'unread' => false,
 			'muted' => false,
 			'counter' => 0,
 			'counterType' => $this->chat->getCounterType()->value,
+			'recentConfig' => $this->chat->getRecentConfig()->toPullFormat(),
 		];
+
+		foreach ($this->messages as $message)
+		{
+			$isCompleteDelete = $this->isCompleteDelete($message->getId());
+			$params['messages'][] = $this->getFormatMessageForPull($message, $isCompleteDelete);
+		}
 
 		if (!$this->chat instanceof Chat\PrivateChat)
 		{
 			$params['dialogId'] = $this->chat->getDialogId();
 		}
 
-		if ($completeDelete && $this->needUpdateRecent)
+		$chatLastMessageId = $this->chat->getLastMessageId();
+		if ($this->needUpdateRecent && isset($chatLastMessageId))
 		{
-			if ($this->chatLastMessage['ID'] !== 0)
+			if ($chatLastMessageId !== 0)
 			{
-				$newLastMessage = new Message($this->chatLastMessage['ID']);
+				$newLastMessage = new Message($chatLastMessageId);
 				if ($newLastMessage->getId())
 				{
 					$params['newLastMessage'] = $this->formatNewLastMessage($newLastMessage);
@@ -407,19 +548,21 @@ class DeleteService
 
 		return [
 			'module_id' => 'im',
-			'command' => $completeDelete ? 'messageDeleteComplete' : 'messageDelete',
+			'command' => 'messageDeleteV2',
 			'params' => $params,
-			'push' => $completeDelete ? ['badge' => 'Y'] : [],
-			'extra' => Common::getPullExtra()
+			'push' => ['badge' => 'Y'],
+			'extra' => Common::getPullExtra(),
 		];
 	}
 
-	private function groupPullByCounter(array $pullMessage, bool $completeDelete): array
+	private function groupPullByCounter(array $pullMessage): array
 	{
 		$events = [];
 		/** @var Relation $relation */
 		$relations = $this->chat->getRelations();
 		$unreadList = Recent::getUnread($this->chat->getType(), $this->chat->getDialogId());
+		$messageId = $this->messages->getAny()?->getId() ?? 0;
+
 		foreach ($relations as $relation)
 		{
 			$user = $relation->getUser();
@@ -439,7 +582,7 @@ class DeleteService
 			$events[$userId] = $pullMessage;
 
 			$count = 0;
-			if ($this->needUpdateRecent && $completeDelete)
+			if ($this->needUpdateRecent)
 			{
 				$lastMessageViews = $this->getLastViewers($userId);
 				$events[$userId]['params']['lastMessageViews'] = $lastMessageViews;
@@ -453,7 +596,7 @@ class DeleteService
 			$events[$userId]['groupId'] =
 				'im_chat_'
 				. $this->chat->getChatId()
-				. '_'. $this->message->getMessageId()
+				. '_'. $messageId
 				. '_'. $events[$userId]['params']['counter']
 				. '_'. $count
 				. '_'. $unreadGroupFlag
@@ -464,174 +607,38 @@ class DeleteService
 		return Message\Send\PushService::getEventByCounterGroup($events);
 	}
 
-	private function deleteLinks()
+	private function fireEventAfterMessagesDelete(): Result
 	{
-		$connection = Application::getConnection();
-
-		// delete chats with PARENT_MID
-		/*$childChatResult = Chat\ChatFactory::getInstance()->findChat(['PARENT_MID' => $this->message->getId()]);
-		if ($childChatResult->hasResult())
+		$result = new Result;
+		foreach ($this->messages as $message)
 		{
-			$childChat = Chat\ChatFactory::getInstance()->getChat($childChatResult->getResult());
-			$childChat->deleteChat();
-		}*/
-		if ($this->chat instanceof Chat\ChannelChat)
-		{
-			$result = Chat\CommentChat::get($this->message, false);
-			if ($result->isSuccess())
-			{
-				/** @var Chat\CommentChat $chat */
-				$chat = $result->getResult();
-				Message\CounterService::deleteByChatIdForAll($chat->getId());
-			}
-		}
-
-		(new \Bitrix\Im\V2\Link\Favorite\FavoriteService())->unmarkMessageAsFavoriteForAll($this->message);
-		(new \Bitrix\Im\V2\Message\ReadService())->deleteByMessage(
-			$this->message,
-			$this->chat->getRelations()->getUserIds()
-		);
-		$this->message->unpin();
-
-		if (Loader::includeModule('tasks'))
-		{
-			$taskItem = TaskItem::getByMessageId($this->message->getMessageId());
-			if ($taskItem !== null)
-			{
-				$taskItem->setMessageId(0);
-				(new TaskService())->updateTaskLink($taskItem);
-			}
-		}
-
-		if (Loader::includeModule('calendar'))
-		{
-			$calendarItem = CalendarItem::getByMessageId($this->message->getMessageId());
-			if ($calendarItem !== null)
-			{
-				$calendarItem->setMessageId(0);
-				(new CalendarService())->updateCalendarLink($calendarItem);
-			}
-		}
-
-		$this->message->getParams()->delete();
-
-		// delete unused rows in db
-		$tablesToDeleteRow = [
-			'b_im_message_uuid' => 'im',
-			'b_im_message_favorite' => 'im',
-			'b_im_message_disappearing' => 'im',
-			'b_im_message_index' => 'im',
-			'b_im_link_reminder' => 'im',
-			'b_imconnectors_delivery_mark' => 'imconnector',
-		];
-
-		foreach ($tablesToDeleteRow as $table => $module)
-		{
-			if ($module !== 'im' && !Loader::includeModule($module))
+			$id = $message->getMessageId();
+			if (!isset($id, $this->messagesForEvent[$id]))
 			{
 				continue;
 			}
-			$connection->query("DELETE FROM " . $table . " WHERE MESSAGE_ID = " . $this->message->getId());
-		}
 
-		$resultGetComment = Chat\CommentChat::get($this->message, false);
-		if ($resultGetComment->isSuccess())
-		{
-			$resultGetComment->getResult()?->deleteChat();
-		}
-	}
+			$messageForEvent = $this->messagesForEvent[$id];
 
-	private function fireEventAfterMessageDelete(array $messageFields, bool $completeDelete = false): Result
-	{
-		$result = new Result;
-		$deleteFlags = [
-			'ID' => $this->message->getId(),
-			'USER_ID' => $this->getContext()->getUserId(),
-			'COMPLETE_DELETE' => $completeDelete,
-			'BY_EVENT' => $this->byEvent,
-		];
+			\Bitrix\Im\Bot::onMessageDelete(
+				$id,
+				$messageForEvent
+			);
 
-		foreach(GetModuleEvents('im', self::EVENT_AFTER_MESSAGE_DELETE, true) as $event)
-		{
-			ExecuteModuleEventEx($event, [$this->message->getId(), $messageFields, $deleteFlags]);
+			$deleteFlags = [
+				'ID' => $id,
+				'USER_ID' => $this->getContext()->getUserId(),
+				'COMPLETE_DELETE' => $this->isCompleteDelete($id),
+				'BY_EVENT' => $this->byEvent,
+			];
+
+			foreach(GetModuleEvents('im', self::EVENT_AFTER_MESSAGE_DELETE, true) as $event)
+			{
+				ExecuteModuleEventEx($event, [$id, $messageForEvent, $deleteFlags]);
+			}
 		}
 
 		return $result;
-	}
-
-	private function recountChat(): void
-	{
-		$this->updateRecent();
-		if (!is_null($this->chatLastMessage))
-		{
-			$this->chat->setLastMessageId((int)($this->chatLastMessage['ID'] ?? 0));
-		}
-
-		$this->chat->setPrevMessageId($this->chatPrevMessageId ?? 0);
-
-		$this->chat->setMessageCount($this->chat->getMessageCount() - 1);
-		$this->chat->save();
-		$this->updateRelation();
-	}
-
-	private function updateRelation(): void
-	{
-		if ($this->needUpdateRecent)
-		{
-			$newLastId = $this->chatLastMessage['ID'] ?? 0;
-		}
-		else
-		{
-			$newLastId = $this->getPreviousMessageId();
-		}
-		Application::getConnection()->query("
-			UPDATE b_im_relation 
-			SET LAST_ID = {$newLastId} 
-			WHERE CHAT_ID = {$this->message->getChatId()} AND LAST_ID = {$this->message->getMessageId()}
-			");
-	}
-
-	private function updateRecent(): void
-	{
-		if ($this->chatLastMessage && (int)$this->chatLastMessage['ID'] !== $this->message->getId())
-		{
-			$update = [
-				'DATE_MESSAGE' => $this->chatLastMessage['DATE_CREATE'],
-				'DATE_LAST_ACTIVITY' => $this->chatLastMessage['DATE_CREATE'],
-				'DATE_UPDATE' => $this->chatLastMessage['DATE_CREATE'],
-				'ITEM_MID' => $this->chatLastMessage['ID'] ?? 0,
-			];
-
-			if ($this->chat instanceof Chat\PrivateChat || $this->chat->getType() === Chat::IM_TYPE_PRIVATE)
-			{
-				$userIds = array_values($this->chat->getRelations()->getUserIds());
-				$userId = $userIds[0];
-				$opponentId = $this->chat->getCompanion($userId)->getId();
-				RecentTable::updateByFilter(
-					[
-						'=USER_ID' => $userId,
-						'=ITEM_TYPE' => Chat::IM_TYPE_PRIVATE,
-						'=ITEM_ID' => $opponentId
-					],
-					$update
-				);
-				RecentTable::updateByFilter(
-					[
-						'=USER_ID' => $opponentId,
-						'=ITEM_TYPE' => Chat::IM_TYPE_PRIVATE,
-						'=ITEM_ID' => $userId
-					],
-					$update
-				);
-			}
-			else
-			{
-				RecentTable::updateByFilter(
-					['=ITEM_TYPE' => $this->chat->getType(), '=ITEM_ID' => $this->chat->getId()],
-					$update
-				);
-			}
-		}
 	}
 
 	private function getCounter(int $userId): int
@@ -662,36 +669,43 @@ class DeleteService
 			return $result;
 		}
 
-		$result['file'] = ['type' => $file->getContentType(), 'name' => $file->getDiskFile()->getName()];
+		$result['file'] = ['type' => $file->getContentType(), 'name' => $file->getDiskFile()?->getName()];
 
 		return $result;
 	}
 
-	public function getMessageForEvent(): array
+	private function fillMessagesForEvent(): void
 	{
-		if (isset($this->messageForEvent))
+		foreach ($this->messages as $message)
 		{
-			return $this->messageForEvent;
+			$id = $message->getId();
+			if (isset($id))
+			{
+				$this->messagesForEvent[$id] = $this->getMessageForEvent($message);
+			}
 		}
+	}
 
-		$message = [
-			'ID' => $this->message->getId(),
-			'CHAT_ID' => $this->message->getChatId(),
-			'AUTHOR_ID' => $this->message->getAuthorId(),
-			'MESSAGE' => $this->getMessageOut(),
-			'MESSAGE_OUT' => $this->message->getMessageOut(),
-			'DATE_CREATE' => $this->message->getDateCreate()->toUserTime()->getTimestamp(),
-			'EMAIL_TEMPLATE' => $this->message->getEmailTemplate(),
-			'NOTIFY_TYPE' => $this->message->getNotifyType(),
-			'NOTIFY_MODULE' => $this->message->getNotifyModule(),
-			'NOTIFY_EVENT' => $this->message->getNotifyEvent(),
-			'NOTIFY_TAG' => $this->message->getNotifyTag(),
-			'NOTIFY_SUB_TAG' => $this->message->getNotifySubTag(),
-			'NOTIFY_TITLE' => $this->message->getNotifyTitle(),
-			'NOTIFY_BUTTONS' => $this->message->getNotifyButtons(),
-			'NOTIFY_READ' => $this->message->isNotifyRead(),
-			'IMPORT_ID' => $this->message->getImportId(),
-			'PARAMS' => $this->message->getParams()->toRestFormat(),
+	private function getMessageForEvent(Message $message): array
+	{
+		$messageForEvent = [
+			'ID' => $message->getId(),
+			'CHAT_ID' => $message->getChatId(),
+			'AUTHOR_ID' => $message->getAuthorId(),
+			'MESSAGE' => $this->getMessageOut($message),
+			'MESSAGE_OUT' => $message->getMessageOut(),
+			'DATE_CREATE' => $message->getDateCreate()?->toUserTime()->getTimestamp(),
+			'EMAIL_TEMPLATE' => $message->getEmailTemplate(),
+			'NOTIFY_TYPE' => $message->getNotifyType(),
+			'NOTIFY_MODULE' => $message->getNotifyModule(),
+			'NOTIFY_EVENT' => $message->getNotifyEvent(),
+			'NOTIFY_TAG' => $message->getNotifyTag(),
+			'NOTIFY_SUB_TAG' => $message->getNotifySubTag(),
+			'NOTIFY_TITLE' => $message->getNotifyTitle(),
+			'NOTIFY_BUTTONS' => $message->getNotifyButtons(),
+			'NOTIFY_READ' => $message->isNotifyRead(),
+			'IMPORT_ID' => $message->getImportId(),
+			'PARAMS' => $message->getParams()->toRestFormat(),
 			'MESSAGE_TYPE' => $this->chat->getType(),
 			'CHAT_AUTHOR_ID'=> $this->chat->getAuthorId(),
 			'CHAT_ENTITY_TYPE' => $this->chat->getEntityType(),
@@ -706,18 +720,16 @@ class DeleteService
 
 		if ($this->chat instanceof Chat\PrivateChat)
 		{
-			$authorId = $this->message->getAuthorId();
-			$message['FROM_USER_ID'] = $authorId;
-			$message['TO_USER_ID'] = $this->chat->getCompanion($authorId)->getId() ?: $authorId;
+			$authorId = $message->getAuthorId();
+			$messageForEvent['FROM_USER_ID'] = $authorId;
+			$messageForEvent['TO_USER_ID'] = $this->chat->getCompanion($authorId)->getId() ?: $authorId;
 		}
 		else
 		{
-			$message['BOT_IN_CHAT'] = $this->chat->getBotInChat();
+			$messageForEvent['BOT_IN_CHAT'] = $this->chat->getBotInChat();
 		}
 
-		$this->messageForEvent = $message;
-
-		return $this->messageForEvent;
+		return $messageForEvent;
 	}
 
 	private function getLastViewers(int $userId): array
@@ -732,73 +744,37 @@ class DeleteService
 		return Common::toJson($this->lastMessageViewers['FOR_NOT_VIEWERS'] ?? []);
 	}
 
-	private function getPreviousMessageId(): int
-	{
-		if (isset($this->previousMessageId))
-		{
-			return $this->previousMessageId;
-		}
-
-		$result = MessageTable::query()
-			->setSelect(['ID'])
-			->where('CHAT_ID', $this->chat->getChatId())
-			->where('ID', '<', $this->message->getMessageId())
-			->setOrder(['DATE_CREATE' => 'DESC', 'ID' => 'DESC'])
-			->setLimit(1)
-			->fetch()
-		;
-		$this->previousMessageId = ($result && isset($result['ID'])) ? (int)$result['ID'] : 0;
-
-		return $this->previousMessageId;
-	}
-
-	private function getChatPreviousMessages(): ?array
-	{
-		$lastChatMessageId = $this->chat->getLastMessageId();
-		$prevChatMessageId = $this->chat->getPrevMessageId();
-
-		if (
-			!in_array(
-				$this->message->getId(),
-				[
-					$lastChatMessageId,
-					$prevChatMessageId,
-					0
-				],
-				true
-			)
-		)
-		{
-			return $this->message->toArray();
-		}
-
-		$lastMessages = MessageTable::query()
-			->setSelect(['ID', 'DATE_CREATE', 'MESSAGE'])
-			->addFilter('CHAT_ID', $this->chat->getChatId())
-			->setOrder(['DATE_CREATE' => 'DESC', 'ID' => 'DESC'])
-			->setLimit(3)
-			->fetchAll();
-
-		$this->chatPrevMessageId = (int)($lastMessages[2]['ID'] ?? 0);
-		$nullMessage = ['ID' => 0, 'DATE_CREATE' => (new DateTime()), 'MESSAGE' => ''];
-		if ($this->message->getId() === $lastChatMessageId)
-		{
-			$this->needUpdateRecent = true;
-			$this->chatLastMessage = $lastMessages[1] ?? $nullMessage;
-		}
-		else
-		{
-			$this->chatLastMessage = $lastMessages[0] ?? $nullMessage;
-		}
-
-		return $this->chatLastMessage;
-	}
-
 	public function setContext(?Context $context): self
 	{
-		$this->message->setContext($context);
+		$this->messages->setContext($context);
 		$this->chat->setContext($context);
 
 		return $this->defaultSetContext($context);
+	}
+
+	private function sendAnalyticsData(): void
+	{
+		foreach ($this->messages as $message)
+		{
+			$messageType = $this->getMessageComponentName($message->getId());
+			(new MessageAnalytics($message))->addDeleteMessage($messageType);
+		}
+	}
+	private function getMessageComponentName(int $id): string
+	{
+		if (!isset($this->messages[$id]))
+		{
+			return '';
+		}
+		$this->messages->fillParams();
+
+		return (new MessageContent($this->messages[$id]))->getComponentName();
+	}
+
+	private function deleteAnchors(): void
+	{
+		$readService = AnchorContainer::getInstance()->getReadService()->setContext($this->getContext());
+
+		$readService->readByMessageIds($this->messages->getIds());
 	}
 }

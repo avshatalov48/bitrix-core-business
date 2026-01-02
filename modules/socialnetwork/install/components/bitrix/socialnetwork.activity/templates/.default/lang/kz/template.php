@@ -1,0 +1,16 @@
+<?php
+$MESS["SONET_ACTIVITY_T_ALL"] = "барлығы";
+$MESS["SONET_ACTIVITY_T_BLOG"] = "блогтар/есептер";
+$MESS["SONET_ACTIVITY_T_CALENDAR"] = "күнтізбелер";
+$MESS["SONET_ACTIVITY_T_FILES"] = "файлдар";
+$MESS["SONET_ACTIVITY_T_FORUM"] = "форумдар/талқылаулар";
+$MESS["SONET_ACTIVITY_T_GROUP_TITLE"] = "#NAME# тобы";
+$MESS["SONET_ACTIVITY_T_NO_UPDATES"] = "Жаңартулар жоқ.";
+$MESS["SONET_ACTIVITY_T_PHOTO"] = "фото";
+$MESS["SONET_ACTIVITY_T_SWITCH1"] = "Орау";
+$MESS["SONET_ACTIVITY_T_SWITCH2"] = "Толығырақ";
+$MESS["SONET_ACTIVITY_T_SYSTEM"] = "жүйелік";
+$MESS["SONET_ACTIVITY_T_SYSTEM_FRIENDS"] = "достар";
+$MESS["SONET_ACTIVITY_T_SYSTEM_GROUPS"] = "топтар";
+$MESS["SONET_ACTIVITY_T_TASKS"] = "міндеттер";
+$MESS["SONET_ACTIVITY_T_USER_TITLE1"] = "Пайдаланушы ";

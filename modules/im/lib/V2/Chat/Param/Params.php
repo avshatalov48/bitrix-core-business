@@ -4,6 +4,7 @@ namespace Bitrix\Im\V2\Chat\Param;
 
 use Bitrix\Im\Model\ChatParamTable;
 use Bitrix\Im\Model\EO_ChatParam;
+use Bitrix\Im\Model\EO_ChatParam_Collection;
 use Bitrix\Im\V2\Registry;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Application;
@@ -22,12 +23,25 @@ class Params extends Registry
 	public const
 		IS_COPILOT = 'IS_COPILOT',
 		COPILOT_ROLES = 'COPILOT_ROLES',
-		COPILOT_MAIN_ROLE = 'COPILOT_MAIN_ROLE'
+		COPILOT_MAIN_ROLE = 'COPILOT_MAIN_ROLE',
+		TEXT_FIELD_ENABLED = 'TEXT_FIELD_ENABLED',
+		BACKGROUND_ID = 'BACKGROUND_ID',
+		CONTAINS_COLLABER = 'CONTAINS_COLLABER',
+		MANAGE_MESSAGES_AUTO_DELETE = 'MANAGE_MESSAGES_AUTO_DELETE',
+		COPILOT_ENGINE_CODE = 'COPILOT_ENGINE_CODE',
+		USER_DELETE_MESSAGE_DISABLED = 'USER_DELETE_MESSAGE_DISABLED'
 	;
+
 	public const CHAT_PARAMS = [
 		self::IS_COPILOT,
 		self::COPILOT_ROLES,
 		self::COPILOT_MAIN_ROLE,
+		self::TEXT_FIELD_ENABLED,
+		self::CONTAINS_COLLABER,
+		self::BACKGROUND_ID,
+		self::MANAGE_MESSAGES_AUTO_DELETE,
+		self::COPILOT_ENGINE_CODE,
+		self::USER_DELETE_MESSAGE_DISABLED,
 	];
 
 	protected int $chatId;
@@ -64,17 +78,13 @@ class Params extends Registry
 			return $eventParam;
 		}
 
-		switch ($paramName)
-		{
-			case (self::IS_COPILOT):
-				return (new Param())->setType(Param::TYPE_BOOL);
-
-			case (self::COPILOT_MAIN_ROLE):
-				return (new Param())->setType(Param::TYPE_STRING);
-
-			default:
-				return (new Param())->setType(Param::TYPE_STRING);
-		}
+		return match ($paramName) {
+			self::CONTAINS_COLLABER,
+			self::TEXT_FIELD_ENABLED,
+			self::IS_COPILOT,
+			self::USER_DELETE_MESSAGE_DISABLED => (new Param())->setType(Param::TYPE_BOOL),
+			default => (new Param())->setType(Param::TYPE_STRING),
+		};
 	}
 
 	protected function createEventParam(string $paramName): ?Param
@@ -275,11 +285,11 @@ class Params extends Registry
 		return $this;
 	}
 
-	protected function save(): Result
+	public function save(): Result
 	{
 		$result = new Result;
 
-//		/** @var EO_MessageParam_Collection $dataEntityCollection */
+		/** @var EO_ChatParam_Collection $dataEntityCollection */
 		$entityCollectionClass = Param::getDataClass()::getCollectionClass();
 		$dataEntityCollection = new $entityCollectionClass;
 
@@ -308,6 +318,10 @@ class Params extends Registry
 				$prepareResult = $item->prepareFields();
 				if ($prepareResult->isSuccess())
 				{
+					if ($prepareResult->getData()['SKIP_SAVE'] ?? false)
+					{
+						continue;
+					}
 					if ($item->isChanged())
 					{
 						$dataEntityCollection->add($item->getDataEntity());
@@ -353,7 +367,7 @@ class Params extends Registry
 		return $result;
 	}
 
-	public function addParamByName(string $paramName, mixed $paramValue): Result
+	public function addParamByName(string $paramName, mixed $paramValue, bool $withSave = true): Result
 	{
 		$result = new Result();
 
@@ -369,7 +383,12 @@ class Params extends Registry
 			$this->get($paramName)->markChanged();
 		}
 
-		return $this->save();
+		if ($withSave)
+		{
+			return $this->save();
+		}
+
+		return $result;
 	}
 
 	public function addParamByArray(?array $chatParams): Result
@@ -505,16 +524,18 @@ class Params extends Registry
 		return $this;
 	}
 
-	public function deleteParam(string $paramName): Params
+	public function deleteParam(string $paramName, bool $withSave = true): Params
 	{
 		if (!$this->offsetExists($paramName))
 		{
 			return $this;
 		}
 
-		$this->unsetByKeys([$paramName]);
-
-		if ($this->getChatId())
+		if (!$withSave)
+		{
+			$this->getParams()->offsetUnset($paramName);
+		}
+		elseif ($this->getChatId())
 		{
 			$filter = [
 				'=CHAT_ID' => $this->getChatId(),
@@ -522,11 +543,27 @@ class Params extends Registry
 			];
 
 			ChatParamTable::deleteBatch($filter);
+
+			$this->unsetByKeys([$paramName]);
+			self::cleanCache($this->getChatId());
 		}
 
-		self::cleanCache($this->getChatId());
-
 		return $this;
+	}
+
+	/**
+	 * @param string $key
+	 * @return void
+	 */
+	public function offsetUnset($key): void
+	{
+		if ($this->offsetExists($key))
+		{
+			$this[$key]->markDrop();
+			$this->droppedItems[] = $this[$key];
+		}
+
+		parent::offsetUnset($key);
 	}
 
 	public function get(string $paramName): ?Param
@@ -557,20 +594,6 @@ class Params extends Registry
 	public function setIsCreated(bool $isCreated): void
 	{
 		$this->isCreated = $isCreated;
-	}
-
-	public function toRestFormat(): array
-	{
-		$result = [];
-		foreach ($this as $paramName => $param)
-		{
-			if ($param->hasValue() && !$param->isHidden())
-			{
-				$result[$paramName] = $param->toRestFormat();
-			}
-		}
-
-		return $result;
 	}
 
 	private function getCacheId(): string

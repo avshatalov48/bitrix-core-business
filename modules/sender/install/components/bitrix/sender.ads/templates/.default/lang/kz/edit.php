@@ -1,0 +1,4 @@
+<?php
+$MESS["SENDER_ADS_SEGMENT_SELECTOR_INCLUDE_EDIT_TITLE"] = "Сегменттерді таңдау";
+$MESS["SENDER_ADS_SEGMENT_SELECTOR_INCLUDE_VIEW_TITLE"] = "Таңдалған сегменттер";
+$MESS["SENDER_ADS_SEGMENT_SELECTOR_RECIPIENT_COUNT"] = "Ағымдағы сәтте таңдалды";

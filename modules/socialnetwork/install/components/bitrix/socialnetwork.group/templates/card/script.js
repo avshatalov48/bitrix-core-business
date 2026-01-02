@@ -230,16 +230,10 @@ this.BX = this.BX || {};
 	          themePickerInstance.showDialog(true);
 	        });
 	      }
-	      main_core_events.EventEmitter.subscribe('Intranet.ThemePicker:onSave', function (event) {
+	      main_core_events.EventEmitter.subscribe('Intranet.ThemePicker:onSaveTheme', function (event) {
 	        var _event$getData = event.getData(),
-	          _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
-	          data = _event$getData2[0];
-	        if (!main_core.Type.isPlainObject(data.theme) || window === top.window) {
-	          return;
-	        }
-	        themePickerInstance.applyTheme(data.theme.id);
-	        themePickerInstance.saveTheme(data.theme.id);
-	        _this.draw(data.theme);
+	          theme = _event$getData.theme;
+	        _this.draw(theme);
 	      });
 	    }
 	  }, {
@@ -249,7 +243,7 @@ this.BX = this.BX || {};
 	      if (!themeBoxNode) {
 	        return;
 	      }
-	      themeBoxNode.style.backgroundImage = main_core.Type.isStringFilled(theme.previewImage) ? "url('".concat(theme.previewImage, "')") : 'none';
+	      themeBoxNode.style.backgroundImage = main_core.Type.isStringFilled(theme.previewImage) ? "url('".concat(encodeURI(theme.previewImage), "')") : 'none';
 	      themeBoxNode.style.backgroundColor = main_core.Type.isStringFilled(theme.previewColor) ? theme.previewColor : 'transparent';
 	    }
 	  }]);

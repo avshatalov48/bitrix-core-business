@@ -189,7 +189,7 @@ if($this->StartResultCache(false, array($arParams["CACHE_GROUPS"]==="N"? false: 
 	}
 	if($arResult["SERVER_NAME"] == '')
 	{
-		$arResult["SERVER_NAME"] = COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
+		$arResult["SERVER_NAME"] = COption::GetOptionString("main", "server_name");
 	}
 
 	$arResult["PICTURE"] = CFile::GetFileArray($arResult["PICTURE"]);

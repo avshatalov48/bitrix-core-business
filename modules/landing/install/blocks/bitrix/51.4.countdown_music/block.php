@@ -8,12 +8,12 @@
 
 		<div class="landing-block-node-card-container">
 			<div class="landing-block-node-card row g-mb-50 js-countdown u-countdown"
-				data-end-date="1744474800000"
-				data-days-format="%D"
-				data-hours-format="%H"
-				data-minutes-format="%M"
-				data-seconds-format="%S"
-				data-days-expired-classes="u-countdown--days-expiried"
+				 data-end-date="#COUNTDOWN#"
+				 data-days-format="%D"
+				 data-hours-format="%H"
+				 data-minutes-format="%M"
+				 data-seconds-format="%S"
+				 data-days-expired-classes="u-countdown--days-expiried"
 			>
 				<div class="landing-block-node-text-container col-md-4 col-lg-4 ml-lg-auto">
 					<h3 class="landing-block-node-text-title text-uppercase g-font-weight-700 g-color-white g-mb-5">

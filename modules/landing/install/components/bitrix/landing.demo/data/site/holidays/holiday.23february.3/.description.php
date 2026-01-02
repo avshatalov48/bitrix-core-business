@@ -25,7 +25,7 @@ return array(
 	),
 	'available' => true,
 	'active' => \LandingSiteDemoComponent::checkActive(array(
-		'ONLY_IN' => array('ru', 'kz', 'by'),
+		'ONLY_IN' => array('ru', 'kz', 'by', 'uz'),
 		'EXCEPT' => array()
 	))
 );

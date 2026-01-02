@@ -4,3 +4,6 @@ $MESS['IM_RESTRICTION_COPILOT_DESCRIPTION'] = 'Привычный и удобн�
 $MESS['IM_RESTRICTION_COPILOT_TITLE'] = 'Чат с CoPilot';
 $MESS['IM_RESTRICTION_COPILOT_HEADER'] = 'Обсудите с CoPilot идеи или попросите предложить креативные решения для ваших проектов';
 $MESS['IM_RESTRICTION_COPILOT_PROVIDER_TITLE'] = 'Выберите модель AI для общения в чате';
+$MESS['IM_RESTRICTION_TRANSCRIPTION_TITLE'] = 'Расшифровка речи';
+$MESS['IM_RESTRICTION_TRANSCRIPTION_HEADER'] = 'CoPilot расшифрует речь говорящего и переведёт её в текст';
+$MESS['IM_RESTRICTION_TRANSCRIPTION_PROVIDER_TITLE'] = 'Выберите модель AI для расшифровки';

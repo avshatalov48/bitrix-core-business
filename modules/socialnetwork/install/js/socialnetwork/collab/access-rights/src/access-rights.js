@@ -1,5 +1,4 @@
-import { Type } from 'main.core';
-
+import type { JsonObject } from 'main.core';
 import { Form } from './form';
 import { AddForm } from './add-form';
 import { EditForm } from './edit-form';
@@ -9,9 +8,18 @@ import 'ui.sidepanel-content';
 
 import './css/base.css';
 
+export type AccessRightsFormData = {
+	moderators: number[],
+	ownerId: number,
+	options: JsonObject,
+	permissions: JsonObject
+};
+
 export type Params = {
 	collabId?: number,
 	enableServerSave?: boolean,
+	formData: AccessRightsFormData,
+	isAllowedInviteCollabers: boolean,
 };
 
 export class AccessRights

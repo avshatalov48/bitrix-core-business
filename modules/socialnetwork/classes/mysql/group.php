@@ -3,6 +3,7 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/group.php");
 
 use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
 use Bitrix\Socialnetwork\Util;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\WorkgroupSiteTable;
@@ -187,7 +188,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			return false;
 		}
 
-		$arFields['TYPE'] = $arGroupOld['TYPE'];
+		$arFields['TYPE'] ??= static::getGroupTypeByFields($arFields, $arGroupOld)->value;
 
 		$arFields1 = Util::getEqualityFields($arFields);
 
@@ -301,7 +302,7 @@ class CSocNetGroup extends CAllSocNetGroup
 				$subjectId = 0;
 				$groupSiteList = array();
 
-				if (intval($arFields["SUBJECT_ID"]) <= 0)
+				if (intval($arFields["SUBJECT_ID"] ?? 0) <= 0)
 				{
 					$res = WorkgroupTable::getList(array(
 						'filter' => array('=ID' => $ID),
@@ -775,5 +776,25 @@ class CSocNetGroup extends CAllSocNetGroup
 		}
 
 		return $dbRes;
+	}
+
+	private static function getGroupTypeByFields(array $fields, array $oldFields): Type
+	{
+		if (($oldFields['TYPE'] ?? null) === Type::Collab->value)
+		{
+			return Type::Collab;
+		}
+
+		if (isset($fields['SCRUM_MASTER_ID']))
+		{
+			return Type::Scrum;
+		}
+
+		if (isset($fields['PROJECT']))
+		{
+			return $fields['PROJECT'] === 'Y' ? Type::Project : Type::Group;
+		}
+
+		return Type::tryFrom($oldFields['TYPE']) ?? Type::getDefault();
 	}
 }

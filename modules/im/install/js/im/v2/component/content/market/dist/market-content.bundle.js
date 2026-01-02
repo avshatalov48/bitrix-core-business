@@ -3,14 +3,14 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,main_core,im_v2_lib_market,im_v2_component_elements) {
+(function (exports,main_core,im_v2_lib_market,im_v2_component_elements_loader) {
 	'use strict';
 
 	// @vue/component
 	const MarketContent = {
 	  name: 'MarketContent',
 	  components: {
-	    Spinner: im_v2_component_elements.Spinner
+	    Spinner: im_v2_component_elements_loader.Spinner
 	  },
 	  props: {
 	    entityId: {
@@ -25,7 +25,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    };
 	  },
 	  computed: {
-	    SpinnerSize: () => im_v2_component_elements.SpinnerSize
+	    SpinnerSize: () => im_v2_component_elements_loader.SpinnerSize
 	  },
 	  watch: {
 	    entityId(newValue) {

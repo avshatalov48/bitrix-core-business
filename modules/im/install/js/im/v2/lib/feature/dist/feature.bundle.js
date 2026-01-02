@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core,ui_infoHelper,im_v2_const,im_v2_application_core) {
+(function (exports,main_core,im_v2_application_core,im_v2_const,im_v2_lib_feature,ui_infoHelper) {
 	'use strict';
 
 	const ChatHistoryManager = {
@@ -50,6 +50,27 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	};
 
+	const MessagesAutoDelete = {
+	  openFeatureSlider() {
+	    const promoter = new ui_infoHelper.FeaturePromoter({
+	      code: im_v2_const.SliderCode.autoDeleteDisabled
+	    });
+	    promoter.show();
+	  }
+	};
+
+	const CollabManager = {
+	  isAvailable() {
+	    return im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.collabAvailable);
+	  },
+	  openFeatureSlider() {
+	    const promoter = new ui_infoHelper.FeaturePromoter({
+	      featureId: im_v2_const.SliderCode.collabDisabled
+	    });
+	    promoter.show();
+	  }
+	};
+
 	const Feature = {
 	  chatV2: 'chatV2',
 	  openLinesV2: 'openLinesV2',
@@ -64,14 +85,28 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  giphyAvailable: 'giphyAvailable',
 	  collabAvailable: 'collabAvailable',
 	  collabCreationAvailable: 'collabCreationAvailable',
+	  enabledCollabersInvitation: 'enabledCollabersInvitation',
+	  changeInviteLanguageAvailable: 'changeInviteLanguageAvailable',
 	  inviteByLinkAvailable: 'inviteByLinkAvailable',
 	  inviteByPhoneAvailable: 'inviteByPhoneAvailable',
 	  documentSignAvailable: 'documentSignAvailable',
 	  intranetInviteAvailable: 'intranetInviteAvailable',
-	  voteCreationAvailable: 'voteCreationAvailable'
+	  voteCreationAvailable: 'voteCreationAvailable',
+	  defaultTabCopilotAvailable: 'defaultTabCopilotAvailable',
+	  messagesAutoDeleteEnabled: 'messagesAutoDeleteEnabled',
+	  isNotificationsStandalone: 'isNotificationsStandalone',
+	  isAIModelChangeAllowed: 'isCopilotSelectModelAvailable',
+	  teamsInStructureAvailable: 'teamsInStructureAvailable',
+	  isDesktopRedirectAvailable: 'isDesktopRedirectAvailable',
+	  aiAssistantBotAvailable: 'aiAssistantAvailable',
+	  aiAssistantChatAvailable: 'aiAssistantChatCreationAvailable',
+	  aiFileTranscriptionAvailable: 'aiFileTranscriptionAvailable',
+	  isTasksRecentListAvailable: 'isTasksRecentListAvailable'
 	};
 	const FeatureManager = {
 	  chatHistory: ChatHistoryManager,
+	  messagesAutoDelete: MessagesAutoDelete,
+	  collab: CollabManager,
 	  isFeatureAvailable(featureName) {
 	    var _featureOptions$featu;
 	    const {
@@ -84,5 +119,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.Feature = Feature;
 	exports.FeatureManager = FeatureManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.UI,BX.Messenger.v2.Const,BX.Messenger.v2.Application));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.UI));
 //# sourceMappingURL=feature.bundle.js.map

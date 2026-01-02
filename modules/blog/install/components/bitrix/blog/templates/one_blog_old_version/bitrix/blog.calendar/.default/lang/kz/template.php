@@ -1,0 +1,22 @@
+<?php
+$MESS["BLOG_BLOG_CLNDR_D_1"] = "Дс";
+$MESS["BLOG_BLOG_CLNDR_D_2"] = "Сс";
+$MESS["BLOG_BLOG_CLNDR_D_3"] = "Ср";
+$MESS["BLOG_BLOG_CLNDR_D_4"] = "Бс";
+$MESS["BLOG_BLOG_CLNDR_D_5"] = "Жм";
+$MESS["BLOG_BLOG_CLNDR_D_6"] = "Сб";
+$MESS["BLOG_BLOG_CLNDR_D_7"] = "Жк";
+$MESS["BLOG_BLOG_CLNDR_M_1"] = "Қаңтар";
+$MESS["BLOG_BLOG_CLNDR_M_2"] = "Ақпан";
+$MESS["BLOG_BLOG_CLNDR_M_3"] = "Наурыз";
+$MESS["BLOG_BLOG_CLNDR_M_4"] = "Сәуір";
+$MESS["BLOG_BLOG_CLNDR_M_5"] = "Мамыр";
+$MESS["BLOG_BLOG_CLNDR_M_6"] = "Маусым";
+$MESS["BLOG_BLOG_CLNDR_M_7"] = "Шілде";
+$MESS["BLOG_BLOG_CLNDR_M_8"] = "Тамыз";
+$MESS["BLOG_BLOG_CLNDR_M_9"] = "Қыркүйек";
+$MESS["BLOG_BLOG_CLNDR_M_10"] = "Қазан";
+$MESS["BLOG_BLOG_CLNDR_M_11"] = "Қараша";
+$MESS["BLOG_BLOG_CLNDR_M_12"] = "Желтоқсан";
+$MESS["BLOG_BLOG_CLNDR_N_M"] = "Келесі ай";
+$MESS["BLOG_BLOG_CLNDR_P_M"] = "Өткен ай";

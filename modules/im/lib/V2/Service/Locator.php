@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Service;
 
+use Bitrix\Im\V2\Pull\Sender;
 use Bitrix\Main\DI\ServiceLocator;
 
 class Locator
@@ -14,6 +15,16 @@ class Locator
 	public static function getMessenger(): Messenger
 	{
 		return ServiceLocator::getInstance()->get('Im.Messenger');
+	}
+
+	public static function getPullSender(): Sender
+	{
+		return ServiceLocator::getInstance()->get('Im.PullSender');
+	}
+
+	public static function getAccessService(): AccessService
+	{
+		return ServiceLocator::getInstance()->get('Im.AccessService');
 	}
 
 	public static function getContext(): Context

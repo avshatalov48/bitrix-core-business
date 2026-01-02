@@ -1,4 +1,5 @@
 import { Type } from 'main.core';
+import { SelectorService } from '../../../../service/selector-service';
 import type { AccessRightValue, UserGroupsCollection } from '../../user-groups-model';
 import { Member, UserGroup } from '../../user-groups-model';
 import type { Transformer } from '../transformer';
@@ -41,10 +42,6 @@ export class UserGroupsInternalizer implements Transformer<ExternalUserGroup[], 
 		for (const externalGroup of externalSource)
 		{
 			const internalGroup = this.#internalizeExternalGroup(externalGroup);
-			if (this.#maxVisibleUserGroups > 0 && result.size >= this.#maxVisibleUserGroups)
-			{
-				internalGroup.isShown = false;
-			}
 
 			result.set(internalGroup.id, internalGroup);
 		}
@@ -58,7 +55,6 @@ export class UserGroupsInternalizer implements Transformer<ExternalUserGroup[], 
 			id: String(externalGroup.id),
 			isNew: false,
 			isModified: false,
-			isShown: true,
 			title: String(externalGroup.title),
 			accessRights: new Map(),
 			members: new Map(),
@@ -124,9 +120,9 @@ export class UserGroupsInternalizer implements Transformer<ExternalUserGroup[], 
 	#internalizeExternalMember(externalMember: ExternalMember): Member
 	{
 		return {
-			type: String(externalMember.type),
 			id: String(externalMember.id),
-			name: String(externalMember.name),
+			type: Type.isStringFilled(externalMember.type) ? externalMember.type : null,
+			name: Type.isStringFilled(externalMember.name) ? externalMember.name : null,
 			avatar: Type.isStringFilled(externalMember.avatar) ? externalMember.avatar : null,
 		};
 	}

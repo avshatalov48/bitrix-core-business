@@ -4,5 +4,5 @@ namespace Bitrix\Socialnetwork\Collab\Integration\IM\Message;
 
 interface ActionMessageInterface
 {
-	public function runAction(array $recipientIds = [], array $parameters = []): int;
+	public function send(array $recipientIds = [], array $parameters = []): int;
 }

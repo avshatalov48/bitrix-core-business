@@ -1,0 +1,32 @@
+.bx-im-bulk-actions-delete-popup__container {
+	--im-content-bulk-actions-delete-popup__font-weight: 600;
+	--im-content-bulk-actions-delete-popup__color_prompt_title: var(--im-color-palette-black-base);
+	--im-content-bulk-actions-delete-popup__color_promt_counter: var(--im-color-palette-gray-50);
+}
+
+.bx-im-bulk-actions-delete-popup__scope {
+	padding: 20px 16px;
+	min-width: 301px;
+}
+
+.bx-im-bulk-actions-delete-popup__prompt {
+	text-align: center;
+	margin-bottom: 20px;
+	font: 600 15px var(--im-font-family-system);
+	line-height: 19px;
+	color: var(--im-content-bulk-actions-delete-popup__color_prompt_title);
+}
+
+.bx-im-bulk-actions-delete-popup__prompt_counter {
+	color: var(--im-content-bulk-actions-delete-popup__color_promt_counter);
+}
+
+.bx-im-bulk-actions-delete-popup__container-button {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.bx-im-bulk-actions-delete-popup__button {
+	min-width: 130px;
+}

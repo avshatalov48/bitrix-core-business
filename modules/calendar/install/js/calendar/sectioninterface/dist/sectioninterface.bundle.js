@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,calendar_sync_interface,main_popup,ui_infoHelper,main_core_events,ui_entitySelector,main_core,calendar_util,calendar_sectionmanager,ui_dialogs_messagebox) {
+(function (exports,calendar_sync_interface,main_popup,ui_infoHelper,main_core_events,ui_entitySelector,main_core,calendar_util,calendar_sectionmanager,ui_dialogs_messagebox,ui_buttons) {
 	'use strict';
 
 	let _ = t => t,
@@ -19,6 +19,7 @@ this.BX = this.BX || {};
 	    this.sectionManager = options.sectionManager;
 	    this.closeCallback = options.closeCallback;
 	    this.BX = calendar_util.Util.getBX();
+	    this.calendarContext = options.calendarContext;
 	    this.keyHandlerBinded = this.keyHandler.bind(this);
 	  }
 	  show(params = {}) {
@@ -380,7 +381,8 @@ this.BX = this.BX || {};
 	          'all-users': true
 	        }
 	      }];
-	      if (calendar_util.Util.isProjectFeatureEnabled()) {
+	      const calendarContext = this.calendarContext || calendar_util.Util.getCalendarContext();
+	      if (calendarContext.util.config.projectFeatureEnabled) {
 	        entities.push({
 	          id: 'project'
 	        });
@@ -915,7 +917,7 @@ this.BX = this.BX || {};
 	    const selectedItems = this.groupTagSelector.getDialog().getSelectedItems();
 	    this.trackingIdList = [];
 	    selectedItems.forEach(item => {
-	      if (item.entityType === 'project') {
+	      if (item.entityId === 'project') {
 	        this.trackingIdList.push(item.id);
 	      }
 	    });
@@ -1131,10 +1133,7 @@ this.BX = this.BX || {};
 	  _t23,
 	  _t24,
 	  _t25,
-	  _t26,
-	  _t27,
-	  _t28,
-	  _t29;
+	  _t26;
 
 	/* eslint-disable @bitrix24/bitrix24-rules/no-native-dom-methods */
 	class SectionInterface extends main_core_events.EventEmitter {
@@ -1569,17 +1568,20 @@ this.BX = this.BX || {};
 	    var _calendarContext$util;
 	    const calendarContext = this.calendarContext || calendar_util.Util.getCalendarContext();
 	    if ((_calendarContext$util = calendarContext.util.config.perm) != null && _calendarContext$util.edit_section && !calendarContext.isCollabUser) {
-	      const addButtonOuter = this.DOM.titleWrap.appendChild(main_core.Tag.render(_t19 || (_t19 = _$4`
-				<span class="ui-btn-split ui-btn-light-border" style="margin-right: 0"></span>
-			`)));
-	      this.DOM.addButton = addButtonOuter.appendChild(main_core.Tag.render(_t20 || (_t20 = _$4`
-				<span class="ui-btn-main">${0}</span>
-			`), main_core.Loc.getMessage('EC_ADD')));
-	      this.DOM.addButtonMore = addButtonOuter.appendChild(main_core.Tag.render(_t21 || (_t21 = _$4`
-				<span class="ui-btn-extra"></span>
-			`)));
-	      main_core.Event.bind(this.DOM.addButtonMore, 'click', this.showAddButtonPopup.bind(this));
-	      main_core.Event.bind(this.DOM.addButton, 'click', this.showEditSectionForm.bind(this));
+	      const button = new ui_buttons.SplitButton({
+	        text: main_core.Loc.getMessage('EC_ADD'),
+	        size: ui_buttons.ButtonSize.MEDIUM,
+	        color: ui_buttons.ButtonColor.LIGHT_BORDER,
+	        mainButton: {
+	          onclick: this.showEditSectionForm.bind(this)
+	        },
+	        menuButton: {
+	          onclick: this.showAddButtonPopup.bind(this)
+	        }
+	      });
+	      button.renderTo(this.DOM.titleWrap);
+	      this.DOM.addButton = button.getMainButton().getContainer();
+	      this.DOM.addButtonMore = button.getMenuButton().getContainer();
 	    }
 	  }
 	  showAddButtonPopup() {
@@ -1599,8 +1601,15 @@ this.BX = this.BX || {};
 	    }, new main_popup.MenuItem({
 	      text: main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_EXIST_TITLE'),
 	      delimiter: true
-	    }), this.getAddCompanyMenuItem(), this.getAddUserMenuItem(), this.getAddGroupMenuItem()];
-	    if (this.isCollabFeatureEnabled) {
+	    }), this.getAddCompanyMenuItem(), this.getAddUserMenuItem()];
+	    const calendarContext = this.calendarContext || calendar_util.Util.getCalendarContext();
+	    const {
+	      isBitrix24Template
+	    } = calendarContext.util.config;
+	    if (isBitrix24Template) {
+	      menuItems.push(this.getAddGroupMenuItem());
+	    }
+	    if (isBitrix24Template && this.isCollabFeatureEnabled) {
 	      menuItems.push(this.getAddCollabMenuItem());
 	    }
 	    this.addBtnMenu = main_popup.MenuManager.create(`add-btn-${calendar_util.Util.getRandomInt()}`, this.DOM.addButtonMore, menuItems, {
@@ -1668,7 +1677,7 @@ this.BX = this.BX || {};
 	    wrap
 	  }) {
 	    if (main_core.Type.isArray(sectionList)) {
-	      const listWrap = wrap.appendChild(main_core.Tag.render(_t22 || (_t22 = _$4`<div class="calendar-list-slider-widget-content"></div>`))).appendChild(main_core.Tag.render(_t23 || (_t23 = _$4`<div class="calendar-list-slider-widget-content-block"></div>`))).appendChild(main_core.Tag.render(_t24 || (_t24 = _$4`<ul class="calendar-list-slider-container"></ul>`)));
+	      const listWrap = wrap.appendChild(main_core.Tag.render(_t19 || (_t19 = _$4`<div class="calendar-list-slider-widget-content"></div>`))).appendChild(main_core.Tag.render(_t20 || (_t20 = _$4`<div class="calendar-list-slider-widget-content-block"></div>`))).appendChild(main_core.Tag.render(_t21 || (_t21 = _$4`<ul class="calendar-list-slider-container"></ul>`)));
 	      sectionList.forEach(section => {
 	        this.createSectionUnit({
 	          section,
@@ -1685,19 +1694,19 @@ this.BX = this.BX || {};
 	      section.DOM = {};
 	    }
 	    const sectionId = section.id.toString();
-	    const li = wrap.appendChild(main_core.Tag.render(_t25 || (_t25 = _$4`
+	    const li = wrap.appendChild(main_core.Tag.render(_t22 || (_t22 = _$4`
 			<li class="calendar-list-slider-item" data-bx-calendar-section="${0}"></li>
 		`), sectionId));
-	    const checkbox = li.appendChild(main_core.Tag.render(_t26 || (_t26 = _$4`
+	    const checkbox = li.appendChild(main_core.Tag.render(_t23 || (_t23 = _$4`
 			<div class="calendar-list-slider-item-checkbox ${0}" style="background-color: ${0}"></div>
 		`), section.isShown() ? 'calendar-list-slider-item-checkbox-checked' : '', section.color));
-	    const title = li.appendChild(main_core.Tag.render(_t27 || (_t27 = _$4`
+	    const title = li.appendChild(main_core.Tag.render(_t24 || (_t24 = _$4`
 			<div class="calendar-list-slider-item-name" title="${0}">${0}</div>
 		`), main_core.Text.encode(section.name), main_core.Text.encode(section.name)));
 	    section.DOM.item = li;
 	    section.DOM.checkbox = checkbox;
 	    section.DOM.title = title;
-	    section.DOM.actionCont = li.appendChild(main_core.Tag.render(_t28 || (_t28 = _$4`
+	    section.DOM.actionCont = li.appendChild(main_core.Tag.render(_t25 || (_t25 = _$4`
 			<div class="calendar-list-slider-item-actions-container" data-bx-calendar-section-menu="${0}">
 				<span class="calendar-list-slider-item-context-menu"></span>
 			</div>
@@ -1761,7 +1770,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  showSectionMenu(section, menuItemNode) {
-	    var _this$calendarContext6, _this$calendarContext7;
+	    var _section$data$EXPORT, _section$data$EXPORT2, _this$calendarContext6, _this$calendarContext7;
 	    const menuItems = [];
 	    const itemNode = menuItemNode.closest('[data-bx-calendar-section]');
 	    if (main_core.Type.isElementNode(itemNode)) {
@@ -1812,14 +1821,14 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    }
-	    if (!section.isPseudo() && section.data.EXPORT && section.data.EXPORT.LINK && section.data.EXTERNAL_TYPE === 'local' && !((_this$calendarContext6 = this.calendarContext) != null && (_this$calendarContext7 = _this$calendarContext6.util) != null && _this$calendarContext7.isExtranetUser())) {
+	    if (!section.isPseudo() && (_section$data$EXPORT = section.data.EXPORT) != null && _section$data$EXPORT.LINK && (_section$data$EXPORT2 = section.data.EXPORT) != null && _section$data$EXPORT2.PATH && section.data.EXTERNAL_TYPE === 'local' && !((_this$calendarContext6 = this.calendarContext) != null && (_this$calendarContext7 = _this$calendarContext6.util) != null && _this$calendarContext7.isExtranetUser())) {
 	      menuItems.push({
 	        text: main_core.Loc.getMessage('EC_ACTION_EXPORT'),
 	        onclick: () => {
 	          this.sectionActionMenu.close();
 	          const options = {
 	            sectionLink: section.data.EXPORT.LINK,
-	            calendarPath: this.calendarContext.util.config.path
+	            calendarPath: section.data.EXPORT.PATH
 	          };
 	          if (calendar_sync_interface.IcalSyncPopup.checkPathes(options)) {
 	            calendar_sync_interface.IcalSyncPopup.createInstance(options).show();
@@ -1951,6 +1960,7 @@ this.BX = this.BX || {};
 	      wrap: this.DOM.sectionFormWrap,
 	      sectionAccessTasks: this.sectionManager.getSectionAccessTasks(),
 	      sectionManager: this.sectionManager,
+	      calendarContext: this.calendarContext,
 	      closeCallback: () => {
 	        this.allowSliderClose();
 	      }
@@ -2209,7 +2219,7 @@ this.BX = this.BX || {};
 	    } else if (this.currentConfirmMode === 'hideSync' || this.currentConfirmMode === 'hideExternal') {
 	      phrase = main_core.Loc.getMessage('EC_CAL_GOOGLE_HIDE_CONFIRM');
 	    }
-	    return main_core.Tag.render(_t29 || (_t29 = _$4`
+	    return main_core.Tag.render(_t26 || (_t26 = _$4`
 			<div class="calendar-list-slider-messagebox-text">${0}</div>
 		`), phrase);
 	  }
@@ -2229,5 +2239,5 @@ this.BX = this.BX || {};
 
 	exports.SectionInterface = SectionInterface;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar.Sync.Interface,BX.Main,BX.UI,BX.Event,BX.UI.EntitySelector,BX,BX.Calendar,BX.Calendar,BX.UI.Dialogs));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar.Sync.Interface,BX.Main,BX.UI,BX.Event,BX.UI.EntitySelector,BX,BX.Calendar,BX.Calendar,BX.UI.Dialogs,BX.UI));
 //# sourceMappingURL=sectioninterface.bundle.js.map

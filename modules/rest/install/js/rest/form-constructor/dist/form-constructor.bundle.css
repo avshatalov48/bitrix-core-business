@@ -1,11 +1,6 @@
 .bitrix-einvoice-settings-step__wrapper {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-orient: vertical;
-	-webkit-box-direction: normal;
-	    -ms-flex-direction: column;
-	        flex-direction: column;
+	flex-direction: column;
 }
 
 .bitrix-einvoice-settings-step__description {
@@ -28,12 +23,8 @@
 }
 
 .bitrix-einvoice-settings-notification-wrapper {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	align-items: center;
 	color: var(--ui-color-palette-white-base, #ffffff);
 }
 

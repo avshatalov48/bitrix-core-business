@@ -1,0 +1,23 @@
+<?php
+$MESS["BPSGCA_EMPTY_VARIABLES"] = "Ешқандай жаһандық айнымалының мәні көрсетілмеген";
+$MESS["BPSGVA_ADD_PARAMETER"] = "параметрді қосу";
+$MESS["BPSGVA_ADD_VARIABLE"] = "айнымалыны қосу";
+$MESS["BPSGVA_BOOL_NO"] = "Жоқ";
+$MESS["BPSGVA_BOOL_YES"] = "Иә";
+$MESS["BPSGVA_CLEAR"] = "Тазарту";
+$MESS["BPSGVA_CREATE_GCONSTANT"] = "Константаны құру";
+$MESS["BPSGVA_CREATE_GCONSTANT_QUESTION"] = "Жаңа константаны құру қажет пе?";
+$MESS["BPSGVA_CREATE_GVARIABLE"] = "Айнымалыны құру";
+$MESS["BPSGVA_CREATE_GVARIABLE_QUESTION"] = "Жаңа айнымалыны құру қажет пе?";
+$MESS["BPSGVA_DOCUMENT"] = "Өріс мәні";
+$MESS["BPSGVA_EMPTY"] = "Таңдалмаған";
+$MESS["BPSGVA_GCONSTANT_NOT_FOUND"] = "Константа табылмады";
+$MESS["BPSGVA_GCONSTANT_NO_EXIST"] = "Константалар әзірше жоқ";
+$MESS["BPSGVA_GVARIABLE_NOT_FOUND"] = "Айнымалы табылмады";
+$MESS["BPSGVA_GVARIABLE_NO_EXIST"] = "Айнымалы әзірше жоқ";
+$MESS["BPSGVA_INPUT_TEXT"] = "Мәнді енгізіңіз";
+$MESS["BPSGVA_LIST_OF_VALUES"] = "Мәндер тізімі";
+$MESS["BPSGVA_PARAMETER"] = "Параметрді таңдау";
+$MESS["BPSGVA_TEXT"] = "Өз мәні";
+$MESS["BPSGVA_TYPE_OF_PARAMETER"] = "Параметр түрі";
+$MESS["BPSGVA_VARIABLE"] = "Айнымалыны таңдау";

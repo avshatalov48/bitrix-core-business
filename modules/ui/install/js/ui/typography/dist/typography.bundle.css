@@ -24,6 +24,9 @@
 	font-size: var(--ui-typography-font-size);
 	line-height: var(--ui-typography-line-height);
 	color: var(--ui-typography-color-text);
+
+	white-space: break-spaces;
+	overflow-wrap: anywhere;
 }
 
 .ui-typography-text-bold {
@@ -316,6 +319,12 @@
 
 .ui-typography-li {
 	margin: 0 12px;
+	white-space: break-spaces;
+	overflow-wrap: anywhere;
+}
+
+.ui-typography-li.--nested {
+	list-style-type: none;
 }
 
 .ui-typography-hashtag {
@@ -329,5 +338,4 @@
 
 .ui-typography-video-object {
 	max-width: 100%;
-	object-fit: fill;
 }

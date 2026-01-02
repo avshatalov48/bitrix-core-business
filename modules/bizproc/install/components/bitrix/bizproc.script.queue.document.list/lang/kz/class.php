@@ -1,0 +1,8 @@
+<?php
+$MESS["BIZPROC_SCRIPT_QDL_ACTION_OPEN_LOG"] = "Журналды ашу";
+$MESS["BIZPROC_SCRIPT_QDL_ACTION_TERMINATE"] = "Процестті тоқтату";
+$MESS["BIZPROC_SCRIPT_QDL_COLUMN_DOCUMENT_ID"] = "Құжат";
+$MESS["BIZPROC_SCRIPT_QDL_COLUMN_STATUS"] = "Мәртебе";
+$MESS["BIZPROC_SCRIPT_QDL_COLUMN_WORKFLOW_ID"] = "Бизнес-процесс";
+$MESS["BIZPROC_SCRIPT_QDL_PAGE_TITLE"] = "Сценарийді іске қосу журналы";
+$MESS["BIZPROC_SCRIPT_QDL_SCRIPT_NOT_FOUND"] = "Сценарий табылмады";

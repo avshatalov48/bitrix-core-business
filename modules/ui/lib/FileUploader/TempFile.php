@@ -39,7 +39,6 @@ final class TempFile extends EO_TempFile
 			$chunk->setFile($newFile);
 		}
 
-		$tempFile = null;
 		if ($chunk->isOnlyOne())
 		{
 			// Cloud and local files are processed by CFile::SaveFile.

@@ -60,6 +60,10 @@ class StartSynchronizationManager implements StartSynchronization
 	 * @throws ArgumentException
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
+	 *
+	 * Calls from
+	 * \Bitrix\Calendar\Controller\SyncAjax::createGoogleConnectionAction
+	 * \Bitrix\CalendarMobile\Controller\Sync::createGoogleConnectionAction
 	 */
 	public function synchronize(): array
 	{

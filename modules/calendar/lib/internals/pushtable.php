@@ -27,6 +27,8 @@ Loc::loadMessages(__FILE__);
  * <li> FIRST_PUSH_DATE datetime optional
  * </ul>
  *
+ * @deprecated
+ *
  * @package Bitrix\Calendar\Internals
  *
  * DO NOT WRITE ANYTHING BELOW THIS

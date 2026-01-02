@@ -1,0 +1,3 @@
+<?php
+$MESS["SALE_LOCATION_GROUP_ENTITY_CODE_FIELD"] = "Символдық код";
+$MESS["SALE_LOCATION_GROUP_ENTITY_SORT_FIELD"] = "Сұрыптау";

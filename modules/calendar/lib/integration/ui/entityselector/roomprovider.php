@@ -1,5 +1,7 @@
 <?php
 namespace Bitrix\Calendar\Integration\UI\EntitySelector;
+
+use Bitrix\Calendar\Rooms\Manager;
 use Bitrix\UI\EntitySelector\Dialog;
 use Bitrix\UI\EntitySelector\Item;
 
@@ -30,21 +32,23 @@ class RoomProvider extends \Bitrix\UI\EntitySelector\BaseProvider
 
 	public function getItems(array $ids): array
 	{
-		$roomList = \Bitrix\Calendar\Rooms\Manager::getRoomsList();
-
-		return $this->getItemsFromRoomList($roomList);
+		return $this->getRooms();
 	}
 
 	public function getSelectedItems(array $ids): array
 	{
-		$roomList = \Bitrix\Calendar\Rooms\Manager::getRoomsList();
-
-		return $this->getItemsFromRoomList($roomList);
+		return $this->getRooms();
 	}
 
-	public function getItemsFromRoomList(array $roomList)
+	public function getItemsFromRoomList(?array $roomList): array
 	{
 		$items = [];
+
+		if (!is_array($roomList))
+		{
+			return $items;
+		}
+
 		foreach ($roomList as $room)
 		{
 			$items[] = $this->makeItem(['id' => $room['ID'], 'title' => $room['NAME'], 'color' => $room['COLOR']]);
@@ -70,9 +74,10 @@ class RoomProvider extends \Bitrix\UI\EntitySelector\BaseProvider
 		return new Item($itemOptions);
 	}
 
-	public function getRooms()
+	public function getRooms(): array
 	{
-		$roomList = \Bitrix\Calendar\Rooms\Manager::getRoomsList();
+		$roomList = Manager::getRoomsList();
+
 		return $this->getItemsFromRoomList($roomList);
 	}
 

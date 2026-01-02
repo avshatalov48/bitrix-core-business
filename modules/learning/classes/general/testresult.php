@@ -435,8 +435,14 @@ class CTestResult
 	{
 		global $DB;
 
-		$strSql =
-		"SELECT ROUND(SUM(CASE WHEN TR.CORRECT = 'Y' THEN Q.POINT ELSE 0 END) * 100 / SUM(Q.POINT), 4) as PCNT ".
+		$strSql = "
+		SELECT ROUND(
+			CASE 
+				WHEN SUM(Q.POINT) = 0 THEN 0
+				ELSE SUM(CASE WHEN TR.CORRECT = 'Y' THEN Q.POINT ELSE 0 END) * 100 / SUM(Q.POINT)
+			END,
+			4
+		) AS PCNT ".
 		"FROM b_learn_test_result TR, b_learn_question Q ".
 		"WHERE TR.ATTEMPT_ID = '".intval($ATTEMPT_ID)."' AND TR.QUESTION_ID = Q.ID";
 

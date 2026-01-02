@@ -31,7 +31,20 @@ use Bitrix\Main\Type\DateTime;
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_OptionGroup_Query query()
+ * @method static EO_OptionGroup_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_OptionGroup_Result getById($id)
+ * @method static EO_OptionGroup_Result getList(array $parameters = [])
+ * @method static EO_OptionGroup_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_OptionGroup createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_OptionGroup_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_OptionGroup wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_OptionGroup_Collection wakeUpCollection($rows)
+ */
 
 class OptionGroupTable extends DataManager
 {

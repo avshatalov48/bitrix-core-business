@@ -1,10 +1,10 @@
 import 'ui.fonts.opensans';
 import './css/style.css';
 import 'sidepanel';
-import {Dom, Tag, Type, BaseError, Event, Runtime} from 'main.core';
-import {BaseEvent, EventEmitter} from 'main.core.events';
-import {CloseButton, CancelButton, BaseButton} from 'ui.buttons';
-import {Menu, type MenuOptions, Item as MenuItem} from 'ui.sidepanel.menu';
+import { Dom, Tag, Type, BaseError, Event, Runtime } from 'main.core';
+import { BaseEvent, EventEmitter } from 'main.core.events';
+import { CloseButton, CancelButton, BaseButton } from 'ui.buttons';
+import { Menu, type MenuOptions, Item as MenuItem } from 'ui.sidepanel.menu';
 
 const UI = BX.UI;
 const SidePanel = BX.SidePanel;
@@ -24,34 +24,36 @@ type Options = {
 	extensions: ?Array<string>;
 	title: ?string;
 	toolbar: ?Function;
-	content: string|Element|Promise|BX.Promise;
+	content: string | Element | Promise | BX.Promise;
 	buttons: ?Function;
 	design: ?DesignOptions;
 	menu: ?SidePanelMenuOptions;
 };
 
-function prepareOptions(options: Options = {})
+function prepareOptions(options: Options = {}): Options
 {
-	options = Object.assign({}, options);
-	options.design = Object.assign({}, options.design || {});
+	options = { ...options };
+	options.design = { ...options.design };
 	options.design = {
 		margin: true,
 		section: true,
 		...options.design,
 	};
 
-	options.extensions = (options.extensions || []).concat([
+	options.extensions = [...(options.extensions || []),
 		'ui.sidepanel.layout',
 		'ui.buttons',
-	]);
+	];
 	if (options.toolbar)
 	{
 		options.extensions.push('ui.buttons.icons');
 	}
+
 	if (options.design.section)
 	{
 		options.extensions.push('ui.sidepanel-content');
 	}
+
 	if (options.menu)
 	{
 		options.extensions.push('ui.sidepanel.menu');
@@ -62,9 +64,10 @@ function prepareOptions(options: Options = {})
 
 export class Layout
 {
-	static createContent(options: Options = {})
+	static createContent(options: Options = {}): Promise<any | HTMLElement>
 	{
 		options = prepareOptions(options);
+
 		return top.BX.Runtime
 			.loadExtension(options.extensions)
 			.then(() => (new Layout(options)).render())
@@ -97,6 +100,7 @@ export class Layout
 			{
 				menuOptions.contentAttribute = 'data-menu-item-id';
 			}
+
 			if (menuOptions.contentAttribute)
 			{
 				this.#menu.subscribe('click', (event: BaseEvent) => {
@@ -106,12 +110,13 @@ export class Layout
 		}
 	}
 
-	getContainer()
+	getContainer(): HTMLElement
 	{
 		if (!this.#container)
 		{
 			this.#container = Tag.render`<div class="ui-sidepanel-layout"></div>`;
 		}
+
 		return this.#container;
 	}
 
@@ -120,7 +125,7 @@ export class Layout
 		return this.#menu;
 	}
 
-	getFooterContainer()
+	getFooterContainer(): HTMLElement
 	{
 		if (!this.#containerFooter)
 		{
@@ -136,11 +141,11 @@ export class Layout
 		{
 			content = this.#options.content();
 			if (
-				Object.prototype.toString.call(content) === "[object Promise]"
-				|| (content.toString && content.toString() === "[object BX.Promise]")
+				Object.prototype.toString.call(content) === '[object Promise]'
+				|| (content.toString && content.toString() === '[object BX.Promise]')
 			)
 			{
-				return content.then(content => this.render(content, true));
+				return content.then((content) => this.render(content, true));
 			}
 		}
 
@@ -160,24 +165,25 @@ export class Layout
 			if (Type.isFunction(this.#options.toolbar))
 			{
 				const toolbar = Tag.render`<div class="ui-sidepanel-layout-toolbar"></div>`;
-				this.#options.toolbar({...UI}).forEach(button => {
+				this.#options.toolbar({ ...UI }).forEach((button) => {
 					if (button instanceof BaseButton)
 					{
-						button.renderTo(toolbar)
+						button.renderTo(toolbar);
 					}
 					else if (Type.isDomNode(button))
 					{
-						toolbar.appendChild(button);
+						Dom.append(button, toolbar);
 					}
 					else
 					{
-						throw BaseError('Wrong button type ' + button);
+						throw new BaseError(`Wrong button type ${button}`);
 					}
 				});
-				header.appendChild(toolbar);
+
+				Dom.append(toolbar, header);
 			}
 
-			container.appendChild(header);
+			Dom.append(header, container);
 		}
 
 		// CONTENT
@@ -193,31 +199,32 @@ export class Layout
 				}
 				else
 				{
-					styles.push('margin: ' + design.margin);
+					styles.push(`margin: ${design.margin}`);
 				}
 			}
 			let contentElement = Tag.render`<div class="${classes.join(' ')}" style="${styles.join('; ')}"></div>`;
-			container.appendChild(contentElement);
+			Dom.append(contentElement, container);
 
 			if (this.#menu)
 			{
 				this.#menu.renderTo(contentElement);
 			}
-			contentElement.appendChild(Tag.render`<div class="ui-sidepanel-layout-content-inner"></div>`);
+			Dom.append(Tag.render`<div class="ui-sidepanel-layout-content-inner"></div>`, contentElement);
 			contentElement = contentElement.lastElementChild;
 
 			if (design.section)
 			{
-				contentElement.appendChild(Tag.render`<div class="ui-slider-section ui-sidepanel-layout-content-fill-height"></div>`);
+				Dom.append(Tag.render`<div class="ui-slider-section ui-sidepanel-layout-content-fill-height"></div>`, contentElement);
 				contentElement = contentElement.firstElementChild;
 			}
-			if (typeof content === 'string')
+
+			if (Type.isString(content))
 			{
 				contentElement.innerHTML = content;
 			}
 			else if (content instanceof Element)
 			{
-				contentElement.appendChild(content);
+				Dom.append(content, contentElement);
 			}
 
 			if (this.#menu)
@@ -227,11 +234,11 @@ export class Layout
 		}
 
 		// FOOTER
-		const isButtonsUndefined = typeof this.#options.buttons === 'undefined';
-		if (typeof this.#options.buttons === 'function' || isButtonsUndefined)
+		const isButtonsUndefined = Type.isUndefined(this.#options.buttons);
+		if (Type.isFunction(this.#options.buttons) || isButtonsUndefined)
 		{
-			const cancelButton = new CancelButton({onclick: () => SidePanel.Instance.close()});
-			const closeButton = new CloseButton({onclick: () => SidePanel.Instance.close()});
+			const cancelButton = new CancelButton({ onclick: () => SidePanel.Instance.close() });
+			const closeButton = new CloseButton({ onclick: () => SidePanel.Instance.close() });
 			const defaults = {
 				...UI,
 				cancelButton,
@@ -245,7 +252,7 @@ export class Layout
 			const buttonList = this.#options.buttons(defaults);
 			if (buttonList && buttonList.length > 0)
 			{
-				container.appendChild(Tag.render`<div class="ui-sidepanel-layout-footer-anchor"></div>`);
+				Dom.append(Tag.render`<div class="ui-sidepanel-layout-footer-anchor"></div>`, container);
 
 				const classes = ['ui-sidepanel-layout-buttons'];
 				if (this.#options.design.alignButtonsLeft)
@@ -253,28 +260,29 @@ export class Layout
 					classes.push('ui-sidepanel-layout-buttons-align-left');
 				}
 				const buttons = Tag.render`<div class="${classes.join(' ')}"></div>`;
-				this.getFooterContainer().appendChild(buttons);
-				buttonList.forEach(button => {
+				Dom.append(buttons, this.getFooterContainer());
+				buttonList.forEach((button) => {
 					if (button instanceof BaseButton)
 					{
-						button.renderTo(buttons)
+						button.renderTo(buttons);
 					}
 					else if (Type.isDomNode(button))
 					{
-						buttons.appendChild(button);
+						Dom.append(button, buttons);
 					}
 					else
 					{
-						throw BaseError('Wrong button type ' + button);
+						throw new BaseError(`Wrong button type ${button}`);
 					}
 				});
-				container.appendChild(this.getFooterContainer());
+				Dom.append(this.getFooterContainer(), container);
 			}
 		}
 
-		setTimeout(()=> {
+		setTimeout(() => {
 			this.afterRender();
 		});
+
 		return container;
 	}
 
@@ -283,21 +291,21 @@ export class Layout
 		this.#adjustFooter();
 
 		const resizeHandler = Runtime.throttle(this.#adjustFooter, 300, this);
-		Event.bind(window, "resize", resizeHandler);
+		Event.bind(window, 'resize', resizeHandler);
 
 		const topSlider = SidePanel.Instance.getTopSlider();
 		if (topSlider)
 		{
 			EventEmitter.subscribeOnce(topSlider, 'SidePanel.Slider:onDestroy', () => {
-				Event.unbind(window, "resize", resizeHandler);
+				Event.unbind(window, 'resize', resizeHandler);
 			});
 		}
 	}
 
-	#getScrollWidth()
+	#getScrollWidth(): number
 	{
 		const div = Tag.render`<div style="overflow-y: scroll; width: 50px; height: 50px; opacity: 0; pointer-events: none; position: absolute;"></div>`;
-		document.body.appendChild(div);
+		Dom.append(div, document.body);
 		const scrollWidth = div.offsetWidth - div.clientWidth;
 		Dom.remove(div);
 
@@ -329,7 +337,7 @@ export class Layout
 		}
 
 		const id = item.getId();
-		let attr = this.#options.menu.contentAttribute;
+		const attr = this.#options.menu.contentAttribute;
 		if (!attr)
 		{
 			return;
@@ -338,7 +346,7 @@ export class Layout
 		container = container || this.#container;
 		let nodes = container.querySelectorAll(`[${attr}]`);
 		nodes = Array.prototype.slice.call(nodes);
-		nodes.forEach(node => {
+		nodes.forEach((node) => {
 			node.hidden = node.getAttribute(attr) !== id;
 		});
 	}

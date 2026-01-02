@@ -13,9 +13,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_UpdateBlock_Query query()
- * @method static EO_UpdateBlock_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UpdateBlock_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_UpdateBlock_Result getById($id)
- * @method static EO_UpdateBlock_Result getList(array $parameters = array())
+ * @method static EO_UpdateBlock_Result getList(array $parameters = [])
  * @method static EO_UpdateBlock_Entity getEntity()
  * @method static \Bitrix\Landing\Internals\EO_UpdateBlock createObject($setDefaultValues = true)
  * @method static \Bitrix\Landing\Internals\EO_UpdateBlock_Collection createCollection()

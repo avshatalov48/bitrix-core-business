@@ -85,7 +85,8 @@ class SenderMessageEditorMailComponent extends CBitrixComponent
 		));
 		\CJSCore::Init(array("sender_editor"));
 		*/
-		$this->arParams['~VALUE'] = Block\Content\SliceConverter::sanitize($this->arParams['~VALUE']);
+		;
+		$this->arParams['~VALUE'] = Security\Sanitizer::cleanHtml($this->arParams['~VALUE']);
 
 		// personalize tags
 		if (!empty($this->arParams['PERSONALIZE_LIST']))

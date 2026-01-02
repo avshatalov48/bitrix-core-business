@@ -3,16 +3,14 @@ import { EventEmitter } from 'main.core.events';
 
 import { Messenger } from 'im.public';
 import { Utils } from 'im.v2.lib.utils';
-import { Core } from 'im.v2.application.core';
-import { ChatService } from 'im.v2.provider.service';
+import { ChatService } from 'im.v2.provider.service.chat';
 import { showKickUserConfirm } from 'im.v2.lib.confirm';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { ActionByRole, ChatType, EventType, UserType } from 'im.v2.const';
 
 import { BaseMenu } from '../base/base';
 
-import type { MenuItem } from '../type/menu';
-
+import type { MenuItemOptions } from 'ui.system.menu';
 import type { ImModelUser, ImModelChat } from 'im.v2.model';
 
 type UserMenuContext = {
@@ -33,7 +31,7 @@ export class UserMenu extends BaseMenu
 		this.permissionManager = PermissionManager.getInstance();
 	}
 
-	getKickItem(): ?MenuItem
+	getKickItem(): ?MenuItemOptions
 	{
 		const canKick = this.permissionManager.canPerformActionByRole(ActionByRole.kick, this.context.dialog.dialogId);
 		if (!canKick)
@@ -42,8 +40,8 @@ export class UserMenu extends BaseMenu
 		}
 
 		return {
-			text: this.#getKickItemText(),
-			onclick: async () => {
+			title: this.#getKickItemText(),
+			onClick: async () => {
 				this.menuInstance.close();
 				const userChoice = await showKickUserConfirm(this.context.dialog.dialogId);
 				if (userChoice !== true)
@@ -56,11 +54,11 @@ export class UserMenu extends BaseMenu
 		};
 	}
 
-	getMentionItem(): MenuItem
+	getMentionItem(): MenuItemOptions
 	{
 		return {
-			text: Loc.getMessage('IM_LIB_MENU_USER_MENTION'),
-			onclick: () => {
+			title: Loc.getMessage('IM_LIB_MENU_USER_MENTION'),
+			onClick: () => {
 				EventEmitter.emit(EventType.textarea.insertMention, {
 					mentionText: this.context.user.name,
 					mentionReplacement: Utils.text.getMentionBbCode(this.context.user.id, this.context.user.name),
@@ -72,7 +70,7 @@ export class UserMenu extends BaseMenu
 		};
 	}
 
-	getSendItem(): ?MenuItem
+	getSendItem(): ?MenuItemOptions
 	{
 		if (this.context.dialog.type === ChatType.user)
 		{
@@ -80,15 +78,15 @@ export class UserMenu extends BaseMenu
 		}
 
 		return {
-			text: Loc.getMessage('IM_LIB_MENU_USER_WRITE'),
-			onclick: () => {
+			title: Loc.getMessage('IM_LIB_MENU_USER_WRITE'),
+			onClick: () => {
 				void Messenger.openChat(this.context.user.id);
 				this.menuInstance.close();
 			},
 		};
 	}
 
-	getProfileItem(): ?MenuItem
+	getProfileItem(): ?MenuItemOptions
 	{
 		if (this.isBot())
 		{
@@ -96,13 +94,11 @@ export class UserMenu extends BaseMenu
 		}
 
 		const profileUri = Utils.user.getProfileLink(this.context.user.id);
-		const isCurrentUser = this.context.user.id === Core.getUserId();
-		const phraseCode = isCurrentUser ? 'IM_LIB_MENU_OPEN_OWN_PROFILE' : 'IM_LIB_MENU_OPEN_PROFILE_V2';
 
 		return {
-			text: Loc.getMessage(phraseCode),
-			href: profileUri,
-			onclick: () => {
+			title: Loc.getMessage('IM_LIB_MENU_OPEN_PROFILE_V2'),
+			onClick: () => {
+				BX.SidePanel.Instance.open(profileUri);
 				this.menuInstance.close();
 			},
 		};

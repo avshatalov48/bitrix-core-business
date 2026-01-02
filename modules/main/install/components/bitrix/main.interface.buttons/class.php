@@ -84,6 +84,10 @@ class CMainInterfaceButtons
 			;
 
 			$arParams["THEME_ID"] = " --" . $arParams["THEME"];
+
+			$arParams["THEME_VARS"] =
+				isset($arParams["THEME_VARS"]) && is_array($arParams["THEME_VARS"]) ? $arParams["THEME_VARS"] : []
+			;
 		}
 
 		return $arParams;
@@ -279,7 +283,16 @@ class CMainInterfaceButtons
 	 */
 	protected function prepareItemUrl($url)
 	{
-		return preg_match('#^(?:/|https?://)#', $url) ? (string)$url: '';
+		$url= trim((string)$url);
+		if (!preg_match('#^(?:/|https?://)#', $url)) {
+			return '';
+		}
+
+		if (str_contains($url, SITE_DIR)) {
+			return $url;
+		}
+
+		return SITE_DIR . ltrim($url, '/');
 	}
 
 	/**

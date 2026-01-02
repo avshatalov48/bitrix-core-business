@@ -8,6 +8,7 @@
 
 use Bitrix\Main\Mail;
 use Bitrix\Main\Mail\Internal\EventTypeTable;
+use Bitrix\Main\ORM\Query\Query;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -947,7 +948,7 @@ class CEventType
 
 		$arSearch['!EVENT_NAME'] = null;
 		$arQuerySelect = ['ID1' => 'EVENT_NAME', 'EVENT_NAME1' => 'EVENT_NAME'];
-		$query1 = new \Bitrix\Main\Entity\Query(Mail\Internal\EventMessageTable::getEntity());
+		$query1 = new Query(Mail\Internal\EventMessageTable::getEntity());
 		$query1->setSelect($arQuerySelect);
 		$query1->setFilter(array_merge($arSearch, $arSearch1));
 		$query1->registerRuntimeField('EVENT_MESSAGE_TYPE', [
@@ -955,7 +956,7 @@ class CEventType
 			'reference' => ['=this.EVENT_NAME' => 'ref.EVENT_NAME'],
 		]);
 
-		$query2 = new \Bitrix\Main\Entity\Query(Mail\Internal\EventTypeTable::getEntity());
+		$query2 = new Query(Mail\Internal\EventTypeTable::getEntity());
 		$query2->setSelect($arQuerySelect);
 		$query2->setFilter(array_merge($arSearch, $arSearch2));
 		$query2->registerRuntimeField('EVENT_MESSAGE', [

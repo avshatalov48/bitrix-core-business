@@ -2,10 +2,10 @@ import { Loc } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
 import { EventType, ActionByRole } from 'im.v2.const';
-import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { FadeAnimation } from 'im.v2.component.animation';
-import { CommentsService } from 'im.v2.provider.service';
+import { CommentsService } from 'im.v2.provider.service.comments';
 
 import './css/comments-panel.css';
 

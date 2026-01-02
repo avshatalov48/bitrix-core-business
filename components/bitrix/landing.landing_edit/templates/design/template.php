@@ -553,21 +553,20 @@ if ($arParams['SUCCESS_SAVE'])
 	{
 		new BX.UI.LayoutForm({container: BX('landing-design-form')});
 
-		BX.UI.Hint.init(BX('landing-design-form'));
-
-		<?php
-		$themeFontsFields = $arResult['HOOKS_SITE']['THEMEFONTS']->getFields();
-		$themeFields = $arResult['HOOKS_SITE']['THEME']->getFields();
-		$bgFields = $arResult['HOOKS_SITE']['BACKGROUND']->getFields();
-
-		$bgFilePath = $bgFields['PICTURE']->getValue();
-		if (is_numeric($bgFilePath))
-		{
-			$bgFilePath = File::getFilePath($bgFields['PICTURE']->getValue());
-		}
-		?>
-
 		<?php if (!$isMainpageEditor): ?>
+		<?php
+			$themeFontsFields = $arResult['HOOKS_SITE']['THEMEFONTS']->getFields();
+			$themeFields = $arResult['HOOKS_SITE']['THEME']->getFields();
+			$bgFields = $arResult['HOOKS_SITE']['BACKGROUND']->getFields();
+
+			$bgFilePath = $bgFields['PICTURE']->getValue();
+			if (is_numeric($bgFilePath))
+			{
+				$bgFilePath = File::getFilePath($bgFields['PICTURE']->getValue());
+			}
+		?>
+			BX.UI.Hint.init(BX('landing-design-form'));
+
 			new BX.Landing.SettingsForm.DesignPreview(
 				BX('landing-design-form'),
 				{

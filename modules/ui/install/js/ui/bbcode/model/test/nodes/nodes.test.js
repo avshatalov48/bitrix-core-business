@@ -4,6 +4,7 @@ import { BBCodeTagScheme } from '../../src/scheme/node-schemes/tag-scheme';
 import { DefaultBBCodeScheme } from '../../src/scheme/default-bbcode-scheme';
 
 describe('ui.bbcode.model/nodes', () => {
+	// eslint-disable-next-line init-declarations
 	let scheme;
 
 	beforeEach(() => {
@@ -61,7 +62,7 @@ describe('ui.bbcode.model/nodes', () => {
 		it('TextNode.toJSON()', () => {
 			const node = scheme.createText('test text');
 
-			assert.deepEqual(node.toJSON(), {content: 'test text', name: '#text'});
+			assert.deepEqual(node.toJSON(), { content: 'test text', name: '#text' });
 		});
 
 		it('TextNode.setName()', () => {
@@ -87,7 +88,7 @@ describe('ui.bbcode.model/nodes', () => {
 				const textNode = scheme.createText('test text');
 
 				assert.throws(() => {
-					textNode.split({ offset: -1});
+					textNode.split({ offset: -1 });
 				});
 
 				assert.throws(() => {
@@ -239,7 +240,7 @@ describe('ui.bbcode.model/nodes', () => {
 		it('NewLineNode.toJSON()', () => {
 			const node = scheme.createNewLine();
 
-			assert.deepEqual(node.toJSON(), {content: '\n', name: '#linebreak'});
+			assert.deepEqual(node.toJSON(), { content: '\n', name: '#linebreak' });
 		});
 
 		it('NewLineNode.setName()', () => {
@@ -263,7 +264,7 @@ describe('ui.bbcode.model/nodes', () => {
 		});
 
 		it('NewLineNode.clone()', () => {
-		    const sourceNode = scheme.createNewLine();
+			const sourceNode = scheme.createNewLine();
 			const clonedNode = sourceNode.clone();
 
 			assert.deepEqual(sourceNode.toString(), clonedNode.toString());
@@ -328,7 +329,7 @@ describe('ui.bbcode.model/nodes', () => {
 		it('TabNode.toJSON()', () => {
 			const node = scheme.createTab();
 
-			assert.deepEqual(node.toJSON(), {content: '\t', name: '#tab'});
+			assert.deepEqual(node.toJSON(), { content: '\t', name: '#tab' });
 		});
 
 		it('TabNode.setName()', () => {
@@ -369,7 +370,7 @@ describe('ui.bbcode.model/nodes', () => {
 						children: [
 							scheme.createText('text2'),
 						],
-					})
+					}),
 				],
 			});
 
@@ -404,7 +405,7 @@ describe('ui.bbcode.model/nodes', () => {
 		});
 
 		it('Must be able to include any elements', () => {
-		    const fragment = scheme.createFragment();
+			const fragment = scheme.createFragment();
 
 			const p = scheme.createElement({ name: 'p' });
 			const b = scheme.createElement({ name: 'b' });
@@ -599,7 +600,7 @@ describe('ui.bbcode.model/nodes', () => {
 			const text = scheme.createText('test');
 			const newLine = scheme.createNewLine();
 
-			node.appendChild(...[bold, text, newLine]);
+			node.appendChild(bold, text, newLine);
 			assert.ok(node.getChildrenCount() === 3);
 			assert.ok(node.getChildren().at(0) === bold);
 			assert.ok(node.getChildren().at(1) === text);
@@ -662,7 +663,7 @@ describe('ui.bbcode.model/nodes', () => {
 			const p = scheme.createElement({ name: 'p' });
 			const text = scheme.createText('test');
 
-			row.appendChild(...[tr, td, th, p, text]);
+			row.appendChild(tr, td, th, p, text);
 
 			assert.ok(row.getChildrenCount() === 2);
 			assert.ok(row.getChildren().at(0) === td);
@@ -683,7 +684,7 @@ describe('ui.bbcode.model/nodes', () => {
 			const newLine = scheme.createNewLine();
 			const tab = scheme.createTab();
 
-			td.appendChild(...[table, tr, p, bold, strike, text, newLine, tab]);
+			td.appendChild(table, tr, p, bold, strike, text, newLine, tab);
 
 			assert.ok(td.getChildrenCount() === 4);
 			assert.ok(td.getChildren().at(0) === bold);
@@ -693,7 +694,7 @@ describe('ui.bbcode.model/nodes', () => {
 		});
 
 		it('Propagate unresolved nodes from constructor options', () => {
-		    const rootNode = scheme.createRoot({
+			const rootNode = scheme.createRoot({
 				children: [
 					scheme.createElement({
 						name: 'p',
@@ -714,7 +715,7 @@ describe('ui.bbcode.model/nodes', () => {
 		});
 
 		it('Node name and attribute names must always be in lowercase', () => {
-		    const p = scheme.createElement({
+			const p = scheme.createElement({
 				name: 'P',
 				attributes: {
 					ATTR1: 'UPPER',
@@ -730,12 +731,12 @@ describe('ui.bbcode.model/nodes', () => {
 			assert.ok(p.getName() === 'p');
 			assert.ok(p.getAttribute('attr1') === 'UPPER');
 			assert.ok(p.getAttribute('attr2') === 'LOWER');
-			assert.deepEqual(p.getAttributes(), {attr1: 'UPPER', attr2: 'LOWER'});
+			assert.deepEqual(p.getAttributes(), { attr1: 'UPPER', attr2: 'LOWER' });
 			assert.ok(p.getFirstChild().getName() === 'b');
 		});
 
 		it('Must return the tag name and attribute names with lowerCase', () => {
-			const localFactory =new BBCodeScheme({
+			const localFactory = new BBCodeScheme({
 				tagSchemes: [
 					new BBCodeTagScheme({
 						name: 'p',
@@ -936,7 +937,7 @@ describe('ui.bbcode.model/nodes', () => {
 		});
 
 		describe('Formatting', () => {
-		    it('Should add linebreak before opening tag if previews sibling is plain text', () => {
+			it('Should add linebreak before opening tag if previews sibling is plain text', () => {
 				const root = scheme.createRoot({
 					children: [
 						scheme.createText({ content: 'text' }),
@@ -945,7 +946,7 @@ describe('ui.bbcode.model/nodes', () => {
 				});
 
 				assert.deepEqual(root.toString(), 'text\n[p][/p]');
-		    });
+			});
 
 			it('Should not add linebreak before opening tag if previews sibling is linebreak', () => {
 				const root = scheme.createRoot({
@@ -1028,8 +1029,8 @@ describe('ui.bbcode.model/nodes', () => {
 		});
 
 		describe('ElementNode.splitByChildIndex()', () => {
-		    it('should return left and right node if passed index', () => {
-		        const node = scheme.createElement({
+			it('should return left and right node if passed index', () => {
+				const node = scheme.createElement({
 					name: 'p',
 					children: [
 						scheme.createElement({
@@ -1057,7 +1058,7 @@ describe('ui.bbcode.model/nodes', () => {
 
 				assert.deepEqual(leftNode.toString(), '[p]\n[b]bold[/b]\n[/p]');
 				assert.deepEqual(rightNode.toString(), '[p]\n[i]italic[/i][s]strike[/s]\n[/p]');
-		    });
+			});
 
 			it('should replaces this node with left and right nodes', () => {
 				const node = scheme.createElement({
@@ -1098,7 +1099,7 @@ describe('ui.bbcode.model/nodes', () => {
 			});
 
 			it('should throws if passed index more than children count', () => {
-			    const node = scheme.createElement({
+				const node = scheme.createElement({
 					name: 'p',
 					children: [
 						scheme.createText('test text'),
@@ -1183,7 +1184,7 @@ describe('ui.bbcode.model/nodes', () => {
 		});
 
 		describe('Node.split()', () => {
-		    it('Should split tree into left and right parts by index', () => {
+			it('Should split tree into left and right parts by index', () => {
 				const localScheme = new BBCodeScheme({
 					tagSchemes: [
 						new BBCodeTagScheme({
@@ -1434,7 +1435,7 @@ describe('ui.bbcode.model/nodes', () => {
 			});
 
 			it('Should split node with text nodes only', () => {
-			    const node = scheme.createElement({
+				const node = scheme.createElement({
 					name: 'p',
 					children: [
 						scheme.createText('text1'),
@@ -1584,7 +1585,7 @@ describe('ui.bbcode.model/nodes', () => {
 			});
 
 			it('should split node with linebreaks', () => {
-			    const node = scheme.createElement({
+				const node = scheme.createElement({
 					name: 'b',
 					children: [
 						scheme.createText('text'),
@@ -1622,7 +1623,7 @@ describe('ui.bbcode.model/nodes', () => {
 		});
 
 		describe('ElementNode.insertBefore()', () => {
-		    it('should insert nodes before current node', () => {
+			it('should insert nodes before current node', () => {
 				const p1 = scheme.createElement({ name: 'p', value: 1 });
 				const p2 = scheme.createElement({ name: 'p', value: 2 });
 				const p3 = scheme.createElement({ name: 'p', value: 3 });
@@ -1651,7 +1652,7 @@ describe('ui.bbcode.model/nodes', () => {
 				assert.ok(children.at(3) === p2);
 				assert.ok(children.at(4) === p3);
 				assert.ok(children.at(5) === p4);
-		    });
+			});
 
 			it('should insert nodes before current nodes if current node is first child of parent', () => {
 				const p1 = scheme.createElement({ name: 'p', value: 1 });
@@ -1738,8 +1739,8 @@ describe('ui.bbcode.model/nodes', () => {
 		});
 
 		describe('ElementNode.trimLinebreaks()', () => {
-		    it('should removes all start and end linebreaks', () => {
-		        const element = scheme.createElement({
+			it('should removes all start and end linebreaks', () => {
+				const element = scheme.createElement({
 					name: 'p',
 					children: [
 						scheme.createNewLine(),
@@ -1754,7 +1755,7 @@ describe('ui.bbcode.model/nodes', () => {
 
 				assert.ok(element.getChildrenCount() === 1);
 				assert.ok(element.getFirstChild().getContent() === 'test');
-		    });
+			});
 		});
 	});
 
@@ -1834,13 +1835,13 @@ describe('ui.bbcode.model/nodes', () => {
 		});
 
 		describe('void', () => {
-		    it('disk should be void', () => {
+			it('disk should be void', () => {
 				const disk = scheme.createElement({ name: 'disk' });
 				assert.ok(disk.isVoid());
-		    });
+			});
 
 			it('table should not be void', () => {
-			    const table = scheme.createElement({ name: 'table' });
+				const table = scheme.createElement({ name: 'table' });
 				assert.ok(table.isVoid() === false);
 			});
 		});
@@ -1899,25 +1900,8 @@ describe('ui.bbcode.model/nodes', () => {
 		});
 
 		describe('convertChild', () => {
-		    it('code should include strings, line breaks and tabs', () => {
-		        const code = scheme.createElement({
-					name: 'code',
-					children: [
-						scheme.createElement({
-							name: 'p',
-							children: [
-								scheme.createText('test'),
-							],
-						}),
-						scheme.createNewLine(),
-						scheme.createTab(),
-						scheme.createText('test1'),
-					],
-				});
-		    });
-
 			it('should return correct canBeEmpty value', () => {
-			    const scheme = new BBCodeScheme({
+				const customScheme = new BBCodeScheme({
 					tagSchemes: [
 						new BBCodeTagScheme({
 							name: 'div',
@@ -1933,9 +1917,9 @@ describe('ui.bbcode.model/nodes', () => {
 					],
 				});
 
-				assert.ok(scheme.createElement({ name: 'div'}).canBeEmpty());
-				assert.ok(scheme.createElement({ name: 'div2'}).canBeEmpty() === false);
-				assert.ok(scheme.createElement({ name: 'div3'}).canBeEmpty());
+				assert.ok(customScheme.createElement({ name: 'div' }).canBeEmpty());
+				assert.ok(customScheme.createElement({ name: 'div2' }).canBeEmpty() === false);
+				assert.ok(customScheme.createElement({ name: 'div3' }).canBeEmpty());
 			});
 		});
 	});

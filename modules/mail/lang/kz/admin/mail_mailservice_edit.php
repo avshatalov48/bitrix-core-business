@@ -1,0 +1,24 @@
+<?php
+$MESS["MAIL_MSERVICE_EDT_ACT"] = "Белсенді:";
+$MESS["MAIL_MSERVICE_EDT_BACK_LINK"] = "Пошта сервистерінің тізімі";
+$MESS["MAIL_MSERVICE_EDT_COMMENT1"] = "PHP-де қауіпсіз қосылымды пайдалану үшін OpenSSL кеңейтімі орнатылуы керек.";
+$MESS["MAIL_MSERVICE_EDT_DELETE"] = "Бұл сервисті жою";
+$MESS["MAIL_MSERVICE_EDT_DELETE_CONFIRM"] = "Пошта сервисін жою керек пе?";
+$MESS["MAIL_MSERVICE_EDT_DOMAIN"] = "Домендік атау:";
+$MESS["MAIL_MSERVICE_EDT_ENCRYPTION"] = "Қауіпсіз қосылымды (TLS) пайдалану:";
+$MESS["MAIL_MSERVICE_EDT_ERROR"] = "Пошта сервисін сақтау кезінде қате";
+$MESS["MAIL_MSERVICE_EDT_ICON"] = "Логотип:";
+$MESS["MAIL_MSERVICE_EDT_ICON_REMOVE"] = "Файлды жою";
+$MESS["MAIL_MSERVICE_EDT_ID"] = "Код:";
+$MESS["MAIL_MSERVICE_EDT_LINK"] = "Веб-интерфейс мекенжайы:";
+$MESS["MAIL_MSERVICE_EDT_NAME"] = "Атауы:";
+$MESS["MAIL_MSERVICE_EDT_NEW"] = "Жаңа сервисті қосу";
+$MESS["MAIL_MSERVICE_EDT_PUBLIC"] = "Қызметкерлерге домендегі жәшіктерді тіркеуге рұқсат ету";
+$MESS["MAIL_MSERVICE_EDT_SERVER"] = "Пошта сервері (IMAP) / порт:";
+$MESS["MAIL_MSERVICE_EDT_SITE_ID"] = "Сайт:";
+$MESS["MAIL_MSERVICE_EDT_SORT"] = "Сұрыптау:";
+$MESS["MAIL_MSERVICE_EDT_TAB"] = "Пошта сервисі";
+$MESS["MAIL_MSERVICE_EDT_TITLE_1"] = "##ID# пошта сервисінің параметрлерін өзгерту";
+$MESS["MAIL_MSERVICE_EDT_TITLE_2"] = "Жаңа пошта сервисі";
+$MESS["MAIL_MSERVICE_EDT_TOKEN"] = "Токен:";
+$MESS["MAIL_MSERVICE_EDT_TYPE"] = "Түрі:";

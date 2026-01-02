@@ -2,7 +2,7 @@
 
 namespace Bitrix\Main\Update;
 
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data\DataManager;
 
 /**
  * Class VersionHistoryTable
@@ -21,7 +21,7 @@ use Bitrix\Main\Entity;
  * @method static \Bitrix\Main\Update\EO_VersionHistory wakeUpObject($row)
  * @method static \Bitrix\Main\Update\EO_VersionHistory_Collection wakeUpCollection($rows)
  */
-class VersionHistoryTable extends Entity\DataManager
+class VersionHistoryTable extends DataManager
 {
 	/**
 	 * Returns DB table name for entity

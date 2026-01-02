@@ -106,3 +106,4 @@ $MESS["REST_SCOPE_USER_BASIC_DESCRIPTION"] = "read user list and contact informa
 $MESS["REST_SCOPE_USER_BRIEF"] = "Users (minimum)";
 $MESS["REST_SCOPE_USER_BRIEF_DESCRIPTION"] = "read user list and names without contact information";
 $MESS["REST_SCOPE_USER_DESCRIPTION"] = "full access: view, create, edit and delete users";
+$MESS["REST_SCOPE_BOOKING"] = "Resource and appointment booking";

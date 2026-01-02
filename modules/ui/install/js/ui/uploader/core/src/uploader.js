@@ -503,20 +503,23 @@ export default class Uploader extends EventEmitter
 		}
 	}
 
-	// stop(): void
-	// {
-	// 	this.#status = UploaderStatus.STOPPED;
-	//
-	// 	this.getFiles().forEach((file: UploaderFile) => {
-	// 		if (file.isUploading())
-	// 		{
-	// 			file.abort();
-	// 			file.setStatus(FileStatus.PENDING);
-	// 		}
-	// 	});
-	//
-	// 	this.emit('onStop');
-	// }
+	stop(): void
+	{
+		if (this.#status !== UploaderStatus.STOPPED)
+		{
+			this.#status = UploaderStatus.STOPPED;
+
+			// this.getFiles().forEach((file: UploaderFile) => {
+			// 	if (file.isUploading())
+			// 	{
+			// 		file.abort();
+			// 		file.setStatus(FileStatus.PENDING);
+			// 	}
+			// });
+
+			this.emit('onStop');
+		}
+	}
 
 	destroy(options?: DestroyOptions): void
 	{

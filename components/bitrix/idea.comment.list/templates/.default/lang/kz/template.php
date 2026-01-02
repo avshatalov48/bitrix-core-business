@@ -1,0 +1,22 @@
+<?php
+$MESS["BLOG_P_IMAGE_LINK"] = "Кескінге сілтеме қою";
+$MESS["BPC_BIND_BITRIX_ANSWER"] = "Ресми жауап ретінде тіркеу";
+$MESS["BPC_HIDDEN_COMMENT"] = "(Жасырын пікір)";
+$MESS["BPC_IMAGE_SIZE_NOTICE"] = "Жүктелетін суреттердің ең үлкен рұқсат етілген өлшемдері: <b>#WIDTH#</b> на <b>#HEIGHT#</b> пиксель. Үлкен өлшемді кескіндер автоматты түрде масштабталады.";
+$MESS["BPC_MES_BIND"] = "Бекіту";
+$MESS["BPC_MES_DELETE"] = "Жою";
+$MESS["BPC_MES_DELETE_POST_CONFIRM"] = "Пікірді жойғыңыз келетініне сенімдісіз бе?";
+$MESS["BPC_MES_EDIT"] = "Редакциялау";
+$MESS["BPC_MES_HIDE"] = "Жасыру";
+$MESS["BPC_MES_SHOW"] = "Көрсету";
+$MESS["BPC_PAGE"] = "Парақшалар:";
+$MESS["BPC_VIDEO_P"] = "Видеоға жол";
+$MESS["BPC_VIDEO_PATH_EXAMPLE"] = "Мысалы: <i>http://www.youtube.com/watch?v=j8YcLyzJOEg</i> <br/> немесе <i>www.mysite.com/video/my_video.mp4</i>";
+$MESS["B_B_MS_ADD_COMMENT"] = "Пікір қосу";
+$MESS["B_B_MS_CAPTCHA_SYM"] = "Растау коды (суреттегі символдар)";
+$MESS["B_B_MS_NAME"] = "Есіміңіз";
+$MESS["B_B_MS_PREVIEW_TITLE"] = "Пікірді алдына ала қарау";
+$MESS["B_B_MS_SAVE"] = "Сақтау";
+$MESS["B_B_MS_SEND"] = "Жіберу";
+$MESS["FPF_VIDEO"] = "Видеоны орнату";
+$MESS["IDEA_RATING_TITLE"] = "Рейтинг";

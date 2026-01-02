@@ -47,7 +47,7 @@ class IndexCommand extends Console\Command\Command
 	 * @param Console\Output\OutputInterface $output Console output steam.
 	 * @return int|null
 	 */
-	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
+	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output): int
 	{
 		$vn = ($output->getVerbosity() > Console\Output\OutputInterface::VERBOSITY_QUIET);
 		$vv = ($output->getVerbosity() >= Console\Output\OutputInterface::VERBOSITY_VERY_VERBOSE);

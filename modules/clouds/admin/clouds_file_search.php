@@ -121,7 +121,7 @@ while (is_array($arRes = $rsData->NavNext()))
 		$link = 'clouds_file_search.php?lang=' . LANGUAGE_ID . '&n=' . urlencode($n) . '&file=y&bucket=' . $obBucket->ID . '&path=' . urlencode($path . $arRes['NAME']);
 	}
 
-	$row =& $lAdmin->AddRow($arRes['ID'], $arRes, $link);
+	$row = $lAdmin->AddRow($arRes['ID'], $arRes, $link);
 
 	$showFieldIcon = '';
 	$showFieldText = '';

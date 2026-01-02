@@ -1,10 +1,12 @@
-<?
-##############################################
-# Bitrix Site Manager Forum					 #
-# Copyright (c) 2002-2009 Bitrix			 #
-# https://www.bitrixsoft.com					 #
-# mailto:admin@bitrixsoft.com				 #
-##############################################
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/prolog.php");
 
@@ -39,7 +41,7 @@ $message = null;
 ********************************************************************/
 $ID = intval($ID);
 
-if ((!empty($save) || !empty($apply)) && $REQUEST_METHOD == "POST" && $VOTE_RIGHT>="W" && check_bitrix_sessid())
+if ((!empty($save) || !empty($apply)) && $_SERVER['REQUEST_METHOD'] == "POST" && $VOTE_RIGHT>="W" && check_bitrix_sessid())
 {
 	$arFields = array_intersect_key($_REQUEST,
 		array_flip(array("TITLE", "SYMBOLIC_NAME", "ACTIVE", "HIDDEN", "C_SORT", "VOTE_SINGLE", "USE_CAPTCHA", "SITE", "GROUP_ID")));

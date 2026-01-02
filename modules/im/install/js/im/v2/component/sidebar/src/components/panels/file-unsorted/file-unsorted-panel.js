@@ -1,7 +1,7 @@
 import { EventEmitter } from 'main.core.events';
 
-import { Loader } from 'im.v2.component.elements';
-import { EventType, SidebarDetailBlock, SidebarFileTypes } from 'im.v2.const';
+import { Loader } from 'im.v2.component.elements.loader';
+import { EventType, FileViewerContext, SidebarDetailBlock, SidebarFileGroups } from 'im.v2.const';
 
 import { DateGroup } from '../../elements/date-group/date-group';
 import { DetailHeader } from '../../elements/detail-header/detail-header';
@@ -9,7 +9,7 @@ import { FileUnsorted } from '../../../classes/panels/file-unsorted';
 import { DetailEmptyState } from '../../elements/detail-empty-state/detail-empty-state';
 import { FileMenu } from '../../../classes/context-menu/file/file-menu';
 import { TariffLimit } from '../../elements/tariff-limit/tariff-limit';
-import { DocumentDetailItem } from '../file/components/document-detail-item';
+import { FileDetailItem } from '../file/components/file-detail-item';
 import { SidebarCollectionFormatter } from '../../../classes/sidebar-collection-formatter';
 
 import './detail.css';
@@ -20,7 +20,7 @@ import type { ImModelSidebarFileItem, ImModelChat } from 'im.v2.model';
 // @vue/component
 export const FileUnsortedPanel = {
 	name: 'FileUnsortedPanel',
-	components: { DateGroup, DocumentDetailItem, DetailEmptyState, DetailHeader, Loader, TariffLimit },
+	components: { DateGroup, FileDetailItem, DetailEmptyState, DetailHeader, Loader, TariffLimit },
 	props: {
 		dialogId: {
 			type: String,
@@ -40,9 +40,10 @@ export const FileUnsortedPanel = {
 	computed:
 	{
 		SidebarDetailBlock: () => SidebarDetailBlock,
+		FileViewerContext: () => FileViewerContext,
 		files(): ImModelSidebarFileItem[]
 		{
-			return this.$store.getters['sidebar/files/get'](this.chatId, SidebarFileTypes.fileUnsorted);
+			return this.$store.getters['sidebar/files/get'](this.chatId, SidebarFileGroups.fileUnsorted);
 		},
 		formattedCollection(): Array
 		{
@@ -82,7 +83,7 @@ export const FileUnsortedPanel = {
 		{
 			const target = event.target;
 			const isAtThreshold = target.scrollTop + target.clientHeight >= target.scrollHeight - target.clientHeight;
-			const hasNextPage = this.$store.getters['sidebar/files/hasNextPage'](this.chatId, SidebarFileTypes.fileUnsorted);
+			const hasNextPage = this.$store.getters['sidebar/files/hasNextPage'](this.chatId, SidebarFileGroups.fileUnsorted);
 
 			return isAtThreshold && hasNextPage;
 		},
@@ -124,10 +125,11 @@ export const FileUnsortedPanel = {
 			<div class="bx-im-sidebar-file-unsorted-detail__container bx-im-sidebar-detail__container" @scroll="onScroll">
 				<div v-for="dateGroup in formattedCollection" class="bx-im-sidebar-file-unsorted-detail__date-group_container">
 					<DateGroup :dateText="dateGroup.dateGroupTitle" />
-					<DocumentDetailItem
+					<FileDetailItem
 						v-for="file in dateGroup.items"
 						:fileItem="file"
 						:contextDialogId="dialogId"
+						:viewerContext="FileViewerContext.sidebarTabFileUnsorted"
 						@contextMenuClick="onContextMenuClick"
 					/>
 				</div>

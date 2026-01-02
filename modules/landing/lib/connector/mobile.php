@@ -2,6 +2,7 @@
 namespace Bitrix\Landing\Connector;
 
 use \Bitrix\Landing\Manager;
+use \Bitrix\Main\Loader;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Web\Json;
 use \Bitrix\MobileApp\Janative;
@@ -24,6 +25,11 @@ class Mobile
 	 */
 	public static function onMobileMenuStructureBuilt($menu): array
 	{
+		if (!Loader::includeModule('mobileapp'))
+		{
+			return $menu;
+		}
+
 		if (!isset($menu[0]['items']) || !is_array($menu[0]['items']))
 		{
 			return $menu;
@@ -163,7 +169,7 @@ JS
 		if ($mobileHit === null)
 		{
 			$mobileHit = \Bitrix\Main\ModuleManager::isModuleInstalled('intranet')
-						&& mb_strpos(Manager::getCurDir(), SITE_DIR . 'mobile/') === 0;
+				&& mb_strpos(Manager::getCurDir(), SITE_DIR . 'mobile/') === 0;
 		}
 
 		return $mobileHit;

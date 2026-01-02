@@ -7,9 +7,12 @@ use Bitrix\Sale\Payment;
 use Bitrix\Sale\Services\Base\RestrictionInfo;
 use Bitrix\Sale\Services\Base\RestrictionInfoCollection;
 use Bitrix\Sale\Services\PaySystem\Restrictions\RestrictableServiceHandler;
+use Bitrix\Sale\Services\PaySystem\Restrictions\RestrictionCurrencyTrait;
 
 abstract class ServiceHandler extends BaseServiceHandler implements RestrictableServiceHandler
 {
+	use RestrictionCurrencyTrait;
+
 	/**
 	 * @return array
 	 */
@@ -95,12 +98,7 @@ abstract class ServiceHandler extends BaseServiceHandler implements Restrictable
 	{
 		$collection = new RestrictionInfoCollection();
 
-		$currencyList = $this->getCurrencyList();
-		if (is_array($currencyList) && !empty($currencyList))
-		{
-			$currencyRestrictionContainer = new RestrictionInfo('Currency', ['CURRENCY' => $currencyList]);
-			$collection->add($currencyRestrictionContainer);
-		}
+		$this->getRestrictionCurrency($collection);
 
 		return $collection;
 	}

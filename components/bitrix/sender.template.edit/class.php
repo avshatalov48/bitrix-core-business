@@ -65,6 +65,7 @@ class SenderTemplateEditComponent extends Bitrix\Sender\Internals\CommonSenderCo
 		}
 
 		$content = Security\Sanitizer::sanitizeHtml($content, $this->entityTemplate->get('CONTENT'));
+
 		$data = Array(
 			"CONTENT"	=> $content,
 			"NAME"	=> $this->request->get('NAME'),

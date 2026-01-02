@@ -26,7 +26,7 @@ BX.namespace('BX.Sale.CrmSiteMasterComponent');
 
 			this.currentStepId = parametrs.currentStepId;
 
-			this.licenseKeyRegExp = /^([A-Z0-9]{3}-[A-Z0-9]{2}-[A-Z0-9]{12,16})$/gm;
+			this.licenseKeyRegExp = /^([A-Z0-9]{3}-[A-Z0-9]{2}-[A-Z0-9]{12,20})$/gm;
 
 			if (this.currentStepId !== undefined)
 			{

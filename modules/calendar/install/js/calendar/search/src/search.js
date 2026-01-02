@@ -11,11 +11,10 @@ export class Search
 	SHOW_LOADER_DELAY = 500;
 	MIN_LOADER_DURATION = 1000;
 
-	constructor(filterId)
+	constructor(filterId, filter)
 	{
-		this.BX = BX; // for calendar in slider
 		this.filterId = filterId;
-		this.filter = this.BX.Main.filterManager.getById(this.filterId);
+		this.filter = filter;
 		this.filterApi = this.filter.getApi();
 		this.isActive = false;
 		this.isInvitationEnabled = false;

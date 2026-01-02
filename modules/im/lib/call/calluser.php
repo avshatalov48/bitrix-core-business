@@ -41,7 +41,12 @@ class CallUser
 	 */
 	public function getState()
 	{
-		return $this->isSeenRecently() ? $this->state : static::STATE_IDLE;
+		// previous version with 'lastSeen' field check
+		// ($this->isSeenRecently() ? $this->state : static::STATE_IDLE)
+		// will return wrong state for new scheme
+		// because this field will not be updated during a call
+		// because 'ping' requests from client side were removed
+		return $this->state;
 	}
 
 	public function isSeenRecently()

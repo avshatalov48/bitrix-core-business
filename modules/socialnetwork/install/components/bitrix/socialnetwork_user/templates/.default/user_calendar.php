@@ -55,6 +55,7 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $ownerId, "calendar"))
 				),
 				"POPUP_COMPONENT_PARENT" => $component,
 				'USE_PADDING' => false,
+				'USE_UI_TOOLBAR' => 'Y',
 			)
 		);
 	}

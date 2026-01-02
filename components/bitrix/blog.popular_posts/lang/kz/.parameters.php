@@ -1,0 +1,24 @@
+<?php
+$MESS["BC_DATE_TIME_FORMAT"] = "Күн мен уақытты көрсету пішімі";
+$MESS["BLG_BLOG_URL"] = "Көрсетілетін блогтың мекенжайы";
+$MESS["BLG_GROUP_ID"] = "Блогтарды көрсету үшін топ";
+$MESS["BMNP_BLOG_VAR"] = "Блог идентификаторы үшін айнымалының атауы";
+$MESS["BMNP_MESSAGE_COUNT"] = "Парақшаға шығарылатын нәтижелер саны";
+$MESS["BMNP_MESSAGE_LENGTH"] = "Шығарылатын хабарлама мәтінінің ұзындығы";
+$MESS["BMNP_PAGE_VAR"] = "Парақша үшін айнымалының атауы";
+$MESS["BMNP_PATH_TO_BLOG"] = "Блог парақшасына жол қалыбы";
+$MESS["BMNP_PATH_TO_GROUP_BLOG_POST"] = "Топтық блог хабарламасының парақшасына жол қалыбы";
+$MESS["BMNP_PATH_TO_POST"] = "Блог хабарламасы бар парақшаға жол қалыбы";
+$MESS["BMNP_PATH_TO_SMILE"] = "Сайттың түбіріне қатысты смайлдар бумасына жол";
+$MESS["BMNP_PATH_TO_USER"] = "Блог пайдаланушысының парақшасына жол қалыбы";
+$MESS["BMNP_PERIOD_DAYS"] = "Танымал хабарламаларды таңдау үшін күндер саны";
+$MESS["BMNP_POST_VAR"] = "Блог хабарламасының идентификаторы үшін айнымалының атауы";
+$MESS["BMNP_PREVIEW_HEIGHT"] = "Алдын ала қарау суретінің биіктігі";
+$MESS["BMNP_PREVIEW_WIDTH"] = "Алдын ала қарау суретінің ені";
+$MESS["BMNP_SORT_BY1"] = "бойынша сұрыптау";
+$MESS["BMNP_SORT_BY_RATING_TOTAL_VALUE"] = "хабарлама рейтингі";
+$MESS["BMNP_SORT_BY_RATING_TOTAL_VOTES"] = "дауыс саны";
+$MESS["BMNP_SORT_BY_VIEWS"] = "қаралымдар саны";
+$MESS["BMNP_USER_VAR"] = "Блог пайдаланушысының идентификаторы үшін айнымалының атауы";
+$MESS["BMNP_USE_SOCNET"] = "Әлеуметтік желі аясында қолданылады";
+$MESS["B_VARIABLE_ALIASES"] = "Айнымалылардың атаулары";

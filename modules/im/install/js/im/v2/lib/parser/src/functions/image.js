@@ -1,11 +1,16 @@
-import { Dom, Loc, Text, Type } from 'main.core';
+import { Dom, Loc, Tag, Text, Type } from 'main.core';
 
-import { getUtils, getBigSmileOption } from '../utils/core-proxy';
+import { getBigSmileOption, getCore, getUtils } from '../utils/core-proxy';
 import { ParserIcon } from './icon';
 
-export const ParserImage = {
+export const ImageBbCodeSizes = Object.freeze({
+	small: 'small',
+	medium: 'medium',
+	large: 'large',
+});
 
-	decodeLink(text): string
+export const ParserImage = {
+	decodeLink(text: string): string
 	{
 		return text.replaceAll(/>((https|http):\/\/(\S+)\.(jpg|jpeg|png|gif|webp)(\?\S+[^<])?)<\/a>/gi, (whole, urlParsed): string => {
 			const url = Text.decode(urlParsed);
@@ -63,7 +68,7 @@ export const ParserImage = {
 	},
 
 	// eslint-disable-next-line max-lines-per-function,sonarjs/cognitive-complexity
-	decodeIcon(text): string
+	decodeIcon(text: string): string
 	{
 		let textElementSize = 0;
 
@@ -180,7 +185,7 @@ export const ParserImage = {
 		});
 	},
 
-	purifyIcon(text): string
+	purifyIcon(text: string): string
 	{
 		return text.replaceAll(/\[icon=([^\]]*)]/gi, (whole) => {
 			let title = whole.match(/title=(.*[^\s\]])/i);
@@ -217,7 +222,18 @@ export const ParserImage = {
 		});
 	},
 
-	hideErrorImage(element)
+	purifyImageBbCode(text: string): string
+	{
+		const sizesFragment = Object.values(ImageBbCodeSizes).join('|');
+		const imageTagRegex = new RegExp(
+			`\\[img\\s+size=(${sizesFragment})]([\\s\\S]*?)\\[\\/img]`,
+			'gi',
+		);
+
+		return text.replaceAll(imageTagRegex, () => ParserIcon.getImageBlock());
+	},
+
+	hideErrorImage(element: HTMLImageElement): void
 	{
 		const result = element;
 
@@ -225,6 +241,51 @@ export const ParserImage = {
 		{
 			result.parentNode.innerHTML = `<a href="${encodeURI(element.src)}" target="_blank">${element.src}</a>`;
 		}
+	},
+
+	decodeImageBbCode(text: string, { contextDialogId = '' } = {}): string
+	{
+		if (!Type.isStringFilled(text))
+		{
+			return '';
+		}
+
+		return text.replaceAll(
+			/\[img(?:\s+size=([^\]]+))?]\s*(?:\[url])?([\S\s]*?)(?:\[\/url])?\s*\[\/img]/gi,
+			(whole, size, urlParsed) => {
+				const url = Text.decode(urlParsed);
+
+				const isValidSize = size && Object.values(ImageBbCodeSizes).includes(size.toLowerCase());
+				const isInvalidUrl = ['/docs/pub/', 'logout=yes'].includes(url.toLowerCase());
+				const isSafeUrl = getUtils().text.checkUrl(url);
+				const isImage = isImageUrl(url);
+				const hasNestedItems = hasNestedImgBbCodes(url);
+
+				if (!isValidSize || isInvalidUrl || !isSafeUrl || !isImage || hasNestedItems)
+				{
+					return whole.replaceAll(/\[url]([\S\s]*?)\[\/url]/gi, '$1');
+				}
+
+				const classModifier = `bx-im-message-image--${size}`;
+				const { file } = getUtils();
+				const dialog = getCore().store.getters['chats/get'](contextDialogId, true);
+				const viewerGroupBy = dialog.chatId;
+				const viewerAttributes = file.getViewerDataForImageSrc({ src: url, viewerGroupBy });
+
+				const layout = Tag.render`
+					<a class='bx-im-message-image ${classModifier}'>
+						<img
+							class='bx-im-message-image-source'
+							src="${url}"
+						/>
+					</a>
+				`;
+
+				Dom.attr(layout.firstChild, viewerAttributes);
+
+				return layout.outerHTML;
+			},
+		);
 	},
 };
 
@@ -252,9 +313,20 @@ function hasLeadingTextBeforeUrl(symbolBeforeUrl: string): boolean
 	return Type.isStringFilled(symbolBeforeUrl) && !AllowedSymbolsBeforeImageUrl.has(symbolBeforeUrl);
 }
 
-const canPurifyLink = (symbolBeforeUrl: string, url: string): boolean => {
+function canPurifyLink(symbolBeforeUrl: string, url: string): boolean
+{
 	return hasImageFileExtension(url)
 		&& !isLinkFromDisk(url)
 		&& !isLogoutLink(url)
 		&& !hasLeadingTextBeforeUrl(symbolBeforeUrl);
-};
+}
+
+function isImageUrl(url: string): boolean
+{
+	return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(url.trim());
+}
+
+function hasNestedImgBbCodes(url: string): boolean
+{
+	return /\[img/i.test(url.trim());
+}

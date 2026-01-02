@@ -74,10 +74,12 @@ export const ViewEventSlider = {
 			{
 				this.loadCommentsView();
 			}
+
 			if (this.isWebdavEvent)
 			{
 				this.executeScripts(this.$refs.filesView);
 			}
+
 			Event.bind(document, 'visibilitychange', this.handleBackgroundPulls);
 		}
 		Event.bind(this.$refs.sliderDetailContent, 'mouseup', this.quote);
@@ -219,6 +221,7 @@ export const ViewEventSlider = {
 				location: this.entry.getLocation(),
 				entry: this.entry,
 			};
+
 			this.reloadPlannerCallback(plannerData);
 		},
 		handleBackgroundPulls()
@@ -241,7 +244,8 @@ export const ViewEventSlider = {
 			{
 				return;
 			}
-			if (event.data[1].fields.CAL_TYPE === 'location')
+
+			if (event.data[1]?.fields?.CAL_TYPE === 'location')
 			{
 				return;
 			}
@@ -260,22 +264,30 @@ export const ViewEventSlider = {
 		},
 		updateParams(event: BaseEvent)
 		{
-			if (parseInt(event.data[1].fields.PARENT_ID, 10) !== parseInt(this.params.parentId, 10))
+			if (parseInt(event.data[1]?.fields?.PARENT_ID, 10) !== parseInt(this.params.parentId, 10))
 			{
 				this.reloadPlanner();
 
 				return;
 			}
+
 			const pullData = event.data[1].fields;
 
-			this.name = pullData.NAME;
-			this.accessibility = pullData.ACCESSIBILITY;
+			if (pullData.NAME)
+			{
+				this.name = pullData.NAME;
+			}
+
+			if (pullData.ACCESSIBILITY)
+			{
+				this.accessibility = pullData.ACCESSIBILITY;
+			}
 
 			BX.ajax.runAction('calendar.api.calendareventviewform.getCalendarViewSliderParams', {
 				data: {
 					entryId: this.eventId,
 					dateFrom: Util.formatDate(pullData.DATE_FROM),
-					timezoneOffset: pullData.TZ_OFFSET_FROM
+					timezoneOffset: pullData.TZ_OFFSET_FROM,
 				},
 			}).then((response) => {
 				const newData = response.data;
@@ -314,7 +326,10 @@ export const ViewEventSlider = {
 					setTimeout(() => { this.executeScripts(this.$refs.filesView); }, 1000);
 				}
 				this.crmView = this.getComponentHTML(newData.crmView);
-				this.entry = new Entry({data: newData.entry, userIndex: newData.userIndex});
+				this.entry = new Entry({
+					data: newData.entry,
+					userIndex: newData.userIndex,
+				});
 
 				this.updateUserList();
 				this.reloadPlanner();
@@ -505,7 +520,7 @@ export const ViewEventSlider = {
 
 							</div>
 						</div>
-						<div class="calendar-slider-sidebar-layout-main calendar-slider-sidebar-border-bottom calendar-slider-sidebar-remind" v-if="isRemind">
+						<div class="calendar-slider-sidebar-layout-main calendar-slider-sidebar-border-bottom calendar-slider-sidebar-remind" v-if="isRemind && showComments">
 							<div class="calendar-slider-sidebar-row">
 								<div class="calendar-slider-sidebar-string-name">{{$Bitrix.Loc.getMessage('EC_VIEW_REMINDERS')}}:</div>
 								<span class="calendar-slider-sidebar-remind-link calendar-slider-sidebar-string-value" :id="id + '_add_reminder_link'" style="display: none;">
@@ -516,9 +531,8 @@ export const ViewEventSlider = {
 						</div>
 						<div class="calendar-slider-sidebar-row calendar-slider-sidebar-border-bottom" v-if="isRrule">
 							<div class="calendar-slider-sidebar-string-name">{{$Bitrix.Loc.getMessage('EC_T_REPEAT')}}:</div>
-							<div class="calendar-slider-sidebar-string-value">{{rruleDescription}}</div>
+							<div class="calendar-slider-sidebar-string-value calendar-slider-sidebar-rrule-desc">{{rruleDescription}}</div>
 						</div>
-
 					</div>
 					<div class="calendar-slider-sidebar-copy" style="display: none;">
 						<span class="calendar-slider-sidebar-copy-link">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_COPY_LINK')}}</span>

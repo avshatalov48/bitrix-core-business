@@ -4,14 +4,14 @@ if ($GLOBALS["install_step"] == 2):
 	if(!check_bitrix_sessid()) 
 		return;
 	if($ex = $APPLICATION->GetException())
-		echo CAdminMessage::ShowMessage(Array(
+		CAdminMessage::ShowMessage(Array(
 			"TYPE" => "ERROR",
 			"MESSAGE" => GetMessage("MOD_INST_ERR"),
 			"DETAILS" => $ex->GetString(),
 			"HTML" => true,
 		));
 	else
-		echo CAdminMessage::ShowNote(GetMessage("MOD_INST_OK"));
+		CAdminMessage::ShowNote(GetMessage("MOD_INST_OK"));
 	
 	if ($public_dir <> '') :
 	?>

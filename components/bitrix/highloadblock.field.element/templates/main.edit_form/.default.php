@@ -36,6 +36,7 @@ if ($arResult['userField']['SETTINGS']['DISPLAY'] === \CUserTypeHlblock::DISPLAY
 		$isWasSelect = ($isWasSelect || $isSelected);
 		$checked = ($isSelected ? ' checked' : '');
 		$editInList = ($arResult['userField']['EDIT_IN_LIST'] !== 'Y' ? ' disabled="disabled" ' : '');
+		$itemValue = HtmlFilter::encode($item['VALUE']);
 		$result .= <<<EOL
 				<label>
 					<input 
@@ -45,7 +46,7 @@ if ($arResult['userField']['SETTINGS']['DISPLAY'] === \CUserTypeHlblock::DISPLAY
 						{$checked} 
 						{$editInList}
 					>
-					{$item['VALUE']}
+					{$itemValue}
 				</label>
 				<br>
 EOL;
@@ -89,9 +90,10 @@ elseif($arResult['userField']['SETTINGS']['DISPLAY'] === \CUserTypeHlblock::DISP
 			$isSelected = in_array($itemId, $arResult['additionalParameters']['VALUE']);
 			$isWasSelect = ($isWasSelect || $isSelected);
 			$selected = ($isSelected ? ' selected' : '');
+			$itemValue = HtmlFilter::encode($item['VALUE']);
 			$result .= <<<EOL
 				<option value="{$item['ID']}" {$selected}>
-					{$item['VALUE']}
+					{$itemValue}
 				</option>
 EOL;
 		}

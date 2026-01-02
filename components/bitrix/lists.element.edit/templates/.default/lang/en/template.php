@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CT_BLEE_ACCESS_RIGHTS"] = "User groups allowed to access the list";
 $MESS["CT_BLEE_ADD_BUTTON"] = "Add";
 $MESS["CT_BLEE_BIZPROC_CANCEL_BUTTON"] = "Cancel";
@@ -49,6 +49,5 @@ $MESS["CT_BLEE_TOOLBAR_COPY_ELEMENT_TITLE"] = "Copy element";
 $MESS["CT_BLEE_TOOLBAR_DELETE_TITLE"] = "Delete an element and return to list";
 $MESS["CT_BLEE_TOOLBAR_DELETE_WARNING"] = "Are you sure you want to delete this element?";
 $MESS["CT_BLEE_TOOLBAR_LIST_TITLE"] = "View all elements";
-$MESS["CT_BLEE_TOOLBAR_RETURN_LIST_ELEMENT"] = "Back to list";
+$MESS["CT_BLEE_TOOLBAR_RETURN_LIST_ELEMENT_MSGVER_1"] = "Back to list";
 $MESS["CT_BLEE_UN_LOCK_ELEMENT"] = "Unlock";
-?>

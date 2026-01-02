@@ -267,6 +267,22 @@ class Imagick extends Engine
 	/**
 	 * @inheritDoc
 	 */
+	public function blur(int $sigma): bool
+	{
+		if ($this->image === null)
+		{
+			return false;
+		}
+
+		$sigma = max(1, min(100, round($sigma)));
+		$this->image->blurImage(0, $sigma);
+
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function filter(Mask $mask)
 	{
 		if ($this->image === null)

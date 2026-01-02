@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS['PERFMON_ACTIVITY_TITLE'] = "Управление активностью";
 $MESS['PERFMON_ACTIVE_Y'] = "Монитор включен и выполняет сбор данных.";
 $MESS['PERFMON_ACTIVE_N'] = "Монитор отключен.";
@@ -14,4 +14,3 @@ $MESS['PERFMON_ACT_INTERVAL_1800_SEC'] = "на 30 минут";
 $MESS['PERFMON_ACT_INTERVAL_3600_SEC'] = "на 1 час";
 $MESS['PERFMON_ACTION_BUTTON_OFF'] = "Отключить";
 $MESS['PERFMON_ACTION_BUTTON_ON'] = "Включить";
-?>

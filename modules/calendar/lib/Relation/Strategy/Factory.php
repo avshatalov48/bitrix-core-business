@@ -24,11 +24,11 @@ class Factory
 
 	public function getStrategy(int $userId, Event $event): RelationStrategy
 	{
-		if ($event->getSpecialLabel() === Dictionary::EVENT_TYPE['shared_crm'])
+		return match ($event->getSpecialLabel())
 		{
-			return new CrmSharingStrategy($userId, $event);
-		}
-
-		return new NullStrategy($userId, $event);
+			Dictionary::EVENT_TYPE['shared_crm'] => new CrmSharingStrategy($userId, $event),
+			Dictionary::EVENT_TYPE['booking'] => new BookingStrategy($userId, $event),
+			default => new NullStrategy($userId, $event),
+		};
 	}
 }

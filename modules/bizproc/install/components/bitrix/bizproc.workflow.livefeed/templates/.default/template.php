@@ -147,6 +147,7 @@ $jsDoInlineTask = function (array $props) use ($jsCallback, $cmpId)
 					href="/company/personal/bizproc/<?= $task['ID'] ?>/"
 					class="ui-btn ui-btn-primary"
 					onclick="<?= $jsTaskOpener() ?>"
+					data-slider-ignore-autobinding="true"
 				><?= GetMessage("BPATL_BEGIN") ?></a>
 			<?php
 			endif;
@@ -164,7 +165,7 @@ $jsDoInlineTask = function (array $props) use ($jsCallback, $cmpId)
 				<?=\CBPViewHelper::prepareTaskDescription($task['DESCRIPTION'])?>
 			</p>
 			<?endif?>
-			<p><a href="/company/personal/bizproc/<?= $task['ID'] ?>/" onclick="<?= $jsTaskOpener() ?>"><?=GetMessage("BPATL_TASK_LINK_TITLE")?></a></p>
+			<p><a href="/company/personal/bizproc/<?= $task['ID'] ?>/" onclick="<?= $jsTaskOpener() ?>" data-slider-ignore-autobinding="true"><?=GetMessage("BPATL_TASK_LINK_TITLE")?></a></p>
 		</div>
 	<?endforeach;?>
 	<?

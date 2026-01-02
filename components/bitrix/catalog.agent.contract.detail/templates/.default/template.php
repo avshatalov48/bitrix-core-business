@@ -47,17 +47,6 @@ else
 	$APPLICATION->SetTitle(Main\Localization\Loc::getMessage('CATALOG_AGENT_CONTRACT_DETAIL_TEMPLATE_TITLE_NEW'));
 }
 
-if ($arResult['ID'] > 0)
-{
-	$this->SetViewTarget('in_pagetitle');
-	?>
-	<span id="pagetitle_btn_wrapper" class="pagetitile-button-container">
-		<span id="pagetitle_edit" class="pagetitle-edit-button"></span>
-	</span>
-	<?php
-	$this->EndViewTarget();
-}
-
 UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
 
 $entityEditorControlFactory = 'BX.UI.EntityEditorControlFactory';
@@ -124,6 +113,15 @@ if ($arResult['INCLUDE_CRM_ENTITY_EDITOR'])
 }
 ?>
 <script>
+	<?php
+	if ($arResult['ID'] > 0):
+		?>
+	BX.ready(() => {
+		new BX.Catalog.Agent.ContractorComponent.Detail();
+	});
+		<?php
+	endif;
+	?>
 	BX.Catalog.Agent.ContractorComponent.Detail.registerControllerFactory('<?= \CUtil::JSEscape($entityEditorControllerFactory) ?>');
 	BX.Catalog.Agent.ContractorComponent.Detail.registerFieldFactory('<?= \CUtil::JSEscape($entityEditorControlFactory) ?>');
 	BX.Catalog.Agent.ContractorComponent.Detail.registerModelFactory();

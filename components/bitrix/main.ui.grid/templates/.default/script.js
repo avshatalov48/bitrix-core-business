@@ -4906,7 +4906,7 @@
 	      return this.table || (this.table = BX.Grid.Utils.getByTag(this.getContainer(), 'table', true));
 	    },
 	    getAdminPanel() {
-	      if (!this.adminPanel) {
+	      if (BX.Type.isUndefined(this.adminPanel)) {
 	        this.adminPanel = document.querySelector('.adm-header');
 	      }
 	      return this.adminPanel;

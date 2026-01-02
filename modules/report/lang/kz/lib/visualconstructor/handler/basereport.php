@@ -1,0 +1,6 @@
+<?php
+$MESS["BASE_REPORT_HANDLER_GROUPING"] = "Топтастыру:";
+$MESS["BASE_REPORT_HANDLER_WHAT_WILL_CALCULATE"] = "Не санаймыз:";
+$MESS["SELECT_DATA_PROVIDER"] = "Дереккөзі:";
+$MESS["SELECT_REPORT_HANDLER_CATEGORY"] = "Санат:";
+$MESS["WITHOUT_DATA"] = "Деректер жоқ";

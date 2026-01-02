@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBSEC_E_TAB2"] = "More";
 $MESS["IBSEC_E_TAB2_TITLE"] = "More parameters";
 $MESS["IBSEC_E_TAB5"] = "SEO";
@@ -72,4 +72,3 @@ $MESS["IBLOCK_FIELD_SORT"] = "Sorting";
 $MESS["IBLOCK_FIELD_CODE"] = "Mnemonic code";
 $MESS["IBLOCK_FIELD_DETAIL_PICTURE"] = "Detailed image";
 $MESS["IBSEC_E_ERR_BUILDER_ADSENT"] = "Link builder was not found.";
-?>

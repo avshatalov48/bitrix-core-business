@@ -1,0 +1,19 @@
+<?php
+$MESS["INCORRECT_QUESTION_MESSAGE"] = "Қате";
+$MESS["LEARNING_COURSES_CHAPTER_ADD"] = "Тарауды қосу";
+$MESS["LEARNING_COURSES_CHAPTER_EDIT"] = "Тарауды өзгерту";
+$MESS["LEARNING_COURSES_COURSE_ADD"] = "Курсты қосу";
+$MESS["LEARNING_COURSES_COURSE_EDIT"] = "Курсты өзгерту";
+$MESS["LEARNING_COURSES_LESSON_ADD"] = "Сабақты қосу";
+$MESS["LEARNING_COURSES_LESSON_EDIT"] = "Сабақты өзгерту";
+$MESS["LEARNING_COURSES_QUEST_M_ADD"] = "Сұрақты қосу (көптік таңдау)";
+$MESS["LEARNING_COURSES_QUEST_R_ADD"] = "Сұрақты қосу (сұрыптау)";
+$MESS["LEARNING_COURSES_QUEST_S_ADD"] = "Сұрақты қосу (дара таңдау)";
+$MESS["LEARNING_COURSES_QUEST_T_ADD"] = "Сұрақты қосу (мәтіндік жауап)";
+$MESS["LEARNING_COURSES_TEST_ADD"] = "Тестті қосу";
+$MESS["LEARNING_COURSES_TEST_EDIT"] = "Тестті өзгерту";
+$MESS["LEARNING_COURSE_DENIED"] = "Курс табылмады немесе оған қол жеткізуге тыйым салынған.";
+$MESS["LEARNING_COURSE_DETAIL"] = "Курс жайлы егжей-тегжейлі ақпарат";
+$MESS["LEARNING_MODULE_NOT_FOUND"] = "Оқыту модулі орнатылмаған.";
+$MESS["LEARNING_PANEL_CONTROL_PANEL"] = "Басқару тақтасы";
+$MESS["LEARNING_PANEL_CONTROL_PANEL_ALT"] = "Басқару тақтасына өту";

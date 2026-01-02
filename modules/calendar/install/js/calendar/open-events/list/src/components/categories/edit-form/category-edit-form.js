@@ -82,7 +82,9 @@ export const CategoryEditForm = {
 				content: this.$refs.popupContent,
 				className: 'calendar-open-events-category-edit-popup-container',
 				titleBar: true,
-				draggable: true,
+				draggable: {
+					restrict: true,
+				},
 			});
 
 			this.renderSwitcher();

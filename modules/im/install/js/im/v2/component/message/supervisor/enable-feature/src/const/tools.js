@@ -5,7 +5,7 @@ import { openHelpdeskArticle } from 'im.v2.lib.helpdesk';
 
 import { UserStatisticsLink as CheckInQrAuthPopup } from 'stafftrack.user-statistics-link';
 
-import { EnableFeatures } from '../../../base/src/const/features';
+import { EnableFeatures } from 'im.v2.component.message.supervisor.base';
 
 const onOpenToolsSettings = (toolId: string) => {
 	return () => {

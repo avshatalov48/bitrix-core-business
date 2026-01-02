@@ -20,6 +20,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var string $componentPath */
 /** @var \CMailClientMessageNewComponent $component */
 
+\Bitrix\Main\Loader::includeModule('ui');
 \Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
 
 \Bitrix\Main\UI\Extension::load([
@@ -32,24 +33,14 @@ if ($arResult['TO_PLUG_EXTENSION_SALES_LETTER_TEMPLATE'])
 	\Bitrix\Main\UI\Extension::load('mail.saleslettertemplate');
 }
 
-$this->setViewTarget('inside_pagetitle'); ?>
-<div></div>
-<?php
-$this->endViewTarget();
-
-$this->setViewTarget('above_pagetitle'); ?>
-
-<div class="mail-message-new-head">
-	<span class="mail-msg-title-icon mail-msg-title-icon-outcome"></span>
-	<span class="mail-message-new-title-text"><?=Loc::getMessage('MAIL_NEW_MESSAGE_TITLE')?></span>
-</div>
-
-<?php
+$APPLICATION->setTitle(Loc::getMessage('MAIL_NEW_MESSAGE_TITLE'));
+\Bitrix\UI\Toolbar\Facade\Toolbar::addBeforeTitleHtml('
+	<div class="mail-message-new-head">
+		<span class="mail-msg-title-icon mail-msg-title-icon-outcome"></span>
+	</div>'
+);
 
 $emailsLimitToSendMessage = Helper\LicenseManager::getEmailsLimitToSendMessage();
-
-$this->endViewTarget();
-
 $message = $arResult['MESSAGE'];
 ?>
 

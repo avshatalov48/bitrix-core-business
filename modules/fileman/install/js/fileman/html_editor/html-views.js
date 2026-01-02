@@ -408,7 +408,6 @@ class BXEditorIframeCopilot
 		document.addEventListener('keydown', this.onWindowKeyDownHandler.bind(this));
 		this.contentEditable.addEventListener('input', this.onContentEditableKeyDown.bind(this));
 		window.addEventListener('scroll', this.onScrollHandler.bind(this), true);
-		new ResizeObserver(this.onScrollHandler.bind(this)).observe(this.contentEditable);
 		window.addEventListener('resize', this.handleResizeWindow.bind(this));
 		BX.addCustomEvent(window, "onPullEvent-unicomments", this.startAdjustAnimation.bind(this));
 		this.hideObserver = new MutationObserver(() => {
@@ -2199,9 +2198,15 @@ var focusWithoutScrolling = function(element)
 			{
 				this.editor.action.Exec('insertLineBreak');
 
+				const getChromeVersion = () => {
+					const raw = navigator?.userAgent?.match(/Chrom(e|ium)\/(\d+)\./);
+
+					return raw ? parseInt(raw[2], 10) : 0;
+				};
+
 				// Bug in Chrome - when you press enter but it put carret on the prev string
 				// Chrome 43.0.2357 in Mac puts visible space instead of invisible
-				if (BX.browser.IsMac())
+				if (BX.browser.IsMac() || getChromeVersion() === 0 || getChromeVersion() >= 134)
 				{
 					return BX.PreventDefault(e);
 				}

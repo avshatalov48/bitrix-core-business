@@ -1,0 +1,4 @@
+<?php
+$MESS["SENDER_YANDEX_TOLOKA_EDIT"] = "Редакциялау";
+$MESS["SENDER_YANDEX_TOLOKA_REMOVE"] = "Жою";
+$MESS["SENDER_YANDEX_TOLOKA_TASK_ADD"] = "Міндетті құру";

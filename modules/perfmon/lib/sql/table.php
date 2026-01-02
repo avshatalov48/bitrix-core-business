@@ -265,6 +265,11 @@ class Table extends BaseObject
 				}
 				else
 				{
+					if ($token === null)
+					{
+						$token = $tokenizer->getPrevToken();
+						$token->text = ';';
+					}
 					throw new NotSupportedException("',' or ')' expected got (" . $token->text . '). line:' . $token->line);
 				}
 

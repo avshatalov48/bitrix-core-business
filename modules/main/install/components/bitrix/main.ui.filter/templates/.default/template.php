@@ -13,9 +13,15 @@ use Bitrix\Main\UI\Filter\DateType;
 use Bitrix\Main\UI\Filter\NumberType;
 use Bitrix\Main\UI\Filter\Type;
 use Bitrix\Main\Web\Json;
+use Bitrix\UI\Buttons\AirButtonStyle;
+use Bitrix\UI\Buttons\Button;
+use Bitrix\UI\Buttons\Color;
+use Bitrix\UI\Buttons\Icon;
+use Bitrix\UI\Buttons\Size;
 
 Extension::load([
 	"ui.design-tokens",
+	"ui.design-tokens.air",
 	"ui.buttons",
 	"ui.fonts.opensans",
 	"ui.layout-form",
@@ -25,6 +31,8 @@ Extension::load([
 	"date",
 	"ui.icons.service",
 	"ui.notification",
+	"ui.icon-set",
+	"ui.icon-set.outline",
 ]);
 
 global $USER;
@@ -150,12 +158,52 @@ if ($arResult["LIMITS_ENABLED"])
 
 if ($arResult["ENABLE_ADDITIONAL_FILTERS"])
 {
-	$filterWrapperClass .= " main-ui-filter-with-additional-filters";
+	$filterWrapperClass .= " main-ui-filter-with-additional-filters ui-icon-set__scope";
 }
+
+$useAirDesignButton = defined('AIR_SITE_TEMPLATE');
+
+$findButton = new Button([
+	'air' => $useAirDesignButton,
+	'className' => 'main-ui-filter-field-button main-ui-filter-find',
+	'style' => AirButtonStyle::FILLED,
+	'color' => Color::PRIMARY,
+	'text' => Loc::getMessage("MAIN_UI_FILTER__FIND"),
+	'size' => $useAirDesignButton ? Size::LARGE : null,
+	'icon' => Icon::SEARCH,
+]);
+
+$resetButton = new Button([
+	'air' => $useAirDesignButton,
+	'className' => 'main-ui-filter-field-button main-ui-filter-reset',
+	'style' => AirButtonStyle::PLAIN,
+	'color' => Color::LIGHT_BORDER,
+	'text' => Loc::getMessage("MAIN_UI_FILTER__RESET"),
+	'size' => $useAirDesignButton ? Size::LARGE : null,
+]);
+
+$saveSettingsButton = new Button([
+	'air' => $useAirDesignButton,
+	'className' => 'main-ui-filter-field-button main-ui-filter-save',
+	'style' => AirButtonStyle::FILLED,
+	'color' => Color::SUCCESS,
+	'text' => Loc::getMessage("MAIN_UI_FILTER__BUTTON_SAVE"),
+	'size' => $useAirDesignButton ? Size::LARGE : null,
+]);
+
+$cancelSettingsButton = new Button([
+	'air' => $useAirDesignButton,
+	'className' => 'main-ui-filter-field-button main-ui-filter-cancel',
+	'style' => AirButtonStyle::PLAIN,
+	'color' => Color::LIGHT_BORDER,
+	'text' => Loc::getMessage("MAIN_UI_FILTER__BUTTON_CANCEL"),
+	'size' => $useAirDesignButton ? Size::LARGE : null,
+]);
+
 ?>
 
 <script type="text/html" id="<?=$arParams["FILTER_ID"]?>_GENERAL_template">
-	<div class="main-ui-filter-wrapper <?=$filterWrapperClass?>">
+	<div class="main-ui-filter-wrapper ui-icon-set__scope <?=$filterWrapperClass?>">
 		<div class="main-ui-filter-inner-container">
 			<div class="main-ui-filter-sidebar">
 				<div class="main-ui-filter-sidebar-title">
@@ -225,10 +273,8 @@ if ($arResult["ENABLE_ADDITIONAL_FILTERS"])
 
 				<div class="main-ui-filter-field-preset-button-container">
 					<div class="main-ui-filter-field-button-inner">
-						<button class="ui-btn ui-btn-primary ui-btn-icon-search main-ui-filter-field-button  main-ui-filter-find">
-							<?=Loc::getMessage("MAIN_UI_FILTER__FIND")?></button>
-						<span class="ui-btn ui-btn-light-border main-ui-filter-field-button main-ui-filter-reset">
-							<?=Loc::getMessage("MAIN_UI_FILTER__RESET")?></span>
+						<?= $findButton->render(false) ?>
+						<?= $resetButton->render(false) ?>
 					</div>
 				</div>
 				<div class="main-ui-filter-field-button-container">
@@ -239,10 +285,8 @@ if ($arResult["ENABLE_ADDITIONAL_FILTERS"])
 								<span class="main-ui-filter-field-button-item"><?=Loc::getMessage("MAIN_UI_FILTER__CONFIRM_APPLY_FOR_ALL_CHECKBOX")?></span>
 							</label>
 						<? endif; ?>
-						<span class="ui-btn ui-btn-success main-ui-filter-field-button main-ui-filter-save">
-							<?=Loc::getMessage("MAIN_UI_FILTER__BUTTON_SAVE")?></span>
-						<span class="ui-btn ui-btn-light-border main-ui-filter-field-button main-ui-filter-cancel">
-							<?=Loc::getMessage("MAIN_UI_FILTER__BUTTON_CANCEL")?></span>
+						<?= $saveSettingsButton->render(false) ?>
+						<?= $cancelSettingsButton->render(false) ?>
 					</div>
 				</div>
 			</div><!--main-ui-filter-bottom-controls-->

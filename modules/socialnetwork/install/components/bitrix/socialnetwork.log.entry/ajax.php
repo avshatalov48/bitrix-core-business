@@ -840,7 +840,7 @@ if(CModule::IncludeModule("socialnetwork"))
 							|| (
 								in_array($arDestination["TYPE"], array("CRMCOMPANY", "CRMLEAD", "CRMCONTACT", "CRMDEAL"))
 								&& CModule::IncludeModule("crm")
-								&& !\Bitrix\Crm\Security\EntityAuthorization::checkReadPermission(
+								&& !\Bitrix\Crm\Service\Container::getInstance()->getUserPermissions()->item()->canRead(
 									CCrmLiveFeedEntity::ResolveEntityTypeID($arDestination["TYPE"]),
 									$arDestination["ID"]
 								)

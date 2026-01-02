@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Main\Web\Json;
+
 IncludeModuleLangFile(__FILE__);
 
 class CSocServTwitter extends CSocServAuth
@@ -480,11 +483,12 @@ class CTwitterInterface
 		$result = @CHTTP::sGetHeader(self::SEARCH_URL."?count=100&include_entities=false&q=".urlencode($hash)."&since_id=".$sinceId, $arHeaders, $this->httpTimeout);
 		if($result)
 		{
-			$arResult = CUtil::JsObjectToPhp($result);
-			//if(isset($arResult["search_metadata"]["next_results"]))
-			//	$arTwits = self::GetAllPages($arResult);
-			if(!empty($arTwits) && is_array($arTwits) && is_array($arResult["statuses"]))
-				$arResult["statuses"] = array_merge($arResult["statuses"], $arTwits);
+			$arResult = Json::decode($result);
+			if (empty($arResult) || !is_array($arResult))
+			{
+				return false;
+			}
+
 			if(is_array($arResult["statuses"]))
 				foreach($arResult["statuses"] as $key => $value)
 				{

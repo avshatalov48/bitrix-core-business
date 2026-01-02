@@ -4,6 +4,8 @@ namespace Bitrix\Im;
 use Bitrix\Im\Model\ChatTable;
 use Bitrix\Im\Model\RelationTable;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
 
 class Dialog
 {
@@ -128,6 +130,45 @@ class Dialog
 		}
 
 		return $chatId;
+	}
+
+	public static function getChatIds(array $dialogIds, int $currentUserId): array
+	{
+		$dialogIds = array_filter($dialogIds, function($dialogId) use ($currentUserId) {
+			return (int)$dialogId !== $currentUserId;
+		});
+
+		if (empty($dialogIds))
+		{
+			return [];
+		}
+
+		$chatIds = [];
+
+		$query = RelationTable::query()
+			->setSelect(['CHAT_ID', 'USER_ID'])
+			->registerRuntimeField(
+				'RELATION',
+				new Reference(
+					'RELATION',
+					RelationTable::class,
+					Join::on('this.CHAT_ID', 'ref.CHAT_ID')
+						->where('ref.USER_ID', $currentUserId)
+						->where('ref.MESSAGE_TYPE', Chat::TYPE_PRIVATE),
+					['join_type' => Join::TYPE_INNER]
+				)
+			)
+			->whereIn('USER_ID', $dialogIds)
+			->where('MESSAGE_TYPE', Chat::TYPE_PRIVATE)
+			->exec()
+		;
+
+		while ($row = $query->Fetch())
+		{
+			$chatIds[(int)$row['USER_ID']] = (int)$row['CHAT_ID'];
+		}
+
+		return $chatIds;
 	}
 
 	public static function getLink($dialogId, $userId = null):? string

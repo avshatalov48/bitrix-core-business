@@ -2,105 +2,50 @@
 
 namespace Bitrix\Main\Engine;
 
-use Bitrix\Main\Annotations\AnnotationReader;
+use Bitrix\Main\Engine\ActionFilter\Attribute\AttributeReader;
+use Bitrix\Main\Engine\ActionFilter\FilterType;
 use Bitrix\Main\Engine\Contract\Controllerable;
+use Bitrix\Main\Engine\Exception\ActionConfigurationException;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
-use Bitrix\Main\SystemException;
+use Closure;
+use ReflectionClass;
+use ReflectionMethod;
 
 final class Configurator
 {
-	const EVENT_ON_BUILD_ACTIONS = 'onBuildActions';
+	public const EVENT_ON_BUILD_ACTIONS = 'onBuildActions';
 
-	const MODE_ANNOTATIONS = 0x0001;
-
-	protected $mode = 0;
-
-	/**
-	 * Configurator constructor.
-	 */
-	public function __construct()
-	{
-	}
-
-	public function getConfigurationByAnnotations(array $annotations)
-	{
-		$configuration = null;
-		if (empty($annotations))
-		{
-			return $configuration;
-		}
-
-		if (isset($annotations['Action']) || array_key_exists('Action', $annotations))
-		{
-			$configuration = array(
-				'prefilters' => array(),
-				'postfilters' => array(),
-			);
-
-			if (isset($annotations['Action']['method']))
-			{
-				if (!is_array($annotations['Action']['method']))
-				{
-					$annotations['Action']['method'] = array($annotations['Action']['method']);
-				}
-
-				$configuration['prefilters'][] = new ActionFilter\HttpMethod($annotations['Action']['method']);
-			}
-
-			if (isset($annotations['Action']['csrf']) && is_bool($annotations['Action']['csrf']))
-			{
-				$configuration['prefilters'][] = new ActionFilter\Csrf($annotations['Action']['csrf']);
-			}
-
-			if (!$configuration && !isset($configuration['postfilters']))
-			{
-				$configuration['postfilters'] = array();
-			}
-		}
-
-		return $configuration;
-	}
-
-	public function getConfigurationByController(Controller $controller)
+	public function getConfigurationByController(Controller $controller): array
 	{
 		$newConfiguration = $this->onBuildConfigurationOfActions($controller);
-		$configuration = $controller->configureActions() ? : array();
+		$configuration = $controller->configureActions() ? : [];
 
-		if ($this->mode & self::MODE_ANNOTATIONS)
+		$lengthSuffix = mb_strlen(Controllerable::METHOD_ACTION_SUFFIX);
+		$reflectionClass = new ReflectionClass($controller);
+
+		$attributeReader = new AttributeReader();
+
+		foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $method)
 		{
-			$annotationReader = new AnnotationReader();
-
-			$lengthSuffix = mb_strlen(Controllerable::METHOD_ACTION_SUFFIX);
-			$reflectionClass = new \ReflectionClass($controller);
-			foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $method)
+			$probablySuffix = mb_substr($method->getName(), -$lengthSuffix);
+			if ($probablySuffix !== Controllerable::METHOD_ACTION_SUFFIX)
 			{
-				if (!$method->isPublic())
-				{
-					continue;
-				}
-
-				$probablySuffix = mb_substr($method->getName(), -$lengthSuffix);
-				if ($probablySuffix !== Controllerable::METHOD_ACTION_SUFFIX)
-				{
-					continue;
-				}
-
-				$actionName = mb_substr($method, 0, -$lengthSuffix);
-				if ($this->isExists($configuration, $actionName))
-				{
-					//we have already config and don't have to grab annotations
-					continue;
-				}
-
-				$annotations = $annotationReader->getMethodAnnotations($method);
-				if (!$this->checkReflectionMethodAsAction($method, $annotations))
-				{
-					continue;
-				}
-
-				$configuration[$actionName] = $this->getConfigurationByAnnotations($annotations);
+				continue;
 			}
+
+			$actionName = mb_substr($method->name, 0, -$lengthSuffix);
+			if (!$attributeReader->hasMethodFilterAttributes($method))
+			{
+				continue;
+			}
+
+			if ($this->isExists($configuration, $actionName))
+			{
+				throw new ActionConfigurationException('Invalid configuration of actions. Configuration is multiple');
+			}
+
+			$configuration[$actionName] = $attributeReader->buildConfig($method);
 		}
 
 		$configuration = array_merge($newConfiguration, $configuration);
@@ -111,48 +56,26 @@ final class Configurator
 		return $configuration;
 	}
 
-	private function isExists(array $configuration, $actionName)
+	private function isExists(array $configuration, $actionName): bool
 	{
-		$listOfActions = array_change_key_case($configuration, CASE_LOWER);
+		$listOfActions = array_change_key_case($configuration);
 		$actionName = mb_strtolower($actionName);
 
 		return isset($listOfActions[$actionName]);
 	}
 
-	private function checkReflectionMethodAsAction(\ReflectionMethod $reflectionMethod, array $annotations = null)
+	private function onBuildConfigurationOfActions(Controller $controller): array
 	{
-		if (!$reflectionMethod->isPublic())
-		{
-			return false;
-		}
-
-		if ($annotations === null)
-		{
-			$annotationReader = new AnnotationReader();
-			$annotations = $annotationReader->getMethodAnnotations($reflectionMethod);
-		}
-
-		if (!is_array($annotations) || !array_key_exists('Action', $annotations))
-		{
-			return false;
-		}
-
-		return true;
-	}
-
-	private function onBuildConfigurationOfActions(Controller $controller)
-	{
-		//todo set name of the controller in event name? or use filter?
 		$event = new Event(
 			'main',
-			static::EVENT_ON_BUILD_ACTIONS,
-			array(
+			self::EVENT_ON_BUILD_ACTIONS,
+			[
 				'controller' => $controller,
-			)
+			]
 		);
 		$event->send($this);
 
-		$newConfiguration = array();
+		$newConfiguration = [];
 		foreach ($event->getResults() as $eventResult)
 		{
 			if ($eventResult->getType() != EventResult::SUCCESS)
@@ -171,11 +94,11 @@ final class Configurator
 		return $newConfiguration;
 	}
 
-	public function wrapFiltersClosure(array $filters)
+	public function wrapFiltersClosure(array $filters): array
 	{
 		foreach ($filters as $i => $filter)
 		{
-			if (!($filter instanceof \Closure))
+			if (!($filter instanceof Closure))
 			{
 				continue;
 			}
@@ -186,69 +109,72 @@ final class Configurator
 		return $filters;
 	}
 
-	private function wrapClosure(array $configurations)
+	private function wrapClosure(array $configurations): array
 	{
 		foreach ($configurations as $actionName => $configuration)
 		{
-			if (!empty($configuration['prefilters']))
+			if (!empty($configuration[FilterType::Prefilter->value]))
 			{
-				$configurations[$actionName]['prefilters'] = $this->wrapFiltersClosure($configuration['prefilters']);
+				$configurations[$actionName][FilterType::Prefilter->value] =
+					$this->wrapFiltersClosure($configuration[FilterType::Prefilter->value]);
 			}
 
-			if (!empty($configuration['+prefilters']))
+			if (!empty($configuration[FilterType::EnablePrefilter->value]))
 			{
-				$configurations[$actionName]['+prefilters'] = $this->wrapFiltersClosure($configuration['+prefilters']);
+				$configurations[$actionName][FilterType::EnablePrefilter->value] =
+					$this->wrapFiltersClosure($configuration[FilterType::EnablePrefilter->value]);
 			}
 
-			if (!empty($configuration['postfilters']))
+			if (!empty($configuration[FilterType::Postfilter->value]))
 			{
-				$configurations[$actionName]['postfilters'] = $this->wrapFiltersClosure($configuration['postfilters']);
+				$configurations[$actionName][FilterType::Postfilter->value] =
+					$this->wrapFiltersClosure($configuration[FilterType::Postfilter->value]);
 			}
 
-			if (!empty($configuration['+postfilters']))
+			if (!empty($configuration[FilterType::EnablePostfilter->value]))
 			{
-				$configurations[$actionName]['+postfilters'] = $this->wrapFiltersClosure($configuration['+postfilters']);
+				$configurations[$actionName][FilterType::EnablePostfilter->value]
+					= $this->wrapFiltersClosure($configuration[FilterType::EnablePostfilter->value]);
 			}
 		}
 
 		return $configurations;
 	}
 
-	private function checkConfigurations(array $configurations)
+	private function checkConfigurations(array $configurations): void
 	{
 		foreach ($configurations as $actionName => $configuration)
 		{
 			if (!is_string($actionName))
 			{
-				throw new SystemException('Invalid configuration of actions. Action has to be string');
+				throw new ActionConfigurationException('Invalid configuration of actions. Action has to be string');
 			}
 
 			if (!is_array($configuration))
 			{
-				throw new SystemException('Invalid configuration of actions. Configuration has to be array');
+				throw new ActionConfigurationException('Invalid configuration of actions. Configuration has to be array');
 			}
 
-			if (!empty($configuration['prefilters']))
+			if (!empty($configuration[FilterType::Prefilter->value]))
 			{
-				$this->checkFilters($configuration['prefilters']);
+				$this->checkFilters($configuration[FilterType::Prefilter->value]);
 			}
 
-			if (!empty($configuration['postfilters']))
+			if (!empty($configuration[FilterType::Postfilter->value]))
 			{
-				$this->checkFilters($configuration['postfilters']);
+				$this->checkFilters($configuration[FilterType::Postfilter->value]);
 			}
 		}
 	}
 
-	private function checkFilters(array $filters)
+	private function checkFilters(array $filters): void
 	{
 		foreach ($filters as $filter)
 		{
 			if (!($filter instanceof ActionFilter\Base))
 			{
-				throw new SystemException('Filter has to be subclass of ' . ActionFilter\Base::className());
+				throw new ActionConfigurationException('Filter has to be subclass of ' . ActionFilter\Base::className());
 			}
 		}
 	}
-
 }

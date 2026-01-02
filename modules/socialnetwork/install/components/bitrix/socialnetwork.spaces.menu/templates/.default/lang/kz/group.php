@@ -1,0 +1,26 @@
+<?php
+$MESS["SN_SPACES_CREATE_CHAT"] = "Чат құру";
+$MESS["SN_SPACES_DISCUSSION_AHA_MOMENT_TEXT"] = "Мұнда нені талқылауды және немен жұмыс істеуді жоспарлап отырғаныңызды жазыңыз";
+$MESS["SN_SPACES_DISCUSSION_AHA_MOMENT_TITLE"] = "Қатысушыларға кеңістік туралы айтыңыз";
+$MESS["SN_SPACES_INVITATIONS_CHANGED"] = "Шақырулар өзгертілді";
+$MESS["SN_SPACES_INVITATIONS_REMOVED"] = "Шақырулардан бас тартылды";
+$MESS["SN_SPACES_INVITATIONS_SENT"] = "Шақырулар жіберілді";
+$MESS["SN_SPACES_MENU_CHAT_CREATE"] = "Чат құру";
+$MESS["SN_SPACES_MENU_CHAT_OPEN"] = "Чат";
+$MESS["SN_SPACES_MENU_CHAT_VIDEO_CALL_HD"] = "Бейне қоңырау";
+$MESS["SN_SPACES_MENU_CREATE_CHAT"] = "Чат құру";
+$MESS["SN_SPACES_MENU_FOLLOW_N"] = "Қадағаламау";
+$MESS["SN_SPACES_MENU_FOLLOW_Y"] = "Қадағалау";
+$MESS["SN_SPACES_MENU_INFO_MORE_BTN"] = "Көбірек";
+$MESS["SN_SPACES_MENU_MEMBERS_GREEN_LABEL"] = "Шақырылды";
+$MESS["SN_SPACES_MENU_MEMBERS_INVITE_BTN"] = "Қосу";
+$MESS["SN_SPACES_MENU_MEMBERS_LABEL"] = "Қатысушылар";
+$MESS["SN_SPACES_MENU_MEMBERS_RED_LABEL"] = "Растауды күтіп отырған";
+$MESS["SN_SPACES_MENU_PIN_N"] = "Бекітуден шығару";
+$MESS["SN_SPACES_MENU_PIN_Y"] = "Бекіту";
+$MESS["SN_SPACES_MENU_ROLES"] = "Рөлдер мен құқықтар";
+$MESS["SN_SPACES_MENU_SPACE_INVITE_MEMBERS"] = "Қатысушыларды қосу";
+$MESS["SN_SPACES_MENU_VIDEO_CALL_CHAT"] = "Чат";
+$MESS["SN_SPACES_MENU_VIDEO_CALL_HD"] = "Бейне қоңырау";
+$MESS["SN_SPACES_USER_SELECTOR_SEARCH_TAB_EMPTY_TEXT"] = "Қате бар-жоғын тексеріңіз";
+$MESS["SN_SPACES_USER_SELECTOR_SEARCH_TAB_EMPTY_TITLE"] = "Мұндай қатысушы жоқ";

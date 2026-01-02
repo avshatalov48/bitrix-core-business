@@ -1,0 +1,14 @@
+.ui-block-diagram-connections-queue-transition-enter-active,
+.ui-block-diagram-connections-queue-transition-leave-active {
+	transition: opacity 0.7s ease;
+}
+
+.ui-block-diagram-connections-queue-transition-enter-from,
+.ui-block-diagram-connections-queue-transition-leave-to {
+	opacity: 0;
+}
+
+.ui-block-diagram-connections-queue-transition-enter-to,
+.ui-block-diagram-connections-queue-transition-leave-from {
+	opacity: 1;
+}

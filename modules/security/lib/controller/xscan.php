@@ -11,7 +11,7 @@ class Xscan extends Controller
 {
 	public static function getFilter()
 	{
-		$filterOptions = new \Bitrix\Main\UI\Filter\Options('report_filter');
+		$filterOptions = new \Bitrix\Main\UI\Filter\Options('xscan_report_filter');
 		$filters = $filterOptions->getFilter();
 
 		$filter = [];
@@ -191,7 +191,7 @@ class Xscan extends Controller
 		$start_path = $start_path ? $start_path : $_SERVER['DOCUMENT_ROOT'];
 		$start_path = rtrim($start_path, '/');
 
-		$scaner = new \CBitrixXscan($progress, $total);
+		$scaner = new \CBitrixXscan($progress, $total, $start_path);
 		$scaner->skip_path = $break_point;
 
 		$session = \Bitrix\Main\Application::getInstance()->getSession();
@@ -207,10 +207,7 @@ class Xscan extends Controller
 			$session['xscan_page'] = 1;
 			$session->save();
 
-			$scaner->clean();
-			$scaner->CheckEvents();
-			$scaner->CheckAgents();
-			$scaner->Search($start_path, 'count');
+			$scaner->start($start_path);
 		}
 		else
 		{

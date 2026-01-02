@@ -74,7 +74,7 @@ if (empty($arParams["PATH_TO_LOG_TAG"]))
 {
 	$folderUsers = COption::GetOptionString("socialnetwork", "user_page", false, SITE_ID);
 	$arParams["PATH_TO_LOG_TAG"] = $folderUsers."log/?TAG=#tag#";
-	if (SITE_TEMPLATE_ID === 'bitrix24')
+	if (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 	{
 		$arParams["PATH_TO_LOG_TAG"] .= "&apply_filter=Y";
 	}

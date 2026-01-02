@@ -10,6 +10,17 @@ use Bitrix\Socialnetwork\ComponentHelper;
 
 final class SocialnetworkGroupCreate extends \Bitrix\Socialnetwork\Component\WorkgroupForm
 {
+	protected const ALLOWED_PROJECT_OPTIONS = [
+		'extranet',
+		'features',
+		'project',
+		'open',
+		'landing',
+		'tourId',
+		'scrum',
+		'flow',
+	];
+
 	public function onPrepareComponentParams($params)
 	{
 		if (
@@ -50,14 +61,12 @@ final class SocialnetworkGroupCreate extends \Bitrix\Socialnetwork\Component\Wor
 			$params['NAME_TEMPLATE'] = \CSite::getNameFormat();
 		}
 
-		$params['isFromFlowCreationForm'] = $params['PROJECT_OPTIONS']['isFromFlowCreationForm'] ?? false;
-
 		$params['USE_KEYWORDS'] = (($params['USE_KEYWORDS'] ?? null) !== 'N' ? 'Y' : 'N');
 
 		$params['PROJECT_OPTIONS'] = (isset($params['PROJECT_OPTIONS']) && is_array($params['PROJECT_OPTIONS']) ? $params['PROJECT_OPTIONS'] : []);
 		foreach (array_keys($params['PROJECT_OPTIONS']) as $key)
 		{
-			if (in_array((string)$key, ['extranet', 'features', 'project', 'open', 'landing', 'tourId', 'scrum' ], true))
+			if (in_array((string)$key, self::ALLOWED_PROJECT_OPTIONS, true))
 			{
 				continue;
 			}
@@ -94,6 +103,11 @@ final class SocialnetworkGroupCreate extends \Bitrix\Socialnetwork\Component\Wor
 		if (!isset($params['PROJECT_OPTIONS']['scrum']))
 		{
 			$params['PROJECT_OPTIONS']['scrum'] = false;
+		}
+
+		if (!isset($params['PROJECT_OPTIONS']['flow']))
+		{
+			$params['PROJECT_OPTIONS']['flow'] = false;
 		}
 
 		$this->onPrepareComponentPathParams($params);

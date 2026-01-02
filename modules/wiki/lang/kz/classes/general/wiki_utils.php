@@ -1,0 +1,24 @@
+<?php
+$MESS["CATEGORY_NAME"] = "Санат";
+$MESS["FILE_NAME"] = "Файл";
+$MESS["PAGE_ACCESS"] = "Қорғау";
+$MESS["PAGE_ACCESS_TITLE"] = "Қорғау";
+$MESS["PAGE_ADD"] = "Жасау";
+$MESS["PAGE_ADD_TITLE"] = "Жасау";
+$MESS["PAGE_ARTICLE"] = "Мақала";
+$MESS["PAGE_ARTICLE_TITLE"] = "Мақала";
+$MESS["PAGE_DELETE"] = "Жою";
+$MESS["PAGE_DELETE_TITLE"] = "Жою";
+$MESS["PAGE_DISCUSSION"] = "Талқылау ";
+$MESS["PAGE_DISCUSSION_TITLE"] = "Талқылау ";
+$MESS["PAGE_EDIT"] = "Өңдеу";
+$MESS["PAGE_EDIT_TITLE"] = "Өңдеу";
+$MESS["PAGE_HISTORY"] = "Тарихы";
+$MESS["PAGE_HISTORY_TITLE"] = "Тарихы";
+$MESS["PAGE_SERVICE"] = "Қызметтік парақша";
+$MESS["PAGE_SERVICE_TITLE"] = "Қызметтік парақша";
+$MESS["WIKI_CATEGORY_ALL"] = "Барлық беттер";
+$MESS["WIKI_CATEGORY_NOCAT"] = "Санаты жоқ беттер";
+$MESS["WIKI_NEW_PAGE_TITLE"] = "Жаңа парақша";
+$MESS["WIKI_PAGE_RENAME"] = "Атауын өзгерту";
+$MESS["WIKI_PAGE_RENAME_TITLE"] = "Бұл парақшаның атауын өзгертіп, барлық сілтемелерді жаңарту.";

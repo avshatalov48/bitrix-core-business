@@ -417,6 +417,70 @@ describe('core/uri', () => {
 		assert.ok(uri.toString() === `${source}&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER`);
 	});
 
+	describe('Query String Parameters Without Values', () => {
+		it('should supports params without value', () => {
+			const source = '/online/?IM_DIALOG';
+			const uri = new Uri(source);
+
+			assert.equal(uri.toString(), '/online/?IM_DIALOG');
+			assert.deepEqual(uri.getQueryParam('IM_DIALOG'), '');
+		});
+
+		it('should supports params without value', () => {
+			const source = '/online/?IM_DIALOG=';
+			const uri = new Uri(source);
+
+			assert.equal(uri.toString(), '/online/?IM_DIALOG=');
+			assert.deepEqual(uri.getQueryParam('IM_DIALOG'), '');
+		});
+
+		it('should supports params without value', () => {
+			const source = '/online/?test[]';
+			const uri = new Uri(source);
+
+			assert.equal(uri.toString(), '/online/?test[]');
+			assert.deepEqual(uri.getQueryParam('test'), []);
+		});
+
+		it('should supports params without value', () => {
+			const source = '/online/?test[]=';
+			const uri = new Uri(source);
+
+			assert.equal(uri.toString(), '/online/?test[]=');
+			assert.deepEqual(uri.getQueryParam('test'), ['']);
+		});
+
+		it('should preserve a nested parameter without a value', () => {
+			const source = '/online/?param[subParam]';
+			const uri = new Uri(source);
+
+			assert.equal(uri.toString(), '/online/?param[subParam]');
+			assert.deepEqual(uri.getQueryParam('param'), { subParam: '' });
+		});
+
+		it('should preserve deeply nested parameters', () => {
+			const source = '/online/?param[subParam][subSubParam]';
+			const uri = new Uri(source);
+
+			assert.equal(uri.toString(), '/online/?param[subParam][subSubParam]');
+		});
+
+		it('should preserve a nested parameter with an empty value', () => {
+			const source = '/online/?param[subParam]=';
+			const uri = new Uri(source);
+
+			assert.equal(uri.toString(), '/online/?param[subParam]=');
+			assert.deepEqual(uri.getQueryParam('param'), { subParam: '' });
+		});
+
+		it('should preserve deeply nested parameters with an empty value', () => {
+			const source = '/online/?param[subParam][subSubParam]=';
+			const uri = new Uri(source);
+
+			assert.equal(uri.toString(), '/online/?param[subParam][subSubParam]=');
+		});
+	});
+
 	describe('Security tests', () => {
 		it('Prototype pollution #1', () => {
 			const url = 'https://my-site.com/?__proto__[customProp1]=badValue1';

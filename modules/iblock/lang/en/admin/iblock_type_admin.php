@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_TYPE_ADMIN_ERR_SAVE"] = "Error saving the type";
 $MESS["IBLOCK_TYPE_ADMIN_ERR_DEL"] = "Error deleting the type";
 $MESS["IBLOCK_TYPE_ADMIN_NAV"] = "Types";
@@ -20,4 +20,3 @@ $MESS["MAIN_ADMIN_LIST_SELECTED"] = "Selected:";
 $MESS["MAIN_ADMIN_LIST_CHECKED"] = "Checked:";
 $MESS["MAIN_ADMIN_LIST_DELETE"] = "delete";
 $MESS["MAIN_ADMIN_LIST_FILTER_1ST"] = "Enter a search query";
-?>

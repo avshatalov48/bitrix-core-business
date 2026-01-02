@@ -52,7 +52,7 @@ return [
 			],
 			'.landing-block-node-button-container' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_59_1_BUTTON'),
-				'type' => ['button-color', 'color', 'color-hover'],
+				'type' => ['button-color', 'button-color-hover', 'color', 'color-hover'],
 			],
 			'.landing-block-node-input-container' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_59_1_INPUT'),

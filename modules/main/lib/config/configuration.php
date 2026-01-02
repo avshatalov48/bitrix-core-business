@@ -3,6 +3,7 @@
 namespace Bitrix\Main\Config;
 
 use Bitrix\Main;
+use Bitrix\Main\Loader;
 
 final class Configuration implements \ArrayAccess, \Iterator, \Countable
 {
@@ -14,11 +15,11 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 	/**
 	 * @var Configuration[]
 	 */
-	private static $instances;
-	private $moduleId = null;
-	private $storedData = null;
-	private $data = [];
-	private $isLoaded = false;
+	private static array $instances = [];
+	private ?string $moduleId = null;
+	private ?array $storedData = null;
+	private array $data = [];
+	private bool $isLoaded = false;
 
 	public static function getValue($name)
 	{
@@ -26,7 +27,7 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		return $configuration->get($name);
 	}
 
-	public static function setValue($name, $value)
+	public static function setValue($name, $value): void
 	{
 		$configuration = Configuration::getInstance();
 		$configuration->add($name, $value);
@@ -41,13 +42,7 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		}
 	}
 
-	/**
-	 * @static
-	 *
-	 * @param string|null $moduleId
-	 * @return Configuration
-	 */
-	public static function getInstance($moduleId = null)
+	public static function getInstance($moduleId = null): self
 	{
 		if (!isset(self::$instances[$moduleId]))
 		{
@@ -57,32 +52,32 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		return self::$instances[$moduleId];
 	}
 
-	private static function getPathConfigForModule($moduleId)
+	private static function getPathConfigForModule($moduleId): ?string
 	{
 		if (!$moduleId || !Main\ModuleManager::isModuleInstalled($moduleId))
 		{
-			return false;
+			return null;
 		}
 
-		$moduleConfigPath = getLocalPath("modules/{$moduleId}/.settings.php");
+		$moduleConfigPath = Loader::getLocal("modules/{$moduleId}/.settings.php");
 		if ($moduleConfigPath === false)
 		{
-			return false;
+			return null;
 		}
 
-		return Main\Loader::getDocumentRoot() . $moduleConfigPath;
+		return $moduleConfigPath;
 	}
 
-	private function loadConfiguration()
+	private function loadConfiguration(): void
 	{
 		$this->isLoaded = false;
 
 		if ($this->moduleId)
 		{
 			$path = self::getPathConfigForModule($this->moduleId);
-			if (file_exists($path))
+			if ($path !== null && file_exists($path))
 			{
-				$dataTmp = include($path);
+				$dataTmp = include $path;
 				if (is_array($dataTmp))
 				{
 					$this->data = $dataTmp;
@@ -91,18 +86,18 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		}
 		else
 		{
-			if (($path = getLocalPath(self::CONFIGURATION_FILE)) !== false)
+			if (($path = Loader::getLocal(self::CONFIGURATION_FILE)) !== false)
 			{
-				$dataTmp = include Main\Loader::getDocumentRoot() . $path;
+				$dataTmp = include $path;
 				if (is_array($dataTmp))
 				{
 					$this->data = $dataTmp;
 				}
 			}
 
-			if (($pathExtra = getLocalPath(self::CONFIGURATION_FILE_EXTRA)) !== false)
+			if (($pathExtra = Loader::getLocal(self::CONFIGURATION_FILE_EXTRA)) !== false)
 			{
-				$dataTmp = include Main\Loader::getDocumentRoot() . $pathExtra;
+				$dataTmp = include $pathExtra;
 				if (is_array($dataTmp) && !empty($dataTmp))
 				{
 					$this->storedData = $this->data;
@@ -117,7 +112,7 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		$this->isLoaded = true;
 	}
 
-	public function saveConfiguration()
+	public function saveConfiguration(): void
 	{
 		if (!$this->isLoaded)
 		{
@@ -130,7 +125,7 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		}
 		else
 		{
-			$path = Main\Loader::getDocumentRoot() . getLocalPath(self::CONFIGURATION_FILE);
+			$path = Loader::getLocal(self::CONFIGURATION_FILE);
 		}
 
 		$data = ($this->storedData !== null) ? $this->storedData : $this->data;
@@ -143,7 +138,7 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		file_put_contents($path, "<" . "?php\nreturn " . $data . ";\n");
 	}
 
-	public function add($name, $value)
+	public function add($name, $value): void
 	{
 		if (!$this->isLoaded)
 		{
@@ -162,13 +157,13 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 
 	/**
 	 * Changes readonly params.
-	 * Warning! Developer must use this method very carfully!.
+	 * Warning! Developer must use this method very carefully!
 	 * You must use this method only if you know what you do!
 	 * @param string $name
 	 * @param array $value
 	 * @return void
 	 */
-	public function addReadonly($name, $value)
+	public function addReadonly($name, $value): void
 	{
 		if (!$this->isLoaded)
 		{
@@ -182,7 +177,7 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		}
 	}
 
-	public function delete($name)
+	public function delete($name): void
 	{
 		if (!$this->isLoaded)
 		{
@@ -224,8 +219,7 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		return isset($this->data[$offset]);
 	}
 
-	#[\ReturnTypeWillChange]
-	public function offsetGet($offset)
+	public function offsetGet($offset): mixed
 	{
 		return $this->get($offset);
 	}
@@ -240,8 +234,7 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		$this->delete($offset);
 	}
 
-	#[\ReturnTypeWillChange]
-	public function current()
+	public function current(): mixed
 	{
 		if (!$this->isLoaded)
 		{
@@ -253,21 +246,17 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		return $c === false ? false : $c["value"];
 	}
 
-	#[\ReturnTypeWillChange]
-	public function next()
+	public function next(): void
 	{
 		if (!$this->isLoaded)
 		{
 			$this->loadConfiguration();
 		}
 
-		$c = next($this->data);
-
-		return $c === false ? false : $c["value"];
+		next($this->data);
 	}
 
-	#[\ReturnTypeWillChange]
-	public function key()
+	public function key(): mixed
 	{
 		if (!$this->isLoaded)
 		{
@@ -308,7 +297,7 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		return count($this->data);
 	}
 
-	public static function wnc()
+	public static function wnc(): void
 	{
 		Migrator::wnc();
 	}

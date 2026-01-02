@@ -7,10 +7,14 @@ BX.Lists.CatalogProcessesClass = (function ()
 		this.randomString = parameters.randomString;
 	};
 
-	CatalogProcessesClass.prototype.installProcesses = function (selector)
+	CatalogProcessesClass.prototype.installProcesses = function (button)
 	{
-		BX.addClass(selector, 'ui-btn-clock');
-		selector.setAttribute('onclick','');
+		if (button.isClocking())
+		{
+			return;
+		}
+		button.setState(BX.UI.Button.State.CLOCKING);
+
 		var selectedProcesses = BX.findChildrenByClassName(
 			BX('bx-lists-lcp-total-div'), 'bx-lists-lcp-table-tr-mousedown');
 		var processes = [];
@@ -59,9 +63,7 @@ BX.Lists.CatalogProcessesClass = (function ()
 						message: result.errors.pop().message
 					});
 				}
-				BX.removeClass(selector, 'ui-btn-clock');
-				selector.setAttribute('onclick',
-					'BX.Lists["CatalogProcessesClass_'+this.randomString+'"].installProcesses(this);');
+				button.setState(null);
 			}, this)
 		});
 	};

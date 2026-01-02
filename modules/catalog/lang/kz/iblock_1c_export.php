@@ -1,0 +1,24 @@
+<?php
+$MESS["CATI_OF_DEACT"] = "өшіру";
+$MESS["CATI_OF_DEL"] = "өшіру";
+$MESS["CATI_OF_KEEP"] = "сол күйінде қалдыру";
+$MESS["C_DATA_LOADING"] = "Деректерді жүктеу";
+$MESS["C_ERROR_NO_DATAFILE"] = "Деректер файлы жүктелмеген немесе таңдалмаған. Жүктеу мүмкін емес.";
+$MESS["C_ERROR_NO_IBLOCKTYPE"] = "Ақпараттық блоктың түрі таңдалмаған. Жүктеу мүмкін емес.";
+$MESS["C_F_DATAFILE"] = "Менің компьютерімнен деректер файлы:";
+$MESS["C_F_DATAFILE1"] = "Немесе сайттан деректер файлы:";
+$MESS["C_F_DATAFILE1_NOTE"] = "(дисктен таңдау)";
+$MESS["C_F_IBLOCK"] = "Ақпараттық блоктың түрі:";
+$MESS["C_F_IBLOCK_SELECT"] = "таңдаңыз";
+$MESS["C_F_LOAD"] = "Жүктеу";
+$MESS["C_F_OUTFILEACTION"] = "Деректер файлында жоқ тауарлар";
+$MESS["C_F_TITLE"] = "Деректерді жүктеу CommerceML пішімінде";
+$MESS["C_LOAD_CATALOG"] = "Жүктелген каталогтар:";
+$MESS["C_LOAD_CHANGED"] = "өзгертілді:";
+$MESS["C_LOAD_ERROR"] = "Қате:";
+$MESS["C_LOAD_GROUP"] = "Жүктелген топтар:";
+$MESS["C_LOAD_NEW"] = "жаңа:";
+$MESS["C_LOAD_PRODUCT"] = "Жүктелген тауарлар:";
+$MESS["C_LOAD_PROPS"] = "Жүктелген қасиеттер:";
+$MESS["C_LOAD_TIME1"] = "Жүктеу алады";
+$MESS["C_LOAD_TIME2"] = "сек";

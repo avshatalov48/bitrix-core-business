@@ -80,15 +80,19 @@ class Server implements ServerInterface
 		return $this;
 	}
 
-	public function getFullPath(): string
+	public function getOriginPath(): string
 	{
 		return $this->getScheme()
 			. self::SCHEME_SEPARATOR
 			. $this->getHost()
 			. self::PORT_SEPARATOR
 			. $this->getPort()
-			. $this->getBasePath()
 		;
+	}
+
+	public function getFullPath(): string
+	{
+		return $this->getOriginPath() . $this->getBasePath();
 	}
 
 	/**

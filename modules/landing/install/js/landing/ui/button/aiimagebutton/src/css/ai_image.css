@@ -4,7 +4,7 @@
 	border-radius: 20px;
 	font-weight: 600;
 	font-size: 14px;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-style: normal;
 }
 

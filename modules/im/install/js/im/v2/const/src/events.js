@@ -2,10 +2,10 @@ export const EventType = Object.freeze({
 	layout:
 	{
 		onLayoutChange: 'IM.Layout:onLayoutChange',
-		onOpenChat: 'IM.Layout:onOpenChat',
 		onOpenNotifications: 'IM.Layout:onOpenNotifications',
 	},
-	header: {
+	header:
+	{
 		openAddToChatPopup: 'IM.Header:openAddToChatPopup',
 	},
 	dialog:
@@ -77,6 +77,7 @@ export const EventType = Object.freeze({
 		onChatCounterChange: 'onImUpdateCounterMessage',
 		onLinesCounterChange: 'onImUpdateCounterLines',
 		onImUpdateCounter: 'onImUpdateCounter',
+		onUpdate: 'IM.Counters:onUpdate',
 	},
 	desktop:
 	{
@@ -110,5 +111,17 @@ export const EventType = Object.freeze({
 		pause: 'im:audioplayer:pause',
 		stop: 'im:audioplayer:stop',
 		preload: 'im:audioplayer:preload',
+	},
+	task:
+	{
+		onMembersCountChange: 'tasks:card:onMembersCountChange',
+	},
+	key:
+	{
+		onBeforeEscape: 'IM.Keys:onBeforeEscape',
+	},
+	notifier:
+	{
+		onBeforeShowMessage: 'IM.Notifier:onBeforeShowMessage',
 	},
 });

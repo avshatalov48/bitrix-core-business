@@ -1,17 +1,16 @@
-import { Loc } from 'main.core';
 import { EventEmitter } from 'main.core.events';
-import { Store } from 'ui.vue3.vuex';
-
-import { Analytics } from 'im.v2.lib.analytics';
 import { CopilotManager } from 'im.v2.lib.copilot';
 import { Core } from 'im.v2.application.core';
 import { Logger } from 'im.v2.lib.logger';
 import { UserManager } from 'im.v2.lib.user';
 import { UuidManager } from 'im.v2.lib.uuid';
-import { WritingManager } from 'im.v2.lib.writing';
+import { InputActionListener } from 'im.v2.lib.input-action';
 import { EventType, DialogScrollThreshold, UserRole, ChatType } from 'im.v2.const';
-import { MessageService } from 'im.v2.provider.service';
+import { MessageService } from 'im.v2.provider.service.message';
 
+import { MessageDeleteManager } from './classes/message-delete-manager';
+
+import type { Store } from 'ui.vue3.vuex';
 import type { ImModelChat, ImModelMessage } from 'im.v2.model';
 
 import type {
@@ -19,12 +18,15 @@ import type {
 	MessageUpdateParams,
 	MessageDeleteParams,
 	MessageDeleteCompleteParams,
+	MultipleMessageDeleteParams,
 	ReadMessageParams,
 	ReadMessageOpponentParams,
 	PinAddParams,
 	PinDeleteParams,
 	AddReactionParams,
 	DeleteReactionParams,
+	MessageDeleteCompletePreparedParams,
+	PrepareDeleteMessageParams,
 } from '../../types/message';
 import type { PullExtraParams, RawFile, RawUser, RawMessage, RawChat } from '../../types/common';
 
@@ -34,10 +36,12 @@ export class MessagePullHandler
 {
 	#store: Store;
 	#messageViews: {[messageId: string]: Set<UserId>} = {};
+	#messageDeleteManager: MessageDeleteManager;
 
 	constructor()
 	{
 		this.#store = Core.getStore();
+		this.#messageDeleteManager = new MessageDeleteManager();
 	}
 
 	handleMessageAdd(params: MessageAddParams)
@@ -48,7 +52,8 @@ export class MessagePullHandler
 		this.#setFiles(params);
 		this.#setAdditionalEntities(params);
 		this.#setCommentInfo(params);
-		this.#setCopilotRole(params);
+		this.#setCopilotData(params);
+		this.#setMessagesAutoDeleteConfig(params);
 
 		const messageWithTemplateId = this.#store.getters['messages/isInChatCollection']({
 			messageId: params.message.templateId,
@@ -84,8 +89,8 @@ export class MessagePullHandler
 			);
 			if (hasLoadingMessage)
 			{
-				void this.#store.dispatch('messages/deleteLoadingMessageByMessageId', {
-					messageId: params.message.templateId,
+				void this.#store.dispatch('messages/delete', {
+					id: params.message.templateId,
 				});
 			}
 
@@ -93,9 +98,9 @@ export class MessagePullHandler
 			this.#handleAddingMessageToModel(params);
 		}
 
-		WritingManager.getInstance().stopWriting({
-			dialogId: params.dialogId,
+		InputActionListener.getInstance().stopAction({
 			userId: params.message.senderId,
+			dialogId: params.dialogId,
 		});
 
 		this.#updateDialog(params);
@@ -104,9 +109,9 @@ export class MessagePullHandler
 	handleMessageUpdate(params: MessageUpdateParams)
 	{
 		Logger.warn('MessagePullHandler: handleMessageUpdate', params);
-		WritingManager.getInstance().stopWriting({
-			dialogId: params.dialogId,
+		InputActionListener.getInstance().stopAction({
 			userId: params.senderId,
+			dialogId: params.dialogId,
 		});
 		this.#store.dispatch('messages/update', {
 			id: params.id,
@@ -118,70 +123,39 @@ export class MessagePullHandler
 		this.#sendScrollEvent(params.chatId);
 	}
 
+	handleMessageDeleteV2(params: MultipleMessageDeleteParams)
+	{
+		Logger.warn('MessageDeletePullHandler: handleMultipleMessageDelete', params);
+
+		const messages = params.messages;
+
+		messages.forEach((message) => {
+			if (message.completelyDeleted)
+			{
+				const preparedParams = this.#prepareDeleteMessageParams(params, true, message);
+				this.#messageDeleteManager.deleteMessageComplete(preparedParams);
+
+				return;
+			}
+
+			const preparedParams = this.#prepareDeleteMessageParams(params, false, message);
+			this.#messageDeleteManager.deleteMessage(preparedParams);
+		});
+	}
+
 	handleMessageDelete(params: MessageDeleteParams)
 	{
-		Logger.warn('MessagePullHandler: handleMessageDelete', params);
-		WritingManager.getInstance().stopWriting({
-			dialogId: params.dialogId,
-			userId: params.senderId,
-		});
-
-		this.#deleteSelectedMessage(params.id);
-
-		this.#store.dispatch('messages/update', {
-			id: params.id,
-			fields: {
-				text: '',
-				isDeleted: true,
-				files: [],
-				attach: [],
-				replyId: 0,
-			},
-		});
+		Logger.warn('MessageDeletePullHandler: handleMessageDelete', params);
+		const preparedParams = this.#prepareDeleteMessageParams(params);
+		this.#messageDeleteManager.deleteMessage(preparedParams);
 	}
 
 	handleMessageDeleteComplete(params: MessageDeleteCompleteParams)
 	{
-		Logger.warn('MessagePullHandler: handleMessageDeleteComplete', params);
-		WritingManager.getInstance().stopWriting({
-			dialogId: params.dialogId,
-			userId: params.senderId,
-		});
+		Logger.warn('MessageDeletePullHandler: handleMessageDeleteComplete', params);
 
-		this.#deleteSelectedMessage(params.id);
-
-		const areChannelCommentsOpened = this.#store.getters['messages/comments/areOpenedForChannelPost'](params.id);
-		if (areChannelCommentsOpened)
-		{
-			EventEmitter.emit(EventType.dialog.closeComments);
-			Analytics.getInstance().messageDelete.onDeletedPostNotification({
-				dialogId: params.dialogId,
-				messageId: params.id,
-			});
-			this.#showNotification(Loc.getMessage('IM_CONTENT_CHAT_CONTEXT_MESSAGE_NOT_FOUND'));
-		}
-
-		this.#store.dispatch('messages/delete', {
-			id: params.id,
-		});
-
-		const dialogUpdateFields = {
-			counter: params.counter,
-		};
-
-		const lastMessageWasDeleted = Boolean(params.newLastMessage);
-		if (lastMessageWasDeleted)
-		{
-			dialogUpdateFields.lastMessageId = params.newLastMessage.id;
-			dialogUpdateFields.lastMessageViews = params.lastMessageViews;
-
-			this.#store.dispatch('messages/store', params.newLastMessage);
-		}
-
-		this.#store.dispatch('chats/update', {
-			dialogId: params.dialogId,
-			fields: dialogUpdateFields,
-		});
+		const preparedParams = this.#prepareDeleteMessageParams(params, true);
+		this.#messageDeleteManager.deleteMessageComplete(preparedParams);
 	}
 
 	handleAddReaction(params: AddReactionParams)
@@ -382,7 +356,7 @@ export class MessagePullHandler
 		const RELOAD_LIMIT = MessageService.getMessageRequestLimit() * 5;
 		if (dialog.inited && !chatIsOpened && unreadMessages.length > RELOAD_LIMIT)
 		{
-			this.#store.dispatch('messages/store', params.message);
+			void this.#store.dispatch('messages/store', params.message);
 			const messageService = new MessageService({ chatId: params.chatId });
 			messageService.reloadMessageList();
 
@@ -507,7 +481,7 @@ export class MessagePullHandler
 		return this.#store.getters['chats/get'](dialogId, temporary);
 	}
 
-	#setCopilotRole(params)
+	#setCopilotData(params)
 	{
 		if (!params.copilot)
 		{
@@ -518,13 +492,34 @@ export class MessagePullHandler
 		void copilotManager.handleMessageAdd(params.copilot);
 	}
 
-	#showNotification(text: string): void
+	#setMessagesAutoDeleteConfig(params: MessageAddParams)
 	{
-		BX.UI.Notification.Center.notify({ content: text });
+		const { messagesAutoDeleteConfigs } = params;
+		void this.#store.dispatch('chats/autoDelete/set', messagesAutoDeleteConfigs);
 	}
 
-	#deleteSelectedMessage(messageId: number)
+	#prepareDeleteMessageParams(
+		params: PrepareDeleteMessageParams,
+		isComplete = false,
+		message = null,
+	): MessageDeleteCompletePreparedParams
 	{
-		void this.#store.dispatch('messages/select/deleteByMessageId', messageId);
+		const baseParams = {
+			id: message ? message.id : params.id,
+			senderId: message ? message.senderId : params.senderId,
+			dialogId: params.dialogId,
+		};
+
+		if (isComplete)
+		{
+			return {
+				...baseParams,
+				newLastMessage: params.newLastMessage,
+				lastMessageViews: params.lastMessageViews,
+				counter: params.counter,
+			};
+		}
+
+		return baseParams;
 	}
 }

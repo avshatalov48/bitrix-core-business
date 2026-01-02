@@ -3,6 +3,7 @@ import { ConferenceErrorCode } from "im.const";
 import { Cookie } from 'im.lib.cookie';
 import { Utils } from "im.lib.utils";
 import { Vuex } from "ui.vue.vuex";
+import { State as CallState } from 'call.core';
 
 import 'im.component.call-feedback';
 
@@ -74,6 +75,14 @@ const Error = {
 		{
 			console.warn('this.$Bitrix.Application.get().callDetails', this.$Bitrix.Application.get().callDetails);
 			return this.$Bitrix.Application.get().callDetails;
+		},
+		isExternalUser()
+		{
+			return this.$Bitrix.Application.get().isExternalUser();
+		},
+		isFinishedByOrganizer()
+		{
+			return this.$Bitrix.Application.get().currentCall?.state === CallState.Finished;
 		},
 		localize()
 		{
@@ -215,7 +224,16 @@ const Error = {
 				<template v-else>
 					<div class="bx-im-component-call-error-container">
 						<div class="bx-im-component-call-error-content">
-							<div class="bx-im-component-call-error-text">{{ localize['BX_IM_COMPONENT_CALL_ERROR_USER_LEFT_THE_CALL'] }}</div>
+							<div class="bx-im-component-call-error-text">
+								<span v-if="isFinishedByOrganizer">
+									{{ localize['BX_IM_COMPONENT_CALL_ERROR_ORGANIZER_FINISHED_CONFERENCE'] }}
+								</span>
+								<span v-else>
+									{{ localize['BX_IM_COMPONENT_CALL_ERROR_USER_LEFT_THE_CALL'] }}
+								</span>
+								<br />
+								<a v-if="!isExternalUser" href="/" class="bx-im-component-call-error-link">{{ localize['BX_IM_COMPONENT_CALL_ERROR_RETURN_TO_PORTAL'] }}</a>
+							</div>
 						</div>
 					</div>
 				</template>

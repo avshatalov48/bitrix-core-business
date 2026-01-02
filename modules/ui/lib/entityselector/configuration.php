@@ -2,6 +2,7 @@
 
 namespace Bitrix\UI\EntitySelector;
 
+use Bitrix\Main\HttpApplication;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 
@@ -197,7 +198,9 @@ final class Configuration
 		}
 		catch (\ReflectionException $exception)
 		{
-
+			$application = HttpApplication::getInstance();
+			$exceptionHandler = $application->getExceptionHandler();
+			$exceptionHandler->writeToLog($exception);
 		}
 
 		return null;

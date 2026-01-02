@@ -1,4 +1,4 @@
-import type {reactionType as ReactionType} from 'ui.reactions-select';
+import type { reactionType as ReactionType } from 'ui.reactions-select';
 
 export type Reactions = {
 	reactionCounters: {[reactionType: string]: number},

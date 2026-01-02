@@ -66,6 +66,7 @@ class UpdateMemberHandler implements UpdateHandlerInterface
 				$command->getId(),
 				$command->getInitiatorId(),
 				UserToGroupTable::ROLE_USER,
+				$command->getInitiatedByType(),
 			...$add,
 		);
 
@@ -116,7 +117,7 @@ class UpdateMemberHandler implements UpdateHandlerInterface
 		{
 			ActionMessageFactory::getInstance()
 				->getActionMessage(ActionType::LeaveUser, $command->getId(), $command->getInitiatorId())
-				->runAction()
+				->send()
 			;
 
 			$delete = array_filter(
@@ -127,7 +128,7 @@ class UpdateMemberHandler implements UpdateHandlerInterface
 
 		ActionMessageFactory::getInstance()
 			->getActionMessage(ActionType::ExcludeUser, $command->getId(), $command->getInitiatorId())
-			->runAction($delete)
+			->send($delete)
 		;
 
 		$writeToLogResult = $this->writeDeleteMemberLog($delete, $entityAfter, $command->getInitiatorId());

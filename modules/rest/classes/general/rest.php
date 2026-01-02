@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix vars
  * @global CUser $USER
@@ -9,221 +10,179 @@
  */
 
 use Bitrix\Bitrix24\Feature;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Engine\Response\BFile;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Main\SystemException;
+use Bitrix\Rest\AppTable;
 use Bitrix\Rest\Engine\Access\LoadLimiter;
+use Bitrix\Rest\Engine\RestManager;
+use Bitrix\Rest\Event\Session;
+use Bitrix\Rest\LicenseException;
+use Bitrix\Rest\Notify;
+use Bitrix\Rest\OAuthService;
 use Bitrix\Rest\RestException;
 use Bitrix\Rest\AccessException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Web\Json;
+use Bitrix\Rest\RestExceptionInterface;
 use Bitrix\Rest\Tools\Diagnostics\RestServerProcessLogger;
+use Bitrix\Rest\UsageStatTable;
 use Bitrix\Socialservices\Bitrix24Signer;
 use Bitrix\Rest\NonLoggedExceptionDecorator;
 
 class CRestServer
 {
-	const STATUS_OK = "200 OK";
-	const STATUS_CREATED = "201 Created";
-	const STATUS_WRONG_REQUEST = "400 Bad Request";
-	const STATUS_UNAUTHORIZED = "401 Unauthorized";
-	const STATUS_PAYMENT_REQUIRED = "402 Payment Required"; // reserved for future use
-	const STATUS_FORBIDDEN = "403 Forbidden";
-	const STATUS_NOT_FOUND = "404 Not Found";
-	const STATUS_TO_MANY_REQUESTS = "429 Too Many Requests";
-	const STATUS_INTERNAL = "500  Internal Server Error";
+	public const STATUS_OK = "200 OK";
+	public const STATUS_CREATED = "201 Created";
+	public const STATUS_WRONG_REQUEST = "400 Bad Request";
+	public const STATUS_UNAUTHORIZED = "401 Unauthorized";
+	public const STATUS_PAYMENT_REQUIRED = "402 Payment Required"; // reserved for future use
+	public const STATUS_FORBIDDEN = "403 Forbidden";
+	public const STATUS_NOT_FOUND = "404 Not Found";
+	public const STATUS_TO_MANY_REQUESTS = "429 Too Many Requests";
+	public const STATUS_INTERNAL = "500 Internal Server Error";
 
-	/* @var \CRestServer */
-	protected static $instance = null;
+	public const TRANSPORT_JSON = 'json';
+	public const TRANSPORT_XML = 'xml';
+	protected const DEFAULT_REST_PROVIDER = 'CRestProvider';
 
-	protected $class = '';
-	protected $method = '';
-	protected $transport = '';
-	protected $scope = '';
-	protected $query = array();
+	protected static ?CRestServer $instance = null;
 
-	protected $timeStart = 0;
-	protected $timeProcessStart = 0;
-	protected $timeProcessFinish = 0;
-	protected $usage = null;
+	protected ?string $class = null;
+	protected ?string $method = null;
+	protected ?string $transport = null;
+	protected ?string $scope = null;
+	protected ?array $query = null;
 
-	protected $auth = array();
-	protected $authData = array();
-	protected $authScope = null;
-	protected $clientId = '';
-	protected $passwordId = '';
+	protected int $timeStart = 0;
+	protected int $timeProcessStart = 0;
+	protected int $timeProcessFinish = 0;
+	protected mixed $usage = null;
 
-	/* @var RestException */
-	protected $error = '';
-	protected $resultStatus = null;
+	protected array $auth = [];
+	protected array $authData = [];
+	protected ?array $authScope = null;
+	protected ?string $clientId = null;
+	protected ?string $passwordId = null;
 
-	protected $securityMethodState = null;
-	protected $securityClientState = null;
+	protected RestExceptionInterface|null $error = null;
+	protected ?string $resultStatus = null;
 
-	protected $arServiceDesc = array();
+	protected ?array $securityMethodState = null;
+	protected ?string $securityClientState = null;
 
-	protected $tokenCheck = false;
-	protected $authType = null;
+	protected array $arServiceDesc = [];
+
+	protected bool $tokenCheck = false;
+	protected ?string $authType = null;
 
 	public function __construct($params, $toLowerMethod = true)
 	{
-		$this->class = $params['CLASS'];
+		$this->class = $params['CLASS'] ?: static::DEFAULT_REST_PROVIDER;
 		$this->method = $toLowerMethod ? mb_strtolower($params['METHOD']) : $params['METHOD'];
-		$this->query = $params['QUERY'];
+
+		$this->query = $params['QUERY'] ?? null;
 
 		$this->transport = $params['TRANSPORT'] ?? null;
 
 		$this->securityClientState = $params['STATE'] ?? null;
 
-		if(!$this->transport)
+		if ($this->transport === null)
 		{
-			$this->transport = 'json';
+			$this->transport = self::TRANSPORT_JSON;
 		}
 
-		if(self::$instance === null)
+		if (static::$instance === null)
 		{
-			self::$instance = $this;
+			static::$instance = $this;
 		}
 	}
 
-	/**
-	 * @return \CRestServer|null
-	 */
-	public static function instance()
+	public static function instance(): ?self
 	{
 		return self::$instance;
 	}
 
-	public static function transportSupported($transport)
+	public static function transportSupported(string $transport): bool
 	{
-		return $transport == 'xml' || $transport == 'json';
+		return $transport === self::TRANSPORT_XML || $transport === self::TRANSPORT_JSON;
 	}
 
 	public function process()
 	{
-		global $APPLICATION;
-
 		$this->timeStart = microtime(true);
 
-		if(!defined('BX24_REST_SKIP_SEND_HEADERS'))
+		if (!defined('BX24_REST_SKIP_SEND_HEADERS'))
 		{
-			\CRestUtil::sendHeaders();
+			CRestUtil::sendHeaders();
 		}
 
 		try
 		{
-			if($this->init())
-			{
-				$handler = new $this->class();
-				/* @var IRestService $handler */
-				$this->arServiceDesc = $handler->getDescription();
-
-				$this->tokenCheck = $this->isTokenCheck();
-
-				if($this->checkScope())
-				{
-					$APPLICATION->RestartBuffer();
-
-					if($this->checkAuth())
-					{
-						\Bitrix\Rest\UsageStatTable::log($this);
-						$logger = new RestServerProcessLogger($this);
-						$logger->logRequest();
-
-						if($this->tokenCheck)
-						{
-							$result = $this->processTokenCheckCall();
-						}
-						else
-						{
-							$result = $this->processCall();
-						}
-
-						$logger->logResponse($result);
-
-						return $result;
-					}
-					else
-					{
-						throw new AccessException();
-					}
-				}
-				else
-				{
-					throw new RestException('Method not found!', RestException::ERROR_METHOD_NOT_FOUND, self::STATUS_NOT_FOUND);
-				}
-			}
+			return $this->processExecution();
 		}
-		catch(Exception $e)
+		catch (Exception $e)
 		{
-			if ($e instanceof NonLoggedExceptionDecorator)
-			{
-				$e = RestException::initFromException($e->getOriginalException());
-			}
-			elseif (!($e instanceof RestException))
-			{
-				Main\Application::getInstance()->getExceptionHandler()->writeToLog($e);
-
-				$e = RestException::initFromException($e);
-			}
-
-			$this->error = $e;
-
-			$ex = $APPLICATION->GetException();
-			if ($ex)
-			{
-				$this->error->setApplicationException($ex);
-			}
+			return $this->processException($e);
 		}
-
-		if ($this->error)
-		{
-			return $this->outputError();
-		}
-
-		return null;
 	}
 
-	protected function isTokenCheck()
+	/**
+	 * @throws RestException
+	 */
+	protected function isTokenCheck(): bool
 	{
-		$methodDescription = $this->getMethodDescription();
-		if(!$methodDescription)
+		$methodDescription = $this->getMethodDescriptions();
+		if ($methodDescription === null)
 		{
 			throw new RestException('Method not found!', RestException::ERROR_METHOD_NOT_FOUND, self::STATUS_NOT_FOUND);
 		}
 
-		return in_array($this->method, array(
-			\CRestUtil::METHOD_DOWNLOAD,
-			\CRestUtil::METHOD_UPLOAD,
-		)) || isset($this->query['token']);
+		return in_array($this->method, [
+			CRestUtil::METHOD_DOWNLOAD,
+			CRestUtil::METHOD_UPLOAD,
+		]) || isset($this->query['token']);
 	}
 
-	protected function processTokenCheckCall()
+	/**
+	 * @return array
+	 * @throws AccessException
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\LoaderException
+	 * @throws RestException
+	 * @throws SystemException
+	 */
+	protected function processTokenCheckCall(): array
 	{
 		$token = $this->query["token"];
 
-		[$this->scope, $queryString, $querySignature] = explode(\CRestUtil::TOKEN_DELIMITER, $token);
+		[$this->scope, $queryString, $querySignature] = explode(CRestUtil::TOKEN_DELIMITER, $token);
 
 		$signature = $this->getTokenCheckSignature($this->method, $queryString);
 
-		if($signature === $querySignature)
+		if ($signature === $querySignature)
 		{
 			$queryString = base64_decode($queryString);
 
-			$query = array();
+			$query = [];
 			parse_str($queryString, $query);
 
 			unset($query["_"]);
 
 			$callback = $this->getMethodCallback();
 
-			if(!$callback)
+			if (!$callback)
 			{
 				throw new RestException('Method not found!', RestException::ERROR_METHOD_NOT_FOUND, self::STATUS_NOT_FOUND);
 			}
 
-			$result = call_user_func_array($callback, array($query, $this->scope, $this));
+			$result = call_user_func_array($callback, [$query, $this->scope, $this]);
 
-			return array("result" => $result);
+			return ["result" => $result];
 		}
 		else
 		{
@@ -231,13 +190,22 @@ class CRestServer
 		}
 	}
 
-	protected function processCall()
+	/**
+	 * @return mixed
+	 * @throws ArgumentException
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\LoaderException
+	 * @throws Main\ObjectPropertyException
+	 * @throws RestException
+	 * @throws SystemException
+	 */
+	protected function processCall(): mixed
 	{
 		if (
 			LoadLimiter::is(
 				$this->getAuthType(),
-				!empty($this->getClientId()) ?  $this->getClientId() : $this->getPasswordId(),
-				$this->method
+				!empty($this->getClientId()) ? $this->getClientId() : $this->getPasswordId(),
+				$this->method,
 			)
 		)
 		{
@@ -245,7 +213,7 @@ class CRestServer
 		}
 
 		$start = 0;
-		if(isset($this->query['start']))
+		if (isset($this->query['start']))
 		{
 			$start = intval($this->query['start']);
 			unset($this->query['start']);
@@ -253,62 +221,34 @@ class CRestServer
 
 		$callback = $this->getMethodCallback();
 
-		if(!$callback)
+		if (!$callback)
 		{
 			throw new RestException('Method not found!', RestException::ERROR_METHOD_NOT_FOUND, self::STATUS_NOT_FOUND);
 		}
 
 		$this->timeProcessStart = microtime(true);
 
-		if(\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24') && function_exists('getrusage'))
+		if (ModuleManager::isModuleInstalled('bitrix24') && function_exists('getrusage'))
 		{
 			$this->usage = getrusage();
 		}
 
-		$entity = !empty($this->getClientId()) ?  $this->getClientId() : $this->getPasswordId();
+		$entity = !empty($this->getClientId()) ? $this->getClientId() : $this->getPasswordId();
 		LoadLimiter::registerStarting(
 			$this->getAuthType(),
 			$entity,
-			$this->method
+			$this->method,
 		);
-		$result = call_user_func_array($callback, array($this->query, $start, $this));
+
+		$response = call_user_func_array($callback, [$this->query, $start, $this]);
 		LoadLimiter::registerEnding(
 			$this->getAuthType(),
 			$entity,
-			$this->method
+			$this->method,
 		);
 		$this->timeProcessFinish = microtime(true);
 
-		if (!empty($result['error']) && !empty($result['error_description']))
-		{
-			return $result;
-		}
-
-		$result = array("result" => $result);
-		if(is_array($result['result']))
-		{
-			if(isset($result['result']['next']))
-			{
-				$result["next"] = intval($result['result']['next']);
-				unset($result['result']['next']);
-			}
-
-			//Using array_key_exists instead isset for process NULL values
-			if(array_key_exists('total', $result['result']))
-			{
-				$result['total'] = intval($result['result']['total']);
-				unset($result['result']['total']);
-			}
-		}
-
-		if($this->securityClientState != null && $this->securityMethodState != null)
-		{
-			$result['signature'] = $this->getApplicationSignature();
-		}
-
-		$result = $this->appendDebugInfo($result);
-
-		return $result;
+		return $this->processResponse($response);
 	}
 
 	public function getTransport()
@@ -316,23 +256,24 @@ class CRestServer
 		return $this->transport;
 	}
 
-	public function getAuth()
+	public function getAuth(): array
 	{
 		return $this->auth;
 	}
 
-	public function getAuthData()
+	public function getAuthData(): array
 	{
 		return $this->authData;
 	}
 
-	public function getAuthScope()
+	public function getAuthScope(): array
 	{
-		if ($this->authScope == null)
+		if ($this->authScope === null)
 		{
-			$this->authScope = array();
+			$this->authScope = [];
 
 			$authData = $this->getAuthData();
+
 			$this->authScope = explode(',', $authData['scope']);
 		}
 
@@ -344,7 +285,7 @@ class CRestServer
 		return $this->query;
 	}
 
-	public function getAuthType()
+	public function getAuthType(): ?string
 	{
 		return $this->authType;
 	}
@@ -354,17 +295,17 @@ class CRestServer
 	 *
 	 * use \CRestServer::getClientId()
 	 **/
-	public function getAppId()
+	public function getAppId(): ?string
 	{
 		return $this->getClientId();
 	}
 
-	public function getClientId()
+	public function getClientId(): ?string
 	{
 		return $this->clientId;
 	}
 
-	public function getPasswordId()
+	public function getPasswordId(): ?string
 	{
 		return $this->passwordId;
 	}
@@ -374,65 +315,77 @@ class CRestServer
 		return $this->method;
 	}
 
-	public function setStatus($status)
+	public function setStatus($status): void
 	{
 		$this->resultStatus = $status;
 	}
 
-	public function setSecurityState($state = null)
+	public function setSecurityState($state = null): void
 	{
 		$this->securityMethodState = $state;
 	}
 
-	public function getScope()
+	public function getScope(): ?string
 	{
 		return $this->scope;
 	}
 
-	public function getScopeList()
+	public function getScopeList(): array
 	{
 		return array_keys($this->arServiceDesc);
 	}
 
-	public function getServiceDescription()
+	public function getServiceDescription(): array
 	{
 		return $this->arServiceDesc;
 	}
 
-	public function getTokenCheckSignature($method, $queryString)
+	/**
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\LoaderException
+	 * @throws SystemException
+	 */
+	public function getTokenCheckSignature($method, $queryString): string
 	{
-		if(!\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
+		if (!OAuthService::getEngine()->isRegistered())
 		{
 			try
 			{
-				\Bitrix\Rest\OAuthService::register();
-				\Bitrix\Rest\OAuthService::getEngine()->getClient()->getApplicationList();
+				OAuthService::register();
+				OAuthService::getEngine()->getClient()->getApplicationList();
 			}
-			catch(\Bitrix\Main\SystemException $e)
+			catch (SystemException)
 			{
 			}
 		}
 
-		$key = \Bitrix\Rest\OAuthService::getEngine()->getClientSecret();
+		$key = OAuthService::getEngine()->getClientSecret();
 
 		$signatureState = mb_strtolower($method)
-			.\CRestUtil::TOKEN_DELIMITER.($this->scope === \CRestUtil::GLOBAL_SCOPE ? '' : $this->scope)
-			.\CRestUtil::TOKEN_DELIMITER.$queryString
-			.\CRestUtil::TOKEN_DELIMITER.implode(\CRestUtil::TOKEN_DELIMITER, $this->auth);
+			. CRestUtil::TOKEN_DELIMITER . ($this->scope === CRestUtil::GLOBAL_SCOPE ? '' : $this->scope)
+			. CRestUtil::TOKEN_DELIMITER . $queryString
+			. CRestUtil::TOKEN_DELIMITER . implode(CRestUtil::TOKEN_DELIMITER, $this->auth);
 
 		return $this->makeSignature($key, $signatureState);
 	}
 
-	public function getApplicationSignature()
+	/**
+	 * @throws Main\LoaderException
+	 * @throws Main\ArgumentTypeException
+	 * @throws ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws SystemException
+	 */
+	public function getApplicationSignature(): string
 	{
 		$signature = '';
 
-		$arRes = \Bitrix\Rest\AppTable::getByClientId($this->clientId);
-		if(is_array($arRes) && $arRes['SHARED_KEY'] <> '')
+		$arRes = AppTable::getByClientId($this->clientId);
+		if (is_array($arRes) && $arRes['SHARED_KEY'] <> '')
 		{
 			$methodState = is_array($this->securityMethodState)
 				? $this->securityMethodState
-				: array('data' => $this->securityMethodState);
+				: ['data' => $this->securityMethodState];
 
 			$methodState['state'] = $this->securityClientState;
 
@@ -442,51 +395,55 @@ class CRestServer
 		return $signature;
 	}
 
-
-	public function requestConfirmation($userList, $message)
+	/**
+	 * @throws ArgumentNullException
+	 * @throws RestException
+	 * @throws AccessException
+	 */
+	public function requestConfirmation($userList, $message, $notifyEvent = 'admin_notification'): bool
 	{
-		if($message == '')
+		if ($message == '')
 		{
 			throw new ArgumentNullException('message');
 		}
 
-		if(!is_array($userList) && intval($userList) > 0)
+		if (!is_array($userList) && intval($userList) > 0)
 		{
-			$userList = array($userList);
+			$userList = [$userList];
 		}
 
-		if(count($userList) <= 0)
+		if (count($userList) <= 0)
 		{
 			throw new ArgumentNullException('userList');
 		}
 
-		if(!$this->getClientId())
+		if (!$this->getClientId())
 		{
 			throw new AccessException('Application context required');
 		}
 
-		if(
+		if (
 			!isset($this->authData['parameters'])
 			|| !isset($this->authData['parameters']['notify_allow'])
 			|| !array_key_exists($this->method, $this->authData['parameters']['notify_allow'])
 		)
 		{
-			$notify = new \Bitrix\Rest\Notify(\Bitrix\Rest\Notify::NOTIFY_BOT, $userList);
-			$notify->send($this->getClientId(), $this->authData['access_token'], $this->method, $message);
+			$notify = new Notify(Notify::NOTIFY_BOT, $userList);
+			$notify->send($this->getClientId(), $this->authData['access_token'], $this->method, $message, $notifyEvent);
 
 			$this->authData['parameters']['notify_allow'][$this->method] = 0;
 
-			if($this->authData['parameters_callback'] && is_callable($this->authData['parameters_callback']))
+			if ($this->authData['parameters_callback'] && is_callable($this->authData['parameters_callback']))
 			{
-				call_user_func_array($this->authData['parameters_callback'], array($this->authData));
+				call_user_func_array($this->authData['parameters_callback'], [$this->authData]);
 			}
 		}
 
-		if($this->authData['parameters']['notify_allow'][$this->method] === 0)
+		if ($this->authData['parameters']['notify_allow'][$this->method] === 0)
 		{
 			throw new RestException('Waiting for confirmation', 'METHOD_CONFIRM_WAITING', static::STATUS_UNAUTHORIZED);
 		}
-		elseif($this->authData['parameters']['notify_allow'][$this->method] < 0)
+		if ($this->authData['parameters']['notify_allow'][$this->method] < 0)
 		{
 			throw new RestException('Method call denied', 'METHOD_CONFIRM_DENIED', static::STATUS_FORBIDDEN);
 		}
@@ -494,23 +451,26 @@ class CRestServer
 		return true;
 	}
 
-	private function init()
+	/**
+	 * @throws RestException
+	 */
+	protected function init(): bool
 	{
-		if(!in_array($this->transport, array('json', 'xml')))
+		if (!in_array($this->transport, [self::TRANSPORT_JSON, self::TRANSPORT_XML]))
 		{
 			throw new RestException('Wrong transport!', RestException::ERROR_INTERNAL_WRONG_TRANSPORT, self::STATUS_INTERNAL);
 		}
-		elseif(!$this->checkSite())
+		if (!$this->checkSite())
 		{
 			throw new RestException('Portal was deleted', RestException::ERROR_INTERNAL_PORTAL_DELETED, self::STATUS_FORBIDDEN);
 		}
-		elseif(!class_exists($this->class) || !method_exists($this->class, 'getDescription'))
+		if (!class_exists($this->class) || !method_exists($this->class, 'getDescription'))
 		{
 			throw new RestException('Wrong handler class!', RestException::ERROR_INTERNAL_WRONG_HANDLER_CLASS, self::STATUS_INTERNAL);
 		}
 		else
 		{
-			if(array_key_exists("state", $this->query))
+			if (array_key_exists("state", $this->query))
 			{
 				$this->securityClientState = $this->query["state"];
 				unset($this->query["state"]);
@@ -520,12 +480,12 @@ class CRestServer
 		return true;
 	}
 
-	private function checkSite()
+	protected function checkSite(): bool
 	{
-		return \Bitrix\Main\Config\Option::get("main", "site_stopped", "N") !== 'Y';
+		return Option::get("main", "site_stopped", "N") !== 'Y';
 	}
 
-	private function getMethodDescription()
+	protected function getMethodDescriptions()
 	{
 		if(!$this->scope)
 		{
@@ -539,11 +499,13 @@ class CRestServer
 			}
 		}
 
+
 		if(!isset($this->arServiceDesc[$this->scope]) || !isset($this->arServiceDesc[$this->scope][$this->method]))
 		{
 			foreach(GetModuleEvents('rest', 'onFindMethodDescription', true) as $event)
 			{
 				$result = ExecuteModuleEventEx($event, array($this->method, $this->scope));
+
 				if(is_array($result))
 				{
 					if (!isset($this->arServiceDesc[$result['scope']]) || !is_array($this->arServiceDesc[$result['scope']]))
@@ -563,15 +525,13 @@ class CRestServer
 		return $this->arServiceDesc[$this->scope][$this->method];
 	}
 
-	private function getMethodCallback()
-	{
-		$methodDescription = $this->getMethodDescription();
 
+	protected function getMethodCallback(): callable|bool|array
+	{
+		$methodDescription = $this->getMethodDescriptions();
 		if($methodDescription)
 		{
-			$callback = isset($methodDescription['callback'])
-				? $methodDescription['callback']
-				: $methodDescription;
+			$callback = $methodDescription['callback'] ?? $methodDescription;
 
 			// hack to prevent callback structure doubling in case of strange doubling of event handlers
 			if(!is_callable($callback) && is_array($callback) && count($callback) > 2)
@@ -588,20 +548,20 @@ class CRestServer
 		return false;
 	}
 
-	private function checkScope()
+	protected function checkScope(): bool
 	{
-		if($this->tokenCheck)
+		if ($this->tokenCheck)
 		{
-			if(isset($this->query["token"]) && $this->query["token"] <> '')
+			if (isset($this->query["token"]) && $this->query["token"] <> '')
 			{
-				[$scope] = explode(\CRestUtil::TOKEN_DELIMITER, $this->query["token"], 2);
-				$this->scope = $scope == "" ? \CRestUtil::GLOBAL_SCOPE : $scope;
+				[$scope] = explode(CRestUtil::TOKEN_DELIMITER, $this->query["token"], 2);
+				$this->scope = $scope == "" ? CRestUtil::GLOBAL_SCOPE : $scope;
 			}
 		}
 
 		$callback = $this->getMethodCallback();
 
-		if($callback)
+		if ($callback)
 		{
 			return true;
 		}
@@ -609,31 +569,36 @@ class CRestServer
 		return false;
 	}
 
-	protected function checkAuth()
+	/**
+	 * @throws \Bitrix\Rest\OAuthException
+	 * @throws Main\LoaderException
+	 * @throws SystemException
+	 * @throws LicenseException
+	 */
+	protected function checkAuth(): bool
 	{
-		$res = array();
-		if(\CRestUtil::checkAuth($this->query, $this->scope, $res))
+		$res = [];
+		if (CRestUtil::checkAuth($this->query, $this->scope, $res))
 		{
 			$this->authType = $res['auth_type'];
 
-			$this->clientId = isset($res['client_id']) ? $res['client_id'] : null;
-			$this->passwordId = isset($res['password_id']) ? $res['password_id'] : null;
+			$this->clientId = $res['client_id'] ?? null;
+			$this->passwordId = $res['password_id'] ?? null;
 
-			$this->authData  = $res;
+			$this->authData = $res;
 
-			if(
+			if (
 				(isset($this->authData['auth_connector']))
 				&& !$this->canUseConnectors()
-			)
-			{
-				throw new \Bitrix\Rest\LicenseException('auth_connector');
+			) {
+				throw new LicenseException('auth_connector');
 			}
 
-			if(isset($res['parameters_clear']) && is_array($res['parameters_clear']))
+			if (isset($res['parameters_clear']) && is_array($res['parameters_clear']))
 			{
-				foreach($res['parameters_clear'] as $param)
+				foreach ($res['parameters_clear'] as $param)
 				{
-					if(array_key_exists($param, $this->query))
+					if (array_key_exists($param, $this->query))
 					{
 						$this->auth[$param] = $this->query[$param];
 						unset($this->query[$param]);
@@ -642,9 +607,9 @@ class CRestServer
 			}
 
 			$arAdditionalParams = $res['parameters'] ?? null;
-			if(isset($arAdditionalParams[\Bitrix\Rest\Event\Session::PARAM_SESSION]))
+			if (isset($arAdditionalParams[Session::PARAM_SESSION]))
 			{
-				\Bitrix\Rest\Event\Session::set($arAdditionalParams[\Bitrix\Rest\Event\Session::PARAM_SESSION]);
+				Session::set($arAdditionalParams[Session::PARAM_SESSION]);
 			}
 
 			return true;
@@ -655,25 +620,26 @@ class CRestServer
 		}
 	}
 
-	protected function canUseConnectors()
+	/**
+	 * @throws Main\LoaderException
+	 * @throws SystemException
+	 */
+	protected function canUseConnectors(): bool
 	{
 		return !Loader::includeModule('bitrix24')
 			|| Feature::isFeatureEnabled('rest_auth_connector');
 	}
 
-	protected function getMethodOptions()
-	{
-		$methodDescription = $this->getMethodDescription();
-		return is_array($methodDescription['options'])
-			? $methodDescription['options']
-			: array();
-	}
-
-	private function makeSignature($key, $state)
+	/**
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\LoaderException
+	 * @throws SystemException
+	 */
+	private function makeSignature($key, $state): string
 	{
 		$signature = '';
 
-		if(Loader::includeModule('socialservices'))
+		if (Loader::includeModule('socialservices'))
 		{
 			$signer = new Bitrix24Signer();
 			$signer->setKey($key);
@@ -685,95 +651,88 @@ class CRestServer
 
 	/*************************************************************/
 
-	private function outputError()
+	protected function outputError(): array
 	{
-		$res = array_merge(array(
-			'error' => $this->error->getErrorCode(),
-			'error_description' => $this->error->getMessage(),
-		), $this->error->getAdditional());
-
-		return $res;
+		return $this->error->output();
 	}
 
-	public function sendHeaders()
+	public function sendHeaders():void
 	{
-		if($this->error)
+		if ($this->error)
 		{
-			\CHTTP::setStatus($this->error->getStatus());
+			CHTTP::setStatus($this->error->getStatus());
 		}
-		elseif($this->resultStatus)
+		elseif ($this->resultStatus)
 		{
-			\CHTTP::setStatus($this->resultStatus);
+			CHTTP::setStatus($this->resultStatus);
 		}
 		else
 		{
-			\CHTTP::setStatus(self::STATUS_OK);
+			CHTTP::setStatus(self::STATUS_OK);
 		}
 
-		switch($this->transport)
+		switch ($this->transport)
 		{
-			case 'json':
-				Header('Content-Type: application/json; charset=utf-8');
-			break;
-			case 'xml':
-				Header('Content-Type: text/xml; charset=utf-8');
-			break;
+			case self::TRANSPORT_JSON:
+				header('Content-Type: application/json; charset=utf-8');
+
+				break;
+			case self::TRANSPORT_XML:
+				header('Content-Type: text/xml; charset=utf-8');
+
+				break;
 		}
 
 		$this->sendHeadersAdditional();
 	}
 
-	public function sendHeadersAdditional()
+	public function sendHeadersAdditional(): void
 	{
-		if(\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
+		if (ModuleManager::isModuleInstalled('bitrix24'))
 		{
-			if($this->clientId)
+			if (!empty($this->clientId))
 			{
-				Header('X-Bitrix-Rest-Application: '.$this->clientId);
+				header('X-Bitrix-Rest-Application: ' . $this->clientId);
 			}
 
-			Header('X-Bitrix-Rest-Time: '.number_format($this->timeProcessFinish - $this->timeProcessStart, 10, '.', ''));
+			header('X-Bitrix-Rest-Time: ' . number_format($this->timeProcessFinish - $this->timeProcessStart, 10, '.', ''));
 
-			if($this->usage && function_exists('getrusage'))
+			if ($this->usage && function_exists('getrusage'))
 			{
 				$usage = getrusage();
 
-				Header('X-Bitrix-Rest-User-Time: '.number_format($usage['ru_utime.tv_sec'] - $this->usage['ru_utime.tv_sec'] + ($usage['ru_utime.tv_usec'] - $this->usage['ru_utime.tv_usec']) / 1000000, 10, '.', ''));
-				Header('X-Bitrix-Rest-System-Time: '.number_format($usage['ru_stime.tv_sec'] - $this->usage['ru_stime.tv_sec'] + ($usage['ru_stime.tv_usec'] - $this->usage['ru_stime.tv_usec']) / 1000000, 10, '.', ''));
+				header('X-Bitrix-Rest-User-Time: ' . number_format($usage['ru_utime.tv_sec'] - $this->usage['ru_utime.tv_sec'] + ($usage['ru_utime.tv_usec'] - $this->usage['ru_utime.tv_usec']) / 1000000, 10, '.', ''));
+				header('X-Bitrix-Rest-System-Time: ' . number_format($usage['ru_stime.tv_sec'] - $this->usage['ru_stime.tv_sec'] + ($usage['ru_stime.tv_usec'] - $this->usage['ru_stime.tv_usec']) / 1000000, 10, '.', ''));
 			}
 		}
 	}
 
-	public function output($data)
+	public function output($data): BFile|string|null
 	{
-		\Bitrix\Rest\UsageStatTable::finalize();
+		UsageStatTable::finalize();
 
-		if (
-			isset($data['result'])
-			&& $data['result'] instanceof \Bitrix\Main\Engine\Response\BFile
-		)
+		if (isset($data['result']) && $data['result'] instanceof BFile)
 		{
 			return $data['result'];
 		}
 
-		switch($this->transport)
+		return match ($this->transport)
 		{
-			case 'json':
-				return $this->outputJson($data);
-			break;
-			case 'xml':
-				return $this->outputXml(array('response' => $data));
-			break;
-		}
-		return null;
+			self::TRANSPORT_JSON => $this->outputJson($data),
+			self::TRANSPORT_XML => $this->outputXml(['response' => $data]),
+			default => null,
+		};
 	}
 
-	protected function appendDebugInfo(array $data)
+	/**
+	 * @throws Main\LoaderException
+	 */
+	protected function appendDebugInfo(array $data): array
 	{
-		$data['time'] = array(
+		$data['time'] = [
 			'start' => $this->timeStart,
 			'finish' => microtime(true),
-		);
+		];
 
 		$data['time']['duration'] = $data['time']['finish'] - $data['time']['start'];
 		$data['time']['processing'] = $this->timeProcessFinish - $this->timeProcessStart;
@@ -785,8 +744,8 @@ class CRestServer
 		{
 			$reset = LoadLimiter::getResetTime(
 				$this->getAuthType(),
-				!empty($this->getClientId()) ?  $this->getClientId() : $this->getPasswordId(),
-				$this->method
+				!empty($this->getClientId()) ? $this->getClientId() : $this->getPasswordId(),
+				$this->method,
 			);
 			if ($reset)
 			{
@@ -795,21 +754,21 @@ class CRestServer
 
 			$data['time']['operating'] = LoadLimiter::getRestTime(
 				$this->getAuthType(),
-				!empty($this->getClientId()) ?  $this->getClientId() : $this->getPasswordId(),
-				$this->method
+				!empty($this->getClientId()) ? $this->getClientId() : $this->getPasswordId(),
+				$this->method,
 			);
 		}
 
 		return $data;
 	}
 
-	private function outputJson($data)
+	protected function outputJson($data): string
 	{
 		try
 		{
 			$res = Json::encode($data);
 		}
-		catch(\Bitrix\Main\ArgumentException $e)
+		catch (ArgumentException)
 		{
 			$res = '{"error":"WRONG_ENCODING","error_description":"Wrong request encoding"}';
 		}
@@ -817,69 +776,202 @@ class CRestServer
 		return $res;
 	}
 
-	private function outputXml($data)
+	protected function outputXml($data): string
 	{
-		$res = "";
-		foreach($data as $key => $value)
+		$res = '';
+		foreach ($data as $key => $value)
 		{
-			if($key === intval($key))
+			if ($key === intval($key))
 				$key = 'item';
 
-			$res .= '<'.$key.'>';
+			$res .= '<' . $key . '>';
 
-			if(is_array($value))
+			if (is_array($value)) {
 				$res .= $this->outputXml($value);
+			}
 			else
-				$res .= \CDataXML::xmlspecialchars($value);
+			{
+				$res .= CDataXML::xmlspecialchars($value);
+			}
 
-			$res .= '</'.$key.'>';
+			$res .= '</' . $key . '>';
 		}
+
 		return $res;
+	}
+
+	/**
+	 * @throws RestException
+	 * @throws LicenseException
+	 * @throws \Bitrix\Rest\OAuthException
+	 * @throws Main\LoaderException
+	 * @throws AccessException
+	 * @throws Exception
+	 * @throws SystemException
+	 */
+	protected function processExecution()
+	{
+		global $APPLICATION;
+
+		if ($this->init())
+		{
+			$handler = new $this->class();
+
+			/* @var IRestService $handler */
+			$this->arServiceDesc = $handler->getDescription();
+
+			$this->tokenCheck = $this->isTokenCheck();
+
+			if ($this->checkScope())
+			{
+				$APPLICATION->RestartBuffer();
+				if ($this->checkAuth())
+				{
+					UsageStatTable::log($this);
+					$logger = new RestServerProcessLogger($this);
+					$logger->logRequest();
+
+					if ($this->tokenCheck)
+					{
+						$result = $this->processTokenCheckCall();
+					}
+					else
+					{
+						$result = $this->processCall();
+					}
+
+					$logger->logResponse($result);
+
+					return $result;
+				}
+				else
+				{
+					throw new AccessException();
+				}
+			}
+			else
+			{
+				throw new RestException('Method not found!', RestException::ERROR_METHOD_NOT_FOUND, self::STATUS_NOT_FOUND);
+			}
+		}
+	}
+
+	protected function processException(RestExceptionInterface|Exception $e): array
+	{
+		global $APPLICATION;
+
+		if ($e instanceof NonLoggedExceptionDecorator)
+		{
+			$e = RestException::initFromException($e->getOriginalException());
+		}
+		elseif (!($e instanceof RestException))
+		{
+			Main\Application::getInstance()->getExceptionHandler()->writeToLog($e);
+
+			$e = RestException::initFromException($e);
+		}
+
+		$this->error = $e;
+
+		$ex = $APPLICATION->GetException();
+		if ($ex)
+		{
+			$this->error->setApplicationException($ex);
+		}
+
+		return $this->outputError();
+	}
+
+	/**
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\LoaderException
+	 * @throws ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws SystemException
+	 */
+	protected function processResponse(mixed $response): array
+	{
+		if (!empty($response['error']) && !empty($response['error_description']))
+		{
+			return $response;
+		}
+
+		$response = ['result' => $response];
+		if (is_array($response['result']))
+		{
+			if (isset($response['result']['next']))
+			{
+				$response['next'] = intval($response['result']['next']);
+				unset($response['result']['next']);
+			}
+
+			//Using array_key_exists instead isset for process NULL values
+			if (array_key_exists('total', $response['result']))
+			{
+				$response['total'] = intval($response['result']['total']);
+				unset($response['result']['total']);
+			}
+		}
+
+		if ($this->securityClientState != null && $this->securityMethodState != null)
+		{
+			$response['signature'] = $this->getApplicationSignature();
+		}
+
+		return $this->appendDebugInfo($response);
+	}
+
+	public function finalize(): void
+	{
+		self::$instance = null;
 	}
 }
 
-class CRestServerBatchItem extends \CRestServer
+class CRestServerBatchItem extends CRestServer
 {
-	protected $authKeys = array();
+	protected array $authKeys = [];
 
-	public function setApplicationId($appId)
+	public function setApplicationId($appId): void
 	{
 		$this->clientId = $appId;
 	}
 
-	public function setAuthKeys($keys)
+	public function setAuthKeys($keys): void
 	{
 		$this->authKeys = $keys;
 	}
 
-	public function setAuthData($authData)
+	public function setAuthData($authData): void
 	{
 		$this->authData = $authData;
 	}
 
-	public function setAuthType($authType)
+	public function setAuthType($authType): void
 	{
 		$this->authType = $authType;
 	}
 
-	protected function checkAuth()
+	/**
+	 * @throws \Bitrix\Rest\OAuthException
+	 */
+	protected function checkAuth(): bool
 	{
-		foreach($this->authKeys as $param)
+		foreach ($this->authKeys as $param)
 		{
-			if(array_key_exists($param, $this->query))
+			if (array_key_exists($param, $this->query))
 			{
 				$this->auth[$param] = $this->query[$param];
 				unset($this->query[$param]);
 			}
 		}
 
-		if($this->scope !== \CRestUtil::GLOBAL_SCOPE)
+		if ($this->scope !== CRestUtil::GLOBAL_SCOPE)
 		{
 			$allowedScope = explode(',', $this->authData['scope']);
-			$allowedScope = \Bitrix\Rest\Engine\RestManager::fillAlternativeScope($this->scope, $allowedScope);
-			if(!in_array($this->scope, $allowedScope))
+			$allowedScope = RestManager::fillAlternativeScope($this->scope, $allowedScope);
+			if (!in_array($this->scope, $allowedScope))
 			{
-				throw new \Bitrix\Rest\OAuthException(array('error' => 'insufficient_scope'));
+				throw new \Bitrix\Rest\OAuthException(['error' => 'insufficient_scope']);
 			}
 		}
 
@@ -889,33 +981,31 @@ class CRestServerBatchItem extends \CRestServer
 
 class IRestService
 {
-	const LIST_LIMIT = 50;
+	public const LIST_LIMIT = 50;
 
 	protected static function getNavData($start, $bORM = false)
 	{
-		if($start >= 0)
+		if ($start >= 0)
 		{
-			return ($bORM
-				? array(
+			return $bORM
+				? [
 					'limit' => static::LIST_LIMIT,
-					'offset' => intval($start)
-				)
-				: array(
+					'offset' => intval($start),
+				]
+				: [
 					'nPageSize' => static::LIST_LIMIT,
-					'iNumPage' => intval($start / static::LIST_LIMIT) + 1
-				)
-			);
+					'iNumPage' => intval($start / static::LIST_LIMIT) + 1,
+				];
 		}
 		else
 		{
-			return ($bORM
-				? array(
+			return $bORM
+				? [
 					'limit' => static::LIST_LIMIT,
-				)
-				: array(
+				]
+				: [
 					'nTopCount' => static::LIST_LIMIT,
-				)
-			);
+				];
 		}
 	}
 
@@ -937,7 +1027,7 @@ class IRestService
 				$count = 1;
 			}
 
-			if($dbRes["offset"] + $count < $dbRes["count"])
+			if ($dbRes["offset"] + $count < $dbRes["count"])
 			{
 				$result['next'] = $dbRes["offset"] + $count;
 			}
@@ -949,7 +1039,7 @@ class IRestService
 		else
 		{
 			$result['total'] = $dbRes->NavRecordCount;
-			if($dbRes->NavPageNomer < $dbRes->NavPageCount)
+			if ($dbRes->NavPageNomer < $dbRes->NavPageCount)
 			{
 				$result['next'] = $dbRes->NavPageNomer * $dbRes->NavPageSize;
 			}
@@ -962,95 +1052,100 @@ class IRestService
 	{
 		$arMethods = get_class_methods($this);
 
-		$arResult = array();
+		$arResult = [];
 
 		foreach ($arMethods as $name)
 		{
-			if($name != 'getDescription')
+			if ($name != 'getDescription')
 			{
-				$arResult[$name] = array($this, $name);
+				$arResult[$name] = [$this, $name];
 			}
 		}
 
 		return $arResult;
 	}
 
+	/**
+	 * @throws RestException
+	 */
 	protected static function sanitizeFilter($filter, array $availableFields = null, $valueCallback = null, array $availableOperations = null)
 	{
-		static $defaultOperations = array('', '=', '>', '<', '>=', '<=', '@', '%');
+		static $defaultOperations = ['', '=', '>', '<', '>=', '<=', '@', '%'];
 
-		if($availableOperations === null)
+		if ($availableOperations === null)
 		{
 			$availableOperations = $defaultOperations;
 		}
 
-		if(!is_array($filter))
+		if (!is_array($filter))
 		{
-			throw new RestException('The filter is not an array.', RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
+			throw new RestException('The filter is not an array.', RestException::ERROR_ARGUMENT, CRestServer::STATUS_WRONG_REQUEST);
 		}
 
 		$filter = array_change_key_case($filter, CASE_UPPER);
 
-		$resultFilter = array();
-		foreach($filter as $key => $value)
+		$resultFilter = [];
+		foreach ($filter as $key => $value)
 		{
-			if(preg_match('/^([^a-zA-Z]*)(.*)/', $key, $matches))
+			if (preg_match('/^([^a-zA-Z]*)(.*)/', $key, $matches))
 			{
 				$operation = $matches[1];
 				$field = $matches[2];
 
-				if(!in_array($operation, $availableOperations))
+				if (!in_array($operation, $availableOperations))
 				{
-					throw new RestException('Filter operation not allowed: '.$operation, RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
+					throw new RestException('Filter operation not allowed: ' . $operation, RestException::ERROR_ARGUMENT, CRestServer::STATUS_WRONG_REQUEST);
 				}
 
-				if($availableFields !== null && !in_array($field, $availableFields))
+				if ($availableFields !== null && !in_array($field, $availableFields))
 				{
-					throw new RestException('Filter field not allowed: '.$field, RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
+					throw new RestException('Filter field not allowed: ' . $field, RestException::ERROR_ARGUMENT, CRestServer::STATUS_WRONG_REQUEST);
 				}
 
-				if(is_callable($valueCallback))
+				if (is_callable($valueCallback))
 				{
-					$value = call_user_func_array($valueCallback, array($field, $value, $operation));
+					$value = call_user_func_array($valueCallback, [$field, $value, $operation]);
 				}
 
-				$resultFilter[$operation.$field] = $value;
+				$resultFilter[$operation . $field] = $value;
 			}
 		}
 
 		return $resultFilter;
 	}
 
+	/**
+	 * @throws RestException
+	 */
 	protected static function sanitizeOrder($order, array $availableFields = null)
 	{
-		if(!is_array($order))
+		if (!is_array($order))
 		{
-			throw new RestException('The order is not an array.', RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
+			throw new RestException('The order is not an array.', RestException::ERROR_ARGUMENT, CRestServer::STATUS_WRONG_REQUEST);
 		}
 
 		$order = array_change_key_case($order, CASE_UPPER);
 
-		foreach($order as $key => $value)
+		foreach ($order as $key => $value)
 		{
-			if(!is_numeric($key))
+			if (!is_numeric($key))
 			{
-				if($availableFields !== null && !in_array($key, $availableFields))
+				if ($availableFields !== null && !in_array($key, $availableFields))
 				{
-					throw new RestException('Order field not allowed: '.$key, RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
+					throw new RestException('Order field not allowed: ' . $key, RestException::ERROR_ARGUMENT, CRestServer::STATUS_WRONG_REQUEST);
 				}
 
-				if(!in_array(mb_strtoupper($value), array('ASC', 'DESC')))
+				if (!in_array(mb_strtoupper($value), ['ASC', 'DESC']))
 				{
-					throw new RestException('Order direction should be one of {ASC|DESC}', RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
+					throw new RestException('Order direction should be one of {ASC|DESC}', RestException::ERROR_ARGUMENT, CRestServer::STATUS_WRONG_REQUEST);
 				}
 			}
-			elseif($availableFields !== null && !in_array($value, $availableFields))
+			elseif ($availableFields !== null && !in_array($value, $availableFields))
 			{
-				throw new RestException('Order field not allowed: '.$value, RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
+				throw new RestException('Order field not allowed: ' . $value, RestException::ERROR_ARGUMENT, CRestServer::STATUS_WRONG_REQUEST);
 			}
 		}
 
 		return $order;
 	}
-
 }

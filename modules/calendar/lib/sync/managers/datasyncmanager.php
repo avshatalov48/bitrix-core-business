@@ -2,6 +2,7 @@
 
 namespace Bitrix\Calendar\Sync\Managers;
 
+use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Builders\EventBuilderFromArray;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Managers\EventOriginalRecursion;
@@ -18,8 +19,10 @@ use Bitrix\Calendar\Sync\Icloud;
 use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Internals\SectionConnectionTable;
 use Bitrix\Calendar\Sync\Util\EventDescription;
-use Bitrix\Calendar\Sync\Util\RequestLogger;
 use Bitrix\Calendar\Sync\Util\Result;
+use Bitrix\Calendar\Synchronization\Internal\Exception\SynchronizerException;
+use Bitrix\Calendar\Synchronization\Internal\Service\Logger\RequestLogger;
+use Bitrix\Calendar\Synchronization\Public\Service\SynchronizationFeature;
 use Bitrix\Calendar\UserField\ResourceBooking;
 use Bitrix\Calendar\Util;
 use Bitrix\Dav\Internals\DavConnectionTable;
@@ -34,6 +37,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ObjectException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Main\Repository\Exception\PersistenceException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\DateTime;
 
@@ -81,10 +85,12 @@ class DataSyncManager
 	 * @param $userId
 	 *
 	 * @return bool
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\LoaderException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
+	 *
+	 * @throws ArgumentException
+	 * @throws ArgumentNullException
+	 * @throws LoaderException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
 	 * @throws \CDavArgumentNullException
 	 */
 	public function dataSync($userId = null): bool
@@ -104,7 +110,9 @@ class DataSyncManager
 			{
 				$userIds[] = $ownerId;
 			}
+
 			$result = $this->syncConnection($connection);
+
 			if ($result->isSuccess())
 			{
 				\CDavConnection::SetLastResult($connection->getId(), $result->getData()['lastResult']);
@@ -133,31 +141,77 @@ class DataSyncManager
 	}
 
 	/**
-	 *
-	 * @param Connection $connection
-	 *
-	 * @return Result
-	 * @throws LoaderException
-	 * @throws SystemException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws LoaderException
+	 * @throws ObjectException
 	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws BaseException
+	 * @throws PersistenceException
+	 *
+	 * @noinspection PhpDocMissingThrowsInspection
 	 */
 	private function syncConnection(Connection $connection): Result
 	{
 		$result = new Result();
-		$logger = null;
 
-		if (
-			RequestLogger::isEnabled()
-		)
+		$ownerId = (int)$connection->getOwner()?->getId();
+
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$logger = ServiceLocator::getInstance()->get(RequestLogger::class);
+
+		$logger
+			->setType($connection->getVendor()->getCode())
+			->setEntityId($connection->getId())
+			->setUserId($ownerId)
+		;
+
+		SynchronizationFeature::setUserId($ownerId);
+
+		if (SynchronizationFeature::isOn())
 		{
-			$logger = new RequestLogger($connection->getOwner()->getId(), $connection->getVendor()->getCode());
+			try
+			{
+				$logger->debug('Import sections of connection ' . $connection->getName() . ' has been started');
+
+				$sectionSynchronizer = \Bitrix\Calendar\Internals\Container::getICloudSectionSynchronizer();
+				$sectionSynchronizer->importSections($ownerId);
+
+				$logger->debug('Import sections of connection ' . $connection->getName() . ' has been completed');
+
+				$logger->debug('Import events of connection ' . $connection->getName() . ' has been started');
+
+				$eventSynchronizer = \Bitrix\Calendar\Internals\Container::getICloudEventSynchronizer();
+				$eventSynchronizer->importEvents($ownerId);
+
+				$logger->debug('Import events of connection ' . $connection->getName() . ' has been completed');
+			}
+			catch (SynchronizerException $e)
+			{
+				$error = $this->processError([
+					$e->getCode(),
+					$e->getMessage(),
+				]);
+
+				$result->setData([
+					'lastResult' => $error,
+					'syncStatus' => false,
+				]);
+
+				return $result;
+			}
+
+			$result->setData([
+				'lastResult' => '[200] OK',
+				'syncStatus' => true,
+			]);
+
+			return $result;
 		}
 
 		$client = $this->initClient($connection);
 
-		$calendarsList = $client->GetCalendarList($connection->getServer()->getBasePath(), null);
+		$calendarsList = $client->GetCalendarList($connection->getServer()->getBasePath(), $logger);
 
 		if ($client->getError())
 		{
@@ -354,7 +408,7 @@ class DataSyncManager
 	 *
 	 * @return int|null
 	 * @throws SystemException
-	 * @throws \Bitrix\Calendar\Core\Base\BaseException
+	 * @throws BaseException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Exception
@@ -442,7 +496,7 @@ class DataSyncManager
 	 *
 	 * @return void
 	 * @throws SystemException
-	 * @throws \Bitrix\Calendar\Core\Base\BaseException
+	 * @throws BaseException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Exception

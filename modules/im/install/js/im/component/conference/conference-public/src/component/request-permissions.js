@@ -36,47 +36,68 @@ const RequestPermissions = {
 		{
 			this.requestPermissions();
 		},
-		requestPermissions()
+		async requestPermissions()
 		{
-			this.getApplication().initHardware().then(() => {
-				return navigator.mediaDevices.getUserMedia({
+			const tryGetUserMedia = async (params = { video: 'exact' }) => {
+				const videoParams = params.video ? {
+					width: { ideal: 1280 },
+					height: { ideal: 720 },
+					deviceId: { [params.video]: BX.Call.Hardware.defaultCamera },
+				} : false;
+
+				const constraints = {
 					audio: true,
-					video: {
-						width: { ideal: 1280 },
-						height: { ideal: 720 },
-						deviceId: { exact: BX.Call.Hardware.defaultCamera }
+					video: videoParams,
+				};
+
+				let stream = null;
+
+				try
+				{
+					stream = await navigator.mediaDevices.getUserMedia(constraints);
+					this.setPermissionsRequestedFlag();
+					return videoParams ? ['microphone', 'camera'] : ['microphone'];
+				}
+				catch (error) {
+					if (error.name === NOT_ALLOWED_ERROR_CODE) {
+						throw error;
 					}
-				});
-			}).then(stream => {
-				this.setPermissionsRequestedFlag();
-				stream.getTracks().forEach(track => track.stop());
-				this.getApplication().callView.unblockButtons(['microphone', 'camera']);
-			}).catch((error) => {
+
+					if (params.video === 'exact') {
+						return tryGetUserMedia({ video: 'ideal' });
+					}
+					else if (params.video === 'ideal') {
+						return tryGetUserMedia({ video: false });
+					}
+
+					throw error;
+				}
+				finally
+				{
+					stream?.getTracks().forEach(track => track.stop());
+				}
+			}
+
+			try
+			{
+				await this.getApplication().initHardware();
+				const devices = await tryGetUserMedia({ video: 'exact' });
+				this.getApplication().callView.unblockButtons(devices);
+			}
+			catch (error)
+			{
 				if (error.name === NOT_ALLOWED_ERROR_CODE)
 				{
 					this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_NOT_ALLOWED_ERROR']);
-
 					return false;
 				}
 
-				// means there is no camera, request only microphone
-				return navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(stream => {
-					this.setPermissionsRequestedFlag();
-					stream.getTracks().forEach(track => track.stop());
-					this.getApplication().callView.unblockButtons(['microphone']);
-				}).catch((error) => {
-					if (error.name === NOT_ALLOWED_ERROR_CODE)
-					{
-						this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_NOT_ALLOWED_ERROR']);
-
-						return false;
-					}
-
-					this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_HARDWARE_ERROR']);
-				});
-			}).finally(() => {
+				this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_HARDWARE_ERROR']);
+			}
+			finally
+			{
 				BX.Call.Hardware.getCurrentDeviceList();
-			});
+			}
 		},
 		setPermissionsRequestedFlag()
 		{

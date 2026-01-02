@@ -1,7 +1,16 @@
-<?
+<?php
 
 use Bitrix\Main\EventManager;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\Collab\Control\Event\CollabAddEvent;
+use Bitrix\Socialnetwork\Collab\Control\Event\CollabDeleteEvent;
+use Bitrix\Socialnetwork\Collab\Control\Event\CollabUpdateEvent;
+use Bitrix\Socialnetwork\Collab\Entity\Event\CollabEntityAddEvent;
+use Bitrix\Socialnetwork\Collab\Onboarding\Event\Type\CollabAddEventListener;
+use Bitrix\Socialnetwork\Collab\Onboarding\Event\Type\CollabDeleteEventListener;
+use Bitrix\Socialnetwork\Collab\Onboarding\Event\Type\CollabEntityAddEventListener;
+use Bitrix\Socialnetwork\Collab\Onboarding\Event\Type\CollaberAcceptInvitationEventListener;
+use Bitrix\Socialnetwork\Collab\Onboarding\Event\Type\CollabUpdateEventListener;
 use Bitrix\Socialnetwork\Integration;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
@@ -16,6 +25,7 @@ define("SONET_RELATIONS_FRIEND", "F");
 define("SONET_RELATIONS_REQUEST", "Z");
 define("SONET_RELATIONS_BAN", "B");
 
+define("SONET_ROLES_NONE", "0");
 define("SONET_ROLES_OWNER", "A");
 define("SONET_ROLES_MODERATOR", "E");
 define("SONET_ROLES_USER", "K");
@@ -87,7 +97,7 @@ global $arSocNetAllowedRolesForUserInGroup;
 $arSocNetAllowedRolesForUserInGroup = array(SONET_ROLES_MODERATOR, SONET_ROLES_USER, SONET_ROLES_BAN, SONET_ROLES_REQUEST, SONET_ROLES_OWNER);
 
 global $arSocNetAllowedRolesForFeaturesPerms;
-$arSocNetAllowedRolesForFeaturesPerms = array(SONET_ROLES_MODERATOR, SONET_ROLES_USER, SONET_ROLES_ALL, SONET_ROLES_OWNER, SONET_ROLES_AUTHORIZED, SONET_ROLES_EMPLOYEE);
+$arSocNetAllowedRolesForFeaturesPerms = array(SONET_ROLES_MODERATOR, SONET_ROLES_USER, SONET_ROLES_ALL, SONET_ROLES_OWNER, SONET_ROLES_AUTHORIZED, SONET_ROLES_EMPLOYEE, SONET_ROLES_NONE);
 
 global $arSocNetAllowedInitiatePerms;
 $arSocNetAllowedInitiatePerms = array(SONET_ROLES_MODERATOR, SONET_ROLES_USER, SONET_ROLES_OWNER);
@@ -237,7 +247,7 @@ if (
 			'LM_POPUP_WAITER_TEXT' => GetMessage("LM_POPUP_WAITER_TEXT"),
 			'LM_POPUP_SEARCH_NETWORK_MSGVER_1' => GetMessage("LM_POPUP_SEARCH_NETWORK_MSGVER_1"),
 		),
-		'rel' => array('core', 'popup', 'json', 'finder'),
+		'rel' => array('core', 'popup', 'finder'),
 	));
 }
 
@@ -407,6 +417,44 @@ $eventManager->addEventHandler(
 	static function(GroupLoadedEvent $event): void {
 		GroupProvider::getInstance()->onObjectLoaded($event);
 	}
-)
+);
 
-?>
+$eventManager->addEventHandler(
+	'socialnetwork',
+	'OnCollabAdd',
+	static function(CollabAddEvent $event): void {
+		CollabAddEventListener::getInstance()->onCollabAdd($event);
+	}
+);
+
+$eventManager->addEventHandler(
+	'socialnetwork',
+	'OnCollabUpdate',
+	static function(CollabUpdateEvent $event): void {
+		CollabUpdateEventListener::getInstance()->onCollabUpdate($event);
+	}
+);
+
+$eventManager->addEventHandler(
+	'socialnetwork',
+	'OnCollabDelete',
+	static function(CollabDeleteEvent $event): void {
+		CollabDeleteEventListener::getInstance()->onCollabDelete($event);
+	}
+);
+
+$eventManager->addEventHandler(
+	'socialnetwork',
+	'OnSocNetUserConfirmRequestToBeMember',
+	static function(string $id, array $params): void {
+		CollaberAcceptInvitationEventListener::getInstance()->onCollaberAcceptInvitation($params);
+	}
+);
+
+$eventManager->addEventHandler(
+	'socialnetwork',
+	'OnCollabEntityAdd',
+	static function(CollabEntityAddEvent $event): void {
+		CollabEntityAddEventListener::getInstance()->onCollabEntityAdd($event);
+	}
+);

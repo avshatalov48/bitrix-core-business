@@ -1,4 +1,15 @@
 <?php
+
+$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion();
+if (in_array($region, ['ru', 'by', 'kz', 'uz']))
+{
+	$pushServiceUrl = 'https://cloud-messaging.bitrix24.tech/send/';
+}
+else
+{
+	$pushServiceUrl = 'https://cloud-messaging.bitrix24.com/send/';
+}
+
 $temporary = array(
 	'path_to_listener' => "http://#DOMAIN#/bitrix/sub/",
 	'path_to_listener_secure' => "https://#DOMAIN#/bitrix/sub/",
@@ -18,7 +29,7 @@ $temporary = array(
 	'nginx_headers' => 'Y',
 	'push' => 'N',
 	'push_message_per_hit' => 100,
-	'push_service_url' => "https://cloud-messaging.bitrix24.com/send/",
+	'push_service_url' => $pushServiceUrl,
 	'websocket' => 'Y',
 	'signature_key' => '',
 	'signature_algo' => 'sha1',

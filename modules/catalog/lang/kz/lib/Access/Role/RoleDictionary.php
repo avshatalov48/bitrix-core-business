@@ -1,0 +1,4 @@
+<?php
+$MESS["CATALOG_ROLE_DIRECTOR"] = "Басшы";
+$MESS["CATALOG_ROLE_SALESMAN"] = "Менеджер";
+$MESS["CATALOG_ROLE_STOCKMAN"] = "Қоймашы";

@@ -1596,6 +1596,14 @@
 	opacity: .6;
 }
 
+.bx-im-component-call-error-link {
+	color: #fff;
+	transition: color 0.2s;
+}
+
+.bx-im-component-call-error-link:hover {
+	color: #4fc3f7;
+}
 
 @media screen and (max-width: 1250px) {
 	.bx-im-component-call-wrap-with-chat .bx-messenger-videocall-top-button-text {

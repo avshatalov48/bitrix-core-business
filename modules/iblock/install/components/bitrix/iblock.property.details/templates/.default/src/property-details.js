@@ -256,7 +256,10 @@ export class PropertyDetails
 
 		const prepareControl = function(control) {
 			// skip `ui.forms` controls
-			if (control.classList.contains('ui-ctl-element'))
+			if (
+				control.classList.contains('ui-ctl-element')
+				|| control.classList.contains('ui-tag-selector-item')
+			)
 			{
 				return;
 			}

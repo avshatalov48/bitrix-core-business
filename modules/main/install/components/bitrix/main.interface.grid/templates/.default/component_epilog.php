@@ -35,3 +35,5 @@ if($theme <> '')
 
 $currentBodyClass = $APPLICATION->GetPageProperty("BodyClass", false);
 $APPLICATION->SetPageProperty("BodyClass", ($currentBodyClass ? $currentBodyClass." " : "")."flexible-layout");
+
+\Bitrix\Main\UI\Extension::load('intranet.old-interface.grid');

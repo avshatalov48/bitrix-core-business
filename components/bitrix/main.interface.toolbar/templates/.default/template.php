@@ -66,17 +66,17 @@ foreach($arParams["BUTTONS"] as $index=>$item):
 				<script>
 				var jsMnu_<?=$arParams["TOOLBAR_ID"].'_'.$index?> = <?= Json::encode($item["MENU"]) ?>;
 				</script>
-				<a href="javascript:void(0);" hidefocus="true" 
-					onclick="this.blur(); jsPopup_<?=$arParams["TOOLBAR_ID"]?>.ShowMenu(this, jsMnu_<?=$arParams["TOOLBAR_ID"].'_'.$index?>); return false;" 
+				<a href="javascript:void(0);" hidefocus="true"
+					onclick="this.blur(); jsPopup_<?=$arParams["TOOLBAR_ID"]?>.ShowMenu(this, jsMnu_<?=$arParams["TOOLBAR_ID"].'_'.$index?>); return false;"
 					title="<?=$item["TITLE"]?>" class="bx-context-button<?=(!empty($item["ICON"])? ' bx-icon '.$item["ICON"]:'')?>"><?=$item["TEXT"]?><img src="<?=$this->GetFolder()?>/images/arr_down.gif" class="bx-arrow" alt=""></a></td>
-<?		
-		elseif($item["HTML"] <> ""):
+<?
+		elseif(!empty($item["HTML"])):
 ?>
 				<td><?=$item["HTML"]?></td>
 <?
 		else:
 ?>
-				<td><a href="<?=$item["LINK"]?>" hidefocus="true" title="<?=$item["TITLE"]?>" <?=$item["LINK_PARAM"]?> class="bx-context-button<?=(!empty($item["ICON"])? ' bx-icon '.$item["ICON"]:'')?>"><?=$item["TEXT"]?></a></td>
+				<td><a href="<?=$item["LINK"]?>" hidefocus="true" title="<?=$item["TITLE"]?>" <?=($item["LINK_PARAM"] ?? '')?> class="bx-context-button<?=(!empty($item["ICON"])? ' bx-icon '.$item["ICON"]:'')?>"><?=$item["TEXT"]?></a></td>
 <?
 		endif;
 		$bWasSeparator = false;

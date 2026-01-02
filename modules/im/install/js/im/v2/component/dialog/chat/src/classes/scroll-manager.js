@@ -24,6 +24,7 @@ export class ScrollManager extends EventEmitter
 	static scrollPosition = {
 		messageTop: 'messageTop',
 		messageBottom: 'messageBottom',
+		messageCenter: 'messageCenter',
 	};
 
 	constructor(): ScrollManager
@@ -217,6 +218,12 @@ export class ScrollManager extends EventEmitter
 		if (position === ScrollManager.scrollPosition.messageBottom)
 		{
 			scrollPosition += element.clientHeight - MESSAGE_BOTTOM_OFFSET;
+		}
+		else if (position === ScrollManager.scrollPosition.messageCenter
+			&& this.container.clientHeight > element.clientHeight
+		)
+		{
+			scrollPosition = scrollPosition - (this.container.clientHeight / 2) + (element.clientHeight / 2);
 		}
 
 		return scrollPosition;

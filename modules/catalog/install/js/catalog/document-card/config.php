@@ -12,6 +12,7 @@ return [
 		'catalog.store-enable-wizard',
 		'main.popup',
 		'ui.buttons',
+		'ui.label',
 		'currency.currency-core',
 		'ui.entity-selector',
 		'main.core.events',

@@ -206,7 +206,8 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 							action: 'saveOrderAjax',
 							sessid: BX.bitrix_sessid(),
 							SITE_ID: this.siteId,
-							signedParamsString: this.signedParamsString
+							signedParamsString: this.signedParamsString,
+							userConsents: this.options.userConsents ?? null,
 						},
 						onsuccess: BX.proxy(this.saveOrderWithJson, this),
 						onfailure: BX.proxy(this.handleNotRedirected, this)
@@ -1765,7 +1766,22 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 
 				if (this.params.USER_CONSENT === 'Y' && BX.UserConsent)
 				{
-					BX.onCustomEvent('bx-soa-order-save', []);
+					if (this.options.userConsents)
+					{
+						var requiredUncheckedConsentId = this.getFirstRequiredUncheckedConsentId();
+						if (requiredUncheckedConsentId)
+						{
+							BX.onCustomEvent('bx-soa-order-save-' + requiredUncheckedConsentId);
+						}
+						else
+						{
+							this.doSaveAction();
+						}
+					}
+					else
+					{
+						BX.onCustomEvent('bx-soa-order-save', []);
+					}
 				}
 				else
 				{
@@ -1783,6 +1799,55 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 				this.reachGoal('order');
 				this.sendRequest('saveOrderAjax');
 			}
+		},
+
+		getFirstRequiredUncheckedConsentId: function()
+		{
+			var uncheckedConsent = this.options.userConsents.find(
+				consent => consent.required === 'Y' && consent.checked !== 'Y',
+			);
+
+			return uncheckedConsent ? uncheckedConsent.id : null;
+		},
+
+		refusedByConsent: function(item)
+		{
+			if (item.config.id)
+			{
+				var consent = this.options.userConsents.find(consent => consent.id === item.config.id);
+				if (consent)
+				{
+					consent.checked = 'N';
+				}
+			}
+			this.disallowOrderSave();
+		},
+
+		saveByConsent: function(item)
+		{
+			if (item.config.id)
+			{
+				var consent = this.options.userConsents.find(consent => consent.id === item.config.id);
+				if (consent)
+				{
+					consent.checked = 'Y';
+				}
+			}
+
+			if (!this.isOrderSaveAllowed())
+			{
+				return;
+			}
+
+			var requiredUncheckedConsentId = this.getFirstRequiredUncheckedConsentId();
+			if (requiredUncheckedConsentId)
+			{
+				BX.onCustomEvent('bx-soa-order-save-' + requiredUncheckedConsentId);
+
+				return;
+			}
+
+			this.doSaveAction();
 		},
 
 		/**
@@ -7705,27 +7770,57 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 		validateString: function(input, arProperty, fieldName)
 		{
 			if (!input || !arProperty)
+			{
 				return [];
+			}
 
 			var value = input.value,
 				errors = [],
 				name = BX.util.htmlspecialchars(arProperty.NAME),
-				field = !!fieldName ? BX.message('SOA_FIELD') + ' "' + name + '"' : BX.message('SOA_FIELD'),
 				re;
 
 			if (arProperty.MULTIPLE === 'Y')
+			{
 				return errors;
+			}
 
 			if (arProperty.REQUIRED === 'Y' && value.length === 0)
-				errors.push(field + ' ' + BX.message('SOA_REQUIRED'));
+			{
+				errors.push(
+					fieldName
+						? BX.Loc.getMessage(
+							'SOA_REQUIRED_FIELD_WITH_NAME',
+							{
+								'#NAME#': name,
+							},
+						)
+						: BX.Loc.getMessage('SOA_REQUIRED_FIELD'),
+				);
+			}
 
 			if (value.length)
 			{
 				if (arProperty.MINLENGTH && arProperty.MINLENGTH > value.length)
-					errors.push(BX.message('SOA_MIN_LENGTH') + ' "' + name + '" ' + BX.message('SOA_LESS') + ' ' + arProperty.MINLENGTH + ' ' + BX.message('SOA_SYMBOLS'));
+				{
+					errors.push(BX.Loc.getMessage(
+						'SOA_MIN_LENGTH_FIELD_WITH_NAME',
+						{
+							'#NAME#': name,
+							'#LENGTH#': arProperty.MINLENGTH,
+						},
+					));
+				}
 
 				if (arProperty.MAXLENGTH && arProperty.MAXLENGTH < value.length)
-					errors.push(BX.message('SOA_MAX_LENGTH') + ' "' + name + '" ' + BX.message('SOA_MORE') + ' ' + arProperty.MAXLENGTH + ' ' + BX.message('SOA_SYMBOLS'));
+				{
+					errors.push(BX.Loc.getMessage(
+						'SOA_MAX_LENGTH_FIELD_WITH_NAME',
+						{
+							'#NAME#': name,
+							'#LENGTH#': arProperty.MAXLENGTH,
+						},
+					));
+				}
 
 				if (arProperty.IS_EMAIL === 'Y')
 				{
@@ -7735,7 +7830,7 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 						re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 						if (!re.test(value))
 						{
-							errors.push(BX.message('SOA_INVALID_EMAIL'));
+							errors.push(BX.Loc.getMessage('SOA_INVALID_EMAIL'));
 						}
 					}
 				}
@@ -7744,7 +7839,18 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 				{
 					re = new RegExp(arProperty.PATTERN);
 					if (!re.test(value))
-						errors.push(field + ' ' + BX.message('SOA_INVALID_PATTERN'));
+					{
+						errors.push(
+							fieldName
+								? BX.Loc.getMessage(
+									'SOA_INVALID_PATTERN_FIELD_WITH_NAME',
+									{
+										'#NAME#': name,
+									},
+								)
+								: BX.Loc.getMessage('SOA_INVALID_PATTERN_FIELD'),
+						);
+					}
 				}
 			}
 
@@ -7754,18 +7860,32 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 		validateLocation: function(input, arProperty, fieldName)
 		{
 			if (!input || !arProperty)
+			{
 				return [];
+			}
 
-			var parent = BX.findParent(input, {tagName: 'DIV', className: 'form-group'}),
+			var parent = BX.findParent(input, { tagName: 'DIV', className: 'form-group' }),
 				value = this.getLocationString(parent),
-				errors = [],
-				field = !!fieldName ? BX.message('SOA_FIELD') + ' "' + BX.util.htmlspecialchars(arProperty.NAME) + '"' : BX.message('SOA_FIELD');
+				errors = [];
 
-			if (arProperty.MULTIPLE == 'Y' && arProperty.IS_LOCATION !== 'Y')
+			if (arProperty.MULTIPLE === 'Y' && arProperty.IS_LOCATION !== 'Y')
+			{
 				return errors;
+			}
 
-			if (arProperty.REQUIRED == 'Y' && (value.length == 0 || value == BX.message('SOA_NOT_SPECIFIED')))
-				errors.push(field + ' ' + BX.message('SOA_REQUIRED'));
+			if (arProperty.REQUIRED === 'Y' && (value.length === 0 || value === BX.Loc.getMessage('SOA_NOT_SPECIFIED')))
+			{
+				errors.push(
+					fieldName
+						? BX.Loc.getMessage(
+							'SOA_REQUIRED_FIELD_WITH_NAME',
+							{
+								'#NAME#': BX.util.htmlspecialchars(arProperty.NAME),
+							},
+						)
+						: BX.Loc.getMessage('SOA_REQUIRED_FIELD'),
+				);
+			}
 
 			return errors;
 		},
@@ -7773,16 +7893,30 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 		validateCheckbox: function(input, arProperty, fieldName)
 		{
 			if (!input || !arProperty)
+			{
 				return [];
+			}
 
-			var errors = [],
-				field = !!fieldName ? BX.message('SOA_FIELD') + ' "' + BX.util.htmlspecialchars(arProperty.NAME) + '"' : BX.message('SOA_FIELD');
+			var errors = [];
 
-			if (arProperty.MULTIPLE == 'Y')
+			if (arProperty.MULTIPLE === 'Y')
+			{
 				return errors;
+			}
 
-			if (arProperty.REQUIRED == 'Y' && !input.checked)
-				errors.push(field + ' ' + BX.message('SOA_REQUIRED'));
+			if (arProperty.REQUIRED === 'Y' && !input.checked)
+			{
+				errors.push(
+					fieldName
+						? BX.Loc.getMessage(
+							'SOA_REQUIRED_FIELD_WITH_NAME',
+							{
+								'#NAME#': BX.util.htmlspecialchars(arProperty.NAME),
+							},
+						)
+						: BX.Loc.getMessage('SOA_REQUIRED_FIELD'),
+				);
+			}
 
 			return errors;
 		},
@@ -7790,37 +7924,95 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 		validateNumber: function(input, arProperty, fieldName)
 		{
 			if (!input || !arProperty)
+			{
 				return [];
+			}
 
 			var value = input.value,
 				errors = [],
-				name = BX.util.htmlspecialchars(arProperty.NAME),
-				field = !!fieldName ? BX.message('SOA_FIELD') + ' "' + name + '"' : BX.message('SOA_FIELD'),
-				num, del;
+				name = BX.util.htmlspecialchars(arProperty.NAME);
 
-			if (arProperty.MULTIPLE == 'Y')
+			if (arProperty.MULTIPLE === 'Y')
+			{
 				return errors;
+			}
 
-			if (arProperty.REQUIRED == 'Y' && value.length == 0)
-				errors.push(field + ' ' + BX.message('SOA_REQUIRED'));
+			if (arProperty.REQUIRED === 'Y' && value.length === 0)
+			{
+				errors.push(
+					fieldName
+						? BX.Loc.getMessage(
+							'SOA_REQUIRED_FIELD_WITH_NAME',
+							{
+								'#NAME#': name,
+							},
+						)
+						: BX.Loc.getMessage('SOA_REQUIRED_FIELD'),
+				);
+			}
 
 			if (value.length)
 			{
 				if (!/[0-9]|\./.test(value))
-					errors.push(field + ' ' + BX.message('SOA_NOT_NUMERIC'));
+				{
+					errors.push(
+						fieldName
+							? BX.Loc.getMessage(
+								'SOA_NOT_NUMERIC_FIELD_WITH_TITLE',
+								{
+									'#NAME#': name,
+								},
+							)
+							: BX.Loc.getMessage('SOA_NOT_NUMERIC_FIELD'),
+					);
+				}
 
 				if (arProperty.MIN && parseFloat(arProperty.MIN) > parseFloat(value))
-					errors.push(BX.message('SOA_MIN_VALUE') + ' "' + name + '" ' + parseFloat(arProperty.MIN));
+				{
+					errors.push(BX.Loc.getMessage(
+						'SOA_MIN_VALUE_FIELD_WITH_NAME',
+						{
+							'#NAME#': name,
+							'#VALUE#': parseFloat(arProperty.MIN),
+						},
+					));
+				}
 
 				if (arProperty.MAX && parseFloat(arProperty.MAX) < parseFloat(value))
-					errors.push(BX.message('SOA_MAX_VALUE') + ' "' + name + '" ' + parseFloat(arProperty.MAX));
+				{
+					errors.push(BX.Loc.getMessage(
+						'SOA_MAX_VALUE_FIELD_WITH_NAME',
+						{
+							'#NAME#': name,
+							'#VALUE#': parseFloat(arProperty.MAX),
+						},
+					));
+				}
 
 				if (arProperty.STEP && parseFloat(arProperty.STEP) > 0)
 				{
-					num = Math.abs(parseFloat(value) - (arProperty.MIN && parseFloat(arProperty.MIN) > 0 ? parseFloat(arProperty.MIN) : 0));
-					del = (num / parseFloat(arProperty.STEP)).toPrecision(12);
-					if (del != parseInt(del))
-						errors.push(field + ' ' + BX.message('SOA_NUM_STEP') + ' ' + arProperty.STEP);
+					var num = Math.abs(parseFloat(value)
+						- (arProperty.MIN && parseFloat(arProperty.MIN) > 0 ? parseFloat(arProperty.MIN) : 0));
+					var del = (num / parseFloat(arProperty.STEP)).toPrecision(12);
+					if (del !== parseInt(del))
+					{
+						errors.push(
+							fieldName
+								? BX.Loc.getMessage(
+									'SOA_NUM_STEP_FIELD_WITH_NAME',
+									{
+										'#NAME#': name,
+										'#STEP#': arProperty.STEP,
+									},
+								)
+								: BX.Loc.getMessage(
+									'SOA_NUM_STEP_FIELD',
+									{
+										'#STEP#': arProperty.STEP,
+									},
+								),
+						);
+					}
 				}
 			}
 
@@ -7830,20 +8022,39 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 		validateEnum: function(inputs, arProperty, fieldName)
 		{
 			if (!inputs || !arProperty)
+			{
 				return [];
+			}
 
-			var values = [], errors = [], i,
-				field = !!fieldName ? BX.message('SOA_FIELD') + ' "' + BX.util.htmlspecialchars(arProperty.NAME) + '"' : BX.message('SOA_FIELD');
+			var values = [],
+				errors = [];
 
-			if (arProperty.MULTIPLE == 'Y')
+			if (arProperty.MULTIPLE === 'Y')
+			{
 				return errors;
+			}
 
-			for (i = 0; i < inputs.length; i++)
+			for (var i = 0; i < inputs.length; i++)
+			{
 				if (inputs[i].checked || inputs[i].selected)
+				{
 					values.push(i);
+				}
+			}
 
-			if (arProperty.REQUIRED == 'Y' && values.length == 0)
-				errors.push(field + ' ' + BX.message('SOA_REQUIRED'));
+			if (arProperty.REQUIRED === 'Y' && values.length === 0)
+			{
+				errors.push(
+					fieldName
+						? BX.Loc.getMessage(
+							'SOA_REQUIRED_FIELD_WITH_NAME',
+							{
+								'#NAME#': BX.util.htmlspecialchars(arProperty.NAME),
+							},
+						)
+						: BX.Loc.getMessage('SOA_REQUIRED_FIELD'),
+				);
+			}
 
 			return errors;
 		},
@@ -7851,20 +8062,39 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 		validateSelect: function(inputs, arProperty, fieldName)
 		{
 			if (!inputs || !arProperty)
+			{
 				return [];
+			}
 
-			var values = [], errors = [], i,
-				field = !!fieldName ? BX.message('SOA_FIELD') + ' "' + BX.util.htmlspecialchars(arProperty.NAME) + '"' : BX.message('SOA_FIELD');
+			var values = [],
+				errors = [];
 
-			if (arProperty.MULTIPLE == 'Y')
+			if (arProperty.MULTIPLE === 'Y')
+			{
 				return errors;
+			}
 
-			for (i = 0; i < inputs.length; i++)
+			for (var i = 0; i < inputs.length; i++)
+			{
 				if (inputs[i].selected)
+				{
 					values.push(i);
+				}
+			}
 
-			if (arProperty.REQUIRED == 'Y' && values.length == 0)
-				errors.push(field + ' ' + BX.message('SOA_REQUIRED'));
+			if (arProperty.REQUIRED === 'Y' && values.length === 0)
+			{
+				errors.push(
+					fieldName
+						? BX.Loc.getMessage(
+							'SOA_REQUIRED_FIELD_WITH_NAME',
+							{
+								'#NAME#': BX.util.htmlspecialchars(arProperty.NAME),
+							},
+						)
+						: BX.Loc.getMessage('SOA_REQUIRED_FIELD'),
+				);
+			}
 
 			return errors;
 		},
@@ -7872,38 +8102,64 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 		validateFile: function(inputs, arProperty, fieldName)
 		{
 			if (!inputs || !arProperty)
+			{
 				return [];
+			}
 
-			var errors = [], i,
+			var errors = [],
 				files = inputs.files || [],
-				field = !!fieldName ? BX.message('SOA_FIELD') + ' "' + BX.util.htmlspecialchars(arProperty.NAME) + '"' : BX.message('SOA_FIELD'),
-				defaultValue = inputs.previousSibling.value,
-				file, fileName, splittedName, fileExtension;
+				defaultValue = inputs.previousSibling.value;
 
-			if (arProperty.MULTIPLE == 'Y')
+			if (arProperty.MULTIPLE === 'Y')
+			{
 				return errors;
+			}
 
 			if (
-				arProperty.REQUIRED == 'Y' && files.length == 0 && defaultValue == ''
+				arProperty.REQUIRED === 'Y' && files.length === 0 && defaultValue === ''
 				&& (!arProperty.DEFAULT_VALUE || !arProperty.DEFAULT_VALUE.length)
 			)
 			{
-				errors.push(field + ' ' + BX.message('SOA_REQUIRED'));
+				errors.push(
+					fieldName
+						? BX.Loc.getMessage(
+							'SOA_REQUIRED_FIELD_WITH_NAME',
+							{
+								'#NAME#': BX.util.htmlspecialchars(arProperty.NAME),
+							},
+						)
+						: BX.Loc.getMessage('SOA_REQUIRED_FIELD'),
+				);
 			}
 			else
 			{
-				for (i = 0; i < files.length; i++)
+				for (var file of files)
 				{
-					file = files[i];
-					fileName = BX.util.htmlspecialchars(file.name);
-					splittedName = file.name.split('.');
-					fileExtension = splittedName.length > 1 ? splittedName[splittedName.length - 1].toLowerCase() : '';
+					var fileName = BX.util.htmlspecialchars(file.name);
+					var splittedName = file.name.split('.');
+					var fileExtension = splittedName.length > 1 ? splittedName[splittedName.length - 1].toLowerCase() : '';
 
-					if (arProperty.ACCEPT.length > 0 && (fileExtension.length == 0 || arProperty.ACCEPT.indexOf(fileExtension) == '-1'))
-						errors.push(BX.message('SOA_BAD_EXTENSION') + ' "' + fileName + '" (' + BX.util.htmlspecialchars(arProperty.ACCEPT) + ')');
+					if (arProperty.ACCEPT.length > 0 && (fileExtension.length === 0 || arProperty.ACCEPT.indexOf(fileExtension) === '-1'))
+					{
+						errors.push(BX.Loc.getMessage(
+							'SOA_BAD_EXTENSION_NAME_AND_ACCEPT',
+							{
+								'#NAME#': fileName,
+								'#ACCEPT#': BX.util.htmlspecialchars(arProperty.ACCEPT),
+							},
+						));
+					}
 
 					if (file.size > parseInt(arProperty.MAXSIZE))
-						errors.push(BX.message('SOA_MAX_SIZE') + ' "' + fileName + '" (' + this.getSizeString(arProperty.MAXSIZE, 1) + ')');
+					{
+						errors.push(BX.Loc.getMessage(
+							'SOA_MAX_SIZE_NAME_AND_SIZE',
+							{
+								'#NAME#': fileName,
+								'#SIZE#': this.getSizeString(arProperty.MAXSIZE, 1),
+							},
+						));
+					}
 				}
 			}
 
@@ -7913,18 +8169,31 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 		validateDate: function(input, arProperty, fieldName)
 		{
 			if (!input || !arProperty)
+			{
 				return [];
+			}
 
 			var value = input.value,
-				errors = [],
-				name = BX.util.htmlspecialchars(arProperty.NAME),
-				field = !!fieldName ? BX.message('SOA_FIELD') + ' "' + name + '"' : BX.message('SOA_FIELD');
+				errors = [];
 
-			if (arProperty.MULTIPLE == 'Y')
+			if (arProperty.MULTIPLE === 'Y')
+			{
 				return errors;
+			}
 
-			if (arProperty.REQUIRED == 'Y' && value.length == 0)
-				errors.push(field + ' ' + BX.message('SOA_REQUIRED'));
+			if (arProperty.REQUIRED === 'Y' && value.length === 0)
+			{
+				errors.push(
+					fieldName
+						? BX.Loc.getMessage(
+							'SOA_REQUIRED_FIELD_WITH_NAME',
+							{
+								'#NAME#': BX.util.htmlspecialchars(arProperty.NAME),
+							},
+						)
+						: BX.Loc.getMessage('SOA_REQUIRED_FIELD'),
+				);
+			}
 
 			return errors;
 		},
@@ -8383,12 +8652,47 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 
 		initUserConsent: function()
 		{
+			if (this.params.USER_CONSENTS)
+			{
+				this.options.userConsents = [];
+				this.params.USER_CONSENTS.forEach(consent => {
+					this.options.userConsents.push({
+						id: parseInt(consent.ID, 10),
+						checked: consent.CHECKED,
+						required: consent.REQUIRED,
+					});
+				});
+			}
+			else
+			{
+				this.options.userConsents = null;
+			}
+
 			BX.ready(BX.delegate(function(){
-				var control = BX.UserConsent && BX.UserConsent.load(this.orderBlockNode);
-				if (control)
+				if (this.options.userConsents)
 				{
-					BX.addCustomEvent(control, BX.UserConsent.events.save, BX.proxy(this.doSaveAction, this));
-					BX.addCustomEvent(control, BX.UserConsent.events.refused, BX.proxy(this.disallowOrderSave, this));
+					if (BX.UserConsent)
+					{
+						var controls = BX.UserConsent.getItems();
+						if (controls.length === 0)
+						{
+							BX.UserConsent.loadAll(this.orderBlockNode);
+							controls = BX.UserConsent.getItems();
+						}
+						controls.forEach(control => {
+							BX.addCustomEvent(control, BX.UserConsent.events.afterAccepted, BX.proxy(this.saveByConsent, this));
+							BX.addCustomEvent(control, BX.UserConsent.events.refused, BX.proxy(this.refusedByConsent, this));
+						});
+					}
+				}
+				else
+				{
+					var control = BX.UserConsent && BX.UserConsent.load(this.orderBlockNode);
+					if (control)
+					{
+						BX.addCustomEvent(control, BX.UserConsent.events.save, BX.proxy(this.doSaveAction, this));
+						BX.addCustomEvent(control, BX.UserConsent.events.refused, BX.proxy(this.disallowOrderSave, this));
+					}
 				}
 			}, this));
 		}

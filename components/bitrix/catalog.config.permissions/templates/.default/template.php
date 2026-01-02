@@ -6,6 +6,9 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 }
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
+use Bitrix\UI\Buttons\Button;
+use Bitrix\UI\Buttons\Color;
 
 /**
  * @var array $arResult
@@ -14,21 +17,7 @@ use Bitrix\Main\Localization\Loc;
  */
 $this->addExternalCss('/bitrix/css/main/table/style.css');
 
-Bitrix\Main\UI\Extension::load(
-	[
-		'ui.buttons',
-		'ui.icons',
-		'ui.notification',
-		'ui.accessrights',
-		'ui.selector',
-		'ui',
-		'ui.info-helper',
-		'ui.actionpanel',
-		'ui.design-tokens',
-
-	]
-);
-\Bitrix\Main\UI\Extension::load('loader');
+Bitrix\Main\UI\Extension::load(['ui.accessrights.v2']);
 
 
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
@@ -45,78 +34,39 @@ $cantUse = isset($arResult['CANT_USE']);
 
 <div id="bx-catalog-role-main"></div>
 <?php
-
 $APPLICATION->IncludeComponent(
-	"bitrix:main.ui.selector",
-	".default",
+	'bitrix:ui.button.panel',
+	'',
 	[
-		'API_VERSION'    => 2,
-		'ID'             => $componentId,
-		'ITEMS_SELECTED' => [],
-		'CALLBACK'       => [
-			'select'      => "AccessRights.onMemberSelect",
-			'unSelect'    => "AccessRights.onMemberUnselect",
-			'openDialog'  => 'function(){}',
-			'closeDialog' => 'function(){}',
+		'HIDE' => true,
+		'BUTTONS' => [
+			[
+				'TYPE'    => 'save',
+				'ONCLICK' => "AccessRights.sendActionRequest()",
+			],
+			[
+				'TYPE' => 'custom',
+				'LAYOUT' => (new Button())
+					->setColor(Color::LINK)
+					->setText(Loc::getMessage('CATALOG_CONFIG_CANCEL_BUTTON_ACCESS_RIGHTS'))
+					->bindEvent('click', new \Bitrix\UI\Buttons\JsCode('AccessRights.fireEventReset()'))
+					->render()
+				,
+			],
 		],
-		'OPTIONS' => [
-			'eventInit'                => $initPopupEvent,
-			'eventOpen'                => $openPopupEvent,
-			'useContainer'             => 'Y',
-			'lazyLoad'                 => 'Y',
-			'context'                  => 'CATALOG_PERMISSION',
-			'contextCode'              => '',
-			'useSearch'                => 'Y',
-			'useClientDatabase'        => 'Y',
-			'allowEmailInvitation'     => 'N',
-			'enableAll'                => 'N',
-			'enableUsers'              => 'Y',
-			'enableDepartments'        => 'Y',
-			'enableGroups'             => 'Y',
-			'departmentSelectDisable'  => 'N',
-			'allowAddUser'             => 'Y',
-			'allowAddCrmContact'       => 'N',
-			'allowAddSocNetGroup'      => 'N',
-			'allowSearchEmailUsers'    => 'N',
-			'allowSearchCrmEmailUsers' => 'N',
-			'allowSearchNetworkUsers'  => 'N',
-			'useNewCallback'           => 'Y',
-			'multiple'                 => 'Y',
-			'enableSonetgroups'        => 'Y',
-			'showVacations'            => 'Y',
-		]
 	],
-	false,
-	["HIDE_ICONS" => "Y"]
 );
-
-$APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
-	'HIDE'    => true,
-	'BUTTONS' => [
-		[
-			'TYPE'    => 'save',
-			'ONCLICK' => "AccessRights.sendActionRequest()",
-
-		],
-		[
-			'TYPE'    => 'cancel',
-			'ONCLICK' => "AccessRights.fireEventReset()",
-		],
-	],
-]);
-
 ?>
 
 <script>
-	var AccessRights = new BX.UI.AccessRights({
+	const AccessRights = new BX.UI.AccessRights.V2.App({
 		renderTo: document.getElementById('bx-catalog-role-main'),
-		userGroups: <?= CUtil::PhpToJSObject($arResult['USER_GROUPS']) ?>,
-		accessRights: <?= CUtil::PhpToJSObject($arResult['ACCESS_RIGHTS']); ?>,
+		userGroups: <?= Json::encode($arResult['USER_GROUPS']) ?>,
+		accessRights: <?= Json::encode($arResult['ACCESS_RIGHTS']) ?>,
 		component: 'bitrix:catalog.config.permissions',
 		actionSave: 'savePermissions',
-		actionDelete: 'deleteRole',
-		popupContainer: '<?= $componentId ?>',
-		openPopupEvent: '<?= $openPopupEvent ?>'
+		analytics: <?= Json::encode($analytics ?? []) ?>,
+		searchContainerSelector: "#uiToolbarContainer",
 	});
 
 	AccessRights.draw();
@@ -127,6 +77,13 @@ $APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
 				openDialogWhenInit: false,
 				multiple: true
 			}]);
+
+			const searchContainer = BX("uiToolbarContainer").querySelector(".ui-access-rights-v2-search");
+			if (searchContainer)
+			{
+				BX.removeClass(searchContainer, "ui-ctl-w100");
+				BX.addClass(searchContainer, "ui-ctl-w50");
+			}
 		});
 	});
 </script>

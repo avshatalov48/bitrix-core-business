@@ -1,22 +1,34 @@
 <?php
 
-/**
- * @var array $arParams
- * @var array $arResult
- */
-
-use Bitrix\Main\Localization\Loc;
-
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
+/**
+ * @global \CMain $APPLICATION
+ * @var array $arParams
+ * @var array $arResult
+ */
+
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
+
 Loc::loadMessages(__FILE__);
 
-\Bitrix\Main\UI\Extension::load("ui.hint");
+Loader::includeModule('ui');
+
+Extension::load('ui.hint');
 
 global $APPLICATION;
+
+$APPLICATION->SetTitle(
+	Loc::getMessage(
+		'DEALS_WITH_RESERVED_PRODUCT_SLIDER_TITLE', ['#PRODUCT_NAME#' => htmlspecialcharsbx($arResult['PRODUCT_NAME'])]
+	)
+);
 
 $APPLICATION->IncludeComponent(
 	'bitrix:crm.deal.list',
@@ -29,20 +41,11 @@ $APPLICATION->IncludeComponent(
 	]
 );
 
-\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
-$APPLICATION->SetTitle(
-	Loc::getMessage(
-		'DEALS_WITH_RESERVED_PRODUCT_SLIDER_TITLE', ['#PRODUCT_NAME#' => htmlspecialcharsbx($arResult['PRODUCT_NAME'])]
-	)
+Toolbar::deleteFavoriteStar();
+Toolbar::addAfterTitleHtml(
+	'<span data-hint="' . Loc::getMessage('DEALS_WITH_RESERVED_PRODUCT_SLIDER_HINT_MSGVER_1') . '"></span>'
 );
-
-$this->SetViewTarget('inside_pagetitle');
 ?>
-<span data-hint="<?= Loc::getMessage('DEALS_WITH_RESERVED_PRODUCT_SLIDER_HINT_MSGVER_1') ?>"></span>
-<?php
-$this->EndViewTarget();
-?>
-
 <script>
 	BX.UI.Hint.init(document.querySelector('.pagetitle-inner-container'));
 </script>

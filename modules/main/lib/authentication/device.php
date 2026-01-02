@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2024 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Authentication;
@@ -21,6 +21,10 @@ use Bitrix\Main\Service\GeoIp;
 use Bitrix\Main\Service\GeoIp\Internal\GeonameTable;
 use Bitrix\Main\Mail;
 use Bitrix\Main\Localization\LanguageTable;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\ImBot\Bot\Marta;
+use Bitrix\Im\V2\Message;
+use Bitrix\Im\V2\Entity\User\User;
 
 class Device
 {
@@ -53,10 +57,13 @@ class Device
 			$device = static::add($context);
 			$deviceLogin = static::addDeviceLogin($device, $context);
 
-			if (Option::get('main', 'user_device_notify', 'N') === 'Y')
+			$notifyByEmail = (Option::get('main', 'user_device_notify', 'N') === 'Y');
+			$notifyByIm = (Option::get('main', 'user_device_notify_im', 'N') === 'Y' && Main\ModuleManager::isModuleInstalled('im') && Main\ModuleManager::isModuleInstalled('imbot'));
+
+			if ($notifyByEmail || $notifyByIm)
 			{
 				// send notification to the user
-				static::sendEmail($device, $deviceLogin, $user);
+				static::notifyUser($device, $deviceLogin, $user);
 			}
 		}
 		else
@@ -219,15 +226,17 @@ class Device
 		return $login;
 	}
 
-	protected static function sendEmail(EO_UserDevice $device, EO_UserDeviceLogin $deviceLogin, array $user): void
+	protected static function notifyUser(EO_UserDevice $device, EO_UserDeviceLogin $deviceLogin, array $user): void
 	{
-		$site = $user['LID'];
-		if (!$site)
+		// we have settings in the main module options
+		$codes = unserialize(Option::get('main', 'user_device_notify_codes'), ['allowed_classes' => false]);
+		if (!empty($codes))
 		{
-			$site = Main\Context::getCurrent()->getSite();
-			if (!$site)
+			$userCodes = \CAccess::GetUserCodesArray($user['ID']);
+			if (empty(array_intersect($codes, $userCodes)))
 			{
-				$site = \CSite::GetDefSite();
+				// no need to notify
+				return;
 			}
 		}
 
@@ -237,6 +246,83 @@ class Device
 		// Devices
 		$deviceTypes = DeviceType::getDescription($lang);
 
+		// geoIP
+		$geonames = [];
+		if (Option::get('main', 'user_device_geodata', 'N') === 'Y')
+		{
+			$geonames = static::getGeoNames($deviceLogin, $lang);
+		}
+
+		$fields = [
+			'USER_ID' => $user['ID'],
+			'EMAIL' => $user['EMAIL'],
+			'LOGIN' => $user['LOGIN'],
+			'NAME' => $user['NAME'],
+			'LAST_NAME' => $user['LAST_NAME'],
+			'DEVICE' => $deviceTypes[$device->getDeviceType()],
+			'BROWSER' => $device->getBrowser(),
+			'PLATFORM' => $device->getPlatform(),
+			'USER_AGENT' => $device->getUserAgent(),
+			'IP' => $deviceLogin->getIp(),
+			'DATE' => $deviceLogin->getLoginDate(),
+			'COUNTRY' => $geonames['COUNTRY'] ?? '',
+			'REGION' => $geonames['REGION'] ?? '',
+			'CITY' => $geonames['CITY'] ?? '',
+			'LOCATION' => $geonames['LOCATION'] ?? '',
+		];
+
+		if (Option::get('main', 'user_device_notify', 'N') === 'Y')
+		{
+			// email
+			$site = $user['LID'];
+			if (!$site)
+			{
+				$site = Main\Context::getCurrent()->getSite();
+				if (!$site)
+				{
+					$site = \CSite::GetDefSite();
+				}
+			}
+
+			Mail\Event::send([
+				'EVENT_NAME' => self::EMAIL_EVENT,
+				'C_FIELDS' => $fields,
+				'LID' => $site,
+				'LANGUAGE_ID' => $lang,
+			]);
+		}
+
+		if (Option::get('main', 'user_device_notify_im', 'N') === 'Y' && Main\Loader::includeModule('im') && Main\Loader::includeModule('imbot'))
+		{
+			// chat notification
+			$replace = [];
+			foreach ($fields as $key => $value)
+			{
+				$replace["#$key#"] = $value;
+			}
+			$message = Loc::getMessage('main_device_message', $replace, $lang);
+			$pushMessage = Loc::getMessage('main_device_push_message', null, $lang);
+
+			$infoBotId = Marta::getBotId();
+			if ($infoBotId)
+			{
+				$chat = User::getInstance($user['ID'])->getChatWith($infoBotId);
+				if ($chat)
+				{
+					$chatMessage = new Message();
+					$chatMessage
+						->setMessage($message)
+						->setPushMessage($pushMessage)
+						->setAuthorId($infoBotId)
+					;
+					$chat->sendMessage($chatMessage);
+				}
+			}
+		}
+	}
+
+	protected static function getGeoNames(EO_UserDeviceLogin $deviceLogin, string $lang): array
+	{
 		// City and Region names
 		$geoids = array_filter([$deviceLogin->getCityGeoid(), $deviceLogin->getRegionGeoid()]);
 		$geonames = GeonameTable::get($geoids);
@@ -245,11 +331,13 @@ class Device
 		$region = '';
 		if (!empty($geonames))
 		{
+			$currentLang = Main\Context::getCurrent()->getLanguage();
+
 			$langCode = '';
-			if ($user['LANGUAGE_ID'] != '' && $user['LANGUAGE_ID'] != $currentLang)
+			if ($lang != $currentLang)
 			{
 				$language = LanguageTable::getList([
-					'filter' => ['=LID' => $user['LANGUAGE_ID'], '=ACTIVE' => 'Y'],
+					'filter' => ['=LID' => $lang, '=ACTIVE' => 'Y'],
 					'cache' => ['ttl' => 86400],
 				])->fetchObject();
 
@@ -284,29 +372,12 @@ class Device
 		// Combined location
 		$location = implode(', ', array_filter([$city, $region, $country]));
 
-		$fields = [
-			'EMAIL' => $user['EMAIL'],
-			'LOGIN' => $user['LOGIN'],
-			'NAME' => $user['NAME'],
-			'LAST_NAME' => $user['LAST_NAME'],
-			'DEVICE' => $deviceTypes[$device->getDeviceType()],
-			'BROWSER' => $device->getBrowser(),
-			'PLATFORM' => $device->getPlatform(),
-			'USER_AGENT' => $device->getUserAgent(),
-			'IP' => $deviceLogin->getIp(),
-			'DATE' => $deviceLogin->getLoginDate(),
+		return [
 			'COUNTRY' => $country,
 			'REGION' => $region,
 			'CITY' => $city,
 			'LOCATION' => $location,
 		];
-
-		Mail\Event::send([
-			'EVENT_NAME' => self::EMAIL_EVENT,
-			'C_FIELDS' => $fields,
-			'LID' => $site,
-			'LANGUAGE_ID' => $lang,
-		]);
 	}
 
 	/**

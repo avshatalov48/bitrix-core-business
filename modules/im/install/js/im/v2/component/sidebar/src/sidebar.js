@@ -69,6 +69,10 @@ export const ChatSidebar = {
 
 			return !messageSearchPanel;
 		},
+		sidebarOpened(): boolean
+		{
+			return this.topLevelPanelType || this.secondLevelPanelType;
+		},
 	},
 	watch:
 	{
@@ -224,7 +228,7 @@ export const ChatSidebar = {
 		},
 	},
 	template: `
-		<div class="bx-im-sidebar__container">
+		<div class="bx-im-sidebar__container" :class="{'--opened': sidebarOpened}">
 			<Transition :name="topLevelTransitionName">
 				<SidebarPanel
 					v-if="topLevelPanelType"

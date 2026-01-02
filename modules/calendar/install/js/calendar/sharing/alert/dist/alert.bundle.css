@@ -97,7 +97,7 @@ html, body {
 	flex: 1;
 	flex-direction: column;
 	margin-bottom: 12px;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	animation: calendar-sharing__show-state .25s linear forwards;
 }
 

@@ -24,7 +24,7 @@ class SourceType
 
 	public static function getObjectSourceType($objectName, $fieldName): ?array
 	{
-		if (mb_substr($fieldName, -10) === '_printable')
+		if (mb_strtolower(mb_substr($fieldName, -10)) === '_printable')
 		{
 			$fieldName = mb_substr($fieldName, 0, -10);
 		}

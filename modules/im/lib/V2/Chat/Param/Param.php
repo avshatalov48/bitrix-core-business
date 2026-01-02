@@ -167,6 +167,8 @@ Class Param implements RegistryEntry, ActiveRecord
 			return $this->unsetValue();
 		}
 
+		$prevValue = $this->value;
+
 		switch ($this->type)
 		{
 			case self::TYPE_INT:
@@ -192,7 +194,10 @@ Class Param implements RegistryEntry, ActiveRecord
 				$this->value = $value;
 		}
 
-		$this->markChanged();
+		if ($prevValue !== $this->value)
+		{
+			$this->markChanged();
+		}
 
 		return $this;
 	}

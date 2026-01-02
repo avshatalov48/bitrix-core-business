@@ -9,13 +9,12 @@ return [
 		'./dist/counter.bundle.js',
 	],
 	'rel' => [
-		'main.polyfill.core',
 		'main.core.events',
-		'ui.vue3.vuex',
+		'main.core',
 		'im.v2.application.core',
 		'im.v2.lib.desktop',
 		'im.v2.lib.logger',
 		'im.v2.const',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

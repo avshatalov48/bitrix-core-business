@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 (function (exports,socialnetwork_ui_grid,tasks_tour,main_core_events,main_popup,ui_buttons,socialnetwork_common,pull_client,main_core) {
@@ -218,6 +219,17 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      });
 	      confirmPopup.show();
 	    }
+	  }, {
+	    key: "convertToCollab",
+	    value: function convertToCollab(params) {
+	      main_core.Runtime.loadExtension('socialnetwork.collab.converter').then(function (exports) {
+	        var ConverterClass = exports.Converter;
+	        var id = parseInt(main_core.Type.isUndefined(params.groupId) ? 0 : params.groupId, 10);
+	        new ConverterClass({}).convertToCollab(id);
+	      })["catch"](function (error) {
+	        console.error(error);
+	      });
+	    }
 	  }]);
 	  return ActionManager;
 	}();
@@ -307,7 +319,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        userUpdate: 'userUpdate',
 	        userDelete: 'userDelete',
 	        favoritesChanged: 'favoritesChanged',
-	        pinChanged: 'pinChanged'
+	        pinChanged: 'pinChanged',
+	        convert: 'convert'
 	      };
 	    }
 	  }]);
@@ -329,7 +342,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "getMap",
 	    value: function getMap() {
 	      var _ref;
-	      return _ref = {}, babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_ADD'), this.onWorkgroupAdd.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_UPDATE'), this.onWorkgroupUpdate.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_DELETE'), this.onWorkgroupDelete.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_ADD'), this.onWorkgroupUserAdd.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_UPDATE'), this.onWorkgroupUserUpdate.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_DELETE'), this.onWorkgroupUserDelete.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_FAVORITES_CHANGED'), this.onWorkgroupFavoritesChanged.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_PIN_CHANGED'), this.onWorkgroupPinChanged.bind(this)), _ref;
+	      return _ref = {}, babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_ADD'), this.onWorkgroupAdd.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_UPDATE'), this.onWorkgroupUpdate.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_DELETE'), this.onWorkgroupDelete.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_ADD'), this.onWorkgroupUserAdd.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_UPDATE'), this.onWorkgroupUserUpdate.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_DELETE'), this.onWorkgroupUserDelete.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_FAVORITES_CHANGED'), this.onWorkgroupFavoritesChanged.bind(this)), babelHelpers.defineProperty(_ref, main_core.Loc.getMessage('PUSH_EVENT_WORKGROUP_PIN_CHANGED'), this.onWorkgroupPinChanged.bind(this)), babelHelpers.defineProperty(_ref, "workgroup_convert", this.onWorkgroupConverted.bind(this)), _ref;
 	    }
 	  }, {
 	    key: "onWorkgroupAdd",
@@ -360,6 +373,14 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      }, function (response) {
 	        return console.error(response);
 	      });
+	    }
+	  }, {
+	    key: "onWorkgroupConverted",
+	    value: function onWorkgroupConverted(data) {
+	      var params = {
+	        event: PullControllerSocialnetwork.events.convert
+	      };
+	      this.pullController.moveToDirectPlace(data.params.GROUP_ID, null, params);
 	    }
 	  }, {
 	    key: "onWorkgroupDelete",

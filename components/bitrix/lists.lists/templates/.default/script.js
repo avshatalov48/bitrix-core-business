@@ -32,10 +32,13 @@ BX.Lists.ListsIblockClass = (function ()
 		});
 	};
 
-	ListsIblockClass.prototype.createDefaultProcesses = function ()
+	ListsIblockClass.prototype.createDefaultProcesses = function (button)
 	{
-		BX.addClass(BX('bx-lists-default-processes'), 'ui-btn-clock');
-		BX('bx-lists-default-processes').setAttribute('onclick','');
+		if (button.isClocking())
+		{
+			return;
+		}
+		button.setState(BX.UI.Button.State.CLOCKING);
 		BX.Lists.ajax({
 			method: 'POST',
 			dataType: 'json',
@@ -57,7 +60,7 @@ BX.Lists.ListsIblockClass = (function ()
 						status: 'error',
 						message: result.errors.pop().message
 					});
-					BX.removeClass(BX('bx-lists-default-processes'), 'ui-btn-clock');
+					button.setState(null);
 				}
 			}, this)
 		});

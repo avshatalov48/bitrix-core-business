@@ -185,12 +185,36 @@ else
 			}
 		endif;?>
 
-		<?php if (isset($hooks['SETTINGS'], $pageFields['SETTINGS_AGREEMENT_ID'])):
-			$agreementId = $pageFields['SETTINGS_AGREEMENT_ID']->getValue() ?: 0;
+		<?php if (
+			isset($hooks['SETTINGS'])
+			&& (
+				isset($pageFields['SETTINGS_AGREEMENT_ID'])
+				|| isset($pageFields['SETTINGS_AGREEMENTS'])
+			)
+		):
+			$agreements = $pageFields['SETTINGS_AGREEMENTS']?->getValue();
+			if (!is_array($agreements))
+			{
+				$agreementId = $pageFields['SETTINGS_AGREEMENT_ID']?->getValue() ?: 0;
+				if ($agreementId)
+				{
+					$agreements = [
+						[
+							'ID' => (int)$agreementId,
+							'CHECKED' => 'Y',
+							'REQUIRED' => 'Y',
+						],
+					];
+				}
+				else
+				{
+					$agreements = [];
+				}
+			}
 			$agreementUseField = $pageFields['SETTINGS_AGREEMENT_USE'];
 			if(!$agreementUseField->getValue())
 			{
-				$agreementUseField->setValue($agreementId ? 'Y' : 'N');
+				$agreementUseField->setValue($agreements ? 'Y' : 'N');
 			}
 			?>
 			<div class="ui-form-row landing-form-title-catalog">
@@ -215,9 +239,9 @@ else
 									'bitrix:landing.userconsent.selector',
 									'',
 									[
-										'ID' => $agreementId,
-										'INPUT_NAME' => 'fields[ADDITIONAL_FIELDS][SETTINGS_AGREEMENT_ID]'
-									]
+										'AGREEMENTS' => $agreements,
+										'INPUT_NAME' => 'fields[ADDITIONAL_FIELDS][SETTINGS_AGREEMENTS]',
+									],
 								);?>
 							</div>
 						</div>

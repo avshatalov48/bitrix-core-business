@@ -106,3 +106,4 @@ $MESS["REST_SCOPE_USER_BASIC_DESCRIPTION"] = "пайдаланушылар ті�
 $MESS["REST_SCOPE_USER_BRIEF"] = "Пайдаланушылар (минималды)";
 $MESS["REST_SCOPE_USER_BRIEF_DESCRIPTION"] = "пайдаланушылар тізімін, аттар туралы ақпаратты байланыс ақпаратынсыз оқуға рұқсат";
 $MESS["REST_SCOPE_USER_DESCRIPTION"] = "толық қолжетімділік: пайдаланушыларды оқу, қосу, өзгерту және жою";
+$MESS["REST_SCOPE_BOOKING"] = "Онлайн-жазылу";

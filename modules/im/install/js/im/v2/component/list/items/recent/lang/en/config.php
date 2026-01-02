@@ -8,6 +8,7 @@ $MESS["IM_LIST_RECENT_ACTIVE_CALL_RETURN"] = "Return to call";
 $MESS["IM_LIST_RECENT_BIRTHDAY"] = "has a birthday today!";
 $MESS["IM_LIST_RECENT_BIRTHDAY_DATE"] = "today";
 $MESS["IM_LIST_RECENT_CHAT_SELF"] = "it's you";
+$MESS["IM_LIST_RECENT_CHAT_SELF_SUBTITLE"] = "Visible to you only";
 $MESS["IM_LIST_RECENT_CHAT_TYPE_GROUP_V2"] = "Group chat";
 $MESS["IM_LIST_RECENT_CHAT_TYPE_OPEN_CHANNEL"] = "Public channel";
 $MESS["IM_LIST_RECENT_CHAT_TYPE_PRIVATE_CHANNEL"] = "Private channel";

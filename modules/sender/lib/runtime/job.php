@@ -76,7 +76,7 @@ abstract class Job
 		$agent = new \CAgent();
 		$list = $agent->getList(
 			["ID" => "DESC"],
-			["MODULE_ID" => "sender", "NAME" => $agentName]
+			["MODULE_ID" => "sender", "=NAME" => $agentName]
 		);
 		while ($row = $list->fetch())
 		{

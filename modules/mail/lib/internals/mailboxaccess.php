@@ -2,7 +2,10 @@
 
 namespace Bitrix\Mail\Internals;
 
+use Bitrix\Mail\MailboxTable;
 use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
+use Bitrix\Main\UserAccessTable;
 
 /**
  * Class MailboxAccessTable
@@ -22,6 +25,7 @@ use Bitrix\Main\Entity;
  */
 class MailboxAccessTable extends Entity\DataManager
 {
+	use DeleteByFilterTrait;
 
 	public static function getFilePath()
 	{
@@ -170,4 +174,47 @@ class MailboxAccessTable extends Entity\DataManager
 		return $foundUser;
 	}
 
+
+	public static function onAfterAdd(Entity\Event $event): void
+	{
+		self::cleanMailboxCache($event);
+	}
+
+	public static function onAfterUpdate(Entity\Event $event): void
+	{
+		self::cleanMailboxCache($event);
+	}
+
+	public static function onAfterDelete(Entity\Event $event): void
+	{
+		self::cleanMailboxCache($event);
+	}
+
+	private static function cleanMailboxCache(Entity\Event $event): void
+	{
+		$mailboxAccess = $event->getParameter('fields');
+
+		if (isset($mailboxAccess['ACCESS_CODE']))
+		{
+			$userIds = UserAccessTable::query()
+				->setSelect(['USER_ID'])
+				->where('ACCESS_CODE', $mailboxAccess['ACCESS_CODE'])
+				->exec()
+				->fetchAll();
+
+			foreach ($userIds as $userId)
+			{
+				$userId = (int)$userId['USER_ID'];
+				if ($userId > 0)
+				{
+					MailboxTable::cleanUserSharedCache($userId);
+				}
+			}
+		}
+	}
+
+	public static function onBeforeDeleteByFilter(): void
+	{
+		MailboxTable::cleanAllSharedCache();
+	}
 }

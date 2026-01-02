@@ -28,7 +28,9 @@ export class ConfirmStatusDialog extends EventEmitter
 			minHeight: 120,
 			autoHide: true,
 			closeByEsc: true,
-			draggable: true,
+			draggable: {
+				restrict: true,
+			},
 			closeIcon: true,
 			animation: 'fading-slide',
 			contentBackground: "#fff",

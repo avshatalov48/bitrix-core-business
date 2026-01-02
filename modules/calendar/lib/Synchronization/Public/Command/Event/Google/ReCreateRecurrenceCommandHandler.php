@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Bitrix\Calendar\Synchronization\Public\Command\Event\Google;
+
+use Bitrix\Calendar\Internals\Container;
+use Bitrix\Calendar\Synchronization\Internal\Exception\LogicException;
+use Bitrix\Calendar\Synchronization\Internal\Exception\Repository\RepositoryReadException;
+use Bitrix\Calendar\Synchronization\Internal\Exception\SynchronizerException;
+use Bitrix\Calendar\Synchronization\Internal\Service\Vendor\Google\GoogleEventSynchronizer;
+use Bitrix\Main\Repository\Exception\PersistenceException;
+
+class ReCreateRecurrenceCommandHandler
+{
+	private GoogleEventSynchronizer $synchronizer;
+
+	public function __construct()
+	{
+		$this->synchronizer = Container::getGoogleEventSynchronizer();
+	}
+
+	/**
+	 * @throws PersistenceException
+	 * @throws RepositoryReadException
+	 * @throws SynchronizerException
+	 * @throws LogicException
+	 */
+	public function __invoke(ReCreateRecurrenceCommand $command): void
+	{
+		$this->synchronizer->reCreateRecurrence($command->masterEvent);
+	}
+}

@@ -22,7 +22,6 @@ return [
 		'ui.entity-editor',
 		'ui.common',
 		'ui.viewer',
-		'ui.vue',
 		'location.core',
 		'location.google',
 		'location.osm',

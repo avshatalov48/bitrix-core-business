@@ -858,6 +858,60 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			);
 			$block->saveContent($blockContent);
 		}
+
+		if (mb_strpos($blockContent, '#COUNTDOWN#') !== false)
+		{
+			$replace = [];
+			$replace['#COUNTDOWN#'] = Countdown::getTimestamp();
+			$blockContent = str_replace(
+				array_keys($replace),
+				array_values($replace),
+				$blockContent
+			);
+			$block->saveContent($blockContent);
+		}
+
+		self::replaceVideoPlaceholders($block);
+	}
+
+	private static function replaceVideoPlaceholders($block): void
+	{
+		$blockContent = $block->getContent();
+		if (mb_strpos($blockContent, '#DEFAULT_VIDEO_SRC#') !== false)
+		{
+			if (Manager::getZone() === 'ru')
+			{
+				$replace = [
+					'#DEFAULT_VIDEO_SRC#' => 'data-src=""',
+					'#DEFAULT_VIDEO_SOURCE#' => 'data-source=""',
+					'#DEFAULT_VIDEO_PREVIEW#' => 'data-preview=""',
+					'#DEFAULT_VIDEO_STYLE#' => 'style=""',
+					'#DEFAULT_VIDEO_SRC_2#' => 'data-src=""',
+					'#DEFAULT_VIDEO_SOURCE_2#' => 'data-source=""',
+					'#DEFAULT_VIDEO_PREVIEW_2#' => 'data-preview=""',
+					'#DEFAULT_VIDEO_STYLE_2#' => 'style=""',
+				];
+			}
+			else
+			{
+				$replace = [
+					'#DEFAULT_VIDEO_SRC#' => 'data-src="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=0&controls=1&loop=1&mute=0&rel=0"',
+					'#DEFAULT_VIDEO_SOURCE#' => 'data-source="https://www.youtube.com/watch?v=q4d8g9Dn3ww"',
+					'#DEFAULT_VIDEO_PREVIEW#' => 'data-preview="//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg"',
+					'#DEFAULT_VIDEO_STYLE#' => 'style="background-image:url(//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg)"',
+					'#DEFAULT_VIDEO_SRC_2#' => 'data-src="//www.youtube.com/embed/IISycTRZ-UA?autoplay=0&controls=1&loop=1&mute=0&rel=0"',
+					'#DEFAULT_VIDEO_SOURCE_2#' => 'data-source="https://www.youtube.com/watch?v=IISycTRZ-UA"',
+					'#DEFAULT_VIDEO_PREVIEW_2#' => 'data-preview="//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg"',
+					'#DEFAULT_VIDEO_STYLE_2#' => 'style="background-image:url(//img.youtube.com/vi/IISycTRZ-UA/sddefault.jpg)"',
+				];
+			}
+			$blockContent = str_replace(
+				array_keys($replace),
+				array_values($replace),
+				$blockContent
+			);
+			$block->saveContent($blockContent);
+		}
 	}
 
 	/**
@@ -926,8 +980,6 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	public static function getLastUsed(int $count = 15): array
 	{
-		$blocks = array();
-
 		$res = Internals\BlockLastUsedTable::getList([
 			'select' => [
 				'CODE',
@@ -940,6 +992,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			],
 			'limit' => $count ?: null,
 		]);
+		$blocks = [];
 		while ($row = $res->fetch())
 		{
 			$blocks[] = $row['CODE'];
@@ -1782,7 +1835,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			// detect translated messages
 			$lang = null;
 			$langPortal = LANGUAGE_ID;
-			if (in_array($langPortal, ['ru', 'kz', 'by']))
+			if (in_array($langPortal, ['ru', 'kz', 'by', 'uz']))
 			{
 				$langPortal = 'ru';
 			}
@@ -3899,7 +3952,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		foreach ($manifest['nodes'] as $selector => $node)
 		{
 			$isFind = false;
-			$dataSelector = [];
+			$nodeData = [];
 			if (isset($data[$selector]))
 			{
 				if (!is_array($data[$selector]))
@@ -3909,7 +3962,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					);
 				}
 				$data[$selector] = array_filter($data[$selector], fn($value) => !is_null($value));
-				$dataSelector = $data[$selector];
+				$nodeData = $data[$selector];
 				$isFind = true;
 			}
 			if (!$isFind && ($node['isWrapper'] ?? false) === true)
@@ -3922,7 +3975,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 							$data['#wrapper'],
 						);
 					}
-					$dataSelector = $data['#wrapper'];
+					$nodeData = $data['#wrapper'];
 				}
 				else
 				{
@@ -3933,7 +3986,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 							$data[$selector],
 						);
 					}
-					$dataSelector = $data[$selector];
+					$nodeData = $data[$selector];
 				}
 				$isFind = true;
 			}
@@ -3950,7 +4003,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					), array(
 						$this,
 						$selector,
-						$dataSelector,
+						$nodeData,
 						$additional,
 					));
 			}
@@ -4362,7 +4415,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				if (!isset($data[$selector]['classList']))
 				{
 					$data[$selector] = [
-						'classList' => $data[$selector],
+						'classList' => (array)$data[$selector],
 					];
 				}
 				if (!isset($data[$selector]['affect']))
@@ -4394,8 +4447,12 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 
 					if ($resultNode)
 					{
-						 $contentBefore = $resultNode->getOuterHTML();
-						if ((int)$resultNode->getNodeType() === $resultNode::ELEMENT_NODE)
+						$contentBefore = $resultNode->getOuterHTML();
+						if (
+							isset($data[$relativeSelector]['classList'])
+							&& is_array($data[$relativeSelector]['classList'])
+							&& (int)$resultNode->getNodeType() === $resultNode::ELEMENT_NODE
+						)
 						{
 							$resultNode->setClassName(
 								implode(' ', $data[$relativeSelector]['classList'])

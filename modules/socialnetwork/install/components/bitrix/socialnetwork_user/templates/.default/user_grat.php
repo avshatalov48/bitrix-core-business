@@ -89,6 +89,7 @@ $APPLICATION->IncludeComponent(
 		"POPUP_COMPONENT_PARAMS" => $arLogParams,
 		"POPUP_COMPONENT_PARENT" => $this->getComponent(),
 		'USE_PADDING' => false,
+		'USE_UI_TOOLBAR' => 'Y',
 	)
 );
 

@@ -237,6 +237,42 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 					],
 				],
 			];
+
+			if (
+				class_exists(\Bitrix\Crm\Integration\UI\EntitySelector\CrmEntityProvider::class)
+				&& Loader::includeModule('crm')
+			)
+			{
+				$result[] = [
+					'id' => 'WS_DOCUMENT_ID',
+					'name' => Loc::getMessage('BPWI_WS_DOCUMENT_ID'),
+					'type' => 'entity_selector',
+					'default' => true,
+					'params' => [
+						'multiple' => 'N',
+						'dialogOptions' => [
+							'context' => self::GRID_ID,
+							'entities' => [
+								[
+									'id' => 'crm_entity',
+									'dynamicLoad' => true,
+									'dynamicSearch' => true,
+									'options' => [
+										'filterByAutomationOrBizproc' => true,
+									],
+								],
+							],
+							'multiple' => 'N',
+							'dropdownMode' => true,
+							'hideOnSelect' => true,
+							'hideOnDeselect' => false,
+							'clearSearchOnSelect' => true,
+							'showAvatars' => false,
+							'compactView' => true,
+						],
+					],
+				];
+			}
 		}
 
 		return $result;

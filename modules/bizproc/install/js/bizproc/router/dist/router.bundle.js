@@ -1,11 +1,13 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports) {
+(function (exports,sidepanel,main_core) {
 	'use strict';
 
+	var _startSliderWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("startSliderWidth");
 	var _bind = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("bind");
 	var _detectSliderWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("detectSliderWidth");
 	var _openSlider = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("openSlider");
+	var _createEditConstantSlider = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createEditConstantSlider");
 	class Router {
 	  static init() {
 	    if (top !== window) {
@@ -47,6 +49,41 @@ this.BX = this.BX || {};
 	    };
 	    babelHelpers.classPrivateFieldLooseBase(this, _openSlider)[_openSlider](url, options);
 	  }
+	  static openUserProcessesStart(options) {
+	    const sliderOptions = {
+	      width: babelHelpers.classPrivateFieldLooseBase(this, _startSliderWidth)[_startSliderWidth],
+	      cacheable: false,
+	      loader: 'bizproc:start-process-page',
+	      ...options
+	    };
+	    let url = '/bizproc/start/';
+	    if (options && options.requestMethod === 'get' && options.requestParams) {
+	      url = BX.Uri.addParam(url, options.requestParams);
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _openSlider)[_openSlider](url, sliderOptions);
+	  }
+	  static openWorkflowStartList(options) {
+	    const sliderOptions = {
+	      width: babelHelpers.classPrivateFieldLooseBase(this, _startSliderWidth)[_startSliderWidth],
+	      cacheable: false,
+	      loader: 'bizproc:start-process-page',
+	      ...options
+	    };
+	    let url = '/bitrix/components/bitrix/bizproc.workflow.start.list/';
+	    if (options && options.requestMethod === 'get' && options.requestParams) {
+	      url = BX.Uri.addParam(url, options.requestParams);
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _openSlider)[_openSlider](url, sliderOptions);
+	  }
+	  static openWorkflowChangeConstants(params) {
+	    const url = babelHelpers.classPrivateFieldLooseBase(Router, _createEditConstantSlider)[_createEditConstantSlider](params);
+	    const sliderOptions = {
+	      width: 900,
+	      cacheable: false,
+	      allowChangeHistory: false
+	    };
+	    babelHelpers.classPrivateFieldLooseBase(this, _openSlider)[_openSlider](url, sliderOptions);
+	  }
 	}
 	function _bind2() {
 	  top.BX.SidePanel.Instance.bindAnchors({
@@ -79,6 +116,27 @@ this.BX = this.BX || {};
 	    BX.SidePanel.Instance.open(url, options);
 	  }).catch(response => console.error(response.errors));
 	}
+	function _createEditConstantSlider2(params) {
+	  let url = main_core.Uri.addParam('/bitrix/components/bitrix/bizproc.workflow.start/', {
+	    sessid: main_core.Loc.getMessage('bitrix_sessid'),
+	    action: 'CHANGE_CONSTANTS'
+	  });
+	  const templateId = main_core.Text.toInteger(params.templateId);
+	  if (templateId > 0) {
+	    url = main_core.Uri.addParam(url, {
+	      templateId
+	    });
+	  }
+	  if (params.signedDocumentType) {
+	    url = main_core.Uri.addParam(url, {
+	      signedDocumentType: params.signedDocumentType
+	    });
+	  }
+	  return url;
+	}
+	Object.defineProperty(Router, _createEditConstantSlider, {
+	  value: _createEditConstantSlider2
+	});
 	Object.defineProperty(Router, _openSlider, {
 	  value: _openSlider2
 	});
@@ -88,8 +146,12 @@ this.BX = this.BX || {};
 	Object.defineProperty(Router, _bind, {
 	  value: _bind2
 	});
+	Object.defineProperty(Router, _startSliderWidth, {
+	  writable: true,
+	  value: 970
+	});
 
 	exports.Router = Router;
 
-}((this.BX.Bizproc = this.BX.Bizproc || {})));
+}((this.BX.Bizproc = this.BX.Bizproc || {}),BX,BX));
 //# sourceMappingURL=router.bundle.js.map

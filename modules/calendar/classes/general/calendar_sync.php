@@ -5,11 +5,12 @@ use Bitrix\Calendar\Sync\Factories\FactoriesCollection;
 use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Sync\Office365;
 use Bitrix\Calendar\Sync;
+use Bitrix\Calendar\Synchronization\Public\Command;
+use Bitrix\Calendar\Synchronization\Public\Service\SynchronizationFeature;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Loader;
-use Bitrix\Main\LoaderException;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\Type;
 use Bitrix\Main\Type\DateTime;
@@ -581,7 +582,7 @@ class CCalendarSync
 			$entityType = mb_strtolower($entityType);
 			$entityId = (int)$entityId;
 
-			$tempUser = CCalendar::TempUser(false, true);
+			$tempUser = CCalendar::TempUser();
 			$calendarNames = [];
 			foreach ($arCalendars as $value)
 			{
@@ -1220,11 +1221,28 @@ class CCalendarSync
 
 			Sync\Managers\DataSyncManager::createInstance()->dataSync($userId);
 
-			if (\CCalendar::isGoogleApiEnabled() || \CCalendar::isOffice365ApiEnabled())
+			if (SynchronizationFeature::isOn())
+			{
+				if (\CCalendar::isGoogleApiEnabled())
+				{
+					$command = new Command\Common\Google\SynchronizeConnectionCommand($userId);
+
+					$command->run();
+				}
+
+				if (\CCalendar::isOffice365ApiEnabled())
+				{
+					$command = new Command\Common\Office365\SynchronizeConnectionCommand($userId);
+
+					$command->run();
+				}
+			}
+			elseif (\CCalendar::isGoogleApiEnabled() || \CCalendar::isOffice365ApiEnabled())
 			{
 				$manager = new Sync\Managers\DataExchangeManager(
 					FactoriesCollection::createByUserId(
-						$userId, [
+						$userId,
+						[
 							Google\Factory::SERVICE_NAME,
 							Office365\Factory::SERVICE_NAME,
 						]

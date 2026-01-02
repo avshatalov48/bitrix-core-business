@@ -56,9 +56,6 @@ $siteTemplate = Manager::getTemplateId($site);
 
 define('SMN_SITE_ID', $site);
 
-// refresh block repo
-\Bitrix\Landing\Block::getRepository();
-
 // check module rights
 if ($application->getGroupRight('landing') < 'W')
 {
@@ -328,38 +325,59 @@ if ($cmp == 'landing_edit')
 		{
 			$createType = 'PAGE';
 		}
+
 		if ($tpl = $request->get('tpl'))
 		{
-			$APPLICATION->IncludeComponent(
-				'bitrix:landing.demo_preview',
-				'.default',
-				array(
-					'TYPE' => $createType,
-					'CODE' => $tpl,
-					'SITE_ID' => $siteId,
-					'PAGE_URL_BACK' => $landingsPage,
-					'SITE_WORK_MODE' => 'Y',
-					'LANG_ID' => LANGUAGE_ID,
-					'ADMIN_SECTION' => 'Y',
-					'ACTION_FOLDER' => $actionFolder,
-				),
-				$component
-			);
+			$canUseMarket = Manager::isB24();
+			$availableTemplates = ['empty'];
+
+			if (
+				$createType === 'PAGE'
+				&& !$canUseMarket
+				&& !in_array($tpl, $availableTemplates, true)
+			)
+			{
+				\showError('Template install is temporarily unavailable.');
+			}
+			else
+			{
+				$APPLICATION->IncludeComponent(
+					'bitrix:landing.demo_preview',
+					'.default',
+					array(
+						'TYPE' => $createType,
+						'CODE' => $tpl,
+						'SITE_ID' => $siteId,
+						'PAGE_URL_BACK' => $landingsPage,
+						'SITE_WORK_MODE' => 'Y',
+						'LANG_ID' => LANGUAGE_ID,
+						'ADMIN_SECTION' => 'Y',
+						'ACTION_FOLDER' => $actionFolder,
+					),
+					$component
+				);
+			}
 		}
 		else
 		{
-			$APPLICATION->IncludeComponent(
-				'bitrix:landing.demo',
-				'.default',
-				array(
-					'TYPE' => $createType,
-					'ACTION_FOLDER' => $actionFolder,
-					'SITE_ID' => $siteId,
-					'PAGE_URL_SITES' => $landingsPage,
-					'PAGE_URL_LANDING_VIEW' => $viewPage,
-					'SITE_WORK_MODE' => 'Y'
-				),
-				$component
+			$APPLICATION->includeComponent(
+				'bitrix:ui.sidepanel.wrapper',
+				'',
+				[
+					'POPUP_COMPONENT_NAME' => 'bitrix:landing.demo',
+					'POPUP_COMPONENT_TEMPLATE_NAME' => '.default',
+					'POPUP_COMPONENT_PARAMS' => [
+						'TYPE' => $createType,
+						'ACTION_FOLDER' => $actionFolder,
+						'SITE_ID' => $siteId,
+						'PAGE_URL_SITES' => $landingsPage,
+						'PAGE_URL_LANDING_VIEW' => $viewPage,
+						'SITE_WORK_MODE' => 'Y',
+					],
+					'POPUP_COMPONENT_PARENT' => $component,
+					'USE_PADDING' => false,
+					'USE_UI_TOOLBAR' => 'Y',
+				]
 			);
 		}
 	}

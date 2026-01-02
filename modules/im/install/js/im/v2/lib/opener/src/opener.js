@@ -1,7 +1,6 @@
-import { Feature, FeatureManager } from 'im.v2.lib.feature';
 import { EventEmitter } from 'main.core.events';
 
-import { EventType, GetParameter, Layout } from 'im.v2.const';
+import { EventType, GetParameter, Layout, NavigationMenuItem } from 'im.v2.const';
 import { CallManager } from 'im.v2.lib.call';
 import { DesktopApi, DesktopFeature } from 'im.v2.lib.desktop-api';
 import { LayoutManager } from 'im.v2.lib.layout';
@@ -9,10 +8,23 @@ import { Logger } from 'im.v2.lib.logger';
 import { PhoneManager } from 'im.v2.lib.phone';
 import { Utils } from 'im.v2.lib.utils';
 import { MessengerSlider } from 'im.v2.lib.slider';
-import { LinesService } from 'im.v2.provider.service';
+import { Feature, FeatureManager } from 'im.v2.lib.feature';
+import { BotContextService } from 'im.v2.provider.service.bot';
+import { CreateChatManager } from 'im.v2.lib.create-chat';
+import { type NavigationMenuItemParams, NavigationManager } from 'im.v2.lib.navigation';
 
-import type { ForwardedEntityConfig } from 'im.v2.provider.service';
-import type { CreatableChatType } from 'im.v2.component.content.chat-forms.forms';
+import { LinesService } from './classes/lines-service';
+import {
+	checkHistoryDialogId,
+	prepareHistorySliderLink,
+	normalizeEntityId,
+	isEmbeddedModeWithActiveSlider,
+	openChatInNewTab,
+} from './functions/helpers';
+
+import type { JsonObject } from 'main.core';
+import type { ForwardedEntityConfig } from 'im.v2.provider.service.sending';
+import type { CreatableChatType, OpenChatCreationParams } from 'im.v2.component.content.chat-forms.forms';
 
 export const Opener = {
 	async openChat(dialogId: string | number = '', messageId: number = 0): Promise
@@ -23,9 +35,20 @@ export const Opener = {
 			return this.openLines(preparedDialogId);
 		}
 
+		if (isEmbeddedModeWithActiveSlider())
+		{
+			openChatInNewTab({
+				navigationItem: NavigationMenuItem.chat,
+				dialogId: preparedDialogId,
+				messageId,
+			});
+
+			return Promise.resolve();
+		}
+
 		await MessengerSlider.getInstance().openSlider();
 		const layoutParams = {
-			name: Layout.chat.name,
+			name: Layout.chat,
 			entityId: preparedDialogId,
 		};
 		if (messageId > 0)
@@ -33,9 +56,18 @@ export const Opener = {
 			layoutParams.contextId = messageId;
 		}
 		await LayoutManager.getInstance().setLayout(layoutParams);
-		EventEmitter.emit(EventType.layout.onOpenChat, { dialogId: preparedDialogId });
 
 		return Promise.resolve();
+	},
+
+	async openChatWithBotContext(dialogId: string | number, context: JsonObject): Promise
+	{
+		const preparedDialogId = dialogId.toString();
+
+		const botContextService = new BotContextService();
+		botContextService.scheduleContextRequest(preparedDialogId, context);
+
+		return this.openChat(preparedDialogId);
 	},
 
 	async forwardEntityToChat(dialogId: string, entityConfig: ForwardedEntityConfig): Promise
@@ -43,11 +75,10 @@ export const Opener = {
 		const preparedDialogId = dialogId.toString();
 		await MessengerSlider.getInstance().openSlider();
 		const layoutParams = {
-			name: Layout.chat.name,
+			name: Layout.chat,
 			entityId: preparedDialogId,
 		};
 		await LayoutManager.getInstance().setLayout(layoutParams);
-		EventEmitter.emit(EventType.layout.onOpenChat, { dialogId: preparedDialogId });
 		EventEmitter.emit(EventType.textarea.forwardEntity, { dialogId, entityConfig });
 
 		return Promise.resolve();
@@ -62,12 +93,22 @@ export const Opener = {
 			preparedDialogId = await linesService.getDialogIdByUserCode(preparedDialogId);
 		}
 
+		if (isEmbeddedModeWithActiveSlider())
+		{
+			openChatInNewTab({
+				navigationItem: NavigationMenuItem.openlines,
+				dialogId: preparedDialogId,
+			});
+
+			return Promise.resolve();
+		}
+
 		await MessengerSlider.getInstance().openSlider();
 
 		const optionOpenLinesV2Activated = FeatureManager.isFeatureAvailable(Feature.openLinesV2);
 
 		return LayoutManager.getInstance().setLayout({
-			name: optionOpenLinesV2Activated ? Layout.openlinesV2.name : Layout.openlines.name,
+			name: optionOpenLinesV2Activated ? Layout.openlinesV2 : Layout.openlines,
 			entityId: preparedDialogId,
 		});
 	},
@@ -79,7 +120,7 @@ export const Opener = {
 		await MessengerSlider.getInstance().openSlider();
 
 		return LayoutManager.getInstance().setLayout({
-			name: Layout.copilot.name,
+			name: Layout.copilot,
 			entityId: preparedDialogId,
 			contextId,
 		});
@@ -89,12 +130,49 @@ export const Opener = {
 	{
 		const preparedDialogId = dialogId.toString();
 
+		if (!FeatureManager.collab.isAvailable())
+		{
+			FeatureManager.collab.openFeatureSlider();
+
+			return null;
+		}
+
 		await MessengerSlider.getInstance().openSlider();
 
 		return LayoutManager.getInstance().setLayout({
-			name: Layout.collab.name,
+			name: Layout.collab,
 			entityId: preparedDialogId,
 		});
+	},
+
+	async openChannel(dialogId: string = ''): Promise
+	{
+		const preparedDialogId = dialogId.toString();
+
+		await MessengerSlider.getInstance().openSlider();
+
+		return LayoutManager.getInstance().setLayout({
+			name: Layout.channel,
+			entityId: preparedDialogId,
+		});
+	},
+
+	async openTaskComments(dialogId: string = '', messageId: number = 0): Promise
+	{
+		const preparedDialogId = dialogId.toString();
+
+		await MessengerSlider.getInstance().openSlider();
+
+		const layoutParams = {
+			name: Layout.taskComments,
+			entityId: preparedDialogId,
+		};
+		if (messageId > 0)
+		{
+			layoutParams.contextId = messageId;
+		}
+
+		return LayoutManager.getInstance().setLayout(layoutParams);
 	},
 
 	openHistory(dialogId: string | number = ''): Promise
@@ -124,7 +202,7 @@ export const Opener = {
 	{
 		await MessengerSlider.getInstance().openSlider();
 		await LayoutManager.getInstance().setLayout({
-			name: Layout.notification.name,
+			name: Layout.notification,
 		});
 
 		EventEmitter.emit(EventType.layout.onOpenNotifications);
@@ -136,7 +214,7 @@ export const Opener = {
 	{
 		await MessengerSlider.getInstance().openSlider();
 		await LayoutManager.getInstance().setLayout({
-			name: Layout.chat.name,
+			name: Layout.chat,
 		});
 
 		EventEmitter.emit(EventType.recent.openSearch);
@@ -150,7 +228,7 @@ export const Opener = {
 		await MessengerSlider.getInstance().openSlider();
 
 		await LayoutManager.getInstance().setLayout({
-			name: Layout.settings.name,
+			name: Layout.settings,
 			entityId: sectionName,
 		});
 
@@ -172,13 +250,20 @@ export const Opener = {
 		return Promise.resolve();
 	},
 
-	async openChatCreation(chatType: CreatableChatType): Promise
+	async openChatCreation(
+		chatType: CreatableChatType,
+		params: OpenChatCreationParams = {},
+	): Promise
 	{
 		Logger.warn('Slider: openChatCreation', chatType);
 
+		CreateChatManager.getInstance().setPreselectedMembers(params.preselectedMembers ?? []);
+		CreateChatManager.getInstance().setIncludeCurrentUser(params.includeCurrentUser ?? true);
+		CreateChatManager.getInstance().setOwnerId(params.ownerId ?? null);
+
 		await MessengerSlider.getInstance().openSlider();
 		const layoutParams = {
-			name: Layout.createChat.name,
+			name: Layout.createChat,
 			entityId: chatType,
 		};
 
@@ -227,20 +312,26 @@ export const Opener = {
 			Utils.browser.openLink(path);
 		}
 	},
-};
 
-const checkHistoryDialogId = (dialogId: string): boolean => {
-	return (
-		Utils.dialog.isLinesHistoryId(dialogId)
-		|| Utils.dialog.isLinesExternalId(dialogId)
-	);
-};
+	async openNavigationItem(payload: NavigationMenuItemParams): void
+	{
+		await MessengerSlider.getInstance().openSlider();
 
-const prepareHistorySliderLink = (dialogId: string): string => {
-	const getParams = new URLSearchParams({
-		[GetParameter.openHistory]: dialogId,
-		[GetParameter.backgroundType]: 'light',
-	});
+		NavigationManager.open({
+			id: payload.id.toString(),
+			entityId: normalizeEntityId(payload.entityId),
+			target: payload.target,
+		});
+	},
 
-	return `/desktop_app/history.php?${getParams.toString()}`;
+	isChatOpened(dialogId: string): boolean
+	{
+		const currentLayout = LayoutManager.getInstance().getLayout();
+		if (!LayoutManager.getInstance().isChatLayout(currentLayout.name))
+		{
+			return false;
+		}
+
+		return currentLayout.entityId === dialogId;
+	},
 };

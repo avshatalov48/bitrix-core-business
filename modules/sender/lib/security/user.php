@@ -8,6 +8,7 @@
 namespace Bitrix\Sender\Security;
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UserTable;
@@ -343,8 +344,8 @@ class User
 		return $this->object;
 	}
 
-	private function isCurrent()
+	private function isCurrent(): bool
 	{
-		return !$this->id;
+		return !$this->id || ($this?->id == CurrentUser::get()->getId());
 	}
 }

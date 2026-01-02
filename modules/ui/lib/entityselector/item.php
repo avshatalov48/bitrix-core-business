@@ -41,6 +41,7 @@ class Item implements \JsonSerializable
 	protected $saveable = true;
 	protected $deselectable = true;
 	protected $hidden = false;
+	protected $locked = false;
 
 	protected $children;
 	protected $nodeOptions;
@@ -144,6 +145,11 @@ class Item implements \JsonSerializable
 		if (isset($options['hidden']) && is_bool($options['hidden']))
 		{
 			$this->setHidden($options['hidden']);
+		}
+
+		if (isset($options['locked']) && is_bool($options['locked']))
+		{
+			$this->setLocked($options['locked']);
 		}
 
 		if (isset($options['sort']) && is_int($options['sort']))
@@ -580,6 +586,18 @@ class Item implements \JsonSerializable
 		return $this;
 	}
 
+	public function isLocked(): bool
+	{
+		return $this->locked;
+	}
+
+	public function setLocked(bool $flag = true): self
+	{
+		$this->locked = $flag;
+
+		return $this;
+	}
+
 	public function isAvailableInRecentTab(): bool
 	{
 		return $this->availableInRecentTab;
@@ -734,6 +752,11 @@ class Item implements \JsonSerializable
 		if ($this->isHidden())
 		{
 			$json['hidden'] = true;
+		}
+
+		if ($this->isLocked())
+		{
+			$json['locked'] = true;
 		}
 
 		if ($this->avatarOptions !== null && $this->getAvatarOptions()->count() > 0)

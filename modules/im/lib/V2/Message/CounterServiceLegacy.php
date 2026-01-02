@@ -18,6 +18,7 @@ class CounterServiceLegacy extends CounterService
 			'CHAT' => 0,
 			'LINES' => 0,
 			'DIALOG' => 0,
+			'MESSENGER' => 0,
 		],
 		'CHAT' => [],
 		'CHAT_MUTED' => [],
@@ -109,6 +110,7 @@ class CounterServiceLegacy extends CounterService
 	{
 		$this->counters['TYPE']['ALL']++;
 		$this->counters['TYPE']['DIALOG']++;
+		$this->counters['TYPE']['MESSENGER']++;
 		$this->counters['DIALOG_UNREAD'][] = $id;
 	}
 
@@ -116,6 +118,7 @@ class CounterServiceLegacy extends CounterService
 	{
 		$this->counters['TYPE']['ALL'] += $count;
 		$this->counters['TYPE']['DIALOG'] += $count;
+		$this->counters['TYPE']['MESSENGER'] += $count;
 		$this->counters['DIALOG'][$id] = $count;
 	}
 

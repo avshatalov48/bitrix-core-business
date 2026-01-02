@@ -51,3 +51,7 @@
 .main-buttons-edit .catalog-tariff-lock:before{
 	display: none;
 }
+
+.pagetitle-align-right-container {
+	margin-left: auto;
+}

@@ -35,6 +35,9 @@ export class Toloka
 	#templateData;
 	#REGION_BY_IP = 'REGION_BY_IP';
 	#REGION_BY_PHONE = 'REGION_BY_PHONE';
+	#isSlider: boolean;
+	#toolbarId: string;
+	#uiToolbar: BX.UI.Toolbar | null;
 
 	constructor()
 	{
@@ -44,6 +47,7 @@ export class Toloka
 	{
 		const self = new Toloka();
 		self.initialize(settings);
+
 		return self;
 	}
 
@@ -57,12 +61,12 @@ export class Toloka
 			BX.addCustomEvent(selector, selector.events.selectorClose, this.closeTemplateSelector.bind(this));
 		}
 
-		if(this._saveBtn)
+		if (this._saveBtn)
 		{
 			BX.bind(
 				this._saveBtn,
 				'click',
-				this.applyChanges.bind(this)
+				this.applyChanges.bind(this),
 			);
 		}
 
@@ -80,9 +84,21 @@ export class Toloka
 			{
 				BX.UI.Notification.Center.notify({
 					content: this.#mess.outsideSaveSuccess,
-					autoHideDelay: 5000
+					autoHideDelay: 5000,
 				});
 			}
+		}
+
+		if (this.#uiToolbar && this.#isSlider)
+		{
+			this.#uiToolbar.subscribe(BX.UI.ToolbarEvents.finishEditing, (event) => {
+				const updatedTitle = event.getData().updatedTitle;
+
+				if (updatedTitle && this.#titleNode)
+				{
+					this.#titleNode.value = updatedTitle;
+				}
+			});
 		}
 
 		this.initWidget();
@@ -105,10 +121,10 @@ export class Toloka
 		this.#context = BX(params.containerId);
 		this.#filterData = [];
 		this.#filterData[this.#REGION_BY_IP] = {
-			region: []
+			region: [],
 		};
 		this.#filterData[this.#REGION_BY_PHONE] = {
-			region: []
+			region: [],
 		};
 
 		this.#filterId = 'toloka-filter-connector';
@@ -130,6 +146,9 @@ export class Toloka
 		this.#templateData = [];
 		this.#messageFields = this.objectKeysToLowerCase(JSON.parse(params.preset));
 		this.optionData = [];
+		this.#isSlider = params.isSlider;
+		this.#toolbarId = params.toolbarId;
+		this.#uiToolbar = BX.UI.ToolbarManager.get(this.#toolbarId);
 
 		this.prepareNodes();
 		this.buildDispatchNodes();
@@ -138,12 +157,6 @@ export class Toloka
 		this._regionInput = [];
 		this._autocomplete = [];
 		this.bindEvents();
-
-		this.#helper.titleEditor.init({
-			dataNode: this.#titleNode,
-			disabled: false,
-			defaultTitle: this.getPatternTitle(this.#mess.name)
-		});
 
 		this.#page.initButtons();
 
@@ -184,7 +197,6 @@ export class Toloka
 		this._priceNode = document.getElementById('CONFIGURATION_PRICE');
 		this._expireInNode = document.getElementById('CONFIGURATION_EXPIRE_IN');
 		this._saveBtn = document.getElementById('ui-button-panel-save');
-
 
 		this._projectNode.parentNode.parentNode.style = 'display:none';
 		this._poolNode.parentNode.parentNode.style = 'display:none';
@@ -383,8 +395,6 @@ export class Toloka
 
 		this.#helper.changeDisplay(this.#templateChangeButton, !isShow);
 		this.#helper.changeDisplay(this.#buttonsNode, !isShow);
-
-		isShow ? this.#helper.titleEditor.disable() : this.#helper.titleEditor.enable();
 	}
 
 	objectKeysToLowerCase(origObj)

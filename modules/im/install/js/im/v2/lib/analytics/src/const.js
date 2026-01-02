@@ -1,10 +1,11 @@
+export const PSEUDO_CHAT_TYPE_FOR_NOTES = 'notes';
+
 export const CopilotChatType = Object.freeze({
 	private: 'chatType_private',
 	multiuser: 'chatType_multiuser',
 });
 
 export const AnalyticsEvent = Object.freeze({
-	openMessenger: 'open_messenger',
 	openChat: 'open_chat',
 	createNewChat: 'create_new_chat',
 	audioUse: 'audio_use',
@@ -14,7 +15,10 @@ export const AnalyticsEvent = Object.freeze({
 	openSettings: 'open_settings',
 	clickCreateNew: 'click_create_new',
 	openExisting: 'open_existing',
+	typeMessage: 'type_message',
+	pinChat: 'pin_chat',
 	clickDelete: 'click_delete',
+	clickShare: 'click_share',
 	cancelDelete: 'cancel_delete',
 	delete: 'delete',
 	view: 'view',
@@ -28,11 +32,35 @@ export const AnalyticsEvent = Object.freeze({
 	openCalendar: 'open_calendar',
 	openTasks: 'open_tasks',
 	openFiles: 'open_files',
+	clickCreatePoll: 'click_create_poll',
 	clickCreateTask: 'click_create_task',
 	clickCreateEvent: 'click_create_event',
 	clickAttach: 'click_attach',
 	downloadFile: 'download_file',
 	saveToDisk: 'save_to_disk',
+	pinMessage: 'pin_message',
+	unpinMessage: 'unpin_message',
+	pinnedMessageLimitException: 'pinned_message_limit_exception',
+	startSearch: 'start_search',
+	selectRecipient: 'select_recipient',
+	selectUser: 'select_user',
+	openCreateMenu: 'open_create_menu',
+	clickUpdate: 'click_update',
+	clickMoreInformation: 'click_more_information',
+	goToWeb: 'go_to_web',
+	copyMessage: 'copy_message',
+	clickReply: 'click_reply',
+	copyFile: 'copy_file',
+	copyLink: 'copy_link',
+	addToFav: 'add_to_fav',
+	seeLater: 'see_later',
+	select: 'select',
+	addFeedback: 'add_feedback',
+	copyChatLink: 'copy_chat_link',
+	viewTranscription: 'view_transcription',
+	play: 'play',
+	pause: 'pause',
+	changeSpeed: 'change_speed',
 });
 
 export const AnalyticsTool = Object.freeze({
@@ -40,6 +68,7 @@ export const AnalyticsTool = Object.freeze({
 	checkin: 'checkin',
 	im: 'im',
 	infoHelper: 'InfoHelper',
+	inform: 'inform',
 });
 
 export const AnalyticsCategory = Object.freeze({
@@ -57,6 +86,8 @@ export const AnalyticsCategory = Object.freeze({
 	chatPopup: 'chat_popup',
 	call: 'call',
 	collab: 'collab',
+	updateAppPopup: 'update_app_popup',
+	audiomessage: 'audiomessage',
 });
 
 export const AnalyticsType = Object.freeze({
@@ -69,6 +100,7 @@ export const AnalyticsType = Object.freeze({
 	limitOfficeChatingHistory: 'limit_office_chating_history',
 	privateCall: 'private',
 	groupCall: 'group',
+	may25DesktopRelease: 'may_25_desktop_release',
 });
 
 export const AnalyticsSection = Object.freeze({
@@ -85,6 +117,10 @@ export const AnalyticsSection = Object.freeze({
 	chatTextarea: 'chat_textarea',
 	editor: 'editor',
 	chatWindow: 'chat_window',
+	forward: 'forward',
+	userAdd: 'user_add',
+	chatCreateMenu: 'chat_create_menu',
+	chatEmptyState: 'chat_empty_state',
 });
 
 export const AnalyticsSubSection = Object.freeze({
@@ -95,6 +131,7 @@ export const AnalyticsSubSection = Object.freeze({
 	chatSidebar: 'chat_sidebar',
 	chatList: 'chat_list',
 	window: 'window',
+	membersPanel: 'user_list',
 });
 
 export const AnalyticsElement = Object.freeze({
@@ -102,6 +139,7 @@ export const AnalyticsElement = Object.freeze({
 	videocall: 'videocall',
 	audiocall: 'audiocall',
 	startButton: 'start_button',
+	more: 'more',
 });
 
 export const AnalyticsStatus = Object.freeze({
@@ -111,4 +149,10 @@ export const AnalyticsStatus = Object.freeze({
 
 export const CreateChatContext = Object.freeze({
 	collabEmptyState: 'collab_empty_state',
+});
+
+export const MessagePinsTypes = Object.freeze({
+	single: 'single',
+	multiple: 'multiple',
+	selected: 'selected',
 });

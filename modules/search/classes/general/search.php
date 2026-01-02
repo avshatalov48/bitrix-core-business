@@ -1537,7 +1537,7 @@ class CAllSearch extends CDBResult
 				}
 				else
 				{
-					$content .= $arResult['TAGS'];
+					$content .= $arResult['TAGS'] ?? '';
 				}
 
 				$content = preg_replace_callback('/&#(\\d+);/', ['CSearch', 'chr'], $content);
@@ -2506,7 +2506,7 @@ class CAllSearch extends CDBResult
 		unset($update['ITEM_ID']);
 
 		$merge = $helper->prepareMerge('b_search_content', ['MODULE_ID', 'ITEM_ID'], $arFields, $update);
-		if ($merge)
+		if ($merge && $merge[0])
 		{
 			$DB->Query($merge[0]);
 		}
@@ -2998,8 +2998,6 @@ class CAllSearch extends CDBResult
 			$arFields['DATE_CHANGE'] = $DB->FormatDate($arFields['DATE_CHANGE'], 'DD.MM.YYYY HH:MI:SS', CLang::GetDateFormat());
 		}
 
-		unset($arFields['SEARCHABLE_CONTENT']);
-
 		if (array_key_exists('SITE_ID', $arFields))
 		{
 			CSearch::UpdateSite($ID, $arFields['SITE_ID']);
@@ -3033,16 +3031,7 @@ class CAllSearch extends CDBResult
 		$strUpdate = $DB->PrepareUpdate('b_search_content', $arFields);
 		if ($strUpdate <> '')
 		{
-			$arBinds = [];
-			if (is_set($arFields, 'BODY'))
-			{
-				$arBinds['BODY'] = $arFields['BODY'];
-			}
-			if (is_set($arFields, 'TAGS'))
-			{
-				$arBinds['TAGS'] = $arFields['TAGS'];
-			}
-			$DB->QueryBind('UPDATE b_search_content SET ' . $strUpdate . ' WHERE ID=' . intval($ID), $arBinds);
+			$DB->Query('UPDATE b_search_content SET ' . $strUpdate . ' WHERE ID = ' . intval($ID));
 			$bUpdate = true;
 		}
 

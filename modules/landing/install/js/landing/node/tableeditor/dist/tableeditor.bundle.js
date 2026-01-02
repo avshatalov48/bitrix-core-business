@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.Node = this.BX.Landing.Node || {};
@@ -8,7 +9,13 @@ this.BX.Landing.Node = this.BX.Landing.Node || {};
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 	var TableEditor = /*#__PURE__*/function () {
+	  /**
+	   * @param {HTMLElement} node
+	   * @param {BX.Landing.Node.Text} textNode
+	   * @param {boolean} [needInit=true] - If false, skips initialization.
+	   */
 	  function TableEditor(node, textNode) {
+	    var needInit = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 	    babelHelpers.classCallCheck(this, TableEditor);
 	    this.textNode = textNode;
 	    this.table = node.querySelector('.landing-table');
@@ -17,24 +24,31 @@ this.BX.Landing.Node = this.BX.Landing.Node || {};
 	    }
 	    this.node = node;
 	    this.tBody = this.node.getElementsByTagName('tbody')[0];
-	    this.addTitles(this.node);
-	    this.enableEditCells(this.table);
-	    this.dragAndDropRows(this);
-	    this.dragAndDropCols(this);
-	    this.resizeColumn(this);
-	    this.buildLines(this);
-	    this.addRow(this);
-	    this.addCol(this);
-	    this.onUnselect(this);
-	    this.unselect(this);
-	    this.selectAll(this);
-	    this.selectRow(this);
-	    this.selectCol(this);
-	    this.onCopyTable(this);
-	    this.onDeleteElementTable(this);
-	    this.onShowPopupMenu(this);
+	    if (needInit === true) {
+	      this.init();
+	    }
 	  }
 	  babelHelpers.createClass(TableEditor, [{
+	    key: "init",
+	    value: function init() {
+	      this.addTitles(this.node);
+	      this.enableEditCells(this.table);
+	      this.dragAndDropRows(this);
+	      this.dragAndDropCols(this);
+	      this.resizeColumn(this);
+	      this.buildLines(this);
+	      this.addRow(this);
+	      this.addCol(this);
+	      this.onUnselect(this);
+	      this.unselect(this);
+	      this.bindSelectAllHandler(this);
+	      this.selectRow(this);
+	      this.selectCol(this);
+	      this.onCopyTable(this);
+	      this.onDeleteElementTable(this);
+	      this.onShowPopupMenu(this);
+	    }
+	  }, {
 	    key: "addTitles",
 	    value: function addTitles(tableNode) {
 	      if (!tableNode.hasAttribute('title-added')) {
@@ -101,56 +115,67 @@ this.BX.Landing.Node = this.BX.Landing.Node || {};
 	      });
 	    }
 	  }, {
-	    key: "selectAll",
-	    value: function selectAll(tableEditor) {
-	      var thTech = tableEditor.table.querySelector('.landing-table-th-select-all');
-	      main_core.Event.bind(thTech, 'click', function () {
-	        var isSelectedTable = false;
-	        if (tableEditor.table.classList.contains('table-selected-all')) {
-	          isSelectedTable = true;
+	    key: "bindSelectAllHandler",
+	    value: function bindSelectAllHandler() {
+	      var _this = this;
+	      var thTech = this.table.querySelector('.landing-table-th-select-all');
+	      if (thTech) {
+	        main_core.Event.bind(thTech, 'click', function () {
+	          _this.toggleSelectAll();
+	        });
+	      }
+	    }
+	  }, {
+	    key: "toggleSelectAll",
+	    value: function toggleSelectAll() {
+	      var isSelectedTable = false;
+	      if (this.table.classList.contains('table-selected-all')) {
+	        isSelectedTable = true;
+	      }
+	      this.unselect(this, true);
+	      var setRows = this.table.querySelectorAll('.landing-table-tr');
+	      var count = 0;
+	      setRows.forEach(function (row) {
+	        var setTh = row.childNodes;
+	        var index = 0;
+	        var lastThIndex = 0;
+	        row.childNodes.forEach(function (cell) {
+	          if (cell.nodeType === 1) {
+	            lastThIndex = index;
+	          }
+	          index++;
+	        });
+	        if (count > 0) {
+	          var lastTh = setTh[lastThIndex];
+	          if (isSelectedTable) {
+	            lastTh.classList.remove('table-selected-all-right');
+	          } else {
+	            lastTh.classList.add('table-selected-all-right');
+	          }
 	        }
-	        tableEditor.unselect(tableEditor, true);
-	        var setRows = tableEditor.table.querySelectorAll('.landing-table-tr');
-	        var count = 0;
-	        setRows.forEach(function (row) {
-	          var setTh = row.childNodes;
-	          var index = 0;
-	          var lastThIndex = 0;
-	          row.childNodes.forEach(function (cell) {
-	            if (cell.nodeType === 1) {
-	              lastThIndex = index;
-	            }
-	            index++;
-	          });
-	          if (count > 0) {
-	            var lastTh = setTh[lastThIndex];
-	            if (isSelectedTable) {
-	              lastTh.classList.remove('table-selected-all-right');
-	            } else {
-	              lastTh.classList.add('table-selected-all-right');
-	            }
-	          }
-	          count++;
-	          if (count === setRows.length) {
-	            setTh.forEach(function (th) {
-	              if (th.nodeType === 1) {
-	                if (isSelectedTable) {
-	                  th.classList.remove('table-selected-all-bottom');
-	                } else {
-	                  th.classList.add('table-selected-all-bottom');
-	                }
+	        count++;
+	        if (count === setRows.length) {
+	          setTh.forEach(function (th) {
+	            if (th.nodeType === 1) {
+	              if (isSelectedTable) {
+	                th.classList.remove('table-selected-all-bottom');
+	              } else {
+	                th.classList.add('table-selected-all-bottom');
 	              }
-	            });
-	          }
-	        });
+	            }
+	          });
+	        }
+	      });
+	      var thTech = this.table.querySelector('.landing-table-th-select-all');
+	      if (thTech) {
 	        thTech.classList.toggle('landing-table-th-select-all-selected');
-	        tableEditor.table.classList.toggle('table-selected-all');
-	        tableEditor.table.querySelectorAll('.landing-table-col-dnd').forEach(function (thDnd) {
-	          thDnd.classList.toggle('landing-table-cell-selected');
-	        });
-	        tableEditor.table.querySelectorAll('.landing-table-row-dnd').forEach(function (trDnd) {
-	          trDnd.classList.toggle('landing-table-cell-selected');
-	        });
+	      }
+	      this.table.classList.toggle('table-selected-all');
+	      this.table.querySelectorAll('.landing-table-col-dnd').forEach(function (thDnd) {
+	        thDnd.classList.toggle('landing-table-cell-selected');
+	      });
+	      this.table.querySelectorAll('.landing-table-row-dnd').forEach(function (trDnd) {
+	        trDnd.classList.toggle('landing-table-cell-selected');
 	      });
 	    }
 	  }, {
@@ -259,7 +284,7 @@ this.BX.Landing.Node = this.BX.Landing.Node || {};
 	  }, {
 	    key: "addRow",
 	    value: function addRow(tableEditor) {
-	      var _this = this;
+	      var _this2 = this;
 	      var neededPosition = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var buttons = tableEditor.getButtonsAddRow(tableEditor.node);
 	      if (neededPosition === null) {
@@ -350,7 +375,7 @@ this.BX.Landing.Node = this.BX.Landing.Node || {};
 	          button.parentNode.parentNode.parentNode.insertBefore(newTr, button.parentNode.parentNode.nextSibling);
 	          tableEditor.buildLines(tableEditor);
 	          tableEditor.enableEditCells(tableEditor.node);
-	          _this.textNode.onChange(true);
+	          _this2.textNode.onChange(true);
 	          tableEditor.selectRow(tableEditor, neededPosition);
 	          tableEditor.addRow(tableEditor, neededPosition);
 	          tableEditor.unselect(tableEditor);
@@ -366,7 +391,7 @@ this.BX.Landing.Node = this.BX.Landing.Node || {};
 	  }, {
 	    key: "addCol",
 	    value: function addCol(tableEditor) {
-	      var _this2 = this;
+	      var _this3 = this;
 	      var neededPosition = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var buttons = tableEditor.getButtonsAddCol(tableEditor.node);
 	      if (neededPosition === null) {
@@ -457,7 +482,7 @@ this.BX.Landing.Node = this.BX.Landing.Node || {};
 	          }
 	          tableEditor.buildLines(tableEditor);
 	          tableEditor.enableEditCells(tableEditor.node);
-	          _this2.textNode.onChange(true);
+	          _this3.textNode.onChange(true);
 	          tableEditor.selectCol(tableEditor, position);
 	          tableEditor.addCol(tableEditor, position);
 	          tableEditor.unselect(tableEditor);
@@ -468,7 +493,7 @@ this.BX.Landing.Node = this.BX.Landing.Node || {};
 	  }, {
 	    key: "dragAndDropRows",
 	    value: function dragAndDropRows(tableEditor) {
-	      var _this3 = this;
+	      var _this4 = this;
 	      this.draggableRows = new ui_draganddrop_draggable.Draggable({
 	        container: tableEditor.tBody,
 	        draggable: '.landing-table-tr',
@@ -488,7 +513,7 @@ this.BX.Landing.Node = this.BX.Landing.Node || {};
 	      var cloneRow;
 	      var originalSource;
 	      this.draggableRows.subscribe('start', function (event) {
-	        originalSource = _this3.draggableRows.dragStartEvent.data.originalSource;
+	        originalSource = _this4.draggableRows.dragStartEvent.data.originalSource;
 	        tablePositionLeft = tableEditor.tBody.getBoundingClientRect().left;
 	        tablePositionTop = tableEditor.tBody.getBoundingClientRect().top;
 	        setRowPositionsY = [];
@@ -611,13 +636,13 @@ this.BX.Landing.Node = this.BX.Landing.Node || {};
 	          }
 	        }
 	        tableEditor.tBody.classList.remove('landing-table-draggable');
-	        _this3.textNode.onChange(true);
+	        _this4.textNode.onChange(true);
 	      });
 	    }
 	  }, {
 	    key: "dragAndDropCols",
 	    value: function dragAndDropCols(tableEditor) {
-	      var _this4 = this;
+	      var _this5 = this;
 	      this.draggableCols = new ui_draganddrop_draggable.Draggable({
 	        container: tableEditor.tBody,
 	        draggable: '.landing-table-div-col-dnd',
@@ -775,14 +800,14 @@ this.BX.Landing.Node = this.BX.Landing.Node || {};
 	            });
 	          }
 	          tableEditor.tBody.classList.remove('landing-table-draggable');
-	          _this4.textNode.onChange(true);
+	          _this5.textNode.onChange(true);
 	        }
 	      });
 	    }
 	  }, {
 	    key: "resizeColumn",
 	    value: function resizeColumn(tableEditor) {
-	      var _this5 = this;
+	      var _this6 = this;
 	      var tbody = this.tBody;
 	      this.resizeElement = new ui_draganddrop_draggable.Draggable({
 	        container: tbody,
@@ -815,7 +840,7 @@ this.BX.Landing.Node = this.BX.Landing.Node || {};
 	          tbody.parentElement.parentElement.classList.remove('landing-table-scroll-hidden');
 	        }
 	        tableEditor.buildLines(tableEditor);
-	        _this5.textNode.onChange(true);
+	        _this6.textNode.onChange(true);
 	      });
 	    }
 	  }, {

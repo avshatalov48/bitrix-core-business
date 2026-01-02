@@ -36,7 +36,7 @@ class UI extends \CModule
 			'onRestApplicationConfigurationImport' => ['\Bitrix\UI\Integration\Rest\MaskManifest', 'onRestApplicationConfigurationImport'],
 		],
 		'humanresources' => [
-			'MEMBER_ADDED' => ['Bitrix\Ui\EntityForm\Scope', 'handleMemberAddedToDepartment'],
+			'OnMemberAdded' => ['Bitrix\Ui\EntityForm\Scope', 'handleMemberAddedToDepartment'],
 		],
 		'socialnetwork' => [
 			'OnSocNetUserToGroupAdd' => ['Bitrix\Ui\EntityForm\Scope', 'handleMemberAddedToSocialGroup'],

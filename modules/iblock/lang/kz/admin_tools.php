@@ -1,0 +1,24 @@
+<?php
+$MESS["IBLOCK_AT_FILE_NAME_LOWER"] = "Төменгі регистрге келтіру";
+$MESS["IBLOCK_AT_FILE_NAME_SPACE"] = "Транслитерациядан кейін бос символдарды ауыстыру";
+$MESS["IBLOCK_AT_FILE_NAME_TRANSLIT"] = "Транслитерациялау";
+$MESS["IBLOCK_AT_NOT_SET"] = "(орнатылмаған)";
+$MESS["IBLOCK_AT_OVERWRITE_1"] = "Бөлімшелер мен элементтерге қолдану";
+$MESS["IBLOCK_AT_OVERWRITE_2"] = "Бөлімшелерге қолдану";
+$MESS["IBLOCK_AT_OVERWRITE_3"] = "Элементтерге қолдану";
+$MESS["IBLOCK_AT_OVERWRITE_TIP"] = "Кірістірілген нысандардың тағайындалған құқықтары көрсетілгендермен ауыстырылады.";
+$MESS["IBLOCK_AT_POPUP_EDIT"] = "Өзгерту";
+$MESS["IBLOCK_AT_PROP_ADD"] = "Қосу";
+$MESS["IBLOCK_AT_PROP_DESC"] = "Қасиеттің мәнін сипаттау";
+$MESS["IBLOCK_AT_PROP_DESC_1"] = "Сипаттамасы:";
+$MESS["IBLOCK_AT_PROP_NA"] = "(орнатылмаған)";
+$MESS["IBLOCK_AT_PROP_NO"] = "(жоқ)";
+$MESS["IBLOCK_WATERMARK_POSITION_BC"] = "Төменнен ортасынан";
+$MESS["IBLOCK_WATERMARK_POSITION_BL"] = "Төменнен сол жақтан";
+$MESS["IBLOCK_WATERMARK_POSITION_BR"] = "Төменнен оң жақтан";
+$MESS["IBLOCK_WATERMARK_POSITION_MC"] = "Ортасыннан";
+$MESS["IBLOCK_WATERMARK_POSITION_ML"] = "Сол жақтан";
+$MESS["IBLOCK_WATERMARK_POSITION_MR"] = "Оң жақтан";
+$MESS["IBLOCK_WATERMARK_POSITION_TC"] = "Жоғарыдан ортасынан";
+$MESS["IBLOCK_WATERMARK_POSITION_TL"] = "Жоғарыдан сол жақтан";
+$MESS["IBLOCK_WATERMARK_POSITION_TR"] = "Жоғарыдан оң жақтан";

@@ -749,7 +749,6 @@ $tabControl->Buttons();
 <iframe style="display:none;" id="progress" name="progress" src="javascript:''"></iframe>
 
 <script>
-<!--
 
 function Start(position, cntExecuted)
 {
@@ -916,7 +915,6 @@ function OnLdapServerChange(select)
 		jsUtils.addEvent(window, "load", function() {window.Start(0,0);});
 	<?endif?>
 <?endif;?>
-//-->
 </script>
 
 <?require_once ($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");?>

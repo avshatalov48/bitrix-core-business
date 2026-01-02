@@ -15,6 +15,7 @@ return [
 		'./dist/public.bundle.js',
 	],
 	'rel' => [
+		'im.v2.lib.desktop-api',
 		'main.core',
 	],
 	'settings' => ['v2enabled' => $isV2Enabled],

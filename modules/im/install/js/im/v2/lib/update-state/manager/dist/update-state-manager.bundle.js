@@ -72,7 +72,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!(response != null && response.counters)) {
 	      return;
 	    }
-	    main_core_events.EventEmitter.emit(window, im_v2_const.EventType.counter.onImUpdateCounter, [response.counters]);
+	    main_core_events.EventEmitter.emit(window, im_v2_const.EventType.counter.onImUpdateCounter, new main_core.Event.BaseEvent({
+	      data: {
+	        counters: response.counters
+	      },
+	      compatData: [response.counters]
+	    }));
 	  }
 	}
 

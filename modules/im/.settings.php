@@ -19,11 +19,20 @@ return [
 			'Im.Messenger' => [
 				'className' => \Bitrix\Im\V2\Service\Messenger::class,
 			],
+			'Im.PullSender' => [
+				'className' => \Bitrix\Im\V2\Pull\Sender::class,
+			],
 			'Im.Services.Message' => [
 				'className' => \Bitrix\Im\Services\Message::class,
 			],
 			'Im.Services.MessageParam' => [
 				'className' => \Bitrix\Im\Services\MessageParam::class,
+			],
+			'Im.Services.Promotion' => [
+				'className' => \Bitrix\Im\V2\Promotion\Promotion::class,
+			],
+			'Im.AccessService' => [
+				'className' => \Bitrix\Im\V2\Service\AccessService::class,
 			],
 		],
 		'readonly' => true,
@@ -40,7 +49,12 @@ return [
 					'id' => 'im.departmentDataFilter',
 					'entityId' => 'department',
 					'className' => \Bitrix\Im\Integration\UI\EntitySelector\DepartmentDataFilter::class,
-				]
+				],
+				[
+					'id' => 'im.chatOnlyDataFilter',
+					'entityId' => 'im-chat-only',
+					'className' => \Bitrix\Im\V2\Integration\UI\EntitySelector\ChannelAndChatDataFilter::class,
+				],
 			],
 			'entities' => [
 				[
@@ -76,6 +90,13 @@ return [
 					'provider' => [
 						'moduleId' => 'im',
 						'className' => \Bitrix\Im\V2\Integration\UI\EntitySelector\RecentProvider::class,
+					],
+				],
+				[
+					'entityId' => 'im-chat-only',
+					'provider' => [
+						'moduleId' => 'im',
+						'className' => \Bitrix\Im\V2\Integration\UI\EntitySelector\ChatOnlyProvider::class,
 					],
 				],
 			],

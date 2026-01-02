@@ -461,7 +461,10 @@ class Helper
 			}
 		}
 
-		return $result;
+		return [
+			'id' => $result,
+			'postFields' => $postFields,
+		];
 	}
 
 	public static function updateBlogPost($params = [], $scope = Controller::SCOPE_AJAX, &$resultFields = [])
@@ -868,7 +871,10 @@ class Helper
 			}
 		}
 
-		return $result;
+		return [
+			'id' => $result,
+			'updatedFields' => $updateFields,
+		];
 	}
 
 	/**

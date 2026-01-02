@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,ui_vue3,ui_vue3_components_hint,ui_feedback_form,ui_icons,ui_advice,item,button,ui_vue3_pinia,group,main_popup,main_core_events,main_core,group$1) {
+(function (exports,ui_vue3,ui_vue3_components_hint,ui_feedback_form,ui_icons,ui_cnt,ui_vue3_components_counter,ui_advice,item,button,ui_vue3_pinia,group,main_popup,main_core_events,main_core,group$1) {
 	'use strict';
 
 	const feedback = {
@@ -15,7 +15,11 @@ this.BX = this.BX || {};
 	const Group = {
 	  emits: ['selected', 'unselected'],
 	  name: 'ui-entity-catalog-group',
+	  components: {
+	    Counter: ui_vue3_components_counter.Counter
+	  },
 	  props: {
+	    /** @type GroupData */
 	    groupData: {
 	      type: group.GroupData,
 	      required: true
@@ -24,6 +28,16 @@ this.BX = this.BX || {};
 	  computed: {
 	    hasIcon() {
 	      return main_core.Type.isStringFilled(this.groupData.icon);
+	    },
+	    getCounterStyle() {
+	      return ui_cnt.CounterStyle.FILLED_SUCCESS;
+	    },
+	    getCounterValue() {
+	      var _this$groupData$custo, _this$groupData;
+	      const custom = (_this$groupData$custo = (_this$groupData = this.groupData) == null ? void 0 : _this$groupData.customData) != null ? _this$groupData$custo : {};
+	      const value = custom.counterValue;
+	      const isValueInteger = Number.isInteger(value);
+	      return isValueInteger && value > 0 ? value : null;
 	    }
 	  },
 	  methods: {
@@ -37,16 +51,26 @@ this.BX = this.BX || {};
 	  },
 	  template: `
 		<slot name="group" v-bind:groupData="groupData" v-bind:handleClick="handleClick">
-			<li 
+			<li
 				:class="{
 					'ui-entity-catalog__menu_item': true,
 					'--active': groupData.selected,
-					'--disabled': groupData.disabled
+					'--disabled': groupData.disabled,
 				}"
 				@click="handleClick"
 			>
 				<span class="ui-entity-catalog__menu_item-icon" v-if="hasIcon" v-html="groupData.icon"/>
 				<span class="ui-entity-catalog__menu_item-text">{{ groupData.name }}</span>
+				<span
+					v-if="getCounterValue !== null"
+					class="ui-entity-catalog__menu_item-entity-count"
+				>
+					<Counter
+						:value="getCounterValue"
+						:style="getCounterStyle"
+					>
+					</Counter>
+				</span>
 			</li>
 		</slot>
 	`
@@ -59,9 +83,27 @@ this.BX = this.BX || {};
 	    Group
 	  },
 	  props: {
+	    /** @type Array<Array<GroupData>> */
 	    groups: {
 	      type: Array,
 	      required: true
+	    }
+	  },
+	  computed: {
+	    groupLists() {
+	      if (!this.groups || this.groups.length === 0) {
+	        return [];
+	      }
+	      if (Array.isArray(this.groups[0])) {
+	        return this.groups;
+	      }
+	      return [this.groups];
+	    },
+	    headerLists() {
+	      return this.groupLists.map(list => list.filter(g => !!g.isHeaderGroup)).filter(list => list.length > 0);
+	    },
+	    mainLists() {
+	      return this.groupLists.map(list => list.filter(g => !g.isHeaderGroup)).filter(list => list.length > 0);
 	    }
 	  },
 	  methods: {
@@ -73,23 +115,58 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  template: `
-		<ul class="ui-entity-catalog__menu">
-			<Group
-				:group-data="group"
-				:key="group.id"
-				v-for="group in groups"
-				@selected="handleGroupSelected"
-				@unselected="handleGroupUnselected"
+		<div>
+			<div
+				class="ui-entity-catalog__header-groups-content"
+				v-if="headerLists && headerLists.length"
 			>
-				<template #group="groupSlotProps">
-					<slot
-						name="group"
-						v-bind:groupData="groupSlotProps.groupData"
-						v-bind:handleClick="groupSlotProps.handleClick"
-					/>
-				</template>
-			</Group>
-		</ul>
+				<ul
+					class="ui-entity-catalog__menu"
+					v-for="(groupList, listIndex) in headerLists"
+					:key="'header-'+listIndex"
+				>
+					<Group
+						:group-data="group"
+						:key="group.id"
+						v-for="group in groupList"
+						@selected="handleGroupSelected"
+						@unselected="handleGroupUnselected"
+					>
+						<template #group="groupSlotProps">
+							<slot
+								name="group"
+								v-bind:groupData="groupSlotProps.groupData"
+								v-bind:handleClick="groupSlotProps.handleClick"
+							/>
+						</template>
+					</Group>
+				</ul>
+			</div>
+
+			<div>
+				<ul
+					class="ui-entity-catalog__menu"
+					v-for="(groupList, listIndex) in mainLists"
+					:key="'main-'+listIndex"
+				>
+					<Group
+						:group-data="group"
+						:key="group.id"
+						v-for="group in groupList"
+						@selected="handleGroupSelected"
+						@unselected="handleGroupUnselected"
+					>
+						<template #group="groupSlotProps">
+							<slot
+								name="group"
+								v-bind:groupData="groupSlotProps.groupData"
+								v-bind:handleClick="groupSlotProps.handleClick"
+							/>
+						</template>
+					</Group>
+				</ul>
+			</div>
+		</div>
 	`
 	};
 
@@ -100,85 +177,45 @@ this.BX = this.BX || {};
 	    GroupList
 	  },
 	  props: {
-	    recentGroupData: {
-	      type: group$1.GroupData,
-	      required: false
-	    },
 	    groups: {
+	      /** @type Array<Array<GroupData>> */
 	      type: Array,
 	      required: true
-	    },
-	    showRecentGroup: {
-	      type: Boolean,
-	      default: false
 	    },
 	    searching: {
 	      type: Boolean,
 	      default: false
+	    },
+	    selectedGroup: {
+	      /** @type GroupData */
+	      type: Object,
+	      default: null
 	    }
 	  },
-	  data() {
-	    var _this$recentGroupData, _this$groups$find;
-	    const recentGroup = this.getRecentGroup();
-	    recentGroup[0] = Object.assign(recentGroup[0], (_this$recentGroupData = this.recentGroupData) != null ? _this$recentGroupData : {});
-	    let selectedGroup = (_this$groups$find = this.groups.find(group$$1 => group$$1.selected)) != null ? _this$groups$find : null;
-	    if (!selectedGroup) {
-	      var _recentGroup$find;
-	      selectedGroup = (_recentGroup$find = recentGroup.find(group$$1 => group$$1.selected)) != null ? _recentGroup$find : null;
-	    }
-	    return {
-	      shownGroups: this.groups,
-	      selectedGroup: null,
-	      recentGroup
-	    };
-	  },
-	  watch: {
-	    selectedGroup(newGroup) {
-	      const newGroupId = newGroup ? newGroup.id : null;
-	      this.shownGroups = this.shownGroups.map(groupList => groupList.map(group$$1 => ({
-	        ...group$$1,
-	        selected: group$$1.id === newGroupId
-	      })));
-	      if (this.showRecentGroup && newGroupId !== this.recentGroup[0].id) {
-	        this.recentGroup = [Object.assign(this.recentGroup[0], {
-	          selected: false
-	        })];
-	      }
-	      this.$emit('groupSelected', newGroup);
-	    }
-	  },
-	  beforeUpdate() {
-	    if (this.searching) {
-	      this.shownGroups = this.shownGroups.map(groupList => groupList.map(group$$1 => ({
-	        ...group$$1,
-	        selected: false
-	      })));
-	      this.recentGroup = [Object.assign(this.recentGroup[0], {
-	        selected: false
-	      })];
+	  computed: {
+	    processedGroups() {
+	      const selectedGroupId = this.searching ? null : this.selectedGroup ? this.selectedGroup.id : null;
+	      const groupsClone = BX.Runtime.clone(this.groups);
+	      groupsClone.forEach(groupList => {
+	        groupList.forEach(group$$1 => {
+	          group$$1.selected = group$$1.id === selectedGroupId;
+	        });
+	      });
+	      return groupsClone;
+	    },
+	    headerLists() {
+	      return this.processedGroups.map(list => list.filter(g => g.isHeaderGroup)).filter(list => list.length > 0);
+	    },
+	    mainLists() {
+	      return this.processedGroups.map(list => list.filter(g => !g.isHeaderGroup)).filter(list => list.length > 0);
 	    }
 	  },
 	  methods: {
-	    getRecentGroup() {
-	      return [{
-	        id: 'recent',
-	        name: main_core.Loc.getMessage('UI_JS_ENTITY_CATALOG_GROUP_LIST_RECENT_GROUP_DEFAULT_NAME'),
-	        icon: `
-					<svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path class="ui-entity-catalog__svg-icon-blue" fill-rule="evenodd" clip-rule="evenodd" d="M9.369 13.2593C13.0305 13.2593 15.9986 10.2911 15.9986 6.62965C15.9986 2.9682 13.0305 0 9.369 0C6.00693 0 3.22939 2.50263 2.79764 5.74663H0L3.69844 9.44506L7.39687 5.74663H4.48558C4.90213 3.4276 6.93006 1.66789 9.369 1.66789C12.1093 1.66789 14.3308 3.88935 14.3308 6.62965C14.3308 9.36995 12.1093 11.5914 9.369 11.5914C9.2435 11.5914 9.11909 11.5867 8.99593 11.5776V13.249C9.11941 13.2558 9.2438 13.2593 9.369 13.2593ZM10.0865 4.01429H8.41983V8.18096H9.65978H10.0865H12.1195V6.56367H10.0865V4.01429Z"></path>
-					</svg>
-				`
-	      }];
-	    },
 	    handleGroupSelected(group$$1) {
-	      this.selectedGroup = group$$1;
-	    },
-	    handleRecentGroupSelected(group$$1) {
-	      group$$1.selected = true;
-	      this.selectedGroup = group$$1;
+	      this.$emit('groupSelected', group$$1);
 	    },
 	    handleGroupUnselected() {
-	      this.selectedGroup = null;
+	      this.$emit('groupSelected', null);
 	    }
 	  },
 	  template: `
@@ -186,10 +223,13 @@ this.BX = this.BX || {};
 			<div class="ui-entity-catalog__main-groups-head">
 				<slot name="group-list-header"/>
 			</div>
-			<div class="ui-entity-catalog__recently" v-if="showRecentGroup">
+			<div
+				class="ui-entity-catalog__header-groups-content"
+				v-if="headerLists && headerLists.length"
+			>
 				<GroupList
-					:groups="recentGroup"
-					@groupSelected="handleRecentGroupSelected"
+					:groups="headerLists"
+					@groupSelected="handleGroupSelected"
 					@groupUnselected="handleGroupUnselected"
 				>
 					<template #group="groupSlotProps">
@@ -203,8 +243,7 @@ this.BX = this.BX || {};
 			</div>
 			<div class="ui-entity-catalog__main-groups-content">
 				<GroupList
-					:groups="groupList"
-					v-for="groupList in shownGroups"
+					:groups="mainLists"
 					@groupSelected="handleGroupSelected"
 					@groupUnselected="handleGroupUnselected"
 				>
@@ -317,12 +356,29 @@ this.BX = this.BX || {};
 	        this.itemData.button = {};
 	      }
 	      return this.itemData.button;
+	    },
+	    topText() {
+	      var _this$itemData$custom, _this$itemData;
+	      const custom = (_this$itemData$custom = (_this$itemData = this.itemData) == null ? void 0 : _this$itemData.customData) != null ? _this$itemData$custom : {};
+	      if (main_core.Type.isStringFilled(custom.topText)) {
+	        return custom.topText;
+	      }
+	      return null;
 	    }
 	  },
 	  template: `
 		<slot name="item" v-bind:itemData="itemData">
-			<div class="ui-entity-catalog__option">
+			<div 
+				class="ui-entity-catalog__option"
+				:data-item-id="String(itemData.id)"
+			>
 				<div class="ui-entity-catalog__option-info">
+					<div
+						v-if="topText"
+						class="ui-entity-catalog__option-info_top_text"
+					>
+						{{ topText }}
+					</div>
 					<div class="ui-entity-catalog__option-info_name">
 						<span>{{itemData.title}}</span>
 						<span class="ui-entity-catalog__option-info_label" v-if="itemData.subtitle">{{itemData.subtitle}}</span>
@@ -344,6 +400,7 @@ this.BX = this.BX || {};
 	  },
 	  props: {
 	    items: {
+	      /** @type Array<ItemData> */
 	      Type: Array,
 	      required: true
 	    }
@@ -399,10 +456,12 @@ this.BX = this.BX || {};
 	  },
 	  props: {
 	    items: {
+	      /** @type Array<ItemData> */
 	      type: Array,
 	      required: true
 	    },
 	    itemsToShow: {
+	      /** @type Array<ItemData> */
 	      type: Array
 	    },
 	    group: {
@@ -679,14 +738,12 @@ this.BX = this.BX || {};
 	    Search
 	  },
 	  props: {
-	    recentGroupData: {
-	      type: group$1.GroupData,
-	      required: false
-	    },
+	    /** @type Array<Array<GroupData>> */
 	    groups: {
 	      type: Array,
 	      required: true
 	    },
+	    /** @type Array<ItemData> */
 	    items: {
 	      type: Array,
 	      required: true
@@ -694,10 +751,6 @@ this.BX = this.BX || {};
 	    showEmptyGroups: {
 	      type: Boolean,
 	      default: false
-	    },
-	    showRecentGroup: {
-	      type: Boolean,
-	      default: true
 	    },
 	    filterOptions: {
 	      type: Object,
@@ -708,7 +761,7 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  data() {
-	    var _this$recentGroupData, _selectedGroup$id, _selectedGroup;
+	    var _selectedGroup$id, _selectedGroup;
 	    let selectedGroup = null;
 	    for (const groupList of this.groups) {
 	      selectedGroup = groupList.find(group$$1 => group$$1.selected);
@@ -716,18 +769,11 @@ this.BX = this.BX || {};
 	        break;
 	      }
 	    }
-	    if (main_core.Type.isNil(selectedGroup) && (_this$recentGroupData = this.recentGroupData) != null && _this$recentGroupData.selected) {
-	      var _this$recentGroupData2;
-	      selectedGroup = {
-	        id: 'recent',
-	        ...((_this$recentGroupData2 = this.recentGroupData) != null ? _this$recentGroupData2 : {})
-	      };
-	    }
 	    return {
 	      selectedGroup,
 	      selectedGroupId: (_selectedGroup$id = (_selectedGroup = selectedGroup) == null ? void 0 : _selectedGroup.id) != null ? _selectedGroup$id : null,
 	      shownItems: [],
-	      shownGroups: this.getDisplayedGroup(),
+	      shownGroups: [],
 	      lastSearchString: '',
 	      filters: []
 	    };
@@ -738,6 +784,34 @@ this.BX = this.BX || {};
 	      const items = this.items.filter(item$$1 => item$$1.groupIds.some(id => id === this.selectedGroupId));
 	      return (_this$selectedGroup = this.selectedGroup) != null && _this$selectedGroup.compare ? items.sort(this.selectedGroup.compare) : items;
 	    },
+	    computedShownGroups() {
+	      if (this.showEmptyGroups) {
+	        return main_core.Runtime.clone(this.groups);
+	      }
+	      const groupIdsWithItems = new Set();
+	      this.items.forEach(item$$1 => {
+	        item$$1.groupIds.forEach(groupId => groupIdsWithItems.add(groupId));
+	      });
+	      return this.groups.map(groupList => groupList.filter(group$$1 => group$$1.isHeaderGroup === true || groupIdsWithItems.has(group$$1.id))).filter(list => list.length > 0);
+	    },
+	    computedShownItems() {
+	      if (this.searching && main_core.Type.isStringFilled(this.lastSearchString)) {
+	        const q = this.lastSearchString;
+	        let result = this.items.filter(item$$1 => {
+	          var _item$tags;
+	          return String(item$$1.title).toLowerCase().includes(q) || String(item$$1.description).toLowerCase().includes(q) || ((_item$tags = item$$1.tags) == null ? void 0 : _item$tags.some(tag => tag === q));
+	        });
+	        for (const filterId in this.filters) {
+	          result = result.filter(this.filters[filterId].action);
+	        }
+	        return result;
+	      }
+	      let result = this.itemsBySelectedGroupId.slice();
+	      for (const filterId in this.filters) {
+	        result = result.filter(this.filters[filterId].action);
+	      }
+	      return result;
+	    },
 	    ...ui_vue3_pinia.mapWritableState(useGlobalState, {
 	      searchQuery: 'searchQuery',
 	      searching: 'searchApplied',
@@ -747,20 +821,32 @@ this.BX = this.BX || {};
 	    })
 	  },
 	  watch: {
+	    computedShownItems: {
+	      handler() {
+	        this.$nextTick(() => {
+	          this.$emit('itemsRendered');
+	        });
+	      },
+	      flush: 'post'
+	    },
+	    computedShownGroups: {
+	      immediate: true,
+	      handler(newVal) {
+	        // quick replace in-place to keep same array object reference
+	        this.shownGroups.splice(0, this.shownGroups.length, ...newVal);
+	        if (!this.selectedGroupId) {
+	          const selected = this.shownGroups.flat().find(g => g.selected);
+	          if (selected) {
+	            this.selectedGroup = selected;
+	            this.selectedGroupId = selected.id;
+	          }
+	        }
+	      }
+	    },
 	    selectedGroup() {
 	      this.shouldShowWelcomeStub = false;
 	      this.globalGroup = this.selectedGroup;
-	    },
-	    selectedGroupId() {
-	      if (this.searching) {
-	        return;
-	      }
-	      this.shownItems = this.itemsBySelectedGroupId;
-	      this.applyFilters();
 	    }
-	  },
-	  created() {
-	    this.shownItems = this.itemsBySelectedGroupId;
 	  },
 	  methods: {
 	    getDisplayedGroup() {
@@ -773,7 +859,7 @@ this.BX = this.BX || {};
 	          groupIdsWithItems.add(groupId);
 	        });
 	      });
-	      return this.groups.map(groupList => groupList.filter(group$$1 => groupIdsWithItems.has(group$$1.id))).filter(groupList => groupList.length > 0);
+	      return this.groups.map(groupList => groupList.filter(group$$1 => group$$1.isHeaderGroup === true || groupIdsWithItems.has(group$$1.id))).filter(groupList => groupList.length > 0);
 	    },
 	    handleGroupSelected(group$$1) {
 	      var _this$$refs$search;
@@ -795,8 +881,8 @@ this.BX = this.BX || {};
 	      this.selectedGroup = null;
 	      this.selectedGroupId = null;
 	      this.shownItems = this.items.filter(item$$1 => {
-	        var _item$tags;
-	        return String(item$$1.title).toLowerCase().includes(queryString) || String(item$$1.description).toLowerCase().includes(queryString) || ((_item$tags = item$$1.tags) == null ? void 0 : _item$tags.some(tag => tag === queryString));
+	        var _item$tags2;
+	        return String(item$$1.title).toLowerCase().includes(queryString) || String(item$$1.description).toLowerCase().includes(queryString) || ((_item$tags2 = item$$1.tags) == null ? void 0 : _item$tags2.some(tag => tag === queryString));
 	      });
 	      this.applyFilters();
 	    },
@@ -832,11 +918,10 @@ this.BX = this.BX || {};
 	  template: `
 		<div class="ui-entity-catalog__main">
 			<MainGroups
-				:recent-group-data="this.recentGroupData"
 				:groups="this.shownGroups"
-				:show-recent-group="showRecentGroup"
 				:searching="searching"
 				@group-selected="handleGroupSelected"
+				:selected-group="selectedGroup"
 			>
 				<template #group-list-header>
 					<slot name="group-list-header"/>
@@ -854,7 +939,7 @@ this.BX = this.BX || {};
 			</MainGroups>
 			<MainContent
 				:items="itemsBySelectedGroupId"
-				:items-to-show="shownItems"
+				:items-to-show="computedShownItems"
 				:group="selectedGroup"
 				:searching="searching"
 			>
@@ -922,21 +1007,25 @@ this.BX = this.BX || {};
 	var _customTitleBar = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("customTitleBar");
 	var _groups = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("groups");
 	var _items = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("items");
-	var _recentGroupData = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("recentGroupData");
 	var _showEmptyGroups = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showEmptyGroups");
-	var _showRecentGroup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showRecentGroup");
 	var _showSearch = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showSearch");
 	var _filterOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("filterOptions");
 	var _application = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("application");
 	var _slots = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("slots");
 	var _customComponents = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("customComponents");
+	var _recentGroupData = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("recentGroupData");
+	var _showRecentGroup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showRecentGroup");
+	var _vueInstance = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("vueInstance");
+	var _resolveGroupsForTemplate = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resolveGroupsForTemplate");
 	var _attachTemplate = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("attachTemplate");
 	var _getDefaultPopupOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDefaultPopupOptions");
 	var _getPopupTitleBar = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopupTitleBar");
 	var _handleClose = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleClose");
 	class EntityCatalog extends main_core_events.EventEmitter {
+	  // backward compatability
+
 	  constructor(props) {
-	    var _props$slots, _props$customComponen;
+	    var _props$recentGroupDat, _props$slots, _props$customComponen;
 	    super();
 	    Object.defineProperty(this, _handleClose, {
 	      value: _handleClose2
@@ -949,6 +1038,9 @@ this.BX = this.BX || {};
 	    });
 	    Object.defineProperty(this, _attachTemplate, {
 	      value: _attachTemplate2
+	    });
+	    Object.defineProperty(this, _resolveGroupsForTemplate, {
+	      value: _resolveGroupsForTemplate2
 	    });
 	    Object.defineProperty(this, _popup, {
 	      writable: true,
@@ -974,15 +1066,7 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: []
 	    });
-	    Object.defineProperty(this, _recentGroupData, {
-	      writable: true,
-	      value: void 0
-	    });
 	    Object.defineProperty(this, _showEmptyGroups, {
-	      writable: true,
-	      value: false
-	    });
-	    Object.defineProperty(this, _showRecentGroup, {
 	      writable: true,
 	      value: false
 	    });
@@ -1009,10 +1093,25 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _recentGroupData, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _showRecentGroup, {
+	      writable: true,
+	      value: false
+	    });
+	    Object.defineProperty(this, _vueInstance, {
+	      writable: true,
+	      value: void 0
+	    });
 	    this.setEventNamespace('BX.UI.EntityCatalog');
 	    this.setGroups(main_core.Type.isArray(props.groups) ? props.groups : []);
 	    this.setItems(main_core.Type.isArray(props.items) ? props.items : []);
-	    babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData] = props.recentGroupData;
+
+	    // backward compatibility
+	    babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData] = (_props$recentGroupDat = props.recentGroupData) != null ? _props$recentGroupDat : null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _showRecentGroup)[_showRecentGroup] = main_core.Type.isBoolean(props.showRecentGroup) ? props.showRecentGroup : false;
 	    if (main_core.Type.isBoolean(props.canDeselectGroups)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups].forEach(groupList => {
 	        groupList.forEach(group$$1 => {
@@ -1021,7 +1120,6 @@ this.BX = this.BX || {};
 	      });
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _showEmptyGroups)[_showEmptyGroups] = main_core.Type.isBoolean(props.showEmptyGroups) ? props.showEmptyGroups : false;
-	    babelHelpers.classPrivateFieldLooseBase(this, _showRecentGroup)[_showRecentGroup] = main_core.Type.isBoolean(props.showRecentGroup) ? props.showRecentGroup : false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _showSearch)[_showSearch] = main_core.Type.isBoolean(props.showSearch) ? props.showSearch : false;
 	    if (main_core.Type.isPlainObject(props.filterOptions)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _filterOptions)[_filterOptions] = props.filterOptions;
@@ -1044,18 +1142,116 @@ this.BX = this.BX || {};
 	        ...group$$1
 	      }));
 	    });
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance] || !babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].localGroups) {
+	      return this;
+	    }
+	    if (this.isGroupsStructureChanged(babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups])) {
+	      try {
+	        babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].refreshGroups(babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups]);
+	      } catch (e) {
+	        console.error(e);
+	        babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].localGroups = babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups];
+	      }
+	    } else {
+	      const countersMap = {};
+	      for (const list of babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups]) {
+	        for (const g of list) {
+	          var _g$customData$counter, _g$customData;
+	          countersMap[String(g.id)] = (_g$customData$counter = (_g$customData = g.customData) == null ? void 0 : _g$customData.counterValue) != null ? _g$customData$counter : null;
+	        }
+	      }
+	      this._updateCountersInGroupLists(babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].localGroups, countersMap);
+	    }
+	    return this;
+	  }
+	  isGroupsStructureChanged(newGroups) {
+	    if (!Array.isArray(babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups]) || !Array.isArray(newGroups)) {
+	      return true;
+	    }
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups].length !== newGroups.length) {
+	      return true;
+	    }
+	    for (let i = 0; i < newGroups.length; i++) {
+	      const oldList = babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups][i] || [];
+	      const newList = newGroups[i] || [];
+	      if (oldList.length !== newList.length) {
+	        return true;
+	      }
+	      for (let j = 0; j < newList.length; j++) {
+	        var _oldList$j, _newList$j;
+	        if (String((_oldList$j = oldList[j]) == null ? void 0 : _oldList$j.id) !== String((_newList$j = newList[j]) == null ? void 0 : _newList$j.id)) {
+	          return true;
+	        }
+	      }
+	    }
+	    return false;
+	  }
+	  _updateCountersInGroupLists(groupLists, countersMap = {}) {
+	    if (!Array.isArray(groupLists)) return;
+	    for (const list of groupLists) {
+	      for (const group$$1 of list) {
+	        const id = String(group$$1.id);
+	        if (Object.prototype.hasOwnProperty.call(countersMap, id)) {
+	          var _group$customData;
+	          const custom = (_group$customData = group$$1.customData) != null ? _group$customData : {};
+	          group$$1.customData = Object.assign({}, custom, {
+	            counterValue: countersMap[id]
+	          });
+	        }
+	      }
+	    }
+	  }
+	  updateGroupCounter(groupId, counterValue) {
+	    const idStr = String(groupId);
+	    const countersMap = {
+	      [idStr]: counterValue
+	    };
+	    this._updateCountersInGroupLists(babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups], countersMap);
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance]) {
+	      return this;
+	    }
+	    try {
+	      this._updateCountersInGroupLists(babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].localGroups, countersMap);
+	    } catch (e) {
+	      if (typeof babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].refreshGroups === 'function') {
+	        babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].refreshGroups(babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups]);
+	      }
+	    }
 	    return this;
 	  }
 	  getItems() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _items)[_items];
 	  }
-	  setItems(items) {
-	    items = items.map(item$$1 => ({
-	      button: {},
-	      ...item$$1
-	    }));
+	  setItems(items = []) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _items)[_items].length = 0;
 	    babelHelpers.classPrivateFieldLooseBase(this, _items)[_items].push(...items);
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance] || typeof babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].refreshItems !== 'function') {
+	      return this;
+	    }
+	    try {
+	      babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].refreshItems(babelHelpers.classPrivateFieldLooseBase(this, _items)[_items]);
+	    } catch (e) {
+	      console.error(e);
+	    }
+	    return this;
+	  }
+	  updateItemById(id, patch = {}) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance] && typeof babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].updateItemById === 'function') {
+	      try {
+	        babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].updateItemById(id, patch);
+	        return this;
+	      } catch (e) {
+	        console.error(e);
+	      }
+	    }
+	    const itemForUpdate = babelHelpers.classPrivateFieldLooseBase(this, _items)[_items].find(item$$1 => String(item$$1.id) === String(id));
+	    if (itemForUpdate) {
+	      Object.assign(itemForUpdate, patch);
+	    } else {
+	      babelHelpers.classPrivateFieldLooseBase(this, _items)[_items].push(Object.assign({
+	        id
+	      }, patch));
+	    }
 	    return this;
 	  }
 	  show() {
@@ -1072,20 +1268,80 @@ this.BX = this.BX || {};
 	    }
 	    return babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup];
 	  }
+	  selectGroup(groupId) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance] && babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].$refs.application) {
+	      const group$$1 = babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].localGroups.flat().find(g => String(g.id) === String(groupId));
+	      if (group$$1) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance].$refs.application.handleGroupSelected(group$$1);
+	      }
+	    }
+	    return this;
+	  }
 	  close() {
-	    babelHelpers.classPrivateFieldLooseBase(this, _application)[_application].unmount();
-	    this.getPopup().close();
+	    try {
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _application)[_application] && typeof babelHelpers.classPrivateFieldLooseBase(this, _application)[_application].unmount === 'function') {
+	        babelHelpers.classPrivateFieldLooseBase(this, _application)[_application].unmount();
+	      }
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup]) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup].close();
+	      }
+	    } catch (e) {
+	      console.error(e);
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _application)[_application] = null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance] = null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup] = null;
 	  }
 	}
+	function _resolveGroupsForTemplate2() {
+	  var _babelHelpers$classPr, _babelHelpers$classPr2, _babelHelpers$classPr3, _babelHelpers$classPr4, _babelHelpers$classPr5, _babelHelpers$classPr6, _babelHelpers$classPr7, _babelHelpers$classPr8, _babelHelpers$classPr9;
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData] || !babelHelpers.classPrivateFieldLooseBase(this, _showRecentGroup)[_showRecentGroup]) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups];
+	  }
+
+	  // clone groups shallowly to avoid mutating original arrays
+	  const groupsClone = babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups].map(list => list.slice());
+	  const recent = {
+	    isHeaderGroup: true,
+	    id: (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData].id) != null ? _babelHelpers$classPr : 'recent',
+	    name: (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData].name) != null ? _babelHelpers$classPr2 : '',
+	    icon: (_babelHelpers$classPr3 = babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData].icon) != null ? _babelHelpers$classPr3 : '',
+	    tags: (_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData].tags) != null ? _babelHelpers$classPr4 : [],
+	    adviceTitle: babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData].adviceTitle,
+	    adviceAvatar: babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData].adviceAvatar,
+	    selected: !!babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData].selected,
+	    disabled: !!babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData].disabled,
+	    deselectable: (_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData].deselectable) != null ? _babelHelpers$classPr5 : true,
+	    compare: babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData].compare,
+	    customData: Object.assign({}, (_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData].customData) != null ? _babelHelpers$classPr6 : {}, {
+	      // prefer canonical name `counterValue`, fallback to legacy `newEntitiesCount`
+	      counterValue: (_babelHelpers$classPr7 = (_babelHelpers$classPr8 = babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData].customData) == null ? void 0 : _babelHelpers$classPr8.counterValue) != null ? _babelHelpers$classPr7 : (_babelHelpers$classPr9 = babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData].customData) == null ? void 0 : _babelHelpers$classPr9.newEntitiesCount
+	    })
+	  };
+	  if (groupsClone.length > 0 && Array.isArray(groupsClone[0]) && groupsClone[0].some(g => g.isHeaderGroup)) {
+	    groupsClone[0].unshift(recent);
+	    return groupsClone;
+	  }
+	  return [[recent], ...groupsClone];
+	}
 	function _attachTemplate2() {
-	  var _babelHelpers$classPr, _babelHelpers$classPr2, _babelHelpers$classPr3, _babelHelpers$classPr4, _babelHelpers$classPr5, _babelHelpers$classPr6, _babelHelpers$classPr7, _babelHelpers$classPr8, _babelHelpers$classPr9, _babelHelpers$classPr10, _babelHelpers$classPr11;
+	  var _babelHelpers$classPr10, _babelHelpers$classPr11, _babelHelpers$classPr12, _babelHelpers$classPr13, _babelHelpers$classPr14, _babelHelpers$classPr15, _babelHelpers$classPr16, _babelHelpers$classPr17, _babelHelpers$classPr18, _babelHelpers$classPr19, _babelHelpers$classPr20;
+	  const container = this.getPopup().getContentContainer();
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _application)[_application] && typeof babelHelpers.classPrivateFieldLooseBase(this, _application)[_application].unmount === 'function') {
+	    try {
+	      babelHelpers.classPrivateFieldLooseBase(this, _application)[_application].unmount();
+	    } catch (e) {
+	      console.error(e);
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _application)[_application] = null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance] = null;
+	  }
 	  const context = this;
+	  const groupsToPass = babelHelpers.classPrivateFieldLooseBase(this, _resolveGroupsForTemplate)[_resolveGroupsForTemplate]();
 	  const rootProps = {
-	    recentGroupData: babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData],
-	    groups: babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups],
+	    groups: groupsToPass,
 	    items: babelHelpers.classPrivateFieldLooseBase(this, _items)[_items],
 	    showEmptyGroups: babelHelpers.classPrivateFieldLooseBase(this, _showEmptyGroups)[_showEmptyGroups],
-	    showRecentGroups: babelHelpers.classPrivateFieldLooseBase(this, _showRecentGroup)[_showRecentGroup],
 	    filterOptions: babelHelpers.classPrivateFieldLooseBase(this, _filterOptions)[_filterOptions]
 	  };
 	  babelHelpers.classPrivateFieldLooseBase(this, _application)[_application] = ui_vue3.BitrixVue.createApp({
@@ -1099,40 +1355,89 @@ this.BX = this.BX || {};
 	      feedback
 	    },
 	    props: {
-	      recentGroupData: Object,
 	      groups: Array,
 	      items: Array,
 	      showEmptyGroups: Boolean,
-	      showRecentGroups: Boolean,
 	      filterOptions: Object
 	    },
 	    created() {
 	      this.$app = context;
 	    },
+	    data() {
+	      return {
+	        localGroups: this.groups,
+	        localItems: this.items
+	      };
+	    },
+	    methods: {
+	      onItemsRendered() {
+	        this.$app.emit('onItemsRendered');
+	      },
+	      refreshGroups(groups) {
+	        this.localGroups = groups;
+	      },
+	      refreshItems(newItems = []) {
+	        try {
+	          const existingMap = new Map(this.localItems.map(it => [String(it.id), it]));
+	          newItems.forEach(newIt => {
+	            const id = String(newIt.id);
+	            if (existingMap.has(id)) {
+	              Object.assign(existingMap.get(id), newIt);
+	            } else {
+	              this.localItems.push(newIt);
+	              existingMap.set(id, this.localItems[this.localItems.length - 1]);
+	            }
+	          });
+	          const newIds = new Set(newItems.map(it => String(it.id)));
+	          for (let i = this.localItems.length - 1; i >= 0; i--) {
+	            if (!newIds.has(String(this.localItems[i].id))) {
+	              this.localItems.splice(i, 1);
+	            }
+	          }
+	        } catch (e) {
+	          console.error(e);
+	          this.localItems.splice(0, this.localItems.length, ...newItems);
+	        }
+	      },
+	      updateItemById(id, patch = {}) {
+	        try {
+	          const it = this.localItems.find(x => String(x.id) === String(id));
+	          if (it) {
+	            Object.assign(it, patch);
+	          } else {
+	            this.localItems.push(Object.assign({
+	              id
+	            }, patch));
+	          }
+	        } catch (e) {
+	          console.error(e);
+	        }
+	      }
+	    },
 	    template: `
 					<Application
-						:recent-group-data="recentGroupData"
-						:groups="groups"
-						:items="items"
+						ref="application"
+						@itemsRendered="onItemsRendered"
+						:groups="localGroups"
+						:items="localItems"
 						:show-empty-groups="showEmptyGroups"
-						:show-recent-group="showRecentGroups"
 						:filter-options="filterOptions"
 					>
 						<template #group-list-header>
-							${(_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_GROUP_LIST_HEADER]) != null ? _babelHelpers$classPr : ''}
+							${(_babelHelpers$classPr10 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_GROUP_LIST_HEADER]) != null ? _babelHelpers$classPr10 : ''}
 						</template>
 						<template #group="groupSlotProps">
-							${(_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_GROUP]) != null ? _babelHelpers$classPr2 : ''}
+							${(_babelHelpers$classPr11 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_GROUP]) != null ? _babelHelpers$classPr11 : ''}
 						</template>
 						<template #group-list-footer>
-							${(_babelHelpers$classPr3 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_GROUP_LIST_FOOTER]) != null ? _babelHelpers$classPr3 : ''}
+							${(_babelHelpers$classPr12 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_GROUP_LIST_FOOTER]) != null ? _babelHelpers$classPr12 : ''}
 						</template>
 
 						<template #main-content-header>
-							${(_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_HEADER]) != null ? _babelHelpers$classPr4 : ''}
+							${(_babelHelpers$classPr13 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_HEADER]) != null ? _babelHelpers$classPr13 : ''}
 						</template>
 						<template #main-content-footer>
-							${(_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_FOOTER]) != null ? _babelHelpers$classPr5 : ''}
+							${(_babelHelpers$classPr14 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_FOOTER]) != null ? _babelHelpers$classPr14 : ''}
 						</template>
 						<template #main-content-filter-stub v-if="${!!babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB]}">
 							${babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB]}
@@ -1141,30 +1446,30 @@ this.BX = this.BX || {};
 							${babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB_TITLE]}
 						</template>
 						<template #main-content-search-not-found-stub>
-							${(_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND]) != null ? _babelHelpers$classPr6 : main_core.Loc.getMessage('UI_JS_ENTITY_CATALOG_GROUP_LIST_ITEM_LIST_SEARCH_STUB_DEFAULT_TITLE')}
+							${(_babelHelpers$classPr15 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND]) != null ? _babelHelpers$classPr15 : main_core.Loc.getMessage('UI_JS_ENTITY_CATALOG_GROUP_LIST_ITEM_LIST_SEARCH_STUB_DEFAULT_TITLE')}
 						</template>
 						<template v-if="${Boolean(babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_STUB])}" #main-content-search-stub>
 							${babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_STUB]}
 						</template>
 						<template #main-content-welcome-stub>
-							${(_babelHelpers$classPr7 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_WELCOME_STUB]) != null ? _babelHelpers$classPr7 : ''}
+							${(_babelHelpers$classPr16 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_WELCOME_STUB]) != null ? _babelHelpers$classPr16 : ''}
 						</template>
 						<template #main-content-no-selected-group-stub>
-							${(_babelHelpers$classPr8 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_NO_SELECTED_GROUP_STUB]) != null ? _babelHelpers$classPr8 : ''}
+							${(_babelHelpers$classPr17 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_NO_SELECTED_GROUP_STUB]) != null ? _babelHelpers$classPr17 : ''}
 						</template>
 						<template #main-content-empty-group-stub>
-							${(_babelHelpers$classPr9 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB]) != null ? _babelHelpers$classPr9 : ''}
+							${(_babelHelpers$classPr18 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB]) != null ? _babelHelpers$classPr18 : ''}
 						</template>
 						<template #main-content-empty-group-stub-title>
-							${(_babelHelpers$classPr10 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB_TITLE]) != null ? _babelHelpers$classPr10 : ''}
+							${(_babelHelpers$classPr19 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB_TITLE]) != null ? _babelHelpers$classPr19 : ''}
 						</template>
 						<template #item="itemSlotProps">
-							${(_babelHelpers$classPr11 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_ITEM]) != null ? _babelHelpers$classPr11 : ''}
+							${(_babelHelpers$classPr20 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_ITEM]) != null ? _babelHelpers$classPr20 : ''}
 						</template>
 					</Application>
 				`
 	  }, rootProps);
-	  babelHelpers.classPrivateFieldLooseBase(this, _application)[_application].use(ui_vue3_pinia.createPinia()).mount(this.getPopup().getContentContainer());
+	  babelHelpers.classPrivateFieldLooseBase(this, _vueInstance)[_vueInstance] = babelHelpers.classPrivateFieldLooseBase(this, _application)[_application].use(ui_vue3_pinia.createPinia()).mount(container);
 	}
 	function _getDefaultPopupOptions2() {
 	  return {
@@ -1223,5 +1528,5 @@ this.BX = this.BX || {};
 	exports.States = States;
 	exports.EntityCatalog = EntityCatalog;
 
-}((this.BX.UI = this.BX.UI || {}),BX.Vue3,BX.Vue3.Components,BX.UI.Feedback,BX,BX.UI,BX,BX,BX.Vue3.Pinia,BX,BX.Main,BX.Event,BX,BX));
+}((this.BX.UI = this.BX.UI || {}),BX.Vue3,BX.Vue3.Components,BX.UI.Feedback,BX,BX.UI,BX.UI.Vue3.Components,BX.UI,BX,BX,BX.Vue3.Pinia,BX,BX.Main,BX.Event,BX,BX));
 //# sourceMappingURL=entity-catalog.bundle.js.map

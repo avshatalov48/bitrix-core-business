@@ -7,6 +7,8 @@ namespace Bitrix\Socialnetwork\Collab\Integration\IM;
 use Bitrix\Socialnetwork\Collab\Integration\IM\Message\AddGuestActionMessage;
 use Bitrix\Socialnetwork\Collab\Integration\IM\Message\AddUserActionMessage;
 use Bitrix\Socialnetwork\Collab\Integration\IM\Message\CollabCreateActionMessage;
+use Bitrix\Socialnetwork\Collab\Integration\IM\Message\ConvertGroupToCollabMessage;
+use Bitrix\Socialnetwork\Collab\Integration\IM\Message\ConvertGroupToCollabMessageRich;
 use Bitrix\Socialnetwork\Collab\Integration\IM\Message\CopyLinkActionMessage;
 use Bitrix\Socialnetwork\Collab\Integration\IM\Message\ActionMessageInterface;
 use Bitrix\Socialnetwork\Collab\Integration\IM\Message\AcceptUserActionMessage;
@@ -36,6 +38,8 @@ class ActionMessageFactory
 			ActionType::ExcludeUser => new ExcludeUserActionMessage($collabId, $senderId),
 			ActionType::CopyLink => new CopyLinkActionMessage($collabId, $senderId),
 			ActionType::RegenerateLink => new RegenerateLinkActionMessage($collabId, $senderId),
+			ActionType::ConvertGroupToCollab => new ConvertGroupToCollabMessage($collabId, $senderId),
+			ActionType::ConvertGroupToCollabRich => new ConvertGroupToCollabMessageRich($collabId, $senderId),
 			default => new JoinUserActionMessage($collabId, $senderId),
 		};
 	}

@@ -1,66 +1,71 @@
-import { Loc, Tag, ajax, Dom, Type } from 'main.core';
+import { Tag, Dom } from 'main.core';
 import { PopupWindowManager } from 'main.popup';
-import { Button } from 'ui.buttons';
 import { MarketList } from '../component/market-list';
 import { EventEmitter } from 'main.core.events';
 import { DiscountEar } from '../component/discount-ear';
-import { FeaturePromotersRegistry } from 'ui.info-helper';
-import { UI } from 'ui.notification';
+import 'main.polyfill.intersectionobserver';
 import { Analytic } from '../analytic';
+import PopupType from '../type/popup-type';
+import PopupCategory from '../type/popup-category';
 
 export type MarketExpiredPopupOptions = {
-	transitionPeriodEndDate: string,
+	expireDate: string,
 	appList: ?MarketList,
 	integrationList: ?MarketList,
 	marketSubscriptionUrl: string,
-	withDiscount: boolean,
 	withDemo: boolean,
 	olWidgetCode: string,
 	analytic: Analytic,
+	type: PopupType,
+	discountEar: ?DiscountEar;
+	expireDays: string;
+	isRenamedMarket: boolean;
 };
 
 export class MarketExpiredPopup extends EventEmitter
 {
-	transitionPeriodEndDate: string;
+	expireDate: string;
+	expireDays: string;
 	#popup: ?Popup = null;
 	#container: ?HTMLElement = null;
 	#appList: ?MarketList;
 	#integrationList: ?MarketList;
-	#marketSubscriptionUrl: string;
-	#withDiscount: boolean;
 	withDemo: boolean;
 	olWidgetCode: string;
-	#discountEarContainer: ?HTMLElement = null;
 	#analytic: Analytic;
+	discountEar: ?DiscountEar;
+	marketLabel: boolean;
 
 	constructor(options: MarketExpiredPopupOptions)
 	{
 		super();
 		this.setEventNamespace('Rest.MarketExpired:Popup');
-		this.transitionPeriodEndDate = options.transitionPeriodEndDate;
+		this.expireDate = options.expireDate;
 		this.#appList = options.appList;
 		this.#integrationList = options.integrationList;
-		this.#marketSubscriptionUrl = options.marketSubscriptionUrl;
-		this.#withDiscount = options.withDiscount;
 		this.withDemo = options.withDemo;
 		this.olWidgetCode = options.olWidgetCode;
 		this.#analytic = options.analytic;
-	}
-
-	getType(): string
-	{
-		return '';
+		this.type = options.type;
+		this.expireDays = options.expireDays;
+		this.discountEar = options.discountEar;
+		this.marketLabel = options.isRenamedMarket ? '' : '_MARKET_PLUS';
 	}
 
 	getTitle(): string
 	{
-		return '';
+		throw new Error('Not implemented');
+	}
+
+	getCategory(): PopupCategory
+	{
+		throw new Error('Not implemented');
 	}
 
 	show(): void
 	{
 		this.#popup ??= PopupWindowManager.create(
-			`marketExpiredPopup_${this.getType()}`,
+			`marketExpiredPopup_${this.getCategory()}_${this.type}`,
 			null,
 			{
 				animation: {
@@ -72,67 +77,94 @@ export class MarketExpiredPopup extends EventEmitter
 				disableScroll: true,
 				padding: 0,
 				className: 'rest-market-expired-popup-wrapper',
+				closeByEsc: true,
 				events: {
 					onClose: this.onClose.bind(this),
+					onShow: this.onOpen.bind(this),
 				},
 			},
 		);
+
+		const observerCallback = (entries, observer) => {
+			entries.forEach((entry) => {
+				if (!entry.isIntersecting)
+				{
+					this.#popup.setDisableScroll(false);
+					observer.unobserve(entry.target);
+				}
+			});
+		};
+		const observer = new IntersectionObserver(observerCallback, {
+			root: null,
+			rootMargin: '0px',
+			threshold: [0, 1],
+		});
+		observer.observe(this.#popup.getContentContainer().querySelector('.rest-market-expired-popup__close-icon'));
+		observer.observe(this.#popup.getContentContainer().querySelector('.rest-market-expired-popup__button-container'));
 
 		this.#popup?.show();
 		this.#analytic?.sendShow();
 
 		// hack for blur
-		if (this.#withDiscount)
+		if (this.discountEar)
 		{
-			Dom.style(
-				this.#getContainer(),
-				{
-					maxHeight: `${this.#getDiscountEarContainer().offsetHeight}px`,
-				},
-			);
+			if (this.#popup.getContentContainer().querySelector('.rest-market-expired-popup__content-wrapper').offsetHeight < window.innerHeight)
+			{
+				Dom.style(
+					this.#getContainer(),
+					{
+						maxHeight: `${this.discountEar.getContainer().offsetHeight}px`,
+					},
+				);
+			}
+			else
+			{
+				Dom.style(
+					this.#popup.getContentContainer().parentNode,
+					{
+						'backdrop-filter': 'none',
+						'-webkit-backdrop-filter': 'none',
+					},
+				);
+			}
+
 			this.#popup.adjustPosition();
 		}
+	}
 
-		if (
-			Type.isStringFilled(this.olWidgetCode)
-			&& (!this.withDemo || this.getType() === 'FINAL')
-		)
-		{
-			this.#showOlWidget(window, document, `https://bitrix24.team/upload/crm/site_button/loader_${this.olWidgetCode}.js`);
-		}
+	close(): void
+	{
+		this.#popup.close();
 	}
 
 	onClose(): void
 	{
-		BX.SiteButton?.hide();
 		this.emit('onClose');
-		BX.userOptions.save('rest', 'marketTransitionPopupTs', null, Math.floor(Date.now() / 1000));
 	}
 
-	/**
-	 * limit_v2_nosubscription_marketplace_withapplications_off
-	 * limit_v2_nosubscription_marketplace_withapplications_off_no_demo
-	 * limit_v2_nosubscription_marketplace_withapplications_nodiscount_off
-	 * limit_v2_nosubscription_marketplace_withapplications_nodiscount_off_no_demo
-	 */
-	#getFeatureCode(): string
+	onOpen(): void
 	{
-		return `
-			limit_v2_nosubscription_marketplace_withapplications
-			${this.#withDiscount ? '' : '_nodiscount'}
-			_off
-			${this.withDemo ? '' : '_no_demo'}
-		`;
+		this.emit('onOpen');
 	}
 
-	renderDescription(): ?HTMLElement
+	renderDescription(): HTMLElement
 	{
 		return null;
 	}
 
-	renderButtons(): ?HTMLElement
+	renderButtons(): HTMLElement
 	{
 		return null;
+	}
+
+	renderAboutLink(): HTMLElement
+	{
+		return '';
+	}
+
+	getAnalytic(): ?Analytic
+	{
+		return this.#analytic;
 	}
 
 	#getContent(): HTMLElement
@@ -148,12 +180,12 @@ export class MarketExpiredPopup extends EventEmitter
 	{
 		this.#container ??= Tag.render`
 			<div class="rest-market-expired-popup__container">
-				${this.#withDiscount ? this.#getDiscountEarContainer() : ''}
+				${this.discountEar?.getContainer()}
 				<div class="rest-market-expired-popup__content-wrapper">
 					<div class="rest-market-expired-popup__content">
 						<span class="rest-market-expired-popup__title">${this.getTitle()}</span>
 						${this.renderDescription()}
-						${this.#renderAboutLink()}
+						${this.renderAboutLink()}
 						${this.renderButtons()}
 					</div>
 					${this.#renderMarketList()}
@@ -177,13 +209,6 @@ export class MarketExpiredPopup extends EventEmitter
 		`;
 	}
 
-	#getDiscountEarContainer(): HTMLElement
-	{
-		this.#discountEarContainer ??= (new DiscountEar(this.withDemo)).render();
-
-		return this.#discountEarContainer;
-	}
-
 	#renderMarketList(): HTMLElement
 	{
 		return Tag.render`
@@ -192,111 +217,5 @@ export class MarketExpiredPopup extends EventEmitter
 				${this.#integrationList?.render()}
 			</aside>
 		`;
-	}
-
-	#renderAboutLink(): HTMLElement
-	{
-		const onclick = () => {
-			this.#analytic?.sendClickButton('details');
-		};
-
-		return Tag.render`
-			<span class="rest-market-expired-popup__details">
-				<a
-					class="ui-link rest-market-expired-popup__link"
-					href="FEATURE_PROMOTER=${this.#getFeatureCode()}"
-					onclick="${onclick}"
-				>
-					${Loc.getMessage('REST_MARKET_EXPIRED_POPUP_DETAILS')}
-				</a>
-			</span>
-		`;
-	}
-
-	getSubscribeButton(): Button
-	{
-		return new Button({
-			text: Loc.getMessage('REST_MARKET_EXPIRED_POPUP_BUTTON_SUBSCRIBE'),
-			className: 'rest-market-expired-popup__button',
-			id: 'marketExpiredPopup_button_subscribe',
-			size: Button.Size.MEDIUM,
-			color: Button.Color.SUCCESS,
-			noCaps: true,
-			round: true,
-			tag: Button.Tag.LINK,
-			link: this.#marketSubscriptionUrl,
-			onclick: () => {
-				this.#analytic?.sendClickButton('buy');
-			},
-		});
-	}
-
-	getDemoButton(): Button
-	{
-		const demoButton = new Button({
-			text: Loc.getMessage('REST_MARKET_EXPIRED_POPUP_BUTTON_DEMO'),
-			className: 'rest-market-expired-popup__button',
-			id: 'marketExpiredPopup_button_demo',
-			size: Button.Size.MEDIUM,
-			color: Button.Color.LIGHT_BORDER,
-			noCaps: true,
-			round: true,
-			onclick: () => {
-				demoButton.unbindEvent('click');
-				demoButton.setState(Button.State.WAITING);
-				this.#analytic?.sendClickButton('demo');
-				ajax({
-					url: '/bitrix/tools/rest.php',
-					method: 'POST',
-					dataType: 'json',
-					data: {
-						sessid: BX.bitrix_sessid(),
-						action: 'activate_demo',
-					},
-					onsuccess: (result) => {
-						this.#popup.close();
-
-						if (result.error)
-						{
-							UI.Notification.Center.notify({
-								content: result.error,
-								category: 'demo_subscribe_error',
-								position: 'top-right',
-							});
-						}
-						else
-						{
-							this.#analytic?.sendDemoActivated();
-							FeaturePromotersRegistry.getPromoter({ code: 'limit_market_trial_active' }).show();
-						}
-					},
-				});
-			},
-		});
-
-		return demoButton;
-	}
-
-	getHideButton(): Button
-	{
-		return new Button({
-			text: Loc.getMessage('REST_MARKET_EXPIRED_POPUP_BUTTON_HIDE'),
-			className: 'rest-market-expired-popup__button rest-market-expired-popup__button--link',
-			id: 'marketExpiredPopup_button_hide',
-			size: Button.Size.EXTRA_SMALL,
-			color: Button.Color.LINK,
-			noCaps: true,
-			onclick: () => {
-				this.#popup?.close();
-				this.#analytic?.sendClickButton('ok');
-				BX.userOptions.save('rest', 'marketTransitionPopupDismiss', null, 'Y');
-			},
-		});
-	}
-
-	#showOlWidget(w, d, u): void
-	{
-		const s = d.createElement('script'); s.async = true; s.src = `${u}?${Date.now() / 60000 | 0}`;
-		const h = d.getElementsByTagName('script')[0]; h.parentNode.insertBefore(s, h);
 	}
 }

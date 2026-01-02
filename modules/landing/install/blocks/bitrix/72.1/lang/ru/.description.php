@@ -1,0 +1,7 @@
+<?php
+$MESS['LANDING_BLOCK_WIDGET_72_1_NAME'] = 'Заголовок с кнопкой и картинкой справа';
+$MESS['LANDING_BLOCK_WIDGET_72_1_NODE_TITLE'] = 'Заголовок';
+$MESS['LANDING_BLOCK_WIDGET_72_1_NODE_BUTTON'] = 'Кнопка';
+$MESS['LANDING_BLOCK_WIDGET_72_1_NODE_IMG'] = 'Картинка';
+$MESS['LANDING_BLOCK_WIDGET_72_1_NODE_CONTAINERS'] = 'Контейнеры';
+$MESS['LANDING_BLOCK_WIDGET_72_1_NODE_CONTAINER'] = 'Контейнер';

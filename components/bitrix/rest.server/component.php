@@ -1,7 +1,8 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
-	die();
+	die;
 }
 
 /**
@@ -14,42 +15,59 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
  * @global CUser $USER
  */
 
-if(!CModule::IncludeModule('rest'))
+use Bitrix\Rest\Internal\Service\MemoryLimitChecker;
+
+if (!CModule::IncludeModule('rest'))
 {
 	return;
 }
 
+MemoryLimitChecker::createByDefault()->executeOnMemoryExcess(function ($memoryUsageMB, $maxAllowedSizeMB) {
+	if (IsModuleInstalled('bitrix24'))
+	{
+		AddMessage2Log(
+			"Rest payload Too Large. Estimated memory usage: {$memoryUsageMB} MB, max allowed: {$maxAllowedSizeMB} MB",
+			'rest',
+		);
+	}
+});
+
 $query = \CRestUtil::getRequestData();
 
-$arDefaultUrlTemplates404 = array(
-	"method" => "#method#",
-	"method1" => "#method#/",
-	"webhook" => "#aplogin#/#ap#/#method#",
-	"webhook1" => "#aplogin#/#ap#/#method#/",
-);
+$arDefaultUrlTemplates404 = [
+	'method' => '#method#',
+	'method1' => '#method#/',
+	'webhook' => '#aplogin#/#ap#/#method#',
+	'webhook1' => '#aplogin#/#ap#/#method#/',
+	'apiWebhook' => 'api/#aplogin#/#ap#/#method#',
+	'apiWebhook1' => 'api/#aplogin#/#ap#/#method#/',
+	'apiMethod' => 'api/#method#',
+	'apiMethod1' => 'api/#method#/',
+];
 
-$arDefaultVariableAliases404 = array();
-$arDefaultVariableAliases = array();
+$arDefaultVariableAliases404 = [];
+$arDefaultVariableAliases = [];
 
-$arComponentVariables = array(
-	"method", "aplogin", "ap"
-);
+$arComponentVariables = [
+	'method', 'aplogin', 'ap'
+];
 
-$arVariables = array();
+$arVariables = [];
 
-if($arParams["SEF_MODE"] == "Y")
+$serverClass = CRestServer::class;
+
+if ($arParams['SEF_MODE'] == 'Y')
 {
-	$arUrlTemplates = CComponentEngine::MakeComponentUrlTemplates($arDefaultUrlTemplates404, $arParams["SEF_URL_TEMPLATES"] ?? []);
-	$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases404, $arParams["VARIABLE_ALIASES"] ?? []);
+	$arUrlTemplates = CComponentEngine::MakeComponentUrlTemplates($arDefaultUrlTemplates404, $arParams['SEF_URL_TEMPLATES'] ?? []);
+	$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases404, $arParams['VARIABLE_ALIASES'] ?? []);
 
 	$componentPage = CComponentEngine::ParseComponentPath(
-		$arParams["SEF_FOLDER"],
+		$arParams['SEF_FOLDER'],
 		$arUrlTemplates,
-		$arVariables
+		$arVariables,
 	);
 
 	CComponentEngine::InitComponentVariables($componentPage, $arComponentVariables, $arVariableAliases, $arVariables);
-
 	$query = array_merge($query, $arVariables);
 	unset($query['method']);
 }
@@ -58,47 +76,63 @@ else
 	ShowError('Non-SEF mode is not supported by bitrix:rest.server component');
 }
 
-$transport = 'json';
-$methods = [mb_strtolower($arVariables['method']), $arVariables['method']];
+$transport = CRestServer::TRANSPORT_JSON;
 
-// try lowercase first, then original
-foreach ($methods as $method)
+if (!in_array($componentPage, ['apiWebhook', 'apiWebhook1', 'apiMethod', 'apiMethod1'], true))
 {
-	$point = mb_strrpos($method, '.');
+	$methods = [mb_strtolower($arVariables['method']), $arVariables['method']];
 
-	if($point > 0)
+	// try lowercase first, then original
+	foreach ($methods as $method)
 	{
-		$check = mb_substr($method, $point + 1);
-		if(CRestServer::transportSupported($check))
+		$point = mb_strrpos($method, '.');
+
+		if ($point > 0)
 		{
-			$transport = $check;
-			$method = mb_substr($method, 0, $point);
+			$check = mb_substr($method, $point + 1);
+			if (CRestServer::transportSupported($check))
+			{
+				$transport = $check;
+				$method = mb_substr($method, 0, $point);
+			}
 		}
+
+		$server = new CRestServer([
+			'CLASS' => $arParams['CLASS'] ?? null,
+			'METHOD' => $method,
+			'TRANSPORT' => $transport,
+			'QUERY' => $query,
+		], false);
+
+		$result = $server->process();
+
+		// try original controller name if lower is not found
+		if (is_array($result) && !empty($result['error']) && $result['error'] === 'ERROR_METHOD_NOT_FOUND')
+		{
+			continue;
+		}
+
+		// output result
+		break;
 	}
+}
+else
+{
+	$schemaManager = \Bitrix\Main\DI\ServiceLocator::getInstance()->get(\Bitrix\Rest\V3\Schema\SchemaManager::class);
+	$routes = $schemaManager->getRouteAliases();
+	$serverRequest = new \Bitrix\Rest\V3\Interaction\Request\ServerRequest(($routes[$arVariables['method']] ?? $arVariables['method']), $query, \Bitrix\Main\Context::getCurrent()->getRequest());
 
-	$server = new CRestServer(array(
-		"CLASS" => $arParams["CLASS"],
-		"METHOD" => $method,
-		"TRANSPORT" => $transport,
-		"QUERY" => $query,
-	), false);
+	$server = new CRestApiServer([
+		'LOCAL_ERROR_LANGUAGE' => \Bitrix\Main\Context::getCurrent()->getRequest()->getHeader('X-Local-Error-Language'),
+	]);
 
-	$result = $server->process();
-
-	// try original controller name if lower is not found
-	if (is_array($result) && !empty($result['error']) && $result['error'] === 'ERROR_METHOD_NOT_FOUND')
-	{
-		continue;
-	}
-
-	// output result
-	break;
+	$result = $server->processServerRequest($serverRequest);
 }
 
 $APPLICATION->RestartBuffer();
 
 $output = $server->output($result);
-if (is_object($output) && $output instanceof \Bitrix\Main\HttpResponse)
+if ($output instanceof \Bitrix\Main\HttpResponse)
 {
 	$server->sendHeadersAdditional();
 	$output->send();
@@ -110,4 +144,4 @@ else
 }
 
 CMain::FinalActions();
-die();
+die;

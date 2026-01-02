@@ -75,7 +75,7 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 		$siteId = Manager::getMainSiteId();
 		$siteTemplateId = Manager::getTemplateId($siteId);
 		$langPortal = LANGUAGE_ID;
-		if (in_array($langPortal, ['ru', 'kz', 'by']))
+		if (in_array($langPortal, ['ru', 'kz', 'by', 'uz']))
 		{
 			$langPortal = 'ru';
 		}

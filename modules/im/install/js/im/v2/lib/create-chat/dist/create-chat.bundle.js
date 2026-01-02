@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,im_v2_lib_layout,im_v2_const) {
+(function (exports,main_core_events,im_v2_lib_layout,im_v2_const,im_v2_application_core) {
 	'use strict';
 
 	const EVENT_NAMESPACE = 'BX.Messenger.v2.CreateChatManager';
@@ -12,6 +12,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _chatTitle = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("chatTitle");
 	var _chatAvatarFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("chatAvatarFile");
 	var _chatFields = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("chatFields");
+	var _preselectedMembers = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("preselectedMembers");
+	var _includeCurrentUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("includeCurrentUser");
+	var _ownerId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("ownerId");
 	class CreateChatManager extends main_core_events.EventEmitter {
 	  static getInstance() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance]) {
@@ -41,6 +44,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _preselectedMembers, {
+	      writable: true,
+	      value: []
+	    });
+	    Object.defineProperty(this, _includeCurrentUser, {
+	      writable: true,
+	      value: true
+	    });
+	    Object.defineProperty(this, _ownerId, {
+	      writable: true,
+	      value: void 0
+	    });
 	    this.setEventNamespace(EVENT_NAMESPACE);
 	  }
 	  startChatCreation(chatTypeToCreate, params = {}) {
@@ -51,7 +66,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.setCreationStatus(false);
 	    }
 	    void im_v2_lib_layout.LayoutManager.getInstance().setLayout({
-	      name: im_v2_const.Layout.createChat.name,
+	      name: im_v2_const.Layout.createChat,
 	      entityId: chatTypeToCreate
 	    });
 	  }
@@ -95,6 +110,37 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.setChatTitle('');
 	    this.setChatAvatar(null);
 	  }
+	  setPreselectedMembers(preselectedMembers) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _preselectedMembers)[_preselectedMembers] = preselectedMembers;
+	  }
+	  getChatMembers() {
+	    const mappedMembers = babelHelpers.classPrivateFieldLooseBase(this, _preselectedMembers)[_preselectedMembers].map(item => [item.type, item.id]);
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _includeCurrentUser)[_includeCurrentUser]) {
+	      mappedMembers.push(['user', im_v2_application_core.Core.getUserId()]);
+	    }
+	    return mappedMembers;
+	  }
+	  setIncludeCurrentUser(value) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _includeCurrentUser)[_includeCurrentUser] = value;
+	  }
+	  setOwnerId(ownerId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _ownerId)[_ownerId] = ownerId;
+	  }
+	  getOwnerId() {
+	    var _babelHelpers$classPr;
+	    return (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _ownerId)[_ownerId]) != null ? _babelHelpers$classPr : im_v2_application_core.Core.getUserId();
+	  }
+	  getUndeselectedItems() {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _includeCurrentUser)[_includeCurrentUser]) {
+	      return [['user', im_v2_application_core.Core.getUserId()]];
+	    }
+	    return [];
+	  }
+	  clearExternalFields() {
+	    this.setOwnerId(null);
+	    this.setIncludeCurrentUser(true);
+	    this.setPreselectedMembers([]);
+	  }
 	}
 	CreateChatManager.events = {
 	  creationStatusChange: 'creationStatusChange',
@@ -109,5 +155,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.CreateChatManager = CreateChatManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Application));
 //# sourceMappingURL=create-chat.bundle.js.map

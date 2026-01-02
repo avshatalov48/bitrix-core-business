@@ -6,6 +6,7 @@ $field = $arResult['CONFIGURATION_FIELD'];
 $events = $arResult['CONFIGURATION_FIELD_EVENTS'];
 $behaviours = $arResult['CONFIGURATION_FIELD_BEHAVIOURS'];
 $id = $field->getId();
+
 ?>
 
 <button <?= $field->getRenderedIdAttribute(); ?>  <?= $field->getRenderedDataAttributes(); ?>  <?= $field->getRenderedClassAttributes(); ?> ><?= $field->getLabel() ?></button>

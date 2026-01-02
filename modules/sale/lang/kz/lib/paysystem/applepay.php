@@ -1,0 +1,9 @@
+<?php
+$MESS["SALE_APPLE_PAY_HTTP_STATUS_CODE"] = "Жауап алу қатесі. Мәртебе: #HTTP_STATUS#";
+$MESS["SALE_APPLE_PAY_HTTP_STATUS_MESSAGE"] = "Жауап алу қатесі. Мәртебе: #HTTP_STATUS#, хабарлама: #STATUS_MESSAGE#";
+$MESS["SALE_APPLE_PAY_LINE_ITEM_DISCOUNT"] = "Жеңілдік";
+$MESS["SALE_APPLE_PAY_LINE_ITEM_ORDER"] = "#ORDER_ID# тапсырысы";
+$MESS["SALE_APPLE_PAY_LINE_ITEM_SHIPPING"] = "Жеткізу";
+$MESS["SALE_APPLE_PAY_LINE_ITEM_TAX"] = "ҚҚС";
+$MESS["SALE_APPLE_PAY_LINE_ITEM_TOTAL"] = "Жиыны";
+$MESS["SALE_APPLE_PAY_ORDER_SUBTITLE"] = "#SUM# сомасына #ORDER_ID# тапсырыс";

@@ -209,17 +209,23 @@ class ReportVisualConstructorBoardControls extends CBitrixComponent
 
 			$form->add($miniaturesWrapper->end());
 
-			if ($widgetCount > self::DEFAULT_SHOW_MINIATURE_COUNT_IN_CATEGORY)
+			if ($widgetCount > self::DEFAULT_SHOW_MINIATURE_COUNT_IN_CATEGORY && \Bitrix\Main\Loader::includeModule('ui'))
 			{
-				$buttonContainer = new Fields\Div();
-				$buttonContainer->addClass('ui-btn');
-				$buttonContainer->addClass('ui-btn-light-border');
-				$buttonContainer->addClass('report-visualconstructor-view-miniature-show-all');
-				$buttonContainer->addDataAttribute('toggle-button-category-key', $categoryKey);
-				$buttonContainer->addDataAttribute('type', 'show-all-button');
-				$form->add($buttonContainer->start());
-				$form->add(Loc::getMessage('REPORT_ADD_FORM_SHOW_ALL_BUTTON_TITLE'));
-				$form->add($buttonContainer->end());
+				$button =
+					\Bitrix\UI\Buttons\Button::create([
+						'color' => \Bitrix\UI\Buttons\Color::LIGHT_BORDER,
+						'tag' => \Bitrix\UI\Buttons\Tag::LINK,
+						'text' => Loc::getMessage('REPORT_ADD_FORM_SHOW_ALL_BUTTON_TITLE'),
+						'className' => 'report-visualconstructor-view-miniature-show-all',
+						'dataset' => [
+							'toggle-button-category-key' => $categoryKey,
+							'type' => 'show-all-button',
+						],
+						'air' => true,
+					])
+				;
+
+				$form->add(new Fields\Html($button->render(false)));
 			}
 
 

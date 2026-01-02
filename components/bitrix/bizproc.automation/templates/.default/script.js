@@ -83,6 +83,13 @@
 
 			this.initRobotSelector();
 
+			this.initNewEntitiesCounter();
+
+			if (this.data?.NEW_ENTITIES_BUTTON_SHOW_HINT && this.isNewEntitiesButtonExist())
+			{
+				this.showNewEntitiesButtonAhaMoment();
+			}
+
 			this.initHowCheckAutomationTourGuide();
 
 			if (!this.embeddedMode)
@@ -658,6 +665,7 @@
 				this.bindCancelButton();
 			}
 			this.bindCreationButton();
+			this.bindNewEntitiesButton();
 		},
 		initAddButtons: function() {
 			const addButtonNodes = this.node.querySelectorAll('[data-role="add-button-container"]');
@@ -832,11 +840,11 @@
 		bindCreationButton: function()
 		{
 			const button = this.node.querySelector('[data-role="automation-btn-create"]');
-
 			if (button)
 			{
 				BX.bind(button, 'click', () => {
 					this.robotSelector.setStageId(this.templateManager.templates[0]?.getStatusId());
+					this.robotSelector.calledFromNewEntitiesButton(false);
 					this.robotSelector.show();
 				});
 
@@ -865,6 +873,17 @@
 				}
 
 				settings.set('beginning-guide-shown', true);
+			}
+		},
+		bindNewEntitiesButton: function()
+		{
+			const newEntitiesButton = this.node.querySelector('[data-role="automation-btn-new-entities"]');
+			if (newEntitiesButton)
+			{
+				BX.bind(newEntitiesButton, 'click', () => {
+					this.robotSelector.show();
+					this.robotSelector.calledFromNewEntitiesButton(true);
+				});
 			}
 		},
 		getAjaxUrl: function()
@@ -1214,6 +1233,8 @@
 					isShownTriggerGuide: settings.get('trigger-guide-shown') === true,
 				});
 
+				const robotsButton = BX?.Bizproc?.Automation?.RobotButton ?? top?.BX?.Bizproc?.Automation?.RobotButton;
+
 				this.robotSelector = new BX.Bizproc.Automation.RobotSelector({
 					context: BX.Bizproc.Automation.getGlobalContext(),
 					stageId: this.templateManager.templates[0]?.getStatusId(),
@@ -1338,6 +1359,14 @@
 								this.markModified();
 							}
 						},
+						newEntityViewed: (event) => {
+							this.updateNewEntitiesButton(event.getData());
+
+							if (robotsButton)
+							{
+								robotsButton.onEntityViewed(event.getData());
+							}
+						},
 					},
 				});
 			}
@@ -1420,6 +1449,84 @@
 			const defaultSettings = { autoHideDelay: 3000 };
 
 			BX.UI.Notification.Center.notify(Object.assign(defaultSettings, notificationOptions));
+		},
+		initNewEntitiesCounter()
+		{
+			const unviewedEntitiesCount = this.robotSelector?.getUnviewedNewRobotsCount();
+			const hasNewEntities = this.robotSelector?.hasNewEntities();
+
+			this.updateNewEntitiesButton({ unviewedEntitiesCount, hasNewEntities });
+		},
+		updateNewEntitiesButton(eventData)
+		{
+			const newCount = eventData.unviewedEntitiesCount ?? 0;
+			const button = BX.UI.ButtonManager.createByUniqId(this.data?.NEW_ENTITIES_BUTTON_ID);
+			if (!button)
+			{
+				return;
+			}
+
+			if (!eventData?.hasNewEntities)
+			{
+				BX.Dom.remove(button.getContainer());
+				return;
+			}
+
+			if (!newCount || newCount <= 0)
+			{
+				button.setRightCounter(null);
+				return;
+			}
+
+			let counter = button.getRightCounter();
+
+			if (!counter)
+			{
+				const counterOptions = {
+					style: BX.UI.CounterStyle.FILLED_SUCCESS,
+					value: newCount,
+				};
+				button.setRightCounter(counterOptions);
+				return;
+			}
+
+			counter.setValue(newCount);
+		},
+		showNewEntitiesButtonAhaMoment()
+		{
+			BX.UI.BannerDispatcher.normal.toQueue((onDone) => {
+				const tooltip = new BX.UI.Dialogs.Tooltip({
+					bindElement: this.node.querySelector('[data-role="automation-btn-new-entities"]'),
+					content: BX.Loc.getMessage('BIZPROC_AUTOMATION_NEW_ENTITIES_BUTTON_AHA_MOMENT_DESCRIPTION'),
+					minWidth: 320,
+					popupOptions: {
+						autoHide: true,
+						offsetTop: 5,
+						offsetLeft: 50,
+						closeIcon: true,
+					},
+				});
+
+				const optionName = "view_date_automation-new-entities-button-hint";
+				const optionValue = Math.floor(Date.now() / 1000);
+				this.updateUserOption(optionName, optionValue)
+
+				tooltip.show();
+
+				BX.Event.EventEmitter.subscribe('UI.Tour.Guide:onFinish', () => {
+					onDone();
+				});
+			});
+		},
+		updateUserOption(optionName, optionValue)
+		{
+			BX.userOptions.save("bizproc", optionName, null, optionValue);
+			BX.userOptions.send(null);
+		},
+		isNewEntitiesButtonExist()
+		{
+			const button = BX.UI.ButtonManager.createByUniqId(this.data?.NEW_ENTITIES_BUTTON_ID);
+			return button ? true : false;
 		},
 	};
 

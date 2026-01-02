@@ -61,7 +61,7 @@ class Filter
 
 	public function setFromArray(array $filter): static
 	{
-		$allowableOperations = ['=', '!=', '<', '<=', '>', '>='];
+		$allowableOperations = ['=', '!=', '<', '<=', '>', '>=', '%'];
 
 		foreach ($filter as $key => $value)
 		{

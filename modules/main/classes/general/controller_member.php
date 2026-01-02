@@ -1,6 +1,8 @@
 <?php
 
 use Bitrix\Main\Security\Random;
+use Bitrix\Main\Authentication;
+use Bitrix\Main\Authentication\Method;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -311,7 +313,11 @@ class CControllerClient
 		{
 			CUser::SetUserGroup($ADMIN_ID, [1]);
 
-			$USER->Authorize($ADMIN_ID);
+			$context = (new Authentication\Context())
+				->setUserId($ADMIN_ID)
+				->setMethod(Method::Controller)
+			;
+			$USER->Authorize($context);
 			$USER->SetControllerAdmin();
 
 			return $ADMIN_ID;
@@ -327,7 +333,11 @@ class CControllerClient
 		$USER_ID = CControllerClient::UpdateUser($arParams);
 		if ($USER_ID > 0)
 		{
-			$USER->Authorize($USER_ID);
+			$context = (new Authentication\Context())
+				->setUserId($USER_ID)
+				->setMethod(Method::Controller)
+			;
+			$USER->Authorize($context);
 			return $USER_ID;
 		}
 
@@ -486,7 +496,7 @@ class CControllerClient
 		COption::SetOptionString("main", "controller_member", "Y");
 
 		global $USER;
-		$USER->Authorize($USER->GetID());
+		$USER->UpdateSessionData($USER->getContext());
 
 		return true;
 	}

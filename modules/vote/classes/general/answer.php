@@ -1,11 +1,11 @@
 <?php
 
-#############################################
-# Bitrix Site Manager Forum					#
-# Copyright (c) 2002-2009 Bitrix			#
-# https://www.bitrixsoft.com					#
-# mailto:admin@bitrixsoft.com				#
-#############################################
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
 
 use Bitrix\Vote;
 
@@ -13,12 +13,6 @@ IncludeModuleLangFile(__FILE__);
 
 class CAllVoteAnswer
 {
-	public static function err_mess()
-	{
-		$module_id = "vote";
-		return "<br>Module: ".$module_id."<br>Class: CAllVoteAnswer<br>File: ".__FILE__;
-	}
-
 	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $APPLICATION;
@@ -50,6 +44,12 @@ class CAllVoteAnswer
 			{
 				$aMsg[] = ['id' => 'MESSAGE', 'text' => GetMessage('VOTE_FORGOT_MESSAGE')];
 			}
+		}
+
+		if (isset($arFields['REACTION']))
+		{
+			$reaction = mb_substr((string)$arFields['REACTION'], 0, \Bitrix\Vote\AnswerTable::REACTION_MAX_LENGTH);
+			$arFields['REACTION'] = Vote\Inner\Sanitizer::cleanText($reaction);
 		}
 
 		if (array_key_exists('IMAGE_ID', $arFields))
@@ -126,6 +126,16 @@ class CAllVoteAnswer
 		if ($DB->type == "ORACLE")
 			$arFields["ID"] = $DB->NextID("SQ_B_VOTE_ANSWER");
 
+		if (isset($arFields['REACTION']))
+		{
+			$arFields['REACTION'] = \Bitrix\Main\Text\Emoji::encode($arFields['REACTION']);
+		}
+
+		if (isset($arFields['MESSAGE']))
+		{
+			$arFields['MESSAGE'] = \Bitrix\Main\Text\Emoji::encode($arFields['MESSAGE']);
+		}
+
 		$arInsert = $DB->PrepareInsert("b_vote_answer", $arFields);
 
 		$DB->QueryBind("INSERT INTO b_vote_answer (".$arInsert[0].", TIMESTAMP_X) VALUES(".$arInsert[1].", ".$DB->GetNowFunction().")", array("MESSAGE" => $arFields["MESSAGE"]), false);
@@ -143,7 +153,6 @@ class CAllVoteAnswer
 		global $DB;
 		$arBinds = array();
 		$ID = intval($ID);
-		$err_mess = (self::err_mess())."<br>Function: Update<br>Line: ";
 
 		if ($ID <= 0 || !CVoteAnswer::CheckFields("UPDATE", $arFields, $ID))
 			return false;
@@ -163,6 +172,10 @@ class CAllVoteAnswer
 			$arFields["IMAGE_ID"]["MODULE_ID"] = "vote";
 			CFile::SaveForDB($arFields, "IMAGE_ID", "vote");
 		}
+		if (isset($arFields['MESSAGE']))
+		{
+			$arFields['MESSAGE'] = \Bitrix\Main\Text\Emoji::encode($arFields['MESSAGE']);
+		}
 
 		$arFields["~TIMESTAMP_X"] = $DB->GetNowFunction();
 		$strUpdate = $DB->PrepareUpdate("b_vote_answer", $arFields);
@@ -171,8 +184,8 @@ class CAllVoteAnswer
 
 		if (!empty($strUpdate)):
 			$strSql = "UPDATE b_vote_answer SET ".$strUpdate." WHERE ID=".$ID;
-			$DB->QueryBind($strSql, $arBinds, false, $err_mess);
-//			$DB->Query($strSql, false, $err_mess);
+			$DB->QueryBind($strSql, $arBinds);
+//			$DB->Query($strSql);
 			endif;
 /***************** Event onAfterVoteAnswerUpdate *******************/
 		foreach (GetModuleEvents("vote", "onAfterVoteAnswerUpdate", true) as $arEvent)
@@ -184,7 +197,6 @@ class CAllVoteAnswer
 	public static function Delete($ID, $QUESTION_ID = false, $VOTE_ID = false)
 	{
 		global $DB;
-		$err_mess = (self::err_mess())."<br>Function: Delete<br>Line: ";
 /***************** Event onBeforeVoteAnswerDelete ******************/
 		foreach (GetModuleEvents("vote", "onBeforeVoteAnswerDelete", true) as $arEvent)
 		{
@@ -214,8 +226,8 @@ class CAllVoteAnswer
 			return false;
 		endif;
 
-		$DB->Query($strSqlEventAnswer, false, $err_mess.__LINE__);
-		$DB->Query($strSqlAnswer, false, $err_mess.__LINE__);
+		$DB->Query($strSqlEventAnswer);
+		$DB->Query($strSqlAnswer);
 /***************** Event onAfterVoteAnswerDelete *******************/
 		foreach (GetModuleEvents("vote", "onAfterVoteAnswerDelete", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($ID, $QUESTION_ID, $VOTE_ID));
@@ -275,13 +287,13 @@ class CAllVoteAnswer
 		}
 		else if (is_set($arAddParams, "bDescPageNumbering"))
 		{
-			$db_res = $DB->Query("SELECT COUNT(A.ID) as CNT ".$strSqlFrom, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query("SELECT COUNT(A.ID) as CNT ".$strSqlFrom);
 			$iCnt = (($db_res && ($ar_res = $db_res->Fetch())) ? intval($ar_res["CNT"]) : 0 );
 			$db_res =  new CDBResult();
 			$db_res->NavQuery($strSql, $iCnt, $arAddParams);
 			return $db_res;
 		}
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function GetListEx($arOrder = array("ID" => "ASC"), $arFilter=array())
@@ -389,12 +401,11 @@ class CAllVoteAnswer
 				INNER JOIN b_vote V ON (VQ.VOTE_ID = V.ID)
 			WHERE 1=1  ".$strSqlSearch." ".$strSqlOrder;
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function GetGroupAnswers($ANSWER_ID)
 	{
-		$err_mess = (self::err_mess())."<br>Function: GetGroupAnswers<br>Line: ";
 		global $DB;
 		$ANSWER_ID = intval($ANSWER_ID);
 		$strSql =
@@ -410,7 +421,7 @@ class CAllVoteAnswer
 		and E.VALID = 'Y'
 		GROUP BY A.MESSAGE
 		ORDER BY COUNTER desc";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 }

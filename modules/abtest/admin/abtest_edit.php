@@ -30,7 +30,7 @@ foreach (Bitrix\ABTest\AdminHelper::getSiteCapacity(array_keys($arSites)) as $li
 	$arEstDays[$lid] = $value['est'];
 
 
-if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> '') && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD'] == "POST" && ($save <> '' || $apply <> '') && check_bitrix_sessid())
 {
 	$arFields = array(
 		'SITE_ID'  => $SITE,

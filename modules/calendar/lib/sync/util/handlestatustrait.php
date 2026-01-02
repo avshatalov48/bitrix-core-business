@@ -54,5 +54,4 @@ trait HandleStatusTrait
 			call_user_func($statusHandler, $status);
 		}
 	}
-	//
 }

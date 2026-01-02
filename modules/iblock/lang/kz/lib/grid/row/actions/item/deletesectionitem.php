@@ -1,0 +1,6 @@
+<?php
+$MESS["IBLOCK_GRID_ROW_ACTIONS_DELETE_SECTION_BACK_BUTTON"] = "Артқа";
+$MESS["IBLOCK_GRID_ROW_ACTIONS_DELETE_SECTION_CONFIRM_BUTTON"] = "Иә, жою";
+$MESS["IBLOCK_GRID_ROW_ACTIONS_DELETE_SECTION_CONFIRM_MESSAGE"] = "Жазбаны және оған қатысты ақпаратты шынымен жойғыңыз келе ме?";
+$MESS["IBLOCK_GRID_ROW_ACTIONS_DELETE_SECTION_NAME"] = "Бөлімді жою";
+$MESS["IBLOCK_GRID_ROW_ACTION_DELETE_SECTION_INTERNAL_ERROR"] = "Бөлімді жою мүмкін болмады. Қайталап көріңіз.";

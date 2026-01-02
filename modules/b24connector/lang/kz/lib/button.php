@@ -1,0 +1,10 @@
+<?php
+$MESS["B24C_BUTTON_LOCATION_BOTTOM_LEFT"] = "Төменгі сол жақта";
+$MESS["B24C_BUTTON_LOCATION_BOTTOM_MIDDLE"] = "Төменде ортасында";
+$MESS["B24C_BUTTON_LOCATION_BOTTOM_RIGHT"] = "Төменгі оң жақта";
+$MESS["B24C_BUTTON_LOCATION_TOP_LEFT"] = "Жоғарғы сол жақта";
+$MESS["B24C_BUTTON_LOCATION_TOP_MIDDLE"] = "Жоғарыда ортасында";
+$MESS["B24C_BUTTON_LOCATION_TOP_RIGHT"] = "Жоғарғы оң жақта";
+$MESS["B24C_BUTTON_TYPE_NAME_CALLBACK"] = "Кері қоңырау";
+$MESS["B24C_BUTTON_TYPE_NAME_CRMFORM"] = "CRM-нысан";
+$MESS["B24C_BUTTON_TYPE_NAME_OPENLINE"] = "Ашық желі";

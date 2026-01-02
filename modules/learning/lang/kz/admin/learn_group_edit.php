@@ -1,0 +1,23 @@
+<?php
+$MESS["LEARNING_ACCESS_DENIED_TO_UF_MANAGE"] = "Пайдаланушы өрістерін құру үшін құқықтар жеткіліксіз";
+$MESS["LEARNING_ACCESS_DENIED_TO_USERS"] = "Барлық пайдаланушылар тізімін қарау үшін құқықтар жеткіліксіз";
+$MESS["LEARNING_ACTIVATION_SCHEDULE"] = "Бөлімдерді ашу кестесі";
+$MESS["LEARNING_ACTIVATION_SCHEDULE_TITLE"] = "Ашылу алдындағы кідіріс (күндермен)";
+$MESS["LEARNING_ACTIVE_PERIOD"] = "Белсенділік кезеңі";
+$MESS["LEARNING_ADMIN_ACTIVE"] = "Жазба белсенді";
+$MESS["LEARNING_ADMIN_ATTACHED_COURSE"] = "Курс";
+$MESS["LEARNING_ADMIN_CHANGE_ATTACHED_COURSE"] = "таңдау";
+$MESS["LEARNING_ADMIN_CODE"] = "Символдық атау";
+$MESS["LEARNING_ADMIN_SORT"] = "Сұрыптау индексі";
+$MESS["LEARNING_ADMIN_TAB1"] = "Оқу тобы";
+$MESS["LEARNING_ADMIN_TAB1_EX"] = "Оқу тобы";
+$MESS["LEARNING_ADMIN_TITLE"] = "Атауы";
+$MESS["LEARNING_AVAILABLE_AFTER_ELEMENT_CREATION"] = "баптау тек оқу тобын құрғаннан кейін қолжетімді";
+$MESS["LEARNING_BACK_TO_ADMIN"] = "Оқу топтарының тізіміне оралу";
+$MESS["LEARNING_BACK_TO_LEARNING_GROUPS"] = "Оқу тобының тізіміне оралу";
+$MESS["LEARNING_BAD_LEARNING_GROUP_ID_EX"] = "Оқу тобы табылмады немесе оны көру құқығы жеткіліксіз";
+$MESS["LEARNING_EDIT_TITLE"] = "Оқу тобын өңдеу";
+$MESS["LEARNING_GROUPS_LIST"] = "Оқу топтары";
+$MESS["LEARNING_GROUP_MEMBERSHIP"] = "Топтағы мүшелік";
+$MESS["LEARNING_GROUP_MEMBERS_LIST"] = "Оқу тобының құрамы";
+$MESS["LEARNING_NEW_TITLE"] = "Жаңа оқу тобын құру";

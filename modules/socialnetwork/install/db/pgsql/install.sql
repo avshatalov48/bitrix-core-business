@@ -574,3 +574,20 @@ create table if not exists b_sonet_collab_log
 create index ix_sonet_collab_log_collab_id_user_id ON b_sonet_collab_log (COLLAB_ID, USER_ID);
 create index ix_sonet_collab_log_collab_id_datetime ON b_sonet_collab_log (COLLAB_ID, DATETIME);
 create index ix_sonet_collab_log_entity ON b_sonet_collab_log (ENTITY_TYPE, ENTITY_ID);
+
+create table if not exists b_sonet_onboarding_queue
+(
+	ID int not null generated always as identity,
+	COLLAB_ID int not null,
+	USER_ID int not null,
+	TYPE varchar(150) not null,
+	NEXT_EXECUTION timestamp(0) not null,
+	CREATED_DATE timestamp(0) default now(),
+	PROCESSED_DATE timestamp(0) default null,
+	IS_PROCESSED smallint default 0,
+	primary key (ID)
+);
+
+create unique index ix_b_sonet_onboarding_queue_collab_user_type  on b_sonet_onboarding_queue (COLLAB_ID, USER_ID, TYPE);
+create index ix_b_sonet_onboarding_queue_execution_processed on b_sonet_onboarding_queue (NEXT_EXECUTION, IS_PROCESSED);
+create index ix_b_sonet_onboarding_queue_collab_type_execution on b_sonet_onboarding_queue (COLLAB_ID, TYPE, NEXT_EXECUTION);

@@ -179,6 +179,11 @@ class ViewedService
 		MessageViewedTable::deleteByFilter(['=MESSAGE_ID' => $messageId]); //todo add index
 	}
 
+	public function deleteByMessagesIdsForAll(array $messagesIds): void
+	{
+		MessageViewedTable::deleteByFilter(['=MESSAGE_ID' => $messagesIds]); //todo add index
+	}
+
 	public function deleteByChatId(int $chatId): void
 	{
 		MessageViewedTable::deleteByFilter(['=CHAT_ID' => $chatId, '=USER_ID' => $this->getContext()->getUserId()]);

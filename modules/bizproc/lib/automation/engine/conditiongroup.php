@@ -82,7 +82,14 @@ class ConditionGroup
 
 		if ($document === null)
 		{
-			$document = $documentService->getDocument($documentId, $documentType);
+			$select = [];
+			foreach ($this->items as $item)
+			{
+				$condition = $item[0];
+				$select[] = $condition->getField();
+			}
+
+			$document = $documentService->getDocument($documentId, $documentType, $select);
 		}
 
 		$result = [0 => true];

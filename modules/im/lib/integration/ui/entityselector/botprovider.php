@@ -2,15 +2,14 @@
 namespace Bitrix\Im\Integration\UI\EntitySelector;
 
 use Bitrix\Im\Bot;
-use Bitrix\Im\Integration\UI\EntitySelector\Helper;
 use Bitrix\Im\Model\BotTable;
 use Bitrix\Im\User;
+use Bitrix\Im\V2\Chat\Background\Background;
+use Bitrix\Im\V2\Chat\TextField\TextFieldEnabled;
 use Bitrix\Im\V2\Entity\User\Data\BotData;
 use Bitrix\Im\V2\Entity\User\UserBot;
-use Bitrix\Imbot\Bot\CopilotChatBot;
 use Bitrix\Main\EO_User;
 use Bitrix\Main\EO_User_Collection;
-use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
@@ -249,6 +248,9 @@ class BotProvider extends BaseProvider
 		$result = [];
 		$isBitrix24 = ModuleManager::isModuleInstalled('bitrix24');
 
+		$currentUserId = \Bitrix\Im\V2\Entity\User\User::getCurrent()->getId() ?? 0;
+		$chatIds = \Bitrix\Im\Dialog::getChatIds($bots->getIdList(), $currentUserId);
+
 		foreach ($bots as $bot)
 		{
 			$botData = Bot::getCache($bot->getId());
@@ -261,13 +263,13 @@ class BotProvider extends BaseProvider
 				continue;
 			}
 
-			$result[] = self::makeItem($bot, $options);
+			$result[] = self::makeItem($bot, $options, ($chatIds[$bot->getId()] ?? 0));
 		}
 
 		return $result;
 	}
 
-	public static function makeItem(EO_User $bot, array $options = []): Item
+	public static function makeItem(EO_User $bot, array $options = [], int $chatId = 0): Item
 	{
 		$defaultIcon =
 			'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2228%22%20'
@@ -299,7 +301,12 @@ class BotProvider extends BaseProvider
 		;
 
 		$imBot = Bot::getCache($bot->getId());
+
 		$customData = [
+			'imChat' => [
+				'TEXT_FIELD_ENABLED' => (new TextFieldEnabled($chatId))->get(),
+				'BACKGROUND_ID' => (new Background($chatId))->get(),
+			],
 			'imUser' => User::getInstance($bot->getId())->getArray(),
 			'imBot' => [
 				'APP_ID' => $imBot['APP_ID'] ?? null,
@@ -316,7 +323,7 @@ class BotProvider extends BaseProvider
 
 		if ($bot->getId() !== null)
 		{
-			$botData = BotData::getInstance($bot->getId())->toRestFormat();
+			$botData = BotData::getInstance($bot->getId())?->toRestFormat();
 		}
 
 		$customData['imUser']['BOT_DATA'] = (!empty($botData)) ? $botData : null;

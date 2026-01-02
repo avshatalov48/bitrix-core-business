@@ -1,0 +1,23 @@
+<?php
+$MESS["LANDING_TABLE_FIELD_ACCESS"] = "Блокқа қолжетімділік деңгейі";
+$MESS["LANDING_TABLE_FIELD_ACTIVE"] = "Белсенділік";
+$MESS["LANDING_TABLE_FIELD_ANCHOR"] = "Зәкір";
+$MESS["LANDING_TABLE_FIELD_ASSETS"] = "Блоктың қосымша ресурстары";
+$MESS["LANDING_TABLE_FIELD_CODE"] = "Код";
+$MESS["LANDING_TABLE_FIELD_CONTENT"] = "Блок мазмұны";
+$MESS["LANDING_TABLE_FIELD_CREATED_BY_ID"] = "Пайдаланушыны жасағанның идентификаторы";
+$MESS["LANDING_TABLE_FIELD_DATE_CREATE"] = "Жасалған күні";
+$MESS["LANDING_TABLE_FIELD_DATE_MODIFY"] = "Өзгерту күні";
+$MESS["LANDING_TABLE_FIELD_DELETED"] = "Жойылды ма әлде жоқ па";
+$MESS["LANDING_TABLE_FIELD_DESIGNED"] = "Блокты пайдаланушы өзгертті (блок дизайнері)";
+$MESS["LANDING_TABLE_FIELD_FAVORITE_META"] = "Сақталған блок үшін қайта анықталатын өрістер";
+$MESS["LANDING_TABLE_FIELD_INITIATOR_APP_CODE"] = "Бастамашы қосымшасының коды";
+$MESS["LANDING_TABLE_FIELD_LID"] = "Лендинг идентификаторы";
+$MESS["LANDING_TABLE_FIELD_MODIFIED_BY_ID"] = "Пайдаланушы өзгерткеннің идентификаторы";
+$MESS["LANDING_TABLE_FIELD_PARENT_ID"] = "Бас блок";
+$MESS["LANDING_TABLE_FIELD_PUBLIC"] = "Жариялылық";
+$MESS["LANDING_TABLE_FIELD_SEARCH_CONTENT"] = "Іздеуге арналған блоктың мазмұны";
+$MESS["LANDING_TABLE_FIELD_SORT"] = "Сұрыптау";
+$MESS["LANDING_TABLE_FIELD_SOURCE_PARAMS"] = "Динамикалық дереккөз параметрлері";
+$MESS["LANDING_TABLE_FIELD_TPL_CODE"] = "Қалып коды";
+$MESS["LANDING_TABLE_FIELD_XML_ID"] = "Сыртқы код";

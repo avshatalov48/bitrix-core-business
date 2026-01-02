@@ -21,6 +21,8 @@ class BuilderConnectionFromExternalData implements Builder
 	/**
 	 * @return Connection
 	 * @throws \Bitrix\Main\ObjectException
+	 *
+	 * @deprecated
 	 */
 	public function build(): Connection
 	{

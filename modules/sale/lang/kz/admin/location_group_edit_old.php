@@ -1,0 +1,23 @@
+<?php
+$MESS["ERROR_ADD_GROUP"] = "Орналасулар тобын қосу қатесі.";
+$MESS["ERROR_EDIT_GROUP"] = "Орналасулар тобын өзгерту қатесі.";
+$MESS["ERROR_EMPTY_LOCATION"] = "Кем дегенде бір орналасқан жерге байланыстыру орнатыңыз.";
+$MESS["ERROR_EMPTY_NAME"] = "Топтың атауы тілде көрсетілмеген";
+$MESS["SALE_ADD"] = "Қосу";
+$MESS["SALE_APPLY"] = "Қолдану";
+$MESS["SALE_EDIT_RECORD"] = "Орналасулар топтарын өзгерту";
+$MESS["SALE_LOCATIONS"] = "Топқа кіретін орналасқан жерлер";
+$MESS["SALE_NAME"] = "Атауы";
+$MESS["SALE_NEW"] = "жаңа";
+$MESS["SALE_NEW_RECORD"] = "Жаңа орналасулар тобы";
+$MESS["SALE_PT_PROPS"] = "Параметрлер";
+$MESS["SALE_RECORDS_LIST"] = "Орналасу топтары";
+$MESS["SALE_RESET"] = "Қалпына келтіру";
+$MESS["SALE_SAVE"] = "Сақтау";
+$MESS["SALE_SORT"] = "Сұрыптау";
+$MESS["SLGEN_2FLIST"] = "Орналасулар тобының тізімі";
+$MESS["SLGEN_DELETE_LGROUP"] = "Топты жою";
+$MESS["SLGEN_DELETE_LGROUP_CONFIRM"] = "Орналасу тобын жойғыңыз келетініне сенімдісіз бе?";
+$MESS["SLGEN_NEW_LGROUP"] = "Топты қосу";
+$MESS["SLGEN_TAB_LGROUP"] = "Орналасу топтары";
+$MESS["SLGEN_TAB_LGROUP_DESCR"] = "Орналасу топтары";

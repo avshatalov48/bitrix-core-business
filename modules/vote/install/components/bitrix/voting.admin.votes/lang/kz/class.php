@@ -1,0 +1,20 @@
+<?php
+$MESS["MAIN_ADMIN_MENU_DELETE"] = "Жою";
+$MESS["MAIN_ADMIN_MENU_EDIT"] = "Өзгерту";
+$MESS["VOTE_ACTIVE_RED_LAMP"] = "Сауалнама көрсетілмеген. ";
+$MESS["VOTE_ACTIVE_RED_LAMP_EXPIRED"] = "Көрсету мерзімі аяқталды. ";
+$MESS["VOTE_ACTIVE_RED_LAMP_UPCOMING"] = "Көрсету мерзімі әлі келген жоқ.";
+$MESS["VOTE_ADD_LIST"] = "Сауалнаманы қосу";
+$MESS["VOTE_CONFIRM_DEL_VOTE"] = "Сауалнаманы жойғыңыз келетініне сенімдісіз бе?";
+$MESS["VOTE_CONFIRM_RESET_VOTE"] = "Бұл сауалнаманың нәтижелерін жойғыңыз келетініне сенімдісіз бе?";
+$MESS["VOTE_COPY"] = "Көшіру";
+$MESS["VOTE_LAMP_ACTIVE"] = "Сауалнама белсенді";
+$MESS["VOTE_NOT_ACTIVE"] = "Сауалнама белсенді емес.";
+$MESS["VOTE_PREVIEW"] = "Алдын ала қарау";
+$MESS["VOTE_QUESTIONS"] = "Сұрақтарға көшу";
+$MESS["VOTE_RESET_NULL"] = "Нөлге теңеу";
+$MESS["VOTE_RESULTS"] = "Нәтижелер диаграммасы";
+$MESS["VOTE_VOTES_TITLE"] = "Нәтижелер кестесі";
+$MESS["VOTE_VOTE_ERROR_TITLE"] = "Сауалнама тізімін өзгерту кезінде қате.";
+$MESS["VOTE_VOTE_IS_NOT_DELETED"] = "Сауалнама жойылған жоқ";
+$MESS["VOTE_VOTE_IS_NOT_NULLED"] = "Сауалнама нәтижелері жойылған жоқ";

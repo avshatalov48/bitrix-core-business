@@ -2,24 +2,26 @@ import { Loc } from 'main.core';
 
 import { Layout } from 'im.v2.const';
 import { LayoutManager } from 'im.v2.lib.layout';
-import { RecentMenu, type MenuItem } from 'im.v2.lib.menu';
+import { RecentMenu } from 'im.v2.lib.menu';
+
+import type { MenuItemOptions } from 'ui.system.menu';
 
 export class ChannelRecentMenu extends RecentMenu
 {
-	getMenuItems(): MenuItem[]
+	getMenuItems(): MenuItemOptions[]
 	{
 		return [
 			this.getOpenItem(),
 		];
 	}
 
-	getOpenItem(): MenuItem
+	getOpenItem(): MenuItemOptions
 	{
 		return {
-			text: Loc.getMessage('IM_LIB_MENU_OPEN'),
-			onclick: () => {
-				LayoutManager.getInstance().setLayout({
-					name: Layout.channel.name,
+			title: Loc.getMessage('IM_LIB_MENU_OPEN'),
+			onClick: () => {
+				void LayoutManager.getInstance().setLayout({
+					name: Layout.channel,
 					entityId: this.context.dialogId,
 				});
 				this.menuInstance.close();

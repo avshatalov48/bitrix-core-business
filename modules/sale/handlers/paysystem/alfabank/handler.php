@@ -59,7 +59,7 @@ class AlfaBankHandler extends SberbankOnlineHandler
 	 */
 	protected function getUrlList()
 	{
-		$testUrl = 'https://web.rbsuat.com/ab_by/';
+		$testUrl = 'https://abby.rbsuat.com/payment/';
 		$activeUrl = 'https://ecom.alfabank.by/payment/';
 
 		return [

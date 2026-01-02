@@ -149,6 +149,12 @@ class Helper
 			return [];
 		}
 
+		$fields = self::filterOnlyAllowedFields((string)$entityType, (array)$fields);
+		if (empty($fields))
+		{
+			return [];
+		}
+
 		return $documentClass::isFactoryBased($entityType)
 			? FactoryBased::getData($entityType, $entityIds, $fields)
 			: $documentClass::getData($entityType, $entityIds, $fields)
@@ -869,5 +875,45 @@ class Helper
 	public static function isCrmSaleEnabled()
 	{
 		return Loader::includeModule("sale") && (Option::get("crm", "crm_shop_enabled", "N") != 'N');
+	}
+
+	/**
+	 * @param string $entityType
+	 * @param array<string> $fields
+	 *
+	 * @return array<string>
+	 */
+	private static function filterOnlyAllowedFields(string $entityType, array $fields): array
+	{
+		$allowedFields = self::getPersonalizeFieldsFromConnectors();
+
+		return array_filter($fields, static function (string $field) use ($allowedFields, $entityType): bool
+		{
+			if ($field === '*')
+			{
+				return true;
+			}
+
+			$entityField = "$entityType.$field";
+
+			foreach ($allowedFields as $allowedField)
+			{
+				if (($allowedField['CODE'] ?? null) !== $entityType)
+				{
+					continue;
+				}
+
+				$items = (array)($allowedField['ITEMS'] ?? []);
+				foreach ($items as $item)
+				{
+					if (($item['CODE'] ?? null) === $entityField)
+					{
+						return true;
+					}
+				}
+			}
+
+			return false;
+		});
 	}
 }

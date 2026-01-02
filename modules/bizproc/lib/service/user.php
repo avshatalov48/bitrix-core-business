@@ -7,6 +7,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\HumanResources\Service\Container;
 use Bitrix\HumanResources\Item\NodeMember;
 use Bitrix\HumanResources\Compatibility\Utils\DepartmentBackwardAccessCode;
+use Bitrix\Main\UserGroupTable;
 
 class User extends \CBPRuntimeService
 {
@@ -45,13 +46,13 @@ class User extends \CBPRuntimeService
 		if ($this->canUseIntranet())
 		{
 			$fields['UF_DEPARTMENT'] = [
-				'Name' => Loc::getMessage('BP_SERVICE_USER_DEPARTMENT'),
+				'Name' => Loc::getMessage('BP_SERVICE_USER_DEPARTMENT_1'),
 				'Type' => 'int',
 				'Multiple' => true,
 			];
 
 			$fields['UF_DEPARTMENT_PRINTABLE'] = [
-				'Name' => Loc::getMessage('BP_SERVICE_USER_DEPARTMENT_PRINTABLE'),
+				'Name' => Loc::getMessage('BP_SERVICE_USER_DEPARTMENT_PRINTABLE_1'),
 				'Type' => 'string',
 				'Multiple' => true,
 			];
@@ -61,7 +62,7 @@ class User extends \CBPRuntimeService
 				'Type' => 'bool',
 			];
 
-			if ($this->canUseIblockApi())
+			if ($this->canUseIblockApi() || $this->canUseHumanResources())
 			{
 				$fields['UF_HEAD'] = [
 					'Name' => Loc::getMessage('BP_SERVICE_USER_HEAD'),
@@ -82,6 +83,20 @@ class User extends \CBPRuntimeService
 					'PAUSED' => Loc::getMessage('BP_SERVICE_USER_TIMEMAN_STATUS_PAUSED'),
 					'CLOSED' => Loc::getMessage('BP_SERVICE_USER_TIMEMAN_STATUS_CLOSED'),
 				],
+			];
+		}
+
+		if ($this->canUseHumanResources())
+		{
+			$fields['HR_NODE_IDS'] = [
+				'Name' => Loc::getMessage('BP_SERVICE_USER_HR_NODE_IDS'),
+				'Type' => 'int',
+				'Multiple' => true,
+			];
+			$fields['HR_NODE'] = [
+				'Name' => Loc::getMessage('BP_SERVICE_USER_HR_NODE'),
+				'Type' => 'user',
+				'Multiple' => true,
 			];
 		}
 
@@ -144,7 +159,7 @@ class User extends \CBPRuntimeService
 				'Type' => 'string',
 			],
 			'UF_DEPARTMENT' => [
-				'Name' => Loc::getMessage('BP_SERVICE_USER_DEPARTMENT'),
+				'Name' => Loc::getMessage('BP_SERVICE_USER_DEPARTMENT_1'),
 				'Type' => 'int',
 				'Multiple' => true,
 			],
@@ -205,7 +220,11 @@ class User extends \CBPRuntimeService
 			);
 			foreach ($nodes as $parent)
 			{
-				$chain[] = DepartmentBackwardAccessCode::extractIdFromCode($parent->accessCode);
+				$idByAccessCode = DepartmentBackwardAccessCode::extractIdFromCode($parent->accessCode);
+				if ($idByAccessCode !== null)
+				{
+					$chain[] = $idByAccessCode;
+				}
 			}
 		}
 
@@ -353,10 +372,117 @@ class User extends \CBPRuntimeService
 			return null;
 		}
 
-		$employeesCollection = Container::getNodeMemberService()->getPagedEmployees($node->id, $recursive);
+		return $this->extractUsersFromHrNode($node->id, $recursive);
+	}
 
-		return array_unique(
-			array_map(static fn(NodeMember $item) => $item->entityId, [...$employeesCollection->getItemMap()])
+	public function extractUsersFromGroup(int $groupId): array
+	{
+		if ($groupId <= 0)
+		{
+			return [];
+		}
+
+		$userIds =
+			array_column(
+				UserGroupTable::query()
+					->setSelect(['USER_ID'])
+					->where('GROUP_ID', $groupId)
+					->setOrder(['USER_ID' => 'ASC'])
+					->exec()
+					->fetchAll(),
+				'USER_ID'
+			)
+		;
+
+		Main\Type\Collection::normalizeArrayValuesByInt($userIds, false);
+
+		return $userIds;
+	}
+
+	public function extractUsersFromAllDepartments(): bool | array
+	{
+		if (!$this->canUseHumanResources())
+		{
+			return $this->extractUsersFromAllDepartmentsOld();
+		}
+
+		$rootNode = \Bitrix\HumanResources\Util\StructureHelper::getRootStructureDepartment();
+		if ($rootNode)
+		{
+			$employees = Container::getNodeMemberService()->getAllEmployees($rootNode->id, true);
+
+			$result = array_map(static fn(NodeMember $item) => $item->entityId, [...$employees->getItemMap()]);
+			Main\Type\Collection::normalizeArrayValuesByInt($result);
+
+			return $result;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @deprecated
+	 * @return bool|array
+	 * @throws Main\LoaderException
+	 */
+	private function extractUsersFromAllDepartmentsOld(): bool | array
+	{
+		if (Main\Loader::includeModule('intranet'))
+		{
+			$result = [];
+			$iterator = \CUser::GetList(
+				'ID',
+				'ASC',
+				['ACTIVE' => 'Y', '>UF_DEPARTMENT' => 0],
+				['FIELDS' => ['ID']]
+			);
+			while ($user = $iterator->Fetch())
+			{
+				$result[] = (int)$user['ID'];
+			}
+
+			return $result;
+		}
+
+		return false;
+	}
+
+	public function extractUsersFromSocNetGroup(int $groupId, string $role = 'K'): bool | array
+	{
+		if (Main\Loader::includeModule('socialnetwork'))
+		{
+			$result = [];
+			$iterator = \CSocNetUserToGroup::GetList(
+				['USER_ID' => 'ASC'],
+				['=GROUP_ID' => $groupId, '<=ROLE' => $role, 'USER_ACTIVE' => 'Y'],
+				false,
+				false,
+				['USER_ID']
+			);
+			while ($user = $iterator->Fetch())
+			{
+				$result[] = (int)$user['USER_ID'];
+			}
+
+			return $result;
+		}
+
+		return false;
+	}
+
+	public function extractUsersFromHrNode(int $nodeId, bool $recursive = true): ?array
+	{
+		if ($nodeId <= 0 || !$this->canUseHumanResources())
+		{
+			return null;
+		}
+
+		$employeesCollection = Container::getNodeMemberService()->getPagedEmployees($nodeId, $recursive);
+
+		return array_values(
+			array_unique(
+				array_map(static fn(NodeMember $item) => $item->entityId, [...$employeesCollection->getItemMap()])
+			)
 		);
 	}
 
@@ -459,6 +585,17 @@ class User extends \CBPRuntimeService
 
 		if (is_array($user))
 		{
+			if ($this->canUseHumanResources())
+			{
+				$user['HR_NODE_IDS'] =
+					array_map(
+						static fn (\Bitrix\HumanResources\Item\Node $node) => $node->id,
+						[...Container::getNodeRepository()->findAllByUserId($userId)->getItemMap()]
+					)
+				;
+				$user['HR_NODE'] = array_map(static fn(int $id) => 'group_hr' . $id, $user['HR_NODE_IDS']);
+			}
+
 			$this->convertValues($user, $fields);
 			$this->users[$userId] = $user;
 
@@ -550,7 +687,7 @@ class User extends \CBPRuntimeService
 		);
 		while ($user = $iterator->fetch())
 		{
-			$result[] = $user['ID'];
+			$result[] = (int)$user['ID'];
 		}
 
 		return $result;

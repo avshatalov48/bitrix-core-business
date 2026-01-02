@@ -234,6 +234,12 @@ class CSearch extends CAllSearch
 			}
 			else
 			{
+				$arGroupBy = [];
+				foreach ($arSelect as $selectAlias => $selectField)
+				{
+					$arGroupBy[] = $selectField;
+				}
+
 				if (count($this->Query->m_stemmed_words) > 1)
 				{
 					if ($bWordPos)
@@ -248,12 +254,6 @@ class CSearch extends CAllSearch
 				else
 				{
 					$arSelect[$helper->quote('RANK')] = 'st.TF';
-				}
-
-				$arGroupBy = [];
-				foreach ($arSelect as $selectAlias => $selectField)
-				{
-					$arGroupBy[] = $selectField;
 				}
 
 				$strSql = '
@@ -336,6 +336,12 @@ class CSearch extends CAllSearch
 		}
 		elseif (!$bIncSites && $bStem)
 		{
+			$arGroupBy = [];
+			foreach ($arSelect as $selectAlias => $selectField)
+			{
+				$arGroupBy[] = $selectField;
+			}
+
 			if (count($this->Query->m_stemmed_words) > 1)
 			{
 				if ($bWordPos)
@@ -350,12 +356,6 @@ class CSearch extends CAllSearch
 			else
 			{
 				$arSelect[$helper->quote('RANK')] = 'st.TF';
-			}
-
-			$arGroupBy = [];
-			foreach ($arSelect as $selectAlias => $selectField)
-			{
-				$arGroupBy[] = $selectField;
 			}
 
 			$strSql = '
@@ -498,7 +498,9 @@ class CSearch extends CAllSearch
 			$strSelect .= ($strSelect ? ',' : ' ') . $selectField . ' as ' . $selectAlias . "\n";
 		}
 
-		return 'SELECT ' . ($bDistinct ? 'DISTINCT' : '') . $strSelect . "\n" . $strSql . $strSort . "\nLIMIT " . $limit;
+		$strSql = 'SELECT ' . ($bDistinct ? 'DISTINCT' : '') . $strSelect . "\n" . $strSql . $strSort . "\nLIMIT " . $limit;
+
+		return $strSql;
 	}
 
 	function tagsMakeSQL($query, $strSqlWhere, $strSort, $bIncSites, $bStem, $limit = 100)
@@ -816,7 +818,7 @@ class CSearch extends CAllSearch
 							if (count($arInsert) > $maxValues)
 							{
 								$merge = $helper->prepareMergeMultiple('b_search_content_title', ['SITE_ID', 'WORD', 'SEARCH_CONTENT_ID', 'POS'], $arInsert);
-								if ($merge)
+								if ($merge && $merge[0])
 								{
 									$DB->Query($merge[0]);
 								}
@@ -827,7 +829,7 @@ class CSearch extends CAllSearch
 					if ($arInsert)
 					{
 						$merge = $helper->prepareMergeMultiple('b_search_content_title', ['SITE_ID', 'WORD', 'SEARCH_CONTENT_ID', 'POS'], $arInsert);
-						if ($merge)
+						if ($merge && $merge[0])
 						{
 							$DB->Query($merge[0]);
 						}
@@ -980,7 +982,7 @@ class CSearch extends CAllSearch
 					if (count($arInsert) > $maxValues)
 					{
 						$merge = $helper->prepareMergeMultiple('b_search_content_stem', ['STEM', 'LANGUAGE_ID', 'TF', 'PS', 'SEARCH_CONTENT_ID'], $arInsert);
-						if ($merge)
+						if ($merge && $merge[0])
 						{
 							$DB->Query($merge[0]);
 						}
@@ -991,7 +993,7 @@ class CSearch extends CAllSearch
 				if ($arInsert)
 				{
 					$merge = $helper->prepareMergeMultiple('b_search_content_stem', ['STEM', 'LANGUAGE_ID', 'TF', 'PS', 'SEARCH_CONTENT_ID'], $arInsert);
-					if ($merge)
+					if ($merge && $merge[0])
 					{
 						$DB->Query($merge[0]);
 					}
@@ -1032,7 +1034,7 @@ class CSearch extends CAllSearch
 					if (count($arInsert) > $maxValues)
 					{
 						$merge = $helper->prepareMergeMultiple('b_search_tags', ['SEARCH_CONTENT_ID', 'SITE_ID', 'NAME'], $arInsert);
-						if ($merge)
+						if ($merge && $merge[0])
 						{
 							$DB->Query($merge[0]);
 						}
@@ -1043,7 +1045,7 @@ class CSearch extends CAllSearch
 				if ($arInsert)
 				{
 					$merge = $helper->prepareMergeMultiple('b_search_tags', ['SEARCH_CONTENT_ID', 'SITE_ID', 'NAME'], $arInsert);
-					if ($merge)
+					if ($merge && $merge[0])
 					{
 						$DB->Query($merge[0]);
 					}
@@ -1106,7 +1108,7 @@ class CSearch extends CAllSearch
 				];
 			}
 			$merge = $helper->prepareMergeMultiple('b_search_content_site', ['SEARCH_CONTENT_ID', 'SITE_ID'], $arInsert);
-			if ($merge)
+			if ($merge && $merge[0])
 			{
 				$DB->Query($merge[0]);
 			}

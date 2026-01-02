@@ -211,7 +211,7 @@ CJSCore::RegisterExt('im_window', array(
 	'js' => '/bitrix/js/im/window.js',
 	'css' => '/bitrix/js/im/css/window.css',
 	'lang' => '/bitrix/modules/im/js_window.php',
-	'rel' => Array('ui.design-tokens', 'popup', 'fx', 'json', 'translit', 'im.component.conference.conference-create', 'ui.alerts'),
+	'rel' => Array('ui.design-tokens', 'popup', 'fx', 'translit', 'im.component.conference.conference-create', 'ui.alerts'),
 ));
 
 CJSCore::RegisterExt('im_desktop', array(
@@ -246,3 +246,10 @@ EventManager::getInstance()->addEventHandler('main', 'onGetThirdPartySoftware', 
 			->setLicence(Copyright::LICENCE_MIT)
 	]);
 });
+
+$documentRoot = \Bitrix\Main\Loader::getDocumentRoot();
+if (is_dir($documentRoot . '/bitrix/modules/im/dev/'))
+{
+	// developer mode
+	\Bitrix\Main\Loader::registerNamespace('Bitrix\Im\Dev', \Bitrix\Main\Loader::getDocumentRoot() . '/bitrix/modules/im/dev/lib/');
+}

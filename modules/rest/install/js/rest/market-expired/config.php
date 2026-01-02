@@ -4,27 +4,35 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-$marketExpiredPopup = \Bitrix\Rest\Notification\MarketExpiredPopup::createByDefault();
+$marketExpiredNotification = \Bitrix\Rest\Notification\MarketExpired\MarketExpiredNotification::createByDefault();
 
 return [
 	'css' => 'dist/market-expired.bundle.css',
 	'js' => 'dist/market-expired.bundle.js',
 	'rel' => [
 		'main.popup',
-		'ui.buttons',
+		'main.polyfill.intersectionobserver',
 		'main.core.events',
-		'ui.info-helper',
 		'ui.notification',
+		'ui.info-helper',
+		'ui.banner-dispatcher',
+		'ui.notification-panel',
+		'ui.icon-set.api.core',
 		'ui.analytics',
+		'ui.icon-set.main',
+		'ui.buttons',
 		'main.core',
 	],
 	'skip_core' => false,
 	'settings' => [
-		'type' => $marketExpiredPopup->getCurrentType(),
-		'olWidgetCode' => $marketExpiredPopup->getOpenLinesWidgetCode(),
-		'transitionPeriodEndDate' => $marketExpiredPopup->getFormattedTransitionPeriodEndDate(),
-		'marketSubscriptionUrl' => $marketExpiredPopup->marketSubscription->getBuyUrl(),
-		'withDiscount' => $marketExpiredPopup->marketSubscription->isDiscountAvailable(),
-		'withDemo' => $marketExpiredPopup->marketSubscription->isDemoAvailable(),
+		'type' => $marketExpiredNotification->getType(),
+		'category' => $marketExpiredNotification->getCategory(),
+		'expireDate' => $marketExpiredNotification->getFormattedEndDate(),
+		'expireDays' => $marketExpiredNotification->getFormattedDaysLeft(),
+		'marketSubscriptionUrl' => $marketExpiredNotification->marketSubscription->getBuyUrl(),
+		'withDemo' => $marketExpiredNotification->marketSubscription->isDemoAvailable(),
+		'discount' => $marketExpiredNotification->marketSubscription->getDiscount()->toArray(),
+		'olWidgetCode' => $marketExpiredNotification->getOpenLinesWidgetCode(),
+		'isRenamedMarket' => \Bitrix\Rest\Integration\Market\Label::isRenamedMarket(),
 	]
 ];

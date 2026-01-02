@@ -1,9 +1,11 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_popup,ui_buttons,im_public_iframe,ui_alerts,main_core_events,ui_entitySelector,main_core,ui_lottie) {
+(function (exports,main_popup,socialnetwork_limit,ui_buttons,im_public_iframe,ui_alerts,main_core_events,ui_entitySelector,main_core,ui_lottie) {
 	'use strict';
 
 	var _templateObject;
+	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
 	var Util = /*#__PURE__*/function () {
 	  function Util() {
 	    babelHelpers.classCallCheck(this, Util);
@@ -11,6 +13,7 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(Util, null, [{
 	    key: "initExpandSwitches",
 	    value: function initExpandSwitches() {
+	      var _this = this;
 	      var expandSwitchers = document.querySelectorAll('[data-role="socialnetwork-group-create-ex__expandable"]');
 	      expandSwitchers.forEach(function (switcher) {
 	        switcher.addEventListener('click', function (e) {
@@ -18,6 +21,7 @@ this.BX = this.BX || {};
 	          var target = document.getElementById(targetId);
 	          var switcherWrapper = target.firstElementChild;
 	          if (target.offsetHeight === 0) {
+	            _classStaticPrivateMethodGet(_this, Util, _sendAnalytics).call(_this);
 	            target.style.height = switcherWrapper.offsetHeight + 'px';
 	            target.classList.add('--open');
 	            var scrollToTarget = function scrollToTarget() {
@@ -53,12 +57,12 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "initDropdowns",
 	    value: function initDropdowns() {
-	      var _this = this;
+	      var _this2 = this;
 	      var dropdownAreaList = document.querySelectorAll('[data-role="soc-net-dropdown"]');
 	      dropdownAreaList.forEach(function (dropdownArea) {
 	        dropdownArea.addEventListener('click', function (e) {
 	          var dropdownArea = e.currentTarget;
-	          var dropdownItemsData = _this.getDropdownItems(dropdownArea);
+	          var dropdownItemsData = _this2.getDropdownItems(dropdownArea);
 	          var items = [];
 	          Object.entries(dropdownItemsData).forEach(function (_ref) {
 	            var _ref2 = babelHelpers.slicedToArray(_ref, 2),
@@ -68,8 +72,8 @@ this.BX = this.BX || {};
 	              text: value,
 	              onclick: function onclick() {
 	                dropdownMenu.close();
-	                _this.setDropdownValue(dropdownArea.querySelector('.ui-ctl-element'), value, dropdownArea);
-	                _this.setInputValue(dropdownArea.querySelector('input'), key, dropdownArea);
+	                _this2.setDropdownValue(dropdownArea.querySelector('.ui-ctl-element'), value, dropdownArea);
+	                _this2.setInputValue(dropdownArea.querySelector('input'), key, dropdownArea);
 	                var neighbourDropdownArea = null;
 	                if (dropdownArea.classList.contains('--nonproject')) {
 	                  neighbourDropdownArea = dropdownArea.parentNode.querySelector('.--project');
@@ -77,8 +81,8 @@ this.BX = this.BX || {};
 	                  neighbourDropdownArea = dropdownArea.parentNode.querySelector('.--nonproject');
 	                }
 	                if (main_core.Type.isDomNode(neighbourDropdownArea)) {
-	                  _this.setDropdownValue(neighbourDropdownArea.querySelector('.ui-ctl-element'), value, neighbourDropdownArea);
-	                  _this.setInputValue(neighbourDropdownArea.querySelector('input'), key, neighbourDropdownArea);
+	                  _this2.setDropdownValue(neighbourDropdownArea.querySelector('.ui-ctl-element'), value, neighbourDropdownArea);
+	                  _this2.setInputValue(neighbourDropdownArea.querySelector('input'), key, neighbourDropdownArea);
 	                }
 	              }
 	            });
@@ -200,12 +204,12 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "unselectAllSelectorItems",
 	    value: function unselectAllSelectorItems(container, selectorClass) {
-	      var _this2 = this;
+	      var _this3 = this;
 	      if (!main_core.Type.isDomNode(container)) {
 	        return;
 	      }
 	      container.querySelectorAll(".".concat(selectorClass)).forEach(function (selector) {
-	        selector.classList.remove(_this2.cssClass.selectorActive);
+	        selector.classList.remove(_this3.cssClass.selectorActive);
 	      });
 	    }
 	  }, {
@@ -216,23 +220,23 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "disableAllSelectorItems",
 	    value: function disableAllSelectorItems(container, selectorClass) {
-	      var _this3 = this;
-	      if (!main_core.Type.isDomNode(container)) {
-	        return;
-	      }
-	      container.querySelectorAll(".".concat(selectorClass)).forEach(function (selector) {
-	        selector.classList.add(_this3.cssClass.selectorDisabled);
-	      });
-	    }
-	  }, {
-	    key: "enableAllSelectorItems",
-	    value: function enableAllSelectorItems(container, selectorClass) {
 	      var _this4 = this;
 	      if (!main_core.Type.isDomNode(container)) {
 	        return;
 	      }
 	      container.querySelectorAll(".".concat(selectorClass)).forEach(function (selector) {
-	        selector.classList.remove(_this4.cssClass.selectorDisabled);
+	        selector.classList.add(_this4.cssClass.selectorDisabled);
+	      });
+	    }
+	  }, {
+	    key: "enableAllSelectorItems",
+	    value: function enableAllSelectorItems(container, selectorClass) {
+	      var _this5 = this;
+	      if (!main_core.Type.isDomNode(container)) {
+	        return;
+	      }
+	      container.querySelectorAll(".".concat(selectorClass)).forEach(function (selector) {
+	        selector.classList.remove(_this5.cssClass.selectorDisabled);
 	      });
 	    }
 	  }, {
@@ -279,6 +283,44 @@ this.BX = this.BX || {};
 	  }]);
 	  return Util;
 	}();
+	function _sendAnalytics() {
+	  var workgroupForm = WorkgroupForm.getInstance();
+	  var analyticsData = {};
+	  var isScrumForm = workgroupForm.isScrumForm;
+	  if (isScrumForm) {
+	    var isScrumTrialEnabled = workgroupForm.isScrumTrialEnabled;
+	    analyticsData = {
+	      event: 'scrum_edit_settings',
+	      category: 'scrum',
+	      c_section: 'scrum',
+	      c_sub_section: 'scrum_grid',
+	      c_element: 'settings_button',
+	      tool: 'tasks',
+	      status: 'success',
+	      p1: "isDemo_".concat(isScrumTrialEnabled ? 'Y' : 'N')
+	    };
+	  } else {
+	    var isProjectsTrialEnabled = workgroupForm.isProjectsTrialEnabled;
+	    analyticsData = {
+	      event: 'project_edit_settings',
+	      category: 'project',
+	      c_section: 'project',
+	      c_sub_section: 'project_grid',
+	      c_element: 'settings_button',
+	      tool: 'tasks',
+	      status: 'success',
+	      p1: "isDemo_".concat(isProjectsTrialEnabled ? 'Y' : 'N')
+	    };
+	  }
+	  if (BX.UI.Analytics) {
+	    BX.UI.Analytics.sendData(analyticsData);
+	  } else {
+	    // eslint-disable-next-line promise/catch-or-return
+	    BX.Runtime.loadExtension('ui.analytics').then(function () {
+	      BX.UI.Analytics.sendData(analyticsData);
+	    });
+	  }
+	}
 	babelHelpers.defineProperty(Util, "cssClass", {
 	  selectorActive: '--active',
 	  selectorDisabled: '--disabled'
@@ -893,7 +935,7 @@ this.BX = this.BX || {};
 	    value: function draw(theme) {
 	      var previewImageNode = this.getNode('image');
 	      if (previewImageNode) {
-	        previewImageNode.style.backgroundImage = main_core.Type.isStringFilled(theme.previewImage) ? "url('".concat(theme.previewImage, "')") : '';
+	        previewImageNode.style.backgroundImage = main_core.Type.isStringFilled(theme.previewImage) ? "url('".concat(encodeURI(theme.previewImage), "')") : '';
 	        previewImageNode.style.backgroundColor = main_core.Type.isStringFilled(theme.previewColor) ? theme.previewColor : 'transparent';
 	      }
 	      var titleNode = this.getNode('title');
@@ -1560,6 +1602,13 @@ this.BX = this.BX || {};
 	        if (selector.classList.contains(Util.cssClass.selectorDisabled)) {
 	          return;
 	        }
+	        var limitFeature = selector.getAttribute('data-bx-project-limit');
+	        if ((limitFeature === null || limitFeature === void 0 ? void 0 : limitFeature.length) > 0) {
+	          socialnetwork_limit.Limit.showInstance({
+	            featureId: limitFeature
+	          });
+	          return;
+	        }
 	        Util.unselectAllSelectorItems(_this.container, _this.cssClass.selector);
 	        Util.selectSelectorItem(selector);
 	        var projectType = selector.getAttribute('data-bx-project-type');
@@ -1594,6 +1643,10 @@ this.BX = this.BX || {};
 	  return TypePresetSelector;
 	}();
 
+	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _sendAnalytics$1 = /*#__PURE__*/new WeakSet();
 	var Wizard = /*#__PURE__*/function () {
 	  babelHelpers.createClass(Wizard, null, [{
 	    key: "getFirstStepNumber",
@@ -1603,6 +1656,7 @@ this.BX = this.BX || {};
 	  }]);
 	  function Wizard(params) {
 	    babelHelpers.classCallCheck(this, Wizard);
+	    _classPrivateMethodInitSpec$2(this, _sendAnalytics$1);
 	    this.processedStep = 0;
 	    this.currentStep = params.currentStep;
 	    this.stepsCount = params.stepsCount;
@@ -1640,6 +1694,7 @@ this.BX = this.BX || {};
 	        }
 	        Buttons.showButton(WorkgroupForm.getInstance().buttonsInstance.backButton);
 	      }
+	      _classPrivateMethodGet$2(this, _sendAnalytics$1, _sendAnalytics2).call(this);
 	    }
 	  }, {
 	    key: "setProjectType",
@@ -1679,6 +1734,48 @@ this.BX = this.BX || {};
 	  }]);
 	  return Wizard;
 	}();
+	function _sendAnalytics2() {
+	  var event = '';
+	  var analyticsData = {};
+	  if (this.currentStep === 3) {
+	    if (WorkgroupForm.getInstance().isScrumForm) {
+	      event = 'scrum_create_step2';
+	      analyticsData = {
+	        event: event,
+	        category: 'scrum',
+	        c_section: 'scrum',
+	        c_sub_section: 'scrum_grid',
+	        c_element: 'continue_button',
+	        tool: 'tasks',
+	        status: 'success',
+	        p1: "isDemo_".concat(WorkgroupForm.getInstance().isScrumTrialEnabled ? 'Y' : 'N')
+	      };
+	    } else {
+	      event = 'project_create_step2';
+	      analyticsData = {
+	        event: event,
+	        category: 'project',
+	        c_section: 'project',
+	        c_sub_section: 'project_grid',
+	        c_element: 'continue_button',
+	        tool: 'tasks',
+	        status: 'success',
+	        p1: "isDemo_".concat(WorkgroupForm.getInstance().isProjectsTrialEnabled ? 'Y' : 'N')
+	      };
+	    }
+	  }
+	  if (!main_core.Type.isStringFilled(event)) {
+	    return;
+	  }
+	  if (BX.UI.Analytics) {
+	    BX.UI.Analytics.sendData(analyticsData);
+	  } else {
+	    // eslint-disable-next-line promise/catch-or-return
+	    BX.Runtime.loadExtension('ui.analytics').then(function () {
+	      BX.UI.Analytics.sendData(analyticsData);
+	    });
+	  }
+	}
 	babelHelpers.defineProperty(Wizard, "cssClass", {
 	  step1Backgroud: 'socialnetwork-group-create-ex__background-gif',
 	  breadcrumbsContainer: 'socialnetwork-group-create-ex__breadcrumbs',
@@ -1795,7 +1892,8 @@ this.BX = this.BX || {};
 	              inviteExtranetLink: true,
 	              groupId: this.groupId,
 	              checkWorkgroupWhenInvite: true,
-	              footerInviteIntranetOnly: !this.allowExtranet
+	              footerInviteIntranetOnly: !this.allowExtranet,
+	              collabers: false
 	            }
 	          }, {
 	            id: 'department',
@@ -1834,7 +1932,8 @@ this.BX = this.BX || {};
 	            options: {
 	              intranetUsersOnly: !this.allowExtranet,
 	              inviteEmployeeLink: true,
-	              footerInviteIntranetOnly: !this.allowExtranet
+	              footerInviteIntranetOnly: !this.allowExtranet,
+	              collabers: false
 	            }
 	          }, {
 	            id: 'department',
@@ -1876,7 +1975,8 @@ this.BX = this.BX || {};
 	              inviteEmployeeLink: true,
 	              groupId: this.groupId,
 	              checkWorkgroupWhenInvite: true,
-	              footerInviteIntranetOnly: !this.allowExtranet
+	              footerInviteIntranetOnly: !this.allowExtranet,
+	              collabers: false
 	            }
 	          }, {
 	            id: 'department',
@@ -1919,7 +2019,8 @@ this.BX = this.BX || {};
 	              intranetUsersOnly: !this.allowExtranet,
 	              groupId: this.groupId,
 	              checkWorkgroupWhenInvite: true,
-	              footerInviteIntranetOnly: !this.allowExtranet
+	              footerInviteIntranetOnly: !this.allowExtranet,
+	              collabers: false
 	            }
 	          }, {
 	            id: 'department',
@@ -6479,10 +6580,10 @@ this.BX = this.BX || {};
 	};
 
 	var _templateObject$1, _templateObject2, _templateObject3, _templateObject4;
-	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
-	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodInitSpec$3(obj, privateSet) { _checkPrivateRedeclaration$3(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$3(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$3(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _projectLottieAnimation = /*#__PURE__*/new WeakMap();
 	var _projectLottieIconContainer = /*#__PURE__*/new WeakMap();
 	var _scrumLottieAnimation = /*#__PURE__*/new WeakMap();
@@ -6504,11 +6605,11 @@ this.BX = this.BX || {};
 	    var _this;
 	    babelHelpers.classCallCheck(this, WorkgroupForm);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(WorkgroupForm).call(this));
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _bindStartWorkBtn);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _getLottieProject);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _getLottieScrum);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderProjectDemoInfoContent);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderScrumDemoInfoContent);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _bindStartWorkBtn);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _getLottieProject);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _getLottieScrum);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _renderProjectDemoInfoContent);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _renderScrumDemoInfoContent);
 	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _projectLottieAnimation, {
 	      writable: true,
 	      value: null
@@ -6542,6 +6643,9 @@ this.BX = this.BX || {};
 	    _this.avatarUploaderId = params.avatarUploaderId;
 	    _this.themePickerData = params.themePickerData;
 	    _this.projectOptions = params.projectOptions;
+	    _this.isScrumForm = params.isScrumForm;
+	    _this.isScrumTrialEnabled = params.isScrumTrialEnabled;
+	    _this.isProjectsTrialEnabled = params.isProjectsTrialEnabled;
 	    _this.projectTypes = params.projectTypes;
 	    _this.confidentialityTypes = params.confidentialityTypes;
 	    _this.selectedProjectType = params.selectedProjectType;
@@ -7015,11 +7119,11 @@ this.BX = this.BX || {};
 	        overlay: true,
 	        padding: 48,
 	        closeIcon: true,
-	        content: _classPrivateMethodGet$2(this, _renderScrumDemoInfoContent, _renderScrumDemoInfoContent2).call(this),
+	        content: _classPrivateMethodGet$3(this, _renderScrumDemoInfoContent, _renderScrumDemoInfoContent2).call(this),
 	        events: {
 	          onFirstShow: function onFirstShow(baseEvent) {
 	            top.BX.loadCSS(WorkgroupForm.PATH_TO_CSS);
-	            _classPrivateMethodGet$2(_this5, _bindStartWorkBtn, _bindStartWorkBtn2).call(_this5, baseEvent.getTarget());
+	            _classPrivateMethodGet$3(_this5, _bindStartWorkBtn, _bindStartWorkBtn2).call(_this5, baseEvent.getTarget());
 	          }
 	        }
 	      });
@@ -7036,11 +7140,11 @@ this.BX = this.BX || {};
 	        overlay: true,
 	        padding: 48,
 	        closeIcon: true,
-	        content: _classPrivateMethodGet$2(this, _renderProjectDemoInfoContent, _renderProjectDemoInfoContent2).call(this),
+	        content: _classPrivateMethodGet$3(this, _renderProjectDemoInfoContent, _renderProjectDemoInfoContent2).call(this),
 	        events: {
 	          onFirstShow: function onFirstShow(baseEvent) {
 	            top.BX.loadCSS(WorkgroupForm.PATH_TO_CSS);
-	            _classPrivateMethodGet$2(_this6, _bindStartWorkBtn, _bindStartWorkBtn2).call(_this6, baseEvent.getTarget());
+	            _classPrivateMethodGet$3(_this6, _bindStartWorkBtn, _bindStartWorkBtn2).call(_this6, baseEvent.getTarget());
 	          }
 	        }
 	      });
@@ -7050,10 +7154,10 @@ this.BX = this.BX || {};
 	  return WorkgroupForm;
 	}(main_core_events.EventEmitter);
 	function _renderScrumDemoInfoContent2() {
-	  return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"socialnetwork__demo-info_wrapper\">\n\t\t\t\t<div class=\"socialnetwork__demo-info_content\">\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text-trial\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-no-caps\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_SCRUM_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_SCRUM_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN_1'), _classPrivateMethodGet$2(this, _getLottieScrum, _getLottieScrum2).call(this));
+	  return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"socialnetwork__demo-info_wrapper\">\n\t\t\t\t<div class=\"socialnetwork__demo-info_content\">\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text-trial\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-no-caps\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_SCRUM_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_SCRUM_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN_1'), _classPrivateMethodGet$3(this, _getLottieScrum, _getLottieScrum2).call(this));
 	}
 	function _renderProjectDemoInfoContent2() {
-	  return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"socialnetwork__demo-info_wrapper\">\n\t\t\t\t<div class=\"socialnetwork__demo-info_content\">\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text-trial\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-no-caps\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_PROJECT_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_PROJECT_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN_1'), _classPrivateMethodGet$2(this, _getLottieProject, _getLottieProject2).call(this));
+	  return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"socialnetwork__demo-info_wrapper\">\n\t\t\t\t<div class=\"socialnetwork__demo-info_content\">\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text-trial\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-no-caps\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_PROJECT_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_PROJECT_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN_1'), _classPrivateMethodGet$3(this, _getLottieProject, _getLottieProject2).call(this));
 	}
 	function _getLottieScrum2() {
 	  if (!babelHelpers.classPrivateFieldGet(this, _scrumLottieIconContainer)) {
@@ -7097,5 +7201,5 @@ this.BX = this.BX || {};
 	exports.WorkgroupFormTeamManager = TeamManager$$1;
 	exports.WorkgroupFormUFManager = UFManager;
 
-}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX.Main,BX.UI,BX.Messenger.v2.Lib,BX.UI,BX.Event,BX.UI.EntitySelector,BX,BX.UI));
+}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX.Main,BX.Socialnetwork.Limit,BX.UI,BX.Messenger.v2.Lib,BX.UI,BX.Event,BX.UI.EntitySelector,BX,BX.UI));
 //# sourceMappingURL=script.js.map

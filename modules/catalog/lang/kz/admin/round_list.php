@@ -1,0 +1,27 @@
+<?php
+$MESS["PRICE_ROUND_HEADER_NAME_CATALOG_GROUP_ID"] = "Бағалардың түрлері";
+$MESS["PRICE_ROUND_HEADER_NAME_CREATED_BY"] = "Кім жасаған";
+$MESS["PRICE_ROUND_HEADER_NAME_DATE_CREATE"] = "Жасалған күні";
+$MESS["PRICE_ROUND_HEADER_NAME_DATE_MODIFY"] = "Өзгерту күні";
+$MESS["PRICE_ROUND_HEADER_NAME_MODIFIED_BY"] = "Кім өзгертті";
+$MESS["PRICE_ROUND_HEADER_NAME_PRICE"] = "Бағасы бастап";
+$MESS["PRICE_ROUND_HEADER_NAME_ROUND_PRECISION"] = "Дөңгелектеу дәлдігі";
+$MESS["PRICE_ROUND_HEADER_NAME_ROUND_TYPE"] = "Дөңгелектеу түрі";
+$MESS["PRICE_ROUND_HEADER_TITLE_CATALOG_GROUP_ID"] = "Дөңгелектеу үшін бағалардың түрлері";
+$MESS["PRICE_ROUND_HEADER_TITLE_PRICE"] = "Дөңгелектеу үшін ең төменгі баға";
+$MESS["PRICE_ROUND_HEADER_TITLE_ROUND_PRECISION"] = "Қандай мөлшерге дейін дөңгелектеу керек";
+$MESS["PRICE_ROUND_HEADER_TITLE_ROUND_TYPE"] = "Дөңгелектеу түрі";
+$MESS["PRICE_ROUND_LIST_CONTEXT_COPY"] = "Көшіру";
+$MESS["PRICE_ROUND_LIST_CONTEXT_DELETE"] = "Жою";
+$MESS["PRICE_ROUND_LIST_CONTEXT_DELETE_CONFIRM"] = "Бұл ережені жойғыңыз келетініне сенімдісіз бе?";
+$MESS["PRICE_ROUND_LIST_CONTEXT_EDIT"] = "Редакциялау";
+$MESS["PRICE_ROUND_LIST_CONTEXT_VIEW"] = "Қарау";
+$MESS["PRICE_ROUND_LIST_FILTER_PRICE_TYPE"] = "Бағалардың түрлері";
+$MESS["PRICE_ROUND_LIST_FILTER_PRICE_TYPE_ANY"] = "кез келген";
+$MESS["PRICE_ROUND_LIST_MESS_EDIT_RULE"] = "Ереже параметрлерін өзгерту";
+$MESS["PRICE_ROUND_LIST_MESS_NAV"] = "Дөңгелектеу ережелері";
+$MESS["PRICE_ROUND_LIST_MESS_NEW_RULE"] = "Қосу";
+$MESS["PRICE_ROUND_LIST_MESS_NEW_RULE_TITLE"] = "Жаңа ережені қосу";
+$MESS["PRICE_ROUND_LIST_MESS_VIEW_RULE"] = "Ереже параметрлерін қарау";
+$MESS["PRICE_ROUND_LIST_PRICE_TEMPLATE"] = "#PRICE# бастап";
+$MESS["PRICE_ROUND_LIST_TITLE"] = "Бағаны дөңгелектеу ережелері";

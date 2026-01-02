@@ -3,6 +3,8 @@ import { EventEmitter } from 'main.core.events';
 import { LayoutManager } from 'im.v2.lib.layout';
 
 import { UserRole, ChatType, Layout } from 'im.v2.const';
+import type { PreselectedMemberItem } from 'im.v2.component.content.chat-forms.forms';
+import { Core } from 'im.v2.application.core';
 
 const EVENT_NAMESPACE = 'BX.Messenger.v2.CreateChatManager';
 
@@ -41,6 +43,9 @@ export class CreateChatManager extends EventEmitter
 	#chatTitle: string = '';
 	#chatAvatarFile: File = null;
 	#chatFields: ChatFields;
+	#preselectedMembers: PreselectedMemberItem[] = [];
+	#includeCurrentUser: boolean = true;
+	#ownerId: number;
 
 	static getInstance(): CreateChatManager
 	{
@@ -66,7 +71,7 @@ export class CreateChatManager extends EventEmitter
 			this.setCreationStatus(false);
 		}
 		void LayoutManager.getInstance().setLayout({
-			name: Layout.createChat.name,
+			name: Layout.createChat,
 			entityId: chatTypeToCreate,
 		});
 	}
@@ -131,5 +136,53 @@ export class CreateChatManager extends EventEmitter
 		this.#chatFields = null;
 		this.setChatTitle('');
 		this.setChatAvatar(null);
+	}
+
+	setPreselectedMembers(preselectedMembers: PreselectedMemberItem[])
+	{
+		this.#preselectedMembers = preselectedMembers;
+	}
+
+	getChatMembers(): [[string, number | string]]
+	{
+		const mappedMembers = this.#preselectedMembers.map((item) => [item.type, item.id]);
+		if (this.#includeCurrentUser)
+		{
+			mappedMembers.push(['user', Core.getUserId()]);
+		}
+
+		return mappedMembers;
+	}
+
+	setIncludeCurrentUser(value: boolean)
+	{
+		this.#includeCurrentUser = value;
+	}
+
+	setOwnerId(ownerId: number)
+	{
+		this.#ownerId = ownerId;
+	}
+
+	getOwnerId(): boolean
+	{
+		return this.#ownerId ?? Core.getUserId();
+	}
+
+	getUndeselectedItems(): [[string, number | string]]
+	{
+		if (this.#includeCurrentUser)
+		{
+			return [['user', Core.getUserId()]];
+		}
+
+		return [];
+	}
+
+	clearExternalFields()
+	{
+		this.setOwnerId(null);
+		this.setIncludeCurrentUser(true);
+		this.setPreselectedMembers([]);
 	}
 }

@@ -1,7 +1,7 @@
 .landing-widget-new-employees {
 	display: flex;
 	flex-direction: column;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	cursor: default;
 }
 
@@ -14,7 +14,7 @@
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 38px;
-	font: var(--ui-font-weight-semi-bold) 26px var(--ui-font-family-system);
+	font: var(--ui-font-weight-semi-bold) 26px var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--widget-color-h);
 }
 
@@ -137,7 +137,7 @@ sidebar view
 }
 
 .landing-widget-view-sidebar .landing-widget-new-employees-title {
-	font: var(--ui-font-weight-medium) 17px var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) 17px var(--ui-font-family-primary, var(--ui-font-family-system));
 	margin-bottom: 0;
 	padding-bottom: 19px;
 	padding-left: 2px;

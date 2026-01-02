@@ -120,6 +120,7 @@ trait ProviderWithUserFieldsTrait
 				'MULTIPLE' => $userFieldInfo['MULTIPLE'],
 				'MANDATORY' => $userFieldInfo['MANDATORY'],
 				'SETTINGS' => $userFieldInfo['SETTINGS'] ?? null,
+				'HELP_MESSAGE' => $userFieldInfo['HELP_MESSAGE'] ?? null,
 			];
 
 			// required for the enum fields to work on mobile

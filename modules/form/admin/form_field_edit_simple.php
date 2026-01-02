@@ -32,7 +32,7 @@ if (false === $arForm)
 {
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	echo "<a href='form_list.php?lang=".LANGUAGE_ID."' >".GetMessage("FORM_FORM_LIST")."</a>";
-	echo ShowError(GetMessage("FORM_NOT_FOUND"));
+	ShowError(GetMessage("FORM_NOT_FOUND"));
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
@@ -57,7 +57,7 @@ if (intval($copy_id)>0 && check_bitrix_sessid() && $F_RIGHT >= 30)
 }
 
 //get/post processing
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $F_RIGHT >= 30 && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD']=="POST" && $F_RIGHT >= 30 && check_bitrix_sessid())
 {
 	$arIMAGE = $_FILES["IMAGE_ID"];
 	$arIMAGE["MODULE_ID"] = "form";
@@ -764,7 +764,7 @@ else
 {
 ?>
 	<tr>
-		<td colspan="2"><?=ShowError(GetMessage("FORM_VAL_NO_REGISTERED_VALS"))?></td>
+		<td colspan="2"><? ShowError(GetMessage("FORM_VAL_NO_REGISTERED_VALS")) ?></td>
 	</tr>
 <?
 }

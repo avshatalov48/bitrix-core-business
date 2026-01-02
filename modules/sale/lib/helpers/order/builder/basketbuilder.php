@@ -631,7 +631,7 @@ abstract class BasketBuilder
 			}
 
 			OrderEdit::setProductDetails(
-				$productFormData["OFFER_ID"],
+				$productFormData["OFFER_ID"] ?? null,
 				$order->getUserId(),
 				$order->getSiteId(),
 				array_merge($product, $productFormData)
@@ -829,7 +829,7 @@ abstract class BasketBuilder
 
 		$item = $this->getBasket()->createItem(
 			$productData["MODULE"] ?? '',
-			$productData["OFFER_ID"],
+			$productData["OFFER_ID"] ?? null,
 			$setBasketCode
 		);
 

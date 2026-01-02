@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Diag;
@@ -26,7 +26,7 @@ class LogFormatter implements LogFormatterInterface
 	}
 
 	/**
-	 * Basic formatter to a string. Supports placeholders: {exception}, {trace}, {date}, {delimiter}.
+	 * Basic formatter to a string. Supports placeholders: {exception}, {trace}, {date}, {host}, {delimiter}.
 	 * @inheritDoc
 	 */
 	public function format($message, array $context = []): string
@@ -37,6 +37,16 @@ class LogFormatter implements LogFormatterInterface
 		if (!isset($context['delimiter']))
 		{
 			$context['delimiter'] = static::DELIMITER;
+		}
+
+		if (!isset($context['date']))
+		{
+			$context['date'] = new Type\DateTime();
+		}
+
+		if (!isset($context['host']))
+		{
+			$context['host'] = $_SERVER['HTTP_HOST'] ?? '';
 		}
 
 		// Placeholder names MUST be delimited with a single opening brace { and a single closing brace }. There MUST NOT be any whitespace between the delimiters and the placeholder name.
@@ -204,7 +214,6 @@ class LogFormatter implements LogFormatterInterface
 				break;
 			case 'integer':
 			case 'double':
-			case 'float':
 				$result = (string)$arg;
 				break;
 			case 'string':

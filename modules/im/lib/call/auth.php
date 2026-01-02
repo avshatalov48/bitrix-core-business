@@ -64,7 +64,10 @@ class Auth
 		//voximplant
 		'voximplant.authorization.get',
 		'voximplant.authorization.onerror',
-		'voximplant.authorization.signonetimekey'
+		'voximplant.authorization.signonetimekey',
+		//call
+		'call.call.tryjoincall',
+		'call.call.getcalltoken',
 	];
 
 	// TODO sync AUTH_ID_PARAM with file /rest/services/rest/index.php

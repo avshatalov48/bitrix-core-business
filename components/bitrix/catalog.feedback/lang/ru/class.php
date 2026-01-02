@@ -1,2 +1,2 @@
-<?
-$MESS["CATALOG_FEEDBACK_INTEGRATION_REQUEST_TITLE"] = "Заказать настройку";
+<?php
+$MESS['CATALOG_FEEDBACK_INTEGRATION_REQUEST_TITLE'] = "Заказать настройку";

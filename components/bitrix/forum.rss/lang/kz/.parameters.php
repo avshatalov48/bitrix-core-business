@@ -1,0 +1,20 @@
+<?php
+$MESS["F_COUNT"] = "Экспортқа арналған элементтер саны";
+$MESS["F_DATE_TIME_FORMAT"] = "Күн мен уақытты көрсету пішімі";
+$MESS["F_FID_RANGE"] = "Форумдарда RSS-ті рұқсат беру";
+$MESS["F_IID"] = "ID";
+$MESS["F_LIST_TEMPLATE"] = "Тақырыптар тізімі парақшасы";
+$MESS["F_MAX_FILE_SIZE"] = "Парақшада көрсету үшін сурет өлшемі";
+$MESS["F_MODE_TEMPLATE"] = "Компонент түрі";
+$MESS["F_MODE_TEMPLATE_FORUM"] = "Форум деректері";
+$MESS["F_MODE_TEMPLATE_LINK"] = "Сілтеме";
+$MESS["F_MODE_TEMPLATE_TOPIC"] = "Тақырып деректері";
+$MESS["F_PROFILE_VIEW_TEMPLATE"] = "Профиль парақшасы";
+$MESS["F_READ_TEMPLATE"] = "Тақырыпты оқу парақшасы";
+$MESS["F_RSS_TEMPLATE"] = "RSS парақшасы";
+$MESS["F_RSS_TYPE"] = "RSS пішімі";
+$MESS["F_TEMPLATES_HELP"] = "Сіз келесі айнымалыларды пайдалана аласыз: #FORUM_TITLE#, #FORUM_DESCRIPTION#, #TOPIC_TITLE#, #TOPIC_DESCRIPTION#, #SITE_NAME#, #SERVER_NAME#";
+$MESS["F_TEMPLATES_TITLE_FORUM"] = "Форум орнатылса, RSS лентасы үшін жазу қалыбы. Енгізу өрісі бос болса: '#SITE_NAME# [форум: #FORUM_TITLE#]'";
+$MESS["F_TEMPLATES_TITLE_FORUMS"] = "Ешқандай форум орнатылмаса, RSS лентасы үшін жазу қалыбы. Енгізу өрісі бос болса: '#SITE_NAME# [форум]'";
+$MESS["F_TEMPLATES_TITLE_TOPIC"] = "Тақырып орнатылса, RSS лентасы үшін жазу қалыбы. Енгізу өрісі бос болса: '#SITE_NAME# [тема: #TOPIC_TITLE#]'";
+$MESS["F_TYPE"] = "RSS түрі";

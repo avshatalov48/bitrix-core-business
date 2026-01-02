@@ -3,8 +3,6 @@
 namespace Bitrix\Pull;
 
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Result;
-use Bitrix\Main\SystemException;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Pull\Protobuf;
 use Protobuf\MessageCollection;
@@ -28,7 +26,10 @@ class ProtobufTransport
 		$queueServerUrl = $options['serverUrl'] ?? Config::getPublishUrl();
 		$result->withRemoteAddress($queueServerUrl);
 
-		$queueServerUrl = \CHTTP::urlAddParams($queueServerUrl, ["binaryMode" => "true"]);
+		$queueServerUrl = \CHTTP::urlAddParams($queueServerUrl, [
+			"binaryMode" => "true",
+			"hostname" => Config::getHostname(),
+		]);
 		foreach ($requestBatches as $requestBatch)
 		{
 			$urlWithSignature = $queueServerUrl;
@@ -130,7 +131,10 @@ class ProtobufTransport
 			$requests[] = $request;
 		}
 
-		$queueServerUrl = \CHTTP::urlAddParams(Config::getPublishUrl(), ["binaryMode" => "true"]);
+		$queueServerUrl = \CHTTP::urlAddParams(Config::getPublishUrl(), [
+			"binaryMode" => "true",
+			"hostname" => Config::getHostname(),
+		]);
 
 		$requestBatches = static::createRequestBatches($requests);
 		foreach ($requestBatches as $requestBatch)

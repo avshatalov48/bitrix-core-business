@@ -24,7 +24,7 @@ $arActivityDescription = [
 			'TYPE' => 'int',
 		],
 		'Comments' => [
-			'NAME' => Loc::getMessage('BPAA_DESCR_CM'),
+			'NAME' => Loc::getMessage('BPAA_DESCR_CM_1'),
 			'TYPE' => 'string',
 		],
 		'VotedCount' => [
@@ -60,7 +60,7 @@ $arActivityDescription = [
 			'TYPE' => 'user',
 		],
 		'LastApproverComment' => [
-			'NAME' => Loc::getMessage('BPAA_DESCR_LA_COMMENT'),
+			'NAME' => Loc::getMessage('BPAA_DESCR_LA_COMMENT_1'),
 			'TYPE' => 'string',
 		],
 		'UserApprovers' => [

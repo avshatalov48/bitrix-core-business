@@ -1,83 +1,62 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Mail = this.BX.Mail || {};
 (function (exports,main_core,main_core_events) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3;
-
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
-
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	var _wrapper = /*#__PURE__*/new WeakMap();
-
 	var _filter = /*#__PURE__*/new WeakMap();
-
 	var _statusBtn = /*#__PURE__*/new WeakMap();
-
 	var _counterBtn = /*#__PURE__*/new WeakMap();
-
 	var _filterApi = /*#__PURE__*/new WeakMap();
-
 	var _readAllBtn = /*#__PURE__*/new WeakMap();
-
 	var _counter = /*#__PURE__*/new WeakMap();
-
 	var _filterTitle = /*#__PURE__*/new WeakMap();
-
 	var FilterToolbar = /*#__PURE__*/function () {
 	  function FilterToolbar() {
 	    var _this = this;
-
 	    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
 	      wrapper: [],
 	      filter: []
 	    };
 	    babelHelpers.classCallCheck(this, FilterToolbar);
-
 	    _classPrivateFieldInitSpec(this, _wrapper, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _filter, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _statusBtn, {
 	      writable: true,
 	      value: false
 	    });
-
 	    _classPrivateFieldInitSpec(this, _counterBtn, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _filterApi, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _readAllBtn, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _counter, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    _classPrivateFieldInitSpec(this, _filterTitle, {
 	      writable: true,
 	      value: void 0
 	    });
-
 	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:apply', function (event) {
 	      var isSeen = babelHelpers.classPrivateFieldGet(_this, _filter).getFilterFieldsValues()['IS_SEEN'];
-
 	      if (isSeen === 'N') {
 	        _this.activateBtn();
 	      } else {
@@ -88,16 +67,13 @@ this.BX.Mail = this.BX.Mail || {};
 	    babelHelpers.classPrivateFieldSet(this, _filter, config['filter']);
 	    babelHelpers.classPrivateFieldSet(this, _filterApi, babelHelpers.classPrivateFieldGet(this, _filter).getApi());
 	  }
-
 	  babelHelpers.createClass(FilterToolbar, [{
 	    key: "setCount",
 	    value: function setCount(num) {
 	      num = Number(num);
 	      num = isNaN(num) ? 0 : num;
-
 	      if (num !== undefined) {
 	        babelHelpers.classPrivateFieldGet(this, _counter).textContent = num;
-
 	        if (num !== 0) {
 	          babelHelpers.classPrivateFieldGet(this, _counter).classList.remove('mail-counter-zero');
 	        } else {
@@ -182,17 +158,13 @@ this.BX.Mail = this.BX.Mail || {};
 	      babelHelpers.classPrivateFieldSet(this, _filterTitle, mailFilterToolbar.querySelector('[data-role="mail-filter-title"]'));
 	      babelHelpers.classPrivateFieldSet(this, _readAllBtn, readAllBtn);
 	      babelHelpers.classPrivateFieldSet(this, _counterBtn, counterBtn);
-
 	      counterBtn.onclick = function () {
 	        _this2.onClickFilterButton();
 	      };
-
 	      readAllBtn.onclick = function () {
 	        BX.Mail.Client.Message.List['mail-client-list-manager'].onReadClick('all');
-
 	        _this2.removeUnreadFilter();
 	      };
-
 	      var mailFilterCounter = mailFilterToolbar.querySelector('[data-role="mail-filter-counter"]');
 	      mailFilterCounter.append(counterBtn);
 	      mailFilterCounter.append(readAllBtn);
@@ -203,14 +175,12 @@ this.BX.Mail = this.BX.Mail || {};
 	          var hidden = event['data']['hidden'];
 	          var currentDir = event['data']['selectedDirectory'];
 	          var currentFolderCount = counters[currentDir];
-
 	          if (currentDir !== '') {
 	            this.showReadAllBtn();
 	          } else {
 	            currentFolderCount = event['data']['total'];
 	            this.hideReadAllBtn();
 	          }
-
 	          if (hidden[currentDir] && currentDir !== '') {
 	            this.hideCounter();
 	          } else {

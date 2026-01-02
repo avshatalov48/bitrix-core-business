@@ -1,3 +1,2 @@
-<?
-$MESS ['SUBSCRIBE_INSTALL_PUBLIC_SECTION_NAME'] = "Подписка";
-?>
+<?php
+$MESS['SUBSCRIBE_INSTALL_PUBLIC_SECTION_NAME'] = "Подписка";

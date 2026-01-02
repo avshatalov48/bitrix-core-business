@@ -11,60 +11,40 @@ class DialogIds implements Entity
 {
 	use ContextCustomer;
 
-	private Messages $messages;
-	private PinMessages $pins;
 	private Chats $chats;
 	private array $dialogIds = [];
 	private array $chatsWithoutDialogIds = [];
-	private bool $isLoaded = false;
 
-	public function __construct(Messages $messages, PinMessages $pins, Chats $chats)
+	public function __construct(Chats $chats)
 	{
-		$this->messages = $messages;
-		$this->pins = $pins;
 		$this->chats = $chats;
 	}
 
-	public function getData(): array
-	{
-		return ['dialogIds' => $this->getDialogIds()];
-	}
-
-	private function getDialogIds(): array
-	{
-		if (!$this->isLoaded)
-		{
-			$this->load();
-		}
-
-		return $this->dialogIds;
-	}
-
-	private function load(): void
+	public function load(array $restData): self
 	{
 		$this
-			->fillChatIds()
-			->loadFromFetchedRecent()
-			->loadFromFetchedChats()
+			->fillChatIds($restData)
+			->loadFromFetchedChats($restData['chats'] ?? [])
 			->loadFromNonPrivateChats()
 			->loadFromPrivateChat()
 		;
-		$this->isLoaded = true;
+
+		return $this;
 	}
 
-	private function fillChatIds(): self
+	private function fillChatIds($restData): self
 	{
-		foreach ($this->messages->getFullMessages() as $message)
+		foreach ($restData['messages'] as $message)
 		{
-			$this->chatsWithoutDialogIds[$message->getChatId()] = $message->getChatId();
+			$this->chatsWithoutDialogIds[(int)$message['chat_id']] = (int)$message['chat_id'];
 		}
 
-		foreach ($this->pins->getPins() as $pin)
+		foreach ($restData['pinSync']['addedPins'] as $pin)
 		{
-			$this->chatsWithoutDialogIds[$pin->getChatId()] = $pin->getChatId();
+			$this->chatsWithoutDialogIds[(int)$pin['chatId']] = (int)$pin['chatId'];
 		}
 
-		foreach ($this->chats->getChats() as $chat)
+		foreach ($restData['chats'] as $chat)
 		{
 			$this->chatsWithoutDialogIds[(int)$chat['id']] = (int)$chat['id'];
 		}
@@ -77,35 +57,16 @@ class DialogIds implements Entity
 		return $this;
 	}
 
-	private function loadFromFetchedRecent(): self
-	{
-		$recent = $this->chats->getRecent();
-
-		foreach ($recent as $recentItem)
-		{
-			$chatId = (int)$recentItem['chat_id'];
-			$dialogId = (string)$recentItem['id'];
-			$this->add($chatId, $dialogId);
-		}
-
-		return $this;
-	}
-
-	private function loadFromFetchedChats(): self
+	private function loadFromFetchedChats(array $chats): self
 	{
 		if (!$this->needContinue())
 		{
 			return $this;
 		}
 
-		foreach ($this->chats->getChats() as $chat)
+		foreach ($chats as $chat)
 		{
-			if ($chat['message_type'] !== Chat::IM_TYPE_PRIVATE)
-			{
-				$chatId = $chat['id'];
-				$dialogId = 'chat' . $chatId;
-				$this->add($chatId, $dialogId);
-			}
+			$this->add($chat['id'], $chat['dialogId']);
 		}
 
 		return $this;
@@ -172,5 +133,15 @@ class DialogIds implements Entity
 
 		$this->dialogIds[$chatId] = $dialogId;
 		unset($this->chatsWithoutDialogIds[$chatId]);
+	}
+
+	public static function getRestEntityName(): string
+	{
+		return 'dialogIds';
+	}
+
+	public function toRestFormat(array $option = []): ?array
+	{
+		return $this->dialogIds;
 	}
 }

@@ -9,6 +9,7 @@
 namespace Bitrix\Main\UI\AccessRights;
 
 use Bitrix\Main\Access\AccessCode;
+use Bitrix\Main\Loader;
 use Bitrix\Main\UI\AccessRights\Exception\UnknownEntityTypeException;
 
 class DataProvider
@@ -28,25 +29,23 @@ class DataProvider
 
 	private function getEntityClassByType(string $type): ?string
 	{
-		switch ($type)
-		{
-			case (AccessCode::TYPE_OTHER):
-				return Entity\Other::class;
-			case (AccessCode::TYPE_USER):
-				return Entity\User::class;
-			case (AccessCode::TYPE_SOCNETGROUP):
-				return \Bitrix\Main\Loader::includeModule('socialnetwork') ? Entity\SocnetGroup::class : null;
-			case (AccessCode::TYPE_GROUP):
-				return Entity\Group::class;
-			case (AccessCode::TYPE_DEPARTMENT):
-				return Entity\Department::class;
-			case (AccessCode::TYPE_ACCESS_DIRECTOR):
-				return Entity\AccessDirector::class;
-			case (AccessCode::TYPE_ACCESS_EMPLOYEE):
-				return Entity\UserAll::class;
-			default:
-				return null;
-		}
+		return match ($type) {
+			AccessCode::TYPE_OTHER => Entity\Other::class,
+			AccessCode::TYPE_USER => Entity\User::class,
+			AccessCode::TYPE_SOCNETGROUP
+				=> Loader::includeModule('socialnetwork') ? Entity\SocnetGroup::class : null
+			,
+			AccessCode::TYPE_GROUP => Entity\Group::class,
+			AccessCode::TYPE_DEPARTMENT => Entity\Department::class,
+			AccessCode::TYPE_ACCESS_DIRECTOR => Entity\AccessDirector::class,
+			AccessCode::TYPE_ACCESS_DEPUTY => Entity\AccessDeputy::class,
+			AccessCode::TYPE_ACCESS_EMPLOYEE => Entity\UserAll::class,
+			AccessCode::TYPE_STRUCTURE_TEAM => Entity\StructureTeam::class,
+			AccessCode::TYPE_ACCESS_TEAM_DIRECTOR => Entity\AccessTeamDirector::class,
+			AccessCode::TYPE_ACCESS_TEAM_DEPUTY => Entity\AccessTeamDeputy::class,
+			AccessCode::TYPE_ACCESS_TEAM_EMPLOYEE => Entity\AccessTeamEmployee::class,
+			AccessCode::TYPE_STRUCTURE_DEPARTMENT => Entity\StructureDepartment::class,
+			default => null,
+		};
 	}
-
 }

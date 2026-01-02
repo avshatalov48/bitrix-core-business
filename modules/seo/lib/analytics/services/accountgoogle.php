@@ -2,6 +2,7 @@
 
 namespace Bitrix\Seo\Analytics\Services;
 
+use Bitrix\Main\Error;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\PhoneNumber\Parser;
 use Bitrix\Main\Result;
@@ -127,6 +128,8 @@ class AccountGoogle extends Analytics\Account
 	 */
 	public function getDailyExpensesReport(?string $accountId, ?Date $dateFrom, ?Date $dateTo): Result
 	{
+		$result = new Result();
+
 		$parameters = [
 			'ACCOUNT_ID' => $accountId,
 		];
@@ -138,19 +141,18 @@ class AccountGoogle extends Analytics\Account
 		}
 
 		$response = $this->getRequest()->send([
-			'methodName' => 'analytics.campaigns.expenses.get',
+			'methodName' => 'analytics.ads.expenses.get',
 			'parameters' => $parameters,
 			'streamTimeout' => static::LOAD_DAILY_EXPENSES_TIMEOUT,
+			'listenHttpErrors' => true,
 		]);
-
-		$result = new Result();
-		$response->getData();
 
 		if (!$response->isSuccess())
 		{
-			$result->addErrors($response->getErrors());
+			$innerErrors = implode(',', $response->getErrorMessages());
+			$errorMessage = $this->buildErrorMessage("Error occurred while load daily expenses: {$innerErrors}");
 
-			return $result;
+			return $result->addError(new Error($errorMessage));
 		}
 
 		$data = $response->getData();

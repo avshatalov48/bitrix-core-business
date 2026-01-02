@@ -1,0 +1,38 @@
+.landing__copilot-skeleton-rectangle {
+	transition: opacity 0.2s ease-in-out;
+	position: absolute;
+	opacity: 0;
+	border-radius: var(--ui-border-radius-3xl);
+	z-index: 3;
+}
+
+.landing__copilot-skeleton-rectangle.--showing {
+	opacity: 1;
+}
+
+.landing__copilot-skeleton-rectangle.--hiding {
+	opacity: 0;
+}
+
+.landing__copilot-skeleton_animated-text {
+	--copilot-label-bottom-indent: auto;
+	--copilot-label-size: 24px;
+
+	position: relative;
+}
+
+.landing__copilot-skeleton_animated-text::after {
+	content: '';
+	position: absolute;
+	display: inline-block;
+	width: var(--copilot-label-size);
+	height: var(--copilot-label-size);
+	transform: translateX(4px);
+	bottom: var(--copilot-label-bottom-indent);
+	border-radius: var(--ui-border-radius-2xs);
+	background-color: var(--ui-color-copilot-primary);
+	background-image: url("../../images/stars.svg");
+	background-position: center center;
+	background-size: contain;
+	z-index: 4;
+}

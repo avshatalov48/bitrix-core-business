@@ -1,0 +1,157 @@
+.bizproc-user-processes-start-grid-document-name-wrapper {
+	margin-bottom: 3px;
+}
+
+.bizproc-user-processes-start-grid-document-name-wrapper .ui-hint {
+	line-height: 1em;
+	height: 20px;
+}
+
+.bizproc-user-processes-start-grid-document-name-wrapper .ui-hint-icon {
+	margin: 0;
+}
+
+.bizproc-user-processes-start-grid-document-name-wrapper .ui-typography-text-lg
+{
+	font-weight: var(--ui-font-weight-medium);
+}
+
+.bizproc-user-processes-start-grid-username {
+	max-width: 100%;
+	color: var(--ui-color-palette-black-base);
+	display: inline-flex;
+	align-items: center;
+	overflow: hidden;
+	vertical-align: middle;
+	text-decoration: none;
+	white-space: nowrap;
+	padding: 4px 13px 4px 4px;
+	margin: -4px 0;
+	transition: 250ms linear all;
+	box-sizing: border-box;
+	height: 29px;
+	background: transparent;
+	border-radius: 15px;
+}
+
+.bizproc-user-processes-start-grid-username:hover {
+	background: var(--ui-color-tag-1);
+	color: var(--ui-color-palette-black-base);
+	text-decoration: none!important;
+}
+
+.bizproc-user-processes-start-grid-username .bizproc-user-processes-start-grid-avatar {
+	width: 22px;
+	min-width: 22px;
+	height: 22px;
+}
+
+.bizproc-user-processes-start-grid-username .bizproc-user-processes-start-grid-username-inner {
+	display: inline-block;
+	vertical-align: middle;
+	max-width: 155px;
+	height: 20px;
+	line-height: 20px;
+	padding-left: 11px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-decoration: none;
+}
+
+.bizproc-user-processes-start-grid-username .bizproc-user-processes-start-grid-username-inner:hover {
+	text-decoration: none;
+}
+
+.menu-popup .menu-popup-item-disabled {
+	pointer-events: all;
+}
+
+.bp-workflow-result.no-rights span.ui-hint .ui-hint-icon {
+	margin: 0;
+	line-height: 1em;
+}
+
+.bp-workflow-result-full {
+	display: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bp-workflow-result.--expanded .bp-workflow-result-collapsed {
+	display: none;
+}
+
+.bp-workflow-result.--expanded .bp-workflow-result-full {
+	display: inline-block;
+}
+
+.bp-status-panel {
+	min-height: 75px;
+	align-items: center;
+	min-width: 193px;
+}
+
+.bizproc-user-processes-start-column-start {
+	margin-top: 3px;
+	margin-bottom: 2px;
+}
+
+.bizproc-user-processes-start-column-start-counter-wrapper {
+	margin-top: 8px;
+	color: var(--ui-color-text-subtle);
+}
+
+.bizproc-user-processes-start-column-start-counter {
+	font-weight: var(--ui-font-weight-bold);
+}
+
+
+.bp-status-item {
+	align-items: center;
+	padding: 0 6px 0 12px;
+	min-height: 22px;
+	/*border-radius: var(--ui-border-radius-3xl);*/
+	/*background-color: var(--ui-color-base-05);*/
+	box-sizing: border-box;
+}
+
+.bizproc-user-processes-start-column-start-counter-wrapper {
+	margin-top: 8px;
+	color: var(--ui-color-text-subtle);
+}
+
+.bp-status-name {
+	display: block;
+	height: 22px;
+	margin-right: 4px;
+	font-size: var(--ui-font-size-5xs);
+	font-weight: var(--ui-font-weight-bold);
+}
+
+.bizproc-user-processes-start-grid-header-pin {
+	width: 36px;
+}
+
+.bizproc-user-processes-start-grid-header-pin span.main-grid-head-title::before {
+	position: absolute;
+	display: inline-block;
+	background-position: center center;
+	background-repeat: no-repeat;
+	content: '';
+	width: 18px;
+	height: 18px;
+	top: 50%;
+	left: 55%;
+	transform: translate3d(-50%, -50%, 0) rotate(-45deg);
+	transition: 200ms all ease;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='15' height='14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.835 3.97c.356.356.337.95-.04 1.328-.379.377-.973.394-1.328.038l-.663-.663L7.59 10.2l.646.647c.332.36.304.935-.063 1.302-.367.368-.943.396-1.302.064l-1.58-1.577L1.22 13.7a.249.249 0 01-.237.08.219.219 0 01-.168-.17.249.249 0 01.08-.236l3.02-4.117-1.548-1.547c-.339-.359-.313-.94.057-1.31.37-.37.951-.395 1.31-.056l.646.647 5.527-4.215-.658-.658c-.338-.358-.313-.939.058-1.31.37-.37.95-.394 1.309-.055l3.218 3.216z' fill='%23525C69' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.bizproc-user-processes-start-item-pinned td:not([style*="background-color"]) {
+	background-color: var(--ui-color-palette-gray-03) !important;
+}
+
+.bizproc-file-not-found {
+	text-decoration: line-through;
+	cursor: not-allowed;
+}

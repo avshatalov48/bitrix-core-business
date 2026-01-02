@@ -1,7 +1,7 @@
 <?php
 $MESS["SGL_GRID_STUB_DESCRIPTION"] = "This view will show workgroups and projects you and your colleagues are involved in.";
 $MESS["SGL_GRID_STUB_NO_FILTER_DATA_DESCRIPTION"] = "Try resetting the filter or change the search phrase.";
-$MESS["SGL_GRID_STUB_NO_FILTER_DATA_TITLE"] = "Your search request returned no results.";
+$MESS["SGL_GRID_STUB_NO_FILTER_DATA_TITLE"] = "Your search request returned no results";
 $MESS["SGL_GRID_STUB_TITLE"] = "Create a workgroup or a project";
 $MESS["SGL_TASKS_PROJECTS_GRID_STUB_DESCRIPTION"] = "This view will show projects you and your colleagues are involved in.";
 $MESS["SGL_TASKS_PROJECTS_GRID_STUB_TITLE"] = "Create a project";

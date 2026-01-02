@@ -1,161 +1,166 @@
 <?php
+
 /** @global \CMain $APPLICATION */
 
 namespace Bitrix\Catalog\Compatible;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Catalog;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Catalog;
 
 final class EventCompatibility
 {
 	/* Events old kernel, which will be called in a new kernel */
 
 	/* class \CProduct */
-	const ENTITY_PRODUCT = 'Product';
-	const EVENT_ON_BEFORE_PRODUCT_ADD = 'OnBeforeProductAdd';
-	const EVENT_ON_PRODUCT_ADD = 'OnProductAdd';
-	const EVENT_ON_BEFORE_PRODUCT_UPDATE = 'OnBeforeProductUpdate';
-	const EVENT_ON_PRODUCT_UPDATE = 'OnProductUpdate';
+	public const ENTITY_PRODUCT = 'Product';
+	public const EVENT_ON_BEFORE_PRODUCT_ADD = 'OnBeforeProductAdd';
+	public const EVENT_ON_PRODUCT_ADD = 'OnProductAdd';
+	public const EVENT_ON_BEFORE_PRODUCT_UPDATE = 'OnBeforeProductUpdate';
+	public const EVENT_ON_PRODUCT_UPDATE = 'OnProductUpdate';
 
 	/* class \CPrice */
-	const ENTITY_PRICE = 'Price';
-	const EVENT_ON_BEFORE_PRICE_ADD = 'OnBeforePriceAdd';
-	const EVENT_ON_PRICE_ADD = 'OnPriceAdd';
-	const EVENT_ON_BEFORE_PRICE_UPDATE = 'OnBeforePriceUpdate';
-	const EVENT_ON_PRICE_UPDATE = 'OnPriceUpdate';
-	const EVENT_ON_BEFORE_PRICE_DELETE = 'OnBeforePriceDelete';
-	const EVENT_ON_PRICE_DELETE = 'OnPriceDelete';
+	public const ENTITY_PRICE = 'Price';
+	public const EVENT_ON_BEFORE_PRICE_ADD = 'OnBeforePriceAdd';
+	public const EVENT_ON_PRICE_ADD = 'OnPriceAdd';
+	public const EVENT_ON_BEFORE_PRICE_UPDATE = 'OnBeforePriceUpdate';
+	public const EVENT_ON_PRICE_UPDATE = 'OnPriceUpdate';
+	public const EVENT_ON_BEFORE_PRICE_DELETE = 'OnBeforePriceDelete';
+	public const EVENT_ON_PRICE_DELETE = 'OnPriceDelete';
 
-	private static $allowEvents = 0;
+	private static int $allowEvents = 0;
 
-	private static $handlerList = [];
+	private static array $handlerList = [];
 
-	private static $whiteList = [];
+	private static array $whiteList = [];
 
-	private static $entityClass = [
+	private static array $entityClass = [
 		self::ENTITY_PRODUCT => '\Bitrix\Catalog\Model\Product',
 		self::ENTITY_PRICE => '\Bitrix\Catalog\Model\Price'
 	];
 
-	public static function execAgent()
+	public static function execAgent(): string
 	{
 		self::registerEvents();
+
 		return '';
 	}
 
-	public static function registerEvents()
+	public static function registerEvents(): void
 	{
 		$eventManager = Main\EventManager::getInstance();
 
 		$eventManager->registerEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Product::'.Main\Entity\DataManager::EVENT_ON_BEFORE_ADD,
+			'catalog', 'Bitrix\Catalog\Model\Product::' . DataManager::EVENT_ON_BEFORE_ADD,
 			'catalog', __CLASS__, 'handlerProductOnBeforeAdd'
 		);
 		$eventManager->registerEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Product::'.Main\Entity\DataManager::EVENT_ON_AFTER_ADD,
+			'catalog', 'Bitrix\Catalog\Model\Product::' . DataManager::EVENT_ON_AFTER_ADD,
 			'catalog', __CLASS__, 'handlerProductOnAfterAdd'
 		);
 
 		$eventManager->registerEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Product::'.Main\Entity\DataManager::EVENT_ON_BEFORE_UPDATE,
+			'catalog', 'Bitrix\Catalog\Model\Product::' . DataManager::EVENT_ON_BEFORE_UPDATE,
 			'catalog', __CLASS__, 'handlerProductOnBeforeUpdate'
 		);
 		$eventManager->registerEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Product::'.Main\Entity\DataManager::EVENT_ON_AFTER_UPDATE,
+			'catalog', 'Bitrix\Catalog\Model\Product::' . DataManager::EVENT_ON_AFTER_UPDATE,
 			'catalog', __CLASS__, 'handlerProductOnAfterUpdate'
 		);
 
 		$eventManager->registerEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Price::'.Main\Entity\DataManager::EVENT_ON_BEFORE_ADD,
+			'catalog', 'Bitrix\Catalog\Model\Price::' . DataManager::EVENT_ON_BEFORE_ADD,
 			'catalog', __CLASS__, 'handlerPriceOnBeforeAdd'
 		);
 		$eventManager->registerEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Price::'.Main\Entity\DataManager::EVENT_ON_AFTER_ADD,
+			'catalog', 'Bitrix\Catalog\Model\Price::' . DataManager::EVENT_ON_AFTER_ADD,
 			'catalog', __CLASS__, 'handlerPriceOnAfterAdd'
 		);
 
 		$eventManager->registerEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Price::'.Main\Entity\DataManager::EVENT_ON_BEFORE_UPDATE,
+			'catalog', 'Bitrix\Catalog\Model\Price::' . DataManager::EVENT_ON_BEFORE_UPDATE,
 			'catalog', __CLASS__, 'handlerPriceOnBeforeUpdate'
 		);
 		$eventManager->registerEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Price::'.Main\Entity\DataManager::EVENT_ON_AFTER_UPDATE,
+			'catalog', 'Bitrix\Catalog\Model\Price::' . DataManager::EVENT_ON_AFTER_UPDATE,
 			'catalog', __CLASS__, 'handlerPriceOnAfterUpdate'
 		);
 
 		$eventManager->registerEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Price::'.Main\Entity\DataManager::EVENT_ON_BEFORE_DELETE,
+			'catalog', 'Bitrix\Catalog\Model\Price::' . DataManager::EVENT_ON_BEFORE_DELETE,
 			'catalog', __CLASS__, 'handlerPriceOnBeforeDelete'
 		);
 		$eventManager->registerEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Price::'.Main\Entity\DataManager::EVENT_ON_AFTER_DELETE,
+			'catalog', 'Bitrix\Catalog\Model\Price::' . DataManager::EVENT_ON_AFTER_DELETE,
 			'catalog', __CLASS__, 'handlerPriceOnAfterDelete'
 		);
 
-		unset($eventManager);
+		unset(
+			$eventManager,
+		);
 	}
 
-	public static function unRegisterEvents()
+	public static function unRegisterEvents(): void
 	{
 		$eventManager = Main\EventManager::getInstance();
 
 		$eventManager->unRegisterEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Product::'.Main\Entity\DataManager::EVENT_ON_BEFORE_ADD,
+			'catalog', 'Bitrix\Catalog\Model\Product::' . DataManager::EVENT_ON_BEFORE_ADD,
 			'catalog', __CLASS__, 'handlerProductOnBeforeAdd'
 		);
 		$eventManager->unRegisterEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Product::'.Main\Entity\DataManager::EVENT_ON_AFTER_ADD,
+			'catalog', 'Bitrix\Catalog\Model\Product::' . DataManager::EVENT_ON_AFTER_ADD,
 			'catalog', __CLASS__, 'handlerProductOnAfterAdd'
 		);
 
 		$eventManager->unRegisterEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Product::'.Main\Entity\DataManager::EVENT_ON_BEFORE_UPDATE,
+			'catalog', 'Bitrix\Catalog\Model\Product::' . DataManager::EVENT_ON_BEFORE_UPDATE,
 			'catalog', __CLASS__, 'handlerProductOnBeforeUpdate'
 		);
 		$eventManager->unRegisterEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Product::'.Main\Entity\DataManager::EVENT_ON_AFTER_UPDATE,
+			'catalog', 'Bitrix\Catalog\Model\Product::' . DataManager::EVENT_ON_AFTER_UPDATE,
 			'catalog', __CLASS__, 'handlerProductOnAfterUpdate'
 		);
 
 		$eventManager->unRegisterEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Price::'.Main\Entity\DataManager::EVENT_ON_BEFORE_ADD,
+			'catalog', 'Bitrix\Catalog\Model\Price::' . DataManager::EVENT_ON_BEFORE_ADD,
 			'catalog', __CLASS__, 'handlerPriceOnBeforeAdd'
 		);
 		$eventManager->unRegisterEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Price::'.Main\Entity\DataManager::EVENT_ON_AFTER_ADD,
+			'catalog', 'Bitrix\Catalog\Model\Price::' . DataManager::EVENT_ON_AFTER_ADD,
 			'catalog', __CLASS__, 'handlerPriceOnAfterAdd'
 		);
 
 		$eventManager->unRegisterEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Price::'.Main\Entity\DataManager::EVENT_ON_BEFORE_UPDATE,
+			'catalog', 'Bitrix\Catalog\Model\Price::' . DataManager::EVENT_ON_BEFORE_UPDATE,
 			'catalog', __CLASS__, 'handlerPriceOnBeforeUpdate'
 		);
 		$eventManager->unRegisterEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Price::'.Main\Entity\DataManager::EVENT_ON_AFTER_UPDATE,
+			'catalog', 'Bitrix\Catalog\Model\Price::' . DataManager::EVENT_ON_AFTER_UPDATE,
 			'catalog', __CLASS__, 'handlerPriceOnAfterUpdate'
 		);
 
 		$eventManager->unRegisterEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Price::'.Main\Entity\DataManager::EVENT_ON_BEFORE_DELETE,
+			'catalog', 'Bitrix\Catalog\Model\Price::' . DataManager::EVENT_ON_BEFORE_DELETE,
 			'catalog', __CLASS__, 'handlerPriceOnBeforeDelete'
 		);
 		$eventManager->unRegisterEventHandler(
-			'catalog', 'Bitrix\Catalog\Model\Price::'.Main\Entity\DataManager::EVENT_ON_AFTER_DELETE,
+			'catalog', 'Bitrix\Catalog\Model\Price::' . DataManager::EVENT_ON_AFTER_DELETE,
 			'catalog', __CLASS__, 'handlerPriceOnAfterDelete'
 		);
 
-		unset($eventManager);
+		unset(
+			$eventManager,
+		);
 	}
 
-	public static function handlerProductOnBeforeAdd(Catalog\Model\Event $event)
+	public static function handlerProductOnBeforeAdd(Catalog\Model\Event $event): Catalog\Model\EventResult
 	{
 		return self::handlerOnBeforeAdd($event, self::ENTITY_PRODUCT, self::EVENT_ON_BEFORE_PRODUCT_ADD);
 	}
 
-	public static function handlerProductOnAfterAdd(Catalog\Model\Event $event)
+	public static function handlerProductOnAfterAdd(Catalog\Model\Event $event): Catalog\Model\EventResult
 	{
 		$result = new Catalog\Model\EventResult();
 		if (!self::allowedEvents())
@@ -191,17 +196,17 @@ final class EventCompatibility
 		return $result;
 	}
 
-	public static function handlerProductOnBeforeUpdate(Catalog\Model\Event $event)
+	public static function handlerProductOnBeforeUpdate(Catalog\Model\Event $event): Catalog\Model\EventResult
 	{
 		return self::handlerOnBeforeUpdate($event, self::ENTITY_PRODUCT, self::EVENT_ON_BEFORE_PRODUCT_UPDATE);
 	}
 
-	public static function handlerProductOnAfterUpdate(Catalog\Model\Event $event)
+	public static function handlerProductOnAfterUpdate(Catalog\Model\Event $event): Catalog\Model\EventResult
 	{
 		return self::handlerOnAfterModify($event, self::EVENT_ON_PRODUCT_UPDATE);
 	}
 
-	public static function handlerPriceOnBeforeAdd(Catalog\Model\Event $event)
+	public static function handlerPriceOnBeforeAdd(Catalog\Model\Event $event): Catalog\Model\EventResult
 	{
 		$result = new Catalog\Model\EventResult();
 		if (!self::allowedEvents())
@@ -255,7 +260,7 @@ final class EventCompatibility
 		return $result;
 	}
 
-	public static function handlerPriceOnAfterAdd(Catalog\Model\Event $event)
+	public static function handlerPriceOnAfterAdd(Catalog\Model\Event $event): Catalog\Model\EventResult
 	{
 		$result = new Catalog\Model\EventResult();
 		if (!self::allowedEvents())
@@ -295,7 +300,7 @@ final class EventCompatibility
 		return $result;
 	}
 
-	public static function handlerPriceOnBeforeUpdate(Catalog\Model\Event $event)
+	public static function handlerPriceOnBeforeUpdate(Catalog\Model\Event $event): Catalog\Model\EventResult
 	{
 		$result = new Catalog\Model\EventResult();
 		if (!self::allowedEvents())
@@ -350,17 +355,17 @@ final class EventCompatibility
 		return $result;
 	}
 
-	public static function handlerPriceOnAfterUpdate(Catalog\Model\Event $event)
+	public static function handlerPriceOnAfterUpdate(Catalog\Model\Event $event): Catalog\Model\EventResult
 	{
 		return self::handlerPriceOnAfterModify($event, self::EVENT_ON_PRICE_UPDATE);
 	}
 
-	public static function handlerPriceOnBeforeDelete(Catalog\Model\Event $event)
+	public static function handlerPriceOnBeforeDelete(Catalog\Model\Event $event): Catalog\Model\EventResult
 	{
 		return self::handlerOnBeforeDelete($event, self::EVENT_ON_BEFORE_PRICE_DELETE);
 	}
 
-	public static function handlerPriceOnAfterDelete(Catalog\Model\Event $event)
+	public static function handlerPriceOnAfterDelete(Catalog\Model\Event $event): Catalog\Model\EventResult
 	{
 		return self::handlerOnAfterDelete($event, self::EVENT_ON_PRICE_DELETE);
 	}
@@ -370,7 +375,7 @@ final class EventCompatibility
 	 *
 	 * @return void
 	 */
-	private static function enableEvents()
+	private static function enableEvents(): void
 	{
 		self::$allowEvents++;
 	}
@@ -380,7 +385,7 @@ final class EventCompatibility
 	 *
 	 * @return void
 	 */
-	private static function disableEvents()
+	private static function disableEvents(): void
 	{
 		self::$allowEvents--;
 	}
@@ -390,12 +395,12 @@ final class EventCompatibility
 	 *
 	 * @return bool
 	 */
-	private static function allowedEvents()
+	private static function allowedEvents(): bool
 	{
 		return (self::$allowEvents >= 0);
 	}
 
-	private static function getHandlerList($module, $event)
+	private static function getHandlerList($module, $event): array
 	{
 		$eventIndex = $module.':'.$event;
 		if (!isset(self::$handlerList[$eventIndex]))
@@ -418,7 +423,7 @@ final class EventCompatibility
 		return self::$handlerList[$eventIndex];
 	}
 
-	private static function handlerOnBeforeAdd(Catalog\Model\Event $event, $entity, $eventName)
+	private static function handlerOnBeforeAdd(Catalog\Model\Event $event, $entity, $eventName): Catalog\Model\EventResult
 	{
 		$result = new Catalog\Model\EventResult();
 		if (!self::allowedEvents())
@@ -460,7 +465,7 @@ final class EventCompatibility
 		return $result;
 	}
 
-	private static function handlerOnAfterModify(Catalog\Model\Event $event, $eventName)
+	private static function handlerOnAfterModify(Catalog\Model\Event $event, $eventName): Catalog\Model\EventResult
 	{
 		$result = new Catalog\Model\EventResult();
 		if (!self::allowedEvents())
@@ -493,7 +498,7 @@ final class EventCompatibility
 		return $result;
 	}
 
-	private static function handlerOnBeforeUpdate(Catalog\Model\Event $event, $entity, $eventName)
+	private static function handlerOnBeforeUpdate(Catalog\Model\Event $event, $entity, $eventName): Catalog\Model\EventResult
 	{
 		$result = new Catalog\Model\EventResult();
 		if (!self::allowedEvents())
@@ -537,7 +542,7 @@ final class EventCompatibility
 		return $result;
 	}
 
-	private static function handlerOnBeforeDelete(Catalog\Model\Event $event, $eventName)
+	private static function handlerOnBeforeDelete(Catalog\Model\Event $event, $eventName): Catalog\Model\EventResult
 	{
 		$result = new Catalog\Model\EventResult();
 		if (!self::allowedEvents())
@@ -571,7 +576,7 @@ final class EventCompatibility
 		return $result;
 	}
 
-	private static function handlerOnAfterDelete(Catalog\Model\Event $event, $eventName)
+	private static function handlerOnAfterDelete(Catalog\Model\Event $event, $eventName): Catalog\Model\EventResult
 	{
 		$result = new Catalog\Model\EventResult();
 		if (!self::allowedEvents())
@@ -603,7 +608,7 @@ final class EventCompatibility
 		return $result;
 	}
 
-	private static function handlerPriceOnAfterModify(Catalog\Model\Event $event, $eventName)
+	private static function handlerPriceOnAfterModify(Catalog\Model\Event $event, $eventName): Catalog\Model\EventResult
 	{
 		$result = new Catalog\Model\EventResult();
 		if (!self::allowedEvents())
@@ -640,7 +645,7 @@ final class EventCompatibility
 		return $result;
 	}
 
-	private static function setHandlerError(Catalog\Model\EventResult $result, $eventName)
+	private static function setHandlerError(Catalog\Model\EventResult $result, $eventName): void
 	{
 		global $APPLICATION;
 
@@ -669,7 +674,7 @@ final class EventCompatibility
 		array $fields,
 		array $externalFields,
 		array $handlerFields
-	)
+	): void
 	{
 		$unsetFields = [];
 		$modifyFields = [];

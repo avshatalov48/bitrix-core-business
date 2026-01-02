@@ -18,12 +18,14 @@ if (!$component->isToolAvailable())
 	return;
 }
 
-use \Bitrix\Crm\Integration\NotificationsManager;
-use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\Restriction;
-use \Bitrix\Main\Loader;
-use \Bitrix\Main\ModuleManager;
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\Crm\Integration\NotificationsManager;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\Restriction;
+use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Landing\Metrika;
+use Bitrix\Main\UI\Extension;
 
 Loc::loadMessages(__FILE__);
 
@@ -68,7 +70,7 @@ Manager::setPageView(
 	'no-all-paddings landing-tile no-background'
 );
 
-\Bitrix\Main\UI\Extension::load([
+Extension::load([
 	'ui.design-tokens',
 	'ui.fonts.opensans',
 	'sidepanel',
@@ -89,6 +91,18 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 	);
 }
 
+$metrika = new Metrika\Metrika(
+	Metrika\Categories::getBySiteType($arParams['TYPE']),
+	Metrika\Events::openStartPage
+);
+$metrika->send();
+
+$metrikaMarket = new Metrika\Metrika(
+	Metrika\Categories::getBySiteType($arParams['TYPE']),
+	Metrika\Events::openMarket,
+);
+$metrikaMarket->setSection(Metrika\Sections::site);
+
 // feedback form
 if (
 	$lastPage && !$arResult['IS_DELETED'] &&
@@ -96,18 +110,7 @@ if (
 	(!isset($arResult['LICENSE']) || $arResult['LICENSE'] !== 'nfr')
 )
 {
-	if ($arParams['TYPE'] === 'KNOWLEDGE')
-	{
-		$formCode = 'knowledge';
-	}
-	else if ($arParams['TYPE'] === 'PAGE')
-	{
-		$formCode = 'developer';
-	}
-	else
-	{
-		$formCode = 'store';
-	}
+	$formCode = 'partner';
 	$params = $component->getFeedbackParameters($formCode);
 	if (is_array($params))
 	{
@@ -129,7 +132,38 @@ if ($arResult['EXPORT_DISABLED'] === 'Y')
 {
 	echo '<script>function landingExportDisabled(){' . Restriction\Manager::getActionCode('limit_sites_transfer') . '}</script>';
 }
+
+$request = \Bitrix\Main\Context::getCurrent()?->getRequest();
+$featureCode = $request->getQuery('feature_promoter');
 ?>
+
+<?php if (
+	$featureCode
+	&& !Manager::isB24Cloud()
+): ?>
+	<script>
+		BX.ready(() => {
+			BX.Runtime.loadExtension(['ui.banner-dispatcher', 'ui.info-helper'])
+				.then((exports) => {
+					const { BannerDispatcher } = exports;
+					const promoter = BX.UI.FeaturePromotersRegistry.getPromoter({code: '<?= \CUtil::JSEscape($featureCode) ?>'});
+
+					if (BannerDispatcher)
+					{
+						BannerDispatcher.critical.toQueue((onDone) => {
+							BX.Event.EventEmitter.subscribe('SidePanel.Slider:onCloseComplete', () => {
+								onDone();
+							});
+
+							promoter.show();
+						});
+					}
+				})
+				.catch(() => {});
+		});
+	</script>
+<?php endif; ?>
+
 <?if ($request->get('IS_AJAX') != 'Y'):?>
 <script>
 	top.BX.addCustomEvent(
@@ -138,17 +172,28 @@ if ($arResult['EXPORT_DISABLED'] === 'Y')
 		{
 			if (!!event.data.elementList && event.data.elementList.length > 0)
 			{
-				var gotoSiteButton = null;
-				for (var i = 0; i < event.data.elementList.length; i++)
+				let gotoSiteButton = null;
+				for (let i = 0; i < event.data.elementList.length; i++)
 				{
 					gotoSiteButton = event.data.elementList[i];
-					var replaces = [];
-					if (gotoSiteButton.dataset.isSite === 'Y')
+					if (gotoSiteButton.tagName !== 'A')
 					{
-						var sitePath = '<?= CUtil::jsEscape($arParams['PAGE_URL_SITE']);?>';
+						continue;
+					}
+
+					const replaces = [];
+					if (
+						gotoSiteButton.dataset.isSite
+						&& gotoSiteButton.dataset.isSite === 'Y'
+					)
+					{
+						let sitePath = '<?= CUtil::jsEscape($arParams['PAGE_URL_SITE']);?>';
 						replaces.push([/#site_show#/, gotoSiteButton.dataset.siteId]);
 
-						if (gotoSiteButton.dataset.isLanding === 'Y')
+						if (
+							gotoSiteButton.dataset.isLanding
+							&& gotoSiteButton.dataset.isLanding === 'Y'
+						)
 						{
 							sitePath = '<?= CUtil::jsEscape($arParams['PAGE_URL_LANDING_VIEW']);?>';
 							replaces.push([/#landing_edit#/, gotoSiteButton.dataset.landingId]);
@@ -159,6 +204,7 @@ if ($arResult['EXPORT_DISABLED'] === 'Y')
 							replaces.forEach(function(replace) {
 								sitePath = sitePath.replace(replace[0], replace[1]);
 							});
+							sitePath += '?newLanding=Y';
 
 							gotoSiteButton.setAttribute('href', sitePath);
 							setTimeout(() => {window.location.href = sitePath}, 3000);
@@ -277,10 +323,8 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 	}
 	else
 	{
-		$urlCreatePage = $component->getUrlAdd(false, [
-			'context_section' => 'site_list',
-			'context_element' => 'tile_menu_link',
-		]);
+		$urlCreatePage = $component->getUrlAdd(false);
+		$urlCreatePage = $metrikaMarket->parametrizeUri($urlCreatePage);
 		$urlCreatePage = str_replace('%23', '#', $urlCreatePage);
 		$menuItems = [
 			[
@@ -346,18 +390,14 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 		];
 	}
 
-	$urlAdd = '';
 	if ($arResult['ACCESS_SITE_NEW'] === 'Y' && !$arResult['IS_DELETED'])
 	{
-		$urlAddParams = [
-			'context_section' => 'site_list',
-			'context_element' => 'banner',
-		];
+		$urlAddParams = [];
 		if ($arParams['TYPE'] === 'STORE')
 		{
 			$urlAddParams['super'] = 'Y';
 		}
-		$urlAdd = $component->getUrlAdd(true, $urlAddParams);
+		$urlAdd = $metrikaMarket->parametrizeUri($component->getUrlAdd(true, $urlAddParams));
 	}
 
 	$APPLICATION->includeComponent(
@@ -367,7 +407,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 			'ITEMS' => $arResult['SITES'],
 			'TYPE' => $arParams['TYPE'],
 			'FEEDBACK_CODE' => $formCode ?? null,
-			'PAGE_URL_SITE_ADD' => $urlAdd,
+			'PAGE_URL_SITE_ADD' => $urlAdd ?? '',
 			'PAGE_URL_SITE' => $arParams['~PAGE_URL_SITE'],
 			'PAGE_URL_SITE_EDIT' => $arParams['~PAGE_URL_SITE_EDIT'],
 			'PAGE_URL_DOMAIN' => $arParams['~PAGE_URL_SITE_DOMAIN'],

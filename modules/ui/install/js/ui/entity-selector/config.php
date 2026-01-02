@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main\Loader;
 use Bitrix\UI\EntitySelector\Configuration;
@@ -20,6 +20,8 @@ return [
 		'main.loader',
 		'ui.fonts.opensans',
 		'ui.design-tokens',
+		'ui.icon-set.api.core',
+		'ui.icon-set.outline',
 	],
 	'post_rel' => $extensions,
 	'settings' => [

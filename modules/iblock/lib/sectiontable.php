@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Iblock;
 
 use Bitrix\Main\Localization\Loc;

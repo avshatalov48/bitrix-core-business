@@ -7,6 +7,7 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Result;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\Config\Option;
 
 use Bitrix\MessageService\Sender;
 use Bitrix\MessageService\Sender\Result\MessageStatus;
@@ -24,7 +25,10 @@ class SmsLineBy extends Sender\BaseConfigurable
 
 	public static function isSupported()
 	{
-		return ModuleManager::isModuleInstalled('b24network');
+		return (
+			ModuleManager::isModuleInstalled('b24network')
+			|| Option::get('messageservice', 'smslineby_enabled', 'N') === 'Y'
+		);
 	}
 
 	public function getId()

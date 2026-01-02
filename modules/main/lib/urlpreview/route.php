@@ -3,10 +3,10 @@
 namespace Bitrix\Main\UrlPreview;
 
 use Bitrix\Main\Application;
-use Bitrix\Main\Entity;
 use Bitrix\Main;
-use Bitrix\Main\Entity\AddResult;
-use Bitrix\Main\Entity\ScalarField;
+use Bitrix\Main\ORM\Data\AddResult;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields;
 
 /**
  * Class RouteTable
@@ -24,9 +24,8 @@ use Bitrix\Main\Entity\ScalarField;
  * @method static \Bitrix\Main\UrlPreview\EO_Route wakeUpObject($row)
  * @method static \Bitrix\Main\UrlPreview\EO_Route_Collection wakeUpCollection($rows)
  */
-class RouteTable extends Entity\DataManager
+class RouteTable extends DataManager
 {
-
 	/**
 	 * Returns DB table name for entity
 	 *
@@ -45,21 +44,21 @@ class RouteTable extends Entity\DataManager
 	public static function getMap()
 	{
 		return array(
-			'ID' => new Entity\IntegerField('ID', array(
+			'ID' => new Fields\IntegerField('ID', array(
 				'primary' => true,
 				'autocomplete' => true,
 			)),
-			'ROUTE' => new Entity\StringField('ROUTE', array(
+			'ROUTE' => new Fields\StringField('ROUTE', array(
 				'required' => true,
 				'unique' => true
 			)),
-			'MODULE' => new Entity\StringField('MODULE', array(
+			'MODULE' => new Fields\StringField('MODULE', array(
 				'required' => true,
 			)),
-			'CLASS' => new Entity\StringField('CLASS', array(
+			'CLASS' => new Fields\StringField('CLASS', array(
 				'required' => true,
 			)),
-			'PARAMETERS' => new Entity\TextField('PARAMETERS', array(
+			'PARAMETERS' => new Fields\TextField('PARAMETERS', array(
 				'serialized' => true,
 			)),
 		);
@@ -99,7 +98,7 @@ class RouteTable extends Entity\DataManager
 			// set fields with default values
 			foreach (static::getEntity()->getFields() as $field)
 			{
-				if ($field instanceof ScalarField && !array_key_exists($field->getName(), $data))
+				if ($field instanceof Fields\ScalarField && !array_key_exists($field->getName(), $data))
 				{
 					$defaultValue = $field->getDefaultValue();
 

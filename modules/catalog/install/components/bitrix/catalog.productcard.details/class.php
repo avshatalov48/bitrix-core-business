@@ -494,13 +494,6 @@ class CatalogProductDetailsComponent
 		return true;
 	}
 
-	private function getApplication()
-	{
-		global $APPLICATION;
-
-		return $APPLICATION;
-	}
-
 	protected function setIblockId(int $iblockId): self
 	{
 		$this->iblockId = $iblockId;
@@ -656,7 +649,7 @@ class CatalogProductDetailsComponent
 			$title = HtmlFilter::encode($product->getName());
 		}
 
-		$this->getApplication()->setTitle($title);
+		Toolbar::setTitle($title);
 	}
 
 	protected function createProduct(): ?BaseProduct

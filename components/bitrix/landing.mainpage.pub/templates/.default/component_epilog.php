@@ -31,7 +31,7 @@ if (mb_strpos($metaOG, '"og:image"') === false)
 
 Manager::setPageView(
 	'MetaOG',
-	'<meta property="Bitrix24SiteType" content="' . mb_strtolower($arParams['TYPE']) . '" />'
+	'<meta property="Bitrix24SiteType" content="mainpage" />'
 );
 
 Manager::setPageView(

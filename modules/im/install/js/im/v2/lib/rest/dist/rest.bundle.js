@@ -6,7 +6,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	'use strict';
 
 	const INVALID_AUTH_ERROR_CODE = 'invalid_authentication';
-	let retryAllowed = true;
+	const errorCodesConfig = {
+	  [INVALID_AUTH_ERROR_CODE]: {
+	    retryCount: 1,
+	    timeout: null
+	  }
+	};
+	let retryCounter = null;
 	const runAction = (action, config = {}) => {
 	  const preparedConfig = {
 	    ...config,
@@ -14,27 +20,47 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  };
 	  return new Promise((resolve, reject) => {
 	    main_core.ajax.runAction(action, preparedConfig).then(response => {
-	      retryAllowed = true;
+	      retryCounter = null;
 	      return resolve(response.data);
 	    }).catch(response => {
+	      if (retryCounter === 0) {
+	        return reject(response.errors);
+	      }
 	      if (needRetryRequest(response.errors)) {
-	        retryAllowed = false;
 	        return handleErrors(action, preparedConfig, response);
 	      }
 	      return reject(response.errors);
 	    });
 	  });
 	};
+	const needRetryRequest = responseErrors => {
+	  return responseErrors.some(responseError => errorCodesConfig[responseError.code]);
+	};
 	const handleErrors = async (action, config, response) => {
-	  await main_core_events.EventEmitter.emitAsync(im_v2_const.EventType.request.onAuthError, {
-	    errors: response.errors
-	  });
+	  const errorConfig = getErrorConfig(response.errors);
+	  if (!retryCounter) {
+	    retryCounter = errorConfig.retryCount;
+	  }
+	  retryCounter--;
+	  if (hasInvalidAuthError(response.errors)) {
+	    await main_core_events.EventEmitter.emitAsync(im_v2_const.EventType.request.onAuthError, {
+	      errors: response.errors
+	    });
+	  }
+	  if (errorConfig.timeout) {
+	    return new Promise(resolve => {
+	      setTimeout(() => {
+	        resolve(runAction(action, config));
+	      }, errorConfig.timeout);
+	    });
+	  }
 	  return runAction(action, config);
 	};
-	const needRetryRequest = responseErrors => {
-	  if (!retryAllowed) {
-	    return false;
-	  }
+	const getErrorConfig = responseErrors => {
+	  const error = responseErrors.find(responseError => errorCodesConfig[responseError.code]);
+	  return errorCodesConfig[error.code];
+	};
+	const hasInvalidAuthError = responseErrors => {
 	  return responseErrors.some(error => error.code === INVALID_AUTH_ERROR_CODE);
 	};
 	const callBatch = query => {

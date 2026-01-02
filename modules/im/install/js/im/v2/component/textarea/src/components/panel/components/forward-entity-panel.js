@@ -1,6 +1,6 @@
 import '../css/message-panel.css';
 
-import type { ForwardedEntityConfig, PanelContext } from 'im.v2.provider.service';
+import type { ForwardedEntityConfig, PanelContext } from 'im.v2.provider.service.sending';
 
 type ForwardedEntityPanelContext = PanelContext & {
 	entityConfig: ForwardedEntityConfig,

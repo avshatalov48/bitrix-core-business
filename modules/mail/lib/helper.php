@@ -269,7 +269,8 @@ class Helper
 		MailMessageUidTable::deleteList(
 			[
 				'=MAILBOX_ID' => $id,
-				'=IS_OLD' => 'R',
+				'!=MESSAGE_ID' => 0,
+				'=IS_OLD' => \Bitrix\Mail\MailMessageUidTable::REMOTE,
 			]
 		);
 

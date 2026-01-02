@@ -19,17 +19,34 @@ export const FileIconComponent: BitrixVueComponentProps = {
 			type: Number,
 			default: 36,
 		},
+		align: {
+			type: String,
+			default: 'center',
+		},
 	},
 	mounted(): void
 	{
-		const icon = new FileIcon({
-			name: this.name,
-			fileType: this.type,
-			color: this.color,
-			size: this.size,
-		});
+		this.render();
+	},
+	updated(): void
+	{
+		this.render();
+	},
+	methods: {
+		render(): void
+		{
+			this.$el.innerHTML = '';
 
-		icon.renderTo(this.$el);
+			const icon = new FileIcon({
+				name: this.name,
+				fileType: this.type,
+				color: this.color,
+				size: this.size,
+				align: this.align,
+			});
+
+			icon.renderTo(this.$el);
+		},
 	},
 	template: '<span></span>',
 };

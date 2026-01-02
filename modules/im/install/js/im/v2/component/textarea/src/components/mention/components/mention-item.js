@@ -2,7 +2,8 @@ import { Loc, Text } from 'main.core';
 
 import { ChatType } from 'im.v2.const';
 import { highlightText } from 'im.v2.lib.text-highlighter';
-import { ChatAvatar, AvatarSize, ChatTitleWithHighlighting } from 'im.v2.component.elements';
+import { ChatTitleWithHighlighting } from 'im.v2.component.elements.chat-title';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 
 import '../css/mention-item.css';
 

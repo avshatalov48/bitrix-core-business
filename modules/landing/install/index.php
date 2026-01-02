@@ -1,4 +1,5 @@
 <?php
+
 use \Bitrix\Landing\Template;
 use \Bitrix\Landing\Landing as LandingCore;
 use \Bitrix\Landing\Internals\BlockTable;
@@ -28,15 +29,21 @@ class Landing extends \CModule
 	public $docRoot = '';
 	public $eventsData = [
 		'ai' => [
-			'onTuningLoad' => ['\Bitrix\Landing\Connector\Ai', 'onTuningLoad'],
+			'onTuningLoad' => [
+				['\Bitrix\Landing\Connector\Ai', 'onTuningLoad'],
+			],
 			'onBeforeCompletions' => ['\Bitrix\Landing\Connector\Ai', 'onBeforeCompletions'],
+			'onQueueJobExecute' => ['\Bitrix\Landing\Copilot\EventHandler', 'onQueueJobExecute'],
+			'onQueueJobFail' => ['\Bitrix\Landing\Copilot\EventHandler', 'onQueueJobFail'],
 		],
 		'bitrix24' => [
-			'onAfterPortalBlockedByLicenseScanner' => ['\Bitrix\Landing\Connector\Bitrix24', 'onAfterPortalBlockedByLicenseScanner']
+			'onAfterPortalBlockedByLicenseScanner' => [
+				'\Bitrix\Landing\Connector\Bitrix24', 'onAfterPortalBlockedByLicenseScanner',
+			],
 		],
 		'crm' => [
 			'onAfterCrmCompanyAdd' => ['\Bitrix\Landing\Connector\Crm', 'onAfterCompanyChange'],
-			'onAfterCrmCompanyUpdate' => ['\Bitrix\Landing\Connector\Crm', 'onAfterCompanyChange']
+			'onAfterCrmCompanyUpdate' => ['\Bitrix\Landing\Connector\Crm', 'onAfterCompanyChange'],
 		],
 		'iblock' => [
 			'onAfterIBlockSectionDelete' => ['\Bitrix\Landing\Connector\Iblock', 'onAfterIBlockSectionDelete']
@@ -45,7 +52,7 @@ class Landing extends \CModule
 			'onBuildBindingMenu' => ['\Bitrix\Landing\Connector\Intranet', 'onBuildBindingMenu'],
 		],
 		'landing' => [
-			'onBuildSourceList' => ['\Bitrix\Landing\Connector\Landing', 'onSourceBuildHandler']
+			'onBuildSourceList' => ['\Bitrix\Landing\Connector\Landing', 'onSourceBuildHandler'],
 		],
 		'main' => [
 			'onBeforeSiteDelete' => ['\Bitrix\Landing\Site', 'onBeforeMainSiteDelete'],
@@ -199,15 +206,19 @@ class Landing extends \CModule
 		$eventManager = Bitrix\Main\EventManager::getInstance();
 		foreach ($this->eventsData as $module => $events)
 		{
-			foreach ($events as $eventCode => $callback)
+			foreach ($events as $eventCode => $callbacks)
 			{
-				$eventManager->registerEventHandler(
-					$module,
-					$eventCode,
-					$this->MODULE_ID,
-					$callback[0],
-					$callback[1]
-				);
+				$callbacks = is_array($callbacks[0]) ?$callbacks : [$callbacks];
+				foreach ($callbacks as $callback)
+				{
+					$eventManager->registerEventHandler(
+						$module,
+						$eventCode,
+						$this->MODULE_ID,
+						$callback[0],
+						$callback[1]
+					);
+				}
 			}
 		}
 
@@ -568,15 +579,19 @@ class Landing extends \CModule
 		$eventManager = Bitrix\Main\EventManager::getInstance();
 		foreach ($this->eventsData as $module => $events)
 		{
-			foreach ($events as $eventCode => $callback)
+			foreach ($events as $eventCode => $callbacks)
 			{
-				$eventManager->unregisterEventHandler(
-					$module,
-					$eventCode,
-					$this->MODULE_ID,
-					$callback[0],
-					$callback[1]
-				);
+				$callbacks = is_array($callbacks[0]) ?$callbacks : [$callbacks];
+				foreach ($callbacks as $callback)
+				{
+					$eventManager->unregisterEventHandler(
+						$module,
+						$eventCode,
+						$this->MODULE_ID,
+						$callback[0],
+						$callback[1]
+					);
+				}
 			}
 		}
 

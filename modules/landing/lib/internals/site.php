@@ -21,9 +21,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Site_Query query()
- * @method static EO_Site_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Site_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Site_Result getById($id)
- * @method static EO_Site_Result getList(array $parameters = array())
+ * @method static EO_Site_Result getList(array $parameters = [])
  * @method static EO_Site_Entity getEntity()
  * @method static \Bitrix\Landing\Internals\EO_Site createObject($setDefaultValues = true)
  * @method static \Bitrix\Landing\Internals\EO_Site_Collection createCollection()
@@ -93,12 +93,14 @@ class SiteTable extends Entity\DataManager
 				'default_value' => 'Y'
 			)),
 			'DELETED' => new Entity\StringField('DELETED', array(
-				'title' => Loc::getMessage('LANDING_TABLE_FIELD_LANDING_DELETED'),
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SITE_DELETED'),
 				'default_value' => 'N'
 			)),
 			'TITLE' => new Entity\StringField('TITLE', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SITE_TITLE'),
-				'required' => true
+				'required' => true,
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			)),
 			'XML_ID' => new Entity\StringField('XML_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_XML_ID')
@@ -935,34 +937,7 @@ class SiteTable extends Entity\DataManager
 					{
 						try
 						{
-							//todo: revert changes after change .by domain
-							if (
-								!str_ends_with($domainName, '.b24site.online')
-								&& !str_ends_with($domainName, '.b24shop.online')
-							)
-							{
-								$domainExist = $siteController::isDomainExists($domainName);
-							}
-							else
-							{
-								$byDomainName = '';
-								if (str_ends_with($domainName, '.b24site.online'))
-								{
-									$byDomainName = str_replace('.b24site.online', '.bitrix24site.by', $domainName);
-								}
-								if (str_ends_with($domainName, '.b24shop.online'))
-								{
-									$byDomainName = str_replace('.b24shop.online', '.bitrix24shop.by', $domainName);
-								}
-								if ($byDomainName !== '' && $siteController::isDomainExists($byDomainName))
-								{
-									$domainExist = true;
-								}
-								else
-								{
-									$domainExist = $siteController::isDomainExists($domainName);
-								}
-							}
+							$domainExist = $siteController::isDomainExists($domainName);
 						}
 						catch (SystemException $ex)
 						{

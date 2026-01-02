@@ -28,6 +28,7 @@ export class Location
 		};
 		this.roomsManager = params.roomsManager || null;
 		this.locationAccess = params.locationAccess || false;
+		this.readOnly = params.readOnly || false;
 		this.disabled = !params.richLocationEnabled;
 		this.hideLocationLock = params.hideLocationLock;
 		this.value = { type: '', text: '', value: '' };
@@ -208,7 +209,11 @@ export class Location
 				this.categoriesWithRooms.categories.forEach((category) => {
 					if (category.rooms.length > 0)
 					{
-						menuItemList.push({ text: category.name, delimiter: true });
+						menuItemList.push({
+							text: category.name,
+							delimiter: true,
+						});
+
 						category.rooms.forEach((room) => pushRoomToItemList(room));
 					}
 				});
@@ -216,7 +221,6 @@ export class Location
 				if (this.categoriesWithRooms.default.length > 0)
 				{
 					menuItemList.push({
-						text: '\0',
 						className: 'calendar-popup-window-delimiter-default-category',
 						delimiter: true,
 					});
@@ -262,19 +266,19 @@ export class Location
 			disabled: disabledControl,
 			minWidth: 300,
 			onChangeCallback: () => {
+				// eslint-disable-next-line no-shadow
 				const menuItemList = this.menuItemList;
 
 				EventEmitter.emit('Calendar.LocationControl.onValueChange');
-				let i; const
-					value = this.DOM.input.value;
+				const value = this.DOM.input.value;
 				this.value = { text: value };
-				for (i = 0; i < menuItemList.length; i++)
+				for (const element of menuItemList)
 				{
-					if (menuItemList[i].labelRaw === value)
+					if (element.labelRaw === value)
 					{
-						this.value.type = menuItemList[i].type;
-						this.value.value = menuItemList[i].value;
-						Location.setCurrentCapacity(menuItemList[i].capacity);
+						this.value.type = element.type;
+						this.value.value = element.value;
+						Location.setCurrentCapacity(element.capacity);
 						break;
 					}
 				}
@@ -485,6 +489,11 @@ export class Location
 
 	updateAccessibility()
 	{
+		if (this.readOnly)
+		{
+			return;
+		}
+
 		const params = this.accessibilityParams;
 		this.getLocationAccessibility(params.from, params.to).then(() => {
 			const timezone = (params.timezone && params.timezone !== '')
@@ -515,7 +524,7 @@ export class Location
 
 					for (const event of Location.accessibility[date][roomId])
 					{
-						if (parseInt(event.PARENT_ID) === parseInt(params.currentEventId))
+						if (parseInt(event.PARENT_ID, 10) === parseInt(params.currentEventId, 10))
 						{
 							continue;
 						}
@@ -1051,12 +1060,14 @@ export class Location
 
 	setCategoryManager()
 	{
+		if (this.readOnly)
+		{
+			return;
+		}
+
 		if (!this.categoryManagerFromDB)
 		{
-			this.getCategoryManager()
-				.then(
-					this.getCategoryManagerData(),
-				);
+			this.getCategoryManager().then(this.getCategoryManagerData());
 		}
 	}
 

@@ -89,3 +89,14 @@ $MESS['EC_CONFERENCE_START'] = 'Начать видеоконференцию';
 $MESS['EC_CONFERENCE_ERROR'] = 'Не удалось начать видеоконференцию';
 
 $MESS['EC_EDIT_SHARING_EVENTS_FEATURE_POPUP_CONTENT'] = 'Пригласите на встречу коллег, если это необходимо';
+
+$MESS["EC_CONTROL_REPEAT_NONE"] = 'Не повторяется';
+$MESS["EC_CONTROL_REPEAT_DAILY"] = 'Каждый день';
+$MESS["EC_CONTROL_REPEAT_WEEKLY"] = 'Каждую неделю';
+$MESS["EC_CONTROL_REPEAT_MONTHLY"] = 'Каждый месяц';
+$MESS["EC_CONTROL_REPEAT_YEARLY"] = 'Каждый год';
+
+$MESS["EC_CONTROL_ACC_B"] = "Занят";
+$MESS["EC_CONTROL_ACC_Q"] = "Под вопросом";
+$MESS["EC_CONTROL_ACC_F"] = "Свободен";
+$MESS["EC_CONTROL_ACC_A"] = "Отсутствую (Занести в график отсутствий)";

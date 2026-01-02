@@ -229,3 +229,30 @@
 	color: #2FC6F6;
 	opacity: .6;
 }
+
+.landing-ui-card-favorite-badge {
+	position: absolute;
+	top: 14px;
+	right: 14px;
+	width: 28px;
+	height: 28px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.7);
+	border-radius: 8px;
+	border: 2px solid rgba(0, 0, 0, 0.05);
+	cursor: pointer;
+	z-index: 30;
+}
+
+.landing-ui-card-favorite-badge .--heart {
+	--ui-icon-set__icon-color: rgba(255, 124, 120, 1);
+	--ui-icon-set__icon-size: 26px;
+}
+
+.landing-ui-card-favorite-badge .--o-heart {
+	--ui-icon-set__icon-color: rgba(130, 139, 149, 1);
+	--ui-icon-set__icon-size: 24px;
+}

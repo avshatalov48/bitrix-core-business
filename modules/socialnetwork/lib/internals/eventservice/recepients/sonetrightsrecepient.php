@@ -49,7 +49,7 @@ class SonetRightsRecepient implements Collector
 			->setDistinct()
 			->setSelect(['ID', 'ACTIVE', 'IS_REAL_USER', 'UF_DEPARTMENT', 'IS_ONLINE'])
 			->where('ACTIVE', '=', 'Y')
-			->where('IS_REAL_USER', '=', 'Y')
+			->where('REAL_USER', 'expr', true)
 			->where('UF_DEPARTMENT', '!=', false)
 			->setLimit($limit)
 			->setOffset($offset)
@@ -72,7 +72,7 @@ class SonetRightsRecepient implements Collector
 				'IS_ONLINE'
 			])
 			->where('ACTIVE', '=', 'Y')
-			->where('IS_REAL_USER', '=', 'Y')
+			->where('REAL_USER', 'expr', true)
 			->where('UF_DEPARTMENT', '!=', false)
 			->whereIn('ID', new SqlExpression($subQuery->getQuery()))
 			->setLimit($limit)

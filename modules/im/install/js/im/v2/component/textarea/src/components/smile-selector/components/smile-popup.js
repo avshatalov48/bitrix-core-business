@@ -1,4 +1,5 @@
-import { TabsColorScheme, MessengerPopup, MessengerTabs } from 'im.v2.component.elements';
+import { TabsColorScheme, MessengerTabs } from 'im.v2.component.elements.tabs';
+import { MessengerPopup } from 'im.v2.component.elements.popup';
 import { PlacementType } from 'im.v2.const';
 import { Feature, FeatureManager } from 'im.v2.lib.feature';
 import { MarketManager } from 'im.v2.lib.market';

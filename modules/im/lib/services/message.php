@@ -30,7 +30,7 @@ class Message
 	{
 		if ($this->isEnabled)
 		{
-			return \CIMMessenger::GetById($messageId);
+			return \CIMMessenger::GetById($messageId) ?: null;
 		}
 
 		return null;

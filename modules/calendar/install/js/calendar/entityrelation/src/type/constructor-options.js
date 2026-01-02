@@ -6,3 +6,9 @@ export type InterfaceOptions = {
 export type BarOptions = {
 	parentNode: HTMLElement,
 };
+
+export type BarEntityLinkOptions = {
+	link: ?string;
+	text: string;
+	title: string;
+}

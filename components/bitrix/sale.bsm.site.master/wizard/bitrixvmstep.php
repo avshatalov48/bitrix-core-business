@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -69,8 +70,17 @@ class BitrixVmStep  extends \CWizardStep
 	 */
 	public function showStep()
 	{
-		$vmLink = "https://www.1c-bitrix.ru/download/vmbitrix.php";
-		$vmLinkInstruction = "https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=37&LESSON_ID=8811";
+		$enableDownload = Application::getInstance()->getLicense()->getRegion() === 'ru';
+		if ($enableDownload)
+		{
+			$vmLink = "https://www.1c-bitrix.ru/download/vmbitrix.php";
+			$vmLinkInstruction = "https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=37&LESSON_ID=8811";
+		}
+		else
+		{
+			$vmLink = '';
+			$vmLinkInstruction = "https://training.bitrix24.com/support/training/course/?COURSE_ID=113&CHAPTER_ID=029839&LESSON_PATH=9681.29839";
+		}
 
 		ob_start();
 		?>
@@ -80,9 +90,15 @@ class BitrixVmStep  extends \CWizardStep
 		<div class="ui-alert ui-alert-warning ui-alert-icon-warning">
 			<span class="ui-alert-message"><?=Loc::getMessage("SALE_BSM_WIZARD_BITRIXVMSTEP_INFO2")?></span>
 		</div>
+		<?php
+		if ($enableDownload):
+			?>
 		<div class="adm-bsm-site-master-paragraph"><?=Loc::getMessage("SALE_BSM_WIZARD_BITRIXVMSTEP_VM_LINK_DOWNLOAD", [
 			"#VM_LINK#" => $vmLink,
 		])?></div>
+		<?php
+		endif;
+		?>
 		<div class="adm-bsm-site-master-paragraph"><?=Loc::getMessage("SALE_BSM_WIZARD_BITRIXVMSTEP_VM_LINK_DOC", [
 			"#VM_LINK_INSTRUCTION#" => $vmLinkInstruction,
 		])?></div>

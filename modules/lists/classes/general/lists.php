@@ -9,8 +9,6 @@ use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 
-Loc::loadMessages(__FILE__);
-
 class CLists
 {
 	private static $iblockTypeList = array(
@@ -212,7 +210,7 @@ class CLists
 		if(
 			$Permission < "W"
 			&& $arIBlock["SOCNET_GROUP_ID"]
-			&& CModule::IncludeModule('socialnetwork')
+			&& Loader::includeModule('socialnetwork')
 		)
 		{
 			$arSocnetPerm = CLists::GetSocnetPermission($iblock_id);
@@ -288,7 +286,7 @@ class CLists
 
 	public static function OnAfterIBlockDelete($iblock_id)
 	{
-		if (CModule::includeModule('bizproc'))
+		if (Loader::includeModule('bizproc'))
 		{
 			BizProcDocument::deleteDataIblock($iblock_id);
 		}
@@ -458,7 +456,7 @@ class CLists
 
 	public static function OnAfterIBlockElementDelete($fields)
 	{
-		if (CModule::includeModule('bizproc'))
+		if (Loader::includeModule('bizproc'))
 		{
 			$errors = array();
 
@@ -592,7 +590,7 @@ class CLists
 
 	public static function deleteSocnetLog(array $listWorkflowId)
 	{
-		if(CModule::includeModule('socialnetwork'))
+		if(Loader::includeModule('socialnetwork'))
 		{
 			foreach ($listWorkflowId as $workflowId)
 			{
@@ -1804,7 +1802,7 @@ class CLists
 
 	public static function isFeatureEnabled($featureName = '')
 	{
-		if (!CModule::IncludeModule("bitrix24"))
+		if (!Loader::includeModule("bitrix24"))
 			return true;
 
 		$featureName = (string)$featureName;

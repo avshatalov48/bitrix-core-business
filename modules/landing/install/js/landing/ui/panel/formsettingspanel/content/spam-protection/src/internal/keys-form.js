@@ -1,9 +1,10 @@
-import {FormSettingsForm} from 'landing.ui.form.formsettingsform';
+import { FormSettingsForm } from 'landing.ui.form.formsettingsform';
+import { Dom, Runtime, Type } from 'main.core';
+import { Button, ButtonColor } from 'ui.buttons';
+import { FormSettingsPanel } from 'landing.ui.panel.formsettingspanel';
+import { YANDEX_CAPTCHA_SERVICE } from './consts';
 
 import './keys-form.css';
-import {Dom, Runtime, Type} from 'main.core';
-import {Button, ButtonColor} from 'ui.buttons';
-import {FormSettingsPanel} from 'landing.ui.panel.formsettingspanel';
 
 export default class KeysForm extends FormSettingsForm
 {
@@ -27,18 +28,29 @@ export default class KeysForm extends FormSettingsForm
 				onclick: () => {
 					this.getButton().setWaiting(true);
 
+					// eslint-disable-next-line promise/catch-or-return
 					Runtime
 						.loadExtension('crm.form.captcha')
-						.then(({Captcha}) => {
+						.then(({ Captcha }) => {
 							this.getButton().setWaiting(false);
-							return Captcha.open();
+
+							return Captcha.open(this.options.type);
 						})
 						.then((result) => {
-							this.value = {...result};
+							this.value = { ...result };
 							const formSettingsPanel = FormSettingsPanel.getInstance();
-							formSettingsPanel.getFormDictionary().captcha.hasKeys = (
-								Type.isStringFilled(result.key) && Type.isStringFilled(result.secret)
-							);
+							if (this.options.type === YANDEX_CAPTCHA_SERVICE)
+							{
+								formSettingsPanel.getFormDictionary().captcha.yandexCaptcha.hasKeys = (
+									Type.isStringFilled(result.key) && Type.isStringFilled(result.secret)
+								);
+							}
+							else
+							{
+								formSettingsPanel.getFormDictionary().captcha.recaptcha.hasKeys = (
+									Type.isStringFilled(result.key) && Type.isStringFilled(result.secret)
+								);
+							}
 							const activeButton = formSettingsPanel.getSidebarButtons().find((button) => {
 								return button.isActive();
 							});
@@ -48,7 +60,8 @@ export default class KeysForm extends FormSettingsForm
 							}
 
 							this.emit('onChange');
-						});
+						})
+					;
 				},
 			});
 		});

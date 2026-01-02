@@ -9,9 +9,9 @@ return [
 		'./dist/theme.bundle.js',
 	],
 	'rel' => [
-		'main.polyfill.core',
+		'main.core',
 		'im.v2.application.core',
 		'im.v2.const',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

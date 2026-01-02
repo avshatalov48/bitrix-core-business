@@ -6,7 +6,7 @@ CJSCore::RegisterExt('report', array(
 	'js' => '/bitrix/js/report/js/report.js',
 	'css' => '/bitrix/js/report/css/report.css',
 	'lang' => BX_ROOT.'/modules/report/lang/'.LANGUAGE_ID.'/install/js/report.php',
-	'rel' => array('ui.design-tokens', 'ui.fonts.opensans', 'core', 'popup', 'json', 'ajax')
+	'rel' => array('ui.design-tokens', 'ui.fonts.opensans', 'core', 'popup', 'ajax')
 ));
 
 CJSCore::RegisterExt('report_visual_constructor', array(

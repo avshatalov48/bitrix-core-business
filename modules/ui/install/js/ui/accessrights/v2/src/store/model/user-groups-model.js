@@ -6,6 +6,8 @@ import type { AccessRightItem, AccessRightSection } from './access-rights-model'
 export type UserGroupsState = {
 	collection: UserGroupsCollection,
 	deleted: Set<string>,
+	selectedMember: SelectedMember,
+	sortConfig: Record<string, Record<string, number>>,
 }
 
 export type UserGroupsStore = Store<UserGroupsState>;
@@ -17,7 +19,6 @@ export type UserGroup = {
 	id: string,
 	isNew: boolean,
 	isModified: boolean, // whether group metadata is modified - title, members
-	isShown: boolean,
 	title: string,
 	accessRights: Map<string, AccessRightValue>,
 	members: MemberCollection, // access code => member
@@ -33,9 +34,9 @@ export type MemberCollection = Map<string, Member>; // access code => member
 
 // user/group/department/set of users
 export type Member = {
-	type: string, // see main/install/components/bitrix/main.ui.selector/templates/.default/script.js
 	id: string,
-	name: string,
+	type: ?string, // see main/install/components/bitrix/main.ui.selector/templates/.default/script.js
+	name: ?string,
 	avatar: ?string,
 };
 
@@ -49,11 +50,26 @@ type SetAccessRightValuesForShownPayload = {
 	values: Set<string>,
 };
 
+export type UserGroupsOption = {
+	selectedMember: SelectedMember,
+	sortConfig: Record<string, Record<string, number>>,
+};
+
+export type SelectedMember = {
+	id: string,
+	member: ?Member,
+	accessCodes: string[],
+}
+
 export const NEW_USER_GROUP_ID_PREFIX = 'new~~~';
+
+export const SELECTED_ALL_USER_ID = 'all-users';
 
 export class UserGroupsModel extends BuilderModel
 {
 	#initialUserGroups: UserGroupsCollection = new Map();
+	#sortConfig: Record<string, Record<string, number>> = {};
+	#selectedMember: SelectedMember;
 
 	getName(): string
 	{
@@ -67,11 +83,27 @@ export class UserGroupsModel extends BuilderModel
 		return this;
 	}
 
+	setSortConfig(sortConfig: Record<string, Record<string, number>>): UserGroupsModel
+	{
+		this.#sortConfig = sortConfig;
+
+		return this;
+	}
+
+	setSelectedMember(selectedMember: SelectedMember): UserGroupsModel
+	{
+		this.#selectedMember = selectedMember;
+
+		return this;
+	}
+
 	getState(): UserGroupsState
 	{
 		return {
 			collection: Runtime.clone(this.#initialUserGroups),
 			deleted: new Set(),
+			selectedMember: this.#selectedMember,
+			sortConfig: this.#sortConfig,
 		};
 	}
 
@@ -81,28 +113,62 @@ export class UserGroupsModel extends BuilderModel
 			id: `${NEW_USER_GROUP_ID_PREFIX}${Text.getRandom()}`,
 			isNew: true,
 			isModified: true,
-			isShown: true,
 			title: Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLE_NAME'),
 			accessRights: new Map(),
 			members: new Map(),
 		};
 	}
 
+	#getUserGroupsCollectionBySelectedMember(state: UserGroupsState): UserGroupsCollection
+	{
+		const result = new Map();
+		const selectedMemberId = state.selectedMember?.id ?? SELECTED_ALL_USER_ID;
+		const accessCodes = state.selectedMember?.accessCodes ? [...(state.selectedMember.accessCodes)] : [];
+
+		for (const [userGroupId, userGroup] of state.collection)
+		{
+			if (selectedMemberId === SELECTED_ALL_USER_ID || accessCodes.some((code) => userGroup.members.has(code)))
+			{
+				result.set(userGroupId, userGroup);
+			}
+		}
+
+		return result;
+	}
+
 	getGetters(): GetterTree<UserGroupsState>
 	{
 		return {
-			shown: (state): UserGroupsCollection => {
-				const result = new Map();
+			shown: (state, getters, rootState): UserGroupsCollection => {
+				const selectedMemberId = state.selectedMember?.id ?? SELECTED_ALL_USER_ID;
+				const collection = this.#getUserGroupsCollectionBySelectedMember(state);
 
-				for (const [userGroupId, userGroup] of state.collection)
+				if (!state.sortConfig || !state.sortConfig[selectedMemberId])
 				{
-					if (userGroup.isShown)
+					if (rootState.application.options.maxVisibleUserGroups > 0)
 					{
-						result.set(userGroupId, userGroup);
+						return new Map([...collection].slice(0, rootState.application.options.maxVisibleUserGroups));
 					}
+
+					return collection;
 				}
 
-				return result;
+				const sortedGroups = [...collection]
+					.filter(([userGroupId]) => state.sortConfig[selectedMemberId][userGroupId] >= 0)
+					.sort(
+						([idA], [idB]) => (state.sortConfig[selectedMemberId][idA] ?? Infinity)
+							- (state.sortConfig[selectedMemberId][idB] ?? Infinity),
+					);
+
+				if (rootState.application.options.maxVisibleUserGroups > 0)
+				{
+					return new Map(sortedGroups.slice(0, rootState.application.options.maxVisibleUserGroups));
+				}
+
+				return new Map(sortedGroups);
+			},
+			userGroupsBySelectedMember: (state): UserGroupsCollection => {
+				return this.#getUserGroupsCollectionBySelectedMember(state);
 			},
 			getEmptyAccessRightValue: (state, getters, rootState, rootGetters) => (userGroupId: string, sectionCode: string, valueId: string): AccessRightValue => {
 				const values = rootGetters['accessRights/getEmptyValue'](sectionCode, valueId);
@@ -206,6 +272,9 @@ export class UserGroupsModel extends BuilderModel
 			removeMember: (store, payload): void => {
 				this.#removeMemberAction(store, payload);
 			},
+			updateMembersForUserGroup: (store, payload): void => {
+				this.#updateMembersForUserGroupAction(store, payload);
+			},
 			copyUserGroup: (store, payload): void => {
 				this.#copyUserGroupAction(store, payload);
 			},
@@ -218,11 +287,20 @@ export class UserGroupsModel extends BuilderModel
 			removeUserGroup: (store, payload): void => {
 				this.#removeUserGroupAction(store, payload);
 			},
-			showUserGroup: (store, payload): void => {
-				this.#showUserGroupAction(store, payload);
+			updateUserGroupSort: (store, payload): void => {
+				this.#updateUserGroupSortAction(store, payload);
 			},
-			hideUserGroup: (store, payload): void => {
-				this.#hideUserGroupAction(store, payload);
+			updateSortConfigForSelectedMember: (store, payload): void => {
+				this.#updateSortConfigForSelectedMemberAction(store, payload);
+			},
+			updateSortConfig: (store, payload): void => {
+				this.#updateSortConfigAction(store, payload);
+			},
+			deleteRight: (store, payload): void => {
+				this.#deleteRightAction(store, payload);
+			},
+			selectMember: (store, payload): void => {
+				this.#selectMemberAction(store, payload);
 			},
 		};
 	}
@@ -525,10 +603,7 @@ export class UserGroupsModel extends BuilderModel
 
 		if (
 			!Type.isStringFilled(payload.accessCode)
-			|| !Type.isStringFilled(payload.member.id)
-			|| !Type.isStringFilled(payload.member.type)
-			|| !Type.isStringFilled(payload.member.name)
-			|| !(Type.isNil(payload.member.avatar) || Type.isStringFilled(payload.member.avatar))
+			|| !this.#isMemberValid(payload)
 		)
 		{
 			console.warn('ui.accessrights.v2: Attempt to add member with invalid payload', payload);
@@ -537,6 +612,14 @@ export class UserGroupsModel extends BuilderModel
 		}
 
 		store.commit('addMember', payload);
+	}
+
+	#isMemberValid(payload: {member: Member}): boolean
+	{
+		return Type.isStringFilled(payload.member.id)
+			&& Type.isStringFilled(payload.member.type)
+			&& Type.isStringFilled(payload.member.name)
+			&& (Type.isNil(payload.member.avatar) || Type.isStringFilled(payload.member.avatar));
 	}
 
 	#removeMemberAction(store: UserGroupsStore, payload: {userGroupId: string, accessCode: string }): void
@@ -556,6 +639,38 @@ export class UserGroupsModel extends BuilderModel
 		}
 
 		store.commit('removeMember', payload);
+	}
+
+	#updateMembersForUserGroupAction(store: UserGroupsStore, payload: {userGroupId: string, members: array<Member> }): void
+	{
+		if (!this.#isUserGroupExists(store, payload.userGroupId))
+		{
+			console.warn('ui.accessrights.v2: Attempt to remove member from a user group that dont exists', payload);
+
+			return;
+		}
+
+		const memberCollection = new Map();
+		payload.members.forEach((member) => {
+			if (
+				!Type.isStringFilled(member.id)
+				|| !Type.isStringFilled(member.type)
+				|| !Type.isStringFilled(member.name)
+				|| !(Type.isNil(member.avatar) || Type.isStringFilled(member.avatar))
+			)
+			{
+				console.warn('ui.accessrights.v2: Attempt to add member with invalid payload', member);
+			}
+			else
+			{
+				memberCollection.set(member.id, member);
+			}
+		});
+
+		store.commit('updateMembersForUserGroup', {
+			userGroupId: payload.userGroupId,
+			memberCollection,
+		});
 	}
 
 	#copyUserGroupAction(store: UserGroupsStore, { userGroupId }): void
@@ -579,7 +694,6 @@ export class UserGroupsModel extends BuilderModel
 			}),
 			isNew: true,
 			isModified: true,
-			isShown: true,
 		};
 
 		for (const value of copy.accessRights.values())
@@ -588,6 +702,13 @@ export class UserGroupsModel extends BuilderModel
 			value.isModified = true;
 		}
 
+		const updatedSortConfig = this.#updateSortConfig(
+			store.state.sortConfig,
+			copy.id,
+		);
+
+		this.#updateSortConfigAction(store, { sortConfig: updatedSortConfig });
+
 		store.commit('addUserGroup', {
 			userGroup: copy,
 		});
@@ -595,12 +716,25 @@ export class UserGroupsModel extends BuilderModel
 
 	#addUserGroupAction(store: UserGroupsStore): void
 	{
-		const newGroup = this.getElementState();
-		newGroup.accessRights = Runtime.clone(store.getters.defaultAccessRightValues);
+		const newGroup = {
+			...this.getElementState(),
+			accessRights: Runtime.clone(store.getters.defaultAccessRightValues),
+			members: new Map(),
+		};
 
-		store.commit('addUserGroup', {
-			userGroup: newGroup,
-		});
+		if (store.state.selectedMember && store.state.selectedMember.member)
+		{
+			newGroup.members.set(store.state.selectedMember.member.id, store.state.selectedMember.member);
+		}
+
+		const updatedSortConfig = this.#updateSortConfig(
+			store.state.sortConfig,
+			newGroup.id,
+			store.state.selectedMember?.id,
+		);
+
+		this.#updateSortConfigAction(store, { sortConfig: updatedSortConfig });
+		store.commit('addUserGroup', { userGroup: newGroup });
 	}
 
 	#removeUserGroupAction(store: UserGroupsStore, { userGroupId }): void
@@ -620,7 +754,7 @@ export class UserGroupsModel extends BuilderModel
 		}
 	}
 
-	#showUserGroupAction(store: UserGroupsState, { userGroupId }): void
+	#updateUserGroupSortAction(store: UserGroupsStore, { userGroupId, sort }): void
 	{
 		if (!this.#isUserGroupExists(store, userGroupId))
 		{
@@ -629,7 +763,43 @@ export class UserGroupsModel extends BuilderModel
 			return;
 		}
 
-		store.commit('showUserGroup', { userGroupId });
+		store.commit('updateUserGroupSort', { userGroupId, sort });
+	}
+
+	#updateSortConfigForSelectedMemberAction(store: UserGroupsStore, { sortConfigForSelectedMember }): void
+	{
+		if (!this.#isValidSortConfigForSelectedMember(sortConfigForSelectedMember))
+		{
+			console.warn('ui.accessrights.v2: Invalid sort configuration provided', sortConfigForSelectedMember);
+
+			return;
+		}
+
+		store.commit('updateSortConfigForSelectedMember', { sortConfigForSelectedMember });
+	}
+
+	#updateSortConfigAction(store: UserGroupsStore, { sortConfig }): void
+	{
+		if (!this.#isValidSortConfig(sortConfig))
+		{
+			console.warn('ui.accessrights.v2: Invalid sort configuration provided', sortConfig);
+
+			return;
+		}
+
+		store.commit('updateSortConfig', { sortConfig });
+	}
+
+	#selectMemberAction(store: UserGroupsStore, payload: { member: SelectedMember }): void
+	{
+		if (!this.#isValidSelectedMember(payload.member))
+		{
+			console.warn('ui.accessrights.v2: Invalid selected member provided', payload.member);
+
+			return;
+		}
+
+		store.commit('selectMember', Runtime.clone(payload));
 	}
 
 	#hideUserGroupAction(store: UserGroupsState, { userGroupId }): void
@@ -644,11 +814,68 @@ export class UserGroupsModel extends BuilderModel
 		store.commit('hideUserGroup', { userGroupId });
 	}
 
+	#updateSortConfig(
+		currentSorting: Record<string, Record<string, number>>,
+		groupId: string,
+		selectedMemberId?: string,
+	): Record<string, Record<string, number>> {
+		const userIdsToUpdate = new Set([SELECTED_ALL_USER_ID]);
+		if (selectedMemberId)
+		{
+			userIdsToUpdate.add(selectedMemberId);
+		}
+
+		const newSortConfig = { ...currentSorting };
+
+		for (const userId of userIdsToUpdate)
+		{
+			if (!newSortConfig[userId])
+			{
+				continue;
+			}
+
+			const currentValues = Object.values(newSortConfig[userId]);
+			const maxValue = currentValues.length > 0 ? Math.max(...currentValues) : 0;
+
+			newSortConfig[userId] = {
+				...newSortConfig[userId],
+				[groupId]: maxValue + 1,
+			};
+		}
+
+		return newSortConfig;
+	}
+
 	#isUserGroupExists(store, userGroupId: string): boolean
 	{
 		const group = this.#getUserGroup(store.state, userGroupId);
 
 		return Boolean(group);
+	}
+
+	#isValidSortConfigForSelectedMember(config: Record<string, number>): boolean {
+		return Object.values(config).every(
+			(value) => Type.isNumber(value),
+		);
+	}
+
+	#isValidSortConfig(config: Record<string, Record<string, number>>): boolean {
+		return Object.values(config).every(
+			(userConfig) => this.#isValidSortConfigForSelectedMember(userConfig),
+		);
+	}
+
+	#isValidSelectedMember(selectedMember: SelectedMember): boolean {
+		if (selectedMember.id === SELECTED_ALL_USER_ID)
+		{
+			return true;
+		}
+
+		return (
+			Type.isString(selectedMember.id)
+			&& Type.isObject(selectedMember.member)
+			&& Type.isArray(selectedMember.accessCodes)
+		);
 	}
 
 	#getUserGroup(state: UserGroupsState, userGroupId: string): ?UserGroup
@@ -661,6 +888,11 @@ export class UserGroupsModel extends BuilderModel
 		const section: ?AccessRightSection = store.rootState.accessRights.collection.get(sectionCode);
 
 		return section?.rights.has(valueId);
+	}
+
+	#deleteRightAction(store: UserGroupsState, { rightId }): void
+	{
+		store.commit('deleteRight', { rightId });
 	}
 
 	getMutations(): MutationTree<UserGroupsState>
@@ -703,6 +935,11 @@ export class UserGroupsModel extends BuilderModel
 				userGroup.members.delete(accessCode);
 				userGroup.isModified = this.#isUserGroupModified(userGroup);
 			},
+			updateMembersForUserGroup: (state, { userGroupId, memberCollection }) => {
+				const userGroup = this.#getUserGroup(state, userGroupId);
+				userGroup.members = memberCollection;
+				userGroup.isModified = this.#isUserGroupModified(userGroup);
+			},
 			addUserGroup: (state, { userGroup }) => {
 				state.collection.set(userGroup.id, userGroup);
 			},
@@ -712,13 +949,27 @@ export class UserGroupsModel extends BuilderModel
 			markUserGroupForDeletion: (state, { userGroupId }) => {
 				state.deleted.add(userGroupId);
 			},
-			showUserGroup: (state, { userGroupId }) => {
+			updateSortConfigForSelectedMember: (state, { sortConfigForSelectedMember }) => {
+				const selectedMemberId = state.selectedMember?.id ?? SELECTED_ALL_USER_ID;
 				// eslint-disable-next-line no-param-reassign
-				state.collection.get(userGroupId).isShown = true;
+				state.sortConfig[selectedMemberId] = sortConfigForSelectedMember;
 			},
-			hideUserGroup: (state, { userGroupId }) => {
+			updateSortConfig: (state, { sortConfig }) => {
 				// eslint-disable-next-line no-param-reassign
-				state.collection.get(userGroupId).isShown = false;
+				state.sortConfig = sortConfig;
+			},
+			deleteRight: (state: UserGroupsState, { rightId }) => {
+				for (const role: UserGroup of state.collection.values())
+				{
+					if (role.accessRights.get(rightId))
+					{
+						role.accessRights.delete(rightId);
+					}
+				}
+			},
+			selectMember: (state, { member }) => {
+				// eslint-disable-next-line no-param-reassign
+				state.selectedMember = member;
 			},
 		};
 	}

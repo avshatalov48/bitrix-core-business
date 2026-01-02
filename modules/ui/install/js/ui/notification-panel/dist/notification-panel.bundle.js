@@ -10,12 +10,11 @@ this.BX = this.BX || {};
 	  _t4,
 	  _t5,
 	  _t6,
-	  _t7,
-	  _t8;
-	var _panel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("panel");
+	  _t7;
+	var _content = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("content");
 	var _popup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popup");
 	var _container = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("container");
-	var _createPanel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createPanel");
+	var _adjustPopupPosition = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("adjustPopupPosition");
 	var _handlePopupShow = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handlePopupShow");
 	var _handlePopupClose = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handlePopupClose");
 	class NotificationPanel extends main_core_events.EventEmitter {
@@ -28,10 +27,10 @@ this.BX = this.BX || {};
 	    Object.defineProperty(this, _handlePopupShow, {
 	      value: _handlePopupShow2
 	    });
-	    Object.defineProperty(this, _createPanel, {
-	      value: _createPanel2
+	    Object.defineProperty(this, _adjustPopupPosition, {
+	      value: _adjustPopupPosition2
 	    });
-	    Object.defineProperty(this, _panel, {
+	    Object.defineProperty(this, _content, {
 	      writable: true,
 	      value: null
 	    });
@@ -83,20 +82,23 @@ this.BX = this.BX || {};
 	    return buttonsContainer;
 	  }
 	  getContent() {
-	    const content = main_core.Tag.render(_t3 || (_t3 = _`<div class="ui-notification-panel__content"></div>`));
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _content)[_content]) {
+	      return babelHelpers.classPrivateFieldLooseBase(this, _content)[_content];
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _content)[_content] = main_core.Tag.render(_t3 || (_t3 = _`<div class="ui-notification-panel__content"></div>`));
 	    if (this.options.leftIcon) {
 	      this.options.leftIcon.size = 28;
-	      this.options.leftIcon.renderTo(content);
-	      main_core.Dom.append(main_core.Tag.render(_t4 || (_t4 = _`<div class="ui-notification-panel__left-icon-divider"></div>`)), content);
+	      this.options.leftIcon.renderTo(babelHelpers.classPrivateFieldLooseBase(this, _content)[_content]);
+	      main_core.Dom.append(main_core.Tag.render(_t4 || (_t4 = _`<div class="ui-notification-panel__left-icon-divider"></div>`)), babelHelpers.classPrivateFieldLooseBase(this, _content)[_content]);
 	    }
 	    if (main_core.Type.isElementNode(this.options.content)) {
-	      main_core.Dom.append(this.options.content, content);
+	      main_core.Dom.append(this.options.content, babelHelpers.classPrivateFieldLooseBase(this, _content)[_content]);
 	    } else if (main_core.Type.isString(this.options.content)) {
 	      const textColor = this.options.textColor;
-	      main_core.Dom.append(main_core.Tag.render(_t5 || (_t5 = _`<div class="ui-notification-panel__text" ${0}>${0}</div>`), textColor ? 'style="color: ' + textColor + '"' : '', this.options.content), content);
+	      main_core.Dom.append(main_core.Tag.render(_t5 || (_t5 = _`<div class="ui-notification-panel__text" ${0}>${0}</div>`), textColor ? `style="color: ${textColor}"` : '', this.options.content), babelHelpers.classPrivateFieldLooseBase(this, _content)[_content]);
 	    }
-	    main_core.Dom.append(this.getFooter(), content);
-	    return content;
+	    main_core.Dom.append(this.getFooter(), babelHelpers.classPrivateFieldLooseBase(this, _content)[_content]);
+	    return babelHelpers.classPrivateFieldLooseBase(this, _content)[_content];
 	  }
 	  getFooter() {
 	    const footer = main_core.Tag.render(_t6 || (_t6 = _`<div class="ui-notification-panel__footer"></div>`));
@@ -117,7 +119,7 @@ this.BX = this.BX || {};
 				${0}
 			>
 			</div>
-		`), this.hideByButton.bind(this), crossColor ? 'style="--ui-icon-set__icon-color: ' + crossColor + '"' : '');
+		`), this.hideByButton.bind(this), crossColor ? `style="--ui-icon-set__icon-color: ${crossColor}"` : '');
 	  }
 	  getPopup() {
 	    var _babelHelpers$classPr, _babelHelpers$classPr2;
@@ -125,8 +127,12 @@ this.BX = this.BX || {};
 	      id: this.options.id,
 	      content: this.getContent(),
 	      background: this.options.backgroundColor,
-	      targetContainer: babelHelpers.classPrivateFieldLooseBase(this, _panel)[_panel],
-	      className: 'ui-notification-panel__container',
+	      fixed: true,
+	      bindElement: {
+	        left: 0,
+	        top: 0
+	      },
+	      className: `ui-notification-panel__container ${this.options.styleClass}`,
 	      animation: {
 	        showClassName: 'ui-notification-panel__show',
 	        closeClassName: 'ui-notification-panel__hide',
@@ -135,17 +141,11 @@ this.BX = this.BX || {};
 	      events: {
 	        onShow: babelHelpers.classPrivateFieldLooseBase(this, _handlePopupShow)[_handlePopupShow].bind(this),
 	        onClose: babelHelpers.classPrivateFieldLooseBase(this, _handlePopupClose)[_handlePopupClose].bind(this)
-	      },
-	      zIndexOptions: {
-	        alwaysOnTop: true
 	      }
 	    });
 	    return babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup];
 	  }
 	  show() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _panel)[_panel]) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _createPanel)[_createPanel]();
-	    }
 	    const popup = this.getPopup();
 	    popup.show();
 	    if (this.options.zIndex) {
@@ -162,16 +162,18 @@ this.BX = this.BX || {};
 	    this.hide();
 	  }
 	}
-	function _createPanel2() {
-	  babelHelpers.classPrivateFieldLooseBase(this, _panel)[_panel] = main_core.Tag.render(_t8 || (_t8 = _`<div class="ui-notification-panel ${0}" id="notification-panel-${0}"></div>`), this.options.styleClass, this.options.id);
-	  let mainTable = document.body.querySelector('.bx-layout-table');
-	  if (!mainTable) {
-	    mainTable = document.body.querySelector('.ui-slider-page');
-	  }
-	  main_core.Dom.insertBefore(babelHelpers.classPrivateFieldLooseBase(this, _panel)[_panel], mainTable);
+	function _adjustPopupPosition2() {
+	  const containerWidth = this.getContent().offsetWidth;
+	  const windowWidth = window.innerWidth;
+	  const offsetLeft = (windowWidth - containerWidth) / 2;
+	  this.getPopup().setOffset({
+	    offsetLeft,
+	    offsetTop: 0
+	  });
 	}
 	function _handlePopupShow2() {
 	  var _this$options$events2;
+	  babelHelpers.classPrivateFieldLooseBase(this, _adjustPopupPosition)[_adjustPopupPosition]();
 	  (_this$options$events2 = this.options.events) == null ? void 0 : _this$options$events2.onShow == null ? void 0 : _this$options$events2.onShow();
 	  this.emit('onShow');
 	}

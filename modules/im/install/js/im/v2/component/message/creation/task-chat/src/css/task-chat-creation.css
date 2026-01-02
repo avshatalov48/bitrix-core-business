@@ -1,0 +1,90 @@
+.bx-im-message-task-chat-creation__container {
+	--im-message-task-chat-creation__background-color_content: var(--im-color-palette-white-base);
+	--im-message-task-chat-creation__font-color_title: #151515;
+	--im-message-task-chat-creation__font-color_list: var(--ui-color-palette-gray-90);
+
+	display: flex;
+	max-width: 100%;
+	min-width: 552px;
+	height: 187px;
+	max-height: 187px;
+	background: var(--im-message-task-chat-creation__background-color_content);
+	border-radius: 16px;
+}
+
+.bx-im-message-base__wrap + .bx-im-message-task-chat-creation__scope {
+	margin-top: 24px;
+}
+
+.bx-im-message-task-chat-creation__scope + .bx-im-message-base__wrap {
+	margin-top: 24px;
+}
+
+.bx-im-message-task-chat-creation__image {
+	width: 166px;
+	min-width: 166px;
+	background-image: url('./images/task-chat2.svg');
+	background-repeat: no-repeat;
+	border-radius: 16px;
+}
+
+.bx-im-message-task-chat-creation__content {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	max-width: calc(100% - 166px);
+	padding: 20px 17px 26px 7px;
+}
+
+.bx-im-message-task-chat-creation__title {
+	font: var(--im-font-size-2xl)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	color: var(--im-message-task-chat-creation__font-color_title);
+	font-weight: var(--im-font-weight-bold);
+	margin-bottom: 16px;
+	user-select: none;
+	overflow: hidden;
+}
+
+.bx-im-message-task-chat-creation__list {
+	max-width: 100%;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.bx-im-message-task-chat-creation__list li {
+	display: flex;
+	margin-bottom: 8px;
+	font: var(--im-font-size-md) var(--im-font-family-system);
+	color: var(--im-message-task-chat-creation__font-color_list);
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.bx-im-message-task-chat-creation__list li:last-child {
+	margin-bottom: 0;
+}
+
+.bx-im-message-task-chat-creation__list_icon {
+	width: 20px;
+	min-width: 20px;
+	height: 20px;
+	margin-right: 8px;
+	background-repeat: no-repeat;
+}
+
+.bx-im-message-task-chat-creation__list_icon.--camera {
+	background-image: url('./images/camera.svg');
+}
+
+.bx-im-message-task-chat-creation__list_icon.--file {
+	background-image: url('./images/file.svg');
+}
+
+.bx-im-message-task-chat-creation__list_icon.--result {
+	background-image: url('./images/result.svg');
+}
+
+.bx-im-message-task-chat-creation__list_icon.--forward {
+	background-image: url('./images/forward.svg');
+}

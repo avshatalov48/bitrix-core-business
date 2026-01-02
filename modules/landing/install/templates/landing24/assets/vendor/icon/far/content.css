@@ -11370,20 +11370,11 @@
 .fa-heart-o:before {
 	content: "\f004";
 }
-.fa-linkedin-square:before {
-	content: "\f08c";
-}
 .fa-lemon-o:before {
 	content: "\f094";
 }
 .fa-bookmark-o:before {
 	content: "\f02e";
-}
-.fa-facebook:before {
-	content: "\f39e";
-}
-.fa-facebook-f:before {
-	content: "\f39e";
 }
 .fa-hdd-o:before {
 	content: "\f0a0";
@@ -11406,14 +11397,8 @@
 .fa-floppy-o:before {
 	content: "\f0c7";
 }
-.fa-google-plus:before {
-	content: "\f0d5";
-}
 .fa-money:before {
 	content: "\f3d1";
-}
-.fa-linkedin:before {
-	content: "\f0e1";
 }
 .fa-comment-o:before {
 	content: "\f075";
@@ -11489,18 +11474,6 @@
 }
 .fa-toggle-right:before {
 	content: "\f152";
-}
-.fa-bitcoin:before {
-	content: "\f15a";
-}
-.fa-youtube-play:before {
-	content: "\f167";
-}
-.fa-bitbucket-square:before {
-	content: "\f171";
-}
-.fa-gittip:before {
-	content: "\f184";
 }
 .fa-sun-o:before {
 	content: "\f185";
@@ -11583,24 +11556,6 @@
 .fa-circle-o-notch:before {
 	content: "\f1ce";
 }
-.fa-ra:before {
-	content: "\f1d0";
-}
-.fa-resistance:before {
-	content: "\f1d0";
-}
-.fa-ge:before {
-	content: "\f1d1";
-}
-.fa-y-combinator-square:before {
-	content: "\f1d4";
-}
-.fa-yc-square:before {
-	content: "\f1d4";
-}
-.fa-wechat:before {
-	content: "\f1d7";
-}
 .fa-paper-plane-o:before {
 	content: "\f1d8";
 }
@@ -11625,17 +11580,8 @@
 .fa-cc:before {
 	content: "\f20a";
 }
-.fa-meanpath:before {
-	content: "\f2b4";
-}
 .fa-intersex:before {
 	content: "\f225";
-}
-.fa-facebook-official:before {
-	content: "\f09a";
-}
-.fa-yc:before {
-	content: "\f23b";
 }
 .fa-sticky-note-o:before {
 	content: "\f249";
@@ -11688,9 +11634,6 @@
 .fa-commenting-o:before {
 	content: "\f4ad";
 }
-.fa-vimeo:before {
-	content: "\f27d";
-}
 .fa-pause-circle-o:before {
 	content: "\f28b";
 }
@@ -11699,18 +11642,6 @@
 }
 .fa-question-circle-o:before {
 	content: "\f059";
-}
-.fa-snapchat-ghost:before {
-	content: "\f2ab";
-}
-.fa-google-plus-official:before {
-	content: "\f2b3";
-}
-.fa-google-plus-circle:before {
-	content: "\f2b3";
-}
-.fa-fa:before {
-	content: "\f2b4";
 }
 .fa-handshake-o:before {
 	content: "\f2b5";
@@ -11747,9 +11678,6 @@
 }
 .fa-times-rectangle-o:before {
 	content: "\f410";
-}
-.fa-eercast:before {
-	content: "\f2da";
 }
 .fa-snowflake-o:before {
 	content: "\f2dc";

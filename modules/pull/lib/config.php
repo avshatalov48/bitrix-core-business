@@ -63,6 +63,7 @@ class Config
 			'VERSION' => $isSharedMode ? \Bitrix\Pull\SharedServer\Config::getServerVersion(): \CPullOptions::GetQueueServerVersion(),
 			'SERVER_ENABLED' => \CPullOptions::GetQueueServerStatus(),
 			'MODE' => \CPullOptions::GetQueueServerMode(),
+			'HOSTNAME' => Config::getHostname(),
 			'LONG_POLLING' => $isSharedMode ? \Bitrix\Pull\SharedServer\Config::getLongPollingUrl(): \CPullOptions::GetListenUrl(),
 			'LONG_POOLING_SECURE' => $isSharedMode ? \Bitrix\Pull\SharedServer\Config::getLongPollingUrl() : \CPullOptions::GetListenSecureUrl(),
 			'WEBSOCKET_ENABLED' => $isSharedMode ? true : \CPullOptions::GetWebSocket(),
@@ -228,6 +229,20 @@ class Config
 		}
 
 		return \CHTTP::urlAddParams($result, $params);
+	}
+
+	public static function getHostname(): string
+	{
+		if (defined('BX24_HOST_NAME'))
+		{
+			return BX24_HOST_NAME;
+		}
+		else if (defined('SITE_SERVER_NAME') && SITE_SERVER_NAME)
+		{
+			return SITE_SERVER_NAME;
+		}
+
+		return Option::get('main', 'server_name', '');
 	}
 
 	public static function getHostId()

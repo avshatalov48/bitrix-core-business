@@ -1,0 +1,10 @@
+<?php
+$MESS["EC_CALENDAR_SHARING_MAIL_BITRIX24_FROM"] = "Битрикс24 <no-reply@bitrix24.kz>";
+$MESS["EC_CALENDAR_SHARING_MAIL_EVENT_END"] = "#DATE# дейін";
+$MESS["EC_CALENDAR_SHARING_MAIL_EVENT_FULL_DAY"] = "Күні бойы";
+$MESS["EC_CALENDAR_SHARING_MAIL_EVENT_START"] = "#DATE# БАСТАП";
+$MESS["EC_CALENDAR_SHARING_MAIL_SUBJECT_CANCELLED"] = "#NAME# сіздің кездесуіңізден бас тартты";
+$MESS["EC_CALENDAR_SHARING_MAIL_SUBJECT_CANCELLED_F"] = "#NAME# сіздің кездесуіңізден бас тартты";
+$MESS["EC_CALENDAR_SHARING_MAIL_SUBJECT_CANCELLED_M"] = "#NAME# сіздің кездесуіңізден бас тартты";
+$MESS["EC_CALENDAR_SHARING_MAIL_SUBJECT_CREATED"] = "Сіз Битрикс24-те кездесу қойдыңыз";
+$MESS["EC_CALENDAR_SHARING_MAIL_SUBJECT_INVITE_LINK"] = "Менің бос слоттарым";

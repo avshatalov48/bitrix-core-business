@@ -2,6 +2,7 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/admin/prolog_before.php");
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\B24Connector\Connection;
 
@@ -55,14 +56,6 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 				<p class="connector-callback-title"><?=Loc::getMessage('B24C_TEL_INSTALL_DESKTOP')?></p>
 				<div class="connector-callback-desc">
 					<p class="connector-callback-text"><?=Loc::getMessage('B24C_TEL_CALLS')?></p>
-					<div class="connector-callback-app">
-						<div class="connector-callback-app-title"><?=Loc::getMessage('B24C_TEL_DESKTOP')?></div>
-						<div class="connector-callback-app-flex">
-							<a href="http://dl.bitrix24.com/b24/bitrix24_desktop.dmg" class="connector-callback-app-mac">MAC OS</a>
-							<a href="http://dl.bitrix24.com/b24/bitrix24_desktop.exe" class="connector-callback-app-win">WINDOWS</a>
-							<a href="https://github.com/buglloc/brick/" class="connector-callback-app-linux">LINUX</a>
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>

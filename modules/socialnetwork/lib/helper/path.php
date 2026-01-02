@@ -67,7 +67,7 @@ class Path
 			case 'group_livefeed_path_template':
 				$result = self::get('group_path_template', $siteId) . (
 					ModuleManager::isModuleInstalled('intranet')
-					&& SITE_TEMPLATE_ID === 'bitrix24'
+					&& (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 						? 'general/'
 						: ''
 				);

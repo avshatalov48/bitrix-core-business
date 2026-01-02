@@ -1,0 +1,24 @@
+<?php
+$MESS["REPORT_BOOLEAN_VALUE_FALSE"] = "Жоқ";
+$MESS["REPORT_BOOLEAN_VALUE_TRUE"] = "Иә";
+$MESS["REPORT_CHART_TYPE_BAR"] = "Гистограмма";
+$MESS["REPORT_CHART_TYPE_LINE"] = "Күн тәртібі";
+$MESS["REPORT_CHART_TYPE_PIE"] = "Дөңгелек";
+$MESS["REPORT_COLUMNS_HAS_CYCLIC_DEPENDENCY"] = "Бағандардың циклдік тәуелділігіне байланысты есепті құру мүмкін емес. Есеп баптауларында \"Өріс үлесі\" операциясы бар бағандардың циклдік тәуелділіктерді құрамайтынын мұқият тексеріңіз.";
+$MESS["REPORT_FILE_NOT_FOUND"] = "Файл табылмады";
+$MESS["REPORT_HELPER_NOT_DEFINED"] = "Көмекші класс берілмеген.";
+$MESS["REPORT_NOT_FOUND"] = "\"%s\" ID бар есеп табылмады.";
+$MESS["REPORT_PRCNT_FROM_TITLE"] = "-ден %";
+$MESS["REPORT_PROJECT_NOT_FOUND"] = "Жоба табылмады";
+$MESS["REPORT_SELECT_CALC_VAR_AVG"] = "Орташа";
+$MESS["REPORT_SELECT_CALC_VAR_COUNT_DISTINCT"] = "Бірегейлердің саны";
+$MESS["REPORT_SELECT_CALC_VAR_GROUP_CONCAT"] = "Санау";
+$MESS["REPORT_SELECT_CALC_VAR_MAX"] = "Максималды";
+$MESS["REPORT_SELECT_CALC_VAR_MIN"] = "Минималды";
+$MESS["REPORT_SELECT_CALC_VAR_SUM"] = "Сомасы";
+$MESS["REPORT_STEXPORT_SUMMARY"] = "Есеп үшін экспорттау файлы қалыптастырылды. Деректер көлемді болған кезде бұл әрекетті орындау ұзақ уақыт алуы мүмкін.";
+$MESS["REPORT_STEXPORT_TITLE"] = "Есепті экспорттау.";
+$MESS["REPORT_UNKNOWN_ERROR"] = "Белгісіз қате.";
+$MESS["REPORT_UNKNOWN_FIELD_DEFINITION"] = "Есепте жоқ өріс қолданылады. Бұл жойылған пайдаланушы өрісі болуы мүмкін. Есеп конфигурациясын тексеру және қайта сақтау қажет";
+$MESS["REPORT_USER_NOT_FOUND"] = "Пайдаланушы табылмады";
+$MESS["REPORT_VIEW_PERMISSION_DENIED"] = "Есепті қарау үшін құқықтар жеткіліксіз.";

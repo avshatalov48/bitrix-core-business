@@ -253,3 +253,83 @@ body {
 	text-align: center;
 	color: #525c69;
 }
+
+.landing-vibe-processing {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.landing-vibe-processing-wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 665px;
+	height: 475px;
+
+
+	border-radius: 24px;
+	border: 1px solid rgba(var(--ui-color-palette-white-base-rgb), 0.08);
+	background: rgba(var(--ui-color-palette-white-base-rgb), 0.16);
+	backdrop-filter: var(--ui-bg-blur-accent-more);
+}
+
+.landing-vibe-processing-content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.landing-vibe-processing-animation {
+	position: relative;
+	width: 264px;
+	height: 214px;
+	margin-top: 7px;
+	margin-bottom: 43px;
+	transform: translateY(-27px);
+}
+.landing-vibe-processing-animation.--fade svg {
+	opacity: 1;
+	transition: .2s;
+}
+
+.landing-vibe-processing-animation.--fade svg {
+	opacity: 0;
+}
+
+.landing-vibe-processing-animation:after {
+	content: '';
+	position: absolute;
+	right: -68px;
+	bottom: -18px;
+	width: 152px;
+	height: 136px;
+	background: url(../../images/zefir.png) center no-repeat;
+	background-size: 100%;
+}
+
+.landing-vibe-processing-text {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	color: var(--ui-color-design-tinted-a1-content);
+}
+
+.landing-vibe-processing-title {
+	font-size: var(--ui-typography-heading-h3-font-size);
+	font-weight: var(--ui-font-weight-semi-bold);
+	letter-spacing: var(--ui-letter-spacing-xs);
+	margin-bottom: 11px;
+}
+
+.landing-vibe-processing-title-sub {
+	font-size: var(--ui-typography-heading-h5-font-size);
+	font-weight: var(--ui-font-weight-regular);
+	letter-spacing: var(--ui-letter-spacing-m);
+}

@@ -1,0 +1,40 @@
+.ui-block-diagram-search-result {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.ui-block-diagram-search-result__left-col {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.ui-block-diagram-search-result__right-col {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+.ui-block-diagram-search-result__title {
+	margin: 0;
+}
+
+.ui-block-diagram-search-result__count {
+	display: inline-block;
+	height: 22px;
+	margin-right: 10px;
+	padding: 3px 10px;
+	border-radius: 20px;
+	line-height: 22px;
+	white-space: nowrap;
+	background-color: var(--ui-color-tag-1);
+}
+
+.ui-block-diagram-search-result__nav {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}

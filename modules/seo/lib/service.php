@@ -18,12 +18,16 @@ use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 use Bitrix\Seo\Engine\Bitrix;
 use Bitrix\Seo\Retargeting\AdsAudience;
+use Bitrix\Seo\Retargeting\Request;
 
 Loc::loadMessages(__FILE__);
 
 if (!defined("BITRIX_CLOUD_ADV_URL"))
 {
-	define("BITRIX_CLOUD_ADV_URL", 'https://cloud-adv.bitrix.info');
+	$domain = (new \Bitrix\Main\License\UrlProvider())->getTechDomain();
+	$cloudAdvUrl = 'https://cloud-adv.' . $domain;
+
+	define("BITRIX_CLOUD_ADV_URL", $cloudAdvUrl);
 }
 
 if (!defined("SEO_SERVICE_URL"))
@@ -109,7 +113,7 @@ class Service
 	 * @return array
 	 * @throws SystemException
 	 */
-	public static function getClientList($engineCode = false)
+	public static function getClientList($engineCode = false, string $type = null)
 	{
 		if (static::$clientList == null)
 		{
@@ -121,7 +125,8 @@ class Service
 			}
 			else
 			{
-				$clientDataProvider = static::getEngine()?->getInterface();
+				$request = Request::create($type);
+				$clientDataProvider = static::getEngine($request)?->getInterface();
 				if (!$clientDataProvider)
 				{
 					return [];
@@ -284,7 +289,7 @@ class Service
 	 * @return Bitrix|null
 	 * @throws LoaderException
 	 */
-	public static function getEngine(): ?Bitrix
+	public static function getEngine(?Request $request = null): ?Bitrix
 	{
 		if (!Loader::includeModule("socialservices"))
 		{
@@ -294,6 +299,11 @@ class Service
 		if (!static::$engine)
 		{
 			static::$engine = new Bitrix();
+
+			if ($request)
+			{
+				static::$engine->setAuthSettings(['PROXY_URL' => $request->getProxyUrl()]);
+			}
 		}
 
 		return static::$engine;
@@ -305,7 +315,7 @@ class Service
 	 * @return void
 	 * @throws SystemException
 	 */
-	public static function register(): void
+	public static function register(string $serviceUrl = ''): void
 	{
 		static::clearClientsCache();
 
@@ -317,7 +327,9 @@ class Service
 			"redirect_uri" => static::getRedirectUri(),
 		];
 
-		$result = $httpClient->post(static::SERVICE_URL . static::REGISTER, $queryParams);
+		$serviceUrl = $serviceUrl ?: static::SERVICE_URL;
+
+		$result = $httpClient->post($serviceUrl . static::REGISTER, $queryParams);
 
 		try
 		{

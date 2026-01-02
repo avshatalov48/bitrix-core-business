@@ -1,0 +1,23 @@
+.bx-im-messenger__scope * {
+	box-sizing: border-box;
+}
+
+.bx-im-messenger__scope * {
+	box-sizing: border-box;
+}
+
+/* region Scrollbar styles */
+.bx-im-messenger__scope *::-webkit-scrollbar {
+	width:6px;
+}
+
+.bx-im-messenger__scope *::-webkit-scrollbar-thumb {
+	background-color: transparent;
+	border-radius: 32px;
+}
+
+.bx-im-messenger__scope *:hover::-webkit-scrollbar-thumb {
+	background-color: rgba(82, 92, 105, .2);
+	border-radius: 32px;
+}
+/* endregion Scrollbar styles */

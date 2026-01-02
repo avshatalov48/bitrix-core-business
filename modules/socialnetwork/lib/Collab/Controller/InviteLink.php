@@ -70,7 +70,7 @@ class InviteLink extends Controller
 			$this
 				->messageFactory
 				->getActionMessage(ActionType::CopyLink, $collabId, $this->userId)
-				->runAction()
+				->send()
 			;
 	}
 

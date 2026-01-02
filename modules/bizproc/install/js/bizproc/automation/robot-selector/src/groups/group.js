@@ -7,6 +7,7 @@ export class Group
 	#selected: boolean = false;
 	#disabled: boolean = false;
 	#compare: Function = null;
+	#isHeaderGroup: boolean = false;
 
 	constructor()
 	{
@@ -94,6 +95,18 @@ export class Group
 		return this.#compare;
 	}
 
+	setIsHeaderGroup(headerGroup = false): this
+	{
+		this.#isHeaderGroup = headerGroup;
+
+		return this;
+	}
+
+	isHeaderGroup(): boolean
+	{
+		return this.#isHeaderGroup;
+	}
+
 	getData(): GroupData
 	{
 		const data = {
@@ -106,6 +119,7 @@ export class Group
 			customData: this.getCustomData(),
 			selected: this.getSelected(),
 			disabled: this.getDisabled(),
+			isHeaderGroup: this.isHeaderGroup(),
 		};
 
 		if (Type.isFunction(this.getCompare()))

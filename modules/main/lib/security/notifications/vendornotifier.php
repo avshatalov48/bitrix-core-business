@@ -4,10 +4,12 @@ namespace Bitrix\Main\Security\Notifications;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 use ReflectionExtension;
+use CSecuritySystemInformation;
 
 class VendorNotifier
 {
@@ -45,6 +47,33 @@ class VendorNotifier
 				];
 			}
 
+			$dataToSend = [
+					'modules' => json_encode($modules),
+					'license' => Application::getInstance()->getLicense()->getHashLicenseKey(),
+					'php' => json_encode([
+						'v' => phpversion(),
+						'ext' => $phpExtensions
+					])
+			];
+
+			if (Loader::includeModule('security'))
+			{
+				$moreInfo = CSecuritySystemInformation::getSystemInformation();
+
+				if (isset($moreInfo['db']['type']) && isset($moreInfo['db']['version']))
+				{
+					$dataToSend['db'] = [
+						'type' => $moreInfo['db']['type'],
+						'version' => $moreInfo['db']['version']
+					];
+				}
+
+				if (isset($moreInfo['environment']['vm_version']))
+				{
+					$dataToSend['vm'] = ['v' => $moreInfo['environment']['vm_version']];
+				}
+			}
+
 			// get actual rules
 			$http = new HttpClient([
 				'socketTimeout' => 5,
@@ -55,14 +84,7 @@ class VendorNotifier
 
 			$response = $http->post(
 				$uri,
-				[
-					'modules' => json_encode($modules),
-					'license' => Application::getInstance()->getLicense()->getHashLicenseKey(),
-					'php' => json_encode([
-						'v' => phpversion(),
-						'ext' => $phpExtensions
-					])
-				]
+				$dataToSend
 			);
 
 			if ($http->getStatus() == 200 && !empty($response))

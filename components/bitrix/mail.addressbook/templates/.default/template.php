@@ -4,46 +4,34 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+/** @var \CMain $APPLICATION */
+/** @var array $arResult */
+
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
+use Bitrix\UI\Buttons\Color;
+use Bitrix\UI\Toolbar\ButtonLocation;
 
 \Bitrix\Main\UI\Extension::load('mail.avatar');
-
+\Bitrix\Main\Loader::includeModule('ui');
 \CJSCore::init("sidepanel");
 
 $APPLICATION->SetTitle(Loc::getMessage('MAIL_ADDRESSBOOK_LIST_PAGE_TITLE'));
 
-$inSidePanel = isset($arResult["IFRAME"]) && $arResult["IFRAME"] === "Y";
-
-$bodyClass = $APPLICATION->getPageProperty('BodyClass', false);
-
-$APPLICATION->setPageProperty(
-	'BodyClass',
-	trim(sprintf('%s %s', $bodyClass, 'pagetitle-toolbar-field-view pagetitle-mail-view'))
+\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter([
+	'GRID_ID' => $arResult['GRID_ID'],
+	'FILTER_ID' => $arResult['GRID_ID'],
+	'FILTER' => $arResult['FILTER'],
+	'ENABLE_LABEL' => true,
+]);
+\Bitrix\UI\Toolbar\Facade\Toolbar::addButton(
+	new Bitrix\UI\Buttons\Button([
+		'text' => Loc::getMessage('MAIL_ADDRESSBOOK_ADD_ADDRESSES'),
+		'classList' => ['mail-address-book-add-button'],
+		'color' => Color::PRIMARY,
+	]),
+	ButtonLocation::AFTER_TITLE
 );
-
-$this->setViewTarget('inside_pagetitle');
-?>
-
-<button class="ui-btn ui-btn-primary" id="mail-address-book-add-button">
-	<?=Loc::getMessage('MAIL_ADDRESSBOOK_ADD_ADDRESSES')?>
-</button>
-
-<div class="pagetitle-container mail-addressbook-pagetitle-flexible-space">
-	<? $APPLICATION->IncludeComponent(
-		'bitrix:main.ui.filter',
-		'',
-		[
-			'GRID_ID' => $arResult['GRID_ID'],
-			'FILTER_ID' => $arResult['GRID_ID'],
-			'FILTER' => $arResult['FILTER'],
-			'ENABLE_LABEL' => true,
-		]
-	); ?>
-</div>
-
-<?php
-$this->endViewTarget();
 
 /**
  * @param $item

@@ -394,51 +394,6 @@ class Network
 		return $result;
 	}
 
-	/**
-	 * Prepares and shows popup offerring current user to attach bitrix24.net account
-	 */
-	public static function displayAdminPopup(array $params = array())
-	{
-		global $USER;
-		if(static::getAdminPopupSession()) // duplicated check, just to be clear
-		{
-			$dbRes = UserTable::getList(array(
-				'filter' => array(
-					'=USER_ID' => $USER->GetID(),
-					'=EXTERNAL_AUTH_ID' => \CSocServBitrix24Net::ID
-				)
-			));
-			if(!$dbRes->fetch())
-			{
-				static::initAdminPopup($params);
-			}
-			else
-			{
-				static::setAdminPopupSession();
-			}
-		}
-	}
-
-	public static function initAdminPopup(array $params = array())
-	{
-		$option = static::getShowOptions();
-		\CJSCore::registerExt("socialservices_admin", array(
-			'js' => "/bitrix/js/socialservices/ss_admin.js",
-			'css' => "/bitrix/js/socialservices/css/ss_admin.css",
-			'rel' => array("ajax", "window"),
-			'lang_additional' => array(
-				"SS_NETWORK_DISPLAY" => $params["SHOW"] ? "Y" : "N",
-				"SS_NETWORK_URL" => static::getAuthUrl("popup", array("admin")),
-				"SS_NETWORK_POPUP_TITLE" => Loc::getMessage('B24NET_POPUP_TITLE'),
-				"SS_NETWORK_POPUP_CONNECT" => Loc::getMessage('B24NET_POPUP_CONNECT'),
-				"SS_NETWORK_POPUP_TEXT" => Loc::getMessage('B24NET_POPUP_TEXT'),
-				"SS_NETWORK_POPUP_DONTSHOW" => Loc::getMessage('B24NET_POPUP_DONTSHOW'),
-				"SS_NETWORK_POPUP_COUNT" => $option["showcount"],
-			)
-		));
-		\CJSCore::init(array("socialservices_admin"));
-	}
-
 	public static function getAuthUrl($mode = "page", $addScope = null)
 	{
 		if(Option::get("socialservices", "bitrix24net_id", "") != "")
@@ -494,73 +449,6 @@ class Network
 		}
 
 		return $result;
-	}
-
-	// TODO: вынести три следующие метода в модуль bitrix24
-
-	public static function setRegisterSettings($settings = array())
-	{
-		if(isset($settings["REGISTER"]))
-		{
-			Option::set("socialservices", "new_user_registration_network", $settings["REGISTER"] == "Y" ? "Y" : "N");
-		}
-
-		if(isset($settings["REGISTER_CONFIRM"]))
-		{
-			Option::set("socialservices", "new_user_registration_confirm", $settings["REGISTER_CONFIRM"] == "Y" ? "Y" : "N");
-		}
-
-		if(isset($settings["REGISTER_WHITELIST"]))
-		{
-			$value = preg_split("/[^a-z0-9\-\.]+/", mb_strtolower($settings["REGISTER_WHITELIST"]));
-			Option::set("socialservices", "new_user_registration_whitelist", serialize($value));
-		}
-
-		if(isset($settings["REGISTER_TEXT"]))
-		{
-			Option::set("socialservices", "new_user_registration_text", trim($settings["REGISTER_TEXT"]));
-		}
-
-		if(isset($settings["REGISTER_SECRET"]))
-		{
-			Option::set("socialservices", "new_user_registration_secret", trim($settings["REGISTER_SECRET"]));
-		}
-
-		if (isset($settings["INVITE_TOKEN_SECRET"]))
-		{
-			Option::set("socialservices", "new_user_registration_invite_token_secret", trim($settings["INVITE_TOKEN_SECRET"]));
-		}
-
-		static::updateRegisterSettings();
-	}
-
-	public static function getRegisterSettings()
-	{
-		return array(
-			"REGISTER" => Option::get("socialservices", "new_user_registration_network", "N"),
-			"REGISTER_CONFIRM" => Option::get("socialservices", "new_user_registration_confirm", "N"),
-			"REGISTER_WHITELIST" => implode(';', unserialize(Option::get("socialservices", "new_user_registration_whitelist", serialize(array())))),
-			"REGISTER_TEXT" => Option::get("socialservices", "new_user_registration_text", ""),
-			"REGISTER_SECRET" => Option::get("socialservices", "new_user_registration_secret", ""),
-			"INVITE_TOKEN_SECRET" => Option::get("socialservices", "new_user_registration_invite_token_secret", ""),
-		);
-	}
-
-	protected static function updateRegisterSettings()
-	{
-		$query = \CBitrix24NetPortalTransport::init();
-		if($query)
-		{
-			$options = static::getRegisterSettings();
-
-			$query->call("portal.option.set", array('options' => array(
-				'REGISTER' => $options["REGISTER"] === "Y",
-				'REGISTER_TEXT' => $options["REGISTER_TEXT"],
-				"REGISTER_SECRET" => $options["REGISTER_SECRET"],
-				'INVITE_TOKEN_SECRET' => $options['INVITE_TOKEN_SECRET'],
-				"ADMIN_CONFIRM_INVITE" => $options["REGISTER_CONFIRM"] === "Y",
-			)));
-		}
 	}
 
 	public static function setLastUserStatus($status)

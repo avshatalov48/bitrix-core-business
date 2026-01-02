@@ -2,6 +2,7 @@ import { BaseEvent, EventEmitter } from 'main.core.events';
 
 import { EventType } from 'im.v2.const';
 import { Analytics } from 'im.v2.lib.analytics';
+import { Notifier } from 'im.v2.lib.notifier';
 
 import { AudioManager } from './classes/audio-manager';
 
@@ -81,7 +82,7 @@ export const AudioInput = {
 			});
 			this.getAudioManager().subscribe(AudioManager.events.recognitionError, () => {
 				this.audioMode = false;
-				BX.UI.Notification.Center.notify({ content: this.loc('IM_TEXTAREA_AUDIO_INPUT_ERROR') });
+				Notifier.speech.onRecognitionError();
 			});
 		},
 		unbindAudioEvents()

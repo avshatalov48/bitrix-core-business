@@ -2,12 +2,12 @@
 
 namespace Bitrix\UI\Controller;
 
+use Bitrix\Bitrix24\License;
 use Bitrix\Main\Application;
 use Bitrix\Bitrix24;
 use Bitrix\Bitrix24\License\Market;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Web\HttpClient;
 use Bitrix\UI\FeaturePromoter;
 
 class InfoHelper extends Engine\Controller
@@ -33,19 +33,9 @@ class InfoHelper extends Engine\Controller
 		];
 		if (Loader::includeModule('bitrix24') && defined('BX24_HOST_NAME'))
 		{
-			$queryField = [
-				'DEMO' => 'Y',
-				'SITE' => BX24_HOST_NAME,
-			];
+			$res = License::getCurrent()->getDemo()->activate();
 
-			if (function_exists('bx_sign'))
-			{
-				$queryField['hash'] = bx_sign(md5(implode('|', $queryField)));
-			}
-
-			$httpClient = new HttpClient();
-			$res = $httpClient->post('https://www.1c-bitrix.ru/buy_tmp/b24_coupon.php', $queryField);
-			if ($res && mb_strpos($res, 'OK') !== false)
+			if ($res->isSuccess())
 			{
 				$result['success'] = 'Y';
 			}

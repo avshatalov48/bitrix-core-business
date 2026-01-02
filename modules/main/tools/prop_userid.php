@@ -534,7 +534,6 @@ function Ch".$tag_name_x."()
 	setTimeout(function(){Ch".$tag_name_x."()},1000);
 }
 Ch".$tag_name_x."();
-//-->
 </script>
 ";
 	}

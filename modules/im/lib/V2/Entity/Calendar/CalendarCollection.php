@@ -6,6 +6,7 @@ use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Entity\EntityCollection;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Service\Locator;
+use Bitrix\Main\Loader;
 use CCalendarEvent;
 
 class CalendarCollection extends EntityCollection
@@ -27,15 +28,15 @@ class CalendarCollection extends EntityCollection
 		return $calendars;
 	}
 
-	public static function initByIds(array $ids, ?Context $context = null): self
+	public static function getByIds(array $ids, ?Context $context = null): self
 	{
-		$context = $context ?? Locator::getContext();
-		$checkPermissions = false;
-
-		if (empty($ids))
+		if (empty($ids) || !Loader::includeModule('calendar'))
 		{
 			return (new static())->setContext($context);
 		}
+
+		$context = $context ?? Locator::getContext();
+		$checkPermissions = false;
 
 		$calendarGetList = CCalendarEvent::GetList([
 			'arFilter' => [

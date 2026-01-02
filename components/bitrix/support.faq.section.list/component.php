@@ -101,7 +101,7 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 		}
 
 		//no sections to display
-		if(count($arResult['SECTIONS'])<=0)
+		if (empty($arResult['SECTIONS']))
 		{
 			$this->AbortResultCache();
 			@define("ERROR_404", "Y");

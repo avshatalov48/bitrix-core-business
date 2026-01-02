@@ -1,32 +1,31 @@
 <?php
+
 namespace Bitrix\Catalog\Model;
 
 use Bitrix\Catalog;
 use Bitrix\Currency;
+use Bitrix\Iblock;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM;
-use Bitrix\Iblock;
-
-Loc::loadMessages(__FILE__);
 
 class Price extends Entity
 {
 	/** @var bool Enable offers automation */
-	private static $separateSkuMode = null;
+	private static ?bool $separateSkuMode = null;
 
-	private static $productPrices = [];
+	private static array $productPrices = [];
 
-	private static $basePriceType = null;
+	private static ?int $basePriceType = null;
 
-	private static $priceTypes = null;
+	private static ?array $priceTypes = null;
 
-	private static $extraList = null;
+	private static ?array $extraList = null;
 
-	private static $productList = [];
+	private static array $productList = [];
 
-	/** @var string Query for update element timestamp */
-	private static $queryElementDate;
+	/** @var null|string Query for update element timestamp */
+	private static ?string $queryElementDate = null;
 
 	/**
 	 * Returns price tablet name.
@@ -603,7 +602,7 @@ class Price extends Entity
 	 * @param array &$fields                    price data.
 	 * @return void
 	 */
-	private static function checkQuantityRange(ORM\Data\Result $result, array &$fields)
+	private static function checkQuantityRange(ORM\Data\Result $result, array &$fields): void
 	{
 		if ($fields['QUANTITY_FROM'] !== null)
 		{
@@ -675,7 +674,7 @@ class Price extends Entity
 		return $result;
 	}
 
-	private static function loadSettings()
+	private static function loadSettings(): void
 	{
 		self::$separateSkuMode = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
 
@@ -687,10 +686,10 @@ class Price extends Entity
 		unset($row);
 
 		self::$basePriceType = (int)Catalog\GroupTable::getBasePriceTypeId();
-		self::$priceTypes = Catalog\GroupTable::getTypeList();;
+		self::$priceTypes = Catalog\GroupTable::getTypeList();
 	}
 
-	private static function calculatePriceFromBase($id, array &$fields)
+	private static function calculatePriceFromBase($id, array &$fields): void
 	{
 		$correct = false;
 		$copyFields = $fields;
@@ -745,7 +744,7 @@ class Price extends Entity
 			'-'.($row['QUANTITY_TO'] === null ? 'INF' : $row['QUANTITY_TO']);
 	}
 
-	private static function loadProductBasePrices($productId)
+	private static function loadProductBasePrices($productId): void
 	{
 		self::$productPrices = [
 			$productId => []

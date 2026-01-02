@@ -1,5 +1,5 @@
 import { Utils } from 'im.v2.lib.utils';
-import { ListLoadingState as LoadingState } from 'im.v2.component.elements';
+import { ListLoadingState as LoadingState } from 'im.v2.component.elements.list-loading-state';
 
 import { ChannelItem } from './components/channel-item/channel-item';
 import { EmptyState } from './components/empty-state';
@@ -70,7 +70,7 @@ export const ChannelList = {
 		async onScroll(event: Event)
 		{
 			this.contextMenuManager.close();
-			if (!Utils.dom.isOneScreenRemaining(event.target) || !this.getRecentService().hasMoreItemsToLoad)
+			if (!Utils.dom.isOneScreenRemaining(event.target) || !this.getRecentService().hasMoreItemsToLoad())
 			{
 				return;
 			}
@@ -86,7 +86,11 @@ export const ChannelList = {
 		onRightClick(item: ImModelRecentItem, event: PointerEvent)
 		{
 			event.preventDefault();
-			this.contextMenuManager.openMenu(item, event.currentTarget);
+			const context = {
+				dialogId: item.dialogId,
+				recentItem: item,
+			};
+			this.contextMenuManager.openMenu(context, event.currentTarget);
 		},
 		getRecentService(): ChannelService
 		{

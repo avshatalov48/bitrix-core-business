@@ -589,17 +589,6 @@ div.bx-top-panel table.bx-pnbutton div.icon-socnet-reindex {background-image:url
 	margin-right: 12px;
 }
 
-.sn-collab-icon__wrapper {
-	grid-area: icon;
-	position: relative;
-	top: -1px;
-	width: var(--hexagon-width);
-	height: var(--hexagon-height);
-	display: flex;
-	align-items: center;
-	margin: auto;
-}
-
 .sn-collab-tasks__wrapper .pagetitle-item {
 	grid-area: title;
 	font-size: var(--ui-font-size-3xl);
@@ -607,13 +596,13 @@ div.bx-top-panel table.bx-pnbutton div.icon-socnet-reindex {background-image:url
 }
 
 .sn-collab__subtitle {
-	grid-area: subtitle;
 	max-width: 200px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	font-size: var(--ui-font-size-sm);
 	font-weight: var(--ui-font-weight-normal);
 	color: rgba( var(--ui-color-on-primary-alt-rgb), var(--ui-opacity-70));
+	white-space: nowrap;
 }
 
 .bitrix24-default-theme .sn-collab__subtitle,

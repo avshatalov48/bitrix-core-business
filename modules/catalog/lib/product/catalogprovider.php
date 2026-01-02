@@ -1287,9 +1287,9 @@ if (Main\Loader::includeModule('sale'))
 
 				return static::shipQuantityWithStoreControl($productData);
 			}
-			elseif (isset($productData["CATALOG"]))
+			elseif (isset($productData['CATALOG']))
 			{
-				if ($productData["CATALOG"]["QUANTITY_TRACE"] == "N")
+				if ($productData['CATALOG']['QUANTITY_TRACE'] === 'N')
 				{
 					return $result;
 				}
@@ -4300,8 +4300,17 @@ if (Main\Loader::includeModule('sale'))
 				/** @var Sale\ShipmentItem $item */
 				foreach ($productData['SHIPMENT_ITEM_LIST'] as $item)
 				{
+					if (!($item instanceof Sale\ShipmentItem))
+					{
+						continue;
+					}
+					$shipmentStoreCollection = $item->getShipmentItemStoreCollection();
+					if ($shipmentStoreCollection === null)
+					{
+						continue;
+					}
 					/** @var Sale\ShipmentItemStore $storeItem */
-					foreach ($item->getShipmentItemStoreCollection() as $storeItem)
+					foreach ($shipmentStoreCollection as $storeItem)
 					{
 						$quantity = $storeItem->getQuantity();
 						if ($quantity <= 0)
@@ -4316,6 +4325,9 @@ if (Main\Loader::includeModule('sale'))
 							$result->addErrors($r->getErrors());
 						}
 					}
+					unset(
+						$shipmentStoreCollection,
+					);
 				}
 			}
 
@@ -4342,7 +4354,17 @@ if (Main\Loader::includeModule('sale'))
 				/** @var Sale\ShipmentItem $item */
 				foreach ($productData['SHIPMENT_ITEM_LIST'] as $item)
 				{
-					foreach ($item->getShipmentItemStoreCollection() as $storeItem)
+					if (!($item instanceof Sale\ShipmentItem))
+					{
+						continue;
+					}
+					$shipmentStoreCollection = $item->getShipmentItemStoreCollection();
+					if ($shipmentStoreCollection === null)
+					{
+						continue;
+					}
+					/** @var Sale\ShipmentItemStore $storeItem */
+					foreach ($shipmentStoreCollection as $storeItem)
 					{
 						$distributor = new DistributionStrategy\ShipmentStore($productBatch, $storeItem);
 						$r = $distributor->return();
@@ -4351,6 +4373,9 @@ if (Main\Loader::includeModule('sale'))
 							$result->addErrors($r->getErrors());
 						}
 					}
+					unset(
+						$shipmentStoreCollection,
+					);
 				}
 			}
 

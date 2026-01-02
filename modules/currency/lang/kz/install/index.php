@@ -1,0 +1,20 @@
+<?php
+$MESS["CURRENCY_BASE_EMPTY"] = "Базалық валюта берілмеген. Модуль дұрыс жұмыс істей алмайды. Модуль <a href=\"#LINK#\">баптаулары бетінде</a> базалық валютаны көрсету керек";
+$MESS["CURRENCY_BASE_ERROR"] = "Базалық валюта анықталмаған - бірнеше валютаның бағамы 1-ге тең. Модуль дұрыс жұмыс істей алмайды. Модуль <a href=\"#LINK#\">баптаулары бетінде</a> базалық валютаны көрсету керек";
+$MESS["CURRENCY_INSTALL_BACK"] = "Модульдерді басқаруға оралу";
+$MESS["CURRENCY_INSTALL_COMPLETE_ERROR"] = "Орнату қателермен аяқталды";
+$MESS["CURRENCY_INSTALL_COMPLETE_OK"] = "Орнату аяқталды. Қосымша көмек алу үшін көмек бөліміне хабарласыңыз.";
+$MESS["CURRENCY_INSTALL_DESCRIPTION"] = "Валюталарды басқару модулі сайт валюталарын және олардың бағамын басқаруға мүмкіндік береді.";
+$MESS["CURRENCY_INSTALL_ERROR"] = "Орнату кезіндегі қателер";
+$MESS["CURRENCY_INSTALL_NAME"] = "Валюталар";
+$MESS["CURRENCY_INSTALL_PUBLIC_DIR"] = "Жария бума";
+$MESS["CURRENCY_INSTALL_PUBLIC_SETUP"] = "Орнату";
+$MESS["CURRENCY_INSTALL_SETUP"] = "Орнату";
+$MESS["CURRENCY_INSTALL_TITLE"] = "Валютаны басқару модулін орнату";
+$MESS["CURRENCY_INSTALL_UNPOSSIBLE"] = "Модульді өшіріп алып тастау мүмкін емес.";
+$MESS["CURRENCY_UNINSTALL_COMPLETE"] = "Жою аяқталды.";
+$MESS["CURRENCY_UNINSTALL_DEL"] = "Жою";
+$MESS["CURRENCY_UNINSTALL_ERROR"] = "Жою кезіндегі қате:";
+$MESS["CURRENCY_UNINSTALL_SAVEDATA"] = "Егер сіз &quot;Кестелерді сақтау&quot; құсбелгісін орнатсаңыз, деректерді дерекқор кестелерінде сақтай аласыз";
+$MESS["CURRENCY_UNINSTALL_SAVETABLE"] = "Кестелерді сақтау";
+$MESS["CURRENCY_UNINSTALL_WARNING"] = "Назар аударыңыз! Модуль жүйеден жойылатын болады.";

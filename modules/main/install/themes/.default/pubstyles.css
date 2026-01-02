@@ -270,39 +270,6 @@ td.popupmenu table.popupitem td.item {padding:3px 5px 3px 9px !important; font-f
 
 /*menu icons*/
 td.popupmenu div.popupitem .checked {background-image:url(images/checkbox.gif);}
-td.popupmenu div.popupitem .favorites {background-image:url(start_menu/main/favorite.gif);}
-td.popupmenu div.popupitemover .favorites {background-image:url(start_menu/main/favorite_over.gif);}
-td.popupmenu div.popupitem .loading {background-image:url(start_menu/main/loading.gif);}
-td.popupmenu div.popupitemover .loading {background-image:url(start_menu/main/loading_over.gif);}
-
-td.popupmenu div.popupitem .button_content {background-image:url(start_menu/main/content.gif);}
-td.popupmenu div.popupitemover .button_content {background-image:url(start_menu/main/content_over.gif);}
-td.popupmenu div.popupitem .button_services {background-image:url(start_menu/main/services.gif);}
-td.popupmenu div.popupitemover .button_services {background-image:url(start_menu/main/services_over.gif);}
-td.popupmenu div.popupitem .button_store {background-image:url(start_menu/main/store.gif);}
-td.popupmenu div.popupitemover .button_store {background-image:url(start_menu/main/store_over.gif);}
-td.popupmenu div.popupitem .button_statistics {background-image:url(start_menu/main/statistics.gif);}
-td.popupmenu div.popupitemover .button_statistics {background-image:url(start_menu/main/statistics_over.gif);}
-td.popupmenu div.popupitem .button_settings {background-image:url(start_menu/main/settings.gif);}
-td.popupmenu div.popupitemover .button_settings {background-image:url(start_menu/main/settings_over.gif);}
-
-td.popupmenu div.popupitem .user_menu_icon {background-image:url(start_menu/main/user.gif);}
-td.popupmenu div.popupitemover .user_menu_icon {background-image:url(start_menu/main/user_over.gif);}
-td.popupmenu div.popupitem .sys_menu_icon {background-image:url(start_menu/main/sys.gif);}
-td.popupmenu div.popupitemover .sys_menu_icon {background-image:url(start_menu/main/sys_over.gif);}
-td.popupmenu div.popupitem .util_menu_icon {background-image:url(start_menu/main/tools.gif);}
-td.popupmenu div.popupitemover .util_menu_icon {background-image:url(start_menu/main/tools_over.gif);}
-td.popupmenu div.popupitem .update_menu_icon {background-image:url(start_menu/main/update.gif);}
-td.popupmenu div.popupitem .update_menu_icon_partner {background-image:url(start_menu/main/update_partner.gif);}
-td.popupmenu div.popupitemover .update_menu_icon {background-image:url(start_menu/main/update_over.gif);}
-td.popupmenu div.popupitemover .update_menu_icon_partner {background-image:url(start_menu/main/update_over_partner.gif);}
-td.popupmenu div.popupitem .fav_menu_icon {background-image:url(start_menu/main/favorite.gif);}
-td.popupmenu div.popupitemover .fav_menu_icon {background-image:url(start_menu/main/favorite_over.gif);}
-td.popupmenu div.popupitem .rating_menu_icon {background-image:url(icons/main/mnu_rating.gif);}
-td.popupmenu div.popupitemover .rating_menu_icon {background-image:url(icons/main/mnu_rating.gif);}
-
-td.popupmenu div.popupitem .update_marketplace {background-image:url(start_menu/main/marketplace.gif);}
-td.popupmenu div.popupitem .update_marketplace_modules {background-image:url(start_menu/main/marketplace_modules.gif);}
 
 /*component menu icons */
 td.popupmenu div.popupitem .parameters {background-image:url(public/components/buttons/parameters.gif);}

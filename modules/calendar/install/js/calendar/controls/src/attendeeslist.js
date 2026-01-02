@@ -1,6 +1,6 @@
-import {Loc, Type} from "main.core";
-import {MenuManager, MenuItem} from "main.popup";
-import {UserPlannerSelector} from "calendar.controls";
+import { Loc, Type, Dom } from 'main.core';
+import { MenuManager, MenuItem } from 'main.popup';
+import { UserPlannerSelector } from 'calendar.controls';
 
 export class AttendeesList
 {
@@ -34,12 +34,11 @@ export class AttendeesList
 
 	addAvatarToMenuItems()
 	{
-		this.popup.menuItems.forEach((item) =>
-		{
+		this.popup.menuItems.forEach((item) => {
 			const icon = item.layout.item.querySelector('.menu-popup-item-icon');
 			if (Type.isPlainObject(item.dataset))
 			{
-				icon.appendChild(UserPlannerSelector.getUserAvatarNode(item.dataset.user))
+				Dom.append(UserPlannerSelector.getUserAvatarNode(item.dataset.user), icon);
 			}
 		});
 	}
@@ -47,7 +46,7 @@ export class AttendeesList
 	getPopup(menuItems)
 	{
 		return MenuManager.create(
-			'compact-event-form-attendees' + Math.round(Math.random() * 100000),
+			`compact-event-form-attendees${Math.round(Math.random() * 100_000)}`,
 			this.node,
 			menuItems,
 			{
@@ -58,8 +57,8 @@ export class AttendeesList
 				offsetLeft: 15,
 				angle: true,
 				cacheable: false,
-				className: 'calendar-popup-user-menu'
-			}
+				className: 'calendar-popup-user-menu',
+			},
 		);
 	}
 
@@ -79,8 +78,7 @@ export class AttendeesList
 				code: 'declined', // Declined
 				title: Loc.getMessage('EC_ATTENDEES_N_NUM'),
 			},
-		].forEach((group: { code: string, title: string }): void =>
-		{
+		].forEach((group: { code: string, title: string }) => {
 			const groupUsers = this.attendeesList[group.code];
 			if (groupUsers.length > 0)
 			{
@@ -89,25 +87,24 @@ export class AttendeesList
 					delimiter: true,
 				}));
 
-				groupUsers.forEach((user): void =>
-				{
+				groupUsers.forEach((user) => {
 					user.toString = () => user.ID;
+
 					menuItems.push(
 						{
 							text: BX.util.htmlspecialchars(user.DISPLAY_NAME),
 							dataset: { user },
 							className: `calendar-add-popup-user-menu-item ${user.COLLAB_USER ? 'calendar-collab-user' : ''}`,
-							onclick: (): void =>
-								BX.SidePanel.Instance.open(
-									user.URL,
-									{
-										loader: 'intranet:profile',
-										cacheable: false,
-										allowChangeHistory: false,
-										contentClassName: 'bitrix24-profile-slider-content',
-										width: 1100,
-									},
-								),
+							onclick: () => BX.SidePanel.Instance.open(
+								user.URL,
+								{
+									loader: 'intranet:profile',
+									cacheable: false,
+									allowChangeHistory: true,
+									contentClassName: 'bitrix24-profile-slider-content',
+									width: 1100,
+								},
+							),
 						},
 					);
 				});

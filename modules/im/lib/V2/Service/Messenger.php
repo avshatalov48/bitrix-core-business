@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Service;
 
+use Bitrix\Im\V2\Application;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Chat\GroupChat;
 use Bitrix\Im\V2\Chat\PrivateChat;
@@ -15,6 +16,7 @@ use Bitrix\Im\V2\Chat\ChatFactory;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\Delete\DeleteService;
+use Bitrix\Im\V2\Message\Delete\DeletionMode;
 use Bitrix\Im\V2\Message\MessageError;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Permission\Action;
@@ -27,6 +29,8 @@ class Messenger
 	use ContextCustomer;
 
 	private const INTRANET_MENU_ID = 'menu_im_messenger';
+
+	private Application $application;
 
 	/**
 	 * Returns current instance of the Messenger.
@@ -54,6 +58,13 @@ class Messenger
 		return $result;
 	}
 
+	public function getApplication(): Application
+	{
+		$this->application ??= new Application();
+
+		return $this->application;
+	}
+
 	//region Chats
 
 	/**
@@ -77,35 +88,9 @@ class Messenger
 		return $chat;
 	}
 
-	/**
-	 * @param string $entityType
-	 * @param int|string $entityId
-	 * @return EntityChat|GroupChat|NullChat
-	 */
 	public function getEntityChat(string $entityType, string $entityId): Chat
 	{
-		$chatFactory = ChatFactory::getInstance();
-		$chat = $chatFactory
-			->setContext($this->context)
-			->getEntityChat($entityType, $entityId)
-		;
-
-		if (!$chat)
-		{
-			return (new NullChat())
-				->setPreparedParams([
-					'TYPE' => Chat::IM_TYPE_CHAT,
-					'ENTITY_TYPE' => $entityType,
-					'ENTITY_ID' => $entityId,
-				]);
-		}
-
-		if (!$chat->checkAccess()->isSuccess())
-		{
-			return new NullChat();
-		}
-
-		return $chat;
+		return ChatFactory::getInstance()->getEntityChat($entityType, $entityId);
 	}
 
 	public function getGeneralChat(): Chat
@@ -120,6 +105,33 @@ class Messenger
 	public function getChat(int $chatId): Chat
 	{
 		return Chat\ChatFactory::getInstance()->getChatById($chatId);
+	}
+
+	/**
+	 * @param array<int> $chatIds
+	 * @param bool $checkAccess
+	 * @return array<Chat>
+	 */
+	public function getChats(array $chatIds, bool $checkAccess = false): array
+	{
+		$chats = [];
+		foreach ($chatIds as $chatId)
+		{
+			$chats[$chatId] = Chat::getInstance($chatId);
+		}
+
+		if (empty($chats) || !$checkAccess)
+		{
+			return $chats;
+		}
+
+		$currentUserId = $this->getContext()->getUserId();
+		if (!$currentUserId)
+		{
+			return [];
+		}
+
+		return array_filter($chats, static fn (Chat $chat) => $chat->checkAccess($currentUserId)->isSuccess());
 	}
 
 	//endregion
@@ -155,8 +167,8 @@ class Messenger
 	{
 		$result = new Result();
 
-		$deleteService = new Message\Delete\DeleteService($message);
-		$deleteService->setMode($mode);
+		$deleteService = DeleteService::getInstanceByMessage($message);
+		$deleteService->setMode(DeletionMode::tryFrom($mode));
 		$deleteService->delete();
 
 		return $result;
@@ -171,8 +183,8 @@ class Messenger
 	 */
 	public function disappearMessage(Message $message, int $hours): Result
 	{
-		$deleteService = new DeleteService($message);
-		if ($deleteService->canDelete() < DeleteService::DELETE_HARD)
+		$deleteService = DeleteService::getInstanceByMessage($message);
+		if ($deleteService->canDelete($message->getId()) !== DeletionMode::Complete)
 		{
 			return (new Result())->addError(new MessageError(MessageError::ACCESS_DENIED));
 		}
@@ -209,7 +221,7 @@ class Messenger
 				return;
 			}
 
-			$taskService->registerTask($chatId, $messageId, TaskItem::initByTaskObject($task));
+			$taskService->registerTask($chat, $messageId, TaskItem::initByTaskObject($task));
 		}
 		catch (\Bitrix\Main\SystemException $exception)
 		{

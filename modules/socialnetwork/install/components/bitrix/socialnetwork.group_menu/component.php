@@ -322,7 +322,7 @@ if (
 					array_key_exists('marketplace', $arResult["ActiveFeatures"])
 					&& $arResult["ActiveFeatures"]['marketplace'] <> ''
 						? $arResult["ActiveFeatures"]['marketplace']
-						: Loc::getMessage('SONET_UM_MARKETPLACE_2')
+						: Loc::getMessage('SONET_UM_MARKETPLACE_MSGVER_1')
 				);
 				$arResult["Urls"]['marketplace'] = $arResult["Urls"]["view"]."marketplace/";
 

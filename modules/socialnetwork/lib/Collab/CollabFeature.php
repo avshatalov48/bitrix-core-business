@@ -9,6 +9,7 @@ use Bitrix\Bitrix24;
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\Integration\Intranet\Settings;
 
 class CollabFeature
 {
@@ -23,6 +24,11 @@ class CollabFeature
 		}
 
 		return Bitrix24\Feature::isFeatureEnabled(self::FEATURE_ID);
+	}
+
+	public static function isFeatureEnabledInPortalSettings(): bool
+	{
+		return (new Settings())->isToolAvailable(Settings::SONET_TOOLS['collab']);
 	}
 
 	public static function isOn(): bool

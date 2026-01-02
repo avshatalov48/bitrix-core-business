@@ -1,10 +1,9 @@
-import {Dom, Loc, Type} from 'main.core';
+import { Loc, Type } from 'main.core';
 
-import {getConst} from '../utils/core-proxy';
-import {Parser} from '../parser';
+import { getConst } from '../utils/core-proxy';
+import { Parser } from '../parser';
 
-const {FileType, FileIconType, AttachDescription} = getConst();
-
+const { FileType, FileIconType, AttachDescription } = getConst();
 
 export const ParserIcon = {
 	getIcon(icon: $Values<typeof FileIconType>, fallbackText: string = ''): string
@@ -31,8 +30,8 @@ export const ParserIcon = {
 		files: boolean | Array
 	}): string
 	{
-		let {text} = config;
-		const {attach, files} = config;
+		let { text } = config;
+		const { attach, files } = config;
 
 		if (Type.isArrayFilled(files) || files === true)
 		{
@@ -99,8 +98,7 @@ export const ParserIcon = {
 		let preparedText = rawText;
 		if (Type.isArray(files) && files.length > 0)
 		{
-			const [firstFile] = files;
-			preparedText = this.getIconTextForFile(rawText, firstFile);
+			preparedText = this.getIconTextForFile(rawText, files);
 		}
 		else if (files === true)
 		{
@@ -172,9 +170,10 @@ export const ParserIcon = {
 		return result.trim();
 	},
 
-	getIconTextForFile(text: string, file: Object): string
+	getIconTextForFile(text: string, files: Array<Object>): string
 	{
 		const withText = text.replace(/(\s|\n)/gi, '').length > 0;
+		const [file] = files;
 
 		// todo: remove this hack after fix receiving messages with files on P&P
 		if (!file || !file.type)
@@ -182,9 +181,15 @@ export const ParserIcon = {
 			return text;
 		}
 
-		if (file.type === FileType.image)
+		const isGallery = files.every((file) => [FileIconType.image, FileIconType.video].includes(file.type));
+
+		if (file.type === FileType.image && files.length === 1)
 		{
 			return this.getIconTextForFileType(text, FileIconType.image);
+		}
+		else if (isGallery && files.length > 1)
+		{
+			return this.getIconTextForFileType(text, FileIconType.gallery);
 		}
 		else if (file.type === FileType.audio)
 		{
@@ -199,7 +204,7 @@ export const ParserIcon = {
 			const icon = this.getIcon(FileIconType.file);
 			if (icon)
 			{
-				const textDescription = withText? text: '';
+				const textDescription = withText ? text : '';
 				text = `${icon} ${file.name} ${textDescription}`;
 			}
 			else

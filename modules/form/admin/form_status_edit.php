@@ -36,7 +36,7 @@ if (false === $arForm)
 {
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	echo "<a href='form_list.php?lang=".LANGUAGE_ID."' >".GetMessage("FORM_FORM_LIST")."</a>";
-	echo ShowError(GetMessage("FORM_NOT_FOUND"));
+	ShowError(GetMessage("FORM_NOT_FOUND"));
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
@@ -60,7 +60,7 @@ if (intval($copy_id)>0 && check_bitrix_sessid() && $F_RIGHT >= 30)
 
 $DEFAULT_STATUS_ID = intval(CFormStatus::GetDefault($WEB_FORM_ID));
 
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $F_RIGHT >= 30 && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD']=="POST" && $F_RIGHT >= 30 && check_bitrix_sessid())
 {
 	$arFields = array(
 		"FORM_ID"				=> $WEB_FORM_ID,

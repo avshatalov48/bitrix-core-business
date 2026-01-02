@@ -552,7 +552,7 @@ if($USER->CanDoOperation('view_other_settings') || $USER->CanDoOperation('view_e
 	);
 }
 
-if($USER->CanDoOperation('install_updates') || (in_array(LANGUAGE_ID, array("ru", "ua", "bg")) && ($USER->CanDoOperation('view_all_users') || $USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('edit_own_profile') || $USER->CanDoOperation('view_groups') || $USER->CanDoOperation('view_other_settings'))))
+if ($USER->CanDoOperation('install_updates') || (in_array(LANGUAGE_ID, array("ru", "kz")) && ($USER->CanDoOperation('view_all_users') || $USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('edit_own_profile') || $USER->CanDoOperation('view_groups') || $USER->CanDoOperation('view_other_settings'))))
 {
 	$arMarket = array();
 	if(method_exists($adminMenu, "IsSectionActive"))

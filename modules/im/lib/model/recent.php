@@ -22,9 +22,9 @@ use Bitrix\Main;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Recent_Query query()
- * @method static EO_Recent_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Recent_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Recent_Result getById($id)
- * @method static EO_Recent_Result getList(array $parameters = array())
+ * @method static EO_Recent_Result getList(array $parameters = [])
  * @method static EO_Recent_Entity getEntity()
  * @method static \Bitrix\Im\Model\EO_Recent createObject($setDefaultValues = true)
  * @method static \Bitrix\Im\Model\EO_Recent_Collection createCollection()

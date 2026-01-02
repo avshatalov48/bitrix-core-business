@@ -1,0 +1,24 @@
+<?php
+$MESS["CATALOG_STORE_DOCUMENT_BARCODE_EXIST_ERROR"] = "\"#BARCODE#\" штрихкоды каталогтағы басқа тауарда бұрыннан бар";
+$MESS["CATALOG_STORE_DOCUMENT_CANCEL_CONDUCT_BUTTON"] = "Өткізуді болдырмау";
+$MESS["CATALOG_STORE_DOCUMENT_CONDUCT_BUTTON"] = "Құжатты өткізу";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_CANCEL_ERROR"] = "Құжатты өткізуді болдырмау кезінде қате пайда болды";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_CARD_NO_WRITE_RIGHTS_ERROR"] = "Құжат карточкасын сақтау үшін жеткілікті құқықтар жоқ.";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_CONDUCT_ERROR"] = "Құжатты өткізу кезінде қате пайда болды";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_DOCUMENT_NOT_FOUND_ERROR"] = "Құжат табылмады";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_DOCUMENT_TYPE_NOT_SPECIFIED_ERROR"] = "Құжаттың түрі көрсетілмеген";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_DOC_TYPE_A"] = "Тауардың қоймаға кірісі";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_DOC_TYPE_D"] = "Тауарды есептен шығару";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_DOC_TYPE_ERROR"] = "Құжат түрі дұрыс көрсетілмеген";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_DOC_TYPE_M"] = "Тауарлардың қоймалар арасында орнын ауыстыруы";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_INCORRECT_VALUE"] = "\"#FIELD_NAME#\" өрісі дұрыс толтырылмаған";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_NO_INVENTORY_MANAGEMENT_ENABLED_ERROR"] = "Қойма есебі сіздің тарифіңізде қолжетімсіз";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_NO_VIEW_RIGHTS_ERROR"] = "Құжатты қарау үшін құқықтар жеткіліксіз";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_NO_WRITE_RIGHTS_ERROR"] = "Құжатты сақтау үшін құқықтар жеткіліксіз";
+$MESS["CATALOG_STORE_DOCUMENT_DETAIL_SAVE_ERROR"] = "Құжатты сақтау кезінде қате пайда болды";
+$MESS["CATALOG_STORE_DOCUMENT_ELEMENT_STORE_ACCESS_DENIED"] = "\"#PRODUCT_NAME#\" құжатының тауарын сақтау үшін қоймаға қолжетімділігіңіз жоқ";
+$MESS["CATALOG_STORE_DOCUMENT_ERR_ACCESS_DENIED"] = "Қойма есебі бөлімін қарауға құқықтар жеткіліксіз";
+$MESS["CATALOG_STORE_DOCUMENT_ERR_ACCESS_DENIED_BOX"] = "Сізде қойма есебіне қолжетімділік құқығы жеткіліксіз. Құқықтарды алу үшін портал әкімшісіне хабарласыңыз. Толық ақпарат  <a href=\"https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=48&LESSON_ID=25010\" target=\"_blank\">Битрикс24 сервисінің әкімшісі оқу курсының мақаласы</a>.";
+$MESS["CATALOG_STORE_DOCUMENT_ERR_ACCESS_DENIED_CLOUD"] = "Сізде қойма есебіне қолжетімділік құқығы жеткіліксіз. Құқықтарды алу үшін Битрикс24 әкімшісіне хабарласыңыз. Әкімші сізге CRM баптаулары бөлімінде менеджер рөлін тағайындауы керек. Толық ақпарат <a onclick=\"top.BX.Helper.show('redirect=detail&code=15955386')\" style=\"cursor: pointer; \">Қолдау24 мақаласы</a>.";
+$MESS["CATALOG_STORE_DOCUMENT_NO_PRODUCT"] = "Құжатты сақтау үшін тауарды таңдау немесе жасау қажет";
+$MESS["CATALOG_STORE_DOCUMENT_SAVE_AND_CONDUCT_BUTTON"] = "Сақтау және өткізу";

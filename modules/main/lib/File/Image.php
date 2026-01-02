@@ -185,6 +185,16 @@ class Image
 	}
 
 	/**
+	 * Blurs the image.
+	 * @param int $sigma
+	 * @return bool
+	 */
+	public function blur(int $sigma): bool
+	{
+		return $this->engine->blur($sigma);
+	}
+
+	/**
 	 * Applies a mask to the image (convolution).
 	 * @param Image\Mask $mask
 	 * @return bool

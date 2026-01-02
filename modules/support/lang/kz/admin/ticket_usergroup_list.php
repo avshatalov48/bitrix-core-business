@@ -1,0 +1,23 @@
+<?php
+$MESS["SUP_UGL_ADD"] = "Қосу";
+$MESS["SUP_UGL_ADD_TITLE"] = "Қосу";
+$MESS["SUP_UGL_CAN_VIEW_GROUP_MESSAGES"] = "Топтың тикеттерін көре алады";
+$MESS["SUP_UGL_DELETE"] = "Жою";
+$MESS["SUP_UGL_DELETE_CONFIRMATION"] = "Шынымен жою керек пе?";
+$MESS["SUP_UGL_EDIT"] = "Редакциялау";
+$MESS["SUP_UGL_EXACT_MATCH"] = "Дәл сәйкестікті іздеу";
+$MESS["SUP_UGL_FIRST_NAME"] = "Аты";
+$MESS["SUP_UGL_FLT_ALL_GROUPS"] = "барлық топтар";
+$MESS["SUP_UGL_FLT_CAN_VIEW_GROUP_MESSAGES"] = "Топтың тикеттерін көре алады";
+$MESS["SUP_UGL_FLT_GROUP"] = "Топ";
+$MESS["SUP_UGL_FLT_IS_TEAM_GROUP"] = "Техникалық қолдау қызметкерлері тобы";
+$MESS["SUP_UGL_FLT_LOGIN"] = "Login";
+$MESS["SUP_UGL_FLT_USER"] = "Пайдаланушы";
+$MESS["SUP_UGL_GROUP_ID"] = "Топтың ID-і";
+$MESS["SUP_UGL_GROUP_NAME"] = "Топтың атауы";
+$MESS["SUP_UGL_IS_TEAM_GROUP"] = "Техникалық қолдау қызметкерлері тобы";
+$MESS["SUP_UGL_LAST_NAME"] = "Тегі";
+$MESS["SUP_UGL_LOGIN"] = "Login";
+$MESS["SUP_UGL_PAGES"] = "Пайдаланушылар";
+$MESS["SUP_UGL_TITLE"] = "Топтар мен пайдаланушылар";
+$MESS["SUP_UGL_USER_ID"] = "Пайдаланушының ID-і";

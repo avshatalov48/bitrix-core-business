@@ -22,7 +22,7 @@
 		data.textOnly = true;
 		var content = data.content;
 		data.content = content.source || content.src;
-		data.placeholder = BX.Landing.Loc.getMessage('LANDING_EMBED_NOT_BG_FIELD_DESCRIPTION');
+		data.placeholder = BX.Landing.Loc.getMessage('LANDING_EMBED_ERROR_TEXT');
 		data.description =
 			data.description
 			|| "<span class='landing-ui-anchor-preview'>"+BX.Landing.Loc.getMessage('LANDING_EMBED_NOT_BG_FIELD_DESCRIPTION')+"</span>";
@@ -58,6 +58,11 @@
 			this.adjustForm(true);
 			this.onInputHandler(value);
 			this.onValueChangeHandler(this);
+
+			if (this.input.innerText === '\n')
+			{
+				this.input.innerText = '';
+			}
 
 			var event = new BX.Event.BaseEvent({
 				data: {value: value},

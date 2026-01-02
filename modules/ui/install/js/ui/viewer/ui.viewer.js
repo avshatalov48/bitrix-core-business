@@ -1,5 +1,4 @@
-;(function () {
-
+(function() {
 	'use strict';
 
 	BX.namespace('BX.UI.Viewer');
@@ -56,6 +55,7 @@
 		this.moreMenu = null;
 
 		this.eventsAlreadyBinded = false;
+		this.pinchZoomHandler = null;
 
 		this.init();
 	};
@@ -657,7 +657,19 @@
 						{
 							loadedItem.asFirstToShow();
 						}
+
+						if (this.getCurrentItem() instanceof BX.UI.Viewer.Image)
+						{
+							(window.top || window).addEventListener('wheel', this.getPinchZoomHandler(), { passive: false });
+						}
+						else
+						{
+							(window.top || window).removeEventListener('wheel', this.getPinchZoomHandler(), { passive: false });
+							this.pinchZoomHandler = null;
+						}
 					}
+
+					this.processPreload(index, direction);
 				})
 				.catch((reason) => {
 					this.unobserveItemLoading(item);
@@ -683,8 +695,32 @@
 
 			const cycleMove = this.items.length > 20 && (moveToStart || moveToEnd);
 			this.selectCarouselItem(this.currentIndex, options.asFirstToShow !== true && !cycleMove);
+		},
 
-			this.processPreload(this.currentIndex, direction);
+		getPinchZoomHandler()
+		{
+			if (!this.pinchZoomHandler)
+			{
+				this.pinchZoomHandler = (event) => {
+					if (!(event.ctrlKey || event.metaKey))
+					{
+						return;
+					}
+
+					event.preventDefault();
+
+					if (event.deltaY < 0)
+					{
+						this.getCurrentItem().handleZoomIn();
+					}
+					else if (event.deltaY > 0)
+					{
+						this.getCurrentItem().handleZoomOut();
+					}
+				};
+			}
+
+			return this.pinchZoomHandler;
 		},
 
 		processPreload(fromIndex, direction)
@@ -1836,6 +1872,12 @@
 				}
 			}.bind(this));
 
+			if (this.pinchZoomHandler)
+			{
+				(window.top || window).removeEventListener('wheel', this.getPinchZoomHandler(), { passive: false });
+				this.pinchZoomHandler = null;
+			}
+
 			// this.items = null;
 			// this.currentIndex = null;
 			// this.layout.container = null;
@@ -2291,17 +2333,39 @@
 				return false;
 			}
 
-			var items = nodes.map(function(node, index) {
-				if (node === targetNode)
-				{
-					indexToShow = index;
-				}
-				return BX.UI.Viewer.buildItemByNode(node);
-			});
+			const openViewer = () => {
+				const items = nodes.map((node, index) => {
+					if (node === targetNode)
+					{
+						indexToShow = index;
+					}
 
-			BX.UI.Viewer.Instance.setItems(items).then(function () {
-				BX.UI.Viewer.Instance.open(indexToShow);
-			});
+					return top.BX.UI.Viewer.buildItemByNode(node);
+				});
+
+				top.BX.UI.Viewer.Instance.setItems(items)
+					.then(() => {
+						top.BX.UI.Viewer.Instance.open(indexToShow);
+					})
+					.catch(() => {
+						// Fail silently
+					});
+			};
+
+			if (window.top !== window && !BX.getClass('window.top.BX.UI.Viewer.Instance'))
+			{
+				top.BX.loadExt('ui.viewer')
+					.then(() => {
+						openViewer();
+					})
+					.catch(() => {
+						// Fail Silently
+					});
+			}
+			else
+			{
+				openViewer();
+			}
 
 			event.preventDefault();
 		});

@@ -1,0 +1,22 @@
+<?php
+$MESS["BIZPROC_SCRIPT_EDIT_BTN_CHANGE"] = "Өзгерту";
+$MESS["BIZPROC_SCRIPT_EDIT_CONSTANT_DESCRIPTION"] = "Бұл параметрлер сценарийдің дұрыс жұмыс істеуі үшін алдын ала бапталуы тиіс.";
+$MESS["BIZPROC_SCRIPT_EDIT_CONSTANT_LABEL"] = "Әкімші баптаулары";
+$MESS["BIZPROC_SCRIPT_EDIT_DELAY_AFTER_HELP"] = "Сценарий іске қосылғаннан кейін роботтың іске қосылу уақыты";
+$MESS["BIZPROC_SCRIPT_EDIT_DELAY_NOW_HELP"] = "Робот сценарий іске қосылғаннан кейін бірден іске қосылады";
+$MESS["BIZPROC_SCRIPT_EDIT_MENU_CONFIGS"] = "Сценарийді баптау";
+$MESS["BIZPROC_SCRIPT_EDIT_MENU_GENERAL"] = "Сипаттама";
+$MESS["BIZPROC_SCRIPT_EDIT_MENU_ROBOTS"] = "Роботтар";
+$MESS["BIZPROC_SCRIPT_EDIT_MENU_TITLE"] = "Ақылды сценарийлер";
+$MESS["BIZPROC_SCRIPT_EDIT_PARAMETER_DESCRIPTION"] = "Бұл параметрлер, оларға өзгертулер енгізу үшін, сценарийді іске қосқан сайын пайдаланушыға көрсетіледі. ";
+$MESS["BIZPROC_SCRIPT_EDIT_PARAMETER_LABEL"] = "Паудаланушы баптаулары";
+$MESS["BIZPROC_SCRIPT_EDIT_ROBOT_HELP"] = "Роботтар клиентпен жұмыс процесін құруға және кейіннен менеджерлерге берілген тізбек бойынша жүруге көмектеседі, сонымен қатар әрекеттерді автоматты түрде орындайды: хаттар жіберу, қоңырау шалу және т. б.";
+$MESS["BIZPROC_SCRIPT_EDIT_SCRIPT_DESCRIPTION"] = "Сипаттама";
+$MESS["BIZPROC_SCRIPT_EDIT_SCRIPT_DESCRIPTION_TEXT"] = "Сипаттама мәтіні";
+$MESS["BIZPROC_SCRIPT_EDIT_SCRIPT_NAME"] = "Сценарий атауы";
+$MESS["BIZPROC_SCRIPT_EDIT_SCRIPT_NAME_DEFAULT"] = "Жаңа сценарий";
+$MESS["BIZPROC_SCRIPT_EDIT_SECTION_CONFIGS_EMPTY"] = "әзірге қосымша баптаулар қажет емес";
+$MESS["BIZPROC_SCRIPT_EDIT_SECTION_GENERAL"] = "Сценарий сипаттамасы";
+$MESS["BIZPROC_SCRIPT_EDIT_SECTION_ROBOTS"] = "Роботтарды баптау";
+$MESS["BIZPROC_SCRIPT_EDIT_VALIDATION_EMPTY_CONFIGS"] = "Әкімші баптауларын толтыру қажет";
+$MESS["BIZPROC_SCRIPT_EDIT_VALIDATION_EMPTY_NAME"] = "Сценарийдің атауы көрсетілмеген";

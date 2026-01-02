@@ -77,7 +77,7 @@ BitrixVue.component('sale-checkout-form', {
 		},
 		needCheckConsent()
 		{
-			return this.getConsent.id > 0;
+			return this.getConsent.items.length > 0;
 		},
 		getBasket()
 		{

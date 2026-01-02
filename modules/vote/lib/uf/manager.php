@@ -11,6 +11,7 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\SystemException;
+use Bitrix\Vote\Attachment\ImMessageConnector;
 
 final class Manager
 {
@@ -197,12 +198,13 @@ final class Manager
 		return array_merge($this->getDefaultConnectors(), $this->getAdditionalConnectors());
 	}
 
-	private function getDefaultConnectors()
+	private function getDefaultConnectors(): array
 	{
-		return array(
-			'blog_post' => array(BlogPostConnector::className(), 'blog'),
-			'forum_message' => array(ForumMessageConnector::className(), 'forum')
-		);
+		return [
+			'blog_post' => [BlogPostConnector::className(), 'blog'],
+			'forum_message' => [ForumMessageConnector::className(), 'forum'],
+			'im_message' => [ImMessageConnector::className(), 'im'],
+		];
 	}
 
 

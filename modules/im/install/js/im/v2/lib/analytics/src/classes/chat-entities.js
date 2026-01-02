@@ -13,7 +13,7 @@ import type { ImModelChat } from 'im.v2.model';
 
 export class ChatEntities
 {
-	onCreateTaskFromSidebarClick(dialogId: string)
+	onCreateTaskFromSidebarClick(dialogId: string): void
 	{
 		this.#onClick({
 			dialogId,
@@ -22,7 +22,7 @@ export class ChatEntities
 		});
 	}
 
-	onCreateTaskFromTextareaClick(dialogId: string)
+	onCreateTaskFromTextareaClick(dialogId: string): void
 	{
 		this.#onClick({
 			dialogId,
@@ -31,7 +31,7 @@ export class ChatEntities
 		});
 	}
 
-	onCreateEventFromSidebarClick(dialogId: string)
+	onCreateEventFromSidebarClick(dialogId: string): void
 	{
 		this.#onClick({
 			dialogId,
@@ -40,7 +40,7 @@ export class ChatEntities
 		});
 	}
 
-	onCreateEventFromTextareaClick(dialogId: string)
+	onCreateEventFromTextareaClick(dialogId: string): void
 	{
 		this.#onClick({
 			dialogId,
@@ -49,7 +49,16 @@ export class ChatEntities
 		});
 	}
 
-	#onClick({ dialogId, event, section })
+	onCreateVoteFromTextareaClick(dialogId: string): void
+	{
+		this.#onClick({
+			dialogId,
+			event: AnalyticsEvent.clickCreatePoll,
+			section: AnalyticsSection.chatTextarea,
+		});
+	}
+
+	#onClick({ dialogId, event, section }): void
 	{
 		const chat: ImModelChat = Core.getStore().getters['chats/get'](dialogId, true);
 

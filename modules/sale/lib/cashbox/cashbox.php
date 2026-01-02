@@ -22,6 +22,8 @@ abstract class Cashbox
 
 	const EVENT_ON_GET_CUSTOM_CASHBOX_HANDLERS = 'OnGetCustomCashboxHandlers';
 
+	protected const MAX_UUID_LENGTH = 100;
+
 	/** @var array $fields */
 	private $fields = array();
 
@@ -441,8 +443,16 @@ abstract class Cashbox
 		$context = Main\Application::getInstance()->getContext();
 		$server = $context->getServer();
 		$domain = $server->getServerName();
+		$timestamp = time();
 
-		return $type.static::UUID_DELIMITER.$domain.static::UUID_DELIMITER.$id;
+		$uuid =
+			$type.static::UUID_DELIMITER.
+			$domain.static::UUID_DELIMITER.
+			$id.static::UUID_DELIMITER.
+			$timestamp
+		;
+
+		return mb_substr($uuid, 0, static::MAX_UUID_LENGTH);
 	}
 
 	/**

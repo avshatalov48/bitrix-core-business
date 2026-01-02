@@ -66,9 +66,16 @@ class RedisConnectionConfigurator
 				$connection->setOption(\Redis::OPT_SERIALIZER, $config['serializer'] ?? \Redis::SERIALIZER_IGBINARY);
 			}
 		}
-		elseif ($connection instanceof \RedisCluster)
+		else
 		{
-			$connection->setOption(\RedisCluster::OPT_SERIALIZER, $config['serializer'] ?? \RedisCluster::SERIALIZER_IGBINARY);
+			if (isset($config['serializer']))
+			{
+				$connection->setOption(\RedisCluster::OPT_SERIALIZER, $config['serializer']);
+			}
+			elseif (defined('\RedisCluster::SERIALIZER_IGBINARY'))
+			{
+				$connection->setOption(\RedisCluster::OPT_SERIALIZER, \RedisCluster::SERIALIZER_IGBINARY);
+			}
 
 			if (count($this->servers) > 1)
 			{

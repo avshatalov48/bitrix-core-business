@@ -5,17 +5,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 (function (exports,main_date) {
 	'use strict';
 
-	const DateCode = {
-	  shortTimeFormat: main_date.DateTimeFormat.getFormat('SHORT_TIME_FORMAT'),
-	  shortDateFormat: main_date.DateTimeFormat.getFormat('SHORT_DATE_FORMAT'),
-	  dayMonthFormat: main_date.DateTimeFormat.getFormat('DAY_MONTH_FORMAT'),
-	  longDateFormat: main_date.DateTimeFormat.getFormat('LONG_DATE_FORMAT'),
-	  dayOfWeekMonthFormat: main_date.DateTimeFormat.getFormat('DAY_OF_WEEK_MONTH_FORMAT'),
-	  fullDateFormat: main_date.DateTimeFormat.getFormat('FULL_DATE_FORMAT'),
-	  dayShortMonthFormat: main_date.DateTimeFormat.getFormat('DAY_SHORT_MONTH_FORMAT'),
-	  mediumDateFormat: main_date.DateTimeFormat.getFormat('MEDIUM_DATE_FORMAT'),
-	  defaultDateTime: main_date.DateTimeFormat.getFormat('FORMAT_DATETIME')
-	};
 	const Interval = {
 	  tomorrow: 'tomorrow',
 	  today: 'today',
@@ -24,6 +13,30 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  year: 'year',
 	  olderThanYear: 'olderThanYear'
 	};
+
+	// camelCase versions of main formats
+	// main/install/js/main/date/config.php
+	const DateFormat = {
+	  shortTimeFormat: 'SHORT_TIME_FORMAT',
+	  longTimeFormat: 'LONG_TIME_FORMAT',
+	  shortDateFormat: 'SHORT_DATE_FORMAT',
+	  dayMonthFormat: 'DAY_MONTH_FORMAT',
+	  longDateFormat: 'LONG_DATE_FORMAT',
+	  dayOfWeekMonthFormat: 'DAY_OF_WEEK_MONTH_FORMAT',
+	  shortDayOfWeekMonthFormat: 'SHORT_DAY_OF_WEEK_MONTH_FORMAT',
+	  shortDayOfWeekShortMonthFormat: 'SHORT_DAY_OF_WEEK_SHORT_MONTH_FORMAT',
+	  fullDateFormat: 'FULL_DATE_FORMAT',
+	  dayShortMonthFormat: 'DAY_SHORT_MONTH_FORMAT',
+	  mediumDateFormat: 'MEDIUM_DATE_FORMAT',
+	  formatDatetime: 'FORMAT_DATETIME',
+	  formatDate: 'FORMAT_DATE'
+	};
+	// string codes for provided format
+	// shortTimeFormat: 'H:i'
+	const DateCode = {};
+	Object.keys(DateFormat).forEach(format => {
+	  DateCode[format] = main_date.DateTimeFormat.getFormat(DateFormat[format]);
+	});
 	const DateTemplate = {
 	  notification: {
 	    [Interval.today]: `today, ${DateCode.shortTimeFormat}`,
@@ -80,7 +93,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  formatByTemplate(template = {}) {
 	    const intervals = Object.keys(Interval);
 	    const matchingInterval = intervals.find(interval => {
-	      const templateHasInterval = !!template[interval];
+	      const templateHasInterval = Boolean(template[interval]);
 	      if (!templateHasInterval) {
 	        return false;
 	      }
@@ -95,7 +108,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    if (!matchingInterval) {
 	      console.error('DateFormatter: no matching intervals were found for', template);
-	      return;
+	      return '';
 	    }
 	    const matchingCode = template[matchingInterval];
 	    return this.formatByCode(matchingCode);
@@ -154,8 +167,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _isCurrentWeek2() {
 	  const date = new Date();
-	  const currentWeekNumber = +main_date.DateTimeFormat.format('W', date);
-	  const setWeekNumber = +main_date.DateTimeFormat.format('W', babelHelpers.classPrivateFieldLooseBase(this, _date)[_date]);
+	  const currentWeekNumber = Number(main_date.DateTimeFormat.format('W', date));
+	  const setWeekNumber = Number(main_date.DateTimeFormat.format('W', babelHelpers.classPrivateFieldLooseBase(this, _date)[_date]));
 	  const sameYear = babelHelpers.classPrivateFieldLooseBase(this, _isCurrentYear)[_isCurrentYear]();
 	  return currentWeekNumber === setWeekNumber && sameYear;
 	}
@@ -177,8 +190,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 
 	exports.DateFormatter = DateFormatter;
-	exports.DateTemplate = DateTemplate;
+	exports.DateFormat = DateFormat;
 	exports.DateCode = DateCode;
+	exports.DateTemplate = DateTemplate;
 
 }((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Main));
 //# sourceMappingURL=date-formatter.bundle.js.map

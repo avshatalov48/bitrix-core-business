@@ -1,10 +1,10 @@
 import { hint } from 'ui.vue3.directives.hint';
 
-import { ActionByRole, Layout } from 'im.v2.const';
+import { ActionByRole } from 'im.v2.const';
 import { Core } from 'im.v2.application.core';
-import { ChatService } from 'im.v2.provider.service';
+import { ChatService } from 'im.v2.provider.service.chat';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { Toggle, ToggleSize } from 'im.v2.component.elements';
+import { Toggle, ToggleSize } from 'im.v2.component.elements.toggle';
 
 import type { ImModelChat } from 'im.v2.model';
 
@@ -28,10 +28,6 @@ export const MuteChat = {
 		dialog(): ImModelChat
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
-		},
-		isGroupChat(): boolean
-		{
-			return this.dialogId.startsWith('chat');
 		},
 		canBeMuted(): boolean
 		{
@@ -64,12 +60,6 @@ export const MuteChat = {
 					},
 				},
 			};
-		},
-		isCopilotLayout(): boolean
-		{
-			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
-
-			return currentLayoutName === Layout.copilot.name;
 		},
 	},
 	methods:
@@ -106,9 +96,8 @@ export const MuteChat = {
 	},
 	template: `
 		<div
-			v-if="isGroupChat"
 			class="bx-im-sidebar-mute-chat__container"
-			:class="{'--not-active': !canBeMuted, '--copilot': isCopilotLayout}"
+			:class="{'--not-active': !canBeMuted}"
 			v-hint="hintMuteNotAvailable"
 		>
 			<div class="bx-im-sidebar-mute-chat__title">

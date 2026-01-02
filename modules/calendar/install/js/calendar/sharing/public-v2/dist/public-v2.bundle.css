@@ -213,7 +213,7 @@
 }
 
 .calendar-pub__welcome-userpic .calendar-pub__group-avatar {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .calendar-pub__welcome-info {
@@ -243,7 +243,7 @@
 /* typography */
 
 .calendar-pub-ui__typography-title {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: var(--ui-typography-heading-h4-font-size);
 	line-height: 16px;
 	font-weight: 600;
@@ -278,7 +278,7 @@
 }
 
 .calendar-pub-ui__typography-m {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: 16px;
 	line-height: 16px;
 	color: #151515;
@@ -289,14 +289,14 @@
 }
 
 .calendar-pub-ui__typography-s {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: 15px;
 	line-height: 20px;
 	color: var(--ui-color-base-90);
 }
 
 .calendar-pub-ui__typography-sm {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: 14px;
 	line-height: 20px;
 	color: var(--ui-color-base-90);
@@ -317,7 +317,7 @@
 }
 
 .calendar-pub-ui__typography-xs {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: var(--ui-font-size-xs);
 	line-height: 20px;
 	font-weight: var(--ui-font-weight-normal);
@@ -326,7 +326,7 @@
 }
 
 .calendar-pub-ui__typography-xs-uppercase {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: var(--ui-font-size-5xs);
 	line-height: 20px;
 	font-weight: var(--ui-font-weight-semi-bold);
@@ -419,7 +419,7 @@
 .calendar-pub-ui__btn-text {
 	-webkit-user-select: none;
 	        user-select: none;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: 17px;
 	color: #fff;
 }
@@ -664,7 +664,7 @@
 	border: 1px solid var(--ui-color-base-10);
 	padding: 10px 0;
 	border-radius: 6px;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: 15px;
 	color: var(--ui-color-text-primary);
 	cursor: pointer;
@@ -937,7 +937,7 @@
 }
 
 .calendar-sharing__slot-value {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: 15px;
 	color: var(--ui-color-text-primary);
 	transition: .25s;
@@ -968,7 +968,7 @@
 	-webkit-user-select: none;
 	        user-select: none;
 	white-space: nowrap;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: 15px;
 	line-height: 17px;
 	color: #fff;
@@ -1013,7 +1013,7 @@
 	flex: 1;
 	flex-direction: column;
 	margin-bottom: 12px;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	animation: calendar-sharing__show-state .25s linear forwards;
 }
 
@@ -1066,7 +1066,7 @@
 	padding: 2px;
 	border: 1px solid var(--ui-color-base-10);
 	border-radius: 6px;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: 15px;
 	color: var(--ui-color-text-primary);
 }
@@ -1208,7 +1208,7 @@
 	border: 1px solid var(--ui-color-palette-gray-20);
 	box-sizing: border-box;
 	border-radius: 6px;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .calendar-pub__form-date.--filled {
@@ -1286,7 +1286,7 @@
 	gap: 2px;
 	flex-direction: column;
 	overflow: hidden;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .calendar-pub__form-date-info_day {
@@ -1356,7 +1356,7 @@
 	box-sizing: border-box;
 	border: none;
 	border-bottom: 1px solid var(--ui-color-base-40);
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: var(--ui-typography-text-md-font-size);
 	color: var(--ui-color-base-default);
 	border-radius: 0 !important;
@@ -1393,7 +1393,7 @@
 	right: 0;
 	box-sizing: border-box;
 	pointer-events: none;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: var(--ui-font-size-md);
 	color: var(--ui-color-base-90);
 	transition: .1s;
@@ -1428,7 +1428,7 @@
 	display: none;
 	padding: 0 9px;
 	height: var(--ui-font-size-sm);
-	font: var(--ui-font-size-sm)/var(--ui-font-size-sm) var(--ui-font-family-system);
+	font: var(--ui-font-size-sm)/var(--ui-font-size-sm) var(--ui-font-family-primary, var(--ui-font-family-system));
 	border-radius: 6px 0 0 0;
 	background-color: var(--ui-color-palette-red-50, #ff5752);
 	color: var(--ui-color-palette-white-base, #fff);
@@ -1481,7 +1481,7 @@
 
 .calendar-pub__form-status.--decline .calendar-pub__form-status_text {
 	display: inline-block;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: var(--ui-typography-text-md-font-size);
 	line-height: var(--ui-typography-text-md-line-height);
 	border-bottom: 1px dashed  var(--ui-color-base-30);

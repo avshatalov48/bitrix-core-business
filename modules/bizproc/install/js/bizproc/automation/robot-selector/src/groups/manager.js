@@ -15,6 +15,8 @@ import { TaskManagement as TaskManagementGroup } from './task-management';
 import { ModificationData as ModificationDataGroup } from './modification-data';
 import { DigitalWorkplace as DigitalWorkplaceGroup } from './digital-workplace';
 import { OtherGroup } from './other-group';
+import { NewEntitiesGroup } from './new-entities-group';
+import { RecentGroup } from './recent-group';
 
 import { EmployeeCategory } from './employee-category';
 import { ClientCategory } from './client-category';
@@ -41,6 +43,8 @@ export class Manager
 	#modificationDataGroup: ModificationDataGroup;
 	#digitalWorkplaceGroup: DigitalWorkplaceGroup;
 	#otherGroup: OtherGroup;
+	#newEntitiesGroup: NewEntitiesGroup;
+	#recentGroup: RecentGroup;
 
 	#employeeCategory: EmployeeCategory;
 	#clientCategory: ClientCategory;
@@ -56,6 +60,14 @@ export class Manager
 		}
 
 		return instance;
+	}
+
+	getAutomationHeaderGroupsData(): Array<GroupData>
+	{
+		return [
+			this.newEntitiesGroup.getData(),
+			this.recentGroup.getData(),
+		];
 	}
 
 	getAutomationGroupsData(): Array<GroupData>
@@ -238,6 +250,26 @@ export class Manager
 		}
 
 		return this.#otherGroup;
+	}
+
+	get newEntitiesGroup(): NewEntitiesGroup
+	{
+		if (!this.#newEntitiesGroup)
+		{
+			this.#newEntitiesGroup = new NewEntitiesGroup();
+		}
+
+		return this.#newEntitiesGroup;
+	}
+
+	get recentGroup(): RecentGroup
+	{
+		if (!this.#recentGroup)
+		{
+			this.#recentGroup = new RecentGroup();
+		}
+
+		return this.#recentGroup;
 	}
 
 	get employeeCategory(): EmployeeCategory

@@ -17,9 +17,9 @@ class DeviceUI
 	 * Returns Landing Preview Block above the screen.
 	 *
 	 * @param {Options} options Preview options.
-	 * @return {HTMLDivElement}
+	 * @return {HTMLElement}
 	 */
-	static getPreview(options: Options): HTMLDivElement
+	static getPreview(options: Options): HTMLElement
 	{
 		if (options.messages)
 		{
@@ -31,13 +31,7 @@ class DeviceUI
 			localStorage.setItem('deviceOrientation', 'portrait');
 		}
 
-		const switcherClick = (event) => {
-			localStorage.setItem('deviceHidden', !Dom.hasClass(layout.switcher, 'landing-switcher-hide'));
-			Dom.toggleClass(layout.switcher, 'landing-switcher-hide');
-			Dom.toggleClass(layout.wrapper, 'landing-device-wrapper-hidden');
-		};
-
-		const rotateClick = (event) => {
+		const rotateClick = () => {
 			if (localStorage.getItem('deviceOrientation') === 'portrait')
 			{
 				localStorage.setItem('deviceOrientation', 'landscape');
@@ -47,34 +41,33 @@ class DeviceUI
 				localStorage.setItem('deviceOrientation', 'portrait');
 			}
 
-			layout.wrapper.style.setProperty(`width`, `${layout.wrapper.offsetHeight}px`);
-			layout.wrapper.style.setProperty(`height`, `${layout.wrapper.offsetWidth}px`);
-			layout.frame.style.setProperty(`width`, `${layout.frame.offsetHeight}px`);
-			layout.frame.style.setProperty(`height`, `${layout.frame.offsetWidth}px`);
+			Dom.style(layout.wrapper, 'width', `${layout.wrapper.offsetHeight}px`);
+			Dom.style(layout.wrapper, 'height', `${layout.wrapper.offsetWidth}px`);
+			Dom.style(layout.frame, 'width', `${layout.frame.offsetHeight}px`);
+			Dom.style(layout.frame, 'height', `${layout.frame.offsetWidth}px`);
 			layout.wrapper.querySelector('[data-role="device-orientation"]').innerHTML = localStorage.getItem('deviceOrientation');
 		};
 
 		const hidden = localStorage.getItem('deviceHidden') === 'true';
 
 		const layout = {
-			wrapper: Tag.render`
-				<div class="landing-device-wrapper${hidden ? ' landing-device-wrapper-hidden' : ''}">
-					<div class="landing-device-name" onclick="${options.clickHandler}">
-						<span data-role="device-name">Device</span>
-						<span data-role="device-orientation" class="landing-device-orientation">Orientation</span>
-					</div>
-				</div>
-			`,
-			switcher: Tag.render`<div class="landing-device-switcher${hidden ? ' landing-switcher-hide' : ''}" onclick="${switcherClick}" data-role="landing-device-switcher"></div>`,
+			wrapper: null,
 			rotate: Tag.render`<div class="landing-device-rotate" onclick="${rotateClick}" data-role="landing-device-rotate"></div>`,
 			frame: Tag.render`<iframe data-role="landing-device-preview-iframe" src="${options.frameUrl}"></iframe>`,
-			frameWrapper: Tag.render`<div class="landing-device-preview" data-role="landing-device-preview"></div>`
 		};
 
-		layout.wrapper.appendChild(layout.switcher);
-		layout.wrapper.appendChild(layout.rotate);
-		layout.wrapper.appendChild(layout.frameWrapper);
-		layout.frameWrapper.appendChild(layout.frame);
+		layout.wrapper = Tag.render`
+			<div class="landing-device-wrapper${hidden ? ' landing-device-wrapper-hidden' : ''}">
+				<div class="landing-device-name" onclick="${options.clickHandler}">
+					<span data-role="device-name">Device</span>
+					<span data-role="device-orientation" class="landing-device-orientation">Orientation</span>
+				</div>
+				${layout.rotate}
+				<div class="landing-device-preview" data-role="landing-device-preview">
+					${layout.frame}
+				</div>
+			</div>
+		`;
 
 		return layout.wrapper;
 	}
@@ -88,52 +81,54 @@ class DeviceUI
 	 */
 	static openDeviceMenu(bindElement: HTMLElement, devices: Array<DeviceItem>, clickHandler: (device: DeviceItem) => {})
 	{
-
 		const menuId = 'device_selector';
 		let menu = MenuManager.getMenuById(menuId);
 
 		if (menu)
 		{
 			menu.show();
+
 			return;
 		}
 
 		const menuItems = [];
 
-		devices.map((device) => {
+		devices.forEach((device) => {
 			if (device.code === 'delimiter')
 			{
 				menuItems.push(new MenuItem({
 					delimiter: true,
 					text: device.langCode ? DeviceUI.messages[device.langCode] : '',
 				}));
+
 				return;
 			}
 			menuItems.push(new MenuItem({
 				id: device.className,
-				html: `${device.name}`,
+				html: String(device.name),
 				onclick: () => {
 					MenuManager.getMenuById(menuId).close();
 					clickHandler(device);
-				}
+				},
 			}));
 		});
 
-		if (bindElement)
-		{
-			bindElement = bindElement.parentNode;
-		}
+		const bindNode = bindElement.parentNode || document.body;
 
 		menu = MenuManager.create({
 			id: menuId,
-			bindElement,
+			bindElement: bindNode,
 			className: 'landing-ui-block-actions-popup',
 			items: menuItems,
-			angle: true,
 			offsetTop: 0,
 			offsetLeft: 40,
-			minWidth: bindElement.offsetWidth,
-			animation: 'fading-slide'
+			minWidth: bindNode.offsetWidth,
+			animation: 'fading-slide',
+			events: {
+				onPopupShow: () => {
+					menu.getPopupWindow().setMinWidth(bindNode.offsetWidth);
+				},
+			},
 		});
 
 		menu.show();

@@ -1,11 +1,11 @@
 <?php
+
 namespace Bitrix\Catalog;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Currency;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Currency;
 
 /**
  * Class DiscountTable
@@ -65,7 +65,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Catalog\EO_Discount_Collection wakeUpCollection($rows)
  */
 
-class DiscountTable extends Main\Entity\DataManager
+class DiscountTable extends DataManager
 {
 	const TYPE_DISCOUNT = 0;
 	const TYPE_DISCOUNT_SAVE = 1;

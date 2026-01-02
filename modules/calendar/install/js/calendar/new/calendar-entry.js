@@ -929,6 +929,11 @@
 			return !!this.data.IS_MEETING;
 		},
 
+		isBookingEvent: function()
+		{
+			return this.data.EVENT_TYPE === '#booking#';
+		},
+
 		isResourcebooking: function()
 		{
 			return this.data.EVENT_TYPE === '#resourcebooking#';

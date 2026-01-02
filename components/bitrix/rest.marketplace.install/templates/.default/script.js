@@ -40,7 +40,7 @@ BX.Rest.Marketplace.Install =
 			BX("mp_tos_license") && !BX("mp_tos_license").checked
 		)
 		{
-			BX("rest_mp_install_error").innerHTML = BX.message("REST_MARKETPLACE_INSTALL_TOS_ERROR");
+			BX("rest_mp_install_error").innerHTML = BX.message("REST_MARKETPLACE_INSTALL_TOS_ERROR_MSGVER_1");
 			BX.show(BX('rest_mp_install_error'));
 			return;
 		}

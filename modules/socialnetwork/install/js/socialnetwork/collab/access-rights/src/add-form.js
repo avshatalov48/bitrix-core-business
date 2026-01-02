@@ -1,8 +1,18 @@
-import { ajax, Event, Loc, Tag, Text, Type } from 'main.core';
+import { ajax, Loc } from 'main.core';
+import { Params } from './access-rights';
 import { Form } from './form';
 
 export class AddForm extends Form
 {
+	#params: Params;
+
+	constructor(params: Params)
+	{
+		super(params);
+
+		this.#params = params;
+	}
+
 	open()
 	{
 		const slider = BX.SidePanel.Instance.getSlider(this.sidePanelId);
@@ -25,7 +35,9 @@ export class AddForm extends Form
 						},
 					);
 
-					return this.render(this.prepareFormData(data));
+					const formData = this.#params?.formData ?? {};
+
+					return this.render({ ...this.prepareFormData(data), ...formData });
 				}
 				catch (e)
 				{

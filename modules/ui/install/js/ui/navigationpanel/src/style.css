@@ -4,6 +4,13 @@
 	--color_text: rgba(82, 92, 105, .8);
 	--color_text-hover: #fff;
 	--color_border-bottom: rgba(82, 92, 105, .4);
+	--color_chevron: var(--color_text);
+	--color_chevron-hover: var(--color_text-hover);
+	--color_chevron-active: var(--color_text-hover);
+}
+
+.ui-nav-panel__scope.--collapsed {
+	--color_text: var(--color_text-hover);
 }
 
 .bitrix24-light-theme .ui-nav-panel__scope {
@@ -12,9 +19,46 @@
 	--color_border-bottom: rgba(255,255,255,.5);
 }
 
+.bitrix24-light-theme .ui-nav-panel__scope.--collapsed {
+	--color_text: var(--color_text-hover);
+}
+
 .bitrix24-default-theme .ui-nav-panel__scope,
-.bitrix24-dark-theme .ui-nav-panel__scope {
+.bitrix24-dark-theme .ui-nav-panel__scope,
+.ui-page-slider-wrapper-default-theme .ui-nav-panel__scope {
 	--color_text-hover: rgba(82, 92, 105, 1);
+}
+
+.ui-nav-panel__scope.--air,
+.ui-page-slider-wrapper-default-theme .ui-nav-panel__scope,
+.bitrix24-default-theme .ui-nav-panel__scope.--air,
+.bitrix24-dark-theme .ui-nav-panel__scope.--air,
+.bitrix24-light-theme .ui-nav-panel__scope.--air {
+	--color_background: var(--ui-color-design-outline-na-bg);
+	--color_background-hover: color-mix( in srgb, var(--ui-color-design-outline-na-bg) 100%, var(--ui-color-bg-state-hover-default-hex) var(--ui-color-bg-state-hover-default-opacity));
+	--color_background-active: var(--ui-color-design-selection-bg);
+	--color_text: var(--ui-color-design-outline-na-content);
+	--color_text-hover: color-mix( in srgb, var(--ui-color-design-outline-content) 100%, var(--ui-color-bg-state-hover-default-hex) var(--ui-color-bg-state-hover-default-opacity));
+	--color_text-active: var(--ui-color-design-selection-content);
+	--color_border-bottom: transparent;
+}
+
+.bitrix24-default-theme .ui-nav-panel__scope.--air.--collapsed,
+.bitrix24-dark-theme .ui-nav-panel__scope.--air.--collapsed,
+.bitrix24-light-theme .ui-nav-panel__scope.--air.--collapsed {
+	--color_background: var(--ui-color-design-outline-bg);
+	--color_background-hover: color-mix( in srgb, var(--ui-color-design-outline-bg) 100%, var(--ui-color-bg-state-hover-default-hex) var(--ui-color-bg-state-hover-default-opacity));
+	--color_background-menu-open: color-mix( in srgb, var(--ui-color-design-outline-bg) 100%, var(--ui-color-bg-state-click-default-hex) var(--ui-color-bg-state-click-default-opacity));
+	--color_background-active: var(--ui-color-design-selection-bg);
+	--color_text: var(--ui-color-design-outline-content);
+	--color_text-hover: color-mix( in srgb, var(--ui-color-design-outline-content) 100%, var(--ui-color-bg-state-hover-default-hex) var(--ui-color-bg-state-hover-default-opacity));
+	--color_text-menu-open: color-mix( in srgb, var(--ui-color-design-outline-content) 100%, var(--ui-color-bg-state-click-default-hex) var(--ui-color-bg-state-click-default-opacity));
+	--color_text-active: var(--ui-color-design-selection-content);
+	--color_chevron: var(--ui-color-design-outline-content-chevron);
+	--color_chevron-hover: color-mix( in srgb, var(--ui-color-design-outline-content-chevron) 100%, var(--ui-color-bg-state-hover-default-hex) var(--ui-color-bg-state-hover-default-opacity));
+	--color_chevron-menu-open: color-mix( in srgb, var(--ui-color-design-outline-content-chevron) 100%, var(--ui-color-bg-state-click-default-hex) var(--ui-color-bg-state-click-default-opacity));
+	--color_chevron-active: var(--color_chevron-menu-open);
+	--color_border-bottom: transparent;
 }
 
 .ui-nav-panel {
@@ -23,8 +67,16 @@
 	margin-right: 10px;
 	border-radius: 16px;
 	background-color: var(--color_background);
-	font: 14px/normal var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font: 14px/1.14 var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-regular, 400);
+}
+
+.ui-nav-panel.--air {
+	margin-right: 0;
+	border-radius: var(--ui-border-radius-sm);
+	font: var(--ui-font-size-sm)/var(--ui-font-line-height-2xs) var(--ui-font-family-primary);
+	backdrop-filter: var(--ui-nav-panel-custom-backdrop-filter, var(--ui-bg-blur-content));
+	background: var(--ui-nav-panel-custom-background, transparent);
 }
 
 .ui-nav-panel__item {
@@ -39,8 +91,21 @@
 	cursor: pointer;
 }
 
+.ui-nav-panel.--air .ui-nav-panel__item {
+	min-height: 28px;
+	padding: 0 10px;
+	margin: 0;
+	background-color: var(--color_background);
+}
+
 .ui-nav-panel__item:hover {
 	color: var(--color_text-hover);
+	transition: .1s;
+}
+
+.ui-nav-panel.--air .ui-nav-panel__item:hover {
+	color: var(--color_text-hover);
+	background-color: var(--color_background-hover);
 	transition: .1s;
 }
 
@@ -50,14 +115,31 @@
 	cursor: default;
 }
 
+.ui-nav-panel.--air .ui-nav-panel__item.--active {
+	color: var(--color_text-active);
+	background-color: var(--color_background-active);
+	pointer-events: none;
+	cursor: default;
+}
+
 .ui-nav-panel__item.--active:after {
 	content: '';
 	position: absolute;
-	bottom: 1px;
+	bottom: 5px;
 	left: 0;
 	right: 0;
 	height: 2px;
 	background-color: var(--color_border-bottom);
+}
+
+.ui-nav-panel__item.--active.--dropdown::after,
+.ui-nav-panel.--air .ui-nav-panel__item.--active::after {
+	display: none;
+}
+
+.ui-nav-panel.--air .ui-nav-panel__item.--dropdown.--active {
+	background-color: var(--color_background-menu-open);
+	color: var(--color_text-menu-open);
 }
 
 .ui-nav-panel__item.--locked {
@@ -72,4 +154,41 @@
 	content: '';
 	background: no-repeat center url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxMiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik02LjY5MTU2IDExLjcyNTlWMTMuNDcyM0g1LjMwODM3VjExLjcyNTlDNS4wNTk0NCAxMS41MjMxIDQuOTAwMDggMTEuMjEzMSA0LjkwMDA4IDEwLjg2NTZDNC45MDAwOCAxMC4yNTQ1IDUuMzkyNTQgOS43NTkwMyA1Ljk5OTk5IDkuNzU5MDNDNi42MDczOSA5Ljc1OTAzIDcuMDk5ODYgMTAuMjU0NSA3LjA5OTg2IDEwLjg2NTZDNy4wOTk4NiAxMS4yMTMxIDYuOTQwNTQgMTEuNTIzMSA2LjY5MTU2IDExLjcyNTlaTTIuOTg4NzcgNC42MzEzNkMyLjk4ODc3IDIuOTU4MDUgNC4zMzY5OCAxLjYwMTU2IDYuMDAwMDQgMS42MDE1NkM3LjY2MzE0IDEuNjAxNTYgOS4wMTEzNCAyLjk1ODA1IDkuMDExMzQgNC42MzEzNlY3LjE5MjU3SDIuOTg4NzdWNC42MzEzNlpNMTAuNjAyNyA3LjE5MjE4VjQuNjMwOTdDMTAuNjAyNyAyLjA3MzMzIDguNTQxOTcgMCA1Ljk5OTk4IDBDMy40NTgwMyAwIDEuMzk3MzEgMi4wNzMzMyAxLjM5NzMxIDQuNjMwOTdWNy4xOTIxOEgwLjVDMC4yMjM4NTcgNy4xOTIxOCAwIDcuNDE2MDMgMCA3LjY5MjE4VjE1LjQ2MjdDMCAxNS43Mzg4IDAuMjIzODU4IDE1Ljk2MjcgMC41IDE1Ljk2MjdIMTEuNUMxMS43NzYxIDE1Ljk2MjcgMTIgMTUuNzM4OCAxMiAxNS40NjI3VjcuNjkyMThDMTIgNy40MTYwMyAxMS43NzYxIDcuMTkyMTggMTEuNSA3LjE5MjE4SDEwLjYwMjdaIiBmaWxsPSIjRkZGRkZGIi8+Cjwvc3ZnPgo=);
 	margin-right: 11px;
+}
+
+.ui-nav-panel__item-dropdown-icon {
+	display: inline-flex;
+	margin-left: 2px;
+	margin-right: -2px;
+	--ui-icon-set__icon-color: var(--color_chevron);
+}
+
+.ui-nav-panel__item:hover .ui-nav-panel__item-dropdown-icon {
+	--ui-icon-set__icon-color: var(--color_chevron-hover);
+}
+
+.ui-nav-panel__item.--active .ui-nav-panel__item-dropdown-icon {
+	--ui-icon-set__icon-color: var(--color_chevron-active);
+}
+
+.ui-nav-panel__menu-item {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.ui-nav-panel__menu-item-icon {
+	position: absolute;
+	left: 16px;
+	top: 50%;
+	transform: translateY(-50%);
+	display: inline-flex;
+}
+
+.ui-nav-panel__menu-item .ui-nav-panel__menu-item-icon {
+	--ui-icon-set__icon-color: var(--ui-color-primary);
+}
+
+.ui-nav-panel__menu-item.--air .ui-nav-panel__menu-item-icon {
+	--ui-icon-set__icon-color: var(--ui-color-design-filled-stroke);
 }

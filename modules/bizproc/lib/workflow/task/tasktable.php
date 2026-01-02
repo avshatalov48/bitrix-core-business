@@ -2,6 +2,7 @@
 
 namespace Bitrix\Bizproc\Workflow\Task;
 
+use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
 use Bitrix\Bizproc\Workflow\Task;
 use Bitrix\Main\Entity;
@@ -110,7 +111,12 @@ class TaskTable extends DataManager
 				'TASK_USERS',
 				TaskUserTable::class,
 				'USER_TASKS'
-			)
+			),
+			new \Bitrix\Main\ORM\Fields\Relations\Reference(
+				'WORKFLOW_INSTANCE',
+				WorkflowInstanceTable::class,
+				Join::on('this.WORKFLOW_ID', 'ref.ID')
+			),
 		];
 	}
 

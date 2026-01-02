@@ -117,16 +117,16 @@ class Collab extends Controller
 	 */
 	public function getAction(CollabGetDto $dto): ?\Bitrix\Socialnetwork\Collab\Collab
 	{
+		$collab = $this->provider->getCollab((int)$dto->id);
+		if ($collab === null)
+		{
+			return null;
+		}
+
 		if (!CollabAccessController::can($this->userId, CollabDictionary::VIEW, $dto->id))
 		{
 			$this->addError(new Error('Access denied'));
 
-			return null;
-		}
-
-		$collab = $this->provider->getCollab((int)$dto->id);
-		if ($collab === null)
-		{
 			return null;
 		}
 

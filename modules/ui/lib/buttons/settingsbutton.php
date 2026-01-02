@@ -13,6 +13,7 @@ class SettingsButton extends Button
 			'icon' => Icon::SETTING,
 			'color' => Color::LIGHT_BORDER,
 			'dropdown' => false,
+			'collapsed' => true,
 		];
 	}
 

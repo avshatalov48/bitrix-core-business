@@ -975,21 +975,20 @@ class CAllStatistics extends CKeepStatistics
 			)
 			{
 				// если установлен максимальный интервал времени для стэка защиты то
-				$DEFENCE_DELAY = intval(COption::GetOptionString("statistic", "DEFENCE_DELAY"));
-				$STACK_TIME = COption::GetOptionString("statistic", "DEFENCE_STACK_TIME");
-				$MAX_STACK_HITS = COption::GetOptionString("statistic", "DEFENCE_MAX_STACK_HITS");
-				$STACK_HITS = 0;
-
-				if (intval($STACK_TIME)>0)
+				$STACK_TIME = COption::GetOptionInt("statistic", "DEFENCE_STACK_TIME");
+				if ($STACK_TIME > 0)
 				{
+					$stmp = time();
+					$DEFENCE_DELAY = COption::GetOptionInt("statistic", "DEFENCE_DELAY");
+
 					// если лимит активности уже превышался то
 					if (!empty($_SESSION["SESS_GRABBER_STOP_TIME"]))
 					{
 						// если время задержки еще не истекло то
-						if ((time()-$_SESSION["SESS_GRABBER_STOP_TIME"])<=$DEFENCE_DELAY)
+						if (($stmp - $_SESSION["SESS_GRABBER_STOP_TIME"]) <= $DEFENCE_DELAY)
 						{
 							// держим дальше
-							$_SESSION["SESS_GRABBER_DEFENCE_STACK"] = array();
+							$_SESSION["SESS_GRABBER_DEFENCE_STACK"] = [];
 							return true;
 						}
 						else // иначе
@@ -998,37 +997,43 @@ class CAllStatistics extends CKeepStatistics
 							$_SESSION["SESS_GRABBER_STOP_TIME"] = "";
 						}
 					}
-					if (isset($_SESSION["SESS_GRABBER_DEFENCE_STACK"]) && is_array($_SESSION["SESS_GRABBER_DEFENCE_STACK"]))
+
+					// запомним время текущего хита в стэке
+					if (
+						!isset($_SESSION["SESS_GRABBER_DEFENCE_STACK"])
+						|| !is_array($_SESSION["SESS_GRABBER_DEFENCE_STACK"])
+					)
 					{
-						// запомним время текущего хита в стэке
-						$_SESSION["SESS_GRABBER_DEFENCE_STACK"][] = time();
-						// почистим стэк до заданного максимального интервала времени
-						$first_element = reset($_SESSION["SESS_GRABBER_DEFENCE_STACK"]);
-						$stmp = time();
-						$current_stack_length = $stmp-$first_element;
-						while($current_stack_length>$STACK_TIME && count($_SESSION["SESS_GRABBER_DEFENCE_STACK"])>0)
-						{
-							$first_element = array_shift($_SESSION["SESS_GRABBER_DEFENCE_STACK"]);
-							$current_stack_length = $stmp-$first_element;
-						}
-						$STACK_HITS = count($_SESSION["SESS_GRABBER_DEFENCE_STACK"]);
+						$_SESSION["SESS_GRABBER_DEFENCE_STACK"] = [];
 					}
+					$_SESSION["SESS_GRABBER_DEFENCE_STACK"][] = $stmp;
+
+					// почистим стэк до заданного максимального интервала времени
+					$first_element = reset($_SESSION["SESS_GRABBER_DEFENCE_STACK"]);
+					$current_stack_length = $stmp - $first_element;
+					while ($current_stack_length > $STACK_TIME && count($_SESSION["SESS_GRABBER_DEFENCE_STACK"]) > 0)
+					{
+						$first_element = array_shift($_SESSION["SESS_GRABBER_DEFENCE_STACK"]);
+						$current_stack_length = $stmp - $first_element;
+					}
+
 					// проверим стэк на превышение максимального кол-ва хитов
+					$STACK_HITS = count($_SESSION["SESS_GRABBER_DEFENCE_STACK"]);
+					$MAX_STACK_HITS = COption::GetOptionInt("statistic", "DEFENCE_MAX_STACK_HITS");
 					if ($STACK_HITS > $MAX_STACK_HITS)
 					{
 						// инициализируем превышение активности
-						$stmp = time();
 						$_SESSION["SESS_GRABBER_STOP_TIME"] = $stmp;
 
-						if(COption::GetOptionString("statistic", "DEFENCE_LOG") === "Y")
+						if (COption::GetOptionString("statistic", "DEFENCE_LOG") === "Y")
 							CEventLog::Log("WARNING", "STAT_ACTIVITY_LIMIT", "statistic", "", GetMessage("STAT_DEFENCE_LOG_MESSAGE", array(
-								"#ACTIVITY_TIME_LIMIT#" => intval($STACK_TIME),
-								"#ACTIVITY_HITS#" => intval($STACK_HITS),
-								"#ACTIVITY_EXCEEDING#" => (intval($STACK_HITS) - intval($MAX_STACK_HITS)),
+								"#ACTIVITY_TIME_LIMIT#" => $STACK_TIME,
+								"#ACTIVITY_HITS#" => $STACK_HITS,
+								"#ACTIVITY_EXCEEDING#" => $STACK_HITS - $MAX_STACK_HITS,
 							)));
 
 						// если в этой сессии письмо еще не отсылали то
-						if ($_SESSION["ACTIVITY_EXCEEDING_NOTIFIED"]!="Y")
+						if ($_SESSION["ACTIVITY_EXCEEDING_NOTIFIED"] != "Y")
 						{
 							if (defined("SITE_ID") && SITE_ID <> '')
 							{
@@ -1043,31 +1048,31 @@ class CAllStatistics extends CKeepStatistics
 								$site_id = $arSite["ID"];
 							}
 
-							$SESSION_LINK = intval($_SESSION["SESS_SESSION_ID"])>0? "/bitrix/admin/session_list.php?lang=". $arSite["LANGUAGE_ID"]."&find_id=".$_SESSION["SESS_SESSION_ID"]."&find_id_exact_match=Y&set_filter=Y": "";
-							$VISITOR_LINK = intval($_SESSION["SESS_GUEST_ID"])>0? "/bitrix/admin/guest_list.php?lang=". $arSite["LANGUAGE_ID"]."&find_id=".$_SESSION["SESS_GUEST_ID"]."&find_id_exact_match=Y&set_filter=Y": "";
+							$SESSION_LINK = intval($_SESSION["SESS_SESSION_ID"]) > 0 ? "/bitrix/admin/session_list.php?lang=". $arSite["LANGUAGE_ID"]."&find_id=".$_SESSION["SESS_SESSION_ID"]."&find_id_exact_match=Y&set_filter=Y" : "";
+							$VISITOR_LINK = intval($_SESSION["SESS_GUEST_ID"]) > 0 ? "/bitrix/admin/guest_list.php?lang=". $arSite["LANGUAGE_ID"]."&find_id=".$_SESSION["SESS_GUEST_ID"]."&find_id_exact_match=Y&set_filter=Y" : "";
 
-							$arr = explode(".",$_SERVER["REMOTE_ADDR"]);
+							$arr = explode(".", $_SERVER["REMOTE_ADDR"]);
 							$STOPLIST_LINK = "/bitrix/admin/stoplist_edit.php?lang=". $arSite["LANGUAGE_ID"]."&net1=".intval($arr[0])."&net2=".intval($arr[1])."&net3=". intval($arr[2])."&net4=".intval($arr[3])."&user_agent=".urlencode($_SERVER["HTTP_USER_AGENT"]);
 
-							$SEARCHER_LINK = intval($_SESSION["SESS_SEARCHER_ID"])>0? "/bitrix/admin/hit_searcher_list.php?lang=". $arSite["LANGUAGE_ID"]."&find_searcher_id=".$_SESSION["SESS_SEARCHER_ID"]."&set_filter=Y": "";
+							$SEARCHER_LINK = intval($_SESSION["SESS_SEARCHER_ID"]) > 0 ? "/bitrix/admin/hit_searcher_list.php?lang=". $arSite["LANGUAGE_ID"]."&find_searcher_id=".$_SESSION["SESS_SEARCHER_ID"]."&set_filter=Y" : "";
 
 							$arEventFields = array(
-								"ACTIVITY_TIME_LIMIT"	=> intval($STACK_TIME),
-								"ACTIVITY_HITS"			=> $STACK_HITS,
-								"ACTIVITY_HITS_LIMIT"	=> intval($MAX_STACK_HITS),
-								"ACTIVITY_EXCEEDING"	=> $STACK_HITS - intval($MAX_STACK_HITS),
-								"CURRENT_TIME"			=> GetTime($stmp,"FULL",$arSite["ID"]),
-								"DELAY_TIME"			=> $DEFENCE_DELAY,
-								"USER_AGENT"			=> $_SERVER["HTTP_USER_AGENT"],
-								"SESSION_ID"			=> $_SESSION["SESS_SESSION_ID"],
-								"SESSION_LINK"			=> $SESSION_LINK,
-								"SERACHER_ID"			=> $_SESSION["SESS_SEARCHER_ID"],
-								"SEARCHER_NAME"			=> $_SESSION["SESS_SEARCHER_NAME"],
-								"SEARCHER_LINK"			=> $SEARCHER_LINK,
-								"VISITOR_ID"			=> $_SESSION["SESS_GUEST_ID"],
-								"VISITOR_LINK"			=> $VISITOR_LINK,
-								"STOPLIST_LINK"			=> $STOPLIST_LINK,
-								"EMAIL_TO"			=> COption::GetOptionString("main", "email_from", ""),
+								"ACTIVITY_TIME_LIMIT" => $STACK_TIME,
+								"ACTIVITY_HITS" => $STACK_HITS,
+								"ACTIVITY_HITS_LIMIT" => $MAX_STACK_HITS,
+								"ACTIVITY_EXCEEDING" => $STACK_HITS - $MAX_STACK_HITS,
+								"CURRENT_TIME" => GetTime($stmp, "FULL", $arSite["ID"]),
+								"DELAY_TIME" => $DEFENCE_DELAY,
+								"USER_AGENT" => $_SERVER["HTTP_USER_AGENT"],
+								"SESSION_ID" => $_SESSION["SESS_SESSION_ID"],
+								"SESSION_LINK" => $SESSION_LINK,
+								"SERACHER_ID" => $_SESSION["SESS_SEARCHER_ID"],
+								"SEARCHER_NAME" => $_SESSION["SESS_SEARCHER_NAME"],
+								"SEARCHER_LINK" => $SEARCHER_LINK,
+								"VISITOR_ID" => $_SESSION["SESS_GUEST_ID"],
+								"VISITOR_LINK" => $VISITOR_LINK,
+								"STOPLIST_LINK" => $STOPLIST_LINK,
+								"EMAIL_TO" => COption::GetOptionString("main", "email_from", ""),
 							);
 
 							CEvent::Send("STATISTIC_ACTIVITY_EXCEEDING", $site_id, $arEventFields);

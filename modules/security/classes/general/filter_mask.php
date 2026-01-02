@@ -82,7 +82,7 @@ class CSecurityFilterMask
 			{
 				$arMasks = array();
 
-				$rs = FilterMaskTable::getList(['order' => 'sort']);
+				$rs = FilterMaskTable::getList(['select' => ['SITE_ID', 'PREG_MASK', 'SORT'], 'order' => 'sort']);
 				while($ar = $rs->Fetch())
 				{
 					$site_id = $ar["SITE_ID"]? $ar["SITE_ID"]: "-";
@@ -141,7 +141,7 @@ class CSecurityFilterMask
 						->where($filterOr);
 			}
 
-			$rs = FilterMaskTable::getList(['filter' => $filter]);
+			$rs = FilterMaskTable::getList(['select' => ['ID'], 'filter' => $filter, 'limit' => 1]);
 
 			if($rs->Fetch())
 				$bFound = true;

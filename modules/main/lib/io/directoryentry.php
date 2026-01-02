@@ -1,8 +1,8 @@
 <?php
+
 namespace Bitrix\Main\IO;
 
-abstract class DirectoryEntry
-	extends FileSystemEntry
+abstract class DirectoryEntry extends FileSystemEntry
 {
 	public function __construct($path, $siteId = null)
 	{
@@ -12,9 +12,11 @@ abstract class DirectoryEntry
 	public function create()
 	{
 		if ($this->isExists())
+		{
 			return;
+		}
 
-		$arMissingDirs = array($this->getName());
+		$arMissingDirs = [$this->getName()];
 		$dir = $this->getDirectory();
 		while (!$dir->isExists())
 		{
@@ -24,7 +26,11 @@ abstract class DirectoryEntry
 
 		$arMissingDirs = array_reverse($arMissingDirs);
 		foreach ($arMissingDirs as $dirName)
+		{
 			$dir = $dir->createSubdirectory($dirName);
+		}
+
+		$this->exists = null;
 	}
 
 	/**
@@ -33,7 +39,7 @@ abstract class DirectoryEntry
 	abstract public function getChildren();
 
 	/**
-	 * @param string $path
+	 * @param string $name
 	 * @return DirectoryEntry
 	 */
 	abstract public function createSubdirectory($name);

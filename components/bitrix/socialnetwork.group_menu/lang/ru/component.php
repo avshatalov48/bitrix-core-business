@@ -11,5 +11,4 @@ $MESS["SONET_UM_TASKS"] = "Задачи";
 $MESS["SONET_UM_SEARCH"] = "Поиск";
 $MESS["SONET_UM_MICROBLOG"] = "Микроблог";
 $MESS["SONET_UM_CHAT"] = "Чат";
-$MESS["SONET_UM_MARKETPLACE_2"] = "Маркет";
-?>
+$MESS["SONET_UM_MARKETPLACE_MSGVER_1"] = "Маркетплейс";

@@ -1,5 +1,5 @@
 import { Settings } from 'im.v2.const';
-import { SettingsService } from 'im.v2.provider.service';
+import { SettingsService } from 'im.v2.provider.service.settings';
 import { Utils } from 'im.v2.lib.utils';
 
 import { RadioOption, type RadioOptionItem } from '../elements/radio';
@@ -21,10 +21,10 @@ export const HotkeySection = {
 		sendCombinationItems(): RadioOptionItem[]
 		{
 			const ctrlKey = Utils.platform.isMac() ? '&#8984;' : 'Ctrl';
-			const enterSubtext = this.loc('IM_CONTENT_SETTINGS_OPTION_HOTKEY_NEW_LINE', {
+			const enterSubtext = this.loc('IM_CONTENT_SETTINGS_OPTION_HOTKEY_NEW_LINE_MSGVER_1', {
 				'#HOTKEY#': 'Shift + Enter',
 			});
-			const ctrlEnterSubtext = this.loc('IM_CONTENT_SETTINGS_OPTION_HOTKEY_NEW_LINE', {
+			const ctrlEnterSubtext = this.loc('IM_CONTENT_SETTINGS_OPTION_HOTKEY_NEW_LINE_MSGVER_1', {
 				'#HOTKEY#': 'Enter',
 			});
 

@@ -4,6 +4,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var \CMain $APPLICATION */
+/** @var \CBitrixComponent $component */
+
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'landing-slider-no-background');
 
@@ -45,7 +50,8 @@ else if ($createMode)
 			],
 			'POPUP_COMPONENT_PARENT' => $component,
 			'USE_PADDING' => false,
-			'PAGE_MODE' => false
+			'PAGE_MODE' => false,
+			'USE_UI_TOOLBAR' => 'Y',
 		]
 	);
 }

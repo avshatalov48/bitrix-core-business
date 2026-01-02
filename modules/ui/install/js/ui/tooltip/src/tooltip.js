@@ -1,7 +1,7 @@
 export class Tooltip
 {
 	static disabled = false;
-	static tooltipsList =  {};
+	static tooltipsList = {};
 
 	static disable()
 	{

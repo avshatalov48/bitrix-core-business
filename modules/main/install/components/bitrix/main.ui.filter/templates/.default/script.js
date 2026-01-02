@@ -396,7 +396,8 @@ this.BX = this.BX || {};
 	      mix: mix,
 	      attrs: {
 	        'data-item': 'item' in data ? JSON.stringify(data.item) : '',
-	        'title': title
+	        'title': title,
+	        'tabindex': '-1'
 	      },
 	      content: [{
 	        block: 'main-ui-square-item',
@@ -2874,7 +2875,7 @@ this.BX = this.BX || {};
 	        var onRemoveClick = function onRemoveClick(event) {
 	          _this4.restoreField(event.currentTarget.closest('.main-ui-filter-field-with-additional-filter'));
 	        };
-	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"main-ui-control main-ui-filter-additional-filter-placeholder\" data-type=\"", "\">\n\t\t\t\t\t<div class=\"main-ui-square\">\n\t\t\t\t\t\t<div class=\"main-ui-square-item\">", "</div>\n\t\t\t\t\t\t<div class=\"main-ui-item-icon main-ui-square-delete\" onclick=\"", "\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), typeId, message, onRemoveClick);
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"main-ui-control main-ui-filter-additional-filter-placeholder\" data-type=\"", "\">\n\t\t\t\t\t<div class=\"main-ui-square\">\n\t\t\t\t\t\t<div class=\"main-ui-square-item\">", "</div>\n\t\t\t\t\t\t<div class=\"main-ui-item-icon main-ui-square-delete\" tabindex=\"-1\" onclick=\"", "\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), typeId, message, onRemoveClick);
 	      });
 	    }
 	  }, {
@@ -8422,6 +8423,7 @@ this.BX = this.BX || {};
 	                });
 	              }
 	              if (!main_core.Type.isNil(presetField)) {
+	                var _presetField;
 	                if (name.endsWith('_datesel')) {
 	                  fieldData.MONTHS = presetField.MONTHS;
 	                  fieldData.MONTH = presetField.MONTH;
@@ -8434,6 +8436,7 @@ this.BX = this.BX || {};
 	                }
 	                fieldData.VALUES = presetField.VALUES;
 	                fieldData.REQUIRED = presetField.REQUIRED;
+	                fieldData.ICON = (_presetField = presetField) === null || _presetField === void 0 ? void 0 : _presetField.ICON;
 	              }
 	            }
 	            if (this.parent.getParam('ENABLE_LABEL')) {

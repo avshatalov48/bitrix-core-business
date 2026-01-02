@@ -1,0 +1,25 @@
+<?php
+$MESS["BIZPROC_AUTOMATION_NO_FORCED_TRACKING"] = "Робот мәртебесін логқа сақтамау";
+$MESS["BIZPROC_EMPLOYEE_COMPATIBLE_MODE"] = "\"Қызметкерге сілтеме\" түрі үшін үйлесімділік режимін қосу";
+$MESS["BIZPROC_LIMIT_SIMULTANEOUS_PROCESSES"] = "Құжатта бір уақытта жұмыс істейтін процестердің максималды саны";
+$MESS["BIZPROC_LIMIT_WHILE_ITERATIONS"] = "Бір іске қосу шеңберіндегі цикл интеграциясының максималды саны";
+$MESS["BIZPROC_LOG_CLEANUP_DAYS"] = "Бизнес-процесс логын сақтау уақыты (күндер)";
+$MESS["BIZPROC_LOG_SKIP_TYPES"] = "Оқиғаларды логқа сақтамау";
+$MESS["BIZPROC_LOG_SKIP_TYPES_1_1"] = "әрекетті іске қосу";
+$MESS["BIZPROC_LOG_SKIP_TYPES_2_1"] = "әрекетті аяқтау";
+$MESS["BIZPROC_NAME_TEMPLATE"] = "Атын көрсету пішімі";
+$MESS["BIZPROC_OPTIONS_NAME_IN_SITE_FORMAT"] = "Сайттың пішімі";
+$MESS["BIZPROC_OPT_ENABLE_GETDOCUMENT_SELECT"] = "Құжат өрістерін жүктеуді оңтайландыруды қосу";
+$MESS["BIZPROC_OPT_LOCKED_WI_PATH"] = "Тұрып қалған бизнес-процестер тізіміне жол";
+$MESS["BIZPROC_OPT_TIME_LIMIT"] = "Әрекет үшін ең аз күту уақыты";
+$MESS["BIZPROC_OPT_TIME_LIMIT_D"] = "күн";
+$MESS["BIZPROC_OPT_TIME_LIMIT_H"] = "сағат";
+$MESS["BIZPROC_OPT_TIME_LIMIT_M"] = "минут";
+$MESS["BIZPROC_OPT_TIME_LIMIT_S"] = "секунд";
+$MESS["BIZPROC_OPT_USE_GZIP_COMPRESSION"] = "Деректерді сақтау кезінде ықшамдауды қолдану";
+$MESS["BIZPROC_OPT_USE_GZIP_COMPRESSION_EMPTY"] = "әдепкі бойынша";
+$MESS["BIZPROC_OPT_USE_GZIP_COMPRESSION_N"] = "жоқ";
+$MESS["BIZPROC_OPT_USE_GZIP_COMPRESSION_Y"] = "иә";
+$MESS["BIZPROC_SEARCH_CLEANUP_DAYS"] = "Бизнес-процестің іздеу индексін сақтау уақыты (күндер)";
+$MESS["BIZPROC_TAB_SET"] = "Баптаулар";
+$MESS["BIZPROC_TAB_SET_ALT"] = "Модуль баптаулары";

@@ -4,6 +4,7 @@ namespace Bitrix\Bizproc\Api\Response\WorkflowFacesService;
 
 use Bitrix\Bizproc\Api\Data\WorkflowFacesService\StepDurations;
 use Bitrix\Bizproc\Result;
+use Bitrix\Main\Type\DateTime;
 
 final class GetDataResponse extends Result
 {
@@ -156,5 +157,17 @@ final class GetDataResponse extends Result
 	public function getDurations(): ?StepDurations
 	{
 		return $this->data['durations'] ?? null;
+	}
+
+	public function setWorkflowStarted(?DateTime $workflowStarted): self
+	{
+		$this->data['workflowStarted'] = $workflowStarted;
+
+		return $this;
+	}
+
+	public function getWorkflowStarted(): ?DateTime
+	{
+		return $this->data['workflowStarted'] ?? null;
 	}
 }

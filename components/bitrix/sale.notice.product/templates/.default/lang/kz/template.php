@@ -1,0 +1,19 @@
+<?php
+$MESS["MAIN_NOTIFY_MESSAGE"] = "Тауар қоймада пайда болғаннан кейін біз сізге хабарлаймыз.";
+$MESS["MAIN_NOTIFY_POPUP_AUTH"] = "Авторландыру";
+$MESS["MAIN_NOTIFY_POPUP_MAIL"] = "Сіздің email";
+$MESS["NOTIFY"] = "Тауардың түскені туралы мәлімдеме жіберу";
+$MESS["NOTIFY_ERR_CAPTHA"] = "Картинадағы сөз дұрыс енгізілмеген.";
+$MESS["NOTIFY_ERR_MAIL"] = "Email көрсетілмеген.";
+$MESS["NOTIFY_ERR_MAIL_BUYERS_EXIST"] = "Мұндай email бар пайдаланушы тіркелген.<br>Авторландырудан өтуіңізді сұраймыз.";
+$MESS["NOTIFY_ERR_NULL"] = "Email-ды көрсетіңіз немесе логин мен құпиясөзді енгізіңіз.";
+$MESS["NOTIFY_ERR_REG"] = "Пайдаланушы тіркелмеген.";
+$MESS["NOTIFY_POPUP_AUTH"] = "Авторландыру";
+$MESS["NOTIFY_POPUP_CANCEL"] = "Болдырмау";
+$MESS["NOTIFY_POPUP_CAPTHA"] = "Картинадағы сөзді енгізіңіз";
+$MESS["NOTIFY_POPUP_LOGIN"] = "Логин";
+$MESS["NOTIFY_POPUP_MAIL"] = "Сіздің email";
+$MESS["NOTIFY_POPUP_MAIL_ERR"] = "Электрондық поштаңызды енгізіңіз";
+$MESS["NOTIFY_POPUP_OK"] = "Мәлімдеу";
+$MESS["NOTIFY_POPUP_PASSW"] = "Құпиясөз";
+$MESS["NOTIFY_TITLE"] = "Тауардың түскені туралы мәлімдеме ";

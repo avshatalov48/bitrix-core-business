@@ -1,17 +1,16 @@
 import 'ui.forms';
 
-import { Dropdown } from 'im.v2.component.elements';
-
 import { CreateChatSection } from '../section/section';
 import { TextareaInput } from '../../elements/textarea';
 import { RadioOption, type RadioOptionItem } from '../../elements/radio';
 import { CreateChatHeading } from '../../elements/heading';
+import { AutoDelete } from '../../elements/auto-delete';
 
 import './settings-section.css';
 
 // @vue/component
 export const SettingsSection = {
-	components: { CreateChatSection, CreateChatHeading, Dropdown, TextareaInput, RadioOption },
+	components: { CreateChatSection, CreateChatHeading, TextareaInput, RadioOption, AutoDelete },
 	props: {
 		description: {
 			type: String,
@@ -21,12 +20,20 @@ export const SettingsSection = {
 			type: Boolean,
 			default: true,
 		},
+		withAutoDeleteOption: {
+			type: Boolean,
+			default: true,
+		},
 		isAvailableInSearch: {
 			type: Boolean,
 			default: false,
 		},
+		autoDeleteDelay: {
+			type: Number,
+			default: 0,
+		},
 	},
-	emits: ['chatTypeChange', 'descriptionChange'],
+	emits: ['chatTypeChange', 'descriptionChange', 'autoDeleteDelayChange'],
 	computed:
 	{
 		privacyOptions(): RadioOptionItem[]
@@ -57,6 +64,10 @@ export const SettingsSection = {
 		{
 			this.$emit('descriptionChange', description);
 		},
+		onAutoDeleteDelayChange(delay: number)
+		{
+			this.$emit('autoDeleteDelayChange', delay);
+		},
 		loc(phraseCode: string, replacements: {[p: string]: string} = {}): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
@@ -68,6 +79,11 @@ export const SettingsSection = {
 				<CreateChatHeading :text="loc('IM_CREATE_CHAT_SETTINGS_SECTION_PRIVACY_MSGVER_1')" />
 				<RadioOption :items="privacyOptions" @change="onTypeChange" />
 			</div>
+			<AutoDelete
+				v-if="withAutoDeleteOption"
+				:initialDelay="autoDeleteDelay"
+				@delayChange="onAutoDeleteDelayChange" 
+			/>
 			<div class="bx-im-content-create-chat__section_block">
 				<CreateChatHeading :text="loc('IM_CREATE_CHAT_SETTINGS_SECTION_DESCRIPTION')" />
 				<div class="bx-im-chat-forms-settings__description_container">

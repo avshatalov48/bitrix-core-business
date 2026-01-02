@@ -1,0 +1,23 @@
+<?php
+$MESS["LANDING_BLOCK_ATTRS_ANIMATION"] = "Парақтау кезінде анимация";
+$MESS["LANDING_BLOCK_ATTRS_ANIMATION_HINT"] = "Слайдтар арасында ауысу әсерін таңдаңыз. \"Fade in\" анимациясы экранда 1 слайд болған кезде ғана қолжетімді";
+$MESS["LANDING_BLOCK_ATTRS_ANIMATION_OFF"] = "Анимациясыз";
+$MESS["LANDING_BLOCK_ATTRS_ARROWS"] = "Батырмалар дизайны";
+$MESS["LANDING_BLOCK_ATTRS_ARROWS_0"] = "Батырмаларсыз";
+$MESS["LANDING_BLOCK_ATTRS_AUTO"] = "Авто";
+$MESS["LANDING_BLOCK_ATTRS_AUTOPLAY"] = "Автоматты түрде жаңғырту";
+$MESS["LANDING_BLOCK_ATTRS_AUTOPLAY_SPEED"] = "Жылдамдық";
+$MESS["LANDING_BLOCK_ATTRS_DOTS"] = "Навигацияны қосу (нүктелер)";
+$MESS["LANDING_BLOCK_ATTRS_NO"] = "Жоқ";
+$MESS["LANDING_BLOCK_ATTRS_OFF"] = "Өшіру";
+$MESS["LANDING_BLOCK_ATTRS_ON"] = "Қосу";
+$MESS["LANDING_BLOCK_ATTRS_PAUSE_HOVER"] = "Бағыттау кезіндегі кідіріс";
+$MESS["LANDING_BLOCK_ATTRS_SLIDES_SHOW"] = "Слайдтар саны";
+$MESS["LANDING_BLOCK_ATTRS_SLIDES_SHOW_HINT"] = "Экранда бір уақытта көрсетілетін слайдтардың санын таңдаңыз. Сайтты компьютерде қарау кезінде ғана қолжетімді";
+$MESS["LANDING_BLOCK_ATTRS_TIME_1"] = "1 с";
+$MESS["LANDING_BLOCK_ATTRS_TIME_3"] = "3 с";
+$MESS["LANDING_BLOCK_ATTRS_TIME_5"] = "5 с";
+$MESS["LANDING_BLOCK_ATTRS_TIME_10"] = "10 с";
+$MESS["LANDING_BLOCK_ATTRS_TIME_15"] = "15 с";
+$MESS["LANDING_BLOCK_ATTRS_TIME_30"] = "30 с";
+$MESS["LANDING_BLOCK_ATTRS_YES"] = "Иә";

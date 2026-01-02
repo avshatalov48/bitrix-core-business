@@ -10,6 +10,7 @@
 		"psr/http-message": "^2.0",
 		"psr/http-client": "^1.0",
 		"psr/container": "^2.0",
-		"php-http/promise": "^1.1"
+		"php-http/promise": "^1.1",
+		"simshaun/recurr": "^5.0"
 	}
 }

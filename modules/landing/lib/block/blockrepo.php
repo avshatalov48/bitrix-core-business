@@ -45,6 +45,7 @@ class BlockRepo
 	 * Sections with special conditions
 	 */
 	private const SECTION_LAST = 'last';
+	private const SECTION_FAVOURITE = 'favourite';
 
 	/**
 	 * Section or block type with special conditions
@@ -263,7 +264,7 @@ class BlockRepo
 		if ($cache->initCache($cacheTime, $cacheId, $cachePath))
 		{
 			$this->repository = $cache->getVars();
-			if (is_array($this->repository) && !empty($this->repository))
+			if (!empty($this->repository))
 			{
 				return $this->fillLastUsedBlocks();
 			}
@@ -514,7 +515,7 @@ class BlockRepo
 		if (!empty($blocksRepo) && !empty($apps))
 		{
 			$this->repository['separator_apps'] = [
-				'name' => Loc::getMessage('LANDING_BLOCK_SEPARATOR_PARTNER_2'),
+				'name' => Loc::getMessage('LANDING_BLOCK_SEPARATOR_PARTNER_2_MSGVER_1'),
 				'separator' => true,
 				'items' => [],
 			];
@@ -581,9 +582,22 @@ class BlockRepo
 
 	private function fillLastUsedBlocks(): static
 	{
+		if (Landing::getEditMode() === false)
+		{
+			return $this;
+		}
+
+		static $lastUsedItems = null;
+		if ($lastUsedItems !== null)
+		{
+			$this->repository[self::SECTION_LAST]['items'] = $lastUsedItems;
+
+			return $this;
+		}
+
 		$this->repository[self::SECTION_LAST]['items'] = [];
 		$lastUsed = Block::getLastUsed();
-		if ($lastUsed)
+		if (count($lastUsed) > 0)
 		{
 			foreach ($lastUsed as $code)
 			{
@@ -594,9 +608,9 @@ class BlockRepo
 				foreach ($cat['items'] as $code => &$block)
 				{
 					if (
-						in_array($code, $lastUsed)
-						&& $catCode != self::SECTION_LAST
+						$catCode !== self::SECTION_LAST
 						&& !empty($block)
+						&& in_array($code, $lastUsed, true)
 					)
 					{
 						$block['section'][] = self::SECTION_LAST;
@@ -616,6 +630,8 @@ class BlockRepo
 				}
 			}
 		}
+
+		$lastUsedItems = $this->repository[self::SECTION_LAST]['items'];
 
 		return $this;
 	}
@@ -659,17 +675,17 @@ class BlockRepo
 		 * @param string|array $item
 		 * @return array|null
 		 */
-		$prepareType = function (string|array $item): ?array
+		$prepareType = static function (string|array $item): ?array
 		{
 			$type = (array)$item;
 			$type = array_map('strtoupper', $type);
-			if (in_array('PAGE', $type))
+			if (in_array('PAGE', $type, true))
 			{
 				$type[] = 'SMN';
 			}
 			if (
-				in_array('NULL', $type)
-				|| in_array('', $type)
+				in_array('NULL', $type, true)
+				|| in_array('', $type, true)
 			)
 			{
 				return null;
@@ -689,17 +705,17 @@ class BlockRepo
 			$sectionTypes = $prepareType($section['type'] ?? []);
 
 			if (
-				$this->isFilterActive(self::FILTER_SKIP_COMMON_BLOCKS)
-				&& empty($sectionTypes)
-				&& $sectionCode !== self::SECTION_LAST
+				empty($sectionTypes)
+				&& $this->isFilterActive(self::FILTER_SKIP_COMMON_BLOCKS)
+				&& !in_array($sectionCode, [self::SECTION_LAST, self::SECTION_FAVOURITE], true)
 			)
 			{
 				continue;
 			}
 
 			if (
-				$this->isFilterActive(self::FILTER_SKIP_HIDDEN_BLOCKS)
-				&& $sectionTypes === null
+				$sectionTypes === null
+				&& $this->isFilterActive(self::FILTER_SKIP_HIDDEN_BLOCKS)
 			)
 			{
 				continue;
@@ -726,16 +742,16 @@ class BlockRepo
 				$blockTypes = $prepareType($block['type'] ?? []);
 
 				if (
-					$this->isFilterActive(self::FILTER_SKIP_COMMON_BLOCKS)
-					&& empty($blockTypes)
+					empty($blockTypes)
+					&& $this->isFilterActive(self::FILTER_SKIP_COMMON_BLOCKS)
 				)
 				{
 					continue;
 				}
 
 				if (
-					$this->isFilterActive(self::FILTER_SKIP_HIDDEN_BLOCKS)
-					&& $blockTypes === null
+					$blockTypes === null
+					&& $this->isFilterActive(self::FILTER_SKIP_HIDDEN_BLOCKS)
 				)
 				{
 					continue;
@@ -756,9 +772,9 @@ class BlockRepo
 				}
 
 				if (
-					$this->isFilterActive(self::FILTER_SKIP_SYSTEM_BLOCKS)
-					&& isset($block['system'])
+					isset($block['system'])
 					&& $block['system'] === true
+					&& $this->isFilterActive(self::FILTER_SKIP_SYSTEM_BLOCKS)
 				)
 				{
 					continue;
@@ -771,13 +787,40 @@ class BlockRepo
 				$filtered[$sectionCode]['items'][$blockCode] = $block;
 			}
 
-			if (empty($filtered[$sectionCode]['items']))
+			if (empty($filtered[$sectionCode]['items']) && $sectionCode !== self::SECTION_FAVOURITE)
 			{
 				unset($filtered[$sectionCode]);
 			}
 		}
 
-		return $filtered;
+		return $this->filterLastUsed($filtered);
+	}
+
+	private function filterLastUsed(array $repository): array
+	{
+		if (!isset($repository[self::SECTION_LAST]['items']))
+		{
+			return $repository;
+		}
+
+		$removeLastSection = static function(array $sections)
+		{
+			return array_diff($sections, [self::SECTION_LAST]);
+		};
+
+		$filteredBlocks = [];
+		$allowableSections = $removeLastSection(array_keys($repository));
+		foreach ($repository[self::SECTION_LAST]['items'] as $code => $block)
+		{
+			$blockSections = $removeLastSection($block['section'] ?? []);
+			if (!empty(array_intersect($blockSections, $allowableSections)))
+			{
+				$filteredBlocks[$code] = $block;
+			}
+		}
+		$repository[self::SECTION_LAST]['items'] = $filteredBlocks;
+
+		return $repository;
 	}
 
 	/**

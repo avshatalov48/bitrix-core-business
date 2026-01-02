@@ -1,0 +1,24 @@
+<?php
+$MESS["BLOG_BLOG_BLOG_MES_DELED"] = "Хабарлама жойылды";
+$MESS["BLOG_BLOG_BLOG_MES_DEL_ERROR"] = "Хабарламаны жою қателігі";
+$MESS["BLOG_BLOG_BLOG_MES_DEL_NO_RIGHTS"] = "Сізде бұл хабарламаны жою үшін құқық жоқ";
+$MESS["BLOG_BLOG_BLOG_MES_HIDE_ERROR"] = "Хабарламаны жасыру қатесі";
+$MESS["BLOG_BLOG_BLOG_MES_HIDE_NO_RIGHTS"] = "Сізде бұл хабарламаны жасыру үшін құқық жоқ";
+$MESS["BLOG_MODULE_NOT_INSTALL"] = "Блогтар модулі орнатылмаған.";
+$MESS["BLOG_SONET_MODULE_NOT_AVAIBLE"] = "Блогтар бұл пайдаланушы үшін қолжетімсіз.";
+$MESS["B_B_MES_FR_ONLY"] = "Хабарламаны оқу үшін құқықтар жеткіліксіз.";
+$MESS["B_B_MES_NAME_TEMPLATE_DEFAULT"] = "#NOBR##LAST_NAME# #NAME##/NOBR#";
+$MESS["B_B_MES_NO_BLOG"] = "Блог табылмады";
+$MESS["B_B_MES_NO_MES"] = "Хабарлама табылмады";
+$MESS["B_B_MES_NO_POST"] = "Хабарлама табылмады";
+$MESS["B_B_MES_NO_RIGHTS"] = "Хабарламаны қарау үшін құқықтар жеткіліксіз.";
+$MESS["B_B_MES_REQUEST_ADDED"] = "Сіздің өтініміңіз блог авторының қарауына қабылданды";
+$MESS["B_B_MES_REQUEST_ALREADY"] = "Сіздің өтініміңіз блог авторының қарауында";
+$MESS["B_B_MES_REQUEST_AUTH"] = "Өтінім беру үшін сайтта авторландырылу қажет.";
+$MESS["B_B_MES_REQUEST_ERROR"] = "Өтінімді қосу қатесі";
+$MESS["B_B_MES_U_AUTH"] = "Хабарламаларды оқуға өтініш жіберу үшін сайтта авторландырылу қажет.";
+$MESS["B_B_MES_U_CAN"] = "Сіз блог авторына";
+$MESS["B_B_MES_U_CAN1"] = "оның хабарламаларын оқу үшін";
+$MESS["B_B_MES_U_CAN2"] = "өтінім жібере аласыз.";
+$MESS["MICROBLOG_SONET_MODULE_NOT_AVAIBLE"] = "Микроблогтар бұл пайдаланушы үшін қолжетімсіз.";
+$MESS["MICROBLOG_TITLE"] = "Микроблог";

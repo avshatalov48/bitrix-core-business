@@ -5,7 +5,7 @@ $MESS["SECURITY_OTP_MANDATORY_AUTH_DESCR1"] = "Вы не успели настр
 <br /><br />
 Если у вас нет возможности установить приложение для получения одноразового кода или возникли сложности при подключении, пожалуйста, обратитесь к вашему администратору.";
 $MESS["SECURITY_OTP_MANDATORY_AUTH_CONNECT"] = "Подключите двухэтапную авторизацию прямо сейчас";
-$MESS["SECURITY_OTP_MANDATORY_AUTH_MOBILE"] = "Скачайте мобильное приложение Bitrix24 OTP";
+$MESS["SECURITY_OTP_MANDATORY_AUTH_MOBILE_MSGVER_1"] = "Скачайте мобильное приложение Bitrix OTP";
 $MESS["SECURITY_OTP_MANDATORY_AUTH_MOBILE_TMP"] = "Скачайте мобильное приложение FreeOTP или Google Authenticator";
 $MESS["SECURITY_OTP_MANDATORY_AUTH_MOBILE2"] = "для своего телефона из AppStore или GooglePlay";
 $MESS["SECURITY_OTP_MANDATORY_AUTH_MOBILE2_TMP"] = "для своего телефона из AppStore, GooglePlay";

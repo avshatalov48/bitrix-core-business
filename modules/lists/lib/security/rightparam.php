@@ -55,7 +55,7 @@ class RightParam
 	 */
 	public function setIblockTypeId($iblockTypeId)
 	{
-		$this->iblockTypeId = ($iblockTypeId ? $iblockTypeId : "");
+		$this->iblockTypeId = (is_string($iblockTypeId) ? $iblockTypeId : '');
 	}
 
 	/**

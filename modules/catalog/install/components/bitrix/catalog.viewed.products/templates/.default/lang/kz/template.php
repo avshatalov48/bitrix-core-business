@@ -1,0 +1,20 @@
+<?php
+$MESS["CVP_ADD_TO_BASKET_OK"] = "Тауар себетке салынды";
+$MESS["CVP_CATALOG_BASKET_UNKNOWN_ERROR"] = "Тауарды себетке қосу кезіндегі белгісіз қате";
+$MESS["CVP_CATALOG_BTN_MESSAGE_BASKET_REDIRECT"] = "Себетке өту";
+$MESS["CVP_CATALOG_BTN_MESSAGE_CLOSE"] = "Жабу";
+$MESS["CVP_CATALOG_BTN_MESSAGE_SEND_PROPS"] = "Таңдау";
+$MESS["CVP_CATALOG_SET_BUTTON_BUY"] = "Себетке өту";
+$MESS["CVP_CATALOG_TITLE_BASKET_PROPS"] = "Себетке қосылған тауардың қасиеттері";
+$MESS["CVP_CATALOG_TITLE_ERROR"] = "Қате";
+$MESS["CVP_MSG_YOU_HAVE_NOT_YET"] = "Сіз әлі бірде-бір тауарды қараған жоқсыз.";
+$MESS["CVP_TPL_ELEMENT_DELETE_CONFIRM"] = "Осы жазбаға қатысты барлық ақпарат өшіріледі. Жалғастыру керек пе?";
+$MESS["CVP_TPL_MESS_BTN_ADD_TO_BASKET"] = "Себетке салу";
+$MESS["CVP_TPL_MESS_BTN_BUY"] = "Сатып алу";
+$MESS["CVP_TPL_MESS_BTN_COMPARE"] = "Салыстыру";
+$MESS["CVP_TPL_MESS_BTN_DETAIL"] = "Толығырақ";
+$MESS["CVP_TPL_MESS_BTN_SUBSCRIBE"] = "Жазылу";
+$MESS["CVP_TPL_MESS_MEASURE_SIMPLE_MODE"] = "#VALUE# #UNIT#";
+$MESS["CVP_TPL_MESS_PRICE_SIMPLE_MODE"] = "#MEASURE# үшін #PRICE# бастап";
+$MESS["CVP_TPL_MESS_PRODUCT_NOT_AVAILABLE"] = "Қолда жоқ";
+$MESS["CVP_TPL_MESS_YOU_LOOKED"] = "Сіз көрдіңіз";

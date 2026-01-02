@@ -25,15 +25,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  computed: {
 	    messageComponentToRender() {
-	      return vote_component_message.VoteChatDisplay ? vote_component_message.VoteChatDisplay : im_v2_component_message_unsupported.UnsupportedMessage;
+	      return vote_component_message.VoteChatDisplay || im_v2_component_message_unsupported.UnsupportedMessage;
 	    }
 	  },
 	  template: `
-		<component :is="messageComponentToRender" :item="item" :dialogId="dialogId" :withTitle="withTitle" />
+		<component :is="messageComponentToRender" :item="item" :dialogId="dialogId"/>
 	`
 	};
 
 	exports.VoteMessage = VoteMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Message,BX.Vote.Component));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX?.Messenger?.v2?.Component?.Message??{},BX?.Vote?.Component??{}));
 //# sourceMappingURL=vote.bundle.js.map

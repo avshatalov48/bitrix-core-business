@@ -244,7 +244,7 @@ if (CModule::IncludeModule("form"))
 								LocalRedirect(
 									$APPLICATION->GetCurPageParam(
 										"formresult=".urlencode($arResult["FORM_RESULT"]),
-										array('formresult', 'SEF_APPLICATION_CUR_PAGE_URL')
+										array('formresult')
 									)
 								);
 							}
@@ -889,11 +889,11 @@ if (CModule::IncludeModule("form"))
 	}
 	else
 	{
-		echo ShowError(GetMessage($arResult["ERROR"]));
+		ShowError(GetMessage($arResult["ERROR"]));
 	}
 }
 else
 {
-	echo ShowError(GetMessage("FORM_MODULE_NOT_INSTALLED"));
+	ShowError(GetMessage("FORM_MODULE_NOT_INSTALLED"));
 }
 ?>

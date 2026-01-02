@@ -250,8 +250,13 @@ class CBPHandleExternalEventActivity
 
 		$currentParent = &CBPWorkflowTemplateLoader::FindParentActivityByName($arWorkflowTemplate, $activityName);
 
-		$c = count($currentParent['Children']);
-		$allowSetStatus = ($c == 1 || $currentParent['Children'][$c - 1]['Type'] == 'SetStateActivity');
+		$c = 0;
+		$allowSetStatus = false;
+		if (isset($currentParent['Children']) && is_array($currentParent['Children']))
+		{
+			$c = count($currentParent['Children']);
+			$allowSetStatus = ($c === 1 || $currentParent['Children'][$c - 1]['Type'] === 'SetStateActivity');
+		}
 
 		if (!is_array($arCurrentValues))
 		{
@@ -270,8 +275,11 @@ class CBPHandleExternalEventActivity
 				);
 			}
 
-			if ($c > 1 && $currentParent['Children'][$c - 1]['Type'] == 'SetStateActivity')
-			{
+			if (
+				($c > 1)
+				&& (isset($currentParent['Children'][$c - 1]))
+				&& ($currentParent['Children'][$c - 1]['Type'] === 'SetStateActivity')
+			) {
 				$arCurrentValues['setstate'] = $currentParent['Children'][$c - 1]['Properties']['TargetStateName'];
 			}
 		}

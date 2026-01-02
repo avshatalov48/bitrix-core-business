@@ -10,6 +10,7 @@ this.BX.UI.Vue3 = this.BX.UI.Vue3 || {};
 
 	<Switcher
 		:is-checked="myBoolData"
+		:is-disabled="isDisabled"
 		@check="myBoolData = true"
 		@uncheck="myBoolData = false"
 		:options="{
@@ -19,6 +20,7 @@ this.BX.UI.Vue3 = this.BX.UI.Vue3 || {};
 	/>
 	 */
 
+	// @vue/component
 	const Switcher = {
 	  name: 'Switcher',
 	  emits: ['check', 'uncheck'],
@@ -26,6 +28,10 @@ this.BX.UI.Vue3 = this.BX.UI.Vue3 || {};
 	    isChecked: {
 	      type: Boolean,
 	      required: true
+	    },
+	    isDisabled: {
+	      type: Boolean,
+	      default: false
 	    },
 	    options: {
 	      /** @type SwitcherOptions */
@@ -40,6 +46,9 @@ this.BX.UI.Vue3 = this.BX.UI.Vue3 || {};
 	  watch: {
 	    isChecked() {
 	      this.switcher.check(this.isChecked, false);
+	    },
+	    isDisabled() {
+	      this.switcher.setDisabled(this.isDisabled);
 	    },
 	    options(newOptions, oldOptions) {
 	      if (this.isOptionsEqual(newOptions, oldOptions)) {
@@ -57,6 +66,7 @@ this.BX.UI.Vue3 = this.BX.UI.Vue3 || {};
 	      this.switcher = new ui_switcher.Switcher({
 	        ...this.options,
 	        checked: this.isChecked,
+	        disabled: this.isDisabled,
 	        handlers: {
 	          // checked for when the switcher is made off and unchecked for when the switcher is made on
 	          // it looks like a bug, but I'm not sure

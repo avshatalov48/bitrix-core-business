@@ -9,6 +9,8 @@
 namespace Bitrix\Main\Mail;
 
 use Bitrix\Main\Type;
+use Bitrix\Main\ORM\Fields\ExpressionField;
+use Bitrix\Main\DB\SqlExpression;
 
 class SenderSendCounter
 {
@@ -50,9 +52,9 @@ class SenderSendCounter
 		$counter = 0;
 		$date = new Type\Date(date("01.m.Y"), "d.m.Y");
 
-		$res = Internals\SenderSendCounterTable::getList(array(
+		$res = Internal\SenderSendCounterTable::getList(array(
 			"select" => array(
-				new \Bitrix\Main\Entity\ExpressionField('CNT', 'SUM(CNT)'),
+				new ExpressionField('CNT', 'SUM(CNT)'),
 			),
 			"filter" => array(
 				">=DATE_STAT" => $date,
@@ -80,7 +82,7 @@ class SenderSendCounter
 			"CNT" => $increment,
 		);
 		$update = array(
-			"CNT" => new \Bitrix\Main\DB\SqlExpression("?# + ?i", "CNT", $increment),
+			"CNT" => new SqlExpression("?# + ?i", "CNT", $increment),
 		);
 
 		Internal\SenderSendCounterTable::mergeData($insert, $update);

@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Landing\Site\Type;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -29,20 +32,21 @@ $arParams['PAGE_URL_SITE_EDIT'] = str_replace(
 	$arParams['PAGE_URL_SITE_EDIT']
 );
 $arParams['DEMO_TYPE'] = ($arParams['STRICT_TYPE'] == 'Y')
-						? $arParams['TYPE']
-						: 'PAGE';
+	? $arParams['TYPE']
+	: 'PAGE'
+;
 
 // add new pages to the sidebar menu
 if (
-	!$arResult['VARS']['landing_edit'] &&
-	(
-		$arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_KNOWLEDGE ||
-		$arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP
+	!$arResult['VARS']['landing_edit']
+	&& (
+		$arParams['TYPE'] === Type::SCOPE_CODE_KNOWLEDGE
+		|| $arParams['TYPE'] === Type::SCOPE_CODE_GROUP
 	)
 )
 {
 	\Bitrix\Landing\Landing::callback('OnAfterAdd',
-		function(\Bitrix\Main\Event $event) use($arResult)
+		function (\Bitrix\Main\Event $event) use ($arResult)
 		{
 			$primary = $event->getParameter('primary');
 			$fields = $event->getParameter('fields');
@@ -50,7 +54,7 @@ if (
 				$arResult['VARS']['site_show'],
 				[
 					'ID' => $primary['ID'],
-					'TITLE' => $fields['TITLE']
+					'TITLE' => $fields['TITLE'],
 				]
 			);
 		}
@@ -63,9 +67,10 @@ if ($request->get('frameMode') === 'Y')
 }
 ?>
 
-<?if ($arResult['VARS']['landing_edit'] > 0):?>
-
-	<?$APPLICATION->IncludeComponent(
+<?php
+if ($arResult['VARS']['landing_edit'] > 0)
+{
+	$APPLICATION->IncludeComponent(
 		'bitrix:landing.landing_edit',
 		'.default',
 		array(
@@ -75,14 +80,15 @@ if ($request->get('frameMode') === 'Y')
 			'PAGE_URL_LANDING_VIEW' => $arParams['PAGE_URL_LANDING_VIEW'],
 			'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT'],
 			'PAGE_URL_FOLDER_EDIT' => $arParams['PAGE_URL_FOLDER_EDIT'],
-			'TYPE' => $arParams['TYPE']
+			'TYPE' => $arParams['TYPE'],
 		),
 		$component
-	);?>
+	);
+}
 
-<?elseif ($template = $request->get('tpl')):?>
-
-	<?$APPLICATION->IncludeComponent(
+elseif ($template = $request->get('tpl'))
+{
+	$APPLICATION->IncludeComponent(
 		'bitrix:landing.demo_preview',
 		'.default',
 		array(
@@ -94,22 +100,29 @@ if ($request->get('frameMode') === 'Y')
 			'ACTION_FOLDER' => $arParams['ACTION_FOLDER'],
 		),
 		$component
-	);?>
+	);
+}
 
-<?else:?>
-
-	<?$APPLICATION->IncludeComponent(
-		'bitrix:landing.demo',
-		'.default',
-		array(
-			'TYPE' => $arParams['DEMO_TYPE'],
-			'ACTION_FOLDER' => $arParams['ACTION_FOLDER'],
-			'SITE_ID' => $arResult['VARS']['site_show'],
-			'PAGE_URL_SITES' => $arParams['PAGE_URL_SITES'],
-			'PAGE_URL_LANDING_VIEW' => $arParams['PAGE_URL_LANDING_VIEW'],
-			'DONT_LEAVE_FRAME' => $arParams['EDIT_DONT_LEAVE_FRAME']
-		),
-		$component
-	);?>
-
-<?endif;?>
+else
+{
+	$APPLICATION->includeComponent(
+		'bitrix:ui.sidepanel.wrapper',
+		'',
+		[
+			'POPUP_COMPONENT_NAME' => 'bitrix:landing.demo',
+			'POPUP_COMPONENT_TEMPLATE_NAME' => '.default',
+			'POPUP_COMPONENT_PARAMS' => [
+				'TYPE' => $arParams['DEMO_TYPE'],
+				'ACTION_FOLDER' => $arParams['ACTION_FOLDER'],
+				'SITE_ID' => $arResult['VARS']['site_show'],
+				'PAGE_URL_SITES' => $arParams['PAGE_URL_SITES'],
+				'PAGE_URL_LANDING_VIEW' => $arParams['PAGE_URL_LANDING_VIEW'],
+				'DONT_LEAVE_FRAME' => $arParams['EDIT_DONT_LEAVE_FRAME'],
+			],
+			'POPUP_COMPONENT_PARENT' => $component,
+			'USE_PADDING' => false,
+			'USE_UI_TOOLBAR' => 'Y',
+		]
+	);
+}
+?>

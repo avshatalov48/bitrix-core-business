@@ -58,10 +58,11 @@ class CatalogAgentContractList extends \CBitrixComponent
 
 		$this->arResult['ACTION_PANEL'] = $this->getGroupActionPanel();
 
-		if (!$this->arResult['IS_ROWS_EXIST'])
-		{
-			$this->arResult['STUB'] = $this->getStub();
-		}
+		$this->arResult['STUB'] =
+			!$this->arResult['IS_ROWS_EXIST']
+				? $this->getStub()
+				: null
+		;
 	}
 
 	private function prepareNavigation(): void

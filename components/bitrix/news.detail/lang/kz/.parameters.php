@@ -1,0 +1,27 @@
+<?php
+$MESS["CP_BND_BROWSER_TITLE"] = "Браузер терезесінің тақырыпатын қасиеттен орнату";
+$MESS["CP_BND_CACHE_GROUPS"] = "Қолжетімділік құқықтарын ескеру";
+$MESS["CP_BND_DETAIL_URL"] = "Егжей-тегжейлі қарау бетінің URL (әдепкі бойынша - ақпараттық блок баптауларынан)";
+$MESS["CP_BND_ELEMENT_CODE"] = "Жаңалық коды";
+$MESS["CP_BND_ELEMENT_ID"] = "Жаңалықтың ID-і";
+$MESS["CP_BND_SET_BROWSER_TITLE"] = "Браузер терезесінің тақырыпатын орнату";
+$MESS["CP_BND_SET_CANONICAL_URL"] = "Канондық URL орнату";
+$MESS["CP_BND_SET_LAST_MODIFIED"] = "Жауаптың тақырыпаттарында парақшаның өзгертілген уақытын орнату";
+$MESS["CP_BND_SET_META_DESCRIPTION"] = "Парақшаныі сипаттамасын орнату";
+$MESS["CP_BND_SET_META_KEYWORDS"] = "Парақшаның кілт сөздерін орнату";
+$MESS["CP_BND_STRICT_SECTION_CHECK"] = "Элементті көрсету үшін бөлімді қатаң тексеру";
+$MESS["IBLOCK_FIELD"] = "Өрістер";
+$MESS["T_IBLOCK_DESC_ACTIVE_DATE_FORMAT"] = "Күнді көрсету пішімі";
+$MESS["T_IBLOCK_DESC_ADD_ELEMENT_CHAIN"] = "Элемент атауын навигация тізбегіне қосу";
+$MESS["T_IBLOCK_DESC_ADD_SECTIONS_CHAIN"] = "Бөлімді навигация тізбегіне қосу";
+$MESS["T_IBLOCK_DESC_CHECK_DATES"] = "Қазіргі уақытта тек белсенді элементтерді көрсету";
+$MESS["T_IBLOCK_DESC_DESCRIPTION"] = "Парақшаның сипаттамасын қасиеттен орнату";
+$MESS["T_IBLOCK_DESC_GROUP_PERMISSIONS"] = "Егжей-тегжейлі ақпаратқа қол жеткізе алатын пайдаланушылар топтары";
+$MESS["T_IBLOCK_DESC_INCLUDE_IBLOCK_INTO_CHAIN"] = "Ақпараттық блокты навигация тізбегіне қосу";
+$MESS["T_IBLOCK_DESC_KEYWORDS"] = "Парақшаның кілт сөздерін қасиеттен орнату";
+$MESS["T_IBLOCK_DESC_LIST_ID"] = "Ақпараттық блок коды";
+$MESS["T_IBLOCK_DESC_LIST_PAGE_URL"] = "Элементтер тізімін қарау парақшасының URL (әдепкі бойынша - ақпараттық блок баптауларынан)";
+$MESS["T_IBLOCK_DESC_LIST_TYPE"] = "Ақпараттық блоктың түрі (тек тексеру үшін қолданылады)";
+$MESS["T_IBLOCK_DESC_PAGER_PAGE"] = "Парақша";
+$MESS["T_IBLOCK_DESC_USE_PERMISSIONS"] = "Қосымша қолжетімділік шектеуін пайдалану";
+$MESS["T_IBLOCK_PROPERTY"] = "Қасиеттері";

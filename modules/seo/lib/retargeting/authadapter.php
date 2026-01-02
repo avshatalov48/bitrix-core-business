@@ -40,13 +40,22 @@ class AuthAdapter
 	 * @throws \Bitrix\Main\LoaderException
 	 * @throws SystemException
 	 */
-	public static function create($type, IService $service = null)
+	public static function create($type, IService $service = null, bool $ignoreType = false)
 	{
 		if (!Loader::includeModule('socialservices'))
 		{
 			throw new SystemException('Module "socialservices" not installed.');
 		}
-		$instance = new static($type);
+
+		if ($type === 'facebook' && !$ignoreType)
+		{
+			$instance = new \Bitrix\Seo\Retargeting\FacebookAuthAdapter($type);
+		}
+		else
+		{
+			$instance = new static($type);
+		}
+
 		if ($service)
 		{
 			$instance->setService($service);
@@ -210,7 +219,7 @@ class AuthAdapter
 	 */
 	public function getClientList()
 	{
-		return $this->canUseMultipleClients() ? SeoService::getClientList($this->getEngineCode()) : [];
+		return $this->canUseMultipleClients() ? SeoService::getClientList($this->getEngineCode(), $this->type) : [];
 	}
 
 	public function getClientById($clientId)

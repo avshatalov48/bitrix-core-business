@@ -620,6 +620,10 @@ class CVulnScanner
 						{
 							$result = false;
 						}
+						elseif($token_value !== 'query' && is_array($this->tokens[$i-1]) && in_array($this->tokens[$i-1][0], [T_PAAMAYIM_NEKUDOTAYIM, T_OBJECT_OPERATOR], true))
+						{
+							$result = false;
+						}
 						elseif($this->tokens[$i + 1] === '(')
 						{
 							$result = $this->getTokensInfo(array_slice($this->tokens, $i + 2, $this->getBraceEnd($this->tokens, $i + 2) - 1), false, $token_value);

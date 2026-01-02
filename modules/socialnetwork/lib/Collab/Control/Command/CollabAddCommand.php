@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix\Socialnetwork\Collab\Control\Command;
 
+use Bitrix\Main\Validation\Rule\NotEmpty;
 use Bitrix\Main\Validation\Rule\Recursive\Validatable;
 use Bitrix\SocialNetwork\Collab\Access\CollabAccessController;
 use Bitrix\Socialnetwork\Collab\Control\Command\ValueObject\CollabFeatures;
@@ -22,6 +23,7 @@ use Bitrix\Socialnetwork\Control\Enum\ViewMode;
 use Bitrix\Socialnetwork\Control\Mapper\Attribute\Map;
 use Bitrix\Socialnetwork\Control\Mapper\Field\ViewModeMapper;
 use Bitrix\Socialnetwork\Item\Workgroup\Type;
+use Bitrix\SocialNetwork\Validation\Rule\NotContainsUrl;
 
 /**
  * @method self setOptions(CollabOptions $options)
@@ -30,6 +32,11 @@ use Bitrix\Socialnetwork\Item\Workgroup\Type;
 #[AccessController(CollabAccessController::class)]
 class CollabAddCommand extends AddCommand
 {
+	#[NotContainsUrl]
+	#[NotEmpty]
+	#[Map('NAME')]
+	protected string $name;
+
 	#[Map('VISIBLE', ViewModeMapper::class)]
 	#[Map('OPENED', ViewModeMapper::class)]
 	protected ViewMode $viewMode = ViewMode::SECRET;

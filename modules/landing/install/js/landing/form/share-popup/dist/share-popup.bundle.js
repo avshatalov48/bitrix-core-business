@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 (function (exports,main_core,main_core_events,landing_featuresPopup,landing_loc,landing_pageobject,landing_env,crm_form_embed,ui_feedback_form,bitrix24_phoneverify) {
@@ -119,81 +120,17 @@ this.BX.Landing = this.BX.Landing || {};
 	        },
 	        link: {
 	          label: landing_loc.Loc.getMessage('LANDING_FORM_SHARE__HELP_LINK_LABEL_MSGVER_1'),
-	          onClick: () => {
-	            const Feedback = main_core.Reflection.getClass('BX.UI.Feedback');
-	            if (!main_core.Type.isNil(Feedback)) {
-	              Feedback.Form.open({
-	                id: 'form-editor-feedback-form',
-	                portalUri: 'https://bitrix24.team',
-	                forms: [{
-	                  id: 1847,
-	                  lang: 'ru',
-	                  sec: 'bbih83',
-	                  zones: ['ru']
-	                }, {
-	                  id: 1852,
-	                  lang: 'kz',
-	                  sec: 'dtw568',
-	                  zones: ['kz']
-	                }, {
-	                  id: 1851,
-	                  lang: 'by',
-	                  sec: 'nnz05i',
-	                  zones: ['by']
-	                }, {
-	                  id: 1855,
-	                  lang: 'en',
-	                  sec: '6lxt2y',
-	                  zones: ['en', 'eu', 'in', 'uk']
-	                }, {
-	                  id: 1856,
-	                  lang: 'de',
-	                  sec: '574psk',
-	                  zones: ['de']
-	                }, {
-	                  id: 1857,
-	                  lang: 'la',
-	                  sec: '9tlqqk',
-	                  zones: ['es', 'mx', 'co']
-	                }, {
-	                  id: 1858,
-	                  lang: 'br',
-	                  sec: '9ptdnu',
-	                  zones: ['com.br']
-	                }, {
-	                  id: 1859,
-	                  lang: 'pl',
-	                  sec: 'aynrqw',
-	                  zones: ['pl']
-	                }, {
-	                  id: 1860,
-	                  lang: 'fr',
-	                  sec: 'ld3bh8',
-	                  zones: ['fr']
-	                }, {
-	                  id: 1861,
-	                  lang: 'it',
-	                  sec: '1rlv2j',
-	                  zones: ['it']
-	                }, {
-	                  id: 1862,
-	                  lang: 'vn',
-	                  sec: '5m169k',
-	                  zones: ['vn']
-	                }, {
-	                  id: 1863,
-	                  lang: 'tr',
-	                  sec: '2mc2tg',
-	                  zones: ['com.tr']
-	                }],
-	                defaultForm: {
-	                  id: 1855,
-	                  lang: 'en',
-	                  sec: '6lxt2y'
-	                }
-	              });
+	          onClick: () => {}
+	        },
+	        onClick: () => {
+	          BX.UI.Feedback.Form.open({
+	            id: 'form-editor-feedback-form',
+	            portalUri: this.getOptions().portalUri,
+	            forms: this.getOptions().forms,
+	            presets: {
+	              source: 'landing'
 	            }
-	          }
+	          });
 	        }
 	      }, {
 	        id: 'settings',
@@ -228,5 +165,5 @@ this.BX.Landing = this.BX.Landing || {};
 
 	exports.SharePopup = SharePopup;
 
-}((this.BX.Landing.Form = this.BX.Landing.Form || {}),BX,BX.Event,BX.Landing,BX.Landing,BX.Landing,BX.Landing,BX.Crm.Form,BX,BX.Bitrix24));
+}((this.BX.Landing.Form = this.BX.Landing.Form || {}),BX,BX.Event,BX.Landing,BX.Landing,BX.Landing,BX.Landing,BX.Crm.Form,BX.UI.Feedback,BX.Bitrix24));
 //# sourceMappingURL=share-popup.bundle.js.map

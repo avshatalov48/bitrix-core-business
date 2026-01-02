@@ -2,7 +2,7 @@ import { EventEmitter } from 'main.core.events';
 import { Runtime, Extension } from 'main.core';
 
 import { EventType, SidebarDetailBlock, ActionByRole } from 'im.v2.const';
-import { Loader } from 'im.v2.component.elements';
+import { Loader } from 'im.v2.component.elements.loader';
 import { EntityCreator } from 'im.v2.lib.entity-creator';
 import { PermissionManager } from 'im.v2.lib.permission';
 

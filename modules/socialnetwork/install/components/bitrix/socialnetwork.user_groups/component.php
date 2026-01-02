@@ -208,7 +208,7 @@ if ($arResult["USE_UI_FILTER"])
 			$filtered = true;
 			$arResult["filter_member"] = (int)$matches[1];
 
-			if (SITE_TEMPLATE_ID !== 'bitrix24')
+			if (SITE_TEMPLATE_ID !== 'bitrix24' && SITE_TEMPLATE_ID !== 'air')
 			{
 				\Bitrix\Main\FinderDestTable::merge(array(
 					"CONTEXT" => "SONET_GROUP_LIST_FILTER_MEMBER",
@@ -228,7 +228,7 @@ if ($arResult["USE_UI_FILTER"])
 			$filtered = true;
 			$arResult["filter_owner"] = (int)$matches[1];
 
-			if (SITE_TEMPLATE_ID !== 'bitrix24')
+			if (SITE_TEMPLATE_ID !== 'bitrix24' && SITE_TEMPLATE_ID !== 'air')
 			{
 				\Bitrix\Main\FinderDestTable::merge(array(
 					"CONTEXT" => "SONET_GROUP_LIST_FILTER_OWNER",

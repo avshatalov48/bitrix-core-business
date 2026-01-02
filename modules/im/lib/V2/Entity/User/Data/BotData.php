@@ -146,6 +146,8 @@ class BotData implements RestEntity
 			'appId' => $this->botData['APP_ID'],
 			'isHidden' => $this->botData['HIDDEN'] === 'Y',
 			'isSupportOpenline' => $this->botData['OPENLINE'] === 'Y',
+			'backgroundId' => $this->botData['BACKGROUND_ID'] ?? null,
+			'reactionsEnabled' => ($this->botData['REACTIONS_ENABLED'] ?? 'N') === 'Y',
 		];
 	}
 
@@ -202,6 +204,7 @@ class BotData implements RestEntity
 
 	public static function cleanCache(int $id): void
 	{
+		unset(self::$staticCache[$id]);
 		Application::getInstance()->getCache()->cleanDir(self::getCacheDir($id));
 	}
 }

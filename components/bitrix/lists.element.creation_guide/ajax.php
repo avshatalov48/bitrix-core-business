@@ -193,6 +193,7 @@ class ListsElementCreationGuideAjaxController extends \Bitrix\Main\Engine\Contro
 			'FROM_USER_ID' => $this->getCurrentUserId(),
 			'NOTIFY_TYPE' => IM_NOTIFY_FROM,
 			'NOTIFY_MODULE' => 'lists',
+			'NOTIFY_EVENT' => 'admin_notification',
 			'NOTIFY_TAG' => 'LISTS|NOTIFY_ADMIN|' . $adminId . '|' . $this->getCurrentUserId(),
 			'NOTIFY_MESSAGE' => Loc::getMessage(
 				'LISTS_ELEMENT_CREATION_GUIDE_AJAX_NOTIFY_MESSAGE',
@@ -339,24 +340,7 @@ class ListsElementCreationGuideAjaxController extends \Bitrix\Main\Engine\Contro
 			$conn->commitTransaction();
 		}
 
-		$liveFeedUrl = Option::get('lists', 'livefeed_url');
-		if ($liveFeedUrl)
-		{
-			$liveFeedUrl =
-				(new \Bitrix\Main\Web\Uri($liveFeedUrl))
-					->addParams([
-						'livefeed' => 'y',
-						'list_id' => $iBlockId,
-						'element_id' => (int)$response->getId()
-					])
-					->getUri()
-			;
-		}
-
-		return [
-			'success' => true,
-			'elementUrl' => $liveFeedUrl,
-		];
+		return ['success' => true];
 	}
 
 	private function includeModules(): bool

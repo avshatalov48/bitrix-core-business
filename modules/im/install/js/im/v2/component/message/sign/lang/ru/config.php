@@ -105,11 +105,19 @@ $MESS["IM_MESSAGE_SIGN_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTION"] = "#INITIATOR_LIN
 $MESS["IM_MESSAGE_SIGN_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTIONM"] = "#INITIATOR_LINK# отменил подписание документа #DOCUMENT_NAME#. Вам больше не нужно подписывать документ";
 $MESS["IM_MESSAGE_SIGN_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTIONF"] = "#INITIATOR_LINK# отменила подписание документа #DOCUMENT_NAME#. Вам больше не нужно подписывать документ";
 
+$MESS["IM_MESSAGE_SIGN_BY_EMPLOYEE_EXPIRED_TO_EMPLOYEE_TITLE"] = "Истёк срок рассмотрения документа";
+$MESS["IM_MESSAGE_SIGN_BY_EMPLOYEE_EXPIRED_TO_EMPLOYEE_TITLE_DESCRIPTION"] = "Документ #DOCUMENT_NAME# больше недоступен для рассмотрения. Вы можете запустить процесс заново";
+$MESS["IM_MESSAGE_SIGN_BY_EMPLOYEE_EXPIRED_TO_EMPLOYEE_BUTTON_TEXT"] = "Открыть документ";
+
 $MESS["IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE"] = "Документ отклонён";
 $MESS["IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTION"] = "#INITIATOR_LINK# отклонил(а) документ #DOCUMENT_NAME#. Уточните причины и отправьте документ заново";
 $MESS["IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTIONM"] = "#INITIATOR_LINK# отклонил документ #DOCUMENT_NAME#. Уточните причины и отправьте документ заново";
 $MESS["IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTIONF"] = "#INITIATOR_LINK# отклонила документ #DOCUMENT_NAME#. Уточните причины и отправьте документ заново";
 $MESS["IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_BUTTON_TEXT"] = "Открыть документ";
+
+$MESS["IM_MESSAGE_SIGN_DOCUMENT_EXPIRED_COMPANY_TITLE"] = "Истёк срок подписания";
+$MESS["IM_MESSAGE_SIGN_DOCUMENT_EXPIRED_COMPANY_DESCRIPTION"] = "Документ #DOCUMENT_NAME# больше недоступен для подписания";
+$MESS["IM_MESSAGE_SIGN_DOCUMENT_EXPIRED_COMPANY_BUTTON_TEXT"] = "К процессу подписания";
 
 $MESS["IM_MESSAGE_SIGN_DOCUMENT_STOPPED_TITLE"] = "Подписание документа отменено";
 $MESS["IM_MESSAGE_SIGN_DOCUMENT_STOPPED_DESCRIPTION"] = "Документ #DOCUMENT_NAME# больше недоступен для подписи";

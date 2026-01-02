@@ -1,0 +1,7 @@
+<?php
+$MESS["LANDING_TPL_CLOSE"] = "Жабу";
+$MESS["LANDING_TPL_FEEDBACK"] = "Кері байланыс";
+$MESS["LANDING_TPL_SAVE"] = "Сақтау";
+$MESS["LANDING_TPL_START_PAGE_LOGO"] = "Битрикс";
+$MESS["LANDING_TPL_START_PAGE_LOGO_24"] = "24";
+$MESS["LANDING_TPL_START_PAGE_LOGO_SMN"] = "Сайттар";

@@ -1117,7 +1117,7 @@ else
 				}
 
 				if (
-					is_array($arEvent["EVENT_FORMATTED"]["UF"])
+					is_array($arEvent["EVENT_FORMATTED"]["UF"] ?? null)
 					&& count($arEvent["EVENT_FORMATTED"]["UF"]) > 0
 				)
 				{

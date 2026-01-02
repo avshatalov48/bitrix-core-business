@@ -1,3 +1,4 @@
+import { Text } from 'main.core';
 import { sendData } from 'ui.analytics';
 
 import { Core } from 'im.v2.application.core';
@@ -10,11 +11,17 @@ import {
 	AnalyticsTool,
 	CopilotChatType,
 	AnalyticsType,
+	AnalyticsSubSection,
 } from '../const';
+
+const CopilotEntryPoint = Object.freeze({
+	create_menu: 'create_menu',
+	role_picker: 'role_picker',
+});
 
 export class Copilot
 {
-	onCreateChat(chatId: number)
+	onCreateChat(chatId: number): void
 	{
 		sendData({
 			event: AnalyticsEvent.createNewChat,
@@ -27,7 +34,17 @@ export class Copilot
 		});
 	}
 
-	onOpenChat(dialogId: string)
+	onCreateDefaultChatInRecent(): void
+	{
+		this.#sendDataForCopilotCreation({ c_sub_section: CopilotEntryPoint.create_menu });
+	}
+
+	onSelectRoleInRecent(): void
+	{
+		this.#sendDataForCopilotCreation({ c_sub_section: CopilotEntryPoint.role_picker });
+	}
+
+	onOpenChat(dialogId: string): void
 	{
 		const dialog = Core.getStore().getters['chats/get'](dialogId);
 		const copilotChatType = dialog.userCounter <= 2 ? CopilotChatType.private : CopilotChatType.multiuser;
@@ -43,7 +60,7 @@ export class Copilot
 		});
 	}
 
-	onOpenTab({ isAvailable = true } = {})
+	onOpenTab({ isAvailable = true } = {}): void
 	{
 		const payload = {
 			event: AnalyticsEvent.openTab,
@@ -56,13 +73,27 @@ export class Copilot
 		sendData(payload);
 	}
 
-	onUseAudioInput()
+	onUseAudioInput(): void
 	{
 		sendData({
 			event: AnalyticsEvent.audioUse,
 			tool: AnalyticsTool.ai,
 			category: AnalyticsCategory.chatOperations,
 			c_section: AnalyticsSection.copilotTab,
+		});
+	}
+
+	#sendDataForCopilotCreation(params: { c_sub_section: string }): void
+	{
+		const currentLayout = Core.getStore().getters['application/getLayout'].name;
+
+		sendData({
+			event: AnalyticsEvent.clickCreateNew,
+			tool: AnalyticsTool.im,
+			category: AnalyticsCategory.copilot,
+			c_section: `${currentLayout}_tab`,
+			type: AnalyticsType.copilot,
+			...params,
 		});
 	}
 }

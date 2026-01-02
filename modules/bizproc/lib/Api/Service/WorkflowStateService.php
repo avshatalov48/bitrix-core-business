@@ -2,33 +2,43 @@
 
 namespace Bitrix\Bizproc\Api\Service;
 
+use Bitrix\Bizproc\Api\Data\WorkflowStateService\WorkflowStateFilter;
 use Bitrix\Bizproc\Api\Data\WorkflowStateService\WorkflowStateToGet;
 use Bitrix\Bizproc\Api\Request\WorkflowAccessService\CanViewTimelineRequest;
 use Bitrix\Bizproc\Api\Request\WorkflowStateService\GetAverageWorkflowDurationRequest;
+use Bitrix\Bizproc\Api\Request\WorkflowStateService\GetExecutionTimeRequest;
+use Bitrix\Bizproc\Api\Request\WorkflowStateService\GetEfficiencyDataRequest;
 use Bitrix\Bizproc\Api\Request\WorkflowStateService\GetTimelineRequest;
 use Bitrix\Bizproc\Api\Response\Error;
 use Bitrix\Bizproc\Api\Response\WorkflowStateService\GetAverageWorkflowDurationResponse;
+use Bitrix\Bizproc\Api\Response\WorkflowStateService\GetExecutionTimeResponse;
+use Bitrix\Bizproc\Api\Response\WorkflowStateService\GetEfficiencyDataResponse;
 use Bitrix\Bizproc\Api\Response\WorkflowStateService\GetFullFilledListResponse;
 use Bitrix\Bizproc\Api\Response\WorkflowStateService\GetListResponse;
 use Bitrix\Bizproc\Api\Response\WorkflowStateService\GetTimelineResponse;
 use Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState_Collection;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowDurationStatTable;
+use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
+use Bitrix\Bizproc\Workflow\Entity\WorkflowUserCommentTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowUserTable;
 use Bitrix\Bizproc\Workflow\Task\EO_Task_Collection;
 use Bitrix\Bizproc\Workflow\Task\TaskTable;
 use Bitrix\Bizproc\Workflow\Timeline;
 use Bitrix\Bizproc\Workflow\WorkflowState;
+use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\Type\DateTime;
 
 class WorkflowStateService
 {
 	private const CONVERTER_VERSION = 2;
 
+	private const THREE_DAYS_IN_SECONDS = 259200; // 3600 * 24 *3
+
 	public function getList(WorkflowStateToGet $toGet): GetListResponse
 	{
 		$this->convertProcesses($toGet->getFilterUserId());
-		$this->createFilterIndex($toGet->getFilterUserId()); // remove after 6 month from release
 
 		$response = new GetListResponse();
 		$responseCollection = new EO_WorkflowState_Collection();
@@ -36,17 +46,38 @@ class WorkflowStateService
 		$query = WorkflowUserTable::query()
 			->addSelect('WORKFLOW_ID')
 			->addSelect('MODIFIED')
+			->addSelect('WORKFLOW_STATE.STARTED', 'WORKFLOW_STARTED')
 			->setFilter($toGet->getOrmFilter())
-			->setOrder($toGet->getOrder())
-			->setLimit($toGet->getLimit())
-			->setOffset($toGet->getOffset())
 			->countTotal($toGet->isCountingTotal())
 		;
-		$runtimeField = $toGet->getOrmRuntime();
-
-		if ($runtimeField)
+		if ($toGet->getFilterSearchQuery())
 		{
-			$query->registerRuntimeField($runtimeField);
+			$query->addSelect('SEARCH_CONTENT');
+		}
+
+		if ($toGet->getFilterPresetId() === WorkflowStateFilter::PRESET_IN_WORK)
+		{
+			$unionQuery =
+				WorkflowUserTable::query()
+					->setSelect($query->getSelect())
+					->setFilter($this->applyStatusFilter($query->getFilter()))
+			;
+
+			$query
+				->setFilter($this->applyCommentsFilter($query->getFilter()))
+				->union($unionQuery)
+				->setUnionOrder($toGet->getOrder())
+				->setUnionLimit($toGet->getLimit())
+				->setUnionOffset($toGet->getOffset())
+			;
+		}
+		else
+		{
+			$query
+				->setOrder($toGet->getOrder())
+				->setLimit($toGet->getLimit())
+				->setOffset($toGet->getOffset())
+			;
 		}
 
 		$queryResult = $query->exec();
@@ -90,6 +121,37 @@ class WorkflowStateService
 		}
 
 		return $response->setWorkflowStatesCollection($responseCollection);
+	}
+
+	private function applyStatusFilter(array $filter): array
+	{
+		$filter[] = [
+			'=WORKFLOW_STATUS' => new SqlExpression('?i', WorkflowUserTable::WORKFLOW_STATUS_ACTIVE),
+			0 => [
+				'LOGIC' => 'OR',
+				'=IS_AUTHOR' => 1,
+				'=TASK_STATUS' => WorkflowUserTable::TASK_STATUS_ACTIVE,
+			],
+		];
+
+		return $filter;
+	}
+
+	private function applyCommentsFilter(array $filter): array
+	{
+		$filter[] = [
+			'!=COMMENTS.UNREAD_CNT' => null,
+			0 => [
+				'LOGIC' => 'OR',
+				'=COMMENTS.LAST_TYPE' => new SqlExpression('?i', WorkflowUserCommentTable::COMMENT_TYPE_DEFAULT),
+				0 => [
+					'=COMMENTS.LAST_TYPE' => WorkflowUserCommentTable::COMMENT_TYPE_SYSTEM,
+					'>COMMENTS.MODIFIED' => DateTime::createFromTimestamp(time() - 86400), // one day
+				],
+			],
+		];
+
+		return $filter;
 	}
 
 	private function getWorkflowTasks(WorkflowState $workflowState, WorkflowStateToGet $toGet): ?EO_Task_Collection
@@ -330,36 +392,6 @@ class WorkflowStateService
 		);
 	}
 
-	private function createFilterIndex(int $userId)
-	{
-		if (empty($userId))
-		{
-			return;
-		}
-
-		$converterVersion = \CUserOptions::getOption(
-			'bizproc',
-			'processes_filter',
-			0,
-			$userId
-		);
-
-		if ($converterVersion)
-		{
-			return;
-		}
-
-		\Bitrix\Bizproc\Worker\Workflow\CreateUserFilterStepper::bindUser($userId);
-
-		\CUserOptions::setOption(
-			'bizproc',
-			'processes_filter',
-			1,
-			false,
-			$userId
-		);
-	}
-
 	public function getAverageWorkflowDuration(
 		GetAverageWorkflowDurationRequest $request
 	): GetAverageWorkflowDurationResponse
@@ -380,6 +412,101 @@ class WorkflowStateService
 				$response->setAverageDuration($averageDuration);
 			}
 		}
+
+		return $response;
+	}
+
+	public function getExecutionTime(GetExecutionTimeRequest $request): GetExecutionTimeResponse
+	{
+		$response = new GetExecutionTimeResponse();
+
+		if ($request->workflowStarted === null)
+		{
+			return $response->addError(new Error('incorrect workflowStarted'));
+		}
+
+		$startedTimestamp = $request->workflowStarted?->getTimestamp();
+		if (WorkflowInstanceTable::exists($request->workflowId))
+		{
+			$currentTimestamp = (new DateTime())->getTimestamp();
+
+			return $response->setExecutionTime($currentTimestamp - $startedTimestamp);
+		}
+
+		$modifiedTimestamp = $request->workflowModified->getTimestamp();
+
+		return $response->setExecutionTime($modifiedTimestamp - $startedTimestamp);
+	}
+
+	public function getCompletedWorkflowEfficiency(string $workflowId): GetEfficiencyDataResponse
+	{
+		$workflow = WorkflowStateTable::query()
+			->setSelect([
+				'ID',
+				'MODIFIED',
+				'STARTED',
+				'WORKFLOW_TEMPLATE_ID',
+			])
+			->setFilter([
+				'=ID' => $workflowId,
+				'=STATE' => 'Completed',
+			])
+			->exec()
+			->fetchObject()
+		;
+
+		if ($workflow)
+		{
+			$executionTime = $this->getExecutionTime(
+				new GetExecutionTimeRequest(
+					workflowId: $workflow->getId(),
+					workflowStarted: $workflow->getStarted(),
+					workflowModified: $workflow->getModified()
+				)
+			)->getRoundedExecutionTime();
+			$averageDuration = $this->getAverageWorkflowDuration(
+				new GetAverageWorkflowDurationRequest(
+					templateId: $workflow->getWorkflowTemplateId(),
+				)
+			)->getRoundedAverageDuration();
+			$request = new GetEfficiencyDataRequest(
+				executionTime: $executionTime,
+				averageDuration: $averageDuration ?? $executionTime
+			);
+
+			return $this->getEfficiencyData($request);
+		}
+
+		$response = new GetEfficiencyDataResponse();
+		$response->addError(new Error('WorkflowState not found'));
+
+		return $response;
+	}
+
+	public function getEfficiencyData(GetEfficiencyDataRequest $request): GetEfficiencyDataResponse
+	{
+		$response = new GetEfficiencyDataResponse();
+
+		$averageDuration = $request->averageDuration;
+		$currentDuration = $request->executionTime;
+
+		$efficiency = 'stopped';
+		if (null === $averageDuration)
+		{
+			$efficiency = 'first';
+		}
+		elseif ($currentDuration <= $averageDuration)
+		{
+			$efficiency = 'fast';
+		}
+		elseif ($currentDuration <= ($averageDuration + self::THREE_DAYS_IN_SECONDS))
+		{
+			$efficiency = 'slow';
+		}
+
+		$response->setAverageDuration($request->averageDuration);
+		$response->setExecutionTime($request->executionTime);
+		$response->setEfficiency($efficiency);
 
 		return $response;
 	}

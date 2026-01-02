@@ -1,0 +1,9 @@
+<?php
+$MESS["UI_VUE_SMILES_EMOJI_CATEGORY_ANIMALS"] = "Жануарлар мен табиғат";
+$MESS["UI_VUE_SMILES_EMOJI_CATEGORY_FLAGS"] = "Жалаулар";
+$MESS["UI_VUE_SMILES_EMOJI_CATEGORY_FOOD"] = "Тамақ және сусындар";
+$MESS["UI_VUE_SMILES_EMOJI_CATEGORY_HOBBY"] = "Хобби және спорт";
+$MESS["UI_VUE_SMILES_EMOJI_CATEGORY_OBJECTS"] = "Объектілер";
+$MESS["UI_VUE_SMILES_EMOJI_CATEGORY_PEOPLE"] = "Смайлдар және адамдар";
+$MESS["UI_VUE_SMILES_EMOJI_CATEGORY_SYMBOLS"] = "Символдар";
+$MESS["UI_VUE_SMILES_EMOJI_CATEGORY_TRAVEL"] = "Орындар мен саяхаттар";

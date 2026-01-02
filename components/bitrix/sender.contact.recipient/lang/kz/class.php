@@ -1,0 +1,27 @@
+<?php
+$MESS["SENDER_CONTACT_CONSENT_APPLY"] = "Байланыс жіберілімдерге келісті, жіберу күтілуде";
+$MESS["SENDER_CONTACT_CONSENT_REJECT"] = "Байланыс жіберілімнен бас тартты";
+$MESS["SENDER_CONTACT_CONSENT_WAIT"] = "Келісім жіберілді";
+$MESS["SENDER_CONTACT_DELETED"] = "Байланыс жойылды";
+$MESS["SENDER_LETTER_RCP_LIST_TITLE"] = "Алушылар";
+$MESS["SENDER_LETTER_RCP_LIST_TITLE_CONTACT"] = "Жіберілген жіберілімдер ";
+$MESS["SENDER_LETTER_RCP_UI_COLUMN_CLICK"] = "Шертті";
+$MESS["SENDER_LETTER_RCP_UI_COLUMN_CODE"] = "Email / Телефон";
+$MESS["SENDER_LETTER_RCP_UI_COLUMN_DATE_SENT"] = "Жіберу күні";
+$MESS["SENDER_LETTER_RCP_UI_COLUMN_LETTER_TITLE"] = "Жіберілім";
+$MESS["SENDER_LETTER_RCP_UI_COLUMN_NAME"] = "Аты";
+$MESS["SENDER_LETTER_RCP_UI_COLUMN_READ"] = "Оқыды";
+$MESS["SENDER_LETTER_RCP_UI_COLUMN_SENT"] = "Жіберілді";
+$MESS["SENDER_LETTER_RCP_UI_COLUMN_STATUS"] = "Мәртебе";
+$MESS["SENDER_LETTER_RCP_UI_COLUMN_UNSUB"] = "Жазылымнан бас тартты";
+$MESS["SENDER_LETTER_RCP_UI_NO"] = "Жоқ";
+$MESS["SENDER_LETTER_RCP_UI_PRESET_ALL"] = "Барлығы";
+$MESS["SENDER_LETTER_RCP_UI_PRESET_APPLY"] = "Келіскендер";
+$MESS["SENDER_LETTER_RCP_UI_PRESET_CLICK"] = "Шерткендер";
+$MESS["SENDER_LETTER_RCP_UI_PRESET_ERROR"] = "Қатемен";
+$MESS["SENDER_LETTER_RCP_UI_PRESET_READ"] = "Оқығандар";
+$MESS["SENDER_LETTER_RCP_UI_PRESET_REJECT"] = "Бас тартқандар";
+$MESS["SENDER_LETTER_RCP_UI_PRESET_SENT"] = "Жіберілгендер";
+$MESS["SENDER_LETTER_RCP_UI_PRESET_UNSENT"] = "Жіберілмегендер";
+$MESS["SENDER_LETTER_RCP_UI_PRESET_UNSUB"] = "Жазылымнан бас тартқандар";
+$MESS["SENDER_LETTER_RCP_UI_YES"] = "Иә";

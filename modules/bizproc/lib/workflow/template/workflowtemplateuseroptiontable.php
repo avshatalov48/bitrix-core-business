@@ -9,6 +9,19 @@ use Bitrix\Main\Result;
 
 /**
  * Class WorkflowTemplateUserOptionTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_WorkflowTemplateUserOption_Query query()
+ * @method static EO_WorkflowTemplateUserOption_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_WorkflowTemplateUserOption_Result getById($id)
+ * @method static EO_WorkflowTemplateUserOption_Result getList(array $parameters = [])
+ * @method static EO_WorkflowTemplateUserOption_Entity getEntity()
+ * @method static \Bitrix\Bizproc\Workflow\Template\EO_WorkflowTemplateUserOption createObject($setDefaultValues = true)
+ * @method static \Bitrix\Bizproc\Workflow\Template\EO_WorkflowTemplateUserOption_Collection createCollection()
+ * @method static \Bitrix\Bizproc\Workflow\Template\EO_WorkflowTemplateUserOption wakeUpObject($row)
+ * @method static \Bitrix\Bizproc\Workflow\Template\EO_WorkflowTemplateUserOption_Collection wakeUpCollection($rows)
  */
 class WorkflowTemplateUserOptionTable extends DataManager
 {

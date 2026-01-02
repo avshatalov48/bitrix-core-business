@@ -45,6 +45,11 @@ class NotificationService extends Service
 	 */
 	public function notifyAboutMeetingStatus(string $to): bool
 	{
+		if ($this->initiatorId === $this->eventLink->getHostId())
+		{
+			return false;
+		}
+
 		$owner = $this->getOwner();
 		$templateCode = $this->getTemplateCode($owner);
 		$calendarLink = null;

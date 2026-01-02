@@ -4,7 +4,6 @@ namespace Bitrix\Calendar\Sync\Managers;
 
 use Bitrix\Calendar\Core;
 use Bitrix\Calendar\Core\Base\BaseException;
-use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Handlers\UpdateMasterExdateHandler;
 use Bitrix\Calendar\Core\Managers\Compare\EventCompareManager;
@@ -18,6 +17,8 @@ use Bitrix\Calendar\Sync\Exceptions\AuthException;
 use Bitrix\Calendar\Sync\Exceptions\RemoteAccountException;
 use Bitrix\Calendar\Sync\Handlers\MasterPushHandler;
 use Bitrix\Calendar\Sync\Handlers\SyncEventMergeHandler;
+use Bitrix\Calendar\Synchronization\Internal\Service\ConnectionManager;
+use Bitrix\Calendar\Synchronization\Public\Service\SynchronizationFeature;
 use Bitrix\Calendar\UserField\ResourceBooking;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\ArgumentException;
@@ -28,7 +29,6 @@ use Bitrix\Main\ObjectException;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
-use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\Uri;
 use CCalendar;
 use CCalendarSect;
@@ -190,11 +190,24 @@ class VendorDataExchangeManager
 
 	/**
 	 * @param Connection $connection
+	 *
 	 * @return self
+	 *
 	 * @throws BaseException
 	 */
 	public function updateConnection(Connection $connection): self
 	{
+		SynchronizationFeature::setUserId($connection->getOwner()->getId());
+
+		if (SynchronizationFeature::isOn())
+		{
+			ServiceLocator::getInstance()->get(ConnectionManager::class)
+				->updateConnection($connection)
+			;
+
+			return $this;
+		}
+
 		$connection->setLastSyncTime(new Core\Base\Date());
 		(new Core\Mappers\Connection())->update($connection);
 
@@ -1409,6 +1422,7 @@ class VendorDataExchangeManager
 			{
 				$vendorEventIdList[] = $item->getVendorRecurrenceId();
 			}
+			// @todo Not used
 			$this->importedLocalEventUidList[] = $item->getUid();
 		}
 

@@ -13,4 +13,4 @@ $MESS["BX24_APP_INSTALL_PRIVACY_LINK"] = "https://www.bitrix24.kz/about/privacy.
 $MESS["BX24_APP_INSTALL_PRIVACY_TEXT"] = "Мен <a href=\"#LINK#\" target=\"_blank\">құпиялылық саясатымен</a> таныстым және келісемін";
 $MESS["BX24_APP_INSTALL_RIGHTS"] = "Қосымша келесі әрекеттерге рұқсат сұрайды:";
 $MESS["BX24_APP_INSTALL_SUCCESS"] = "Қосымша сәтті орнатылды. <a href='#LINK#'>Өту</a>";
-$MESS["BX24_APP_INSTALL_TERMS_OF_SERVICE_TEXT_2"] = "Қосымшаларды немесе интеграцияларды орнату немесе жүктеу арқылы сіз <a href=\"#LINK#\" target=\"_blank\">Битрикс24.Маркетті пайдалану шарттарымен</a> келісесіз";
+$MESS["BX24_APP_INSTALL_TERMS_OF_SERVICE_TEXT_2_MSGVER_1"] = "Қосымшаларды немесе интеграцияларды орнату немесе жүктеу арқылы сіз <a href=\"#LINK#\" target=\"_blank\">Битрикс24 Маркет пайдалану шарттарымен</a> келісесіз";

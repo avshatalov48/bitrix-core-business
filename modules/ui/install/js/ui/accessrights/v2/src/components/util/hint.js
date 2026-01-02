@@ -47,5 +47,5 @@ export const Hint = {
 			return ServiceLocator.getHint(this.guid);
 		},
 	},
-	template: '<span ref="container"></span>',
+	template: '<span class="ui-access-rights-v2-hint-container" ref="container"></span>',
 };

@@ -7,13 +7,15 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 
 use Bitrix\Socialnetwork\ComponentHelper;
 
-
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
+
+
+\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
 
 $pageId = '';
 include('util_group_menu.php');
@@ -49,5 +51,6 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.group_delete',
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => $componentParameters,
+		'USE_UI_TOOLBAR' => 'Y',
 	]
 );

@@ -8,7 +8,7 @@ use CUser;
 
 class User
 {
-	protected int $id = 0;
+	protected ?int $id = 0;
 	private static $groups;
 	protected $forumUser = null;
 
@@ -17,7 +17,7 @@ class User
 		$user = CurrentUser::get();
 		if ($id === (int)$user->getId())
 		{
-			$this->id = $user->getId();
+			$this->id = $id;
 			if (empty(self::$groups[$id]))
 			{
 				self::$groups[$id] = $user->getUserGroups();

@@ -1,4 +1,4 @@
-import { ChatHint } from 'im.v2.component.elements';
+import { ChatHint } from 'im.v2.component.elements.hint';
 
 import './css/heading.css';
 

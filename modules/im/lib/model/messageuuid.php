@@ -11,6 +11,19 @@ use Bitrix\Main\ORM\Fields\IntegerField;
  * Class MessageUuidTable
  *
  * @package Bitrix\Im
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MessageUuid_Query query()
+ * @method static EO_MessageUuid_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_MessageUuid_Result getById($id)
+ * @method static EO_MessageUuid_Result getList(array $parameters = [])
+ * @method static EO_MessageUuid_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_MessageUuid createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_MessageUuid_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_MessageUuid wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_MessageUuid_Collection wakeUpCollection($rows)
  */
 
 class MessageUuidTable extends Main\Entity\DataManager

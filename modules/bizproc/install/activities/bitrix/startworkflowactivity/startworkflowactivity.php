@@ -1,6 +1,10 @@
 <?php
 
-use \Bitrix\Bizproc\FieldType;
+use Bitrix\Bizproc\FieldType;
+
+use Bitrix\Crm\Integration\Analytics\Dictionary;
+
+use Bitrix\Main\Loader;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -92,6 +96,8 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 		{
 			return CBPActivityExecutionStatus::Closed;
 		}
+
+		$documentType = $this->getDocumentType();
 
 		$template = self::getTemplate($this->TemplateId);
 
@@ -275,6 +281,18 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 			}
 
 			return CBPActivityExecutionStatus::Closed;
+		}
+
+		if (
+			Loader::includeModule('crm')
+			&& method_exists(CCrmBizProcHelper::class, 'sendOperationsAnalytics')
+		)
+		{
+			\CCrmBizProcHelper::sendOperationsAnalytics(
+				Dictionary::EVENT_ENTITY_CREATE,
+				$this,
+				$documentType[2] ?? '',
+			);
 		}
 
 		if ($workflowIsCompleted || $this->UseSubscription != 'Y' || !$this->wfId)

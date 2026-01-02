@@ -1,18 +1,22 @@
 <?php
 
-
 namespace Bitrix\Sale\Exchange\Integration;
 
+use \Bitrix\Main\License\UrlProvider;
 
 class Settings
 {
 	public static function getOAuthRestUrl()
 	{
-		return "https://oauth.bitrix.info/rest/";
+		$urlProvider = new UrlProvider();
+
+		return "https://oauth.{$urlProvider->getTechDomain()}/rest/";
 	}
 
 	public static function getOAuthAccessTokenUrl()
 	{
-		return "https://oauth.bitrix.info/oauth/token/";
+		$urlProvider = new UrlProvider();
+
+		return "https://oauth.{$urlProvider->getTechDomain()}/oauth/token/";
 	}
 }

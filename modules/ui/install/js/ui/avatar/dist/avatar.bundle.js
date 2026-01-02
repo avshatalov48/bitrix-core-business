@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core) {
+(function (exports,ui_designTokens_air,main_core) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3;
@@ -379,6 +379,77 @@ this.BX = this.BX || {};
 	}(AvatarBase);
 
 	var _templateObject$2;
+	var AvatarRoundCopilot = /*#__PURE__*/function (_AvatarRoundGuest) {
+	  babelHelpers.inherits(AvatarRoundCopilot, _AvatarRoundGuest);
+	  function AvatarRoundCopilot() {
+	    babelHelpers.classCallCheck(this, AvatarRoundCopilot);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(AvatarRoundCopilot).apply(this, arguments));
+	  }
+	  babelHelpers.createClass(AvatarRoundCopilot, [{
+	    key: "setInitials",
+	    value: function setInitials() {}
+	  }, {
+	    key: "getDefaultUserPic",
+	    value: function getDefaultUserPic() {
+	      if (!this.node.svgDefaultUserPic) {
+	        this.node.svgDefaultUserPic = this.getSvgElement('svg', {
+	          width: 86,
+	          height: 86,
+	          viewBox: '0 0 86 86',
+	          x: 8,
+	          y: 8
+	        });
+	        this.node.svgDefaultUserPic.innerHTML = "\n\t\t\t\t<mask id=\"mask0_37169_151806\" style=\"mask-type:alpha\" maskUnits=\"userSpaceOnUse\" x=\"0\" y=\"0\" width=\"86\" height=\"86\">\n\t\t\t\t\t<circle cx=\"43\" cy=\"43\" r=\"42.5\" fill=\"#D9D9D9\"/>\n\t\t\t\t</mask>\n\t\t\t\t<g mask=\"url(#mask0_37169_151806)\">\n\t\t\t\t\t<g clip-path=\"url(#clip0_37169_151806)\">\n\t\t\t\t\t\t<rect width=\"86\" height=\"86\" fill=\"url(#paint0_linear_37169_151806)\"/>\n\t\t\t\t\t\t<g filter=\"url(#filter0_f_37169_151806)\">\n\t\t\t\t\t\t\t<path d=\"M7.29559 61.0024C7.29559 74.5261 12.0511 80.6392 19.8616 86H86V7.73433C86 2.71761 84.411 -3.30594 82.0987 2.65204C74.2152 16.6238 67.8963 19.0601 59.1554 24.7426C50.4145 30.4251 7.29559 32.6619 7.29559 61.0024Z\" fill=\"url(#paint1_linear_37169_151806)\"/>\n\t\t\t\t\t\t</g>\n\t\t\t\t\t\t<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M43.003 57.102C50.7377 57.102 57.0079 50.7916 57.0079 43.0074C57.0079 35.2232 50.7377 28.9129 43.003 28.9129C35.2683 28.9129 28.9981 35.2232 28.9981 43.0074C28.9981 50.7916 35.2683 57.102 43.003 57.102ZM40.7646 32.4541C40.6384 32.1107 40.1558 32.1107 40.0296 32.4541L38.6355 36.2456C38.2386 37.3251 37.393 38.1761 36.3204 38.5755L32.553 39.9786C32.2118 40.1056 32.2118 40.5912 32.553 40.7182L36.3204 42.1213C37.393 42.5207 38.2386 43.3717 38.6355 44.4512L40.0296 48.2427C40.1558 48.5861 40.6384 48.5861 40.7646 48.2427L42.1587 44.4512C42.5556 43.3717 43.4012 42.5207 44.4738 42.1213L48.2412 40.7182C48.5824 40.5912 48.5824 40.1056 48.2412 39.9786L44.4738 38.5755C43.4012 38.1761 42.5556 37.3251 42.1587 36.2456L40.7646 32.4541ZM48.7681 43.4107C48.6952 43.2124 48.4164 43.2124 48.3435 43.4107L47.538 45.6015C47.3086 46.2252 46.82 46.717 46.2003 46.9477L44.0234 47.7584C43.8263 47.8318 43.8263 48.1124 44.0234 48.1858L46.2003 48.9965C46.82 49.2273 47.3086 49.719 47.538 50.3427L48.3435 52.5335C48.4164 52.7319 48.6952 52.7319 48.7681 52.5335L49.5736 50.3427C49.803 49.719 50.2916 49.2273 50.9113 48.9965L53.0882 48.1858C53.2853 48.1124 53.2853 47.8318 53.0882 47.7584L50.9113 46.9477C50.2916 46.717 49.803 46.2252 49.5736 45.6015L48.7681 43.4107Z\" fill=\"white\"/>\n\t\t\t\t\t\t<path d=\"M63.1545 43.863C64.5305 43.923 65.6125 45.0982 65.4047 46.4685C63.7447 57.4186 54.3471 65.8076 43.0027 65.8076C30.4866 65.8076 20.3403 55.5963 20.3403 43.0001C20.3403 30.4039 30.4866 20.1926 43.0027 20.1926C48.9652 20.1926 54.3899 22.51 58.4361 26.2987C59.4465 27.2449 59.3211 28.8449 58.2754 29.7515C57.2309 30.6569 55.665 30.5236 54.6272 29.6104C51.5202 26.8765 47.4535 25.2201 43.0022 25.2201C33.2437 25.2201 25.3329 33.1815 25.3329 43.0025C25.3329 52.8235 33.2437 60.7849 43.0022 60.7849C51.6574 60.7849 58.8591 54.522 60.377 46.2536C60.6277 44.8875 61.7754 43.8028 63.1545 43.863Z\" fill=\"white\"/>\n\t\t\t\t\t</g>\n\t\t\t\t</g>\n\t\t\t\t<defs>\n\t\t\t\t\t<filter id=\"filter0_f_37169_151806\" x=\"6.28383\" y=\"-0.837937\" width=\"80.7279\" height=\"87.8497\" filterUnits=\"userSpaceOnUse\" color-interpolation-filters=\"sRGB\">\n\t\t\t\t\t\t<feFlood flood-opacity=\"0\" result=\"BackgroundImageFix\"/>\n\t\t\t\t\t\t<feBlend mode=\"normal\" in=\"SourceGraphic\" in2=\"BackgroundImageFix\" result=\"shape\"/>\n\t\t\t\t\t\t<feGaussianBlur stdDeviation=\"0.505882\" result=\"effect1_foregroundBlur_37169_151806\"/>\n\t\t\t\t\t</filter>\n\t\t\t\t\t<linearGradient id=\"paint0_linear_37169_151806\" x1=\"49.5996\" y1=\"0.681138\" x2=\"34.8518\" y2=\"86.4028\" gradientUnits=\"userSpaceOnUse\">\n\t\t\t\t\t\t<stop stop-color=\"#E574F3\"/>\n\t\t\t\t\t\t<stop offset=\"1\" stop-color=\"#6D55EB\"/>\n\t\t\t\t\t</linearGradient>\n\t\t\t\t\t<linearGradient id=\"paint1_linear_37169_151806\" x1=\"83.7262\" y1=\"13.236\" x2=\"32.6935\" y2=\"83.15\" gradientUnits=\"userSpaceOnUse\">\n\t\t\t\t\t\t<stop stop-color=\"#E778E6\"/>\n\t\t\t\t\t\t<stop offset=\"0.945\" stop-color=\"#9B72F9\"/>\n\t\t\t\t\t</linearGradient>\n\t\t\t\t\t<clipPath id=\"clip0_37169_151806\">\n\t\t\t\t\t\t<rect width=\"86\" height=\"86\" fill=\"white\"/>\n\t\t\t\t\t</clipPath>\n\t\t\t\t</defs>\n\t\t\t";
+	      }
+	      return this.node.svgDefaultUserPic;
+	    }
+	  }, {
+	    key: "getContainer",
+	    value: function getContainer() {
+	      if (!this.node.avatar) {
+	        this.node.avatar = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --round --copilot\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<circle class=\"ui-avatar-border-inner\" cx=\"51\" cy=\"51\" r=\"51\"/>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" d=\"M51 98.26C77.101 98.26 98.26 77.101 98.26 51C98.26 24.899 77.101 3.74 51 3.74C24.899 3.74 3.74 24.899 3.74 51C3.74 77.101 24.899 98.26 51 98.26ZM51 102C79.1665 102 102 79.1665 102 51C102 22.8335 79.1665 0 51 0C22.8335 0 0 22.8335 0 51C0 79.1665 22.8335 102 51 102Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])), this.getDefaultUserPic());
+	      }
+	      return this.node.avatar;
+	    }
+	  }]);
+	  return AvatarRoundCopilot;
+	}(AvatarRoundGuest);
+
+	var _templateObject$3;
+	var AvatarRoundMarta = /*#__PURE__*/function (_AvatarRoundGuest) {
+	  babelHelpers.inherits(AvatarRoundMarta, _AvatarRoundGuest);
+	  function AvatarRoundMarta() {
+	    babelHelpers.classCallCheck(this, AvatarRoundMarta);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(AvatarRoundMarta).apply(this, arguments));
+	  }
+	  babelHelpers.createClass(AvatarRoundMarta, [{
+	    key: "getDefaultUserPic",
+	    value: function getDefaultUserPic() {
+	      if (!this.node.svgDefaultUserPic) {
+	        this.node.svgDefaultUserPic = this.getSvgElement('svg', {
+	          width: 86,
+	          height: 86,
+	          viewBox: '0 0 86 86',
+	          x: 8,
+	          y: 8
+	        });
+	        this.node.svgDefaultUserPic.innerHTML = "\n\t\t\t\t<mask id=\"mask0_37739_286983\" style=\"mask-type:alpha\" maskUnits=\"userSpaceOnUse\" x=\"0\" y=\"0\" width=\"86\" height=\"86\">\n\t\t\t\t\t<circle cx=\"43.0045\" cy=\"43\" r=\"42.5\" fill=\"#D9D9D9\"/>\n\t\t\t\t</mask>\n\t\t\t\t<g mask=\"url(#mask0_37739_286983)\">\n\t\t\t\t\t<g clip-path=\"url(#clip0_37739_286983)\">\n\t\t\t\t\t\t<rect width=\"86\" height=\"86\" transform=\"translate(0.0045166)\" fill=\"url(#paint0_linear_37739_286983)\"/>\n\t\t\t\t\t\t<g opacity=\"0.2\" filter=\"url(#filter0_f_37739_286983)\">\n\t\t\t\t\t\t\t<path d=\"M52.0017 76.8239C64.0812 80.2656 70.5411 77.8538 76.9714 72.7017L90.876 17.5222L20.969 -2.3958C16.488 -3.67252 10.7737 -3.8797 15.6093 -0.434309C26.4315 9.6986 27.2791 15.5905 30.5171 24.3292C33.7551 33.068 26.688 69.6115 52.0017 76.8239Z\" fill=\"url(#paint1_linear_37739_286983)\"/>\n\t\t\t\t\t\t</g>\n\t\t\t\t\t</g>\n\t\t\t\t</g>\n\t\t\t\t<defs>\n\t\t\t\t\t<filter id=\"filter0_f_37739_286983\" x=\"11.7443\" y=\"-5.2728\" width=\"81.1553\" height=\"85.7282\" filterUnits=\"userSpaceOnUse\" color-interpolation-filters=\"sRGB\">\n\t\t\t\t\t\t<feFlood flood-opacity=\"0\" result=\"BackgroundImageFix\"/>\n\t\t\t\t\t\t<feBlend mode=\"normal\" in=\"SourceGraphic\" in2=\"BackgroundImageFix\" result=\"shape\"/>\n\t\t\t\t\t\t<feGaussianBlur stdDeviation=\"1.01176\" result=\"effect1_foregroundBlur_37739_286983\"/>\n\t\t\t\t\t</filter>\n\t\t\t\t\t<linearGradient id=\"paint0_linear_37739_286983\" x1=\"43\" y1=\"0\" x2=\"43\" y2=\"86\" gradientUnits=\"userSpaceOnUse\">\n\t\t\t\t\t\t<stop stop-color=\"#50C2FF\"/>\n\t\t\t\t\t\t<stop offset=\"1\" stop-color=\"#0277FE\"/>\n\t\t\t\t\t</linearGradient>\n\t\t\t\t\t<linearGradient id=\"paint1_linear_37739_286983\" x1=\"32.0175\" y1=\"27.0845\" x2=\"70.4547\" y2=\"44.9651\" gradientUnits=\"userSpaceOnUse\">\n\t\t\t\t\t\t<stop stop-color=\"#7BFEC3\"/>\n\t\t\t\t\t\t<stop offset=\"0.945\" stop-color=\"#44A5FC\"/>\n\t\t\t\t\t</linearGradient>\n\t\t\t\t\t<clipPath id=\"clip0_37739_286983\">\n\t\t\t\t\t\t<rect width=\"86\" height=\"86\" fill=\"white\" transform=\"translate(0.0045166)\"/>\n\t\t\t\t\t</clipPath>\n\t\t\t\t</defs>\n\t\t\t";
+	      }
+	      return this.node.svgDefaultUserPic;
+	    }
+	  }, {
+	    key: "getContainer",
+	    value: function getContainer() {
+	      if (!this.node.avatar) {
+	        this.node.avatar = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --round --marta\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<circle class=\"ui-avatar-border-inner\" cx=\"51\" cy=\"51\"/>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" fill=\"url(#ui-avatar-gradient-accent-", ")\" d=\"M51 98.26C77.101 98.26 98.26 77.101 98.26 51C98.26 24.899 77.101 3.74 51 3.74C24.899 3.74 3.74 24.899 3.74 51C3.74 77.101 24.899 98.26 51 98.26ZM51 102C79.1665 102 102 79.1665 102 51C102 22.8335 79.1665 0 51 0C22.8335 0 0 22.8335 0 51C0 79.1665 22.8335 102 51 102Z\" transform=\"rotate(140 51 51)\"/>\n\t\t\t\t\t\t<linearGradient id=\"ui-avatar-gradient-accent-", "\" gradientUnits=\"userSpaceOnUse\">\n\t\t\t\t\t\t\t<stop stop-color=\"rgba(0, 117, 255, 1)\"/>\n\t\t\t\t\t\t    <stop offset=\"25%\" stop-color=\"rgba(48, 180, 247, 1)\" />\n\t\t\t\t\t\t\t<stop offset=\"75%\" stop-color=\"rgba(124, 255, 194, 1)\" />\n\t\t\t\t\t\t\t<stop offset=\"100%\" stop-color=\"rgba(59, 243, 156, 1)\" />\n\t\t\t\t\t\t</linearGradient>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])), this.getDefaultUserPic(), this.getUnicId(), this.getUnicId());
+	      }
+	      return this.node.avatar;
+	    }
+	  }]);
+	  return AvatarRoundMarta;
+	}(AvatarRoundGuest);
+
+	var _templateObject$4;
 	var AvatarRoundExtranet = /*#__PURE__*/function (_AvatarRoundGuest) {
 	  babelHelpers.inherits(AvatarRoundExtranet, _AvatarRoundGuest);
 	  function AvatarRoundExtranet() {
@@ -389,7 +460,7 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.node.avatar) {
-	        this.node.avatar = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --round --extranet\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<circle class=\"ui-avatar-border-inner\" cx=\"51\" cy=\"51\" r=\"51\"/>\n\t\t\t\t\t\t<circle class=\"ui-avatar-base\" cx=\"51\" cy=\"51\" r=\"42.5\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" d=\"M51 98.26C77.101 98.26 98.26 77.101 98.26 51C98.26 24.899 77.101 3.74 51 3.74C24.899 3.74 3.74 24.899 3.74 51C3.74 77.101 24.899 98.26 51 98.26ZM51 102C79.1665 102 102 79.1665 102 51C102 22.8335 79.1665 0 51 0C22.8335 0 0 22.8335 0 51C0 79.1665 22.8335 102 51 102Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
+	        this.node.avatar = main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --round --extranet\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<circle class=\"ui-avatar-border-inner\" cx=\"51\" cy=\"51\" r=\"51\"/>\n\t\t\t\t\t\t<circle class=\"ui-avatar-base\" cx=\"51\" cy=\"51\" r=\"42.5\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" d=\"M51 98.26C77.101 98.26 98.26 77.101 98.26 51C98.26 24.899 77.101 3.74 51 3.74C24.899 3.74 3.74 24.899 3.74 51C3.74 77.101 24.899 98.26 51 98.26ZM51 102C79.1665 102 102 79.1665 102 51C102 22.8335 79.1665 0 51 0C22.8335 0 0 22.8335 0 51C0 79.1665 22.8335 102 51 102Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
 	      }
 	      return this.node.avatar;
 	    }
@@ -397,7 +468,7 @@ this.BX = this.BX || {};
 	  return AvatarRoundExtranet;
 	}(AvatarRoundGuest);
 
-	var _templateObject$3;
+	var _templateObject$5;
 	var AvatarRoundAccent = /*#__PURE__*/function (_AvatarRoundGuest) {
 	  babelHelpers.inherits(AvatarRoundAccent, _AvatarRoundGuest);
 	  function AvatarRoundAccent() {
@@ -408,7 +479,7 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.node.avatar) {
-	        this.node.avatar = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --round --accent\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<circle class=\"ui-avatar-border-inner\" cx=\"51\" cy=\"51\" r=\"51\"/>\n\t\t\t\t\t\t<circle class=\"ui-avatar-base\" cx=\"51\" cy=\"51\" r=\"42.5\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" fill=\"url(#ui-avatar-gradient-accent-", ")\" d=\"M51 98.26C77.101 98.26 98.26 77.101 98.26 51C98.26 24.899 77.101 3.74 51 3.74C24.899 3.74 3.74 24.899 3.74 51C3.74 77.101 24.899 98.26 51 98.26ZM51 102C79.1665 102 102 79.1665 102 51C102 22.8335 79.1665 0 51 0C22.8335 0 0 22.8335 0 51C0 79.1665 22.8335 102 51 102Z\"/>\n\t\t\t\t\t\t<linearGradient id=\"ui-avatar-gradient-accent-", "\" x1=\"13.3983\" y1=\"2.16102\" x2=\"53.5932\" y2=\"60.0763\" gradientUnits=\"userSpaceOnUse\">\n\t\t\t\t\t\t\t<stop stop-color=\"var(--ui-avatar-color-gradient-start)\"/>\n\t\t\t\t\t\t\t<stop offset=\"1\" stop-color=\"var(--ui-avatar-color-gradient-stop)\"/>\n\t\t\t\t\t\t</linearGradient>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])), this.getUnicId(), this.getUnicId());
+	        this.node.avatar = main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --round --accent\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<circle class=\"ui-avatar-border-inner\" cx=\"51\" cy=\"51\"/>\n\t\t\t\t\t\t<circle class=\"ui-avatar-base\" cx=\"51\" cy=\"51\" r=\"42.5\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" fill=\"url(#ui-avatar-gradient-accent-", ")\" d=\"M51 98.26C77.101 98.26 98.26 77.101 98.26 51C98.26 24.899 77.101 3.74 51 3.74C24.899 3.74 3.74 24.899 3.74 51C3.74 77.101 24.899 98.26 51 98.26ZM51 102C79.1665 102 102 79.1665 102 51C102 22.8335 79.1665 0 51 0C22.8335 0 0 22.8335 0 51C0 79.1665 22.8335 102 51 102Z\"/>\n\t\t\t\t\t\t<linearGradient id=\"ui-avatar-gradient-accent-", "\" x1=\"13.3983\" y1=\"2.16102\" x2=\"53.5932\" y2=\"60.0763\" gradientUnits=\"userSpaceOnUse\">\n\t\t\t\t\t\t\t<stop stop-color=\"var(--ui-avatar-color-gradient-start)\"/>\n\t\t\t\t\t\t\t<stop offset=\"1\" stop-color=\"var(--ui-avatar-color-gradient-stop)\"/>\n\t\t\t\t\t\t</linearGradient>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])), this.getUnicId(), this.getUnicId());
 	      }
 	      return this.node.avatar;
 	    }
@@ -416,7 +487,7 @@ this.BX = this.BX || {};
 	  return AvatarRoundAccent;
 	}(AvatarRoundGuest);
 
-	var _templateObject$4;
+	var _templateObject$6;
 	var AvatarHexagon = /*#__PURE__*/function (_AvatarBase) {
 	  babelHelpers.inherits(AvatarHexagon, _AvatarBase);
 	  function AvatarHexagon() {
@@ -451,7 +522,7 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.node.avatar) {
-	        this.node.avatar = main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --hexagon --base\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M40.4429 2.77436C47.0211 -0.823713 54.979 -0.823711 61.5572 2.77436L88.9207 17.7412C95.9759 21.6001 100.363 29.001 100.363 37.0426V64.9573C100.363 72.9989 95.9759 80.3998 88.9207 84.2588L61.5572 99.2256C54.979 102.824 47.0211 102.824 40.4429 99.2256L13.0794 84.2588C6.02419 80.3998 1.6366 72.9989 1.6366 64.9573V37.0426C1.6366 29.001 6.0242 21.6001 13.0794 17.7412L40.4429 2.77436Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
+	        this.node.avatar = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --hexagon --base\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M40.4429 2.77436C47.0211 -0.823713 54.979 -0.823711 61.5572 2.77436L88.9207 17.7412C95.9759 21.6001 100.363 29.001 100.363 37.0426V64.9573C100.363 72.9989 95.9759 80.3998 88.9207 84.2588L61.5572 99.2256C54.979 102.824 47.0211 102.824 40.4429 99.2256L13.0794 84.2588C6.02419 80.3998 1.6366 72.9989 1.6366 64.9573V37.0426C1.6366 29.001 6.0242 21.6001 13.0794 17.7412L40.4429 2.77436Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
 	      }
 	      return this.node.avatar;
 	    }
@@ -459,7 +530,7 @@ this.BX = this.BX || {};
 	  return AvatarHexagon;
 	}(AvatarBase);
 
-	var _templateObject$5;
+	var _templateObject$7;
 	var AvatarHexagonGuest = /*#__PURE__*/function (_AvatarBase) {
 	  babelHelpers.inherits(AvatarHexagonGuest, _AvatarBase);
 	  function AvatarHexagonGuest() {
@@ -511,7 +582,7 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.node.avatar) {
-	        this.node.avatar = main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --hexagon --guest\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-border-inner\" d=\"M40.4429 2.77436C47.0211 -0.823713 54.979 -0.823711 61.5572 2.77436L88.9207 17.7412C95.9759 21.6001 100.363 29.001 100.363 37.0426V64.9573C100.363 72.9989 95.9759 80.3998 88.9207 84.2588L61.5572 99.2256C54.979 102.824 47.0211 102.824 40.4429 99.2256L13.0794 84.2588C6.02419 80.3998 1.6366 72.9989 1.6366 64.9573V37.0426C1.6366 29.001 6.0242 21.6001 13.0794 17.7412L40.4429 2.77436Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" d=\"M87.126 21.0224L59.7625 6.05561C54.3025 3.06921 47.6975 3.06921 42.2376 6.0556L14.8741 21.0224C9.01831 24.2253 5.3766 30.3681 5.3766 37.0426V64.9573C5.3766 71.6319 9.0183 77.7746 14.8741 80.9775L42.2376 95.9443C47.6975 98.9307 54.3025 98.9307 59.7625 95.9443L87.126 80.9775C92.9818 77.7746 96.6235 71.6319 96.6235 64.9573V37.0426C96.6235 30.3681 92.9818 24.2253 87.126 21.0224ZM61.5572 2.77436C54.979 -0.823711 47.0211 -0.823713 40.4429 2.77436L13.0794 17.7412C6.0242 21.6001 1.6366 29.001 1.6366 37.0426V64.9573C1.6366 72.9989 6.02419 80.3998 13.0794 84.2588L40.4429 99.2256C47.0211 102.824 54.979 102.824 61.5572 99.2256L88.9207 84.2588C95.9759 80.3998 100.363 72.9989 100.363 64.9573V37.0426C100.363 29.001 95.9759 21.6001 88.9207 17.7412L61.5572 2.77436Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M44.2368 10.2019C48.4219 7.93252 53.5781 7.93252 57.7632 10.2019L85.2368 25.0997C89.4219 27.3692 92 31.5632 92 36.1021V65.8977C92 70.4365 89.4219 74.6306 85.2368 76.9L57.7632 91.7978C53.5781 94.0672 48.4219 94.0672 44.2368 91.7978L16.7632 76.9C12.5781 74.6306 10 70.4365 10 65.8977V36.1021C10 31.5632 12.5781 27.3692 16.7632 25.0997L44.2368 10.2019Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
+	        this.node.avatar = main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --hexagon --guest\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-border-inner\" d=\"M40.4429 2.77436C47.0211 -0.823713 54.979 -0.823711 61.5572 2.77436L88.9207 17.7412C95.9759 21.6001 100.363 29.001 100.363 37.0426V64.9573C100.363 72.9989 95.9759 80.3998 88.9207 84.2588L61.5572 99.2256C54.979 102.824 47.0211 102.824 40.4429 99.2256L13.0794 84.2588C6.02419 80.3998 1.6366 72.9989 1.6366 64.9573V37.0426C1.6366 29.001 6.0242 21.6001 13.0794 17.7412L40.4429 2.77436Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" d=\"M87.126 21.0224L59.7625 6.05561C54.3025 3.06921 47.6975 3.06921 42.2376 6.0556L14.8741 21.0224C9.01831 24.2253 5.3766 30.3681 5.3766 37.0426V64.9573C5.3766 71.6319 9.0183 77.7746 14.8741 80.9775L42.2376 95.9443C47.6975 98.9307 54.3025 98.9307 59.7625 95.9443L87.126 80.9775C92.9818 77.7746 96.6235 71.6319 96.6235 64.9573V37.0426C96.6235 30.3681 92.9818 24.2253 87.126 21.0224ZM61.5572 2.77436C54.979 -0.823711 47.0211 -0.823713 40.4429 2.77436L13.0794 17.7412C6.0242 21.6001 1.6366 29.001 1.6366 37.0426V64.9573C1.6366 72.9989 6.02419 80.3998 13.0794 84.2588L40.4429 99.2256C47.0211 102.824 54.979 102.824 61.5572 99.2256L88.9207 84.2588C95.9759 80.3998 100.363 72.9989 100.363 64.9573V37.0426C100.363 29.001 95.9759 21.6001 88.9207 17.7412L61.5572 2.77436Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M44.2368 10.2019C48.4219 7.93252 53.5781 7.93252 57.7632 10.2019L85.2368 25.0997C89.4219 27.3692 92 31.5632 92 36.1021V65.8977C92 70.4365 89.4219 74.6306 85.2368 76.9L57.7632 91.7978C53.5781 94.0672 48.4219 94.0672 44.2368 91.7978L16.7632 76.9C12.5781 74.6306 10 70.4365 10 65.8977V36.1021C10 31.5632 12.5781 27.3692 16.7632 25.0997L44.2368 10.2019Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
 	      }
 	      return this.node.avatar;
 	    }
@@ -519,7 +590,7 @@ this.BX = this.BX || {};
 	  return AvatarHexagonGuest;
 	}(AvatarBase);
 
-	var _templateObject$6;
+	var _templateObject$8;
 	var AvatarHexagonExtranet = /*#__PURE__*/function (_AvatarHexagonGuest) {
 	  babelHelpers.inherits(AvatarHexagonExtranet, _AvatarHexagonGuest);
 	  function AvatarHexagonExtranet() {
@@ -530,7 +601,7 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.node.avatar) {
-	        this.node.avatar = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --hexagon --extranet\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-border-inner\" d=\"M40.4429 2.77436C47.0211 -0.823713 54.979 -0.823711 61.5572 2.77436L88.9207 17.7412C95.9759 21.6001 100.363 29.001 100.363 37.0426V64.9573C100.363 72.9989 95.9759 80.3998 88.9207 84.2588L61.5572 99.2256C54.979 102.824 47.0211 102.824 40.4429 99.2256L13.0794 84.2588C6.02419 80.3998 1.6366 72.9989 1.6366 64.9573V37.0426C1.6366 29.001 6.0242 21.6001 13.0794 17.7412L40.4429 2.77436Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" d=\"M87.126 21.0224L59.7625 6.05561C54.3025 3.06921 47.6975 3.06921 42.2376 6.0556L14.8741 21.0224C9.01831 24.2253 5.3766 30.3681 5.3766 37.0426V64.9573C5.3766 71.6319 9.0183 77.7746 14.8741 80.9775L42.2376 95.9443C47.6975 98.9307 54.3025 98.9307 59.7625 95.9443L87.126 80.9775C92.9818 77.7746 96.6235 71.6319 96.6235 64.9573V37.0426C96.6235 30.3681 92.9818 24.2253 87.126 21.0224ZM61.5572 2.77436C54.979 -0.823711 47.0211 -0.823713 40.4429 2.77436L13.0794 17.7412C6.0242 21.6001 1.6366 29.001 1.6366 37.0426V64.9573C1.6366 72.9989 6.02419 80.3998 13.0794 84.2588L40.4429 99.2256C47.0211 102.824 54.979 102.824 61.5572 99.2256L88.9207 84.2588C95.9759 80.3998 100.363 72.9989 100.363 64.9573V37.0426C100.363 29.001 95.9759 21.6001 88.9207 17.7412L61.5572 2.77436Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M44.2368 10.2019C48.4219 7.93252 53.5781 7.93252 57.7632 10.2019L85.2368 25.0997C89.4219 27.3692 92 31.5632 92 36.1021V65.8977C92 70.4365 89.4219 74.6306 85.2368 76.9L57.7632 91.7978C53.5781 94.0672 48.4219 94.0672 44.2368 91.7978L16.7632 76.9C12.5781 74.6306 10 70.4365 10 65.8977V36.1021C10 31.5632 12.5781 27.3692 16.7632 25.0997L44.2368 10.2019Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
+	        this.node.avatar = main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --hexagon --extranet\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-border-inner\" d=\"M40.4429 2.77436C47.0211 -0.823713 54.979 -0.823711 61.5572 2.77436L88.9207 17.7412C95.9759 21.6001 100.363 29.001 100.363 37.0426V64.9573C100.363 72.9989 95.9759 80.3998 88.9207 84.2588L61.5572 99.2256C54.979 102.824 47.0211 102.824 40.4429 99.2256L13.0794 84.2588C6.02419 80.3998 1.6366 72.9989 1.6366 64.9573V37.0426C1.6366 29.001 6.0242 21.6001 13.0794 17.7412L40.4429 2.77436Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" d=\"M87.126 21.0224L59.7625 6.05561C54.3025 3.06921 47.6975 3.06921 42.2376 6.0556L14.8741 21.0224C9.01831 24.2253 5.3766 30.3681 5.3766 37.0426V64.9573C5.3766 71.6319 9.0183 77.7746 14.8741 80.9775L42.2376 95.9443C47.6975 98.9307 54.3025 98.9307 59.7625 95.9443L87.126 80.9775C92.9818 77.7746 96.6235 71.6319 96.6235 64.9573V37.0426C96.6235 30.3681 92.9818 24.2253 87.126 21.0224ZM61.5572 2.77436C54.979 -0.823711 47.0211 -0.823713 40.4429 2.77436L13.0794 17.7412C6.0242 21.6001 1.6366 29.001 1.6366 37.0426V64.9573C1.6366 72.9989 6.02419 80.3998 13.0794 84.2588L40.4429 99.2256C47.0211 102.824 54.979 102.824 61.5572 99.2256L88.9207 84.2588C95.9759 80.3998 100.363 72.9989 100.363 64.9573V37.0426C100.363 29.001 95.9759 21.6001 88.9207 17.7412L61.5572 2.77436Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M44.2368 10.2019C48.4219 7.93252 53.5781 7.93252 57.7632 10.2019L85.2368 25.0997C89.4219 27.3692 92 31.5632 92 36.1021V65.8977C92 70.4365 89.4219 74.6306 85.2368 76.9L57.7632 91.7978C53.5781 94.0672 48.4219 94.0672 44.2368 91.7978L16.7632 76.9C12.5781 74.6306 10 70.4365 10 65.8977V36.1021C10 31.5632 12.5781 27.3692 16.7632 25.0997L44.2368 10.2019Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
 	      }
 	      return this.node.avatar;
 	    }
@@ -538,7 +609,7 @@ this.BX = this.BX || {};
 	  return AvatarHexagonExtranet;
 	}(AvatarHexagonGuest);
 
-	var _templateObject$7;
+	var _templateObject$9;
 	var AvatarHexagonAccent = /*#__PURE__*/function (_AvatarHexagonGuest) {
 	  babelHelpers.inherits(AvatarHexagonAccent, _AvatarHexagonGuest);
 	  function AvatarHexagonAccent() {
@@ -549,7 +620,7 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.node.avatar) {
-	        this.node.avatar = main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --hexagon --accent\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-border-inner\" d=\"M40.4429 2.77436C47.0211 -0.823713 54.979 -0.823711 61.5572 2.77436L88.9207 17.7412C95.9759 21.6001 100.363 29.001 100.363 37.0426V64.9573C100.363 72.9989 95.9759 80.3998 88.9207 84.2588L61.5572 99.2256C54.979 102.824 47.0211 102.824 40.4429 99.2256L13.0794 84.2588C6.02419 80.3998 1.6366 72.9989 1.6366 64.9573V37.0426C1.6366 29.001 6.0242 21.6001 13.0794 17.7412L40.4429 2.77436Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" fill=\"url(#ui-avatar-gradient-accent-", ")\"  d=\"M87.126 21.0224L59.7625 6.05561C54.3025 3.06921 47.6975 3.06921 42.2376 6.0556L14.8741 21.0224C9.01831 24.2253 5.3766 30.3681 5.3766 37.0426V64.9573C5.3766 71.6319 9.0183 77.7746 14.8741 80.9775L42.2376 95.9443C47.6975 98.9307 54.3025 98.9307 59.7625 95.9443L87.126 80.9775C92.9818 77.7746 96.6235 71.6319 96.6235 64.9573V37.0426C96.6235 30.3681 92.9818 24.2253 87.126 21.0224ZM61.5572 2.77436C54.979 -0.823711 47.0211 -0.823713 40.4429 2.77436L13.0794 17.7412C6.0242 21.6001 1.6366 29.001 1.6366 37.0426V64.9573C1.6366 72.9989 6.02419 80.3998 13.0794 84.2588L40.4429 99.2256C47.0211 102.824 54.979 102.824 61.5572 99.2256L88.9207 84.2588C95.9759 80.3998 100.363 72.9989 100.363 64.9573V37.0426C100.363 29.001 95.9759 21.6001 88.9207 17.7412L61.5572 2.77436Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M44.2368 10.2019C48.4219 7.93252 53.5781 7.93252 57.7632 10.2019L85.2368 25.0997C89.4219 27.3692 92 31.5632 92 36.1021V65.8977C92 70.4365 89.4219 74.6306 85.2368 76.9L57.7632 91.7978C53.5781 94.0672 48.4219 94.0672 44.2368 91.7978L16.7632 76.9C12.5781 74.6306 10 70.4365 10 65.8977V36.1021C10 31.5632 12.5781 27.3692 16.7632 25.0997L44.2368 10.2019Z\"/>\n\t\t\t\t\t\t<linearGradient id=\"ui-avatar-gradient-accent-", "\" x1=\"13.3983\" y1=\"2.16102\" x2=\"53.5932\" y2=\"60.0763\" gradientUnits=\"userSpaceOnUse\">\n\t\t\t\t\t\t\t<stop stop-color=\"var(--ui-avatar-color-gradient-start)\"/>\n\t\t\t\t\t\t\t<stop offset=\"1\" stop-color=\"var(--ui-avatar-color-gradient-stop)\"/>\n\t\t\t\t\t\t</linearGradient>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])), this.getUnicId(), this.getUnicId());
+	        this.node.avatar = main_core.Tag.render(_templateObject$9 || (_templateObject$9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --hexagon --accent\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-border-inner\" d=\"M40.4429 2.77436C47.0211 -0.823713 54.979 -0.823711 61.5572 2.77436L88.9207 17.7412C95.9759 21.6001 100.363 29.001 100.363 37.0426V64.9573C100.363 72.9989 95.9759 80.3998 88.9207 84.2588L61.5572 99.2256C54.979 102.824 47.0211 102.824 40.4429 99.2256L13.0794 84.2588C6.02419 80.3998 1.6366 72.9989 1.6366 64.9573V37.0426C1.6366 29.001 6.0242 21.6001 13.0794 17.7412L40.4429 2.77436Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" fill=\"url(#ui-avatar-gradient-accent-", ")\"  d=\"M87.126 21.0224L59.7625 6.05561C54.3025 3.06921 47.6975 3.06921 42.2376 6.0556L14.8741 21.0224C9.01831 24.2253 5.3766 30.3681 5.3766 37.0426V64.9573C5.3766 71.6319 9.0183 77.7746 14.8741 80.9775L42.2376 95.9443C47.6975 98.9307 54.3025 98.9307 59.7625 95.9443L87.126 80.9775C92.9818 77.7746 96.6235 71.6319 96.6235 64.9573V37.0426C96.6235 30.3681 92.9818 24.2253 87.126 21.0224ZM61.5572 2.77436C54.979 -0.823711 47.0211 -0.823713 40.4429 2.77436L13.0794 17.7412C6.0242 21.6001 1.6366 29.001 1.6366 37.0426V64.9573C1.6366 72.9989 6.02419 80.3998 13.0794 84.2588L40.4429 99.2256C47.0211 102.824 54.979 102.824 61.5572 99.2256L88.9207 84.2588C95.9759 80.3998 100.363 72.9989 100.363 64.9573V37.0426C100.363 29.001 95.9759 21.6001 88.9207 17.7412L61.5572 2.77436Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M44.2368 10.2019C48.4219 7.93252 53.5781 7.93252 57.7632 10.2019L85.2368 25.0997C89.4219 27.3692 92 31.5632 92 36.1021V65.8977C92 70.4365 89.4219 74.6306 85.2368 76.9L57.7632 91.7978C53.5781 94.0672 48.4219 94.0672 44.2368 91.7978L16.7632 76.9C12.5781 74.6306 10 70.4365 10 65.8977V36.1021C10 31.5632 12.5781 27.3692 16.7632 25.0997L44.2368 10.2019Z\"/>\n\t\t\t\t\t\t<linearGradient id=\"ui-avatar-gradient-accent-", "\" x1=\"13.3983\" y1=\"2.16102\" x2=\"53.5932\" y2=\"60.0763\" gradientUnits=\"userSpaceOnUse\">\n\t\t\t\t\t\t\t<stop stop-color=\"var(--ui-avatar-color-gradient-start)\"/>\n\t\t\t\t\t\t\t<stop offset=\"1\" stop-color=\"var(--ui-avatar-color-gradient-stop)\"/>\n\t\t\t\t\t\t</linearGradient>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])), this.getUnicId(), this.getUnicId());
 	      }
 	      return this.node.avatar;
 	    }
@@ -557,7 +628,7 @@ this.BX = this.BX || {};
 	  return AvatarHexagonAccent;
 	}(AvatarHexagonGuest);
 
-	var _templateObject$8;
+	var _templateObject$a;
 	var AvatarSquare = /*#__PURE__*/function (_AvatarBase) {
 	  babelHelpers.inherits(AvatarSquare, _AvatarBase);
 	  function AvatarSquare() {
@@ -579,7 +650,7 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.node.avatar) {
-	        this.node.avatar = main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --square --base\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
+	        this.node.avatar = main_core.Tag.render(_templateObject$a || (_templateObject$a = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --square --base\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
 	      }
 	      return this.node.avatar;
 	    }
@@ -587,7 +658,7 @@ this.BX = this.BX || {};
 	  return AvatarSquare;
 	}(AvatarBase);
 
-	var _templateObject$9;
+	var _templateObject$b;
 	var AvatarSquareGuest = /*#__PURE__*/function (_AvatarSquare) {
 	  babelHelpers.inherits(AvatarSquareGuest, _AvatarSquare);
 	  function AvatarSquareGuest() {
@@ -639,7 +710,7 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.node.avatar) {
-	        this.node.avatar = main_core.Tag.render(_templateObject$9 || (_templateObject$9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --square --guest\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-border-inner\" d=\"M12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" d=\"M90 3.74H12C7.43813 3.74 3.74 7.43813 3.74 12V90C3.74 94.5619 7.43813 98.26 12 98.26H90C94.5619 98.26 98.26 94.5619 98.26 90V12C98.26 7.43813 94.5619 3.74 90 3.74ZM12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M8.47241 14.4724C8.47241 11.1587 11.1587 8.47241 14.4724 8.47241H87.4724C90.7861 8.47241 93.4724 11.1587 93.4724 14.4724V87.4724C93.4724 90.7861 90.7861 93.4724 87.4724 93.4724H14.4724C11.1587 93.4724 8.47241 90.7861 8.47241 87.4724V14.4724Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
+	        this.node.avatar = main_core.Tag.render(_templateObject$b || (_templateObject$b = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --square --guest\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-border-inner\" d=\"M12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" d=\"M90 3.74H12C7.43813 3.74 3.74 7.43813 3.74 12V90C3.74 94.5619 7.43813 98.26 12 98.26H90C94.5619 98.26 98.26 94.5619 98.26 90V12C98.26 7.43813 94.5619 3.74 90 3.74ZM12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M8.47241 14.4724C8.47241 11.1587 11.1587 8.47241 14.4724 8.47241H87.4724C90.7861 8.47241 93.4724 11.1587 93.4724 14.4724V87.4724C93.4724 90.7861 90.7861 93.4724 87.4724 93.4724H14.4724C11.1587 93.4724 8.47241 90.7861 8.47241 87.4724V14.4724Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
 	      }
 	      return this.node.avatar;
 	    }
@@ -647,7 +718,7 @@ this.BX = this.BX || {};
 	  return AvatarSquareGuest;
 	}(AvatarSquare);
 
-	var _templateObject$a;
+	var _templateObject$c;
 	var AvatarSquareExtranet = /*#__PURE__*/function (_AvatarSquareGuest) {
 	  babelHelpers.inherits(AvatarSquareExtranet, _AvatarSquareGuest);
 	  function AvatarSquareExtranet() {
@@ -658,7 +729,7 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.node.avatar) {
-	        this.node.avatar = main_core.Tag.render(_templateObject$a || (_templateObject$a = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --square --extranet\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-border-inner\" d=\"M12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" d=\"M90 3.74H12C7.43813 3.74 3.74 7.43813 3.74 12V90C3.74 94.5619 7.43813 98.26 12 98.26H90C94.5619 98.26 98.26 94.5619 98.26 90V12C98.26 7.43813 94.5619 3.74 90 3.74ZM12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M8.47241 14.4724C8.47241 11.1587 11.1587 8.47241 14.4724 8.47241H87.4724C90.7861 8.47241 93.4724 11.1587 93.4724 14.4724V87.4724C93.4724 90.7861 90.7861 93.4724 87.4724 93.4724H14.4724C11.1587 93.4724 8.47241 90.7861 8.47241 87.4724V14.4724Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
+	        this.node.avatar = main_core.Tag.render(_templateObject$c || (_templateObject$c = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --square --extranet\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t<path class=\"ui-avatar-border-inner\" d=\"M12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" d=\"M90 3.74H12C7.43813 3.74 3.74 7.43813 3.74 12V90C3.74 94.5619 7.43813 98.26 12 98.26H90C94.5619 98.26 98.26 94.5619 98.26 90V12C98.26 7.43813 94.5619 3.74 90 3.74ZM12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M8.47241 14.4724C8.47241 11.1587 11.1587 8.47241 14.4724 8.47241H87.4724C90.7861 8.47241 93.4724 11.1587 93.4724 14.4724V87.4724C93.4724 90.7861 90.7861 93.4724 87.4724 93.4724H14.4724C11.1587 93.4724 8.47241 90.7861 8.47241 87.4724V14.4724Z\"/>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])));
 	      }
 	      return this.node.avatar;
 	    }
@@ -666,7 +737,7 @@ this.BX = this.BX || {};
 	  return AvatarSquareExtranet;
 	}(AvatarSquareGuest);
 
-	var _templateObject$b;
+	var _templateObject$d;
 	var AvatarSquareAccent = /*#__PURE__*/function (_AvatarSquareGuest) {
 	  babelHelpers.inherits(AvatarSquareAccent, _AvatarSquareGuest);
 	  function AvatarSquareAccent() {
@@ -677,7 +748,7 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.node.avatar) {
-	        this.node.avatar = main_core.Tag.render(_templateObject$b || (_templateObject$b = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --square --accent\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t\n\t\t\t\t\t\t<path class=\"ui-avatar-border-inner\" d=\"M12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" fill=\"url(#ui-avatar-gradient-accent-", ")\"  d=\"M90 3.74H12C7.43813 3.74 3.74 7.43813 3.74 12V90C3.74 94.5619 7.43813 98.26 12 98.26H90C94.5619 98.26 98.26 94.5619 98.26 90V12C98.26 7.43813 94.5619 3.74 90 3.74ZM12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M8.47241 14.4724C8.47241 11.1587 11.1587 8.47241 14.4724 8.47241H87.4724C90.7861 8.47241 93.4724 11.1587 93.4724 14.4724V87.4724C93.4724 90.7861 90.7861 93.4724 87.4724 93.4724H14.4724C11.1587 93.4724 8.47241 90.7861 8.47241 87.4724V14.4724Z\"/>\n\t\t\t\t\t\t<linearGradient id=\"ui-avatar-gradient-accent-", "\" x1=\"13.3983\" y1=\"2.16102\" x2=\"53.5932\" y2=\"60.0763\" gradientUnits=\"userSpaceOnUse\">\n\t\t\t\t\t\t\t<stop stop-color=\"var(--ui-avatar-color-gradient-start)\"/>\n\t\t\t\t\t\t\t<stop offset=\"1\" stop-color=\"var(--ui-avatar-color-gradient-stop)\"/>\n\t\t\t\t\t\t</linearGradient>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])), this.getUnicId(), this.getUnicId());
+	        this.node.avatar = main_core.Tag.render(_templateObject$d || (_templateObject$d = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-avatar --square --accent\">\n\t\t\t\t\t<svg viewBox=\"0 0 102 102\">\n\t\t\t\t\t\t\n\t\t\t\t\t\t<path class=\"ui-avatar-border-inner\" d=\"M12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-border\" fill=\"url(#ui-avatar-gradient-accent-", ")\"  d=\"M90 3.74H12C7.43813 3.74 3.74 7.43813 3.74 12V90C3.74 94.5619 7.43813 98.26 12 98.26H90C94.5619 98.26 98.26 94.5619 98.26 90V12C98.26 7.43813 94.5619 3.74 90 3.74ZM12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z\"/>\n\t\t\t\t\t\t<path class=\"ui-avatar-base\" d=\"M8.47241 14.4724C8.47241 11.1587 11.1587 8.47241 14.4724 8.47241H87.4724C90.7861 8.47241 93.4724 11.1587 93.4724 14.4724V87.4724C93.4724 90.7861 90.7861 93.4724 87.4724 93.4724H14.4724C11.1587 93.4724 8.47241 90.7861 8.47241 87.4724V14.4724Z\"/>\n\t\t\t\t\t\t<linearGradient id=\"ui-avatar-gradient-accent-", "\" x1=\"13.3983\" y1=\"2.16102\" x2=\"53.5932\" y2=\"60.0763\" gradientUnits=\"userSpaceOnUse\">\n\t\t\t\t\t\t\t<stop stop-color=\"var(--ui-avatar-color-gradient-start)\"/>\n\t\t\t\t\t\t\t<stop offset=\"1\" stop-color=\"var(--ui-avatar-color-gradient-stop)\"/>\n\t\t\t\t\t\t</linearGradient>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t"])), this.getUnicId(), this.getUnicId());
 	      }
 	      return this.node.avatar;
 	    }
@@ -687,6 +758,8 @@ this.BX = this.BX || {};
 
 	exports.AvatarBase = AvatarBase;
 	exports.AvatarRound = AvatarRound;
+	exports.AvatarRoundCopilot = AvatarRoundCopilot;
+	exports.AvatarRoundMarta = AvatarRoundMarta;
 	exports.AvatarRoundGuest = AvatarRoundGuest;
 	exports.AvatarRoundExtranet = AvatarRoundExtranet;
 	exports.AvatarRoundAccent = AvatarRoundAccent;
@@ -699,5 +772,5 @@ this.BX = this.BX || {};
 	exports.AvatarSquareExtranet = AvatarSquareExtranet;
 	exports.AvatarSquareAccent = AvatarSquareAccent;
 
-}((this.BX.UI = this.BX.UI || {}),BX));
+}((this.BX.UI = this.BX.UI || {}),BX,BX));
 //# sourceMappingURL=avatar.bundle.js.map

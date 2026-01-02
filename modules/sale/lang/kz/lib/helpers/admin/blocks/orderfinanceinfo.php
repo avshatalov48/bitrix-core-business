@@ -1,0 +1,6 @@
+<?php
+$MESS["SALE_ORDER_FINANCEINFO_BALANCE_INNER_BUDGET"] = "Клиенттің жеке шотындағы қаражат қалдығы";
+$MESS["SALE_ORDER_FINANCEINFO_FOR_PAYMENT"] = "Төлемге";
+$MESS["SALE_ORDER_FINANCEINFO_PAYABLE"] = "Төлеу қалды";
+$MESS["SALE_ORDER_FINANCEINFO_SUM_PAID"] = "Төленген";
+$MESS["SALE_ORDER_FINANCEINFO_USE_INNER_BUDGET"] = "Ішкі шотты пайдалану";

@@ -1,0 +1,2 @@
+<?php
+$MESS["SOCIALNETWORK_COLLAB_ONBOARDING_COLLABER_NOT_ACCEPT_INVITATION_TWO_DAYS"] = "Not all guests joined the collab.";

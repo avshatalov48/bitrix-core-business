@@ -16,6 +16,8 @@ use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Core\eventoption\EventOption;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Section\Section;
+use Bitrix\Calendar\UserField\ResourceBooking;
+use Bitrix\Calendar\Util;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Type\Contract\Arrayable;
 
@@ -522,6 +524,28 @@ class Event implements EntityInterface, Arrayable
 		return $this;
 	}
 
+	public function addExcludedDate(Date $date): self
+	{
+		if (!$this->excludedDateCollection)
+		{
+			$this->excludedDateCollection = new ExcludedDatesCollection([$date]);
+
+			return $this;
+		}
+
+		foreach ($this->excludedDateCollection as $exDate)
+		{
+			if ($exDate->format('Ymd') === $date->format('Ymd'))
+			{
+				return $this;
+			}
+		}
+
+		$this->excludedDateCollection->add($date);
+
+		return $this;
+	}
+
 	/**
 	 * @param string|null $eventType
 	 *
@@ -840,9 +864,6 @@ class Event implements EntityInterface, Arrayable
 		return $this->dateModified;
 	}
 
-	/**
-	 * @return ExcludedDatesCollection
-	 */
 	public function getExcludedDateCollection(): ?ExcludedDatesCollection
 	{
 		return $this->excludedDateCollection;
@@ -1094,5 +1115,42 @@ class Event implements EntityInterface, Arrayable
 			'ATTENDEES_CODE' => implode(',', $this->attendeeCollection->getAttendeesCodes()),
 			'SECTION_ID' => $this->section?->getId(),
 		];
+	}
+
+	/**
+	 * @param string $masterVendorEventId Vendor ID of the master event
+	 *
+	 * @return string
+	 */
+	public function buildInstanceId(string $masterVendorEventId): string
+	{
+		$base = $masterVendorEventId . '_';
+		$timezone = $this->getOriginalDateFrom()->setTimezone(Util::prepareTimezone());
+
+		if ($this->isFullDayEvent())
+		{
+			return $base . $timezone->format('Ymd');
+		}
+		else
+		{
+			return $base . $timezone->format('Ymd\THis\Z');
+		}
+	}
+
+	public function canBeChanged(): bool
+	{
+		// Changing an event for an invitee
+		if ($this->id !== $this->parentId)
+		{
+			return false;
+		}
+
+		// Prevent changing events with booking
+		if ($this->getSpecialLabel() === ResourceBooking::EVENT_LABEL)
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

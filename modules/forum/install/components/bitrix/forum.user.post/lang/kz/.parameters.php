@@ -1,0 +1,20 @@
+<?php
+$MESS["F_DATE_FORMAT"] = "Күнді көрсету пішімі";
+$MESS["F_DATE_TIME_FORMAT"] = "Күн мен уақытты көрсету пішімі";
+$MESS["F_DEFAULT_FID"] = "Форумның ID-і";
+$MESS["F_DEFAULT_MODE"] = "Көрсету режимі";
+$MESS["F_DEFAULT_UID"] = "Форум пайдаланушысының ID-і";
+$MESS["F_LIST_TEMPLATE"] = "Тақырыптар тізімі парақшасы";
+$MESS["F_MESSAGES_PER_PAGE"] = "Бір парақшадағы хабарламалар саны";
+$MESS["F_MESSAGE_ALL"] = "автордың барлық хабарламалары";
+$MESS["F_MESSAGE_LT"] = "тақырыптарға қатысты";
+$MESS["F_MESSAGE_LTA"] = "тақырып авторы";
+$MESS["F_MESSAGE_TEMPLATE"] = "Хабарламаны оқу парақшасы";
+$MESS["F_NAME_TEMPLATE"] = "Есім пішімі";
+$MESS["F_PAGE_NAVIGATION_TEMPLATE"] = "Парақша бойынша навигацияны көрсетуге арналған қалып атауы";
+$MESS["F_PAGE_NAVIGATION_WINDOW"] = "Парақша бойынша навигациядағы парақша саны";
+$MESS["F_PROFILE_VIEW_TEMPLATE"] = "Пайдаланушының профиль парақшасы";
+$MESS["F_READ_TEMPLATE"] = "Тақырыпты оқу парақшасы";
+$MESS["F_SET_NAVIGATION"] = "Навигацияны көрсету";
+$MESS["F_URL_TEMPLATES"] = "Парақшалар мекенжайларын басқару";
+$MESS["F_USER_LIST_TEMPLATE"] = "Форум пайдаланушыларының парақшасы";

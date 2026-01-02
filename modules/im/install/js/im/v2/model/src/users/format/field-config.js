@@ -140,3 +140,46 @@ export const userFieldsConfig: FieldsConfig = [
 		formatFunction: preparePhones,
 	},
 ];
+
+export const botFieldsConfig: FieldsConfig = [
+	{
+		fieldName: 'appId',
+		targetFieldName: 'appId',
+		checkFunction: Type.isString,
+	},
+	{
+		fieldName: 'type',
+		targetFieldName: 'type',
+		checkFunction: Type.isString,
+	},
+	{
+		fieldName: 'code',
+		targetFieldName: 'code',
+		checkFunction: Type.isString,
+	},
+	{
+		fieldName: 'isHidden',
+		targetFieldName: 'isHidden',
+		checkFunction: Type.isBoolean,
+	},
+	{
+		fieldName: 'isSupportOpenline',
+		targetFieldName: 'isHidden',
+		checkFunction: Type.isBoolean,
+	},
+	{
+		fieldName: 'isHuman',
+		targetFieldName: 'isHidden',
+		checkFunction: Type.isBoolean,
+	},
+	{
+		fieldName: 'backgroundId',
+		targetFieldName: 'backgroundId',
+		checkFunction: Type.isString,
+	},
+	{
+		fieldName: 'reactionsEnabled',
+		targetFieldName: 'reactionsEnabled',
+		checkFunction: Type.isBoolean,
+	},
+];

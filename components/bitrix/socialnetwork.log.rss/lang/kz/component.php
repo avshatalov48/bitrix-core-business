@@ -1,0 +1,24 @@
+<?php
+$MESS["SONET_C73_TITLE_EXCLUDE_GROUP1"] = "#TITLE# қатысушы топтан шығарылды";
+$MESS["SONET_C73_TITLE_EXCLUDE_USER1"] = "Пайдаланушы #TITLE# тобынан шығарылды.";
+$MESS["SONET_C73_TITLE_FRIEND1"] = "Достар тізіміне #TITLE# пайдаланушы қосылды.";
+$MESS["SONET_C73_TITLE_GROUP1"] = "Пайдаланушы #TITLE# тобына қосылды.";
+$MESS["SONET_C73_TITLE_JOIN1"] = "Топқа #TITLE# жаңа қатысушы қосылды.";
+$MESS["SONET_C73_TITLE_JOIN2"] = "Топқа #TITLE# жаңа қатысушылар қосылды.";
+$MESS["SONET_C73_TITLE_MODERATE1"] = "Топта #TITLE# модератор тағайындалды.";
+$MESS["SONET_C73_TITLE_MODERATE2"] = "Топта #TITLE# модераторлар тағайындалды.";
+$MESS["SONET_C73_TITLE_OWNER1"] = "Топта #TITLE# жаңа иесі тағайындалды.";
+$MESS["SONET_C73_TITLE_UNFRIEND1"] = "#TITLE# пайдаланушы енді дос емес.";
+$MESS["SONET_C73_TITLE_UNGROUP1"] = "Пайдаланушы #TITLE# тобынан шығып кетті.";
+$MESS["SONET_C73_TITLE_UNJOIN1"] = "#TITLE# қатысушы топтан шығып кетті.";
+$MESS["SONET_C73_TITLE_UNJOIN2"] = "#TITLE# қатысушылар топтан шығып кетті.";
+$MESS["SONET_C73_TITLE_UNMODERATE1"] = "Топта #TITLE# модератор жұмыстан шығарылды.";
+$MESS["SONET_C73_TITLE_UNMODERATE2"] = "Топта #TITLE# модераторлары жұмыстан шығарылды.";
+$MESS["SONET_LOG_RSS_ERROR"] = "Қате";
+$MESS["SONET_LOG_RSS_GROUP_NO_PERMS_MESSAGE"] = "Сізде жұмыс тобына қолжетімділік жоқ";
+$MESS["SONET_LOG_RSS_GROUP_NO_PERMS_TITLE"] = "Топқа кіру мүмкін емес";
+$MESS["SONET_LOG_RSS_SIGN_INVALID_MESSAGE"] = "RSS-лентасына сілтемеде пайдаланушыны сәйкестендіретін параметрлер қате жіберілген";
+$MESS["SONET_LOG_RSS_SIGN_INVALID_TITLE"] = "Пайдаланушы параметрлері дұрыс емес";
+$MESS["SONET_LOG_RSS_USER_NO_PERMS_MESSAGE"] = "Пайдаланушы профиліне қолжетімділік жоқ";
+$MESS["SONET_LOG_RSS_USER_NO_PERMS_TITLE"] = "Профильге қолжетімділік жоқ";
+$MESS["SONET_MODULE_NOT_INSTALL"] = "Әлеуметтік желі модулі орнатылмаған.";

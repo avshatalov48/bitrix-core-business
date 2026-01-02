@@ -23,7 +23,7 @@ class Manager
 	{
 		$this->controls['SECTION_MAIN'] = new Section(
 			'settings-automation-section-main',
-			Loc::getMessage('BIZPROC_AUTOMATION_SETTINGS_SECTION_TITLE_MAIN') ?? '',
+			Loc::getMessage('BIZPROC_AUTOMATION_SETTINGS_SECTION_TITLE_MAIN_1') ?? '',
 			'ui-icon-set --apps',
 			canCollapse: false
 		);
@@ -31,7 +31,7 @@ class Manager
 		$this->controls[self::WAIT_FOR_CLOSURE_TASK_OPTION] = new Switcher(
 			'settings-automation-field-' . self::WAIT_FOR_CLOSURE_TASK_OPTION,
 			self::WAIT_FOR_CLOSURE_TASK_OPTION,
-			Loc::getMessage('BIZPROC_AUTOMATION_SETTINGS_WAIT_FOR_CLOSURE_TASK') ?? '',
+			Loc::getMessage('BIZPROC_AUTOMATION_SETTINGS_WAIT_FOR_CLOSURE_TASK_1') ?? '',
 			Option::get('bizproc', self::WAIT_FOR_CLOSURE_TASK_OPTION),
 			[
 				'on' => Loc::getMessage('BIZPROC_AUTOMATION_SETTINGS_WAIT_FOR_CLOSURE_TASK_DESCR') ?? '',
@@ -41,7 +41,7 @@ class Manager
 		$this->controls[self::WAIT_FOR_CLOSURE_COMMENTS_OPTION] = new Switcher(
 			'settings-automation-field-' . self::WAIT_FOR_CLOSURE_COMMENTS_OPTION,
 			self::WAIT_FOR_CLOSURE_COMMENTS_OPTION,
-			Loc::getMessage('BIZPROC_AUTOMATION_SETTINGS_WAIT_FOR_CLOSURE_COMMENTS') ?? '',
+			Loc::getMessage('BIZPROC_AUTOMATION_SETTINGS_WAIT_FOR_CLOSURE_COMMENTS_1') ?? '',
 			Option::get('bizproc', self::WAIT_FOR_CLOSURE_COMMENTS_OPTION),
 			[
 				'on' => Loc::getMessage('BIZPROC_AUTOMATION_SETTINGS_WAIT_FOR_CLOSURE_COMMENTS_DESCR') ?? '',
@@ -65,7 +65,7 @@ class Manager
 	 */
 	public function saveControlValue(string $code, $value): void
 	{
-		Option::set('bizproc', $code, $value);
+		Option::set('bizproc', $code, \CBPHelper::stringify($value));
 	}
 
 	public function getControlValue(string $code): ?string

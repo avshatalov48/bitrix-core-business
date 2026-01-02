@@ -23,5 +23,5 @@ $MESS["BPRIA_PD_SAVE_VARIABLES"] = 'Сохранять значения в сл�
 $MESS["BPSFA_PD_YES"] = "Да";
 $MESS["BPSFA_PD_NO"] = "Нет";
 
-$MESS['BPSFA_COMMENT_REQUIRED_YA'] = 'Только при утверждении';
-$MESS['BPSFA_COMMENT_REQUIRED_YR'] = 'Только при отклонении';
+$MESS['BPSFA_COMMENT_REQUIRED_YA_1'] = 'При утверждении';
+$MESS['BPSFA_COMMENT_REQUIRED_YR_1'] = 'При отклонении';

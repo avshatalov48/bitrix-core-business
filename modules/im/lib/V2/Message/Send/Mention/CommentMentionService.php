@@ -37,4 +37,9 @@ class CommentMentionService extends MentionService
 
 		return "[CONTEXT=chat{$chatId}/{$messageId}]{$title}[/CONTEXT]";
 	}
+
+	protected function shouldSendMentionNotification(Chat $chat, int $userId): bool
+	{
+		return true;
+	}
 }

@@ -1,11 +1,18 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Im\Model\MessageTable;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\CounterService;
+use Bitrix\Im\V2\Message\Params;
 use Bitrix\Im\V2\Message\ReadService;
 use Bitrix\Im\V2\MessageCollection;
+use Bitrix\Im\V2\Result;
+use Bitrix\Im\V2\Notification\Group\Condition\ConditionFactory;
+use Bitrix\Im\V2\Notification\Group\Condition\Conditions;
 use Bitrix\Main\Type\DateTime;
+use CIMMessageParam;
+use CIMNotify;
 
 class Notify
 {
@@ -32,6 +39,9 @@ class Notify
 	private $searchType;
 	private $searchDate;
 	private $totalCount;
+	private string $groupTag;
+	private int $userId;
+	private Conditions $groupConditions;
 
 	public function __construct($options = [])
 	{
@@ -42,7 +52,9 @@ class Notify
 		$this->pageLimit = $options['LIMIT'] ?? null;
 		$this->lastType = $options['LAST_TYPE'] ?? null;
 		$this->lastId = $options['LAST_ID'] ?? null;
+		$this->groupTag = (string)($options['GROUP_TAG'] ?? '');
 		$this->firstPage = !$this->lastId && !$this->lastType;
+		$this->userId = (int)\Bitrix\Im\Common::getUserId();
 
 		$chatData = $this->getChatData();
 		if ($chatData !== null)
@@ -455,42 +467,7 @@ class Notify
 
 	private function requestSearchTotalCount(): int
 	{
-		$filter = [
-			'=CHAT_ID' => $this->chatId,
-		];
-
-		if ($this->searchText)
-		{
-			$filter['*%MESSAGE'] = $this->searchText;
-		}
-		if ($this->searchType)
-		{
-			$options = explode('|', $this->searchType);
-			$filter['=NOTIFY_MODULE'] = $options[0];
-			if (isset($options[1]))
-			{
-				$filter['=NOTIFY_EVENT'] = $options[1];
-			}
-		}
-		if ($this->searchDate)
-		{
-			$dateStart = new DateTime(
-				$this->searchDate,
-				\DateTimeInterface::RFC3339,
-				new \DateTimeZone('UTC')
-			);
-			$dateEnd = (
-				new DateTime(
-					$this->searchDate,
-					\DateTimeInterface::RFC3339,
-					new \DateTimeZone('UTC')
-				)
-			)->add('1 DAY');
-
-			$filter['><DATE_CREATE'] = [$dateStart, $dateEnd];
-		}
-
-		return \Bitrix\Im\Model\MessageTable::getCount($filter);
+		return \Bitrix\Im\Model\MessageTable::getCount($this->getFilterConditions());
 	}
 
 	/**
@@ -504,34 +481,41 @@ class Notify
 	 */
 	private function prepareGettingIdParams(int $requestType, int $limit): array
 	{
-		$ormParams = [
+		return [
 			'select' => ['ID'],
-			'filter' => ['=CHAT_ID' => $this->chatId],
+			'filter' => $this->getFilterConditions($requestType, true),
 			'order' => ['DATE_CREATE' => 'DESC', 'ID' => 'DESC'],
 			'limit' => $limit
+		];
+	}
+
+	private function getFilterConditions(int $requestType = self::ALL_TYPES, bool $withIdCondition = false): array
+	{
+		$filter = [
+			'=CHAT_ID' => $this->chatId,
 		];
 
 		if ($requestType === self::CONFIRM_TYPE)
 		{
-			$ormParams['filter']['=NOTIFY_TYPE'] = IM_NOTIFY_CONFIRM;
+			$filter['=NOTIFY_TYPE'] = IM_NOTIFY_CONFIRM;
 		}
 		elseif ($requestType === self::SIMPLE_TYPE)
 		{
-			$ormParams['filter']['!=NOTIFY_TYPE'] = IM_NOTIFY_CONFIRM;
+			$filter['!=NOTIFY_TYPE'] = IM_NOTIFY_CONFIRM;
 		}
 		elseif ($requestType === self::ALL_TYPES)
 		{
 			if ($this->searchText)
 			{
-				$ormParams['filter']['*%MESSAGE'] = $this->searchText;
+				$filter['*%MESSAGE'] = $this->searchText;
 			}
 			if ($this->searchType)
 			{
 				$options = explode('|', $this->searchType);
-				$ormParams['filter']['=NOTIFY_MODULE'] = $options[0];
+				$filter['=NOTIFY_MODULE'] = $options[0];
 				if (isset($options[1]))
 				{
-					$ormParams['filter']['=NOTIFY_EVENT'] = $options[1];
+					$filter['=NOTIFY_EVENT'] = $options[1];
 				}
 			}
 			if ($this->searchDate)
@@ -542,17 +526,22 @@ class Notify
 					new \DateTimeZone('UTC')
 				);
 				$dateEnd = (
-					new DateTime(
-						$this->searchDate,
-						\DateTimeInterface::RFC3339,
-						new \DateTimeZone('UTC')
-					)
+				new DateTime(
+					$this->searchDate,
+					\DateTimeInterface::RFC3339,
+					new \DateTimeZone('UTC')
+				)
 				)->add('1 DAY');
-				$ormParams['filter']['><DATE_CREATE'] = [$dateStart, $dateEnd];
+				$filter['><DATE_CREATE'] = [$dateStart, $dateEnd];
+			}
+
+			if ($this->groupTag)
+			{
+				$filter = array_merge($filter, $this->getGroupConditions()->toFilterFormat());
 			}
 		}
 
-		if (!$this->firstPage)
+		if ($withIdCondition && !$this->firstPage)
 		{
 			if (
 				$requestType === self::CONFIRM_TYPE
@@ -560,11 +549,11 @@ class Notify
 				|| ($requestType === self::ALL_TYPES && $this->lastType === self::ALL_TYPES)
 			)
 			{
-				$ormParams['filter']['<ID'] = $this->lastId;
+				$filter['<ID'] = $this->lastId;
 			}
 		}
 
-		return $ormParams;
+		return $filter;
 	}
 
 	/**
@@ -640,5 +629,126 @@ class Notify
 		}
 
 		return $notifications;
+	}
+
+	private function getGroupConditions(): Conditions
+	{
+		if (!isset($this->groupConditions))
+		{
+			$this->groupConditions = (new ConditionFactory())->makeByTag($this->groupTag, $this->userId);
+		}
+
+		return $this->groupConditions;
+	}
+
+	public static function deleteOldNotifyByTag(int $currentMessageId, array $arParams): Result
+	{
+		$result = new Result();
+		$notifyTag = (string)$arParams['NOTIFY_TAG'];
+		$chatId = (int)$arParams['CHAT_ID'];
+
+		if (!$notifyTag || $chatId <= 0)
+		{
+			return $result;
+		}
+
+		$query = MessageTable::query()
+			->setSelect(['ID', 'AUTHOR_ID', 'CHAT_ID'])
+			->where('NOTIFY_TAG', $notifyTag)
+		;
+
+		if ((int)$arParams['NOTIFY_TYPE'] !== IM_NOTIFY_CONFIRM)
+		{
+			$query->where('CHAT_ID', $chatId);
+		}
+
+		$query = $query->exec();
+
+		$messages = [];
+		$messageIds = [];
+		$maxId = 0;
+
+		while ($row = $query->fetch())
+		{
+			$messageId = (int)$row['ID'];
+			$messageIds[$messageId] = $messageId;
+
+			if ((int)$row['CHAT_ID'] !== $chatId)
+			{
+				continue;
+			}
+
+			$messages[$messageId] = [
+				'ID' => $messageId,
+				'AUTHOR_ID' => (int)$row['AUTHOR_ID'],
+				'CHAT_ID' => (int)$row['CHAT_ID'],
+			];
+
+			if ($messageId > $maxId)
+			{
+				$maxId = $messageId;
+				$maxAuthorId = (int)$row['AUTHOR_ID'];
+			}
+		}
+
+		$params = self::getUsersParam(array_keys($messages));
+		$newParams = [];
+		foreach ($messages as $message)
+		{
+			$newParams[$message['AUTHOR_ID']] = (int)$message['AUTHOR_ID'];
+
+			foreach ($params[$message['ID']] ?? [] as $param)
+			{
+				$newParams[$param] = (int)$param;
+			}
+		}
+
+		$newParams = array_diff($newParams, $params[$maxId] ?? []);
+
+		unset($messageIds[$maxId]);
+		$deleteParams = ['NOTIFY_TAG' => $notifyTag, 'SKIP_OVERFLOW_CLEANUP_CHAT' => $chatId];
+		CIMNotify::deleteList($messageIds, $deleteParams);
+
+		if ($currentMessageId >= $maxId)
+		{
+			unset($newParams[$arParams['AUTHOR_ID']]);
+		}
+		else
+		{
+			unset($newParams[$maxAuthorId ?? 0]);
+			self::saveNotifyParams($maxId, ['USERS' => array_values($newParams)]);
+		}
+
+		return $currentMessageId < $maxId ? $result : $result->setResult(array_values($newParams));
+	}
+
+	private static function getUsersParam(array $messageIds): array
+	{
+		if (empty($messageIds))
+		{
+			return [];
+		}
+
+		$query = \Bitrix\Im\Model\MessageParamTable::query()
+			->setSelect(['MESSAGE_ID', 'PARAM_VALUE'])
+			->whereIn('MESSAGE_ID', $messageIds)
+			->where('PARAM_NAME', Params::USERS)
+			->exec()
+		;
+
+		$params = [];
+		while ($row = $query->fetch())
+		{
+			$params[$row['MESSAGE_ID']][(int)$row['PARAM_VALUE']] = (int)$row['PARAM_VALUE'];
+		}
+
+		return $params;
+	}
+
+	public static function saveNotifyParams(int $messageId, array $values): void
+	{
+		$params = (new Params())->setMessageId($messageId);
+		$params->load($values);
+		$params->save();
 	}
 }

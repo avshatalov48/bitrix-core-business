@@ -1,0 +1,4 @@
+<?php
+$MESS["LANDING_TABLE_FIELD_LOCK_ENTITY_ID"] = "Мән идентификаторы";
+$MESS["LANDING_TABLE_FIELD_LOCK_ENTITY_TYPE"] = "Мән түрі";
+$MESS["LANDING_TABLE_FIELD_LOCK_TYPE"] = "Бұғаттау түрі";

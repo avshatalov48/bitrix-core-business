@@ -7,7 +7,7 @@
  */
 namespace Bitrix\Main\Mail\Internal;
 
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data\DataManager;
 
 /**
  * Class SenderSendCounterTable
@@ -25,7 +25,7 @@ use Bitrix\Main\Entity;
  * @method static \Bitrix\Main\Mail\Internal\EO_SenderSendCounter wakeUpObject($row)
  * @method static \Bitrix\Main\Mail\Internal\EO_SenderSendCounter_Collection wakeUpCollection($rows)
  */
-class SenderSendCounterTable extends Entity\DataManager
+class SenderSendCounterTable extends DataManager
 {
 	public static function getTableName()
 	{

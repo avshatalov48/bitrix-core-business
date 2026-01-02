@@ -475,7 +475,7 @@ describe('ui.bbcode.parser/Parser', () => {
 		const bbcode = '[p]\ntext\n[/p][list]\n[*]one\n[/list]';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
-		const result = '[p]text\n[/p]\n[list]\n[*]one\n[/list]';
+		const result = '[p]\ntext\n[/p]\n[list]\n[*]one\n[/list]';
 		assert.equal(ast.toString(), result);
 	});
 
@@ -483,7 +483,7 @@ describe('ui.bbcode.parser/Parser', () => {
 		const bbcode = 'Any text[p]\ntext\n[/p]';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
-		const result = 'Any text\n[p]text\n[/p]';
+		const result = 'Any text\n[p]\ntext\n[/p]';
 
 		assert.equal(ast.toString(), result);
 	});
@@ -492,7 +492,7 @@ describe('ui.bbcode.parser/Parser', () => {
 		const bbcode = '[p]\ntext\n[/p]Any text';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
-		const result = '[p]text\n[/p]Any text';
+		const result = '[p]\ntext\n[/p]\nAny text';
 
 		assert.equal(ast.toString(), result);
 	});
@@ -667,6 +667,7 @@ describe('ui.bbcode.parser/Parser', () => {
 			+ '[u]One-One[/u][*]Two[*]Three\n'
 			+ '[/list]\n'
 			+ '[p]'
+			+ '\n'
 			+ '1\n'
 			+ '2\n'
 			+ '\n'
@@ -691,7 +692,7 @@ describe('ui.bbcode.parser/Parser', () => {
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
-		assert.deepEqual(ast.toString(), '[p]left\n[/p]\n[p]center\n[/p]\n[p]right\n[/p]\n[p]justify\n[/p]');
+		assert.deepEqual(ast.toString(), '[p]\nleft\n[/p]\n[p]\ncenter\n[/p]\n[p]\nright\n[/p]\n[p]\njustify\n[/p]');
 	});
 
 	it('should convert deprecated tags #2', () => {
@@ -1129,5 +1130,113 @@ describe('ui.bbcode.parser/Parser', () => {
 		const ast = parser.parse(bbcode);
 
 		assert.deepEqual(ast.toString(), bbcode);
+	});
+
+	describe('Linebreaks', () => {
+		it('should handle empty block elements without adding linebreaks', () => {
+			const bbcode = '[p][/p]';
+			const result = '[p][/p]';
+			const parser = new BBCodeParser();
+			const ast = parser.parse(bbcode);
+
+			assert.deepEqual(ast.toString(), result);
+		});
+
+		it('should handle block elements with only whitespace', () => {
+			const bbcode = '[p] [/p]';
+			const result = '[p]\n \n[/p]';
+			const parser = new BBCodeParser();
+			const ast = parser.parse(bbcode);
+
+			assert.ok(ast.getChildrenCount() === 1);
+			assert.ok(ast.getFirstChild().getContent() === ' ');
+
+			assert.deepEqual(ast.toString(), result);
+		});
+
+		it('should handle block elements with only whitespace and linebreaks', () => {
+			const bbcode = '[p]   \n   [/p]';
+			const result = '[p]\n   \n   \n[/p]';
+			const parser = new BBCodeParser();
+			const ast = parser.parse(bbcode);
+
+			const p = ast.getChildren().at(0);
+			assert.ok(p.getChildrenCount() === 3);
+			assert.ok(p.getChildren().at(0).getContent() === '   ');
+			assert.ok(p.getChildren().at(1).getContent() === '\n');
+			assert.ok(p.getChildren().at(2).getContent() === '   ');
+
+			assert.deepEqual(ast.toString(), result);
+		});
+
+		it('should add one linebreak before and after content inside a block element', () => {
+			const bbcode = '[p]text[/p]';
+			const result = '[p]\ntext\n[/p]';
+			const parser = new BBCodeParser();
+			const ast = parser.parse(bbcode);
+
+			const p = ast.getChildren().at(0);
+			assert.ok(p.getChildrenCount() === 1);
+			assert.ok(p.getChildren().at(0).getContent() === 'text');
+
+			assert.deepEqual(ast.toString(), result);
+		});
+
+		it('should add a leading linebreak if it is missing', () => {
+			const bbcode = '[p]text\n[/p]';
+			const result = '[p]\ntext\n[/p]';
+			const parser = new BBCodeParser();
+			const ast = parser.parse(bbcode);
+
+			const p = ast.getChildren().at(0);
+			assert.ok(p.getChildrenCount() === 1);
+			assert.ok(p.getChildren().at(0).getContent() === 'text');
+
+			assert.deepEqual(ast.toString(), result);
+		});
+
+		it('should add a trailing linebreak if it is missing', () => {
+			const bbcode = '[p]\ntext[/p]';
+			const result = '[p]\ntext\n[/p]';
+			const parser = new BBCodeParser();
+			const ast = parser.parse(bbcode);
+
+			const p = ast.getChildren().at(0);
+			assert.ok(p.getChildrenCount() === 1);
+			assert.ok(p.getChildren().at(0).getContent() === 'text');
+
+			assert.deepEqual(ast.toString(), result);
+		});
+
+		it('should preserve multiple linebreaks if they are explicitly provided', () => {
+			const bbcode = '[p]\n\ntext\n\n[/p]';
+			const result = '[p]\n\ntext\n\n[/p]';
+			const parser = new BBCodeParser();
+			const ast = parser.parse(bbcode);
+
+			const p = ast.getChildren().at(0);
+			assert.ok(p.getChildrenCount() === 3);
+			assert.ok(p.getChildren().at(0).getContent() === '\n');
+			assert.ok(p.getChildren().at(1).getContent() === 'text');
+			assert.ok(p.getChildren().at(2).getContent() === '\n');
+
+			assert.deepEqual(ast.toString(), result);
+		});
+	});
+
+	describe('\\r\\n support', () => {
+		it('should works', () => {
+		    const bbcode = 'text\r\ntext2\n \\n \\r\\n';
+			const parser = new BBCodeParser();
+			const ast = parser.parse(bbcode);
+
+			assert.equal(ast.getChildren().at(0).getContent(), 'text');
+			assert.equal(ast.getChildren().at(1).getContent(), '\n');
+			assert.equal(ast.getChildren().at(2).getContent(), 'text2');
+			assert.equal(ast.getChildren().at(3).getContent(), '\n');
+			assert.equal(ast.getChildren().at(4).getContent(), ' \\n \\r\\n');
+
+			assert.equal(ast.toString(), 'text\ntext2\n \\n \\r\\n');
+		});
 	});
 });

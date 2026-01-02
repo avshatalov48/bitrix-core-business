@@ -144,7 +144,7 @@ class CForm_old
 	{ return CFormResult::AddAnswer($arFields); }
 
 	public static function UpdateResultField($arFields, $RESULT_ID, $FIELD_ID)
-	{ return CFormResult::UpdateField($arFields, $RESULT_ID, $FIELD_ID); }
+	{ CFormResult::UpdateField($arFields, $RESULT_ID, $FIELD_ID); }
 
 	public static function DeleteResult($ID, $CHECK_RIGHTS="Y")
 	{ return CFormResult::Delete($ID, $CHECK_RIGHTS); }
@@ -153,10 +153,10 @@ class CForm_old
 	{ return CFormResult::Reset($ID, $DELETE_IMAGES, $DELETE_ADDITIONAL, $arrException); }
 
 	public static function ShowResult($RESULT_ID, $TEMPLATE="", $TEMPLATE_TYPE="show", $SHOW_ADDITIONAL="N", $SHOW_ANSWER_VALUE="Y", $SHOW_STATUS="N")
-	{ return CFormResult::Show($RESULT_ID, $TEMPLATE, $TEMPLATE_TYPE, $SHOW_ADDITIONAL, $SHOW_ANSWER_VALUE, $SHOW_STATUS); }
+	{ CFormResult::Show($RESULT_ID, $TEMPLATE, $TEMPLATE_TYPE, $SHOW_ADDITIONAL, $SHOW_ANSWER_VALUE, $SHOW_STATUS); }
 
 	public static function EditResult($RESULT_ID, $arrVALUES, $TEMPLATE="", $EDIT_ADDITIONAL="N", $EDIT_STATUS="N")
-	{ return CFormResult::Edit($RESULT_ID, $arrVALUES, $TEMPLATE, $EDIT_ADDITIONAL, $EDIT_STATUS); }
+	{ CFormResult::Edit($RESULT_ID, $arrVALUES, $TEMPLATE, $EDIT_ADDITIONAL, $EDIT_STATUS); }
 
 	public static function SetResultStatus($WEB_FORM_ID, $RESULT_ID, $NEW_STATUS_ID, $CHECK_RIGHTS="Y")
 	{ return CFormResult::SetStatus($RESULT_ID, $NEW_STATUS_ID, $CHECK_RIGHTS); }

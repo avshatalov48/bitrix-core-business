@@ -3,13 +3,13 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_provider_service,main_core_events,im_v2_lib_feature,im_v2_component_animation,ui_entitySelector,im_v2_application_core,main_core,im_v2_const,ui_forms,im_v2_component_elements) {
+(function (exports,im_v2_component_elements_button,im_v2_component_elements_avatar,im_v2_provider_service_chat,main_core_events,im_v2_lib_feature,im_v2_component_elements_autoDelete,im_v2_component_animation,im_v2_component_elements_hint,ui_entitySelector,im_v2_application_core,main_core,im_v2_const,ui_forms,im_v2_component_elements_toggle,im_v2_component_elements_dropdown) {
 	'use strict';
 
 	// @vue/component
 	const ButtonPanel = {
 	  components: {
-	    MessengerButton: im_v2_component_elements.Button
+	    ChatButton: im_v2_component_elements_button.ChatButton
 	  },
 	  props: {
 	    isCreating: {
@@ -28,8 +28,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  emits: ['create', 'cancel'],
 	  computed: {
-	    ButtonSize: () => im_v2_component_elements.ButtonSize,
-	    ButtonColor: () => im_v2_component_elements.ButtonColor
+	    ButtonSize: () => im_v2_component_elements_button.ButtonSize,
+	    ButtonColor: () => im_v2_component_elements_button.ButtonColor
 	  },
 	  methods: {
 	    loc(phraseCode) {
@@ -38,7 +38,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-chat-forms-button-panel__container">
-			<MessengerButton
+			<ChatButton
 				:size="ButtonSize.XL"
 				:color="ButtonColor.Success"
 				:customColorScheme="createButtonColorScheme"
@@ -48,7 +48,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				@click="$emit('create')"
 				class="bx-im-chat-forms-button-panel__create-button"
 			/>
-			<MessengerButton
+			<ChatButton
 				:size="ButtonSize.XL"
 				:color="ButtonColor.Link"
 				:text="loc('IM_CREATE_CHAT_CANCEL')"
@@ -63,7 +63,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const ChatAvatar = {
 	  name: 'ChatAvatar',
 	  components: {
-	    EmptyAvatar: im_v2_component_elements.EmptyAvatar
+	    EmptyAvatar: im_v2_component_elements_avatar.EmptyAvatar
 	  },
 	  props: {
 	    avatarFile: {
@@ -82,12 +82,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    type: {
 	      type: String,
-	      default: im_v2_component_elements.EmptyAvatarType.default
+	      default: im_v2_component_elements_avatar.EmptyAvatarType.default
 	    }
 	  },
 	  emits: ['avatarChange'],
 	  computed: {
-	    AvatarSize: () => im_v2_component_elements.AvatarSize,
+	    AvatarSize: () => im_v2_component_elements_avatar.AvatarSize,
 	    preparedAvatar() {
 	      if (!this.avatarFile) {
 	        return null;
@@ -116,7 +116,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getChatService() {
 	      if (!this.chatService) {
-	        this.chatService = new im_v2_provider_service.ChatService();
+	        this.chatService = new im_v2_provider_service_chat.ChatService();
 	      }
 	      return this.chatService;
 	    }
@@ -150,6 +150,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    customElements: {
 	      type: Array,
 	      default: () => []
+	    },
+	    undeselectedItems: {
+	      type: Array,
+	      default() {
+	        return [['user', im_v2_application_core.Core.getUserId()]];
+	      }
+	    },
+	    allowTeamsSelect: {
+	      type: Boolean,
+	      default: false
 	    }
 	  },
 	  emits: ['membersChange'],
@@ -168,7 +178,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        context: 'IM_CHAT_CREATE',
 	        entities: this.getEntitiesConfig(),
 	        preselectedItems: this.chatMembers,
-	        undeselectedItems: [['user', im_v2_application_core.Core.getUserId()]],
+	        undeselectedItems: this.undeselectedItems,
 	        events: {
 	          'Item:onSelect': this.onItemsChange,
 	          'Item:onDeselect': this.onItemsChange
@@ -185,21 +195,46 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        id: 'user'
 	      }];
 	      const allowDepartments = im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.chatDepartments);
+	      entitiesConfig.push(this.getDepartmentEntityConfig(allowDepartments));
+	      if (this.allowTeamsSelect && im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.teamsInStructureAvailable)) {
+	        entitiesConfig.push(this.getEntityTeamsConfig(allowDepartments));
+	      }
+	      return entitiesConfig;
+	    },
+	    getDepartmentEntityConfig(allowDepartments) {
 	      if (allowDepartments) {
-	        entitiesConfig.push({
+	        return {
 	          id: 'department',
 	          options: {
 	            selectMode: 'usersAndDepartments',
 	            allowFlatDepartments: true,
 	            allowSelectRootDepartment: true
 	          }
-	        });
-	      } else {
-	        entitiesConfig.push({
-	          id: 'department'
-	        });
+	        };
 	      }
-	      return entitiesConfig;
+	      return {
+	        id: 'department'
+	      };
+	    },
+	    getEntityTeamsConfig(allowDepartments) {
+	      const baseOptionsConfig = {
+	        includedNodeEntityTypes: ['team'],
+	        useMultipleTabs: true,
+	        visual: {
+	          avatarMode: 'node',
+	          tagStyle: 'none'
+	        }
+	      };
+	      const departmentOptionsConfig = {
+	        ...baseOptionsConfig,
+	        selectMode: 'usersAndDepartments',
+	        allowFlatDepartments: true,
+	        allowSelectRootDepartment: true
+	      };
+	      return {
+	        id: 'structure-node',
+	        options: allowDepartments ? departmentOptionsConfig : baseOptionsConfig
+	      };
 	    },
 	    onItemsChange(event) {
 	      const dialog = event.getTarget();
@@ -222,7 +257,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const CreateChatHeading = {
 	  name: 'CreateChatHeading',
 	  components: {
-	    ChatHint: im_v2_component_elements.ChatHint
+	    ChatHint: im_v2_component_elements_hint.ChatHint
 	  },
 	  props: {
 	    text: {
@@ -384,6 +419,92 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 
 	// @vue/component
+	const AutoDelete = {
+	  name: 'AutoDelete',
+	  components: {
+	    Toggle: im_v2_component_elements_toggle.Toggle,
+	    ChatHint: im_v2_component_elements_hint.ChatHint,
+	    AutoDeleteDropdown: im_v2_component_elements_autoDelete.AutoDeleteDropdown,
+	    AutoDeletePopup: im_v2_component_elements_autoDelete.AutoDeletePopup
+	  },
+	  props: {
+	    initialDelay: {
+	      type: Number,
+	      default: 0
+	    }
+	  },
+	  emits: ['delayChange'],
+	  data() {
+	    return {
+	      delay: this.initialDelay,
+	      showPopup: false
+	    };
+	  },
+	  computed: {
+	    ToggleSize: () => im_v2_component_elements_toggle.ToggleSize,
+	    hintText() {
+	      return this.loc('IM_CREATE_CHAT_SETTINGS_SECTION_MESSAGES_AUTO_DELETE_HINT');
+	    },
+	    isEnabled() {
+	      return this.delay !== im_v2_const.AutoDeleteDelay.Off;
+	    },
+	    isFeatureEnabled() {
+	      return im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.messagesAutoDeleteEnabled);
+	    }
+	  },
+	  watch: {
+	    delay(newValue) {
+	      this.$emit('delayChange', newValue);
+	    }
+	  },
+	  methods: {
+	    onChangeAutoDeleteState() {
+	      if (!this.isFeatureEnabled) {
+	        im_v2_lib_feature.FeatureManager.messagesAutoDelete.openFeatureSlider();
+	        return;
+	      }
+	      if (this.isEnabled) {
+	        this.delay = im_v2_const.AutoDeleteDelay.Off;
+	      } else {
+	        this.showPopup = true;
+	      }
+	    },
+	    onDelayChange(delay) {
+	      this.delay = delay;
+	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-chat-forms-auto-delete__container">
+			<Toggle
+				:size="ToggleSize.M"
+				:isEnabled="isEnabled"
+				@click="onChangeAutoDeleteState"
+				class="bx-im-chat-forms-auto-delete__toggle"
+			/>
+			<div class="bx-im-chat-forms-auto-delete__label">
+				<div class="bx-im-chat-forms-auto-delete__title">
+					{{ loc('IM_CREATE_CHAT_SETTINGS_SECTION_MESSAGES_AUTO_DELETE_TITLE') }}
+					<ChatHint :text="hintText" class="bx-im-chat-forms-auto-delete__hint" />
+				</div>
+				<AutoDeleteDropdown 
+					:currentDelay="delay" 
+					@delayChange="onDelayChange" 
+				/>
+			</div>
+			<AutoDeletePopup
+				v-if="showPopup"
+				:autoDeleteDelay="delay"
+				@close="showPopup = false"
+				@autoDeleteDelayChange="onDelayChange"
+			/>
+		</div>
+	`
+	};
+
+	// @vue/component
 	const CreateChatSection = {
 	  components: {
 	    ExpandAnimation: im_v2_component_animation.ExpandAnimation
@@ -477,9 +598,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  components: {
 	    CreateChatSection,
 	    CreateChatHeading,
-	    Dropdown: im_v2_component_elements.Dropdown,
 	    TextareaInput,
-	    RadioOption
+	    RadioOption,
+	    AutoDelete
 	  },
 	  props: {
 	    description: {
@@ -490,12 +611,20 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: Boolean,
 	      default: true
 	    },
+	    withAutoDeleteOption: {
+	      type: Boolean,
+	      default: true
+	    },
 	    isAvailableInSearch: {
 	      type: Boolean,
 	      default: false
+	    },
+	    autoDeleteDelay: {
+	      type: Number,
+	      default: 0
 	    }
 	  },
-	  emits: ['chatTypeChange', 'descriptionChange'],
+	  emits: ['chatTypeChange', 'descriptionChange', 'autoDeleteDelayChange'],
 	  computed: {
 	    privacyOptions() {
 	      return [{
@@ -518,6 +647,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    onDescriptionChange(description) {
 	      this.$emit('descriptionChange', description);
 	    },
+	    onAutoDeleteDelayChange(delay) {
+	      this.$emit('autoDeleteDelayChange', delay);
+	    },
 	    loc(phraseCode, replacements = {}) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
 	    }
@@ -528,6 +660,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<CreateChatHeading :text="loc('IM_CREATE_CHAT_SETTINGS_SECTION_PRIVACY_MSGVER_1')" />
 				<RadioOption :items="privacyOptions" @change="onTypeChange" />
 			</div>
+			<AutoDelete
+				v-if="withAutoDeleteOption"
+				:initialDelay="autoDeleteDelay"
+				@delayChange="onAutoDeleteDelayChange" 
+			/>
 			<div class="bx-im-content-create-chat__section_block">
 				<CreateChatHeading :text="loc('IM_CREATE_CHAT_SETTINGS_SECTION_DESCRIPTION')" />
 				<div class="bx-im-chat-forms-settings__description_container">
@@ -547,8 +684,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const RoleSelector = {
 	  name: 'RoleSelector',
 	  components: {
-	    Dropdown: im_v2_component_elements.Dropdown,
-	    ChatHint: im_v2_component_elements.ChatHint
+	    Dropdown: im_v2_component_elements_dropdown.Dropdown,
+	    ChatHint: im_v2_component_elements_hint.ChatHint
 	  },
 	  props: {
 	    title: {
@@ -593,7 +730,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const UserSelector = {
 	  name: 'UserSelector',
 	  components: {
-	    ChatHint: im_v2_component_elements.ChatHint
+	    ChatHint: im_v2_component_elements_hint.ChatHint
 	  },
 	  props: {
 	    title: {
@@ -1015,8 +1152,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  components: {
 	    CreateChatSection,
 	    CreateChatHeading,
-	    Dropdown: im_v2_component_elements.Dropdown,
-	    Toggle: im_v2_component_elements.Toggle
+	    Dropdown: im_v2_component_elements_dropdown.Dropdown,
+	    Toggle: im_v2_component_elements_toggle.Toggle
 	  },
 	  props: {
 	    passwordNeeded: {
@@ -1030,7 +1167,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  emits: ['passwordNeededChange', 'passwordChange'],
 	  computed: {
-	    ToggleSize: () => im_v2_component_elements.ToggleSize
+	    ToggleSize: () => im_v2_component_elements_toggle.ToggleSize
 	  },
 	  methods: {
 	    onPasswordNeededChange(passwordNeeded) {
@@ -1090,6 +1227,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.RadioOption = RadioOption;
 	exports.TextareaInput = TextareaInput;
 	exports.TitleInput = TitleInput;
+	exports.AutoDelete = AutoDelete;
 	exports.CreateChatSection = CreateChatSection;
 	exports.CreateChatExternalSection = CreateChatExternalSection;
 	exports.SettingsSection = SettingsSection;
@@ -1098,5 +1236,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.ConferenceSection = ConferenceSection;
 	exports.AppearanceSection = AppearanceSection;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Messenger.v2.Service,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Animation,BX.UI.EntitySelector,BX.Messenger.v2.Application,BX,BX.Messenger.v2.Const,BX,BX.Messenger.v2.Component.Elements));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Service,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Component.Elements,BX.UI.EntitySelector,BX.Messenger.v2.Application,BX,BX.Messenger.v2.Const,BX,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Elements));
 //# sourceMappingURL=registry.bundle.js.map

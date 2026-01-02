@@ -9,7 +9,8 @@ use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Context;
 use Bitrix\Main\Event;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Web\Json;
+use Bitrix\Main\Diag\FileLogger;
+use Bitrix\Main\Diag\JsonLinesFormatter;
 
 final class AnalyticsEvent
 {
@@ -286,16 +287,9 @@ final class AnalyticsEvent
 			$this->triggerDebugEvent($data);
 		}
 
-		$jsonData = Json::encode($data, JSON_UNESCAPED_UNICODE);
-
-		$fp = @fopen(ANALYTICS_V2_FILENAME, "ab");
-		if ($fp && flock($fp, LOCK_EX))
-		{
-			@fwrite($fp, $jsonData . PHP_EOL);
-			@fflush($fp);
-			@flock($fp, LOCK_UN);
-			@fclose($fp);
-		}
+		$logger = new FileLogger(ANALYTICS_V2_FILENAME, 0);
+		$logger->setFormatter(new JsonLinesFormatter());
+		$logger->debug('', $data);
 	}
 
 	private function triggerDebugEvent(array $data): void

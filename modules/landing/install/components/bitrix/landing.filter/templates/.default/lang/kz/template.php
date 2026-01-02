@@ -1,0 +1,20 @@
+<?php
+$MESS["LANDING_TPL_CREATE_BUTTON_HINT"] = "1С-да Қойма есебі жұмыс режимі қосылған, сондықтан Дүкен құру мүмкін емес";
+$MESS["LANDING_TPL_CREATE_BUTTON_HINT_LINK_TEXT"] = "Толығырақ";
+$MESS["LANDING_TPL_CREATE_FOLDER"] = "Бума құру";
+$MESS["LANDING_TPL_CREATE_FOLDER_ACTION"] = "Құру";
+$MESS["LANDING_TPL_FLT_CREATED_BY_ID"] = "Кім жасады";
+$MESS["LANDING_TPL_FLT_DATE_CREATE"] = "Жасалған күні";
+$MESS["LANDING_TPL_FLT_DATE_MODIFY"] = "Өзгерту күні";
+$MESS["LANDING_TPL_FLT_DELETED"] = "Себетте";
+$MESS["LANDING_TPL_FLT_IS_AREA"] = "Қосылатын аймақ";
+$MESS["LANDING_TPL_FLT_MODIFIED_BY_ID"] = "Кім өзгертті";
+$MESS["LANDING_TPL_FLT_N"] = "Жоқ";
+$MESS["LANDING_TPL_FLT_STATUS"] = "Мәртебе";
+$MESS["LANDING_TPL_FLT_STATUS_ACTIVE"] = "Жарияланды";
+$MESS["LANDING_TPL_FLT_STATUS_ACTIVE_CHANGED"] = "Жарияланды, өзгертулер бар";
+$MESS["LANDING_TPL_FLT_STATUS_NOT_ACTIVE"] = "Жарияланбаған";
+$MESS["LANDING_TPL_FLT_Y"] = "Иә";
+$MESS["LANDING_TPL_PRS_ACTIVE"] = "Белсенділер";
+$MESS["LANDING_TPL_PRS_MY"] = "Менің";
+$MESS["LANDING_TPL_RECYCLE_BIN"] = "Себет";

@@ -46,4 +46,4 @@ $MESS["IBLOCK_CML2_TITLE"] = "XML Import";
 $MESS["IBLOCK_CML2_UPDATED"] = "Updated: #COUNT#";
 $MESS["IBLOCK_CML2_URL_DATA_FILE"] = "Source file";
 $MESS["IBLOCK_CML2_WITH_ERRORS"] = "Errors: #COUNT#";
-$MESS["IBLOCK_CML2_WRONG_FILE_ERROR"] = "This file is not an XML CommerceML 2.0 file.";
+$MESS['IBLOCK_CML2_WRONG_FILE_ERROR'] = "This file is not an XML CommerceML 2.0 file.";

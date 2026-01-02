@@ -44,8 +44,13 @@ $MESS['LANDING_HEADER_AND_BUTTONS_VARIABLE_LAST_NAME'] = 'Фамилия';
 $MESS['LANDING_HEADER_AND_BUTTONS_VARIABLE_DATE'] = 'Дата и время';
 
 $MESS['LANDING_SPAM_PROTECTION_TITLE'] = 'Защита от спама';
+$MESS['LANDING_SPAM_PROTECTION_SERVICE_TITLE'] = 'Сервис капчи';
+$MESS['LANDING_SPAM_PROTECTION_SERVICE_OPTION_YANDEX'] = 'Yandex SmartCaptcha';
+$MESS['LANDING_SPAM_PROTECTION_SERVICE_OPTION_GOOGLE'] = 'Google reCAPTCHA v2';
 $MESS['LANDING_SPAM_PROTECTION_TABS_TITLE'] = 'Выберите вариант использования модуля reCAPTCHA v2';
+$MESS['LANDING_SPAM_PROTECTION_TABS_TITLE_YANDEX'] = 'Выберите вариант использования Yandex SmartCaptcha';
 $MESS['LANDING_SPAM_PROTECTION_MESSAGE_WARNING_RECAPTCHA'] = 'Google reCAPTCHA является сервисом Google LLC.<br> Подключая reCAPTCHA, вы принимаете, что её использование повлечет сбор и передачу данных в Google LLC в соответствии с <a href="#URL_POLICIES_TERMS#" target="_blank">Условиями использования</a> и <a href="#URL_POLICIES_PRIVACY#" target="_blank">политикой конфиденциальности</a> Google LLC.';
+$MESS['LANDING_SPAM_PROTECTION_MESSAGE_WARNING_FOREIGN'] = 'Это внешний сервис, некоторые данные вашего пользователя могут передаваться на серверы правообладателя сервиса, расположенные за пределами вашей страны';
 $MESS['LANDING_SPAM_PROTECTION_KEYS_FORM_TITLE'] = 'Введите ключи reCAPTCHA v2';
 $MESS['LANDING_SPAM_PROTECTION_RECAPTCHA_KEY_FIELD_TITLE'] = 'Ключ';
 $MESS['LANDING_SPAM_PROTECTION_RECAPTCHA_SECRET_KEY_FIELD_TITLE'] = 'Секретный ключ';
@@ -279,8 +284,9 @@ $MESS['LANDING_FORM_WHATSAPP_WARNING_TEXT'] = 'Для использования
 $MESS['LANDING_FORM_SAVE_ERROR_ALERT_TITLE'] = 'Ошибка';
 $MESS['LANDING_FORM_SAVE_UNKNOWN_ERROR_ALERT_TEXT'] = 'При сохранении настроек произошла ошибка';
 $MESS['LANDING_FORM_EDITOR_SAVE_BUTTON_STATE_SAVED'] = 'Сохранено';
-$MESS['LANDING_FORM_SAVE_CAPTCHA_ALERT_TITLE'] = 'Внимание';
-$MESS['LANDING_FORM_SAVE_CAPTCHA_ALERT_TEXT_2'] = 'Защита от спама была отключена, т. к. не указаны ключи reCAPTCHA v2';
+$MESS['LANDING_FORM_SAVE_CAPTCHA_ALERT_TEXT_2_MSGVER_1'] = 'Защита от спама отключена. Чтобы включить её, укажите ключи reCAPTCHA v2';
+$MESS['LANDING_FORM_SAVE_CAPTCHA_ALERT_OK_TEXT'] = 'Понятно';
+$MESS['LANDING_FORM_SAVE_YANDEX_CAPTCHA_ALERT_TEXT_2'] = 'Защита от спама отключена. Чтобы включить её, укажите ключи Yandex SmartCaptcha';
 $MESS['LANDING_FORM_SAVE_PERMISSION_DENIED'] = 'Недостаточно прав для сохранения настроек формы. Обратитесь к администратору портала.';
 $MESS['LANDING_ACTIONS_MESSAGE_HEADER_type1'] = 'Сообщение';
 $MESS['LANDING_ACTIONS_MESSAGE_DESCRIPTION_type1'] = 'Поблагодарите клиента за то, что он заполнил форму, или расскажите ему о правилах обработки заказа';

@@ -1,7 +1,7 @@
 import { EventEmitter } from 'main.core.events';
 
 import { Messenger } from 'im.public';
-import { Loader } from 'im.v2.component.elements';
+import { Loader } from 'im.v2.component.elements.loader';
 import { EventType, SidebarDetailBlock } from 'im.v2.const';
 
 import { ChatItem } from './chat-item';
@@ -116,7 +116,7 @@ export const ChatsWithUserPanel = {
 		<div class="bx-im-sidebar-chats-with-user-detail__scope">
 			<DetailHeader
 				:dialogId="dialogId"
-				:title="loc('IM_SIDEBAR_CHATSWITHUSER_DETAIL_TITLE')"
+				:title="loc('IM_SIDEBAR_SHARED_CHAT_DETAIL_TITLE')"
 				:secondLevel="secondLevel"
 				@back="onBackClick"
 			/>

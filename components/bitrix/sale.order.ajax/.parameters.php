@@ -153,6 +153,7 @@ $arComponentParameters = array(
 	),
 	"PARAMETERS" => array(
 		"USER_CONSENT" => array(),
+		"USER_CONSENT_IDS" => array(),
 		"ACTION_VARIABLE" => array(
 			"NAME" => GetMessage('SOA_ACTION_VARIABLE'),
 			"TYPE" => "STRING",

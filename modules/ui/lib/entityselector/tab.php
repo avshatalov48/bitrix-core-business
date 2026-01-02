@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\UI\EntitySelector;
 
 class Tab implements \JsonSerializable
@@ -37,6 +38,27 @@ class Tab implements \JsonSerializable
 	/** @var bool | null */
 	protected $showAvatars;
 
+	/**
+	 * @param array{
+	 *   id?: string,
+	 *   title?: string|array|null,
+	 *   icon?: string|array<string, string>,
+	 *   textColor?: string|array<string, string>,
+	 *   bgColor?: string|array<string, string>,
+	 *   visible?: bool,
+	 *   itemOrder?: array<int|string, mixed>,
+	 *   itemMaxDepth?: int,
+	 *   stub?: bool|string,
+	 *   stubOptions?: array<string, mixed>,
+	 *   header?: string,
+	 *   headerOptions?: array<string, mixed>,
+	 *   showDefaultHeader?: bool,
+	 *   footer?: string,
+	 *   footerOptions?: array<string, mixed>,
+	 *   showDefaultFooter?: bool,
+	 *   showAvatars?: bool
+	 * } $options
+	 */
 	public function __construct(array $options)
 	{
 		$id = $options['id'] ?? null;

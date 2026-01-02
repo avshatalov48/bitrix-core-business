@@ -2,6 +2,7 @@ import TileWidget from './tile-widget';
 import { TileWidgetSlot } from './tile-widget-slot';
 import { TileWidgetComponent } from './components/tile-widget-component';
 import { TileList } from './components/tile-list';
+import { TileItem } from './components/tile-item';
 import { ErrorPopup } from './components/error-popup';
 import { UploadLoader } from './components/upload-loader';
 import { FileIconComponent as FileIcon } from './components/file-icon';
@@ -18,6 +19,7 @@ export {
 	TileWidgetComponent,
 	TileWidgetSlot,
 	TileList,
+	TileItem,
 	FileIcon,
 	ErrorPopup,
 	UploadLoader,

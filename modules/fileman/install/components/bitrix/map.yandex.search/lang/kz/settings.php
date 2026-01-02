@@ -1,0 +1,24 @@
+<?php
+$MESS["MYMS_PARAM_INIT_MAP_NOTHING_FOUND"] = "(табылмады)";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_HYBRID"] = "гибридті";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_MAP"] = "схема";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_PUBLIC"] = "халық картасы";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_PUBLIC_HYBRID"] = "халық гибриді";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_SATELLITE"] = "серік";
+$MESS["MYMV_SET_ADDRESS_SEARCH"] = "Картадан табу";
+$MESS["MYMV_SET_NONAME"] = "--- атаусыз ---";
+$MESS["MYMV_SET_POINTS"] = "Карта нүктелері";
+$MESS["MYMV_SET_POINTS_ADD"] = "Нүктелерді қосу";
+$MESS["MYMV_SET_POINTS_ADD_DESCRIPTION"] = "Картадағы нүктелердің ерікті санын екі рет басыңыз.";
+$MESS["MYMV_SET_POINTS_ADD_FINISH"] = "Аяқтау";
+$MESS["MYMV_SET_POPUP_TITLE"] = "Карта баптаулары";
+$MESS["MYMV_SET_POPUP_WINDOW_DESCRIPTION"] = "Карта көрінісін және көрсетілетін нысандар тізімін басқару";
+$MESS["MYMV_SET_POPUP_WINDOW_TITLE"] = "Карта баптауларын редакциялау";
+$MESS["MYMV_SET_START_POS"] = "Бастапқы карта орны";
+$MESS["MYMV_SET_START_POS_FIX"] = "бекіту";
+$MESS["MYMV_SET_START_POS_LAT"] = "Ендік";
+$MESS["MYMV_SET_START_POS_LON"] = "Бойлық";
+$MESS["MYMV_SET_START_POS_RESTORE"] = "қалпына келтіру";
+$MESS["MYMV_SET_START_POS_SCALE"] = "Масштабы";
+$MESS["MYMV_SET_START_POS_VIEW"] = "Көрініс";
+$MESS["MYMV_SET_SUBMIT"] = "Сақтау";

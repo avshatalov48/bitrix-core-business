@@ -43,7 +43,7 @@ CJSCore::Init(['window', 'lists']);
 		),
 		'color' => \Bitrix\UI\Buttons\Color::LINK,
 		'text' => GetMessage("LISTS_BP_EDIT_RETURN"),
-		'classList' => ['lists-list-back'],
+		'icon' => \Bitrix\UI\Buttons\Icon::BACK,
 	]
 );
 

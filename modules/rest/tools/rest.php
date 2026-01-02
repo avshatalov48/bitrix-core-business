@@ -64,16 +64,12 @@ if($request->isPost() && check_bitrix_sessid() && Loader::includeModule('rest'))
 		break;
 
 		case 'activate_demo':
-			if (
-				Loader::includeModule('market')
-				&& Trial::isAvailable()
-				&& (
-					!ModuleManager::isModuleInstalled('extranet')
-					|| (Loader::includeModule('extranet') && \CExtranet::IsIntranetUser())
-				)
-			)
+			$subscription = new \Bitrix\Rest\Internal\Integration\Market\Subscription();
+			$subscriptionResult = $subscription->activateDemo();
+
+			if ($subscriptionResult->isSuccess())
 			{
-				$result = Trial::activate();
+				$result = $subscriptionResult->getData();
 			}
 			else
 			{

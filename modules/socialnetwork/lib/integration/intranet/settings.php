@@ -4,6 +4,7 @@ namespace Bitrix\Socialnetwork\Integration\Intranet;
 
 use Bitrix\Intranet\Settings\Tools\ToolsManager;
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
 
 final class Settings
 {
@@ -11,6 +12,11 @@ final class Settings
 		'workgroups' => 'limit_groups_off',
 		'projects' => 'limit_projects_off',
 		'scrum' => 'limit_tasks_scrum_off',
+		'collab' => 'limit_v2_socialnetwork_collab_off',
+	];
+
+	public const LIMIT_FEATURES = [
+		'collab' => 'socialnetwork_collab_off',
 	];
 
 	public const TASKS_TOOLS = [
@@ -26,6 +32,7 @@ final class Settings
 	public const SONET_TOOLS = [
 		'news' => 'news',
 		'workgroups' => 'workgroups',
+		'collab' => 'collab',
 	];
 
 	public const CALENDAR_TOOLS = [
@@ -37,32 +44,25 @@ final class Settings
 		return Loader::includeModule('intranet') && class_exists(ToolsManager::class);
 	}
 
-	public function isGroupAvailableByType(bool $isProject, bool $isScrum): bool
+	public function isGroupAvailableByType(Type $type): bool
 	{
-		return $this->isToolAvailable($this->getToolIdByType($isProject, $isScrum));
+		return $this->isToolAvailable($this->getToolIdByGroupType($type));
 	}
 
-	private function getToolIdByType(bool $isProject, bool $isScrum): string
+	private function getToolIdByGroupType(Type $type): string
 	{
-		if ($isScrum)
+		return match ($type)
 		{
-			$toolId = self::TASKS_TOOLS['scrum'];
-		}
-		elseif ($isProject)
-		{
-			$toolId = self::TASKS_TOOLS['projects'];
-		}
-		else
-		{
-			$toolId = self::SONET_TOOLS['workgroups'];
-		}
-
-		return $toolId;
+			Type::Scrum => self::TASKS_TOOLS['scrum'],
+			Type::Project => self::TASKS_TOOLS['projects'],
+			Type::Collab => self::SONET_TOOLS['collab'],
+			default => self::SONET_TOOLS['workgroups'],
+		};
 	}
 
-	public function getGroupLimitCodeByType(bool $isProject, bool $isScrum): ?string
+	public function getGroupLimitCodeByType(Type $type): ?string
 	{
-		return self::LIMIT_CODES[$this->getToolIdByType($isProject, $isScrum)] ?? null;
+		return self::LIMIT_CODES[$this->getToolIdByGroupType($type)] ?? null;
 	}
 
 	public function isToolAvailable(string $tool): bool

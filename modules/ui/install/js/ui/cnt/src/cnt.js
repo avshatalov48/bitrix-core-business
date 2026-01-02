@@ -1,10 +1,14 @@
-// @flow
-
-import {Dom, Tag, Type} from 'main.core';
+import { Dom, Tag, Type } from 'main.core';
+import 'ui.design-tokens.air';
 import CounterColor from './cnt-color';
 import CounterSize from './cnt-size';
 
-type CounterOptions = {
+import './air.css';
+import { CounterStyle } from './cnt-style';
+
+export type CounterOptions = {
+	useAirDesign: boolean;
+	style: CounterStyle;
 	value: number;
 	maxValue: number;
 	color: CounterColor;
@@ -12,17 +16,63 @@ type CounterOptions = {
 	border: boolean;
 	size: string;
 	isDouble: boolean;
+	usePercentSymbol?: boolean;
+	hideIfZero?: boolean;
+	node?: HTMLElement;
+	id?: string;
 };
 
 export default class Counter
 {
 	static Color = CounterColor;
 	static Size = CounterSize;
+	static Style = CounterStyle;
+	static BaseClassname = 'ui-counter';
+
+	#usePercentSymbol: boolean = false;
+	#useAirDesign: boolean = false;
+	#style: CounterStyle = CounterStyle.FILLED;
+	#hideIfZero: boolean = false;
+	#node: HTMLElement;
+	#id: ?string = undefined;
+
+	static initFromCounterNode(node: HTMLElement): ?Counter
+	{
+		if (Dom.hasClass(node, Counter.BaseClassname) === false)
+		{
+			return null;
+		}
+
+		const options: CounterOptions = {};
+
+		options.useAirDesign = Dom.hasClass(node, '--air');
+		options.style = Object.values(Counter.Style).find((value) => Dom.hasClass(node, value)) ?? Counter.Color.PRIMARY;
+		options.color = Object.values(Counter.Color).find((value) => Dom.hasClass(node, value)) ?? Counter.Style.FILLED;
+		options.size = Object.values(Counter.Size).find((value) => Dom.hasClass(node, value)) ?? Counter.Size.MEDIUM;
+		options.value = parseInt(Dom.attr(node, 'data-value'), 10);
+		options.hideIfZero = Dom.hasClass(node, '--hide-zero');
+		options.node = node;
+		options.id = node.id;
+
+		return new Counter(options);
+	}
+
+	static updateCounterNodeValue(node: HTMLElement, value: number): void
+	{
+		const counter = Counter.initFromCounterNode(node);
+
+		if (counter && Type.isNumber(value))
+		{
+			counter.update(value);
+		}
+	}
 
 	constructor(options: CounterOptions)
 	{
 		this.options = Type.isPlainObject(options) ? options : {};
 
+		this.#useAirDesign = this.options.useAirDesign === true;
+		this.#node = options.node ?? null;
 		this.container = null;
 		this.counterContainer = null;
 		this.animate = Type.isBoolean(this.options.animate) ? this.options.animate : false;
@@ -31,16 +81,28 @@ export default class Counter
 		this.maxValue = Type.isNumber(this.options.maxValue) ? this.options.maxValue : 99;
 		this.size = Type.isString(this.options.size) ? this.options.size : BX.UI.Counter.Size.MEDIUM;
 		this.color = Type.isString(this.options.color) ? this.options.color : BX.UI.Counter.Color.PRIMARY;
-		this.secondaryColor = Type.isString(this.options.secondaryColor) ? this.options.secondaryColor : BX.UI.Counter.Color.PRIMARY;
+		this.secondaryColor = Type.isString(this.options.secondaryColor)
+			? this.options.secondaryColor
+			: BX.UI.Counter.Color.PRIMARY
+		;
 		this.border = Type.isBoolean(this.options.border) ? this.options.border : false;
+		this.#usePercentSymbol = this.options?.usePercentSymbol === true;
+		this.#style = this.options.style ?? CounterStyle.FILLED;
+		this.#hideIfZero = this.options.hideIfZero === true;
+		this.#id = this.options.id;
 	}
 
-	//region Parameters
+	// region Parameters
 	setValue(value: number): this
 	{
-		if (Type.isNumber(value))
+		this.#setPositiveValue(value);
+
+		Dom.attr(this.getContainer(), 'data-value', value);
+		Dom.removeClass(this.getContainer(), '--one-digit');
+
+		if (this.value < 10 && this.#usePercentSymbol === false)
 		{
-			this.value = (value < 0) ? 0 : value;
+			Dom.addClass(this.getContainer(), '--one-digit');
 		}
 
 		return this;
@@ -48,21 +110,29 @@ export default class Counter
 
 	getValue(): number
 	{
+		if (this.#usePercentSymbol)
+		{
+			return this.value;
+		}
+
 		if (this.value <= this.maxValue)
 		{
 			return this.value;
 		}
-		else
-		{
-			return this.maxValue + "+";
-		}
+
+		return `${this.maxValue}+`;
+	}
+
+	getRealValue(): number
+	{
+		return this.value;
 	}
 
 	setMaxValue(value: number): this
 	{
 		if (Type.isNumber(value))
 		{
-			this.value = (value < 0) ? 0 : value;
+			this.maxValue = (value < 0) ? 0 : value;
 		}
 
 		return this;
@@ -73,9 +143,33 @@ export default class Counter
 		return this.maxValue;
 	}
 
+	getId(): string
+	{
+		return this.#id;
+	}
+
 	isBorder(): boolean
 	{
 		return this.border;
+	}
+
+	setAirDesign(flag: boolean = true): this
+	{
+		this.#useAirDesign = flag === true;
+
+		if (!this.container)
+		{
+			return;
+		}
+
+		if (this.#useAirDesign)
+		{
+			Dom.addClass(this.container, '--air');
+		}
+		else
+		{
+			Dom.removeClass(this.container, '--air');
+		}
 	}
 
 	setColor(color: CounterColor): this
@@ -95,13 +189,24 @@ export default class Counter
 		return this;
 	}
 
+	setStyle(style: CounterStyle): this
+	{
+		if (this.container && this.#useAirDesign)
+		{
+			Dom.removeClass(this.container, this.#style);
+			Dom.addClass(this.container, style);
+		}
+
+		this.#style = style;
+	}
+
 	setSize(size: CounterSize): this
 	{
 		if (Type.isStringFilled(size))
 		{
-			BX.removeClass(this.container, this.size);
+			Dom.removeClass(this.container, this.size);
 			this.size = size;
-			BX.addClass(this.container, this.size);
+			Dom.addClass(this.container, this.size);
 		}
 
 		return this;
@@ -143,16 +248,18 @@ export default class Counter
 		if (!Type.isBoolean(border))
 		{
 			console.warn('Parameter "border" is not boolean');
+
 			return this;
 		}
 
 		this.border = border;
-		const borderedCounterClassname = this.#getBorderClassname(border);
+		const borderedCounterClassname = this.#getBorderClassname(true);
 
 		if (border)
 		{
 			Dom.addClass(this.container, borderedCounterClassname);
-		} else
+		}
+		else
 		{
 			Dom.removeClass(this.container, borderedCounterClassname);
 		}
@@ -166,34 +273,44 @@ export default class Counter
 		{
 			return 'ui-counter-border';
 		}
-		else
-		{
-			return '';
-		}
+
+		return '';
 	}
 
-	//endregion
+	// endregion
 
 	// region Counter
 	update(value)
 	{
 		if (this.container === null)
 		{
-			this.createContainer();
+			this.createContainer(this.#node);
 		}
 
-		if (this.animate == true)
+		if (Boolean(this.animate) === true && this.#useAirDesign === false)
 		{
 			this.updateAnimated(value);
 		}
-		else if (this.animate == false)
+		else if (Boolean(this.animate) === false)
 		{
 			this.setValue(value);
-			Dom.adjust(this.counterContainer, {
-				text: this.getValue()
-			});
-		}
 
+			if (this.#useAirDesign)
+			{
+				const oldCounterContainer = this.counterContainer;
+				this.counterContainer = null;
+				this.counterContainer = this.getCounterContainer();
+				Dom.replace(oldCounterContainer, this.counterContainer);
+			}
+			else
+			{
+				const percentSymbol = this.#usePercentSymbol ? '%' : '';
+
+				Dom.adjust(this.counterContainer, {
+					text: `${this.getValue()}${percentSymbol}`,
+				});
+			}
+		}
 	}
 
 	updateAnimated(value)
@@ -205,28 +322,24 @@ export default class Counter
 
 		if (value > this.value && this.value < this.maxValue)
 		{
-			Dom.addClass(this.counterContainer, "ui-counter-plus");
+			Dom.addClass(this.counterContainer, 'ui-counter-plus');
 		}
 		else if (value < this.value && this.value < this.maxValue)
 		{
-			Dom.addClass(this.counterContainer, "ui-counter-minus");
+			Dom.addClass(this.counterContainer, 'ui-counter-minus');
 		}
 
-		setTimeout(function ()
-			{
-				this.setValue(value);
-				Dom.adjust(this.counterContainer, {
-					text: this.getValue()
-				});
-			}.bind(this),
-			250);
+		setTimeout(() => {
+			this.setValue(value);
+			Dom.adjust(this.counterContainer, {
+				text: this.getValue(),
+			});
+		}, 250);
 
-		setTimeout(function ()
-			{
-				Dom.removeClass(this.counterContainer, "ui-counter-plus");
-				Dom.removeClass(this.counterContainer, "ui-counter-minus");
-			}.bind(this),
-			500);
+		setTimeout(() => {
+			Dom.removeClass(this.counterContainer, 'ui-counter-plus');
+			Dom.removeClass(this.counterContainer, 'ui-counter-minus');
+		}, 500);
 	}
 
 	show()
@@ -236,8 +349,8 @@ export default class Counter
 			this.createContainer();
 		}
 
-		Dom.addClass(this.container, "ui-counter-show");
-		Dom.removeClass(this.container, "ui-counter-hide");
+		Dom.addClass(this.container, 'ui-counter-show');
+		Dom.removeClass(this.container, 'ui-counter-hide');
 	}
 
 	hide()
@@ -247,33 +360,89 @@ export default class Counter
 			this.createContainer();
 		}
 
-		Dom.addClass(this.container, "ui-counter-hide");
-		Dom.removeClass(this.container, "ui-counter-show");
+		Dom.addClass(this.container, 'ui-counter-hide');
+		Dom.removeClass(this.container, 'ui-counter-show');
 	}
 
-	getCounterContainer()
+	getCounterContainer(): HTMLElement
 	{
-		if (this.counterContainer === null)
+		if (this.counterContainer === null && this.#useAirDesign)
 		{
+			this.counterContainer = this.#createAirCounterContainer();
+		}
+		else if (this.counterContainer === null)
+		{
+			const percentSymbol = this.#usePercentSymbol ? '%' : '';
+
 			this.counterContainer = Tag.render`
-				<div class="ui-counter-inner">${this.getValue()}</div>
+				<div class="ui-counter-inner">${this.getValue()}${percentSymbol}</div>
 			`;
 		}
 
 		return this.counterContainer;
 	}
 
-	createContainer(): HTMLElement
+	#createAirCounterContainer(): HTMLElement
+	{
+		let symbol = '';
+		let value = this.value;
+
+		if (this.#usePercentSymbol)
+		{
+			symbol = '%';
+		}
+		else if (this.value > this.maxValue)
+		{
+			value = this.value > this.maxValue ? this.maxValue : this.value;
+			symbol = '+';
+		}
+
+		const valueContainer = Tag.render`<span class="ui-counter__value">${value}</span>`;
+		const symbolContainer = Tag.render`<span class="ui-counter__symbol">${symbol}</span>`;
+
+		return Tag.render`
+			<div class="ui-counter-inner">
+				${valueContainer}
+				${symbolContainer}
+			</div>
+		`;
+	}
+
+	// node params used only for vue3 component
+	createContainer(node: HTMLElement = null): HTMLElement
 	{
 		if (this.container === null)
 		{
-			this.container = Tag.render`
-				<div class="ui-counter">${this.getCounterContainer()}</div>
-			`;
+			if (node)
+			{
+				this.container = node;
+				this.container.className = 'ui-counter ui-counter__scope';
+				Dom.clean(this.container);
+				Dom.append(this.getCounterContainer(), this.container);
+			}
+			else
+			{
+				this.container = Tag.render`
+					<div class="ui-counter ui-counter__scope">${this.getCounterContainer()}</div>
+				`;
+			}
 
+			if (this.#hideIfZero)
+			{
+				Dom.addClass(this.container, '--hide-zero');
+			}
+
+			if (this.#id)
+			{
+				Dom.attr(this.container, 'id', this.#id);
+			}
+
+			this.setAirDesign(this.#useAirDesign);
 			this.setSize(this.size);
 			this.setColor(this.color);
+			this.setStyle(this.#style);
 			this.setBorder(this.border);
+			this.setValue(this.value);
 			this.createSecondaryContainer();
 			this.setSecondaryColor();
 		}
@@ -281,13 +450,13 @@ export default class Counter
 		return this.container;
 	}
 
-	//endregion
+	// endregion
 
 	getContainer(): Element
 	{
 		if (this.container === null)
 		{
-			this.createContainer();
+			this.createContainer(this.#node);
 		}
 
 		return this.container;
@@ -297,10 +466,23 @@ export default class Counter
 	{
 		if (Type.isDomNode(node))
 		{
-			return node.appendChild(this.getContainer());
+			Dom.append(this.getContainer(), node);
+
+			return this.getContainer();
 		}
 
 		return null;
+	}
+
+	/** @deprecated used only for vue3 component */
+	renderOnNode(node: HTMLElement): void
+	{
+		this.createContainer(node);
+	}
+
+	render(): HTMLElement
+	{
+		return this.getContainer();
 	}
 
 	destroy(): void
@@ -314,14 +496,21 @@ export default class Counter
 		this.bar = null;
 		this.svg = null;
 
-		for (const property in this)
-		{
-			if (this.hasOwnProperty(property))
+		Object.keys(this).forEach((property) => {
+			if (Object.prototype.hasOwnProperty.call(this, property))
 			{
 				delete this[property];
 			}
-		}
+		});
 
 		Object.setPrototypeOf(this, null);
+	}
+
+	#setPositiveValue(value: number): void
+	{
+		if (Type.isNumber(value))
+		{
+			this.value = (value < 0) ? 0 : value;
+		}
 	}
 }

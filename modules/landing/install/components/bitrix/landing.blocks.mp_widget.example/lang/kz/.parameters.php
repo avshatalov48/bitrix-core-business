@@ -1,0 +1,4 @@
+<?php
+$MESS["LANDING_WIDGET_EXAMPLE_TITLE"] = "Тақырыпаты";
+$MESS["LANDING_WIDGET_EXAMPLE_TITLE_DEFAULT_VALUE"] = "Туған күндер";
+$MESS["LANDING_WIDGET_EXAMPLE_USER_AMOUNT"] = "Пайдаланушылар саны";

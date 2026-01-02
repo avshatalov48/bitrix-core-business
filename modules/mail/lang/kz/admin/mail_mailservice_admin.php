@@ -1,0 +1,19 @@
+<?php
+$MESS["MAIL_MSERVICE_ADM_ACTIVE"] = "Белсенділік";
+$MESS["MAIL_MSERVICE_ADM_CHANGE"] = "Өзгерту";
+$MESS["MAIL_MSERVICE_ADM_DELETE"] = "Жою";
+$MESS["MAIL_MSERVICE_ADM_DELETE_CONFIRM"] = "Пошта сервисі жойылады. Жалғастыру керек пе?";
+$MESS["MAIL_MSERVICE_ADM_FILT_ANY"] = "(кез келген)";
+$MESS["MAIL_MSERVICE_ADM_NAME"] = "Атауы";
+$MESS["MAIL_MSERVICE_ADM_SERVER"] = "Сервер мекенжайы";
+$MESS["MAIL_MSERVICE_ADM_SITE_ID"] = "Сайт";
+$MESS["MAIL_MSERVICE_ADM_TITLE"] = "Пошта сервистері";
+$MESS["MAIL_MSERVICE_ADM_TYPE"] = "Түрі";
+$MESS["MAIL_MSERVICE_DELETE_ERROR"] = "Пошта сервисін жою кезіндегі қате";
+$MESS["MAIL_MSERVICE_SAVE_ERROR"] = "Пошта сервисін өзгерту кезіндегі қате";
+$MESS["MAIN_ADD"] = "Қосу";
+$MESS["MAIN_ADMIN_LIST_ACTIVATE"] = "белсендіру";
+$MESS["MAIN_ADMIN_LIST_CHECKED"] = "Белгіленген:";
+$MESS["MAIN_ADMIN_LIST_DEACTIVATE"] = "өшіру";
+$MESS["MAIN_ADMIN_LIST_DELETE"] = "жою";
+$MESS["MAIN_ADMIN_LIST_SELECTED"] = "Таңдалған:";

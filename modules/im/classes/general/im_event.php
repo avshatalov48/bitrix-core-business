@@ -760,41 +760,6 @@ class CIMEvent
 
 	public static function OnAfterUserAdd($arParams)
 	{
-		if(($arParams["ID"] ?? 0) <= 0)
-		{
-			return false;
-		}
-
-		if ($arParams['ACTIVE'] == 'N')
-		{
-			return false;
-		}
-
-		if (IsModuleInstalled('intranet') && !CIMContactList::IsExtranet($arParams))
-		{
-			$commonChatId = CIMChat::GetGeneralChatId();
-			if ($commonChatId <= 0)
-			{
-				return true;
-			}
-
-			if (
-				$arParams['EXTERNAL_AUTH_ID'] === IM\Bot::EXTERNAL_AUTH_ID
-				|| \Bitrix\Im\User::getInstance($arParams["ID"])->isBot()
-			)
-			{
-				return true;
-			}
-
-			if (!CIMChat::CanJoinGeneralChatId($arParams["ID"]))
-			{
-				return true;
-			}
-
-			$CIMChat = new CIMChat(0);
-			$CIMChat->AddUser($commonChatId, [$arParams["ID"]], null, true);
-		}
-
 		return true;
 	}
 
@@ -843,7 +808,7 @@ class CIMEvent
 					}
 					else if (!$userInChat && $userCanJoin)
 					{
-						$chat->AddUser($commonChatId, [$arParams["ID"]], null, true, true);
+						$chat->AddUser($commonChatId, [$arParams["ID"]], false, true, true);
 					}
 				}
 			}

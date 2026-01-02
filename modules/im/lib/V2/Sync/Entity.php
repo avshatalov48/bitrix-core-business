@@ -2,7 +2,6 @@
 
 namespace Bitrix\Im\V2\Sync;
 
-interface Entity
-{
-	public function getData(): array;
-}
+use Bitrix\Im\V2\Rest\RestConvertible;
+
+interface Entity extends RestConvertible {}

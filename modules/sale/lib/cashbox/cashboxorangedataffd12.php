@@ -91,6 +91,11 @@ class CashboxOrangeDataFfd12 extends CashboxOrangeData
 		$result['content']['causeDocumentNumber'] = $this->getCorrectionCauseDocumentNumber($correctionInfo);
 		$result['content']['totalSum'] = $this->getCorrectionTotalSum($correctionInfo);
 
+		if ($this->useTax20ForCorrection($data))
+		{
+			$result['content']['useTax20'] = true;
+		}
+
 		$vats = $this->getVatsByCheckData($data);
 		if (is_array($vats))
 		{

@@ -12,6 +12,7 @@ class UpdateFields
 		protected ?string $description,
 		protected ?int $avatar,
 		protected ?int $ownerId,
+		protected ?string $type,
 		protected ?string $searchable,
 		protected ?string $manageUI,
 		protected ?string $manageUsersAdd,
@@ -24,6 +25,7 @@ class UpdateFields
 		protected array $deletedDepartments,
 		protected array $addedManagers,
 		protected array $deletedManagers,
+		protected ?string $manageMessagesAutoDelete,
 	){}
 
 	public static function create(array $fields): self
@@ -36,6 +38,7 @@ class UpdateFields
 			$fields['DESCRIPTION'] ?? null,
 			self::prepareAvatar($fields['AVATAR'] ?? null),
 			isset($fields['OWNER_ID']) ? (int)$fields['OWNER_ID'] : null,
+			$fields['TYPE'] ?? null,
 			$fields['SEARCHABLE'] ?? null,
 			$fields['MANAGE_UI'] ?? null,
 			$fields['MANAGE_USERS_ADD'] ?? null,
@@ -48,7 +51,13 @@ class UpdateFields
 			$deletedDepartments ?? [],
 			self::prepareArrayField($fields['ADDED_MANAGERS'] ?? []),
 			self::prepareArrayField($fields['DELETED_MANAGERS'] ?? []),
+			$fields['MANAGE_MESSAGES_AUTO_DELETE'] ?? null,
 		);
+	}
+
+	public function getType(): ?string
+	{
+		return $this->type;
 	}
 
 	public function getSearchable(): ?string
@@ -153,7 +162,8 @@ class UpdateFields
 			'MANAGE_UI' => $this->manageUI,
 			'MANAGE_USERS_ADD' => $this->manageUsersAdd,
 			'MANAGE_USERS_DELETE' => $this->manageUsersDelete,
-			'MANAGE_MESSAGES' => $this-> manageMessages,
+			'MANAGE_MESSAGES' => $this->manageMessages,
+			'MANAGE_MESSAGES_AUTO_DELETE' => $this->manageMessagesAutoDelete,
 		];
 		return array_filter($array, function ($value) {
 			return $value !== null;

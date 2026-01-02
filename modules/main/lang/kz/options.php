@@ -2,7 +2,6 @@
 $MESS["FILL_TO_MAIL_M"] = "email мекенжайын тақырыпатқа көшіру:";
 $MESS["MAIN_ADMIN_DEFAULT_LANG"] = "Әкімшілік бөлімге арналған әдепкі тіл:";
 $MESS["MAIN_AUDIT_OPTIONS"] = "Журналға жазуға арналған оқиғалар";
-$MESS["MAIN_CATALOG_STAT_SETTINGS"] = "Ұсыныстар сервисі";
 $MESS["MAIN_COMPRES_CSS_JS"] = "Біріктірілген CSS және JS файлдарының сығымдалған көшірмесін жасау:";
 $MESS["MAIN_CONVERT_UNIX_NEWLINE_2_WINDOWS"] = "Email жіберу кезінде жаңа<br> Unix пішімі жолының символдарын Windows пішіміне түрлендіру:";
 $MESS["MAIN_DISK_SPACE"] = "Дискілік кеңістікті шектеу (Мб):";
@@ -11,6 +10,7 @@ $MESS["MAIN_EMAIL_FROM"] = "Сайт әкімшісінің Email-ы (әдепк
 $MESS["MAIN_ERROR_REPORTING"] = "Қателерді шығару режимі (error_reporting):";
 $MESS["MAIN_EVENT_LOG_CLEANUP_DAYS"] = "Оқиғаларды қанша күн сақтау керек:";
 $MESS["MAIN_EVENT_LOG_FILE_ACCESS"] = "Файлға қолжетімділіктің өзгеруін жазу:";
+$MESS["MAIN_EVENT_LOG_GROUP_EDIT"] = "Топты редакциялауды жазыңыз:";
 $MESS["MAIN_EVENT_LOG_GROUP_POLICY"] = "Топтың қауіпсіздік саясатының өзгеруін жазу:";
 $MESS["MAIN_EVENT_LOG_LOGIN_FAIL"] = "Кіру қателерін жазу:";
 $MESS["MAIN_EVENT_LOG_LOGIN_SUCCESS"] = "Сәтті кіруді жазу:";
@@ -26,7 +26,6 @@ $MESS["MAIN_EVENT_LOG_TASK"] = "Қолжетімділік деңгейінің 
 $MESS["MAIN_EVENT_LOG_USER_DELETE"] = "Пайдаланушыны жоюды жазу:";
 $MESS["MAIN_EVENT_LOG_USER_EDIT"] = "Пайдаланушыны редакциялауды жазу:";
 $MESS["MAIN_EVENT_LOG_USER_GROUPS"] = "Пайдаланушы топтарының өзгеруін жазу:";
-$MESS["MAIN_GATHER_CATALOG_STAT"] = "Тауарларды ұсыну сервисін пайдалану";
 $MESS["MAIN_GATHER_USER_STAT"] = "Сайтқа кіру статистикасын жинау";
 $MESS["MAIN_LEFT_MENU_TYPE"] = "Сайт картасының қалған деңгейлеріне арналған мәзір түрі:";
 $MESS["MAIN_MOVE_JS_TO_BODY"] = "Барлық Javascript-ті парақшаның соңына жылжыту:";
@@ -151,7 +150,7 @@ $MESS["MAIN_OPTION_USE_SECURE_PASSWORD_COOKIE1"] = "Кук авторлану ү
 $MESS["MAIN_OPT_APPLY"] = "Қолдану";
 $MESS["MAIN_OPT_APPLY_TITLE"] = "Өзгерістерді сақтау және нысанда қалу";
 $MESS["MAIN_OPT_BX_FAST_DOWNLOAD"] = "Nginx арқылы файлдарды жылдам қайтару:";
-$MESS["MAIN_OPT_BX_FAST_DOWNLOAD_HINT"] = "<a href=\"https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=32&CHAPTER_ID=04900\">Веб-сервердің екі деңгейлі конфигурациясы</a> <a href=\"http://wiki.nginx.org/X-accel\">Nginx</a> көмегімен пайдаланушы файлдарының қайтарылуын жылдамдатуға мүмкіндік береді. <a href=\"/bitrix/admin/site_checker.php\">Жүйені тексеру</a> арқылы бұл мүмкіндік сіздің серверіңізге қолжетімді екенін анықтауға болады. <a href=\"https://www.1c-bitrix.ru/products/vmbitrix/index.php\">&quot;1С-Битрикс&quot; виртуалды машинасында</a> бұл мүмкіндік әдепкі бойынша жұмыс жасайды.";
+$MESS["MAIN_OPT_BX_FAST_DOWNLOAD_HINT"] = "<a href=\"https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=32&CHAPTER_ID=04900\">Веб-сервердің екі деңгейлі конфигурациясы</a> <a href=\"http://wiki.nginx.org/X-accel\">Nginx</a> көмегімен пайдаланушы файлдарының қайтарылуын жылдамдатуға мүмкіндік береді. <a href=\"/bitrix/admin/site_checker.php\">Жүйені тексеру</a> арқылы бұл мүмкіндік сіздің серверіңізге қолжетімді екенін анықтауға болады. <a href=\"https://www.1c-bitrix.ru/download/vmbitrix.php\">&quot;1С-Битрикс&quot; виртуалды машинасында</a> бұл мүмкіндік әдепкі бойынша жұмыс жасайды.";
 $MESS["MAIN_OPT_CANCEL"] = "Болдырмау";
 $MESS["MAIN_OPT_CANCEL_TITLE"] = "Өзгерістерді сақтамау және оралу";
 $MESS["MAIN_OPT_DIGEST_NOTE"] = "Назар аударыңыз, HTTP Digest авторлануы тек кіріктірілген авторлану үшін қолданыла алады.";
@@ -229,6 +228,10 @@ $MESS["SUBORDINATE_GROUPS"] = "Профильдерін өзгертуге (қа
 $MESS["SUP_MENU_TURN_EXPERT_MODE_ON"] = "Сараптамалық режимді қосу:";
 $MESS["group_rights_add"] = "Қолжетімділік құқығын қосу";
 $MESS["group_rights_select"] = "(топты таңдаңыз)";
+$MESS["main_option_additional_log_title"] = "Қосымша журнал жүргізу";
+$MESS["main_option_event_log_file"] = "Оқиғаларды файлға жазу (JSON):";
+$MESS["main_option_event_log_file_path"] = "Файлға толық жол:";
+$MESS["main_option_event_log_syslog"] = "Оқиғаларды syslog-қа (JSON) жазу:";
 $MESS["main_option_mail_bulk"] = "Бір хитте қанша хат жіберу керек";
 $MESS["main_option_mail_period"] = "Пошта оқиғаларын қанша күн сақтау керек:";
 $MESS["main_option_qrcode_auth"] = "QR коды бойынша аутентификацияға рұқсат беру:";
@@ -239,6 +242,8 @@ $MESS["main_options_device_history"] = "Пайдаланушы құрылғыл�
 $MESS["main_options_device_history_days"] = "Кіру тарихын қанша күн сақтау керек:";
 $MESS["main_options_device_history_note"] = "Құрылғыларды жақсы анықтау үшін PHP-де <a href=\"https://www.php.net/manual/en/function.get-browser.php\" target = \"_blank\">browscap</a> баптаңыз. <a href=\"http://browscap.org\" target=\"_blank\">Browser Capabilities Project</a> соңғы нұсқадағы  ini-файлды пайдаланыңыз.";
 $MESS["main_options_device_history_notify"] = "Пайдаланушыларға жаңа құрылғыдан кіру туралы хабарлау (<a href=\"#EMAIL_TEMPLATES_URL#\">пошта қалыптары</a>):";
+$MESS["main_options_device_history_notify_im"] = "Пайдаланушыларға чатқа хабарлау (im, imbot модульдері қажет):";
+$MESS["main_options_device_history_notify_only"] = "Тек көрсетілген пайдаланушыларға хабарлау:";
 $MESS["main_options_device_history_title"] = "Кірістер мен құрылғылардың тарихы";
 $MESS["main_options_diplicates_max_size"] = "Телнұсқаларды басқаруға арналған максималды файл өлшемі (Мб):";
 $MESS["main_options_email_register"] = "Пайдаланушыларды email арқылы тіркеу:";

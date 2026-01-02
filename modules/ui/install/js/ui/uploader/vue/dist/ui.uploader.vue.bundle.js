@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,ui_vue3,ui_uploader_core,main_core,main_core_events) {
@@ -268,10 +269,12 @@ this.BX.UI = this.BX.UI || {};
 	    uploaderOptions: {
 	      type: Object
 	    },
+	    /** @type TileWidgetOptions */
 	    widgetOptions: {
 	      type: Object,
 	      default: {}
 	    },
+	    /** @type VueUploaderAdapter */
 	    uploaderAdapter: {
 	      type: Object,
 	      default: null

@@ -1,0 +1,12 @@
+<?php
+$MESS["LANDING_BLOCK_WIDGET_70_8_NAME"] = "Мәтіндік мазмұны және сол жақтағы батырма және оң жақтағы суреті бар блок ";
+$MESS["LANDING_BLOCK_WIDGET_70_8_NODE_BUTTON_TEXT"] = "Батырма мәтіні";
+$MESS["LANDING_BLOCK_WIDGET_70_8_NODE_CARD"] = "Карточка";
+$MESS["LANDING_BLOCK_WIDGET_70_8_NODE_CARD_TEXT"] = "Карточка мәтіні";
+$MESS["LANDING_BLOCK_WIDGET_70_8_NODE_IMG"] = "Сурет";
+$MESS["LANDING_BLOCK_WIDGET_70_8_NODE_LINK"] = "Сілтеме";
+$MESS["LANDING_BLOCK_WIDGET_70_8_NODE_SUBTITLE"] = "Тақырыпша";
+$MESS["LANDING_BLOCK_WIDGET_70_8_NODE_TITLE"] = "Тақырыпаты";
+$MESS["LANDING_BLOCK_WIDGET_70_8_STYLE_ARROW"] = "Белгіше";
+$MESS["LANDING_BLOCK_WIDGET_70_8_STYLE_BUTTON"] = "Батырма";
+$MESS["LANDING_BLOCK_WIDGET_70_8_STYLE_CONTAINER"] = "Контейнер";

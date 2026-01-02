@@ -1,8 +1,5 @@
 import { Core } from 'im.v2.application.core';
 import { QuickAccess } from 'im.v2.component.quick-access';
-import { GetParameter } from 'im.v2.const';
-
-import { Messenger } from 'im.public';
 
 type QuickAccessApplicationParams = {
 	node?: string | HTMLElement,
@@ -36,7 +33,6 @@ export class QuickAccessApplication
 		this.initCore()
 			.then(() => this.initComponent())
 			.then(() => this.initComplete())
-			.then(() => this.checkGetParams())
 		;
 	}
 
@@ -66,47 +62,6 @@ export class QuickAccessApplication
 		this.initPromiseResolver(this);
 
 		return Promise.resolve();
-	}
-
-	checkGetParams(): void
-	{
-		const urlParams = new URLSearchParams(window.location.search);
-		if (urlParams.has(GetParameter.openNotifications))
-		{
-			Messenger.openNotifications();
-		}
-		else if (urlParams.has(GetParameter.openHistory))
-		{
-			const dialogId = urlParams.get(GetParameter.openHistory);
-			Messenger.openLinesHistory(dialogId);
-		}
-		else if (urlParams.has(GetParameter.openLines))
-		{
-			const dialogId = urlParams.get(GetParameter.openLines);
-			Messenger.openLines(dialogId);
-		}
-		else if (urlParams.has(GetParameter.openChat))
-		{
-			const dialogId = urlParams.get(GetParameter.openChat);
-			let messageId = urlParams.get(GetParameter.openMessage);
-			messageId = messageId ? Number(messageId) : 0;
-			Messenger.openChat(dialogId, messageId);
-		}
-		else if (urlParams.has(GetParameter.openSettings))
-		{
-			const settingsSection = urlParams.get(GetParameter.openSettings);
-			Messenger.openSettings({ onlyPanel: settingsSection?.toLowerCase() });
-		}
-		else if (urlParams.has(GetParameter.openCopilotChat))
-		{
-			const dialogId = urlParams.get(GetParameter.openCopilotChat);
-			Messenger.openCopilot(dialogId);
-		}
-		else if (urlParams.has(GetParameter.openCollab))
-		{
-			const dialogId = urlParams.get(GetParameter.openCollab);
-			Messenger.openCollab(dialogId ?? '');
-		}
 	}
 
 	ready(): Promise

@@ -19,8 +19,10 @@ class GroupProvider
 	protected static array $checkedGroups = [];
 	protected static array $groupTypes = [];
 
-	public function isExistingGroup(string $name, int $groupId = 0): bool
+	public function isExistingGroup(string $inputName, int $groupId = 0): bool
 	{
+		$name = trim($inputName);
+
 		if (empty($name))
 		{
 			return false;

@@ -1,6 +1,9 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Page\Asset;
 
@@ -29,7 +32,7 @@ foreach($arResult['value'] as $key => $value)
 
 $component = $this->getComponent();
 
-if($component->isMobileMode())
+if ($component->isMobileMode())
 {
 	Asset::getInstance()->addJs(
 		'/bitrix/js/mobile/userfield/mobile_field.js'

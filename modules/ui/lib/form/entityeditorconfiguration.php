@@ -9,6 +9,11 @@ class EntityEditorConfiguration
 	protected $categoryName;
 	protected int $userId;
 
+	private const AVAILABLE_SCOPE_TYPES = [
+		'on_add',
+		'on_update',
+	];
+
 	public static function canEditOtherSettings(): bool
 	{
 		return Main\Engine\CurrentUser::get()->canDoOperation('edit_other_settings');
@@ -59,18 +64,24 @@ class EntityEditorConfiguration
 		return "{$configID}_opts";
 	}
 
-	public function getScope($configID)
+	public function getScope($configID, bool $scopeNamePrepared = false)
 	{
 		if (!$this->userId)
 		{
 			return EntityEditorConfigScope::UNDEFINED;
 		}
 
+		$scopeName = $configID;
+		if (!$scopeNamePrepared)
+		{
+			$scopeName = $this->prepareScopeName($configID);
+		}
+
 		return \CUserOptions::GetOption(
 			$this->getCategoryName(),
-			$this->prepareScopeName($configID),
+			$scopeName,
 			EntityEditorConfigScope::UNDEFINED,
-			$this->userId
+			$this->userId,
 		);
 	}
 
@@ -176,11 +187,12 @@ class EntityEditorConfiguration
 			//todo check what to do with options for custom scopes
 		}
 	}
-	public function reset($configID, array $params)
+
+	public function reset($configID, array $params): void
 	{
 		$categoryName = $this->getCategoryName();
 
-		$scope = isset($params['scope'])? mb_strtoupper($params['scope']) : EntityEditorConfigScope::UNDEFINED;
+		$scope = isset($params['scope']) ? mb_strtoupper($params['scope']) : EntityEditorConfigScope::UNDEFINED;
 		if(!EntityEditorConfigScope::isDefined($scope))
 		{
 			$scope = EntityEditorConfigScope::PERSONAL;
@@ -196,22 +208,28 @@ class EntityEditorConfiguration
 				$categoryName,
 				$this->prepareName($configID, $scope),
 				true,
-				0
+				0,
 			);
 			\CUserOptions::DeleteOption(
 				$categoryName,
 				static::prepareOptionsName($configID, $scope),
 				true,
-				0
+				0,
 			);
 		}
 		else
 		{
+			$scopeName = $this->prepareScopeName($configID);
+			if (isset($params['type']) && $this->isAvailableScopeType((string)$params['type']))
+			{
+				$scopeName .= '_' . $params['type'];
+			}
+
 			if($forAllUsers)
 			{
 				\CUserOptions::DeleteOptionsByName($categoryName, $this->prepareName($configID, $scope));
 				\CUserOptions::DeleteOptionsByName($categoryName, static::prepareOptionsName($configID, $scope));
-				\CUserOptions::DeleteOptionsByName($categoryName, $this->prepareScopeName($configID));
+				\CUserOptions::DeleteOptionsByName($categoryName, $scopeName);
 			}
 			elseif ($this->userId)
 			{
@@ -220,15 +238,16 @@ class EntityEditorConfiguration
 
 				\CUserOptions::SetOption(
 					$categoryName,
-					$this->prepareScopeName($configID),
+					$scopeName,
 					EntityEditorConfigScope::PERSONAL,
 					false,
-					$this->userId
+					$this->userId,
 				);
 			}
 		}
 
 	}
+
 	public function setScope($configID, $scope)
 	{
 		if(!EntityEditorConfigScope::isDefined($scope))
@@ -241,19 +260,38 @@ class EntityEditorConfiguration
 			\CUserOptions::SetOption($this->getCategoryName(), $this->prepareScopeName($configID), $scope, false, $this->userId);
 		}
 	}
-	public function forceCommonScopeForAll($configID)
+
+	public function forceCommonScopeForAll(string $configID, string $moduleId, ?string $type = null): void
 	{
-		if(!self::canEditOtherSettings())
+		$scopeNames = [
+			$this->prepareScopeName($configID),
+		];
+
+		if ($type === 'on_add')
 		{
-			return;
+			$scopeNames[] = Scope::getScopeNameOnAdd($moduleId, $configID);
 		}
+
+		if ($type === 'on_update')
+		{
+			$scopeNames[] = Scope::getScopeNameOnUpdate($moduleId, $configID);
+		}
+		$scopeNames = array_unique($scopeNames);
 
 		$categoryName = $this->getCategoryName();
 
 		\CUserOptions::DeleteOptionsByName(
 			$categoryName,
-			$this->prepareName($configID, EntityEditorConfigScope::PERSONAL)
+			$this->prepareName($configID, EntityEditorConfigScope::PERSONAL),
 		);
-		\CUserOptions::DeleteOptionsByName($categoryName, $this->prepareScopeName($configID));
+		foreach ($scopeNames as $scopeName)
+		{
+			\CUserOptions::DeleteOptionsByName($categoryName, $scopeName);
+		}
+	}
+
+	private function isAvailableScopeType(string $type): bool
+	{
+		return in_array($type, self::AVAILABLE_SCOPE_TYPES, true);
 	}
 }

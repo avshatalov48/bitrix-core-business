@@ -1,0 +1,6 @@
+<?php
+$MESS["UI_BUTTON_PANEL_APPLY"] = "Қолдану";
+$MESS["UI_BUTTON_PANEL_CANCEL"] = "Болдырмау";
+$MESS["UI_BUTTON_PANEL_CLOSE"] = "Жабу";
+$MESS["UI_BUTTON_PANEL_REMOVE"] = "Жою";
+$MESS["UI_BUTTON_PANEL_SAVE"] = "Сақтау";

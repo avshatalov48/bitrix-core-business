@@ -48,4 +48,9 @@ class Config
 			return $config['dynamicData'] ?? [];
 		}
 	}
+
+	public function exists(): bool
+	{
+		return !empty($this->config);
+	}
 }

@@ -1,5 +1,8 @@
 <?php
 $MESS["SN_COLLAB_ACCESS_RIGHTS"] = "Access permissions";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_ALLOW_GUESTS_INVITATION_LABEL"] = "Allow inviting guests to this collab:";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_ALLOW_GUESTS_INVITATION_LABEL_HINT_DISABLED"] = "Your Bitrix24 administrator has disabled invitations to this collab.";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_ALLOW_GUESTS_INVITATION_LABEL_HINT_ENABLED"] = "Collab members can invite guests.";
 $MESS["SN_COLLAB_ACCESS_RIGHTS_BUTTON_CANCEL"] = "Cancel";
 $MESS["SN_COLLAB_ACCESS_RIGHTS_BUTTON_SAVE"] = "Save";
 $MESS["SN_COLLAB_ACCESS_RIGHTS_CHAT_LABEL"] = "Users allowed to post messages:";
@@ -7,7 +10,7 @@ $MESS["SN_COLLAB_ACCESS_RIGHTS_CHAT_LABEL_HINT"] = "Collab members allowed to wr
 $MESS["SN_COLLAB_ACCESS_RIGHTS_ERROR_REQUIRED_OWNER"] = "Collab owner is required.";
 $MESS["SN_COLLAB_ACCESS_RIGHTS_INITIATE_LABEL"] = "Users allowed to invite new collab members:";
 $MESS["SN_COLLAB_ACCESS_RIGHTS_INITIATE_LABEL_HINT"] = "Collab members allowed to invite employees and guests to the collab.";
-$MESS["SN_COLLAB_ACCESS_RIGHTS_MANAGEMENT_LABEL"] = "Collab management";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_MANAGEMENT_LABEL_MSGVER_1"] = "Administration and permissions";
 $MESS["SN_COLLAB_ACCESS_RIGHTS_MODERATORS_LABEL"] = "Moderators:";
 $MESS["SN_COLLAB_ACCESS_RIGHTS_MODERATORS_LABEL_HINT"] = "Moderators are users with elevated permissions assigned by collab owner.";
 $MESS["SN_COLLAB_ACCESS_RIGHTS_OWNER_LABEL"] = "Owner:";

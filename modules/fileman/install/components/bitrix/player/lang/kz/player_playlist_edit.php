@@ -1,0 +1,19 @@
+<?php
+$MESS["CONFIRM_INCORRECT_XML_FORMAT"] = "Сіз ашқан ойнату тізімі дұрыс пішімде емес.  Редакциялауды жалғастыру керек пе?";
+$MESS["OPEN_FD_TITLE"] = "Файл диалогын ашу";
+$MESS["PLAYLIST_EDIT_AUTHOR"] = "Автор";
+$MESS["PLAYLIST_EDIT_CLICK_TO_EDIT"] = "Редакциялау үшін басыңыз";
+$MESS["PLAYLIST_EDIT_DURATION"] = "Уақыт";
+$MESS["PLAYLIST_EDIT_IMAGE"] = "Суретке жол";
+$MESS["PLAYLIST_EDIT_LOCATION"] = "Файлға жол";
+$MESS["PLAYLIST_EDIT_NO_DATA"] = "--Деректер жоқ--";
+$MESS["PLAYLIST_EDIT_SESSION_EXPIRED"] = "Сіздің сессияңыз аяқталды. Ойнату тізімін қайта сақтаңыз.";
+$MESS["PLAYLIST_EDIT_TITLE"] = "Атауы";
+$MESS["PLAYLIST_ITEM_ADD"] = "Элемент қосу";
+$MESS["PLAYLIST_ITEM_DELETE"] = "Элементті жою";
+$MESS["PLAYLIST_ITEM_DOWN"] = "Элементті төмен жылжытыңыз";
+$MESS["PLAYLIST_ITEM_DRAG"] = "Элементті жылжыту";
+$MESS["PLAYLIST_ITEM_UP"] = "Элементті жоғары жылжытыңыз";
+$MESS["PLAYLIST_TITLE_CREATE"] = "Ойнату тізімін жасау";
+$MESS["PLAYLIST_TITLE_DESCRIPTION"] = "Ойнату тізімдерін жасауға және редакциялауға арналған диалог";
+$MESS["PLAYLIST_TITLE_EDIT"] = "Ойнату тізімін редакциялау";

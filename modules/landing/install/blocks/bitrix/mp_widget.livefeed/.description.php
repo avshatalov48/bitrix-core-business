@@ -38,7 +38,7 @@ $return = [
 	],
 	'style' => [
 		'block' => [
-			'type' => ['widget'],
+			'type' => ['widget', 'font-family'],
 		],
 	],
 ];

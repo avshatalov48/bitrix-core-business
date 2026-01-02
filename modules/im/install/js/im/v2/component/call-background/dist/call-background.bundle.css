@@ -34,6 +34,7 @@
 	/*min-height: 757px;*/
 	padding-top: 25px;
 	position: relative;
+	background-color: var(--im-call-background__background-color_content);
 }
 
 .bx-im-call-background__container.--desktop {

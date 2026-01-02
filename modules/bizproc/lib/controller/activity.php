@@ -3,8 +3,8 @@
 namespace Bitrix\Bizproc\Controller;
 
 use Bitrix\Main\Error;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc;
+use Bitrix\Bizproc\Api\Enum\ErrorMessage;
 
 class Activity extends Base
 {
@@ -36,15 +36,23 @@ class Activity extends Base
 		}
 		$user = $this->getCurrentUser();
 
-		if (
-			!\CBPDocument::CanUserOperateDocumentType(
+		$hasAccess = $user && (
+			\CBPDocument::CanUserOperateDocumentType(
 				\CBPCanUserOperateOperation::CreateWorkflow,
 				$user->getId(),
 				$documentType
 			)
-		)
+			|| \CBPDocument::CanUserOperateDocumentType(
+				\CBPCanUserOperateOperation::CreateAutomation,
+				$user->getId(),
+				$documentType
+			)
+		);
+
+		if (!$hasAccess)
 		{
-			$this->addError(new Error(Loc::getMessage('BIZPROC_ACCESS_DENIED')));
+			$this->addError(ErrorMessage::ACCESS_DENIED->getError());
+
 			return null;
 		}
 

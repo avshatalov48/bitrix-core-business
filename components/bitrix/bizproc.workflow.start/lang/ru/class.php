@@ -10,3 +10,5 @@ $MESS ['BPABS_REQUIRED_CONSTANTS'] = "Необходимо настроить к
 $MESS ['BPABS_NO_AUTOSTART_PARAMETERS'] = "На автоматически запускаемых бизнес-процессах нет параметров";
 $MESS ['BIZPROC_CMP_WORKFLOW_START_TEMPLATE_NOT_FOUND'] = "Бизнес-процесс недоступен. Возможно, он удалён или процесс нельзя запустить вручную";
 $MESS ['BIZPROC_CMP_WORKFLOW_START_TEMPLATE_NO_PERMISSIONS'] = "Недостаточно прав для запуска бизнес-процесса. Обратитесь к руководителю или администратору вашего Битрикс24";
+$MESS ['BIZPROC_CMP_WORKFLOW_START_CONSTANTS_NOT_FOUND'] = "У шаблона бизнес-процесса нет констант";
+$MESS ['BIZPROC_CMP_WORKFLOW_START_CONSTANTS_ACCESS_DENIED'] = "Только администратор может настраивать константы";

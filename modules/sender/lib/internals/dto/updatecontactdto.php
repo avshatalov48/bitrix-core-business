@@ -4,19 +4,17 @@ namespace Bitrix\Sender\Internals\Dto;
 
 use Bitrix\Main\Type\DateTime;
 
-class UpdateContactDTO
+class UpdateContactDTO implements UpdateContact
 {
-	public int $typeId;
-
-	public string $code;
-
-	public ?string $name = null;
-
-	public DateTime $dateInsert;
-
-	public DateTime $dateUpdate;
-
-	public bool $blacklisted = false;
+	public function __construct(
+		public ?int $typeId = null,
+		public ?string $code = null,
+		public ?string $name = null,
+		public ?DateTime $dateInsert = null,
+		public ?DateTime $dateUpdate = null,
+	)
+	{
+	}
 
 	public function toArray(): array {
 		return [
@@ -25,7 +23,14 @@ class UpdateContactDTO
 			'NAME' => $this->name,
 			'DATE_INSERT' => $this->dateInsert,
 			'DATE_UPDATE' => $this->dateUpdate,
-			'BLACKLISTED' => $this->blacklisted ? 'Y' : 'N',
+		];
+	}
+
+	public function getOnDuplicateKeyUpdateFields(): array
+	{
+		return [
+			'NAME',
+			'DATE_UPDATE',
 		];
 	}
 }

@@ -1,26 +1,20 @@
 <?php
 
-##############################################
-# Bitrix Site Manager Forum                  #
-# Copyright (c) 2002-2009 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/classes/general/event.php");
 
 class CVoteEvent extends CAllVoteEvent
 {
-	public static function err_mess()
-	{
-		$module_id = "vote";
-		return "<br>Module: ".$module_id."<br>Class: CVoteEvent<br>File: ".__FILE__;
-	}
-
 	public static function GetUserAnswerStat($arSort = array(), $arFilter = array(), $arParams = array())
 	{
 		global $DB, $USER;
-		$err_mess = (self::err_mess())."<br>Function: GetUserAnswerStat<br>Line: ";
+
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
 		if (!is_array($arSort) && $arSort > 0)
 		{
@@ -155,7 +149,7 @@ class CVoteEvent extends CAllVoteEvent
 		}
 		else
 		{
-			$db_res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$db_res = $DB->Query($strSql);
 		}
 		return $db_res;
 	}

@@ -10,4 +10,4 @@ $MESS["BX_IBLOCK_REDIRECT_ENTITY_ERR_SECTION_NOT_FOUND"] = "Section was not foun
 $MESS["BX_IBLOCK_REDIRECT_ENTITY_FILTER_ENTITY"] = "Entity:";
 $MESS["BX_IBLOCK_REDIRECT_ENTITY_FILTER_ID"] = "Entity ID:";
 $MESS["BX_IBLOCK_REDIRECT_ENTITY_NOTE"] = "Searches are performed with respect to entity access permissions. An entity will not be found if there are insufficient permissions.";
-$MESS["BX_IBLOCK_REDIRECT_ENTITY_TITLE_EXT"] = "Go to information block / section / item";
+$MESS['BX_IBLOCK_REDIRECT_ENTITY_TITLE_EXT'] = "Go to information block / section / item";

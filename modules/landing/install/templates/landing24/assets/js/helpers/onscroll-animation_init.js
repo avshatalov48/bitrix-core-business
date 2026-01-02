@@ -20,13 +20,11 @@
 	var onAnimationEnd = BX.Landing.Utils.onAnimationEnd;
 	var slice = BX.Landing.Utils.slice;
 	var onCustomEvent = BX.Landing.Utils.onCustomEvent;
-	var  timeA;
 
 	onCustomEvent("BX.Landing.Block:init", function(event) {
-		timeA = Date.now();
 		if (BX.hasClass(event.block, 'landing-designer-block-mode'))
 		{
-			return ;
+			return;
 		}
 
 		var allObservableElements = BX.Landing.OnscrollAnimationHelper.getBlockAnimatedElements(event.block);
@@ -66,6 +64,24 @@
 				});
 			}
 		}
+	});
+
+	// todo: fix subscribing
+	onCustomEvent('BX.Landing.Animation.Copilot:init', (event, sec) => {
+		event.data.blocksData.forEach((blockData) => {
+			if (blockData.element === undefined)
+			{
+				return;
+			}
+
+			const allObservableElements = BX.Landing.OnscrollAnimationHelper.getBlockAnimatedElements(blockData.element);
+			allObservableElements.forEach((element) => {
+				void style(element, {
+					'animation-name': 'none',
+				});
+				BX.Landing.OnscrollAnimationHelper.observer.unobserve(element);
+			});
+		});
 	});
 
 	BX.Landing.OnscrollAnimationHelper.SELECTOR = '.js-animation:not(.animation-none)';

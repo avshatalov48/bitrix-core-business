@@ -93,6 +93,11 @@ class ScopeManager
 							);
 						}
 					}
+
+					if (isset($controllersConfig['rest']) && !isset($this->scopeList[$moduleId])) // scopes for V3
+					{
+						$this->scopeList[$moduleId] = $moduleId;
+					}
 				}
 			}
 

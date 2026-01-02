@@ -42,6 +42,7 @@ import * as Smiley from './plugins/smiley';
 import * as Table from './plugins/table';
 import * as Hashtag from './plugins/hashtag';
 import * as File from './plugins/file';
+import * as Copilot from './plugins/copilot';
 
 /**
  * @namespace BX.UI.TextEditor.Plugins
@@ -70,6 +71,7 @@ const Plugins = {
 	Table,
 	Hashtag,
 	File,
+	Copilot,
 };
 
 /**

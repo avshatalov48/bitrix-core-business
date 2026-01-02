@@ -1,0 +1,4 @@
+<?php
+$MESS["VOTE_IM_EDIT_COMPONENT_MODULE_NOT_INSTALLED"] = "Установите модуль im";
+$MESS["VOTE_IM_EDIT_COMPONENT_MODULE_VOTE_NOT_INSTALLED"] = "Уставите модуль vote";
+$MESS["VOTE_IM_EDIT_COMPONENT_FEATURE_NOT_AVAILABLE"] = "Создание опроса недоступно";

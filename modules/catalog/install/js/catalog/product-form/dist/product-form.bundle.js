@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,ui_designTokens,ui_fonts_opensans,currency,ui_layoutForm,ui_forms,ui_buttons,ui_common,ui_alerts,catalog_productSelector,ui_entitySelector,catalog_productModel,ui_vue_vuex,main_popup,main_loader,ui_label,ui_messagecard,ui_vue_components_hint,ui_notification,ui_infoHelper,main_qrcode,clipboard,helper,ui_hint,ui_dialogs_messagebox,ui_vue,main_core,main_core_events,currency_currencyCore,catalog_productCalculator) {
+(function (exports,ui_designTokens,ui_fonts_opensans,currency,ui_layoutForm,ui_forms,ui_buttons,ui_common,ui_alerts,catalog_productSelector,ui_entitySelector,catalog_productModel,ui_vue_vuex,main_popup,main_loader,ui_messagecard,ui_vue_components_hint,ui_notification,ui_infoHelper,main_qrcode,clipboard,helper,ui_hint,ui_dialogs_messagebox,ui_vue,main_core,main_core_events,currency_currencyCore,catalog_productCalculator) {
 	'use strict';
 
 	class FormElementPosition {}
@@ -658,6 +658,7 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onProductSelect', this.onProductSelect.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.onProductChange.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.onProductClear.bind(this));
+	    main_core_events.EventEmitter.subscribe('ProductSelector::onNameChange', this.onNameChange.bind(this));
 	    main_core_events.EventEmitter.subscribe(this.$root.$app, 'onChangeCompilationMode', this.changeProductSelectorImageRequire.bind(this));
 	  },
 	  mounted() {
@@ -769,6 +770,15 @@ this.BX = this.BX || {};
 	      const data = event.getData();
 	      if (main_core.Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId()) {
 	        this.$emit('onProductClear');
+	      }
+	    },
+	    onNameChange(event) {
+	      const data = event.getData();
+	      if (main_core.Type.isStringFilled(data.rowId) && data.rowId === this.productSelector.getId() && !this.productSelector.getModel().getProductId()) {
+	        const fields = {
+	          NAME: data.fields.NAME
+	        };
+	        this.$emit('onProductChange', fields);
 	      }
 	    }
 	  },
@@ -1194,7 +1204,7 @@ this.BX = this.BX || {};
 	      return this.model.save(changedFields);
 	    },
 	    onProductChange(fields) {
-	      fields = Object.assign(this.model.getCalculator().calculateBasePrice(fields.BASE_PRICE), fields);
+	      fields = Object.assign(main_core.Type.isUndefined(fields.BASE_PRICE) ? this.model.getCalculator().getFields() : this.model.getCalculator().calculateBasePrice(fields.BASE_PRICE), fields);
 	      this.changeRowData({
 	        catalogPrice: fields.BASE_PRICE
 	      });
@@ -1686,11 +1696,6 @@ this.BX = this.BX || {};
 	    mode: String
 	  },
 	  created() {
-	    this.newLabel = new ui_label.Label({
-	      text: this.localize.CATALOG_FORM_COMPILATION_PRODUCT_NEW_LABEL,
-	      color: ui_label.LabelColor.PRIMARY,
-	      fill: true
-	    });
 	    this.popup = null;
 	    this.compilationLink = null;
 	    const moreMessageButton = main_core.Tag.render(_t$1 || (_t$1 = _$1`
@@ -1720,7 +1725,6 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.subscribe(this.message, 'onClose', this.hideMessage);
 	  },
 	  mounted() {
-	    this.$refs.label.appendChild(this.newLabel.render());
 	    this.$refs.message.appendChild(this.message.getLayout());
 	  },
 	  data() {
@@ -1873,9 +1877,6 @@ this.BX = this.BX || {};
 	    closeCreationStorePopup(creationStorePopup) {
 	      creationStorePopup.close();
 	    },
-	    onNewLabelClick(event) {
-	      event.preventDefault();
-	    },
 	    onLabelClick() {
 	      if (this.compilationOptions.isLimitedStore) {
 	        BX.UI.InfoHelper.show('limit_sites_number');
@@ -1936,7 +1937,6 @@ this.BX = this.BX || {};
 								<span class="ui-hint-icon"></span>
 							</div>
 						</div>
-						<div ref="label" @click="onNewLabelClick"></div>
 						<div class="tariff-lock" v-if="compilationOptions.isLimitedStore"></div>
 					</label>
 				</div>
@@ -2565,6 +2565,12 @@ this.BX = this.BX || {};
 	  layout() {
 	    return this.wrapper;
 	  }
+	  setShowCompilationModeSwitcher(visible) {
+	    if (!visible) {
+	      this.changeFormOption('isCompilationMode', 'N');
+	    }
+	    this.options.showCompilationModeSwitcher = visible;
+	  }
 	  initTemplate(result) {
 	    return new Promise(resolve => {
 	      const context = this;
@@ -2854,5 +2860,5 @@ this.BX = this.BX || {};
 	exports.ProductForm = ProductForm;
 	exports.FormMode = FormMode;
 
-}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX,BX,BX.UI,BX,BX.UI,BX,BX.UI,BX.Catalog,BX.UI.EntitySelector,BX.Catalog,BX,BX.Main,BX,BX.UI,BX.UI,window,BX,BX.UI,BX,BX,BX,BX,BX.UI.Dialogs,BX,BX,BX.Event,BX.Currency,BX.Catalog));
+}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX,BX,BX.UI,BX,BX.UI,BX,BX.UI,BX.Catalog,BX.UI.EntitySelector,BX.Catalog,BX,BX.Main,BX,BX.UI,window,BX,BX.UI,BX,BX,BX,BX,BX.UI.Dialogs,BX,BX,BX.Event,BX.Currency,BX.Catalog));
 //# sourceMappingURL=product-form.bundle.js.map

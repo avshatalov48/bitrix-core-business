@@ -1,0 +1,11 @@
+.bx-im-upload-preview-popup-preparing {
+	display: flex;
+	justify-content: center;
+	min-height: 300px;
+}
+
+.bx-im-upload-preview-popup-preparing .bx-im-elements-spinner__spinner,
+.bx-im-upload-preview-popup-preparing .bx-im-elements-loader__container {
+	position: relative;
+	top: -36px;
+}

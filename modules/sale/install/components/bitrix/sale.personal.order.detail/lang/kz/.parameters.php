@@ -1,0 +1,27 @@
+<?php
+$MESS["SPOD_ACTIVE_DATE_FORMAT"] = "Күнді көрсету пішімі";
+$MESS["SPOD_ALLOW_INNER"] = "Ішкі шоттан төлем жасауға рұқсат беру";
+$MESS["SPOD_CACHE_GROUPS"] = "Қолжетімділік құқықтарын ескеру";
+$MESS["SPOD_DESC_NO"] = "Жоқ";
+$MESS["SPOD_DESC_YES"] = "Иә";
+$MESS["SPOD_DISALLOW_CANCEL"] = "Тапсырыстан бас тартуға тыйым салу";
+$MESS["SPOD_ID"] = "Тапсырыс идентификаторы";
+$MESS["SPOD_NOT_CHOSEN"] = "(таңдалмаған)";
+$MESS["SPOD_ONLY_INNER_FULL"] = "Ішкі шоттан төлемді тек толық көлемде рұқсат ету";
+$MESS["SPOD_PARAM_CUSTOM_SELECT_PROPS"] = "Ақпараттық блоктың қосымша қасиеттері";
+$MESS["SPOD_PARAM_DETAIL_PICTURE_HEIGHT"] = "Егжей-тегжейлі сурет биіктігі бойынша шектеу, px";
+$MESS["SPOD_PARAM_DETAIL_PICTURE_WIDTH"] = "Егжей-тегжейлі сурет ені бойынша шектеу, px";
+$MESS["SPOD_PARAM_PREVIEW_PICTURE_HEIGHT"] = "Аңдатпа суретінің биіктігі бойынша шектеу, px";
+$MESS["SPOD_PARAM_PREVIEW_PICTURE_WIDTH"] = "Аңдатпа суретінің ені бойынша шектеу, px";
+$MESS["SPOD_PARAM_RESAMPLE_TYPE"] = "Масштабтау түрі";
+$MESS["SPOD_PARAM_RESAMPLE_TYPE_BX_RESIZE_IMAGE_EXACT"] = "Қиып";
+$MESS["SPOD_PARAM_RESAMPLE_TYPE_BX_RESIZE_IMAGE_PROPORTIONAL"] = "Пропорцияларды сақтай отырып";
+$MESS["SPOD_PARAM_RESAMPLE_TYPE_BX_RESIZE_IMAGE_PROPORTIONAL_ALT"] = "Пропорцияларды сақтай отырып, жақсартылған өңдеу";
+$MESS["SPOD_PATH_TO_CANCEL"] = "Тапсырыстан бас тарту парақшасы";
+$MESS["SPOD_PATH_TO_COPY"] = "Тапсырысты қайталау парақшасы";
+$MESS["SPOD_PATH_TO_LIST"] = "Тапсырыстар тізімі бар парақша";
+$MESS["SPOD_PATH_TO_PAYMENT"] = "Төлем жүйесін қосу парақшасы";
+$MESS["SPOD_PROPS_NOT_SHOW"] = "Төлеуші түрі үшін қасиеттерді көрсетпеу";
+$MESS["SPOD_REFRESH_PRICE_AFTER_PAYSYSTEM_CHANGE"] = "Төлем жүйесін ауыстырғаннан кейін тапсырысты қайта есептеу.";
+$MESS["SPOD_RESTRICT_CHANGE_PAYSYSTEM"] = "Тапсырыстардың мәртебелерінде төлем жүйесін өзгертуді тыйым салу.";
+$MESS["SPOD_SHOW_ALL"] = "(барлығын көрсету)";

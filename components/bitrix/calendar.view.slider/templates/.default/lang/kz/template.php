@@ -1,0 +1,23 @@
+<?php
+$MESS["EC_CRM_TITLE"] = "CRM элементтері";
+$MESS["EC_VIEW_ATTENDEES_ADD"] = "тағы да шақыру";
+$MESS["EC_VIEW_ATTENDEES_TITLE"] = "Қатысушылар";
+$MESS["EC_VIEW_CREATED_BY"] = "Автор";
+$MESS["EC_VIEW_HOST"] = "Ұйымдастырушы";
+$MESS["EC_VIEW_REMINDERS"] = "Ескерту";
+$MESS["EC_VIEW_REMINDER_ADD"] = "Еске салу";
+$MESS["EC_VIEW_SECTION"] = "Күнтізбе";
+$MESS["EC_VIEW_SLIDER_ATTENDEES"] = "Қатысушылар";
+$MESS["EC_VIEW_SLIDER_CANCEL_BUTTON"] = "Болдырмау";
+$MESS["EC_VIEW_SLIDER_COMMENTS"] = "Пікірлер";
+$MESS["EC_VIEW_SLIDER_COPY_LINK"] = "Оқиға сілтемесін айырбастау буферіне көшіру";
+$MESS["EC_VIEW_SLIDER_DEL"] = "Жою";
+$MESS["EC_VIEW_SLIDER_EDIT"] = "Редакциялау";
+$MESS["EC_VIEW_SLIDER_EVENT_NOT_FOUND"] = "Оқиға табылмады немесе көрсетілуі мүмкін емес.";
+$MESS["EC_VIEW_SLIDER_IMPORTANT_EVENT"] = "Бұл маңызды оқиға";
+$MESS["EC_VIEW_SLIDER_LOCATION"] = "Орналасқан жері";
+$MESS["EC_VIEW_SLIDER_SAVE_EVENT_BUTTON"] = "Сақтау";
+$MESS["EC_VIEW_STATUS_TITLE_I"] = "мүмкін";
+$MESS["EC_VIEW_STATUS_TITLE_N"] = "бас тартты";
+$MESS["EC_VIEW_STATUS_TITLE_Q"] = "шақырылды";
+$MESS["EC_VIEW_STATUS_TITLE_Y"] = "қатысады";

@@ -1786,9 +1786,7 @@ abstract class CAllMain
 		$io = CBXVirtualIo::GetInstance();
 		if ($io->FileExists($DOC_ROOT . $path_dir . "/.access.php"))
 		{
-			$fTmp = $io->GetFile($DOC_ROOT . $path_dir . "/.access.php");
-			//include replaced with eval in order to honor of ZendServer
-			eval("?>" . $fTmp->GetContents());
+			include $io->GetPhysicalName($DOC_ROOT . $path_dir . "/.access.php");
 		}
 
 		$FILE_PERM = $PERM[$path_file];
@@ -1847,7 +1845,7 @@ abstract class CAllMain
 				$new_perm = $arPermissions[$group];
 				if (!isset($new_perm) && preg_match('/^G[0-9]+$/', $group))
 				{
-					$new_perm = $arPermissions[mb_substr($group, 1)];
+					$new_perm = $arPermissions[substr($group, 1)];
 				}
 
 				if ($new_perm != $perm)
@@ -1874,7 +1872,7 @@ abstract class CAllMain
 
 			if (COption::GetOptionString("main", "event_log_file_access", "N") === "Y")
 			{
-				CEventLog::Log("SECURITY", "FILE_PERMISSION_CHANGED", "main", "[" . $site . "] " . $path, print_r($FILE_PERM, true) . " => " . print_r($arPermissions, true));
+				CEventLog::Log(CEventLog::SEVERITY_SECURITY, "FILE_PERMISSION_CHANGED", "main", "[" . $site . "] " . $path, ['before' => $FILE_PERM, 'after' => array_filter($arPermissions)]);
 			}
 		}
 		return true;
@@ -2057,12 +2055,7 @@ abstract class CAllMain
 			return (!$task_mode ? 'X' : [CTask::GetIdByLetter('X', 'main', 'file')]);
 		}
 
-		if (str_ends_with($path, "/.access.php"))
-		{
-			return (!$task_mode ? 'D' : [CTask::GetIdByLetter('D', 'main', 'file')]);
-		}
-
-		if (str_ends_with($path, "/.htaccess"))
+		if (IsFileUnsafe($path) || IsConfigFile($path))
 		{
 			return (!$task_mode ? 'D' : [CTask::GetIdByLetter('D', 'main', 'file')]);
 		}
@@ -2701,7 +2694,8 @@ abstract class CAllMain
 			}
 			if ($sOldRight <> $right)
 			{
-				CEventLog::Log("SECURITY", "MODULE_RIGHTS_CHANGED", "main", $group_id, $module_id . ($site_id ? "/" . $site_id : "") . ": (" . $sOldRight . ") => (" . $right . ")");
+				$key = $module_id . ($site_id ? "/" . $site_id : "");
+				CEventLog::Log(CEventLog::SEVERITY_SECURITY, "MODULE_RIGHTS_CHANGED", "main", $group_id, ['before' => [$key => $sOldRight], 'after' => [$key => $right]]);
 			}
 		}
 
@@ -2755,7 +2749,7 @@ abstract class CAllMain
 					$rsRight = $DB->Query("SELECT GROUP_ID, G_ACCESS FROM b_module_group WHERE MODULE_ID='" . $DB->ForSql($module_id, 50) . "' AND GROUP_ID IN (" . $sGroups . ") AND SITE_ID " . ($site_id ? "= '" . $DB->ForSql($site_id) . "'" : "IS NULL"));
 					while ($arRight = $rsRight->Fetch())
 					{
-						CEventLog::Log("SECURITY", "MODULE_RIGHTS_CHANGED", "main", $arRight["GROUP_ID"], $module_id . ($site_id ? "/" . $site_id : "") . ": (" . $arRight["G_ACCESS"] . ") => ()");
+						CEventLog::Log(CEventLog::SEVERITY_SECURITY, "MODULE_RIGHTS_CHANGED", "main", $arRight["GROUP_ID"], ['before' => [$module_id . ($site_id ? "/" . $site_id : "") => $arRight["G_ACCESS"]], 'after' => []]);
 					}
 				}
 				$strSql = "DELETE FROM b_module_group WHERE MODULE_ID='" . $DB->ForSql($module_id, 50) . "' and GROUP_ID in (" . $sGroups . ") AND SITE_ID " . ($site_id ? "= '" . $DB->ForSql($site_id) . "'" : "IS NULL");

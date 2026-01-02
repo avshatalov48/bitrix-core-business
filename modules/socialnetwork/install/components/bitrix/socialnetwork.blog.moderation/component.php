@@ -123,7 +123,7 @@ $bGroupMode = (intval($arParams["SOCNET_GROUP_ID"]) > 0);
 
 if($arParams["SET_TITLE"] == "Y")
 {
-	$APPLICATION->SetTitle(GetMessage("BLOG_MOD_TITLE"));
+	$APPLICATION->SetTitle(GetMessage("BLOG_MOD_TITLE_MSGVER_1"));
 }
 
 if(

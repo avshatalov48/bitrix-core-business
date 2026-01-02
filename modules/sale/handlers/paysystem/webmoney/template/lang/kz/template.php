@@ -1,0 +1,3 @@
+<?php
+$MESS["SALE_HPS_WEBMONEY_BUTTON"] = "Төлеу";
+$MESS["SALE_HPS_WEBMONEY_PAYMENT_DESC"] = "#DATE_INSERT# күнгі #ID# төлем";

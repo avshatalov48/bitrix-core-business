@@ -243,7 +243,7 @@ class CCloudFailover
 		{
 			\Bitrix\Clouds\CopyQueueTable::update($copyTask['ID'], [
 				'FAIL_COUNTER' => $copyTask['FAIL_COUNTER'] + 1,
-				'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'F' : $copyTask['STATUS'],
+				'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'N' : $copyTask['STATUS'],
 				'ERROR_MESSAGE' => 'CCloudFailover::executeCopyQueue(' . $copyTask['ID'] . '): failed to init source bucket.'
 			]);
 			return CCloudFailover::ST_ERROR;
@@ -254,7 +254,7 @@ class CCloudFailover
 		{
 			\Bitrix\Clouds\CopyQueueTable::update($copyTask['ID'], [
 				'FAIL_COUNTER' => $copyTask['FAIL_COUNTER'] + 1,
-				'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'F' : $copyTask['STATUS'],
+				'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'N' : $copyTask['STATUS'],
 				'ERROR_MESSAGE' => 'CCloudFailover::executeCopyQueue(' . $copyTask['ID'] . '): failed to init target bucket.'
 			]);
 			return CCloudFailover::ST_ERROR;
@@ -265,7 +265,7 @@ class CCloudFailover
 		{
 			\Bitrix\Clouds\CopyQueueTable::update($copyTask['ID'], [
 				'FAIL_COUNTER' => $copyTask['FAIL_COUNTER'] + 1,
-				'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'F' : $copyTask['STATUS'],
+				'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'N' : $copyTask['STATUS'],
 				'ERROR_MESSAGE' => 'CCloudFailover::executeCopyQueue(' . $copyTask['ID'] . '): source file does not exists.'
 			]);
 			return CCloudFailover::ST_ERROR;
@@ -307,7 +307,7 @@ class CCloudFailover
 			{
 				\Bitrix\Clouds\CopyQueueTable::update($copyTask['ID'], [
 					'FAIL_COUNTER' => $copyTask['FAIL_COUNTER'] + 1,
-					'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'F' : $copyTask['STATUS'],
+					'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'N' : $copyTask['STATUS'],
 					'ERROR_MESSAGE' => 'CCloudFailover::executeCopyQueue(' . $copyTask['ID'] . '): failed to download.'
 				]);
 				return CCloudFailover::ST_ERROR;
@@ -329,7 +329,7 @@ class CCloudFailover
 			{
 				\Bitrix\Clouds\CopyQueueTable::update($copyTask['ID'], [
 					'FAIL_COUNTER' => $copyTask['FAIL_COUNTER'] + 1,
-					'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'F' : $copyTask['STATUS'],
+					'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'N' : $copyTask['STATUS'],
 					'ERROR_MESSAGE' => 'CCloudFailover::executeCopyQueue(' . $copyTask['ID'] . '): failed to upload file.'
 				]);
 				return CCloudFailover::ST_ERROR;
@@ -351,7 +351,7 @@ class CCloudFailover
 				{
 					\Bitrix\Clouds\CopyQueueTable::update($copyTask['ID'], [
 						'FAIL_COUNTER' => $copyTask['FAIL_COUNTER'] + 1,
-						'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'F' : $copyTask['STATUS'],
+						'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'N' : $copyTask['STATUS'],
 						'ERROR_MESSAGE' => 'CCloudFailover::executeCopyQueue(' . $copyTask['ID'] . '): failed to start upload.'
 					]);
 					return CCloudFailover::ST_ERROR;
@@ -381,7 +381,7 @@ class CCloudFailover
 		{
 			\Bitrix\Clouds\CopyQueueTable::update($copyTask['ID'], [
 				'FAIL_COUNTER' => $copyTask['FAIL_COUNTER'] + 1,
-				'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'F' : $copyTask['STATUS'],
+				'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'N' : $copyTask['STATUS'],
 				'ERROR_MESSAGE' => 'CCloudFailover::executeCopyQueue(' . $copyTask['ID'] . '): upload part failed.'
 			]);
 			return CCloudFailover::ST_ERROR;
@@ -402,7 +402,7 @@ class CCloudFailover
 		{
 			\Bitrix\Clouds\CopyQueueTable::update($copyTask['ID'], [
 				'FAIL_COUNTER' => $copyTask['FAIL_COUNTER'] + 1,
-				'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'F' : $copyTask['STATUS'],
+				'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'N' : $copyTask['STATUS'],
 				'ERROR_MESSAGE' => 'CCloudFailover::executeCopyQueue(' . $copyTask['ID'] . '): finish has failed.'
 			]);
 			return CCloudFailover::ST_ERROR;
@@ -429,7 +429,7 @@ class CCloudFailover
 		{
 			\Bitrix\Clouds\CopyQueueTable::update($copyTask['ID'], [
 				'FAIL_COUNTER' => $copyTask['FAIL_COUNTER'] + 1,
-				'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'F' : $copyTask['STATUS'],
+				'STATUS' => $copyTask['FAIL_COUNTER'] >= COption::GetOptionInt('clouds', 'max_copy_fail_count') ? 'N' : $copyTask['STATUS'],
 				'ERROR_MESSAGE' => 'CCloudFailover::executeCopyQueue(' . $copyTask['ID'] . '): rename failed.'
 			]);
 			return CCloudFailover::ST_ERROR;
@@ -552,7 +552,7 @@ class CCloudFailover
 		}
 		static::unlock();
 
-		return "CCloudFailover::syncAgent($bucketFrom, $bucketTo, $limit);";
+		return 'CCloudFailover::syncAgent(' . $bucketFrom . ', ' . $bucketTo . ', ' . $limit . ');';
 	}
 
 	protected static $lock = false;

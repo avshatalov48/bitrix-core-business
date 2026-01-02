@@ -1,0 +1,26 @@
+<?php
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_ACCOUNT_INFORMATION"] = "Есептік жазба туралы ақпарат";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_ACTION_SAVE"] = "Сақтау";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTIONS"] = "Баптауларды қалпына келтіру";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTION_CONFIRM_TEXT"] = "Сіз шынымен аккаунт туралы барлық ақпаратты жойғыңыз келе ме?";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTION_CONFIRM_TITLE"] = "Растау";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_ERROR_EMPTY_FIELDS"] = "Қажетті өрістерді толтырыңыз";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_1"] = "Қазір барлық сценарийлерді қолданып көріңіз! Тегін! Компания ұсынған сервис";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_2"] = "Битрикс24-те SMS хабарлау сценарийінің қалай жұмыс істейтінін тексеру үшін бірнеше қадамдар бар. Қызметтің барлық мүмкіндіктерін қосыңыз және көріңіз.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_2_ADMIN"] = "SMS хабарландыру сценарийінің қалай жұмыс істейтінін тексеру үшін бірнеше қадамдар бар.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_2_REGISTRATION_TEXT"] = "Көбірек біліңіз және Edna SMS қосыңыз";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_1"] = "Хабарламаларды тікелей мәміле картасынан, лидтан, клиенттен, шоттан немесе ұсыныстан жіберіңіз.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_2"] = "Қажетті уақытта немесе белгілі бір әрекетті орындағаннан кейін клиентке немесе менеджерге автоматты түрде sms жіберетін роботты баптаңыз.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_3"] = "Клиенттер тізімінен, лидтерден, жетекшілерден және CRM-дегі басқа құжаттардан топтық SMS жіберіңіз.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION"] = "SMS жіберуді Битрикс24 CRM-де баптау және пайдалану оңай.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION_ADMIN"] = "SMS жіберуді баптау және пайдалану оңай.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_TITLE"] = "Мобильді SMS маркетингінің барлық мүмкіндіктерін пайдаланыңыз";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_REGISTRATION"] = "Сервисті пайдалану үшін сайтта тіркелу қажет:";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_SUBJECT"] = "Қолтаңбалар";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_MANAGE_ACCOUNT"] = "Есептік жазбаны басқару";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_REGISTRATION_TITLE"] = "Edna қызметіне тіркеліңіз";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_1"] = "Қарапайым қосылу";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_2"] = "Жедел жеткізу";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_3"] = "Тек жеткізілгендер үшін төлем";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE"] = "SMS хабарлау &ndash; бұл оңай";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE_2"] = "Қызметті Edna компаниясы ұсынады";

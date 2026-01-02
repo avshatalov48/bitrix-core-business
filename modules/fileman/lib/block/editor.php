@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Bitrix Framework
  * @package bitrix
@@ -362,6 +362,18 @@ HTML
 		return in_array(\CBitrix24::getPortalZone(), array('ru', 'kz', 'by'));
 	}
 
+	public static function isNotAvailableInRussian(): bool
+	{
+		$portalZone = Application::getInstance()->getLicense()->getRegion();
+
+		if ($portalZone === 'ru' || !$portalZone)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	/**
 	 * Return list of default tools, uses for block changing
 	 *
@@ -539,11 +551,13 @@ HTML
 							<option value=""><?=Loc::getMessage('BLOCK_EDITOR_TOOL_SOCIAL_CONTENT_SELECT')?></option>
 							<option value="http://#SERVER_NAME#/"><?=Loc::getMessage('BLOCK_EDITOR_TOOL_SOCIAL_CONTENT_OURSITE')?></option>
 							<?if (self::isAvailableRussian()):?>
-								<option value="http://vk.com/"><?=Loc::getMessage('BLOCK_EDITOR_TOOL_SOCIAL_CONTENT_VK')?></option>
+								<option value="http://vk.ru/"><?=Loc::getMessage('BLOCK_EDITOR_TOOL_SOCIAL_CONTENT_VK')?></option>
 								<option value="http://ok.ru/"><?=Loc::getMessage('BLOCK_EDITOR_TOOL_SOCIAL_CONTENT_OK')?></option>
 							<?endif;?>
-							<option value="http://facebook.com/"><?=Loc::getMessage('BLOCK_EDITOR_TOOL_SOCIAL_CONTENT_FACEBOOK')?></option>
-							<option value="http://instagram.com/"><?=Loc::getMessage('BLOCK_EDITOR_TOOL_SOCIAL_CONTENT_INSTAGRAM')?></option>
+							<?if (self::isNotAvailableInRussian()):?>
+								<option value="http://facebook.com/"><?=Loc::getMessage('BLOCK_EDITOR_TOOL_SOCIAL_CONTENT_FACEBOOK')?></option>
+								<option value="http://instagram.com/"><?=Loc::getMessage('BLOCK_EDITOR_TOOL_SOCIAL_CONTENT_INSTAGRAM')?></option>
+							<?endif;?>
 							<option value="http://twitter.com/"><?=Loc::getMessage('BLOCK_EDITOR_TOOL_SOCIAL_CONTENT_TWITTER')?></option>
 							<option value="http://"><?=Loc::getMessage('BLOCK_EDITOR_TOOL_SOCIAL_CONTENT_SITE')?></option>
 							<option value="mailto:"><?=Loc::getMessage('BLOCK_EDITOR_TOOL_SOCIAL_CONTENT_EMAIL')?></option>

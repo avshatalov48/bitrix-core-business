@@ -240,7 +240,13 @@ class Manager
 
 		if (!array_key_exists($siteId, $sites))
 		{
-			$sites[$siteId] = \Bitrix\Main\SiteTable::getById($siteId)->fetch();
+			$sites[$siteId] = \Bitrix\Main\SiteTable::query()
+				->setSelect(['*'])
+				->where('LID', '=', $siteId)
+				->setCacheTtl(86400)
+				->exec()
+				->fetch()
+			;
 		}
 
 		return $sites[$siteId];
@@ -984,7 +990,7 @@ class Manager
 
 		if ($zone === 'ru')
 		{
-			if (!in_array(self::getZone(), ['ru', 'by', 'kz']))
+			if (!in_array(self::getZone(), ['ru', 'by', 'kz', 'uz']))
 			{
 				$available = false;
 			}
@@ -1006,6 +1012,7 @@ class Manager
 			case 'form_minisite':
 				$minisites = [
 					'ru' => 18108954,
+					'uz' => 18108954,
 					'by' => 18108962,
 					'kz' => 18108964,
 					'en' => 18108970,
@@ -1099,7 +1106,7 @@ class Manager
 	{
 		if (!defined('LANDING_PREVIEW_URL'))
 		{
-			define('LANDING_PREVIEW_URL', 'https://preview.bitrix24.site');
+			define('LANDING_PREVIEW_URL', self::getPreviewDomain());
 		}
 
 		return LANDING_PREVIEW_URL;
@@ -1114,7 +1121,8 @@ class Manager
 	{
 		if (!defined('LANDING_PREVIEW_WEBHOOK'))
 		{
-			define('LANDING_PREVIEW_WEBHOOK', 'https://preview.bitrix24.site/rest/1/gvsn3ngrn7vb4t1m/');
+			$host = self::getPreviewDomain();
+			define('LANDING_PREVIEW_WEBHOOK', $host . '/rest/1/gvsn3ngrn7vb4t1m/');
 		}
 
 		return LANDING_PREVIEW_WEBHOOK;
@@ -1289,7 +1297,7 @@ class Manager
 
 	public static function isFreePublicAllowed(): bool
 	{
-		return in_array(self::getZone(), ['ru', 'by', 'kz', 'es', 'la', 'mx', 'co', 'br', 'in', 'hi']);
+		return in_array(self::getZone(), ['ru', 'by', 'kz', 'uz', 'es', 'la', 'mx', 'co', 'br', 'in', 'hi']);
 	}
 
 	/**
@@ -1531,5 +1539,23 @@ class Manager
 	 */
 	public static function setTheme()
 	{
+	}
+
+
+	/**
+	 * Get preview domain based on region.
+	 * @return string
+	 */
+	private static function getPreviewDomain(): string
+	{
+		$region = Application::getInstance()->getLicense()->getRegion();
+
+		if (in_array($region, ['ru', 'by', 'kz', 'uz'], true))
+		{
+			return 'https://preview.bitrix24.tech';
+		}
+
+		// Default global domain
+		return 'https://preview.bitrix24.site';
 	}
 }

@@ -186,20 +186,11 @@ if ($queryType == "M")
 		$bFirst = true;
 		for ($i = 0, $cnt = count($arUpdateDescription["DATA"]["#"]["ITEM"]); $i < $cnt; $i++)
 		{
-			$strModuleDescr = "";
-			if ($arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["DESCR"] <> '')
-			{
-				$strModuleDescr = "<br>".htmlspecialcharsback($arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["DESCR"]);
-				$strModuleDescr = preg_replace("#</?pre>#i", " ", $strModuleDescr);
-				$strModuleDescr = preg_replace("/[\s\n\r]+/", " ", $strModuleDescr);
-				$strModuleDescr = addslashes($strModuleDescr);
-			}
-
-			CUpdateClient::AddMessage2Log("Updated: ".$arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["NAME"].(($arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["VALUE"] != "0") ? " (".$arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["VALUE"].")" : "").$strModuleDescr, "UPD_SUCCESS");
-
 			echo ($bFirst ? "" : ", ").$arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["NAME"].(($arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["VALUE"] != "0") ? " (".$arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["VALUE"].")" : "");
 			$bFirst = false;
 		}
+
+		CUpdateClient::logUpdates($arUpdateDescription["DATA"]["#"]["ITEM"]);
 
 		CUpdateClient::finalizeModuleUpdate($arUpdateDescription["DATA"]["#"]["ITEM"]);
 	}

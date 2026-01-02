@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Bitrix\Im\V2\Analytics;
 
 use Bitrix\Im\V2\Analytics\Event\MessageEvent;
+use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Chat\FavoriteChat;
 use Bitrix\Im\V2\Message;
 
 class MessageAnalytics extends ChatAnalytics
@@ -13,7 +15,6 @@ class MessageAnalytics extends ChatAnalytics
 	protected const ADD_REACTION = 'add_reaction';
 	protected const SHARE_MESSAGE = 'share_message';
 	protected const DELETE_MESSAGE = 'delete_message';
-	protected const ATTACH_FILE = 'attach_file';
 
 	protected Message $message;
 
@@ -42,7 +43,7 @@ class MessageAnalytics extends ChatAnalytics
 				?->send()
 			;
 
-			$this->addAttachFilesEvent();
+			(new FileAnalytics($this->chat))->addAttachFilesEvent($this->message);
 		});
 	}
 
@@ -52,19 +53,27 @@ class MessageAnalytics extends ChatAnalytics
 			$this
 				->createMessageEvent(self::ADD_REACTION)
 				?->setType($reaction)
+				?->setMessageP4($this->message->getAuthorId())
 				?->send()
 			;
 		});
 	}
 
-	public function addShareMessage(): void
+	public function addShareMessage(Chat $targetChat): void
 	{
-		$this->async(function () {
-			$this
-				->createMessageEvent(self::SHARE_MESSAGE)
-				?->setType((new MessageContent($this->message))->getComponentName())
-				?->send()
+		$this->async(function () use ($targetChat) {
+			$event =
+				$this
+					->createMessageEvent(self::SHARE_MESSAGE)
+					?->setType((new MessageContent($this->message))->getComponentName())
 			;
+
+			if ($targetChat instanceof FavoriteChat)
+			{
+				$event?->setSection('notes');
+			}
+
+			$event?->send();
 		});
 	}
 
@@ -79,23 +88,6 @@ class MessageAnalytics extends ChatAnalytics
 		});
 	}
 
-	protected function addAttachFilesEvent(): void
-	{
-		$files = $this->message->getFiles();
-		$fileCount = $files->count();
-		if ($fileCount < 1)
-		{
-			return;
-		}
-
-		$this
-			->createMessageEvent(self::ATTACH_FILE)
-			?->setFilesType($files)
-			?->setFileP3($fileCount)
-			?->send()
-		;
-	}
-
 	protected function createMessageEvent(
 		string $eventName,
 	): ?MessageEvent
@@ -105,6 +97,6 @@ class MessageAnalytics extends ChatAnalytics
 			return null;
 		}
 
-		return (new MessageEvent($eventName, $this->chat));
+		return (new MessageEvent($eventName, $this->chat, $this->userId));
 	}
 }

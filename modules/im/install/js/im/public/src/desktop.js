@@ -1,4 +1,4 @@
-import { Dom, Extension, Reflection } from 'main.core';
+import { Extension, Reflection } from 'main.core';
 
 class Desktop
 {
@@ -15,19 +15,25 @@ class Desktop
 			return Promise.resolve(false);
 		}
 
-		const anchorElement: HTMLAnchorElement = Dom.create({ tag: 'a', attrs: { href: url } });
-		if (anchorElement.host !== location.host)
+		const DesktopManager = Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
+
+		if (DesktopManager.isDesktop())
+		{
+			return Promise.resolve(true);
+		}
+
+		const targetUrl = new URL(url);
+		if (targetUrl.host !== location.host)
 		{
 			return Promise.resolve(false);
 		}
 
 		const skipNativeBrowser = Boolean(options.skipNativeBrowser);
-		const DesktopManager = Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
 
 		const isRedirectAllowed = await DesktopManager?.getInstance().checkForOpenBrowserPage();
 		if (isRedirectAllowed)
 		{
-			return DesktopManager?.getInstance().openPage(anchorElement.href, { skipNativeBrowser });
+			return DesktopManager?.getInstance().openPage(targetUrl.href, { skipNativeBrowser });
 		}
 
 		if (skipNativeBrowser === true)
@@ -35,7 +41,7 @@ class Desktop
 			return Promise.resolve(false);
 		}
 
-		window.open(anchorElement.href, '_blank');
+		window.open(targetUrl.href, '_blank');
 
 		return Promise.resolve(true);
 	}

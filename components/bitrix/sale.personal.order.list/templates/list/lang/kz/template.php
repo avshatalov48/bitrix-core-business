@@ -1,0 +1,24 @@
+<?php
+$MESS["P_DELIVERY"] = "Жеткізу әдісі: ";
+$MESS["P_PAY_SYS"] = "Төлеу тәсілі: ";
+$MESS["STPOL_CANCEL"] = "Тапсырысты болдырмау";
+$MESS["STPOL_CANCELED"] = "– Жойылды";
+$MESS["STPOL_CONTENT"] = "Тапсырыс құрамы:";
+$MESS["STPOL_CUR_ORDERS"] = "Ағымдағы тапсырыстарды қарау";
+$MESS["STPOL_DETAILS"] = "Толығырақ";
+$MESS["STPOL_DETAIL_ALT"] = "Тапсырыстың толық сипаттамасын қарау";
+$MESS["STPOL_FROM"] = "бастап";
+$MESS["STPOL_HINT"] = "Тапсырыстың құрамын қарау үшін оның нөмірін шертіңіз.";
+$MESS["STPOL_HINT1"] = "Егер сіз осы тізімде дәлсіздіктерді тапқан болсаңыз, клиенттермен жұмыс бөліміне жазуыңызды өтінеміз.";
+$MESS["STPOL_NO_ORDERS"] = "Тапсырыстар табылмады";
+$MESS["STPOL_ORDERS_HISTORY"] = "Тапсырыс тарихын қарау";
+$MESS["STPOL_ORDER_NO"] = "Тапсырыс №";
+$MESS["STPOL_PAYED_N"] = "(төленбеген)";
+$MESS["STPOL_PAYED_Y"] = "(төленген)";
+$MESS["STPOL_REORDER"] = "Тапсырысты қайталау (сол тауарларға қайта тапсырыс беру)";
+$MESS["STPOL_REORDER1"] = "Тапсырысты қайталау";
+$MESS["STPOL_SHT"] = "дана";
+$MESS["STPOL_STATUS"] = "Мәртебедегі тапсырыстар";
+$MESS["STPOL_STATUS_FROM"] = " бастап ";
+$MESS["STPOL_STATUS_T"] = "Мәртебе: ";
+$MESS["STPOL_SUM"] = "Сома:";

@@ -1,0 +1,3 @@
+<?php
+$MESS["LISTS_ASSETS_JS_STATUS_ACTION_ERROR"] = "Қате орын алды";
+$MESS["LISTS_ASSETS_JS_STATUS_ACTION_SUCCESS"] = "Сәтті";

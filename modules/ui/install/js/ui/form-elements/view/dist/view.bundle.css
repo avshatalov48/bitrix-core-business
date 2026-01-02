@@ -80,6 +80,10 @@
 	margin: 0 20px;
 }
 
+.ui-section__separator-row.ui-section__subrow {
+	margin-right: 0;
+}
+
 .ui-section__subrow,
 .ui-section__row .ui-section__separator-row {
 	margin-left: 60px;
@@ -391,3 +395,16 @@
 }
 
 /* endregion */
+
+/* region Badge */
+
+.ui-section__field-badge {
+	margin-left: 6px;
+}
+
+.ui-section__field-badge .ui-counter-inner {
+	padding: 0 8px !important;
+}
+
+/* endregion */
+

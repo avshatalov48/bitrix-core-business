@@ -55,12 +55,10 @@
 
 		this.actionItems = options.actionItems || [];
 		this.events = options.events || {};
-		this.actionItems.push(BX.create('div', {
+		this.actionItems.push({
 			text: BX.message('DASHBOARD_WIDGET_REMOVE_TITLE'),
-			events: {
-				click: this.openDeleteConfirmPopup.bind(this)
-			}
-		}));
+			onclick: this.openDeleteConfirmPopup.bind(this),
+		});
 		this.board = null;
 
 	};
@@ -609,11 +607,12 @@
 				if (!this.propertiesPopup)
 				{
 					var popupMenuId = 'report-visualconstructor-drashboard-widget-popup' + this.getId();
-					this.propertiesPopup = new BX.PopupWindow(popupMenuId, actionsButton, {
-						noAllPaddings: true,
+					this.propertiesPopup = new BX.Main.Menu({
+						id: popupMenuId,
+						bindElement: actionsButton,
 						closeByEsc: true,
 						autoHide: true,
-						content: this.getActionsMenuItemsLayout()
+						items: this.actionItems,
 					});
 				}
 				return this.propertiesPopup;
@@ -621,19 +620,6 @@
 			openPopupMenu: function (actionsButton)
 			{
 				this.getPropertiesPopup(actionsButton).show();
-			},
-			getActionsMenuItemsLayout: function ()
-			{
-				for (var i in this.actionItems)
-				{
-					this.actionItems[i].classList.add('report-visualconstructor-dashboard-widget-properties-popup-item')
-				}
-				return BX.create('div', {
-					attrs: {
-						className: 'report-visualconstructor-dashboard-widget-properties-popup-wrapper'
-					},
-					children: this.actionItems
-				});
 			},
 			openDeleteConfirmPopup: function ()
 			{

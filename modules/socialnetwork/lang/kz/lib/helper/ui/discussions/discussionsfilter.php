@@ -1,0 +1,23 @@
+<?php
+$MESS["SONET_FILTER_CREATED_BY"] = "Автор";
+$MESS["SONET_FILTER_CREATED_BY_COMMENTS"] = "Авторды пікірлерден іздеу";
+$MESS["SONET_FILTER_DATE_CREATE"] = "Күні";
+$MESS["SONET_FILTER_EVENT_ID"] = "Түрі";
+$MESS["SONET_FILTER_EVENT_ID_BLOG_POST"] = "Хабарламалар";
+$MESS["SONET_FILTER_EVENT_ID_BLOG_POST_GRAT"] = "Алғыстар";
+$MESS["SONET_FILTER_EVENT_ID_BLOG_POST_IMPORTANT"] = "Маңызды хабарламалар";
+$MESS["SONET_FILTER_EVENT_ID_BLOG_POST_VOTE"] = "Сауалнамалар";
+$MESS["SONET_FILTER_EVENT_ID_BP"] = "Бизнес-процестер";
+$MESS["SONET_FILTER_EVENT_ID_CALENDAR"] = "Күнтізбе";
+$MESS["SONET_FILTER_EVENT_ID_DATA"] = "Сыртқы дереккөз хабарламалары";
+$MESS["SONET_FILTER_EVENT_ID_FORUM"] = "Талқылаулар";
+$MESS["SONET_FILTER_EVENT_ID_PHOTO"] = "Фотосуреттер галереясы";
+$MESS["SONET_FILTER_EVENT_ID_REPORT"] = "Жұмыс есептері";
+$MESS["SONET_FILTER_EVENT_ID_TASK"] = "Міндеттер";
+$MESS["SONET_FILTER_EVENT_ID_TIMEMAN_ENTRY"] = "Жұмыс уақытын есепке алу";
+$MESS["SONET_FILTER_EVENT_ID_WIKI"] = "Вики";
+$MESS["SONET_FILTER_EXTRANET"] = "Экстранет";
+$MESS["SONET_FILTER_FAVORITES"] = "Пайдаланушының таңдаулы жазбалары";
+$MESS["SONET_FILTER_LIST_YES"] = "Иә";
+$MESS["SONET_FILTER_TAG"] = "Тег";
+$MESS["SONET_FILTER_TO"] = "Кімге";

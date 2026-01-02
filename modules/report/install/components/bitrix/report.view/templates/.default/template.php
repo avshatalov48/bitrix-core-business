@@ -12,6 +12,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	'ui.buttons.icons',
 ]);
 
+\Bitrix\Main\UI\Extension::load('intranet.old-interface.sidebar-filter');
+
 /** @var CBitrixComponentTemplate $this */
 
 /** @global CMain $APPLICATION */
@@ -38,10 +40,27 @@ function reportViewShowTopButtons(&$component, &$arParams, &$arResult)
 		$stExportManagerId = $arResult['STEXPORT_PARAMS']['managerId'];
 	}
 
-	$component->SetViewTarget("pagetitle", 100);?>
+	if (\Bitrix\Main\Loader::includeModule('ui'))
+	{
+		\Bitrix\UI\Toolbar\Facade\Toolbar::addButton(
+			new \Bitrix\UI\Buttons\SettingsButton([
+				'dataset' => [
+					'role' => 'action-report',
+				],
+			])
+		);
 
+		\Bitrix\UI\Toolbar\Facade\Toolbar::addButton(
+			new \Bitrix\UI\Buttons\Button([
+				'color' => \Bitrix\UI\Buttons\Color::PRIMARY,
+				'icon' => \Bitrix\UI\Buttons\Icon::BACK,
+				'link' => CComponentEngine::makePathFromTemplate($arParams['PATH_TO_REPORT_LIST']),
+				'text' => GetMessage('REPORT_RETURN_TO_LIST'),
+			])
+		);
+	}
 
-<script>
+	?><script>
 	(function ()
 	{
 		BX.ready(function ()
@@ -93,13 +112,7 @@ function reportViewShowTopButtons(&$component, &$arParams, &$arResult)
 			)
 		})
 	})();
-</script>
-
-<button class="ui-btn ui-btn-light-border ui-btn-icon-setting ui-btn-themes" data-role="action-report"></button>
-<a class="ui-btn ui-btn-primary ui-btn-icon-back" href="<?=CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_REPORT_LIST"], array());?>"><?= htmlspecialcharsbx(GetMessage('REPORT_RETURN_TO_LIST')) ?></a>
-
-<?php
-	$component->EndViewTarget();
+</script><?php
 }
 
 if (!empty($arResult['ERROR']))

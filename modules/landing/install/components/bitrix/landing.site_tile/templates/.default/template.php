@@ -19,15 +19,12 @@ Extension::load([
 	'main.qrcode',
 	'ui.dialogs.messagebox',
 	'ui.hint',
+	'main.popup',
 ]);
 
-//todo: when no site has been created yet, we display a banner but simply without a button
-// if (!$arParams['ITEMS'] && !$arParams['PAGE_URL_SITE_ADD'])
-// {
-// 	return;
-// }
-
 $isAjax = $component->isAjax();
+$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
+$zone = \Bitrix\Landing\Manager::getZone();
 ?>
 
 <script>
@@ -76,9 +73,9 @@ $isAjax = $component->isAjax();
 	});
 </script>
 
-<?if (!$arParams['ITEMS']):
+<?php if (!$arParams['ITEMS']):
 	$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT1');
-	if ($arParams['TYPE'] === 'STORE' && \Bitrix\Landing\Manager::getZone() === 'ru')
+	if ($arParams['TYPE'] === 'STORE' && $zone === 'ru')
 	{
 		$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT6');
 	}
@@ -87,7 +84,7 @@ $isAjax = $component->isAjax();
 		$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT2');
 	}
 	$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT3');
-	if ($arParams['TYPE']  === 'STORE' && \Bitrix\Landing\Manager::getZone() === 'ru')
+	if ($arParams['TYPE']  === 'STORE' && $zone === 'ru')
 	{
 		$features[] = $component->getMessageType('LANDING_SITE_TILE_EMPTY_FEAT7');
 	}
@@ -145,10 +142,9 @@ $isAjax = $component->isAjax();
 			</div>
 		</div>
 	</div>
-	<?return;?>
-<?endif;?>
-
-<div class="landing-sites" id="landing-sites"></div>
+<?php else: ?>
+	<div class="landing-sites" id="landing-sites"></div>
+<?php endif; ?>
 
 <script>
 	BX.message(<?= \CUtil::PhpToJSObject(Loc::loadLanguageFile(__FILE__)) ?>);
@@ -157,6 +153,8 @@ $isAjax = $component->isAjax();
 		let backend = BX.Landing.Backend.getInstance();
 		let items = <?= \CUtil::PhpToJSObject(array_values($arParams['ITEMS']))?>;
 		let switchDomainPage = '<?= \CUtil::jsEscape($arParams['PAGE_URL_SITE_DOMAIN_SWITCH'])?>';
+		const isNeedCopilotPopup = <?= ($request->get('preset') === 'sites_ai' && !$arParams['ITEMS']) ? 'true' : 'false' ?>;
+		const lang = '<?= LANGUAGE_ID ?>';
 
 		<?if ($arParams['FEEDBACK_CODE']):?>
 		<?php
@@ -186,7 +184,7 @@ $isAjax = $component->isAjax();
 		});
 		<?endif;?>
 
-		new BX.Landing.Component.SiteTile({
+		const SiteTile = new BX.Landing.Component.SiteTile({
 			renderTo: BX('landing-sites'),
 			items: items,
 			scrollerText: '<?= CUtil::JSEscape($component->getMessageType('LANDING_SITE_TILE_SCROLLER'))?>',
@@ -194,7 +192,17 @@ $isAjax = $component->isAjax();
 				title: '<?= CUtil::JSEscape($component->getMessageType('LANDING_SITE_TILE_NOT_PUBLISHED_TITLE')) ?>',
 				message: '<?= CUtil::JSEscape($component->getMessageType('LANDING_SITE_TILE_NOT_PUBLISHED_MSG')) ?>',
 			},
+			isNeedCreateCopilotPopup: isNeedCopilotPopup,
+			lang: lang,
 		});
+
+		if (isNeedCopilotPopup && SiteTile.popupCopilot)
+		{
+			const currentUrlString = window.parent.location.href;
+			const currentUrl = new URL(currentUrlString);
+			currentUrl.search = '';
+			window.parent.history.replaceState({}, '', currentUrl.toString());
+		}
 
 		BX.addCustomEvent('BX.Landing.SiteTile:unPublish', function(param) {
 			var item = param.data;

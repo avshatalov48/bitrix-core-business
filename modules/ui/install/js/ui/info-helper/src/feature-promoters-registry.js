@@ -48,4 +48,11 @@ export class FeaturePromotersRegistry
 
 		return promoter;
 	}
+
+	static getLastPromoter(): ?FeaturePromoter
+	{
+		const count = this.#promoters.length;
+
+		return this.#promoters[count - 1] ?? null;
+	}
 }

@@ -2,6 +2,7 @@ import { Core } from 'im.v2.application.core';
 import { UserRole, RestMethod, ChatType } from 'im.v2.const';
 import { runAction } from 'im.v2.lib.rest';
 import { ChannelManager } from 'im.v2.lib.channel';
+import { DemoChatBuilder } from 'im.v2.lib.demo';
 
 import type { ImModelChat } from 'im.v2.model';
 import type { PULL as Pull } from 'pull.client';
@@ -29,7 +30,7 @@ export class PullWatchManager
 			return;
 		}
 
-		if (this.#isCommentsChat() || !this.#isGuest())
+		if (!this.#isGuest() || this.#isCommentsChat() || this.#isDemoChat())
 		{
 			return;
 		}
@@ -67,7 +68,12 @@ export class PullWatchManager
 
 	#isGuest(): boolean
 	{
-		return this.#dialog?.role === UserRole.guest && this.#dialog?.dialogId !== 'settings';
+		return this.#dialog?.role === UserRole.guest;
+	}
+
+	#isDemoChat(): boolean
+	{
+		return DemoChatBuilder.isDemoDialogId(this.#dialog?.dialogId);
 	}
 
 	#isChannel(): boolean

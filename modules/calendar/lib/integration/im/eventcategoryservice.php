@@ -222,7 +222,7 @@ final class EventCategoryService implements EventCategoryServiceInterface
 	{
 		$channel = ChatFactory::getInstance()->getChatById($channelId);
 
-		return $channel->hasAccess($userId);
+		return $channel->checkAccess($userId)->isSuccess();
 	}
 
 	public function getChannelUsers(int $channelId): array

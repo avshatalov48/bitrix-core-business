@@ -24,6 +24,14 @@ class MessagePopupItem implements PopupDataItem, PopupDataAggregatable
 		$this->shortInfo = $shortInfo;
 	}
 
+	public static function getInstanceMessages(MessageCollection $messages, bool $shortInfo = false): self
+	{
+		$instance = new self($messages->getIds(), $shortInfo);
+		$instance->messages = clone $messages;
+
+		return $instance;
+	}
+
 	public function merge(PopupDataItem $item): PopupDataItem
 	{
 		if ($item instanceof self)

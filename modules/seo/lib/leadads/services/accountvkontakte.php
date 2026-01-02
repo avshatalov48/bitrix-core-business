@@ -26,9 +26,9 @@ class AccountVkontakte extends Account
 
 	public const RESOURCE_LEAD = 'LEAD';
 
-	public const URL_ACCOUNT_LIST = 'https://vk.com/groups?tab=admin';
+	public const URL_ACCOUNT_LIST = 'https://vk.ru/groups?tab=admin';
 
-	public const URL_INFO = 'https://vk.com/page-19542789_53868676';
+	public const URL_INFO = 'https://vk.ru/page-19542789_53868676';
 
 	protected static $listRowMap = array(
 		'ID' => 'ID',
@@ -63,7 +63,7 @@ class AccountVkontakte extends Account
 	 */
 	public function getList(): Response
 	{
-		// https://vk.com/dev/groups.get
+		// https://vk.ru/dev/groups.get
 		$response = $this->getRequest()->send(array(
 			'methodName' => 'leadads.groups.list',
 			'parameters' => array(
@@ -99,7 +99,7 @@ class AccountVkontakte extends Account
 				'NAME' => $data['FIRST_NAME'] . ' ' . $data['LAST_NAME'],
 			];
 
-			$result['LINK'] = 'https://ads.vk.com/hq/leadforms/';
+			$result['LINK'] = 'https://ads.vk.ru/hq/leadforms/';
 			$result['PICTURE'] = (Context::getCurrent()->getRequest()->isHttps() ? 'https' : 'http')
 				. '://'
 				.  Context::getCurrent()->getServer()->getHttpHost() . '/bitrix/images/seo/integration/vklogo.svg';

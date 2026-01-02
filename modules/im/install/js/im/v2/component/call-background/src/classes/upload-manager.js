@@ -1,10 +1,9 @@
-import {Loc} from 'main.core';
-import {EventEmitter, BaseEvent} from 'main.core.events';
+import { Loc } from 'main.core';
+import { EventEmitter, BaseEvent } from 'main.core.events';
 
-import {Logger} from 'im.v2.lib.logger';
-import {Uploader} from 'im.lib.uploader';
-
-import 'ui.notification';
+import { Logger } from 'im.v2.lib.logger';
+import { Uploader } from 'im.lib.uploader';
+import { Notifier } from 'im.v2.lib.notifier';
 
 const FILE_MAX_SIZE = 100 * 1024 * 1024;
 const FILE_MAX_SIZE_PHRASE_NUMBER = 100;
@@ -21,14 +20,14 @@ export class UploadManager extends EventEmitter
 		'image/jpeg',
 		'video/avi',
 		'video/mp4',
-		'video/quicktime'
+		'video/quicktime',
 	];
 
 	static event = {
 		uploadStart: 'uploadStart',
 		uploadProgress: 'uploadProgress',
 		uploadComplete: 'uploadComplete',
-		uploadError: 'uploadError'
+		uploadError: 'uploadError',
 	};
 
 	uploader: Uploader;
@@ -39,11 +38,11 @@ export class UploadManager extends EventEmitter
 		super();
 		this.setEventNamespace(EVENT_NAMESPACE);
 
-		const {inputNode} = params;
+		const { inputNode } = params;
 		this.uploader = new Uploader({
 			inputNode,
 			generatePreview: true,
-			fileMaxSize: FILE_MAX_SIZE
+			fileMaxSize: FILE_MAX_SIZE,
 		});
 
 		this.#bindEvents();
@@ -75,27 +74,24 @@ export class UploadManager extends EventEmitter
 	{
 		Logger.warn('UploadManager: onFileMaxSizeExceeded', event);
 		const eventData = event.getData();
-		const {file} = eventData;
+		const { file } = eventData;
 
-		const phrase = Loc.getMessage('BX_IM_CALL_BG_FILE_SIZE_EXCEEDED')
-			.replace('#LIMIT#', FILE_MAX_SIZE_PHRASE_NUMBER)
-			.replace('#FILE_NAME#', file.name);
-
-		this.#showNotification(phrase);
+		Notifier.call.onBackgroundFileSizeError({
+			fileName: file.name,
+			fileSizeLimit: FILE_MAX_SIZE_PHRASE_NUMBER,
+		});
 	}
 
 	#onSelectFile(event: BaseEvent)
 	{
 		Logger.warn('UploadManager: onSelectFile', event);
-		const {file, previewData} = event.getData();
+		const { file, previewData } = event.getData();
 
 		if (!this.#isAllowedType(file.type) || !previewData)
 		{
-			const phrase = Loc.getMessage('BX_IM_CALL_BG_UNSUPPORTED_FILE')
-				.replace('#FILE_NAME#', file.name);
-			this.#showNotification(phrase);
+			Notifier.call.onBackgroundUnsupportedError(file.name);
 
-			return false;
+			return;
 		}
 
 		this.#addUploadTask(file, previewData);
@@ -104,33 +100,33 @@ export class UploadManager extends EventEmitter
 	#onStartUpload(event: BaseEvent)
 	{
 		Logger.warn('UploadManager: onStartUpload', event);
-		const {previewData, id, file} = event.getData();
+		const { previewData, id, file } = event.getData();
 
 		const filePreview = URL.createObjectURL(previewData);
 		this.emit(UploadManager.event.uploadStart, {
 			id,
 			filePreview,
-			file
+			file,
 		});
 	}
 
 	#onProgress(event: BaseEvent)
 	{
 		Logger.warn('UploadManager: onProgress', event);
-		const {id, progress} = event.getData();
+		const { id, progress } = event.getData();
 		this.emit(UploadManager.event.uploadProgress, {
 			id,
-			progress
+			progress,
 		});
 	}
 
 	#onComplete(event: BaseEvent)
 	{
 		Logger.warn('UploadManager: onComplete', event);
-		const {id, result} = event.getData();
+		const { id, result } = event.getData();
 		this.emit(UploadManager.event.uploadComplete, {
 			id,
-			fileResult: result.data.file
+			fileResult: result.data.file,
 		});
 	}
 
@@ -138,9 +134,7 @@ export class UploadManager extends EventEmitter
 	{
 		Logger.warn('UploadManager: onUploadError', event);
 		const eventData = event.getData();
-		this.emit(UploadManager.event.uploadError, {
-			id: eventData.id
-		});
+		this.emit(UploadManager.event.uploadError, { id: eventData.id });
 	}
 	// endregion events
 
@@ -160,13 +154,5 @@ export class UploadManager extends EventEmitter
 	#isAllowedType(fileType: string): boolean
 	{
 		return UploadManager.allowedFileTypes.includes(fileType);
-	}
-
-	#showNotification(text: string)
-	{
-		BX.UI.Notification.Center.notify({
-			content: text,
-			autoHideDelay: NOTIFICATION_HIDE_DELAY
-		});
 	}
 }

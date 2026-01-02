@@ -1,0 +1,16 @@
+.ui-block-diagram-search-nav-btn {
+	display: block;
+	height: 25px;
+	width: 25px;
+	padding: 0;
+	border: none;
+	color: var(--ui-color-link-primary-base);
+	line-height: 25px;
+	text-align: center;
+	background-color: transparent;
+	cursor: pointer;
+}
+
+.ui-block-diagram-search-nav-btn:hover {
+	color: var(--ui-color-palette-black-base);
+}

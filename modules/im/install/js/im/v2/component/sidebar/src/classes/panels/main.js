@@ -2,10 +2,10 @@ import { Text } from 'main.core';
 
 import { Core } from 'im.v2.application.core';
 import { callBatch } from 'im.v2.lib.rest';
-import { SidebarDetailBlock } from 'im.v2.const';
+import { SidebarDetailBlock, SidebarMainPanelBlock } from 'im.v2.const';
+import { SidebarManager } from 'im.v2.lib.sidebar';
 
 import { Favorite } from './favorite';
-import { getAvailableBlocks } from './helpers/get-available-blocks';
 import { getChatId } from './helpers/get-chat-id';
 import { Link } from './link';
 import { File } from './file';
@@ -13,7 +13,6 @@ import { Task } from './task';
 import { Meeting } from './meeting';
 import { MembersService as Members } from './members';
 import { Multidialog } from './multidialog';
-import { MainPanelBlock } from '../panel-config';
 
 import { FileUnsorted } from './file-unsorted';
 
@@ -32,15 +31,16 @@ const MainPanelServiceClasses = {
 };
 
 const BlockToServices = Object.freeze({
-	[MainPanelBlock.chat]: [SidebarDetailBlock.members],
-	[MainPanelBlock.copilot]: [SidebarDetailBlock.members],
-	[MainPanelBlock.copilotInfo]: [SidebarDetailBlock.favorite],
-	[MainPanelBlock.info]: [SidebarDetailBlock.favorite, SidebarDetailBlock.link],
-	[MainPanelBlock.file]: [SidebarDetailBlock.file],
-	[MainPanelBlock.fileUnsorted]: [SidebarDetailBlock.fileUnsorted],
-	[MainPanelBlock.task]: [SidebarDetailBlock.task],
-	[MainPanelBlock.meeting]: [SidebarDetailBlock.meeting],
-	[MainPanelBlock.multidialog]: [SidebarDetailBlock.multidialog],
+	[SidebarMainPanelBlock.chat]: [SidebarDetailBlock.members],
+	[SidebarMainPanelBlock.copilot]: [SidebarDetailBlock.members],
+	[SidebarMainPanelBlock.task]: [SidebarDetailBlock.members],
+	[SidebarMainPanelBlock.copilotInfo]: [SidebarDetailBlock.favorite],
+	[SidebarMainPanelBlock.info]: [SidebarDetailBlock.favorite, SidebarDetailBlock.link],
+	[SidebarMainPanelBlock.fileList]: [SidebarDetailBlock.file],
+	[SidebarMainPanelBlock.fileUnsortedList]: [SidebarDetailBlock.fileUnsorted],
+	[SidebarMainPanelBlock.taskList]: [SidebarDetailBlock.task],
+	[SidebarMainPanelBlock.meetingList]: [SidebarDetailBlock.meeting],
+	[SidebarMainPanelBlock.multidialog]: [SidebarDetailBlock.multidialog],
 });
 
 type BlockService = {
@@ -92,7 +92,8 @@ export class Main
 	getServiceClassesForBlocks(): string[]
 	{
 		const services = [];
-		const blockList = getAvailableBlocks(this.dialogId);
+		const sidebarConfig = SidebarManager.getInstance().getConfig(this.dialogId);
+		const blockList = sidebarConfig.getBlocks(this.dialogId);
 
 		blockList.forEach((block: string) => {
 			const blockServices = BlockToServices[block];
@@ -122,9 +123,13 @@ export class Main
 			responseHandlersResult.push(block.responseHandler(response));
 		});
 
-		return Promise.all(responseHandlersResult).then(() => {
-			return this.setInited();
-		}).catch((error) => console.error(error));
+		return Promise.all(responseHandlersResult)
+			.then(() => {
+				return this.setInited();
+			})
+			.catch((error) => {
+				console.error(error);
+			});
 	}
 
 	setInited(): Promise

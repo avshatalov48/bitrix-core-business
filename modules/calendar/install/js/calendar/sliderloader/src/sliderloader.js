@@ -1,5 +1,4 @@
-"use strict";
-import { Loc, Runtime, Type, Uri } from "main.core";
+import { Loc, Runtime, Type, Uri } from 'main.core';
 
 export class SliderLoader
 {
@@ -22,7 +21,8 @@ export class SliderLoader
 
 		entryId = (Type.isString(entryId) && entryId.substring(0, 4) === 'EDIT')
 			? parseInt(entryId.substring(4))
-			: parseInt(entryId);
+			: parseInt(entryId)
+		;
 
 		this.extensionParams = {
 			entryId: entryId,
@@ -130,9 +130,11 @@ export class SliderLoader
 				contentCallback: this.loadExtension.bind(this),
 				label: {
 					text: Loc.getMessage('CALENDAR_EVENT'),
-					bgColor: "#55D0E0"
+					bgColor: '#55D0E0',
 				},
-				type: 'calendar:slider'
+				data: {
+					type: 'calendar:slider',
+				},
 			});
 		}
 	}
@@ -140,7 +142,8 @@ export class SliderLoader
 	loadExtension(slider): Promise
 	{
 		return new Promise((resolve) => {
-			const extensionName = 'calendar.' + this.extensionName.toLowerCase();
+			const extensionName = `calendar.${this.extensionName.toLowerCase()}`;
+
 			Runtime.loadExtension(extensionName).then((exports) => {
 				if (exports && exports[this.extensionName])
 				{

@@ -35,7 +35,7 @@ class Apple extends BaseService
 	 */
 	function getMessageInstance(string $token): AppleMessage
 	{
-		return new AppleMessage($token, 2048);
+		return new AppleMessage($token, 4096);
 	}
 
 	/**

@@ -5,6 +5,7 @@ use Bitrix\Landing\Hook\Page;
 use \Bitrix\Landing\Internals\HookDataTable as HookData;
 use \Bitrix\Main\Event;
 use \Bitrix\Main\EventResult;
+use CPHPCache;
 
 class Hook
 {
@@ -70,6 +71,9 @@ class Hook
 		'THEMEFONTS_FONT_WEIGHT_H',
 	];
 
+	private const CACHE_TIME = 2592000; // 30 days
+	private const CACHE_DIR = '/landing/hook/';
+
 	/**
 	 * Get classes from dir.
 	 * @param string $dir Relative dir.
@@ -111,6 +115,58 @@ class Hook
 			return $data;
 		}
 
+		$isEditMode = self::$editMode ? 'N' : 'Y';
+
+		$cacheId = self::getCacheId($id, $type, $isEditMode, $asIs);
+		$data = self::getDataFromCache($cacheId);
+
+		if (empty($data))
+		{
+			$data = self::getDataFromDatabase($id, $type, $isEditMode, $asIs);
+			self::saveDataToCache($cacheId, $data);
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Get data from cache.
+	 *
+	 * @param string $cacheId.
+	 *
+	 * @return array
+	 */
+	private static function getDataFromCache(string $cacheId): array
+	{
+		$data = [];
+
+		$cache = new CPHPCache();
+		if ($cache->InitCache(self::CACHE_TIME, $cacheId, self::CACHE_DIR))
+		{
+			$vars = $cache->GetVars();
+			if (isset($vars[0]))
+			{
+				$data = $vars[0];
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Get data from database.
+	 *
+	 * @param int $id Entity id.
+	 * @param string $type Entity type.
+	 * @param string $isEditMode Edit mode flag ('Y' or 'N').
+	 * @param boolean $asIs Return row as is.
+	 *
+	 * @return array
+	 */
+	private static function getDataFromDatabase(int $id, string $type, string $isEditMode, bool $asIs): array
+	{
+		$data = [];
+
 		$res = HookData::getList([
 			'select' => [
 				'ID', 'HOOK', 'CODE', 'VALUE'
@@ -118,13 +174,14 @@ class Hook
 			'filter' => [
 				'ENTITY_ID' => $id,
 				'=ENTITY_TYPE' => $type,
-				'=PUBLIC' => self::$editMode ? 'N' : 'Y'
+				'=PUBLIC' => $isEditMode,
 			],
 			'order' => [
 				'ID' => 'asc'
-			]
+			],
 		]);
-		while ($row = $res->fetch())
+
+		foreach ($res->fetchAll() as $row)
 		{
 			if (!isset($data[$row['HOOK']]))
 			{
@@ -138,6 +195,22 @@ class Hook
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Save data to cache.
+	 *
+	 * @param string $cacheId.
+	 * @param array $data Data to save.
+	 */
+	private static function saveDataToCache(string $cacheId, array $data): void
+	{
+		$cache = new CPHPCache();
+		if (!$cache->InitCache(self::CACHE_TIME, $cacheId, self::CACHE_DIR))
+		{
+			$cache->StartDataCache();
+			$cache->EndDataCache([$data]);
+		}
 	}
 
 	/**
@@ -399,6 +472,8 @@ class Hook
 				HookData::delete($delId);
 			}
 		}
+
+		self::clearCache();
 	}
 
 	/**
@@ -571,6 +646,8 @@ class Hook
 				Landing::update($id, ['PUBLIC' => 'N']);
 			}
 		}
+
+		self::clearCache();
 	}
 
 	/**
@@ -690,6 +767,8 @@ class Hook
 				}
 			}
 		}
+
+		self::clearCache();
 	}
 
 	/**
@@ -847,6 +926,8 @@ class Hook
 		{
 			HookData::delete($row['ID']);
 		}
+
+		self::clearCache();
 	}
 
 	/**
@@ -867,5 +948,15 @@ class Hook
 	public static function deleteForLanding($id)
 	{
 		self::deleteData($id, self::ENTITY_TYPE_LANDING);
+	}
+
+	private static function clearCache(): void
+	{
+		(new CPHPCache())->CleanDir(self::CACHE_DIR);
+	}
+
+	private static function getCacheId(int $entityId, string $entityType, string $isPublic, bool $asIs): string
+	{
+		return "hook_data_{$entityId}_{$entityType}_{$isPublic}_" . (int)$asIs;
 	}
 }

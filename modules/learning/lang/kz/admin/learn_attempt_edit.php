@@ -1,0 +1,19 @@
+<?php
+$MESS["LEARNING_ADMIN_COMPLETED"] = "Тест тапсырылды";
+$MESS["LEARNING_ADMIN_DATE_END"] = "Аяқталу күні";
+$MESS["LEARNING_ADMIN_DATE_START"] = "Басталу күні";
+$MESS["LEARNING_ADMIN_MAX_SCORE"] = "Максимум балл";
+$MESS["LEARNING_ADMIN_QUESTIONS"] = "Сұрақтар";
+$MESS["LEARNING_ADMIN_SCORE"] = "Балл";
+$MESS["LEARNING_ADMIN_STATUS"] = "Мәртебе";
+$MESS["LEARNING_ADMIN_TAB1"] = "Әрекет";
+$MESS["LEARNING_ADMIN_TAB1_EX"] = "Әрекет параметрлері";
+$MESS["LEARNING_ADMIN_TEST"] = "Тест";
+$MESS["LEARNING_ADMIN_TITLE"] = "Әрекетті редакциялау";
+$MESS["LEARNING_ADMIN_USER"] = "Оқушы";
+$MESS["LEARNING_ADMIN_USER_FIELDS"] = "Қосымша қасиеттері";
+$MESS["LEARNING_BACK_TO_ADMIN"] = "Әрекеттер тізіміне оралу";
+$MESS["LEARNING_BAD_ATTEMPT_ID_EX"] = "Әрекет табылмады немесе оған қолжетімділікке тыйым салынды.";
+$MESS["LEARNING_CHANGE_USER_PROFILE"] = "Пайдаланушы профилін өңдеу";
+$MESS["LEARNING_CONFIRM_DEL_MESSAGE"] = "Сіз осы әрекетті жойғыңыз келетініне сенімдісіз бе?";
+$MESS["LEARNING_ERROR"] = "Әрекетті сақтау кезіндеге қате";

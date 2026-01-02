@@ -9,10 +9,12 @@ use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Internals\PrettyDate;
 use Bitrix\Sender\Posting\SegmentDataBuilder;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 /** @var CMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
+$containerId = 'bx-sender-segment-edit';
 
 Extension::load([
 	"pull.client",
@@ -20,26 +22,41 @@ Extension::load([
 	'ui',
 	'ui.alerts',
 ]);
-$containerId = 'bx-sender-segment-edit';
+if(
+	($arParams['IFRAME'] === true)
+	&& \Bitrix\Main\Loader::includeModule('ui')
+)
+{
+	$title = (trim(htmlspecialcharsbx($arResult['ROW']['NAME'])) !== '')
+		? htmlspecialcharsbx($arResult['ROW']['NAME'])
+		: Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_PATTERN_TITLE1', [
+			'%name%' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_NEW_TITLE'),
+			'%date%' => FormatDate(PrettyDate::getDateFormat(), (new DateTime())->getTimestamp()),
+		]);
+
+	$APPLICATION->SetTitle($title);
+	Toolbar::deleteFavoriteStar();
+	Toolbar::addEditableTitle();
+}
 ?>
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="bx-sender-segment-edit-wrapper">
 
 	<?
-	$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' => array(
-		array('type' => 'buttons', 'list' => array(
-			array('type' => 'feedback')
-		)),
-	)));
+	$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", ['LIST' => [
+		['type' => 'buttons', 'list' => [
+			['type' => 'feedback']
+		]],
+	]]);
 	?>
 
 	<form name="post_form" method="post" action="<?=htmlspecialcharsbx($arResult['SUBMIT_FORM_URL'])?>">
 		<?=bitrix_sessid_post()?>
 
-		<div class="bx-sender-letter-field" style="<?=(isset($arParams['IFRAME']) && $arParams['IFRAME'] == 'Y' ? 'display: none;' : '')?>">
+		<div class="bx-sender-letter-field" style="<?=(isset($arParams['IFRAME']) && $arParams['IFRAME'] === true ? 'display: none;' : '')?>">
 			<div class="bx-sender-caption">
 				<?=Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_FIELD_NAME')?>
 			</div>
-			<div class="bx-sender-value">
+			<div id="segment-edit-title" class="bx-sender-value">
 				<input data-role="segment-title" type="text" name="NAME" value="<?=htmlspecialcharsbx($arResult['ROW']['NAME'])?>" class="bx-sender-form-control bx-sender-letter-field-input">
 			</div>
 		</div>
@@ -295,11 +312,12 @@ $containerId = 'bx-sender-segment-edit';
 				'<?=Loc::getMessage("SENDER_SEGMENT_SEARCH_INFORMATION")?>'
 			);
 
-			window.bxConnectorManager = BX.Sender.Connector.Manager.init(<?=Json::encode(array(
+			window.bxConnectorManager = BX.Sender.Connector.Manager.init(<?=Json::encode([
 				'groupId' => $arParams['ID'],
 				'containerId' => $containerId,
+				'toolbarId' => Toolbar::getId(),
 				'actionUri' => $arResult['ACTION_URI'],
-				'isFrame' => isset($arParams['IFRAME']) && $arParams['IFRAME'] == 'Y',
+				'isFrame' => isset($arParams['IFRAME']) && $arParams['IFRAME'] === true,
 				'isSaved' => $arResult['IS_SAVED'],
 				'canViewConnData' => $arParams['CAN_VIEW_CONN_DATA'],
 				'onlyConnectorFilters' => $arParams['ONLY_CONNECTOR_FILTERS'],
@@ -312,16 +330,15 @@ $containerId = 'bx-sender-segment-edit';
 				'availableConnectors' => array_values($arResult['CONNECTOR']['AVAILABLE']),
 				'prettyDateFormat' => PrettyDate::getDateFormat(),
 				'filterCounterTag' => SegmentDataBuilder::FILTER_COUNTER_TAG,
-				'mess' => array(
+				'mess' => [
 					'patternTitle' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_PATTERN_TITLE1') ?: Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_PATTERN_TITLE'),
 					'newTitle' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_NEW_TITLE'),
 					'filterPlaceholder' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_FLT_PLACEHOLDER'),
 					'filterPlaceholderCrmLead' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_FLT_PLACEHOLDER_CRM_LEAD'),
 					'filterPlaceholderCrmClient' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_FLT_PLACEHOLDER_CRM_CLIENT'),
 					'contactSearchTitle' => Loc::getMessage('SENDER_SEGMENT_EDIT_CONTACT_SEARCHER_TITLE'),
-				)
-			))?>);
-
+				]
+			])?>);
 		});
 	</script>
 

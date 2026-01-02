@@ -1,13 +1,10 @@
-import 'ui.notification';
-
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import { MenuManager } from 'main.popup';
 
 import { Messenger } from 'im.public';
-import { Core } from 'im.v2.application.core';
 import { CreateChatManager } from 'im.v2.lib.create-chat';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { ChatService } from 'im.v2.provider.service';
+import { ChatService } from 'im.v2.provider.service.chat';
 import { UserRole, PopupType, ChatType, EventType, Layout, type OnLayoutChangeEvent } from 'im.v2.const';
 import {
 	TitleInput,
@@ -43,10 +40,12 @@ export const GroupChatCreation = {
 			isCreating: false,
 			avatarFile: null,
 			chatTitle: '',
-			chatMembers: [['user', Core.getUserId()]],
+			chatMembers: [],
+			undeselectedItems: [],
 			settings: {
 				isAvailableInSearch: false,
 				description: '',
+				autoDeleteDelay: 0,
 			},
 			rights: {
 				ownerId: 0,
@@ -69,8 +68,11 @@ export const GroupChatCreation = {
 	{
 		EventEmitter.subscribe(EventType.layout.onLayoutChange, this.onLayoutChange);
 
-		this.rights.ownerId = Core.getUserId();
 		this.initDefaultRolesForRights();
+
+		this.undeselectedItems = CreateChatManager.getInstance().getUndeselectedItems();
+		this.rights.ownerId = CreateChatManager.getInstance().getOwnerId();
+		this.chatMembers = CreateChatManager.getInstance().getChatMembers();
 
 		this.restoreFields();
 		CreateChatManager.getInstance().setChatType(ChatType.chat);
@@ -79,6 +81,7 @@ export const GroupChatCreation = {
 	},
 	beforeUnmount()
 	{
+		CreateChatManager.getInstance().clearExternalFields();
 		if (this.exitByCancel || this.exitByChatTypeSwitch || this.exitByCreation)
 		{
 			return;
@@ -102,6 +105,10 @@ export const GroupChatCreation = {
 		onChatTypeChange(isAvailableInSearch: boolean)
 		{
 			this.settings.isAvailableInSearch = isAvailableInSearch;
+		},
+		onAutoDeleteChange(delay: number)
+		{
+			this.settings.autoDeleteDelay = delay;
 		},
 		onDescriptionChange(description: string)
 		{
@@ -139,11 +146,9 @@ export const GroupChatCreation = {
 				manageUsersDelete: this.rights.manageUsersDelete,
 				manageUi: this.rights.manageUi,
 				manageMessages: this.rights.manageMessages,
+				autoDeleteDelay: this.settings.autoDeleteDelay,
 			}).catch(() => {
 				this.isCreating = false;
-				BX.UI.Notification.Center.notify({
-					content: this.loc('IM_CREATE_CHAT_ERROR'),
-				});
 			});
 
 			this.isCreating = false;
@@ -172,7 +177,7 @@ export const GroupChatCreation = {
 		onLayoutChange(event: BaseEvent<OnLayoutChangeEvent>)
 		{
 			const { to } = event.getData();
-			if (to.name === Layout.createChat.name && to.entityId !== ChatType.chat)
+			if (to.name === Layout.createChat && to.entityId !== ChatType.chat)
 			{
 				this.exitByChatTypeSwitch = true;
 			}
@@ -238,11 +243,18 @@ export const GroupChatCreation = {
 			</div>
 			<CreateChatHeading :text="loc('IM_CREATE_CHAT_MEMBERS_TITLE')" />
 			<div class="bx-im-content-chat-forms__members_container">
-				<ChatMembersSelector :chatMembers="chatMembers" @membersChange="onMembersChange" />
+				<ChatMembersSelector 
+					:undeselectedItems="undeselectedItems" 
+					:chatMembers="chatMembers"
+					:allowTeamsSelect="true"
+					@membersChange="onMembersChange"
+				/>
 			</div>
 			<SettingsSection
 				:isAvailableInSearch="settings.isAvailableInSearch"
 				:description="settings.description"
+				:autoDeleteDelay="settings.autoDeleteDelay"
+				@autoDeleteDelayChange="onAutoDeleteChange"
 				@chatTypeChange="onChatTypeChange"
 				@descriptionChange="onDescriptionChange"
 			/>

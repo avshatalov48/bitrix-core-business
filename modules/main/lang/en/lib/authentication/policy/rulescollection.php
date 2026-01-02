@@ -10,6 +10,7 @@ $MESS["GP_PASSWORD_CHECK_WEAK"] = "Check password against the weak passwords dat
 $MESS["GP_PASSWORD_DIGITS"] = "Password must contain digits (0-9)";
 $MESS["GP_PASSWORD_LENGTH"] = "Min. Password Length";
 $MESS["GP_PASSWORD_LOWERCASE"] = "Password must contain Latin lowercase letters (a-z)";
+$MESS["GP_PASSWORD_MIN_CHANGE_DAYS"] = "Minimum password age";
 $MESS["GP_PASSWORD_PUNCTUATION"] = "Password must contain punctuation marks (#SPECIAL_CHARS#)";
 $MESS["GP_PASSWORD_UNIQUE_COUNT"] = "Number of recent passwords to check for uniqueness";
 $MESS["GP_PASSWORD_UPPERCASE"] = "Password must contain Latin uppercase letters (A-Z)";

@@ -22,7 +22,20 @@ use Bitrix\Main\ArgumentTypeException,
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_OptionState_Query query()
+ * @method static EO_OptionState_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_OptionState_Result getById($id)
+ * @method static EO_OptionState_Result getList(array $parameters = [])
+ * @method static EO_OptionState_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_OptionState createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_OptionState_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_OptionState wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_OptionState_Collection wakeUpCollection($rows)
+ */
 
 class OptionStateTable extends DataManager
 {

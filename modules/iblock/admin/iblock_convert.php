@@ -586,7 +586,6 @@ function LastStep21($arIBlock): int
 	CIBlock::CleanCache($arIBlock["ID"]);
 	$DB->DDL("DROP TABLE b_iblock_element_prop_s".$arIBlock["ID"]);
 	$DB->DDL("DROP TABLE b_iblock_element_prop_m".$arIBlock["ID"]);
-	$DB->DDL("DROP SEQUENCE sq_b_iblock_element_prop_m".$arIBlock["ID"], true);
 
 	return 6;
 }

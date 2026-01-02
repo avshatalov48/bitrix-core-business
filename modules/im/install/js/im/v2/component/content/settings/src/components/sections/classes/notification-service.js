@@ -3,7 +3,7 @@ import { NotificationSettingsMode, RestMethod, Settings } from 'im.v2.const';
 import { runAction } from 'im.v2.lib.rest';
 
 export const NotificationService = {
-	async switchScheme(newScheme: $Keys<typeof NotificationSettingsMode>): Promise
+	async switchScheme(newScheme: $Keys<typeof NotificationSettingsMode>): void
 	{
 		void Core.getStore().dispatch('application/settings/set', {
 			[Settings.notification.mode]: newScheme,
@@ -14,27 +14,26 @@ export const NotificationService = {
 				userId: Core.getUserId(),
 				scheme: newScheme,
 			},
-		}).catch((error) => {
-			// eslint-disable-next-line no-console
+		}).catch(([error]) => {
 			console.error('NotificationService: switchScheme error', error);
 		});
 
-		return Core.getStore().dispatch('application/settings/set', {
+		void Core.getStore().dispatch('application/settings/set', {
 			notifications: newNotificationsSettings,
 		});
 	},
 
-	changeExpertOption(payload: { moduleId: string, optionName: string, type: string, value: boolean }): Promise
+	changeExpertOption(payload: { moduleId: string, optionName: string, type: string, value: boolean }): void
 	{
 		const { moduleId, optionName, type, value } = payload;
-		Core.getStore().dispatch('application/settings/setNotificationOption', {
+		void Core.getStore().dispatch('application/settings/setNotificationOption', {
 			moduleId,
 			optionName,
 			type,
 			value,
 		});
 
-		return runAction(RestMethod.imV2SettingsNotifyUpdate, {
+		runAction(RestMethod.imV2SettingsNotifyUpdate, {
 			data: {
 				userId: Core.getUserId(),
 				moduleId,
@@ -42,8 +41,7 @@ export const NotificationService = {
 				type,
 				value,
 			},
-		}).catch((error) => {
-			// eslint-disable-next-line no-console
+		}).catch(([error]) => {
 			console.error('NotificationService: changeExpertOption error', error);
 		});
 	},

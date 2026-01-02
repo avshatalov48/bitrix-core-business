@@ -105,7 +105,7 @@
 			if (formParams.length === 1)
 			{
 				// can't ajax load params in public
-				if (BX.Landing.getMode() === 'view')
+				if (BX.Landing.getMode() !== 'edit')
 				{
 					return;
 				}

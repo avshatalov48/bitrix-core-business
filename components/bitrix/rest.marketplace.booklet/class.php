@@ -107,7 +107,7 @@ class RestMarketplaceBookletComponent extends CBitrixComponent
 					$booklet['OPTION']['TITLE'] = $title;
 				}
 			}
-			$result['TITLE'] = !empty($booklet['OPTION']['TITLE']) ? $booklet['OPTION']['TITLE'] : Loc::getMessage('REST_MARKETPLACE_BOOKLET_DEFAULT_TITLE_2');
+			$result['TITLE'] = !empty($booklet['OPTION']['TITLE']) ? $booklet['OPTION']['TITLE'] : Loc::getMessage('REST_MARKETPLACE_BOOKLET_DEFAULT_TITLE_2_MSGVER_1');
 		}
 
 		if (!empty($booklet['OPTION']['ACTION_TITLE_MESSAGE_CODE']))

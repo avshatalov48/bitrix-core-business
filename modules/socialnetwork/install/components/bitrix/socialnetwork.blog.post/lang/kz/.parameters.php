@@ -1,0 +1,24 @@
+<?php
+$MESS["BB_PATH_TO_SMILE"] = "Сайттың түбіріне қатысты смайлдар бумасына жол";
+$MESS["BC_DATE_TIME_FORMAT"] = "Күн мен уақытты көрсету пішімі";
+$MESS["BPC_IMAGE_MAX_HEIGHT"] = "Кескіннің максималды биіктігі";
+$MESS["BPC_IMAGE_MAX_WIDTH"] = "Кескіннің максималды ені";
+$MESS["BP_ID"] = "Хабарлама идентификаторы";
+$MESS["BP_PAGE_VAR"] = "Парақша үшін айнымалының атауы";
+$MESS["BP_PATH_TO_BLOG"] = "Хабарламалар парақшасына жол қалыбы";
+$MESS["BP_PATH_TO_BLOG_CATEGORY"] = "Тег бойынша сүзгісі бар хабарламалар парақшасына жол қалыбы";
+$MESS["BP_PATH_TO_POST_EDIT"] = "Хабарламаны редакциялау парақшасына жол қалыбы";
+$MESS["BP_PATH_TO_USER"] = "Пайдаланушы парақшасына жол қалыбы";
+$MESS["BP_POST_VAR"] = "Хабарлама идентификаторы үшін айнымалы атауы";
+$MESS["BP_SET_NAV_CHAIN"] = "Навигация тізбегіне тармақ қосу";
+$MESS["BP_USER_VAR"] = "Пайдаланушы идентификаторы үшін айнымалы атауы";
+$MESS["B_VARIABLE_ALIASES"] = "Айнымалылардың атаулары";
+$MESS["POST_PROPERTY"] = "Хабарламаның қосымша қасиеттерін көрсету";
+$MESS["RATING_TYPE"] = "Рейтинг батырмаларының түрі";
+$MESS["RATING_TYPE_CONFIG"] = "әдепкі бойынша";
+$MESS["RATING_TYPE_LIKE_GRAPHIC"] = "Маған ұнайды (графикалық)";
+$MESS["RATING_TYPE_LIKE_TEXT"] = "Маған ұнайды (мәтінді)";
+$MESS["RATING_TYPE_STANDART_GRAPHIC"] = "Ұнайды / Ұнамайды (графикалық)";
+$MESS["RATING_TYPE_STANDART_TEXT"] = "Ұнайды / Ұнамайды (мәтінді)";
+$MESS["SHOW_RATING"] = "Рейтингті қосу";
+$MESS["SHOW_RATING_CONFIG"] = "әдепкі бойынша";

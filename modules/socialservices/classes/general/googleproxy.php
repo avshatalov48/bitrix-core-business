@@ -294,24 +294,29 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 			return false;
 		}
 
-		$dbSocUser = UserTable::getList([
-			'filter' => [
-				'=XML_ID'=>$socservUserFields['XML_ID'],
-				'=EXTERNAL_AUTH_ID'=>$socservUserFields['EXTERNAL_AUTH_ID']
-			],
-			'select' => ["ID", "USER_ID", "ACTIVE" => "USER.ACTIVE", "PERSONAL_PHOTO"],
-		]);
-		$socservUser = $dbSocUser->fetch();
-
-		if(!empty($socservUserFields['USER_ID']))
+		if (!empty($socservUserFields['USER_ID']))
 		{
-			if(!$socservUser)
+			$this->deleteOldTokens($socservUserFields['USER_ID'], $socservUserFields['EXTERNAL_AUTH_ID']);
+
+			$dbSocUser = UserTable::getList(
+				[
+					'filter' => [
+						'=XML_ID' => $socservUserFields['XML_ID'],
+						'=EXTERNAL_AUTH_ID' => $socservUserFields['EXTERNAL_AUTH_ID']
+					],
+					'select' => ['ID'],
+				]
+			);
+
+			$storedUser = $dbSocUser->fetch();
+
+			if (!$storedUser)
 			{
 				$result = UserTable::add(UserTable::filterFields($socservUserFields));
 			}
 			else
 			{
-				$result = UserTable::update($socservUser['ID'], UserTable::filterFields($socservUserFields));
+				$result = UserTable::update($storedUser['ID'], UserTable::filterFields($socservUserFields));
 			}
 		}
 		else
@@ -320,6 +325,27 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 		}
 
 		return $result->isSuccess();
+	}
+
+	/**
+	 * @throws SystemException
+	 * @throws \Exception
+	 */
+	private function deleteOldTokens($userId, $externalAuthId): void
+	{
+		$dbTokens = \Bitrix\Socialservices\UserTable::getList(
+			[
+			'filter' => [
+				'=USER_ID' => $userId,
+				'=EXTERNAL_AUTH_ID' => $externalAuthId
+			],
+			'select' => ['ID']
+		]);
+
+		while ($accessToken = $dbTokens->fetch())
+		{
+			UserTable::delete($accessToken['ID']);
+		}
 	}
 }
 

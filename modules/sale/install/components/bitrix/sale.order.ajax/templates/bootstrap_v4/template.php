@@ -488,21 +488,30 @@ else
 						<?php
 						if ($arParams['USER_CONSENT'] === 'Y')
 						{
-							$APPLICATION->IncludeComponent(
-								'bitrix:main.userconsent.request',
-								'',
-								array(
-									'ID' => $arParams['USER_CONSENT_ID'],
-									'IS_CHECKED' => $arParams['USER_CONSENT_IS_CHECKED'],
-									'IS_LOADED' => $arParams['USER_CONSENT_IS_LOADED'],
-									'AUTO_SAVE' => 'N',
-									'SUBMIT_EVENT_NAME' => 'bx-soa-order-save',
-									'REPLACE' => array(
-										'button_caption' => $arParams['~MESS_ORDER'] ?? $arParams['MESS_ORDER'],
-										'fields' => $arResult['USER_CONSENT_PROPERTY_DATA']
-									)
-								)
-							);
+							if (isset($arParams['USER_CONSENTS']))
+							{
+								foreach ($arParams['USER_CONSENTS'] as $userConsent)
+								{
+									echo '<div>';
+									$APPLICATION->IncludeComponent(
+										'bitrix:main.userconsent.request',
+										'',
+										[
+											'ID' => $userConsent['ID'],
+											'IS_CHECKED' => $userConsent['CHECKED'],
+											'REQUIRED' => $userConsent['REQUIRED'],
+											'IS_LOADED' => $arParams['USER_CONSENT_IS_LOADED'],
+											'AUTO_SAVE' => 'N',
+											'SUBMIT_EVENT_NAME' => 'bx-soa-order-save-' . $userConsent['ID'],
+											'REPLACE' => [
+												'button_caption' => $arParams['~MESS_ORDER'] ?? $arParams['MESS_ORDER'],
+												'fields' => $arResult['USER_CONSENT_PROPERTY_DATA']
+											]
+										]
+									);
+									echo '</div>';
+								}
+							}
 						}
 						?>
 					</div>

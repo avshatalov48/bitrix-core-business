@@ -132,16 +132,27 @@ if(typeof BX.UI.EntityConfigurationManager === "undefined")
 					typeId = BX.prop.get(params, "typeId", BX.UI.EntityUserFieldType.string);
 				}
 
+				let tooltipConfigurator = null;
+				if (params?.enableTooltipConfigurator)
+				{
+					tooltipConfigurator = new BX.UI.EntityEditorUfConfigurators.TooltipConfigurator(
+						this._id,
+						this._editor,
+						field,
+					);
+				}
+
 				return BX.UI.EntityEditorUserFieldConfigurator.create(
 					"",
 					{
+						parent,
+						typeId,
+						field,
+						tooltipConfigurator,
 						editor: this._editor,
 						schemeElement: null,
 						model: parent.getModel(),
 						mode: BX.UI.EntityEditorMode.edit,
-						parent: parent,
-						typeId: typeId,
-						field: field,
 						enableMandatoryControl: BX.prop.getBoolean(params, "enableMandatoryControl", true),
 						mandatoryConfigurator: params.mandatoryConfigurator,
 						showAlways: true
@@ -180,6 +191,8 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 
 		this._enableMandatoryControl = true;
 		this._mandatoryConfigurator = null;
+
+		this.tooltipConfigurator = null;
 	};
 	BX.extend(BX.UI.EntityEditorFieldConfigurator, BX.UI.EntityEditorControl);
 	BX.UI.EntityEditorFieldConfigurator.prototype.doInitialize = function()
@@ -193,6 +206,8 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 
 		this._enableMandatoryControl = BX.prop.getBoolean(this._settings, "enableMandatoryControl", true);
 		this._mandatoryConfigurator = BX.prop.get(this._settings, "mandatoryConfigurator", null);
+
+		this.tooltipConfigurator = this._settings?.tooltipConfigurator;
 
 		this._typeId = BX.prop.getString(this._settings, "typeId", "");
 	};
@@ -563,6 +578,11 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 			return;
 		}
 
+		if (this.tooltipConfigurator && !this.tooltipConfigurator.validateInputText())
+		{
+			return;
+		}
+
 		if(this._mandatoryConfigurator)
 		{
 			if(this._mandatoryConfigurator.isChanged())
@@ -611,6 +631,11 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 		{
 			params["innerConfig"] = (this._field) ? this._field.getInnerConfig() : {};
 			params["enumeration"] = this._enumConfigurator.prepareSaveParams();
+		}
+
+		if (this.tooltipConfigurator)
+		{
+			params['HELP_MESSAGE'] = this.tooltipConfigurator.getTooltip();
 		}
 
 		return params;

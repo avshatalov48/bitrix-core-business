@@ -1,9 +1,9 @@
-<?
+<?php
 
 namespace Bitrix\Main\UI\Viewer;
 
 use Bitrix\Main\ORM\Data\DataManager;
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Fields;
 use Bitrix\Main\FileTable;
 use Bitrix\Main\ORM\Event;
 use Bitrix\Main\Type\Date;
@@ -42,41 +42,43 @@ final class FilePreviewTable extends DataManager
 
 	/**
 	 * Returns entity map definition.
-	 * To get initialized fields @see \Bitrix\Main\Entity\Base::getFields() and \Bitrix\Main\Entity\Base::getField()
+	 * To get initialized fields
 	 * @return array
 	 * @throws \Bitrix\Main\SystemException
+	 * @see \Bitrix\Main\ORM\Entity::getFields()
+	 * @see \Bitrix\Main\ORM\Entity::getField()
 	 */
 	public static function getMap()
 	{
 		return [
-			new Entity\IntegerField('ID', [
+			new Fields\IntegerField('ID', [
 				'primary' => true,
 				'autocomplete' => true,
 			]),
-			new Entity\IntegerField('FILE_ID', [
+			new Fields\IntegerField('FILE_ID', [
 				'required' => true,
 			]),
-			new Entity\IntegerField('PREVIEW_ID'),
-			new Entity\IntegerField('PREVIEW_IMAGE_ID'),
-			new Entity\DatetimeField('CREATED_AT', [
+			new Fields\IntegerField('PREVIEW_ID'),
+			new Fields\IntegerField('PREVIEW_IMAGE_ID'),
+			new Fields\DatetimeField('CREATED_AT', [
 				'default_value' => function () {
 					return new DateTime();
 				},
 			]),
-			new Entity\DatetimeField('TOUCHED_AT', [
+			new Fields\DatetimeField('TOUCHED_AT', [
 				'default_value' => function () {
 					return new DateTime();
 				},
 			]),
-			new Entity\ReferenceField('FILE',FileTable::class,
+			new Fields\Relations\Reference('FILE',FileTable::class,
 				['=this.FILE_ID' => 'ref.ID'],
 				['join_type' => 'INNER']
 			),
-			new Entity\ReferenceField('PREVIEW',FileTable::class,
+			new Fields\Relations\Reference('PREVIEW',FileTable::class,
 				['=this.PREVIEW_ID' => 'ref.ID'],
 				['join_type' => 'LEFT']
 			),
-			new Entity\ReferenceField('PREVIEW_IMAGE',FileTable::class,
+			new Fields\Relations\Reference('PREVIEW_IMAGE',FileTable::class,
 				['=this.PREVIEW_IMAGE_ID' => 'ref.ID'],
 				['join_type' => 'LEFT']
 			),

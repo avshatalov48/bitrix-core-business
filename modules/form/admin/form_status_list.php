@@ -260,8 +260,8 @@ echo BeginNote('width="100%"');?>
 <b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialcharsbx($arForm["SID"])?>)&nbsp;<?=htmlspecialcharsbx($arForm["NAME"])?>
 <?echo EndNote();
 
-echo ShowError($strError);
-echo ShowNote($strNote);
+ShowError($strError);
+ShowNote($strNote);
 
 // Filter
 ?>

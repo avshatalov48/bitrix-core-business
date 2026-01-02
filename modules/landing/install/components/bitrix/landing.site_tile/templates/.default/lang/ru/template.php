@@ -59,3 +59,11 @@ $MESS['LANDING_SITE_TILE_NOT_PUBLISHED_MSG_STORE'] = 'Магазин ещё не
 $MESS['LANDING_SITE_TILE_NOT_PUBLISHED_MSG'] = 'Сайт ещё не опубликован, но вы можете смотреть и изменять страницы в режиме редактирования. Если вы хотите, чтобы сайт увидели клиенты, вам нужно его опубликовать.';
 $MESS['LANDING_SITE_TILE_NOT_PUBLISHED_BUTTON_PUBLISH'] = 'Опубликовать';
 $MESS['LANDING_SITE_TILE_NOT_PUBLISHED_BUTTON_OPEN'] = 'Открыть редактор';
+$MESS['LANDING_SITE_TILE_COPILOT_LABEL'] = 'Создано с CoPilot';
+$MESS['LANDING_SITE_TILE_COPILOT_GENERATED_TEXT'] = 'CoPilot создаёт сайт';
+$MESS['LANDING_SITE_TILE_POPUP_COPILOT_TITLE'] = '<div class="landing-site_title-popup-title-node">AI создаст сайт,</div> <div class="landing-site_title-popup-title-node-2">пока вы пьёте кофе</div>';
+$MESS['LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_1'] = 'Коротко опишите, что вам нужно';
+$MESS['LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_2'] = 'AI сам подберёт дизайн, создаст картинки, напишет текст';
+$MESS['LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_3'] = 'Вы получите готовый сайт за пару минут';
+$MESS['LANDING_SITE_TILE_POPUP_COPILOT_DESCRIPTION'] = 'Демо-режим включится автоматически ↓';
+$MESS['LANDING_SITE_TILE_POPUP_COPILOT_BUTTON'] = 'Создать сайт с AI';

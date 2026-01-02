@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" &&
 	!empty($questions) &&
 	array_key_exists("PUBLIC_VOTE_ID", $_REQUEST) && $_REQUEST["PUBLIC_VOTE_ID"] == $arResult["VOTE_ID"] &&
 	array_key_exists("vote", $_REQUEST) && $_REQUEST["vote"] <> '' &&
-	($GLOBALS["VOTING_ID"] == $arResult["VOTE_ID"] && array_key_exists($arResult["VOTE_ID"], $_SESSION["VOTE"]["VOTES"])) &&
+	($GLOBALS["VOTING_ID"] == $arResult["VOTE_ID"] && isset($_SESSION['VOTE']['VOTES'][$arResult['VOTE_ID']])) &&
 	CModule::IncludeModule("pull"))
 {
 	$result = array();

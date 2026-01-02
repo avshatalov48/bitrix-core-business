@@ -80,7 +80,7 @@ Asset::getInstance()->addJs("/bitrix/js/main/rating_like.js");
 
 if (
 	defined('SITE_TEMPLATE_ID')
-	&& SITE_TEMPLATE_ID === "bitrix24"
+	&& (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 	&& $arResult['PAGE_MODE'] === 'first'
 )
 {
@@ -98,8 +98,7 @@ if (
 	$APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 
 	if (
-		defined('SITE_TEMPLATE_ID')
-		&& SITE_TEMPLATE_ID === "bitrix24"
+		defined('SITE_TEMPLATE_ID') && (SITE_TEMPLATE_ID === "bitrix24" || SITE_TEMPLATE_ID === 'air')
 		&& (
 			(
 				Loader::includeModule('bitrix24')
@@ -270,7 +269,7 @@ if (
 				sonetLMenuCreateTask: '<?=GetMessageJS("SONET_C30_MENU_TITLE_CREATETASK")?>',
 				sonetLMenuCreateSubTask: '<?=GetMessageJS("SONET_C30_MENU_TITLE_CREATESUBTASK")?>',
 				sonetLCounterType: '<?=CUtil::JSEscape($arResult["COUNTER_TYPE"])?>',
-				sonetLIsB24: '<?=(defined('SITE_TEMPLATE_ID') && SITE_TEMPLATE_ID === "bitrix24" ? "Y" : "N")?>',
+				sonetLIsB24: '<?=(defined('SITE_TEMPLATE_ID') && (SITE_TEMPLATE_ID === "bitrix24" || SITE_TEMPLATE_ID === 'air') ? "Y" : "N")?>',
 				sonetRatingType : '<?=CUtil::JSEscape($arParams["RATING_TYPE"])?>',
 				sonetLIsCRM : '<?=CUtil::JSEscape($arParams["IS_CRM"])?>',
 				sonetLCanDelete : '<?=($arResult["CAN_DELETE"] ? 'Y' : 'N')?>',

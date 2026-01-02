@@ -154,17 +154,22 @@ class FileSaveTable extends DataManager
 	public static function startFileOperation($bucketId, $subDir, $fileName, $externalId)
 	{
 		$key = $bucketId . '|' . $subDir . '|' . $fileName;
-		$fileSave = \Bitrix\Clouds\FileSaveTable::createObject();
-		$fileSave->setTimestampX(new \Bitrix\Main\Type\DateTime());
-		$fileSave->setBucketId($bucketId);
-		$fileSave->setSubdir($subDir);
-		$fileSave->setFileName($fileName);
-		$fileSave->setExternalId($externalId);
-		$fileSave->setFileSize(-1);
-		$saveResult = $fileSave->save();
-		if ($saveResult->isSuccess())
+		$entity = static::getEntity();
+		$connection = $entity->getConnection();
+		if ($connection->isTableExists($entity->getDBTableName()))
 		{
-			self::$files[$key] = $fileSave;
+			$fileSave = \Bitrix\Clouds\FileSaveTable::createObject();
+			$fileSave->setTimestampX(new \Bitrix\Main\Type\DateTime());
+			$fileSave->setBucketId($bucketId);
+			$fileSave->setSubdir($subDir);
+			$fileSave->setFileName($fileName);
+			$fileSave->setExternalId($externalId);
+			$fileSave->setFileSize(-1);
+			$saveResult = $fileSave->save();
+			if ($saveResult->isSuccess())
+			{
+				self::$files[$key] = $fileSave;
+			}
 		}
 	}
 

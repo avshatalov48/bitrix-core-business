@@ -58,6 +58,7 @@ class socialservices extends CModule
 		RegisterModuleDependences('perfmon', 'OnGetTableSchema', 'socialservices', 'socialservices', 'OnGetTableSchema');
 		RegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkOldUser");
 		RegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkAbandonedUser");
+		RegisterModuleDependences('socialservices', 'OnUserInitialize', 'intranet', "CIntranetEventHandlers", "OnAfterUserInitialize");
 
 		if(
 			\Bitrix\Main\Loader::includeModule('socialservices')
@@ -107,6 +108,7 @@ class socialservices extends CModule
 		UnRegisterModuleDependences('perfmon', 'OnGetTableSchema', 'socialservices', 'socialservices', 'OnGetTableSchema');
 		UnRegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkOldUser");
 		UnRegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkAbandonedUser");
+		UnRegisterModuleDependences('socialservices', 'OnUserInitialize', 'intranet', "CIntranetEventHandlers", "OnAfterUserInitialize");
 
 		$dbSites = CSite::GetList("sort", "asc", array("ACTIVE" => "Y"));
 		while ($arSite = $dbSites->Fetch())

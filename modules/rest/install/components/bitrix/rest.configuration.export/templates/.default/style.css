@@ -2,7 +2,7 @@
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	min-height: calc(100vh - 90px);
+	min-height: calc(100vh - 95px);
 }
 
 .rest-configuration-wrapper {

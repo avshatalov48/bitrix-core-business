@@ -17,7 +17,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 if (
 	$pageId !== 'group_create'
 	&& (
-		SITE_TEMPLATE_ID !== 'bitrix24'
+		(SITE_TEMPLATE_ID !== 'bitrix24' && SITE_TEMPLATE_ID !== 'air')
 		|| (int) ($arResult['VARIABLES']['user_id'] ?? null) !== (int) $USER->getId()
 		|| $pageId === 'user'
 		|| !$USER->isAuthorized()

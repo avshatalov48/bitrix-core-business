@@ -4,7 +4,12 @@ import { Event } from 'main.core';
 
 export class TableEditor
 {
-	constructor(node: HTMLElement, textNode: BX.Landing.Node.Text)
+	/**
+	 * @param {HTMLElement} node
+	 * @param {BX.Landing.Node.Text} textNode
+	 * @param {boolean} [needInit=true] - If false, skips initialization.
+	 */
+	constructor(node: HTMLElement, textNode: BX.Landing.Node.Text, needInit: boolean = true)
 	{
 		this.textNode = textNode;
 		this.table = node.querySelector('.landing-table');
@@ -14,6 +19,15 @@ export class TableEditor
 		}
 		this.node = node;
 		this.tBody = this.node.getElementsByTagName('tbody')[0];
+
+		if (needInit === true)
+		{
+			this.init();
+		}
+	}
+
+	init()
+	{
 		this.addTitles(this.node);
 		this.enableEditCells(this.table);
 		this.dragAndDropRows(this);
@@ -24,7 +38,7 @@ export class TableEditor
 		this.addCol(this);
 		this.onUnselect(this);
 		this.unselect(this);
-		this.selectAll(this);
+		this.bindSelectAllHandler(this);
 		this.selectRow(this);
 		this.selectCol(this);
 		this.onCopyTable(this);
@@ -110,67 +124,79 @@ export class TableEditor
 		});
 	}
 
-	selectAll(tableEditor)
+	bindSelectAllHandler()
 	{
-		const thTech = tableEditor.table.querySelector('.landing-table-th-select-all');
-		Event.bind(thTech, 'click', () => {
-			let isSelectedTable = false;
-			if (tableEditor.table.classList.contains('table-selected-all'))
+		const thTech = this.table.querySelector('.landing-table-th-select-all');
+		if (thTech)
+		{
+			Event.bind(thTech, 'click', () => {
+				this.toggleSelectAll();
+			});
+		}
+	}
+
+	toggleSelectAll()
+	{
+		let isSelectedTable = false;
+		if (this.table.classList.contains('table-selected-all'))
+		{
+			isSelectedTable = true;
+		}
+		this.unselect(this, true);
+		const setRows = this.table.querySelectorAll('.landing-table-tr');
+		let count = 0;
+		setRows.forEach((row) => {
+			const setTh = row.childNodes;
+			let index = 0;
+			let lastThIndex = 0;
+			row.childNodes.forEach((cell) => {
+				if (cell.nodeType === 1)
+				{
+					lastThIndex = index;
+				}
+				index++;
+			});
+			if (count > 0)
 			{
-				isSelectedTable = true;
+				const lastTh = setTh[lastThIndex];
+				if (isSelectedTable)
+				{
+					lastTh.classList.remove('table-selected-all-right');
+				}
+				else
+				{
+					lastTh.classList.add('table-selected-all-right');
+				}
 			}
-			tableEditor.unselect(tableEditor, true);
-			const setRows = tableEditor.table.querySelectorAll('.landing-table-tr');
-			let count = 0;
-			setRows.forEach((row) => {
-				const setTh = row.childNodes;
-				let index = 0;
-				let lastThIndex = 0;
-				row.childNodes.forEach((cell) => {
-					if (cell.nodeType === 1)
+			count++;
+			if (count === setRows.length)
+			{
+				setTh.forEach((th) => {
+					if (th.nodeType === 1)
 					{
-						lastThIndex = index;
-					}
-					index++;
-				});
-				if (count > 0)
-				{
-					const lastTh = setTh[lastThIndex];
-					if (isSelectedTable)
-					{
-						lastTh.classList.remove('table-selected-all-right');
-					}
-					else
-					{
-						lastTh.classList.add('table-selected-all-right');
-					}
-				}
-				count++;
-				if (count === setRows.length)
-				{
-					setTh.forEach((th) => {
-						if (th.nodeType === 1)
+						if (isSelectedTable)
 						{
-							if (isSelectedTable)
-							{
-								th.classList.remove('table-selected-all-bottom');
-							}
-							else
-							{
-								th.classList.add('table-selected-all-bottom');
-							}
+							th.classList.remove('table-selected-all-bottom');
 						}
-					});
-				}
-			});
+						else
+						{
+							th.classList.add('table-selected-all-bottom');
+						}
+					}
+				});
+			}
+		});
+		const thTech = this.table.querySelector('.landing-table-th-select-all');
+		if (thTech)
+		{
 			thTech.classList.toggle('landing-table-th-select-all-selected');
-			tableEditor.table.classList.toggle('table-selected-all');
-			tableEditor.table.querySelectorAll('.landing-table-col-dnd').forEach((thDnd) => {
-				thDnd.classList.toggle('landing-table-cell-selected');
-			});
-			tableEditor.table.querySelectorAll('.landing-table-row-dnd').forEach((trDnd) => {
-				trDnd.classList.toggle('landing-table-cell-selected');
-			});
+		}
+		this.table.classList.toggle('table-selected-all');
+		this.table.querySelectorAll('.landing-table-col-dnd').forEach((thDnd) => {
+			thDnd.classList.toggle('landing-table-cell-selected');
+		});
+		this.table.querySelectorAll('.landing-table-row-dnd').forEach((trDnd) => {
+			trDnd.classList.toggle('landing-table-cell-selected');
 		});
 	}
 

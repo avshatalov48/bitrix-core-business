@@ -1,4 +1,5 @@
 <?php
+
 $MESS["SONET_NS_INVITE_USER"] = "Приглашение в друзья";
 $MESS["SONET_NS_INVITE_GROUP_INFO"] = "Информация об изменении в составе группы";
 $MESS['SONET_NS_INVITE_GROUP_INFO_MSGVER_1'] = 'Информация об изменении в составе группы';
@@ -9,3 +10,4 @@ $MESS["SONET_NS_OWNER_GROUP"] = "Смена владельца группы";
 $MESS['SONET_NS_OWNER_GROUP_MSGVER_1'] = 'Смена владельца группы';
 $MESS["SONET_NS_FRIEND"] = "Включение/исключение из списка друзей";
 $MESS["SONET_NS_SONET_GROUP_EVENT"] = "Активность и обновления в группе";
+$MESS["SONET_NS_SONET_GROUP_TITLE"] = "Группы и проекты";

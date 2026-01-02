@@ -57,7 +57,7 @@ class AddFeatureHandler implements AddHandlerInterface
 
 		foreach ($activeSetFeatures as $featureName => $featureId)
 		{
-			$operations = $permissions[$featureName];
+			$operations = $permissions[$featureName] ?? [];
 			if (empty($operations))
 			{
 				continue;

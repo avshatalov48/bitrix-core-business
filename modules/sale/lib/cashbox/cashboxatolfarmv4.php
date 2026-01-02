@@ -22,11 +22,13 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 
 	const CODE_VAT_5 = 'vat5';
 	const CODE_VAT_7 = 'vat7';
+	const CODE_VAT_22 = 'vat22';
 
 	const CODE_CALC_VAT_5 = 'vat105';
 	const CODE_CALC_VAT_7 = 'vat107';
 	const CODE_CALC_VAT_10 = 'vat110';
 	const CODE_CALC_VAT_20 = 'vat120';
+	const CODE_CALC_VAT_22 = 'vat122';
 
 	/**
 	 * @param Check $check
@@ -59,6 +61,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 					'inn' => $this->getValueFromSettings('SERVICE', 'INN'),
 					'payment_address' => $this->getValueFromSettings('SERVICE', 'P_ADDRESS'),
 				],
+				'internet' => $this->getField('USE_OFFLINE') === 'N',
 				'payments' => [],
 				'items' => [],
 				'total' => (float)$data['total_sum']
@@ -361,7 +364,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 	{
 		$vatList = parent::getDefaultVatList();
 
-		return $vatList + [5 => self::CODE_VAT_5, 7 => self::CODE_VAT_7];
+		return $vatList + [5 => self::CODE_VAT_5, 7 => self::CODE_VAT_7, 22 => self::CODE_VAT_22];
 	}
 
 	protected function getVatToCalcVatMap() : array
@@ -371,6 +374,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 			self::CODE_VAT_7 => self::CODE_CALC_VAT_7,
 			self::CODE_VAT_10 => self::CODE_CALC_VAT_10,
 			self::CODE_VAT_20 => self::CODE_CALC_VAT_20,
+			self::CODE_VAT_22 => self::CODE_CALC_VAT_22,
 		];
 	}
 

@@ -1,0 +1,17 @@
+.ui-block-diagram-canvas-map {
+	width: 100%;
+	height: 100%;
+	background-color: transparent;
+}
+
+.ui-block-diagram-canvas-map__block {
+	fill: var(--ui-color-palette-gray-15);
+	color: var(--ui-color-palette-gray-15);
+	stroke: none;
+}
+
+.ui-block-diagram-canvas-map__cursor {
+	fill: none;
+	stroke: var(--ui-color-tag-1);
+	stroke-width: 2;
+}

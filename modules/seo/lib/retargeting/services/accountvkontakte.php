@@ -62,7 +62,7 @@ class AccountVkontakte extends Account
 			return array(
 				'ID' => $data['ID'],
 				'NAME' => $data['FIRST_NAME'] . ' ' . $data['LAST_NAME'],
-				'LINK' => 'https://vk.com/' . $data['SCREEN_NAME'],
+				'LINK' => 'https://vk.ru/' . $data['SCREEN_NAME'],
 				'PICTURE' => (Context::getCurrent()->getRequest()->isHttps() ? 'https' : 'http')
 					. '://'
 					.  Context::getCurrent()->getServer()->getHttpHost() . '/bitrix/images/seo/integration/vklogo.svg',

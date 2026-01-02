@@ -356,7 +356,10 @@ class CComponentUtil
 	{
 		$arTree = CComponentUtil::__GetComponentsTree($filterNamespace, $arNameFilter, $arFilter);
 
-		CComponentUtil::__SortComponentsTree($arTree["#"]);
+		if (isset($arTree["#"]))
+		{
+			CComponentUtil::__SortComponentsTree($arTree["#"]);
+		}
 
 		return $arTree;
 	}
@@ -790,45 +793,144 @@ class CComponentUtil
 					"ADDITIONAL_VALUES" => "N"
 				);
 			}
-			elseif ($arParamKeys[$i] == "USER_CONSENT")
+			elseif ($arParamKeys[$i] == 'USER_CONSENT')
 			{
-				$arComponentParameters["GROUPS"]["USER_CONSENT"] = array(
-					"NAME" => GetMessage("COMP_GROUP_USER_CONSENT"),
-					"SORT" => 350
-				);
+				$arComponentParameters['GROUPS']['USER_CONSENT'] = [
+					'NAME' => GetMessage('COMP_GROUP_USER_CONSENT'),
+					'SORT' => 350,
+				];
 
-				$arComponentParameters["PARAMETERS"]["USER_CONSENT"] = array(
-					"PARENT" => "USER_CONSENT",
-					"NAME" => GetMessage("COMP_PROP_USER_CONSENT_USE"),
-					"TYPE" => "CHECKBOX",
-					"DEFAULT" => "N",
-					"ADDITIONAL_VALUES" => "N"
-				);
+				$arComponentParameters['PARAMETERS']['USER_CONSENT'] = [
+					'PARENT' => 'USER_CONSENT',
+					'NAME' => GetMessage('COMP_PROP_USER_CONSENT_USE'),
+					'TYPE' => 'CHECKBOX',
+					'DEFAULT' => 'N',
+					'ADDITIONAL_VALUES' => 'N',
+				];
 
-				$arComponentParameters["PARAMETERS"]["USER_CONSENT_ID"] = array(
-					"PARENT" => "USER_CONSENT",
-					"NAME" => GetMessage("COMP_PROP_USER_CONSENT_ID"),
-					"TYPE" => "LIST",
-					"VALUES" => array(GetMessage("COMP_PROP_USER_CONSENT_ID_DEF")) + \Bitrix\Main\UserConsent\Agreement::getActiveList(),
-					"MULTIPLE" => "N",
-					"DEFAULT" => "",
-				);
+				$isMultiple = isset($arComponentParameters['PARAMETERS']['USER_CONSENT_IDS']);
+				if ($isMultiple)
+				{
+					$agreements = \Bitrix\Main\UserConsent\Agreement::getActiveList();
+					if (array_key_exists('USER_CONSENT_IDS', $arCurrentValues))
+					{
+						$userConsentIds =
+							is_array($arCurrentValues['USER_CONSENT_IDS'])
+								? $arCurrentValues['USER_CONSENT_IDS']
+								: [$arCurrentValues['USER_CONSENT_IDS']]
+						;
+					}
+					else
+					{
+						$userConsentIds = null;
+					}
+					$defaultUserConsentId = null;
+					$defaultUserConsentChecked = null;
 
-				$arComponentParameters["PARAMETERS"]["USER_CONSENT_IS_CHECKED"] = array(
-					"PARENT" => "USER_CONSENT",
-					"NAME" => GetMessage("COMP_PROP_USER_CONSENT_IS_CHECKED"),
-					"TYPE" => "CHECKBOX",
-					"DEFAULT" => "Y",
-					"ADDITIONAL_VALUES" => "N"
-				);
+					if (!$userConsentIds)
+					{
+						if (
+							isset($arCurrentValues['USER_CONSENT_ID'])
+							&& !isset($arCurrentValues['USER_CONSENT_IS_CHECKED_' . $arCurrentValues['USER_CONSENT_ID']])
+						)
+						{
+							$defaultUserConsentId =
+								$agreements[(int)$arCurrentValues['USER_CONSENT_ID']]
+									? (int)$arCurrentValues['USER_CONSENT_ID']
+									: null
+							;
+							$userConsentIds = [$arCurrentValues['USER_CONSENT_ID']];
+							if (isset($arCurrentValues['USER_CONSENT_IS_CHECKED']))
+							{
+								$defaultUserConsentChecked =
+									$arCurrentValues['USER_CONSENT_IS_CHECKED'] === 'Y'
+										? 'Y'
+										: 'N'
+								;
+							}
+						}
+						else
+						{
+							$userConsentIds = [];
+						}
+					}
+					$arComponentParameters['PARAMETERS']['USER_CONSENT_IDS'] = [
+						'PARENT' => 'USER_CONSENT',
+						'NAME' => GetMessage('COMP_PROP_USER_CONSENT_IDS'),
+						'TYPE' => 'LIST',
+						'VALUES' => $agreements,
+						'MULTIPLE' => 'Y',
+						'DEFAULT' => $defaultUserConsentId ? [$defaultUserConsentId] : '',
+						'REFRESH' => 'Y',
+					];
+					foreach ($userConsentIds as $userConsentId)
+					{
+						if (!is_scalar($userConsentId))
+						{
+							continue;
+						}
 
-				$arComponentParameters["PARAMETERS"]["USER_CONSENT_IS_LOADED"] = array(
-					"PARENT" => "USER_CONSENT",
-					"NAME" => GetMessage("COMP_PROP_USER_CONSENT_IS_LOADED"),
-					"TYPE" => "CHECKBOX",
-					"DEFAULT" => "N",
-					"ADDITIONAL_VALUES" => "N"
-				);
+						$userConsentId = (int)$userConsentId;
+						if ($userConsentId <= 0)
+						{
+							continue;
+						}
+
+						if (!isset($agreements[$userConsentId]))
+						{
+							continue;
+						}
+
+						$arComponentParameters['PARAMETERS']['USER_CONSENT_IS_CHECKED_' . $userConsentId] = [
+							'PARENT' => 'USER_CONSENT',
+							'NAME' => GetMessage(
+								'COMP_PROP_USER_CONSENT_IS_CHECKED_WITH_NAME',
+								['#NAME#' => $agreements[$userConsentId]],
+							),
+							'TYPE' => 'CHECKBOX',
+							'DEFAULT' => $defaultUserConsentId === $userConsentId ? $defaultUserConsentChecked : 'N',
+							'ADDITIONAL_VALUES' => 'N',
+						];
+
+						$arComponentParameters['PARAMETERS']['USER_CONSENT_REQUIRED_' . $userConsentId] = [
+							'PARENT' => 'USER_CONSENT',
+							'NAME' => GetMessage(
+								'COMP_PROP_USER_CONSENT_REQUIRED_WITH_NAME',
+								['#NAME#' => $agreements[$userConsentId]],
+							),
+							'TYPE' => 'CHECKBOX',
+							'DEFAULT' => 'Y',
+							'ADDITIONAL_VALUES' => 'N',
+						];
+					}
+				}
+				else
+				{
+					$arComponentParameters['PARAMETERS']['USER_CONSENT_ID'] = [
+						'PARENT' => 'USER_CONSENT',
+						'NAME' => GetMessage('COMP_PROP_USER_CONSENT_ID'),
+						'TYPE' => 'LIST',
+						'VALUES' => [GetMessage('COMP_PROP_USER_CONSENT_ID_DEF')] + \Bitrix\Main\UserConsent\Agreement::getActiveList(),
+						'MULTIPLE' => 'N',
+						'DEFAULT' => '',
+					];
+
+					$arComponentParameters['PARAMETERS']['USER_CONSENT_IS_CHECKED'] = [
+						'PARENT' => 'USER_CONSENT',
+						'NAME' => GetMessage('COMP_PROP_USER_CONSENT_IS_CHECKED'),
+						'TYPE' => 'CHECKBOX',
+						'DEFAULT' => 'Y',
+						'ADDITIONAL_VALUES' => 'N'
+					];
+				}
+
+				$arComponentParameters['PARAMETERS']['USER_CONSENT_IS_LOADED'] = [
+					'PARENT' => 'USER_CONSENT',
+					'NAME' => GetMessage('COMP_PROP_USER_CONSENT_IS_LOADED'),
+					'TYPE' => 'CHECKBOX',
+					'DEFAULT' => 'N',
+					'ADDITIONAL_VALUES' => 'N'
+				];
 			}
 			else
 			{

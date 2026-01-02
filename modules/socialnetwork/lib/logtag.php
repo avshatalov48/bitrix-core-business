@@ -163,6 +163,9 @@ class LogTagTable extends Entity\DataManager
 
 		$addedLowerCaseTagsList = [];
 
+		$connection = \Bitrix\Main\Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+
 		foreach($params['tags'] as $tag)
 		{
 			$lowerCaseTag = mb_strtolower($tag);
@@ -170,12 +173,19 @@ class LogTagTable extends Entity\DataManager
 			{
 				continue;
 			}
-			self::add(array(
-				'ITEM_TYPE' => $params['itemType'],
-				'ITEM_ID' => intval($params['itemId']),
-				'LOG_ID' => intval($params['logId']),
-				'NAME' => $tag
-			));
+
+			$sqlQuery = $connection->getSqlHelper()->getInsertIgnore(
+				self::getTableName(),
+				' (ITEM_TYPE, ITEM_ID, LOG_ID, NAME) ',
+				"VALUES('"
+				. $sqlHelper->forSql($params['itemType']) . "', "
+				. (int)$params['itemId'] . ", "
+				. (int)$params['logId'] . ", '"
+				. $sqlHelper->forSql($tag) . "')"
+			);
+
+			$connection->query($sqlQuery);
+
 			$addedLowerCaseTagsList[] = $lowerCaseTag; // index requirement;
 		}
 

@@ -1,8 +1,8 @@
-import {Runtime, Type} from 'main.core';
+import { Runtime, Type } from 'main.core';
 
-import {Core} from 'im.v2.application.core';
-import {RestMethod} from 'im.v2.const';
-import {Logger} from 'im.v2.lib.logger';
+import { Core } from 'im.v2.application.core';
+import { RestMethod } from 'im.v2.const';
+import { Logger } from 'im.v2.lib.logger';
 
 export class NotificationReadService
 {
@@ -21,7 +21,7 @@ export class NotificationReadService
 		this.readRequestWithDebounce = Runtime.debounce(this.readRequest, 500, this);
 	}
 
-	addToReadQueue(notificationIds: number[])
+	addToReadQueue(notificationIds: number[]): void
 	{
 		if (!Type.isArrayFilled(notificationIds))
 		{
@@ -44,13 +44,13 @@ export class NotificationReadService
 		});
 	}
 
-	read()
+	read(): void
 	{
 		this.readOnClientWithDebounce();
 		this.readRequestWithDebounce();
 	}
 
-	readRequest()
+	readRequest(): void
 	{
 		if (this.itemsToRead.size === 0)
 		{
@@ -59,47 +59,50 @@ export class NotificationReadService
 
 		const idToReadFrom = Math.min(...this.itemsToRead);
 
-		this.restClient.callMethod(RestMethod.imNotifyRead, {id: idToReadFrom}).then(response => {
-			Logger.warn(`I have read all the notifications from id ${idToReadFrom}`, response);
-		}).catch(() => {
-			// revert?
-		});
+		this.restClient.callMethod(RestMethod.imNotifyRead, { id: idToReadFrom })
+			.then((response) => {
+				Logger.warn(`I have read all the notifications from id ${idToReadFrom}`, response);
+			})
+			.catch((result: RestResult) => {
+				console.error('NotificationReadService: readRequest error', result.error());
+			});
 
 		this.itemsToRead.clear();
 	}
 
 	readOnClient()
 	{
-		this.store.dispatch('notifications/read', {ids: [...this.itemsToRead], read: true});
+		this.store.dispatch('notifications/read', { ids: [...this.itemsToRead], read: true });
 	}
 
-	readAll()
+	readAll(): void
 	{
 		this.store.dispatch('notifications/readAll');
 
-		this.restClient.callMethod(RestMethod.imNotifyRead, {id: 0}).then(response => {
-			Logger.warn('I have read ALL the notifications', response);
-		}).catch(error => {
-			console.error(error);
-		});
+		this.restClient.callMethod(RestMethod.imNotifyRead, { id: 0 })
+			.then((response) => {
+				Logger.warn('I have read ALL the notifications', response);
+			}).catch((result: RestResult) => {
+				console.error('NotificationReadService: readAll error', result.error());
+			});
 	}
 
-	changeReadStatus(notificationId: number)
+	changeReadStatus(notificationId: number): void
 	{
 		const notification = this.store.getters['notifications/getById'](notificationId);
-		this.store.dispatch('notifications/read', {ids: [notification.id], read: !notification.read});
+		this.store.dispatch('notifications/read', { ids: [notification.id], read: !notification.read });
 
 		clearTimeout(this.changeReadStatusBlockTimeout[notification.id]);
 		this.changeReadStatusBlockTimeout[notification.id] = setTimeout(() => {
 			this.restClient.callMethod(RestMethod.imNotifyRead, {
 				id: notification.id,
 				action: notification.read ? 'N' : 'Y',
-				only_current: 'Y'
+				only_current: 'Y',
 			}).then(() => {
 				Logger.warn(`Notification ${notification.id} unread status set to ${!notification.read}`);
-			}).catch(error => {
-				console.error(error);
-				//revert?
+			}).catch((result: RestResult) => {
+				console.error('NotificationReadService: changeReadStatus error', result.error());
+				// revert?
 			});
 		}, 1500);
 	}

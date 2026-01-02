@@ -147,13 +147,13 @@ if ($postRight >= 'R'):
 		'header',
 		Loc::getMessage('LANDING_OPT_OTHER')
 	);
-	$allOptions[] = array(
-		'google_images_key',
-		Loc::getMessage('LANDING_OPT_GOOGLE_IMAGES_KEY') . ':',
-		array('text', 32)
-	);
 	if (Manager::isB24())
 	{
+		$allOptions[] = array(
+			'google_images_key',
+			Loc::getMessage('LANDING_OPT_GOOGLE_IMAGES_KEY') . ':',
+			array('text', 32),
+		);
 		$allOptions[] = array(
 			'portal_url',
 			Loc::getMessage('LANDING_OPT_PORTAL_URL') . ' (host[:port]):',

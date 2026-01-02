@@ -112,6 +112,19 @@ BX.MailClientConfig.Edit = {
 			}
 		}
 
+		if (this.isSuccessSyncStatus === false)
+		{
+			if (this.isOauthMode)
+			{
+				this.showOauthAuthorizationBlock();
+				this.showOauthErrorTour();
+			}
+			else
+			{
+				this.showPasswordErrorTour();
+			}
+		}
+
 		if (this.isOauthMode && this.oauthUserIsEmpty)
 		{
 			this.showOauthAuthorizationBlock();

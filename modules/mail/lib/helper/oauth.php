@@ -305,7 +305,6 @@ abstract class OAuth
 				$this->getRedirect(),
 				http_build_query(array(
 					'check_key' => \CSocServAuthManager::getUniqueKey(),
-					'dummy' => 'https://dummy.bitrix24.com/',
 					'state' => rawurlencode(http_build_query(array(
 						'service' => $this->service,
 						'uid' => $this->storedUid,

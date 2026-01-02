@@ -4,6 +4,7 @@ namespace Bitrix\UI\FileUploader;
 
 use Bitrix\Main\ORM\Objectify\State;
 use Bitrix\Main\Security\Sign\Signer;
+use Bitrix\Main\UI\Viewer\ItemAttributes;
 use Bitrix\UI\FileUploader\Contracts\CustomFingerprint;
 use Bitrix\UI\FileUploader\Contracts\CustomLoad;
 use Bitrix\UI\FileUploader\Contracts\CustomRemove;
@@ -473,6 +474,9 @@ class Uploader
 		{
 			$downloadUrl = (string)UrlManager::getDownloadUrl($this->getController(), $fileInfo);
 			$fileInfo->setDownloadUrl($downloadUrl);
+
+			$fileInfo->setViewerAttrs($this->prepareViewerAttrs($fileInfo, $downloadUrl));
+
 			if ($fileInfo->isImage())
 			{
 				$config = $this->getController()->getConfiguration();
@@ -492,6 +496,23 @@ class Uploader
 		}
 
 		return $fileInfo;
+	}
+
+	private function prepareViewerAttrs(FileInfo $fileInfo, string $downloadUrl): array
+	{
+		$fileData = [
+			'ID' => $fileInfo->getId(),
+			'CONTENT_TYPE' => $fileInfo->getContentType(),
+			'ORIGINAL_NAME' => $fileInfo->getName(),
+			'WIDTH' => $fileInfo->getWidth(),
+			'HEIGHT' => $fileInfo->getHeight(),
+			'FILE_SIZE' => $fileInfo->getSize(),
+		];
+
+		return ItemAttributes::buildByFileData($fileData, $downloadUrl)
+			->setTitle($fileInfo->getName())
+			->toDataSet()
+		;
 	}
 
 	private function splitIds(array $ids): array

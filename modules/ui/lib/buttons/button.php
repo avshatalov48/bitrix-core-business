@@ -88,9 +88,19 @@ class Button extends BaseButton
 			$this->setColor($params['color']);
 		}
 
+		if (isset($params['style']))
+		{
+			$this->setStyle($params['style']);
+		}
+
 		if (isset($params['icon']))
 		{
 			$this->setIcon($params['icon']);
+		}
+
+		if (isset($params['collapsedIcon']))
+		{
+			$this->setCollapsedIcon($params['collapsedIcon']);
 		}
 
 		if (isset($params['state']))
@@ -112,10 +122,19 @@ class Button extends BaseButton
 		{
 			$this->setNoCaps($params['noCaps']);
 		}
+		elseif ($this->hasAirDesign())
+		{
+			$this->setNoCaps();
+		}
 
 		if (isset($params['round']))
 		{
 			$this->setRound($params['round']);
+		}
+
+		if (isset($params['collapsed']) && $params['collapsed'] === true)
+		{
+			$this->setCollapsed();
 		}
 
 		$isDropdown = $params['dropdown'] ?? null;
@@ -131,7 +150,46 @@ class Button extends BaseButton
 
 	public function setIcon($icon)
 	{
+		if (isset($icon))
+		{
+			$this->addClass('ui-icon-set__scope');
+		}
+		else
+		{
+			$this->removeClass('ui-icon-set__scope');
+		}
+
+		if ($this->hasAirDesign())
+		{
+			$this->addClass('--with-left-icon');
+		}
+		else
+		{
+			$this->removeClass('--with-left-icon');
+		}
+
 		return $this->setProperty('icon', $icon, Icon::class);
+	}
+
+	public function setCollapsedIcon($icon): Button
+	{
+		if (isset($icon))
+		{
+			$this->addClass('ui-icon-set__scope');
+			$this->addClass('--with-collapsed-icon');
+		}
+		else
+		{
+			$this->removeClass('ui-icon-set__scope');
+			$this->removeClass('--with-collapsed-icon');
+		}
+
+		return $this->setProperty('icon', $icon, Icon::class);
+	}
+
+	public function hasCollapsedIcon(): bool
+	{
+		return $this->hasClass('--with-collapsed-icon');
 	}
 
 	public function getIcon()
@@ -156,6 +214,25 @@ class Button extends BaseButton
 	public function getColor()
 	{
 		return $this->getProperty('color');
+	}
+
+	/**
+	 * @param $style
+	 * @return $this
+	 */
+	public function setStyle($style): self
+	{
+		$this->setProperty('style', $style, AirButtonStyle::class);
+
+		return $this;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getStyle(): ?string
+	{
+		return $this->getProperty('style');
 	}
 
 	/**

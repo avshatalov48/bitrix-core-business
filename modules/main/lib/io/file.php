@@ -1,9 +1,8 @@
 <?php
+
 namespace Bitrix\Main\IO;
 
-class File
-	extends FileEntry
-	implements IFileStream
+class File extends FileEntry implements IFileStream
 {
 	const REWRITE = 0;
 	const APPEND = 1;
@@ -25,7 +24,7 @@ class File
 	 */
 	public function open($mode)
 	{
-		$this->filePointer = fopen($this->getPhysicalPath(), $mode."b");
+		$this->filePointer = fopen($this->getPhysicalPath(), $mode . "b");
 		if (!$this->filePointer)
 		{
 			throw new FileOpenException($this->originalPath);
@@ -40,7 +39,7 @@ class File
 	 */
 	public function close()
 	{
-		if(!$this->filePointer)
+		if (!$this->filePointer)
 		{
 			throw new FileNotOpenedException($this->originalPath);
 		}
@@ -50,14 +49,21 @@ class File
 
 	public function isExists()
 	{
-		$p = $this->getPhysicalPath();
-		return file_exists($p) && (is_file($p) || is_link($p));
+		if ($this->exists === null)
+		{
+			$p = $this->getPhysicalPath();
+			$this->exists = file_exists($p) && (is_file($p) || is_link($p));
+		}
+
+		return $this->exists;
 	}
 
 	public function getContents()
 	{
 		if (!$this->isExists())
+		{
 			throw new FileNotFoundException($this->originalPath);
+		}
 
 		return file_get_contents($this->getPhysicalPath());
 	}
@@ -66,10 +72,16 @@ class File
 	{
 		$dir = $this->getDirectory();
 		if (!$dir->isExists())
+		{
 			$dir->create();
+		}
 
 		if ($this->isExists() && !$this->isWritable())
+		{
 			$this->markWritable();
+		}
+
+		$this->exists = null;
 
 		return $flags & self::APPEND
 			? file_put_contents($this->getPhysicalPath(), $data, FILE_APPEND)
@@ -91,22 +103,22 @@ class File
 		}
 
 		static $supportLarge32 = null;
-		if($supportLarge32 === null)
+		if ($supportLarge32 === null)
 		{
 			$supportLarge32 = (\Bitrix\Main\Config\Configuration::getValue("large_files_32bit_support") === true);
 		}
 
 		$size = 0;
-		if(PHP_INT_SIZE < 8 && $supportLarge32)
+		if (PHP_INT_SIZE < 8 && $supportLarge32)
 		{
 			// 32bit
 			$this->open(FileStreamOpenMode::READ);
 
-			if(fseek($this->filePointer, 0, SEEK_END) === 0)
+			if (fseek($this->filePointer, 0, SEEK_END) === 0)
 			{
 				$size = 0.0;
 				$step = 0x7FFFFFFF;
-				while($step > 0)
+				while ($step > 0)
 				{
 					if (fseek($this->filePointer, -$step, SEEK_CUR) === 0)
 					{
@@ -127,7 +139,7 @@ class File
 			$size = filesize($this->getPhysicalPath());
 		}
 
-	    return $size;
+		return $size;
 	}
 
 	/**
@@ -139,31 +151,31 @@ class File
 	 */
 	public function seek($position)
 	{
-		if(!$this->filePointer)
+		if (!$this->filePointer)
 		{
 			throw new FileNotOpenedException($this->originalPath);
 		}
 
-		if($position <= PHP_INT_MAX)
+		if ($position <= PHP_INT_MAX)
 		{
-			return fseek($this->filePointer, $position, SEEK_SET);
+			return fseek($this->filePointer, $position);
 		}
 		else
 		{
-			$res = fseek($this->filePointer, 0, SEEK_SET);
-			if($res === 0)
+			$res = fseek($this->filePointer, 0);
+			if ($res === 0)
 			{
 				do
 				{
-					$offset = ($position < PHP_INT_MAX? $position : PHP_INT_MAX);
+					$offset = ($position < PHP_INT_MAX ? $position : PHP_INT_MAX);
 					$res = fseek($this->filePointer, $offset, SEEK_CUR);
-					if($res !== 0)
+					if ($res !== 0)
 					{
 						break;
 					}
 					$position -= PHP_INT_MAX;
 				}
-				while($position > 0);
+				while ($position > 0);
 			}
 			return $res;
 		}
@@ -172,7 +184,9 @@ class File
 	public function isWritable()
 	{
 		if (!$this->isExists())
+		{
 			throw new FileNotFoundException($this->originalPath);
+		}
 
 		return is_writable($this->getPhysicalPath());
 	}
@@ -180,7 +194,9 @@ class File
 	public function isReadable()
 	{
 		if (!$this->isExists())
+		{
 			throw new FileNotFoundException($this->originalPath);
+		}
 
 		return is_readable($this->getPhysicalPath());
 	}
@@ -188,55 +204,30 @@ class File
 	public function readFile()
 	{
 		if (!$this->isExists())
+		{
 			throw new FileNotFoundException($this->originalPath);
+		}
 
 		return readfile($this->getPhysicalPath());
-	}
-
-	public function getCreationTime()
-	{
-		if (!$this->isExists())
-			throw new FileNotFoundException($this->originalPath);
-
-		return filectime($this->getPhysicalPath());
-	}
-
-	public function getLastAccessTime()
-	{
-		if (!$this->isExists())
-			throw new FileNotFoundException($this->originalPath);
-
-		return fileatime($this->getPhysicalPath());
-	}
-
-	public function getModificationTime()
-	{
-		if (!$this->isExists())
-			throw new FileNotFoundException($this->originalPath);
-
-		return filemtime($this->getPhysicalPath());
 	}
 
 	public function markWritable()
 	{
 		if (!$this->isExists())
+		{
 			throw new FileNotFoundException($this->originalPath);
+		}
 
 		@chmod($this->getPhysicalPath(), BX_FILE_PERMISSIONS);
-	}
-
-	public function getPermissions()
-	{
-		if (!$this->isExists())
-			throw new FileNotFoundException($this->originalPath);
-
-		return fileperms($this->getPhysicalPath());
 	}
 
 	public function delete()
 	{
 		if ($this->isExists())
+		{
+			$this->exists = null;
 			return unlink($this->getPhysicalPath());
+		}
 
 		return true;
 	}
@@ -244,7 +235,9 @@ class File
 	public function getContentType()
 	{
 		if (!$this->isExists())
+		{
 			throw new FileNotFoundException($this->originalPath);
+		}
 
 		$finfo = \finfo_open(FILEINFO_MIME_TYPE);
 		$contentType = \finfo_file($finfo, $this->getPath());
@@ -265,7 +258,7 @@ class File
 		return $f->getContents();
 	}
 
-	public static function putFileContents($path, $data, $flags=self::REWRITE)
+	public static function putFileContents($path, $data, $flags = self::REWRITE)
 	{
 		$f = new self($path);
 		return $f->putContents($data, $flags);

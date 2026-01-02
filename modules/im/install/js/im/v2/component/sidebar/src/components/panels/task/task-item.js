@@ -2,11 +2,12 @@ import { Type, Text } from 'main.core';
 import { LabelColor } from 'ui.label';
 
 import { Utils } from 'im.v2.lib.utils';
-import { ImModelSidebarTaskItem } from 'im.v2.model';
-import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 import { highlightText } from 'im.v2.lib.text-highlighter';
 
 import './css/task-item.css';
+
+import type { ImModelSidebarTaskItem } from 'im.v2.model';
 
 // @vue/component
 export const TaskItem = {

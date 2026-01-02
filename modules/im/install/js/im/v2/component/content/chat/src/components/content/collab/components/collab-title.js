@@ -2,7 +2,8 @@ import { Loc } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
 import { EventType, SidebarDetailBlock } from 'im.v2.const';
-import { ChatTitle, LineLoader } from 'im.v2.component.elements';
+import { LineLoader } from 'im.v2.component.elements.loader';
+import { ChatTitle } from 'im.v2.component.elements.chat-title';
 import { FadeAnimation } from 'im.v2.component.animation';
 
 import '../css/collab-title.css';
@@ -72,7 +73,7 @@ export const CollabTitle = {
 	template: `
 		<div class="bx-im-collab-header-title__container">
 			<div class="bx-im-collab-header-title__title-container --ellipsis">
-				<ChatTitle :dialogId="dialogId" />
+				<ChatTitle :dialogId="dialogId" :withAutoDelete="true" />
 			</div>
 			<LineLoader v-if="!dialog.inited" :width="50" :height="16" />
 			<FadeAnimation :duration="100">

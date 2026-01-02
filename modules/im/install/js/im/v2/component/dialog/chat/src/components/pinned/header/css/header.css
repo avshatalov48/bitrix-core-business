@@ -1,0 +1,27 @@
+.bx-im-dialog-chat__pinned_header {
+	--im-dialog-chat__header_pin_height: 52px;
+
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	top: 0;
+	background-color: var(--im-dialog-chat__background-color_pinned);
+	font-size: var(--im-font-size-md);
+	color: var(--im-dialog-chat__font-color_pinned-title);
+	font-weight: var(--im-font-weight-semi-bold);
+	padding: 6px 18px;
+	height: var(--im-dialog-chat__header_pin_height);
+	border-top: 1px solid var(--im-dialog-chat__background-color_pinned-separator);
+	border-bottom: 1px solid var(--im-dialog-chat__background-color_pinned-separator);
+	z-index: 111;
+}
+
+.bx-im-dialog-chat__pinned_icon-header-unpin {
+	width: 24px;
+	height: 24px;
+	background-image: url('./images/unpin.svg');
+	background-color: transparent;
+	cursor: pointer;
+	border: none;
+	visibility: visible;
+}

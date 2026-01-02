@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
 this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
@@ -13,7 +14,8 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	  },
 	  consent: {
 	    accepted: 'Sale:PaymentPay:Consent:Accepted',
-	    refused: 'Sale:PaymentPay:Consent:Refused'
+	    refused: 'Sale:PaymentPay:Consent:Refused',
+	    save: 'Sale:PaymentPay:Consent:Save'
 	  },
 	  global: {
 	    paySystemAjaxError: 'onPaySystemAjaxError',

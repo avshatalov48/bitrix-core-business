@@ -7,10 +7,21 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Application;
 use Bitrix\Main\IO\File;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
+use Bitrix\UI\Buttons;
+use Bitrix\UI\Toolbar\ButtonLocation;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
+
+/** @global CMain $APPLICATION */
+/** @var CatalogStoreDocumentDetailComponent $component */
+/** @var array $arResult */
+/** @var array $arParams */
+/** @var string $templateFolder */
+
+Loader::includeModule('ui');
 
 global $APPLICATION;
 
@@ -23,9 +34,14 @@ elseif (empty($arResult['DOCUMENT']) && empty($arResult['ERROR_MESSAGES']))
 	$APPLICATION->SetTitle(Loc::getMessage('DOC_TYPE_CREATION_PAGE_TITLE_' . $arResult['DOCUMENT_TYPE']));
 }
 
-\Bitrix\Main\UI\Extension::load([
+Extension::load([
 	'ui.design-tokens',
 	'ui.fonts.opensans',
+	'ui.alerts',
+	'ui.entity-selector',
+	'catalog.document-card',
+	'catalog.entity-card',
+	'catalog.document-model',
 ]);
 
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
@@ -55,30 +71,18 @@ if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES'])
 	return;
 }
 
-Extension::load([
-	'ui.alerts',
-	'catalog.document-card',
-	'catalog.entity-card',
-	'ui.entity-selector',
-	'catalog.document-model',
-]);
-
 Toolbar::deleteFavoriteStar();
+Toolbar::enableMultiLineTitle();
 
-if (isset($arResult['TOOLBAR_ID']))
-{
-	$APPLICATION->IncludeComponent(
-		'bitrix:crm.interface.toolbar',
-		(SITE_TEMPLATE_ID === 'bitrix24' ? 'slider' : 'type2'),
-		[
-			'TOOLBAR_ID' => $arResult['TOOLBAR_ID'],
-			'BUTTONS' => $arResult['BUTTONS'] ?? []
-		],
-		$component,
-		['HIDE_ICONS' => 'Y']
-	);
-}
-
+$insidePageTitleConfig = [
+	'enableEditTitle' => false,
+	'enablePageLink' => false,
+	'enableStatusLabel' => false,
+	'statusLabel' => [
+		'text' => '',
+		'color' => '',
+	],
+];
 $documentId = (int)($arResult['DOCUMENT']['ID'] ?? 0);
 if ($documentId > 0)
 {
@@ -102,37 +106,50 @@ if ($documentId > 0)
 		$labelText = Loc::getMessage('DOCUMENT_STATUS_' . $arResult['DOCUMENT']['STATUS']);
 	}
 
-	$this->SetViewTarget('in_pagetitle');
-	?>
-	<div class="catalog-title-buttons-wrapper">
-	<span id="pagetitle_btn_wrapper" class="pagetitile-button-container">
-		<?php if (!$arResult['IS_MAIN_CARD_READ_ONLY']): ?>
-			<span id="pagetitle_edit" class="pagetitle-edit-button"></span>
-		<?php endif; ?>
-		<span id="page_url_copy_btn" class="page-link-btn"></span>
-	</span>
-		<span class="ui-label ui-label-lg document-status-label ui-label-fill <?= $labelColorClass ?>">
-		<span class="ui-label-inner">
-			<?= $labelText ?>
-		</span>
-	</span>
-	</div>
-	<div class="catalog-title-document-type">
-		<?= Loc::getMessage('DOC_TYPE_SHORT_' . $arResult['DOCUMENT_TYPE']) ?>
-	</div>
-	<?php
-	$this->EndViewTarget();
+	$insidePageTitleConfig['enableEditTitle'] = !$arResult['IS_MAIN_CARD_READ_ONLY'];
+	$insidePageTitleConfig['enablePageLink'] = true;
+	$insidePageTitleConfig['enableStatusLabel'] = true;
+	$insidePageTitleConfig['statusLabel']['text'] = $labelText;
+	$insidePageTitleConfig['statusLabel']['color'] = $labelColorClass;
+
+	$underText =
+		'<div class="catalog-title-document-type">'
+		. Loc::getMessage('DOC_TYPE_SHORT_' . $arResult['DOCUMENT_TYPE'])
+		. '</div>'
+	;
+	Toolbar::addUnderTitleHtml($underText);
+	unset($underText);
 }
 elseif (!empty($arResult['DROPDOWN_TYPES']))
 {
-	$this->SetViewTarget('in_pagetitle');
-	?>
-	<div id="catalog-document-type-selector" class="catalog-document-type-selector">
-		<span class="catalog-document-type-selector-text" data-hint="" data-hint-no-icon><?= Loc::getMessage('DOCUMENT_TYPE_DROPDOWN', ['#TYPE#' => Loc::getMessage('DOC_TYPE_SHORT_' . $arResult['DOCUMENT_TYPE'])]) ?></span>
-	</div>
-	<?php
-	$this->EndViewTarget();
+	$dropDownTypes =
+		'<div id="catalog-document-type-selector" class="catalog-document-type-selector">'
+		. '<span class="catalog-document-type-selector-text" data-hint="" data-hint-no-icon>'
+		. Loc::getMessage(
+			'DOCUMENT_TYPE_DROPDOWN',
+			[
+				'#TYPE#' => Loc::getMessage('DOC_TYPE_SHORT_' . $arResult['DOCUMENT_TYPE']),
+			]
+		)
+		. '</span>'
+		.'</div>'
+	;
+	Toolbar::addUnderTitleHtml($dropDownTypes);
+	unset($dropDownTypes);
 }
+
+if (is_array($arResult['CRM_DOCUMENT_BUTTON_CONFIG']))
+{
+	$documentButton = new Buttons\DocumentButton();
+	$documentButton->setDocumentButtonConfig($arResult['CRM_DOCUMENT_BUTTON_CONFIG']);
+	Toolbar::addButton($documentButton, ButtonLocation::RIGHT);
+}
+
+$feedBackButton = new Buttons\FeedbackButton([
+	'highlight' => $documentId <= 0,
+	'click' => new Buttons\JsCode('BX.Catalog.DocumentCard.Slider.openFeedbackForm();'),
+]);
+Toolbar::addButton($feedBackButton, ButtonLocation::RIGHT);
 
 $tabs = [
 	[
@@ -238,24 +255,25 @@ $wrapperClassNames[] = $arResult['INCLUDE_CRM_ENTITY_EDITOR'] ? 'catalog-entity-
 			copyLinkButtonId: 'page_url_copy_btn',
 			componentName: <?=CUtil::PhpToJSObject($this->getComponent()->getName()) ?>,
 			signedParameters: <?=CUtil::PhpToJSObject($this->getComponent()->getSignedParameters()) ?>,
-			isConductLocked: <?= CUtil::PhpToJSObject($arResult['IS_CONDUCT_LOCKED']) ?>,
+			isConductLocked: <?= ($arResult['IS_CONDUCT_LOCKED'] ? 'true' : 'false') ?>,
 			masterSliderUrl: <?= CUtil::PhpToJSObject($arResult['MASTER_SLIDER_URL']) ?>,
-			isInventoryManagementDisabled: <?= CUtil::PhpToJSObject($arResult['IS_INVENTORY_MANAGEMENT_DISABLED']) ?>,
+			isInventoryManagementDisabled: <?= ($arResult['IS_INVENTORY_MANAGEMENT_DISABLED'] ? 'true' : 'false') ?>,
 			inventoryManagementFeatureCode: <?= CUtil::PhpToJSObject($arResult['INVENTORY_MANAGEMENT_FEATURE_SLIDER_CODE']) ?>,
 			inventoryManagementSource: <?= CUtil::PhpToJSObject($arResult['INVENTORY_MANAGEMENT_SOURCE']) ?>,
-			lockedCancellation: <?= CUtil::PhpToJSObject($arResult['IS_PRODUCT_BATCH_METHOD_SELECTED']) ?>,
-			includeCrmEntityEditor: <?= Cutil::PhpToJSObject($arResult['INCLUDE_CRM_ENTITY_EDITOR']) ?>,
+			lockedCancellation: <?= ($arResult['IS_PRODUCT_BATCH_METHOD_SELECTED'] ? 'true' : 'false') ?>,
+			includeCrmEntityEditor: <?= ($arResult['INCLUDE_CRM_ENTITY_EDITOR'] ? 'true' : 'false') ?>,
+			insidePageTitleConfig: <?= Json::encode($insidePageTitleConfig) ?>,
 		}
 	);
 
 	BX.ready(function () {
 		BX.Catalog.DocumentCard.Instance.adjustToolPanel();
-		<?php if (isset($arResult['TOOLBAR_ID'])):?>
+		<?php /*if (isset($arResult['TOOLBAR_ID'])):?>
 		BX.Catalog.DocumentCard.FeedbackButton.render(
 			document.getElementById('<?=CUtil::JSEscape($arResult['TOOLBAR_ID'])?>'),
 			<?=CUtil::JSEscape($documentId <= 0)?>
 		);
-		<?php endif; ?>
+		<?php endif; */ ?>
 
 		<?php if (isset($arResult['FOCUSED_TAB'])): ?>
 			const tabId = '<?=CUtil::JSEscape($arResult['FOCUSED_TAB'])?>';

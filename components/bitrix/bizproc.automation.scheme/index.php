@@ -26,6 +26,7 @@ if ($request['IFRAME'] === 'Y' && $request['IFRAME_TYPE'] === 'SIDE_SLIDER')
 				'robotNames' => $request['selectedRobots'],
 				'triggerNames' => $request['selectedTriggers'],
 			],
+			"USE_UI_TOOLBAR" => "Y",
 		]
 	);
 }

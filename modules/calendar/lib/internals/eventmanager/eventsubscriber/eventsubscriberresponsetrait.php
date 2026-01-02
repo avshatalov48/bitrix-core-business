@@ -4,7 +4,6 @@ namespace Bitrix\Calendar\Internals\EventManager\EventSubscriber;
 
 use Bitrix\Calendar\Core\Common;
 use Bitrix\Main\EventResult;
-use phpDocumentor\Reflection\Types\This;
 
 trait EventSubscriberResponseTrait
 {
@@ -16,6 +15,11 @@ trait EventSubscriberResponseTrait
 	private function makeUndefinedResponse($parameters = []): EventResult
 	{
 		return $this->makeCommonResponse(EventResult::UNDEFINED, $parameters);
+	}
+
+	private function makeErrorResponse($parameters = []): EventResult
+	{
+		return $this->makeCommonResponse(EventResult::ERROR, $parameters);
 	}
 
 	private function makeCommonResponse(string $type, $parameters = []): EventResult

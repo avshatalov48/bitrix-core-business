@@ -25,3 +25,4 @@ DROP TABLE if exists b_calendar_open_event_option;
 DROP TABLE if exists b_calendar_open_event_category_attendee;
 DROP TABLE if exists b_calendar_scorer;
 DROP TABLE if exists b_calendar_open_event_category_banned;
+DROP TABLE if exists b_calendar_messenger_message;

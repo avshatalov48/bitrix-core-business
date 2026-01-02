@@ -16,6 +16,10 @@ class CIBlock extends CAllIBlock
 
 		$strSqlSearch = "";
 		$bAddSites = false;
+		if (!is_array($arFilter))
+		{
+			$arFilter = [];
+		}
 		foreach($arFilter as $key => $val)
 		{
 			$res = CIBlock::MkOperationFilter($key);

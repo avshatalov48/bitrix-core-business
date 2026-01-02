@@ -12,9 +12,9 @@ $MESS["IM_CREATE_CHAT_SETTINGS_SECTION_OPEN_TITLE"] = "Открытый";
 $MESS["IM_CREATE_CHAT_SETTINGS_SECTION_OPEN_SUBTITLE"] = "Чат можно найти в общем списке, вступить в него может любой желающий. Подходит для взаимодействия между командами, адаптации новых сотрудников и общения";
 $MESS["IM_CREATE_CHAT_SETTINGS_SECTION_DESCRIPTION"] = "Описание";
 $MESS["IM_CREATE_CHAT_SETTINGS_SECTION_DESCRIPTION_PLACEHOLDER_MSGVER_1"] = "Напишите, для чего создан чат и что в нём будет обсуждаться";
-
+$MESS["IM_CREATE_CHAT_SETTINGS_SECTION_MESSAGES_AUTO_DELETE_HINT"] = "Новые сообщения в этом чате будут автоматически удаляться по выбранному расписанию";
+$MESS["IM_CREATE_CHAT_SETTINGS_SECTION_MESSAGES_AUTO_DELETE_TITLE"] = "Автоудаление сообщений";
 $MESS["IM_CREATE_CHAT_RIGHTS_SECTION"] = "Права доступа";
-$MESS["IM_CREATE_CHAT_RIGHTS_SECTION_OWNER"] = "Владелец";
 $MESS["IM_CREATE_CHAT_RIGHTS_SECTION_MANAGERS"] = "Администраторы";
 $MESS["IM_CREATE_CHAT_RIGHTS_SECTION_ADD_MANAGERS"] = "Добавить администратора";
 $MESS["IM_CREATE_CHAT_RIGHTS_SECTION_ROLE_MEMBER"] = "Все участники";

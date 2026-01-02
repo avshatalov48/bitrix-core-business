@@ -518,37 +518,44 @@ class CHTTP
 	/**
 	 * @deprecated Use \Bitrix\Main\Web\Uri::addParams().
 	 */
-	public static function urlAddParams($url, $add_params, $options = array())
+	public static function urlAddParams($url, $add_params, $options = [])
 	{
-		if(!empty($add_params))
+		if (!empty($add_params))
 		{
-			$params = array();
-			foreach($add_params as $name => $value)
+			$params = [];
+			foreach ($add_params as $name => $value)
 			{
-				if(($options["skip_empty"] ?? false) && (string)$value == '')
-					continue;
-				if(($options["encode"] ?? false))
-					$params[] = urlencode($name).'='.urlencode($value);
-				else
-					$params[] = $name.'='.$value;
-			}
-
-			if(!empty($params))
-			{
-				$p1 = mb_strpos($url, "?");
-				if($p1 === false)
-					$ch = "?";
-				else
-					$ch = "&";
-
-				$p2 = mb_strpos($url, "#");
-				if($p2===false)
+				if (is_array($value))
 				{
-					$url = $url.$ch.implode("&", $params);
+					// arrays are unsupported, use \Bitrix\Main\Web\Uri::addParams()
+					continue;
+				}
+				if (!empty($options["skip_empty"]) && (string)$value == '')
+				{
+					continue;
+				}
+				if (!empty($options["encode"]))
+				{
+					$params[] = urlencode($name) . '=' . urlencode($value);
 				}
 				else
 				{
-					$url = mb_substr($url, 0, $p2).$ch.implode("&", $params).mb_substr($url, $p2);
+					$params[] = $name . '=' . $value;
+				}
+			}
+
+			if (!empty($params))
+			{
+				$ch = (mb_strpos($url, "?") === false ? "?" : "&");
+
+				$p2 = mb_strpos($url, "#");
+				if ($p2 === false)
+				{
+					$url = $url . $ch . implode("&", $params);
+				}
+				else
+				{
+					$url = mb_substr($url, 0, $p2) . $ch . implode("&", $params) . mb_substr($url, $p2);
 				}
 			}
 		}

@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Landing\Block;
 
+use Bitrix\Landing\Manager;
+
 class DesignerRepo extends \Bitrix\Landing\Internals\BaseTable
 {
 	/**
@@ -108,15 +110,7 @@ class DesignerRepo extends \Bitrix\Landing\Internals\BaseTable
 		Designer::registerRepoElement([
 			'XML_ID' => 'video',
 			'SORT' => 500,
-			'HTML' => '
-<div class="landing-block-node-video-container g-pointer-events-all embed-responsive embed-responsive-16by9 mx-auto w-100">
-	<div class="landing-block-node-embed embed-responsive-item g-video-preview w-100"
-		data-src="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=0&controls=1&loop=1&mute=0&rel=0"
-		data-source="https://www.youtube.com/watch?v=q4d8g9Dn3ww"
-		data-preview="//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg"
-		style="background-image:url(//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg)"
-	></div>
-</div>',
+			'HTML' => self::getVideoElementHTML(),
 			'MANIFEST' => [
 				'nodes' => [
 					'.landing-block-node-embed' => [
@@ -261,5 +255,33 @@ class DesignerRepo extends \Bitrix\Landing\Internals\BaseTable
 				]
 			]
 		]);
+	}
+
+	private static function getVideoElementHTML(): string
+	{
+		if (Manager::getZone() === 'ru')
+		{
+			return '
+				<div class="landing-block-node-video-container g-pointer-events-all embed-responsive embed-responsive-16by9 mx-auto w-100">
+					<div class="landing-block-node-embed embed-responsive-item g-video-preview w-100"
+						data-src=""
+						data-source=""
+						data-preview=""
+						style="background-image:url()"
+					></div>
+				</div>
+			';
+		}
+
+		return '
+			<div class="landing-block-node-video-container g-pointer-events-all embed-responsive embed-responsive-16by9 mx-auto w-100">
+				<div class="landing-block-node-embed embed-responsive-item g-video-preview w-100"
+					data-src="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=0&controls=1&loop=1&mute=0&rel=0"
+					data-source="https://www.youtube.com/watch?v=q4d8g9Dn3ww"
+					data-preview="//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg"
+					style="background-image:url(//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg)"
+				></div>
+			</div>
+		';
 	}
 }

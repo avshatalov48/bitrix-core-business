@@ -1,0 +1,21 @@
+.ui-block-diagram-percent {
+    display: inline-block;
+    width: 41px;
+    font-size: 14px;
+    line-height: 19px;
+    letter-spacing: -0.05px;
+    text-align: center;
+}
+
+.ui-block-diagram-percent:after {
+    content: '%';
+    display: inline-block;
+    width: 10px;
+    margin-left: 3px;
+    font: var(--ui-font-weight-medium) 10px/12px var(--ui-font-family-system);
+    font-size: 12px;
+    line-height: 15px;
+    letter-spacing: -0.05px;
+    vertical-align: middle;
+	color: var(--ui-color-palette-gray-50);
+}

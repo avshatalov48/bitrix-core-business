@@ -1,74 +1,77 @@
+import { Type } from 'main.core';
 import { MessageStatus } from 'im.v2.component.message.elements';
+import { MediaGallery, MediaGalleryItem } from 'im.v2.component.elements.media-gallery';
 import { FileType } from 'im.v2.const';
 
-import { getGalleryElementsConfig } from '../helpers/get-gallery-elements-config';
-import { getGalleryGridRowsConfig } from '../helpers/get-gallery-grid-rows-config';
-import { GalleryItem } from './items/gallery-item';
 import { VideoItem } from './items/video';
 
 import '../css/items/media-content.css';
 
-import type { ImModelMessage } from 'im.v2.model';
+import type { ImModelMessage, ImModelFile } from 'im.v2.model';
 
-const FILES_LIMIT = 10;
+type Size = { width: number, height: number };
+type MaxSize = { maxWidth: number, maxHeight: number };
+type MinSize = { minWidth: number, minHeight: number };
+
+const SINGLE_IMAGE_CONTAINER_MAX_SIZE: MaxSize = {
+	maxWidth: 460,
+	maxHeight: 590,
+};
+
+const SINGLE_IMAGE_CONTAINER_MIN_SIZE: MinSize = {
+	minWidth: 120,
+	minHeight: 120,
+};
+
+const SINGLE_IMAGE_WITH_TEXT_CONTAINER_MAX_SIZE: MaxSize = {
+	maxWidth: 460,
+	maxHeight: 590,
+};
+
+const SINGLE_IMAGE_WITH_TEXT_CONTAINER_MIN_SIZE: MinSize = {
+	minWidth: 460,
+	minHeight: 260,
+};
+
+const GALLERY_MAX_WIDTH: number = 460;
 
 // @vue/component
 export const MediaContent = {
 	name: 'MediaContent',
-	components: { GalleryItem, VideoItem, MessageStatus },
-	props:
-	{
+	components: { VideoItem, MessageStatus, MediaGallery, MediaGalleryItem },
+	props: {
 		item: {
 			type: Object,
 			required: true,
 		},
-		previewMode: {
-			type: Boolean,
-			default: false,
-		},
-		removable: {
-			type: Boolean,
-			default: false,
+		containerHeight: {
+			type: [Number, null],
+			default: null,
 		},
 	},
-	emits: ['onRemoveItem'],
-	computed:
-	{
+	emits: ['cancelClick'],
+	computed: {
 		message(): ImModelMessage
 		{
 			return this.item;
 		},
-		fileIds(): number[]
+		files(): Array<ImModelFile>
 		{
-			return this.message.files.slice(0, FILES_LIMIT);
+			return this.message.files.map((fileId) => {
+				return this.$store.getters['files/get'](fileId);
+			});
 		},
-		firstFileId(): number
+		filesCount(): number
 		{
-			return this.message.files[0];
+			return this.files.length;
 		},
-		isGallery(): boolean
+		firstFile(): ?ImModelFile
 		{
-			return this.message.files.length > 1;
+			return this.files[0];
 		},
-		galleryRowConfig(): { gridTemplateRows: string }
+		firstFileId(): ?ImModelFile['id']
 		{
-			return getGalleryGridRowsConfig(this.fileIds.length);
-		},
-		galleryColumnsConfig(): { gridTemplateColumns: string }
-		{
-			if (this.previewMode)
-			{
-				return { gridTemplateColumns: '119px 67px 67px 119px' };
-			}
-
-			return {};
-		},
-		galleryStyle(): { [key: string]: string }
-		{
-			return {
-				...this.galleryRowConfig,
-				...this.galleryColumnsConfig,
-			};
+			return this.firstFile?.id;
 		},
 		hasText(): boolean
 		{
@@ -80,57 +83,127 @@ export const MediaContent = {
 		},
 		onlyMedia(): boolean
 		{
-			return !this.previewMode && (!this.hasText && !this.hasAttach);
+			return !this.hasText && !this.hasAttach;
 		},
 		isSingleVideo(): boolean
 		{
-			if (this.isGallery)
+			return (
+				this.filesCount === 1
+				&& this.firstFile.type === FileType.video
+			);
+		},
+		isSingleImage(): boolean
+		{
+			return (
+				this.filesCount === 1
+				&& this.firstFile.type === FileType.image
+			);
+		},
+		singleImageMaxSize(): MaxSize
+		{
+			if (Type.isNumber(this.containerHeight))
 			{
-				return false;
+				const { maxWidth, maxHeight } = SINGLE_IMAGE_CONTAINER_MAX_SIZE;
+				const maxAllowedPreviewHeight = Math.min(maxHeight, this.containerHeight * 0.9);
+
+				return {
+					maxWidth,
+					maxHeight: maxAllowedPreviewHeight,
+				};
 			}
 
-			return this.$store.getters['files/get'](this.firstFileId, true).type === FileType.video;
+			return SINGLE_IMAGE_CONTAINER_MAX_SIZE;
+		},
+		imageWithTextMaxSize(): MaxSize
+		{
+			if (Type.isNumber(this.containerHeight))
+			{
+				const { maxWidth, maxHeight } = SINGLE_IMAGE_WITH_TEXT_CONTAINER_MAX_SIZE;
+				const maxAllowedPreviewHeight = Math.min(maxHeight, this.containerHeight * 0.9);
+
+				return {
+					maxWidth,
+					maxHeight: maxAllowedPreviewHeight,
+				};
+			}
+
+			return SINGLE_IMAGE_WITH_TEXT_CONTAINER_MAX_SIZE;
+		},
+		singleImageSize(): { width: number; height: number }
+		{
+			if (this.onlyMedia)
+			{
+				return this.calcPreviewSize({
+					...this.firstFile.image,
+					...SINGLE_IMAGE_CONTAINER_MIN_SIZE,
+					...this.singleImageMaxSize,
+				});
+			}
+
+			return this.calcPreviewSize({
+				...this.firstFile.image,
+				...SINGLE_IMAGE_WITH_TEXT_CONTAINER_MIN_SIZE,
+				...this.imageWithTextMaxSize,
+			});
 		},
 	},
-	methods:
-	{
-		getGalleryElementStyles(index: number): { gridRowEnd: string, gridColumnEnd: string }
+	methods: {
+		onCancel(event)
 		{
-			return getGalleryElementsConfig(this.fileIds.length, index);
+			this.$emit('cancelClick', event);
 		},
-		onRemoveItem(event)
+		calcPreviewSize(options: Size & MinSize & MaxSize): Size
 		{
-			this.$emit('onRemoveItem', event);
+			const { width, height, minWidth, minHeight, maxWidth, maxHeight } = options;
+
+			const adjustedWidth = Math.min(Math.max(width, minWidth), maxWidth);
+			const adjustedHeight = Math.min(Math.max(height, minHeight), maxHeight);
+
+			if (adjustedWidth === width && adjustedHeight === height)
+			{
+				return { width, height };
+			}
+
+			const scale = Math.min(
+				maxWidth / width,
+				maxHeight / height,
+				adjustedWidth / width,
+				adjustedHeight / height,
+			);
+
+			return {
+				width: Math.max(Math.min(width * scale, maxWidth), minWidth),
+				height: Math.max(Math.min(height * scale, maxHeight), minHeight),
+			};
+		},
+		getGalleryMaxWidth(): number
+		{
+			return GALLERY_MAX_WIDTH;
 		},
 	},
 	template: `
 		<div class="bx-im-message-media-content__container">
-			<div v-if="isGallery" class="bx-im-message-media-content__gallery" :style="galleryStyle">
-				<GalleryItem
-					v-for="(fileId, index) in fileIds"
-					:key="fileId"
-					:id="fileId"
-					:isGallery="true"
-					:message="message"
-					:style="getGalleryElementStyles(index)"
-					:handleLoading="!previewMode"
-					:removable="removable"
-					@onRemoveClick="onRemoveItem"
+			<div v-if="isSingleImage" class="bx-im-message-media-content__single-image">
+				<MediaGalleryItem
+					:file="firstFile"
+					:size="singleImageSize"
+					:handleLoading="true"
+					@cancelClick="onCancel"
 				/>
 			</div>
 			<div v-else-if="isSingleVideo" class="bx-im-message-media-content__single-video">
 				<VideoItem
 					:id="firstFileId"
 					:message="message"
-					:handleLoading="!previewMode"
+					@cancelClick="onCancel"
 				/>
 			</div>
-			<div v-else class="bx-im-message-media-content__single-image">
-				<GalleryItem
-					:id="firstFileId"
-					:message="message"
-					:handleLoading="!previewMode"
-					:previewMode="previewMode"
+			<div v-else class="bx-im-message-media-content__gallery">
+				<MediaGallery
+					:files="files"
+					:width="getGalleryMaxWidth()"
+					:handleLoading="true"
+					@cancelClick="onCancel"
 				/>
 			</div>
 			<div v-if="onlyMedia" class="bx-im-message-media-content__status-container">

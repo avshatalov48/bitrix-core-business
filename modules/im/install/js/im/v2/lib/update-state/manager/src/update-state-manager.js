@@ -96,6 +96,13 @@ export class UpdateStateManager
 			return;
 		}
 
-		EventEmitter.emit(window, EventType.counter.onImUpdateCounter, [response.counters]);
+		EventEmitter.emit(
+			window,
+			EventType.counter.onImUpdateCounter,
+			new Event.BaseEvent({
+				data: { counters: response.counters },
+				compatData: [response.counters],
+			}),
+		);
 	}
 }

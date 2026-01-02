@@ -3,8 +3,8 @@
 namespace Bitrix\Socialnetwork\Space;
 
 use Bitrix\Socialnetwork\Helper;
+use Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection;
 use Bitrix\Socialnetwork\MemberToGroupTable;
-use Bitrix\Socialnetwork\EO_MemberToGroup_Collection;
 
 final class MembersManager
 {
@@ -77,7 +77,7 @@ final class MembersManager
 		return $groupMembersList;
 	}
 
-	public function getGroupMembersCollection(int $spaceId): EO_MemberToGroup_Collection
+	public function getGroupMembersCollection(int $spaceId): MemberEntityCollection
 	{
 		return MemberToGroupTable::query()
 			->setSelect(['USER_ID', 'ROLE', 'INITIATED_BY_TYPE'])

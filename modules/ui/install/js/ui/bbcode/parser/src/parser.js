@@ -18,8 +18,21 @@ import { ParserScheme } from './parser-scheme';
 
 const TAG_REGEX: RegExp = /\[(\/)?(\w+|\*).*?]/;
 const TAG_REGEX_GS: RegExp = /\[(\/)?(\w+|\*)(.*?)]/gs;
+
+const LF = '\n';
+const CRLF = '\r\n';
+const TAB = '\t';
+
+const isLinebreak = (symbol: string): boolean => {
+	return [LF, CRLF].includes(symbol);
+};
+
+const isTab = (symbol: string): boolean => {
+	return symbol === TAB;
+};
+
 const isSpecialChar = (symbol: string): boolean => {
-	return ['\n', '\t'].includes(symbol);
+	return isTab(symbol) || isLinebreak(symbol);
 };
 
 const isList = (tagName: string): boolean => {
@@ -207,7 +220,17 @@ class BBCodeParser
 	{
 		if (Type.isStringFilled(text))
 		{
-			return [...text]
+			const regex = /\\r\\n|\\n|\\t|\\.|.|\r\n|\n|\t/g;
+
+			return [...text.matchAll(regex)]
+				.flatMap(([token]) => {
+					if (isLinebreak(token))
+					{
+						return token;
+					}
+
+					return [...token];
+				})
 				.reduce((acc: Array<BBCodeTextNode | BBCodeSpecialCharNode>, symbol: string) => {
 					if (isSpecialChar(symbol))
 					{
@@ -229,12 +252,12 @@ class BBCodeParser
 					return acc;
 				}, [])
 				.map((fragment: string) => {
-					if (fragment === '\n')
+					if (isLinebreak(fragment))
 					{
 						return parserScheme.createNewLine();
 					}
 
-					if (fragment === '\t')
+					if (isTab(fragment))
 					{
 						return parserScheme.createTab();
 					}
@@ -537,6 +560,14 @@ class BBCodeParser
 				});
 
 				node.replace(...nodes);
+			}
+		});
+
+		BBCodeNode.flattenAst(result).forEach((node: BBCodeNode) => {
+			const tagScheme: BBCodeTagScheme = this.getScheme().getTagScheme(node);
+			if (tagScheme)
+			{
+				tagScheme.runOnParseHandler(node);
 			}
 		});
 

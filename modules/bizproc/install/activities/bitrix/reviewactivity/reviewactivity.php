@@ -137,12 +137,19 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 		$arParameters["TaskButtonMessage"] = $this->IsPropertyExists("TaskButtonMessage") ? $this->TaskButtonMessage : GetMessage("BPAR_ACT_BUTTON2");
 		if ($arParameters["TaskButtonMessage"] == '')
 			$arParameters["TaskButtonMessage"] = GetMessage("BPAR_ACT_BUTTON2");
-		$arParameters["CommentLabelMessage"] = $this->IsPropertyExists("CommentLabelMessage") ? $this->CommentLabelMessage : GetMessage("BPAR_ACT_COMMENT");
-		if ($arParameters["CommentLabelMessage"] == '')
-			$arParameters["CommentLabelMessage"] = GetMessage("BPAR_ACT_COMMENT");
-		$arParameters["ShowComment"] = $this->IsPropertyExists("ShowComment") ? $this->ShowComment : "Y";
-		if ($arParameters["ShowComment"] != "Y" && $arParameters["ShowComment"] != "N")
-			$arParameters["ShowComment"] = "Y";
+		$arParameters['CommentLabelMessage'] =
+			$this->IsPropertyExists('CommentLabelMessage')
+				? $this->CommentLabelMessage
+				: Loc::getMessage('BPAR_ACT_COMMENT_1');
+		if ($arParameters['CommentLabelMessage'] === '')
+		{
+			$arParameters['CommentLabelMessage'] = Loc::getMessage('BPAR_ACT_COMMENT_1');
+		}
+		$arParameters['ShowComment'] = $this->IsPropertyExists('ShowComment') ? $this->ShowComment : 'Y';
+		if ($arParameters['ShowComment'] !== 'Y' && $arParameters['ShowComment'] !== 'N')
+		{
+			$arParameters['ShowComment'] = 'Y';
+		}
 		if ($this->isPropertyExists('ApproveType'))
 		{
 			$arParameters['ApproveType'] = $this->ApproveType;
@@ -367,12 +374,15 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 	protected function getResult(): ResultDto|null
 	{
 		$usages = $this->collectPropertyUsages('Description');
+		$rootActivity = $this->GetRootActivity();
+		$usedDocumentFields = $rootActivity->{CBPDocument::PARAM_USED_DOCUMENT_FIELDS} ?? [];
 
 		if (!empty($usages))
 		{
 			$documentService = $this->workflow->GetService('DocumentService');
 			$type = $this->getDocumentType();
 			$id = $this->getDocumentId();
+			$document = $documentService->getDocument($id, $type, $usedDocumentFields);
 
 			$fileFields = array_filter(
 				$documentService->getDocumentFields($type),
@@ -388,7 +398,6 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 				{
 					if ($usage[0] === 'Document' && isset($fileFields[$usage[1]]))
 					{
-						$document = $documentService->getDocument($id, $type);
 						$resultValue = [
 							'DOCUMENT_ID' => $id,
 							'DOCUMENT_TYPE' => $type,
@@ -476,7 +485,7 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 
 			$form .=
 				'<tr><td valign="top" width="40%" align="right" class="bizproc-field-name">'
-					.($arTask["PARAMETERS"]["CommentLabelMessage"] <> '' ? $arTask["PARAMETERS"]["CommentLabelMessage"] : GetMessage("BPAR_ACT_COMMENT"))
+					.($arTask["PARAMETERS"]["CommentLabelMessage"] <> '' ? $arTask["PARAMETERS"]["CommentLabelMessage"] : Loc::getMessage('BPAR_ACT_COMMENT_1'))
 					.$required
 				.':</td>'.
 				'<td valign="top" width="60%" class="bizproc-field-value">'.
@@ -505,12 +514,20 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 
 		if (($task["PARAMETERS"]["ShowComment"] ?? 'N') !== "N")
 		{
+			$description = match ($task['PARAMETERS']['CommentRequired'] ?? '')
+			{
+				'YA' => Loc::getMessage('BPAR_ACT_COMMENT_REQUIRED_TO_APPROVE'),
+				'YR' => Loc::getMessage('BPAR_ACT_COMMENT_REQUIRED_TO_REJECT'),
+				default => '',
+			};
+
 			$controls['FIELDS'] = [
 				[
 					'Id' => 'task_comment',
 					'Type' => 'text',
-					'Name' => $task["PARAMETERS"]["CommentLabelMessage"] ?: GetMessage("BPAR_ACT_COMMENT"),
+					'Name' => $task['PARAMETERS']['CommentLabelMessage'] ?: Loc::getMessage('BPAR_ACT_COMMENT_1'),
 					'Required' => (($task['PARAMETERS']['CommentRequired'] ?? 'N') === 'Y'),
+					'Description' => $description,
 				],
 			];
 		}
@@ -548,7 +565,10 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 				&& $arTask['PARAMETERS']['CommentRequired'] === 'Y'
 			)
 			{
-				$label = $arTask["PARAMETERS"]["CommentLabelMessage"] <> '' ? $arTask["PARAMETERS"]["CommentLabelMessage"] : GetMessage("BPAR_ACT_COMMENT");
+				$label =
+					$arTask['PARAMETERS']['CommentLabelMessage'] <> ''
+						? $arTask['PARAMETERS']['CommentLabelMessage']
+						: Loc::getMessage('BPAR_ACT_COMMENT_1');
 				self::$errors->setError(
 					new Error(
 						Loc::getMessage('BPAA_ACT_COMMENT_ERROR', ['#COMMENT_LABEL#' => $label]),
@@ -730,7 +750,7 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 		if ($arCurrentValues['status_message'] == '')
 			$arCurrentValues['status_message'] = GetMessage("BPAR_ACT_INFO");
 		if ($arCurrentValues['comment_label_message'] == '')
-			$arCurrentValues['comment_label_message'] = GetMessage("BPAR_ACT_COMMENT");
+			$arCurrentValues['comment_label_message'] = Loc::getMessage('BPAR_ACT_COMMENT_1');
 		if ($arCurrentValues['task_button_message'] == '')
 			$arCurrentValues['task_button_message'] = GetMessage("BPAR_ACT_BUTTON2");
 		if ($arCurrentValues["timeout_duration_type"] == '')

@@ -1,6 +1,6 @@
 import { Dom, Tag, Type, Loc, Runtime } from 'main.core';
-import { HelpMessage, Row } from 'ui.section';
-import { BaseField } from 'ui.form-elements.view';
+import { HelpMessage, Row, SeparatorRow } from 'ui.section';
+import { BaseField, Checker, UserSelector } from 'ui.form-elements.view';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 import { BaseSettingsElement } from './base-settings-element';
 import { ErrorCollection } from './error-collection';
@@ -20,7 +20,7 @@ export class BaseSettingsPage extends BaseSettingsElement
 	 * @type {?Analytic}
 	 */
 	#analytic: ?Object;
-	#subPage: Map = new Map;
+	#subPage: Map = new Map();
 	#subPageExtensions: Array = [];
 	#permission: ?Object;
 
@@ -144,7 +144,7 @@ export class BaseSettingsPage extends BaseSettingsElement
 		if (headerWidget)
 		{
 			Dom.append(headerWidget, headerWidgetWrapper);
-			Dom.addClass(this.#content.querySelector('.intranet-settings__page-header_wrap'), '--with-header-widget')
+			Dom.addClass(this.#content.querySelector('.intranet-settings__page-header_wrap'), '--with-header-widget');
 		}
 		else
 		{
@@ -165,7 +165,8 @@ export class BaseSettingsPage extends BaseSettingsElement
 
 		EventEmitter.emit(
 			EventEmitter.GLOBAL_TARGET,
-			'BX.Intranet.Settings:onContentFetched', {
+			'BX.Intranet.Settings:onContentFetched',
+			{
 				page: this,
 			},
 		);
@@ -191,10 +192,10 @@ export class BaseSettingsPage extends BaseSettingsElement
 				.then((exports) => {
 					// 1. collect data by Event for old extensions
 					EventEmitter.emit(
-							EventEmitter.GLOBAL_TARGET,
-							'BX.Intranet.Settings:onPageFetched:' + this.getType(),
-							event
-						)
+						EventEmitter.GLOBAL_TARGET,
+						`BX.Intranet.Settings:onPageFetched:${this.getType()}`,
+						event,
+					)
 						.forEach((subPage: BaseSettingsPage) => this.#subPage.set(subPage.getType(), subPage))
 					;
 					// 2. collect data by export for new extensions
@@ -221,14 +222,16 @@ export class BaseSettingsPage extends BaseSettingsElement
 							if (ajaxPromise instanceof Promise)
 							{
 								ajaxPromise.then(resolve, reject);
+
 								return true;
 							}
+
 							return false;
 						})
 					;
 					if (eventResult !== true)
 					{
-						reject({error: 'The handler for fetching page data was not found. '});
+						reject({ error: 'The handler for fetching page data was not found. ' });
 					}
 				})
 			;
@@ -257,7 +260,8 @@ export class BaseSettingsPage extends BaseSettingsElement
 
 		EventEmitter.emit(
 			EventEmitter.GLOBAL_TARGET,
-			'BX.Intranet.Settings:onPageComplete', {
+			'BX.Intranet.Settings:onPageComplete',
+			{
 				page: this,
 			},
 		);
@@ -285,8 +289,8 @@ export class BaseSettingsPage extends BaseSettingsElement
 			.sort((sectionA: SettingsSection, sectionB: SettingsSection) => sectionA.getSectionSort() - sectionB.getSectionSort())
 			.forEach((section: SettingsSection) => {
 				contentNode.appendChild(
-					section.render()
-				)
+					section.render(),
+				);
 			})
 		;
 	}
@@ -315,16 +319,82 @@ export class BaseSettingsPage extends BaseSettingsElement
 		};
 	}
 
-	static addToSectionHelper(fieldView: BaseField, sectionSettings: SettingsSection, row: Row = null): void
+	static addToSectionHelper(fieldView: BaseField, sectionSettings: SettingsSection, row: Row = null): SettingsRow
 	{
-		let settingsField = new SettingsField({
-			fieldView: fieldView,
+		const settingsField = new SettingsField({
+			fieldView,
 		});
-		new SettingsRow({
-			row: row,
+
+		return new SettingsRow({
+			row,
 			child: settingsField,
 			parent: sectionSettings,
 		});
+	}
+
+	static addToSectionCheckerHelper(
+		checkerField: Checker,
+		toggleableFields: Array,
+		sectionSettings: SettingsSection,
+		row: Row = null,
+	): SettingsRow
+	{
+		checkerField.setHideSeparator(true);
+		const checkerRow = this.addToSectionHelper(
+			checkerField,
+			sectionSettings,
+		);
+
+		toggleableFields.forEach((toggleableField) => {
+			if (toggleableField instanceof BaseField)
+			{
+				toggleableField = new SettingsField({
+					fieldView: toggleableField,
+				});
+			}
+
+			if (!(toggleableField instanceof BaseSettingsElement))
+			{
+				return;
+			}
+
+			const toggleableRow = new Row({
+				isHidden: !checkerField.isChecked(),
+				className: 'ui-section__subrow --no-border',
+			});
+
+			new SettingsRow({
+				row: toggleableRow,
+				parent: checkerRow,
+				child: toggleableField,
+			});
+
+			EventEmitter.subscribe(
+				checkerField.switcher,
+				'toggled',
+				() => {
+					if (checkerField.isChecked())
+					{
+						toggleableRow.show();
+					}
+					else
+					{
+						toggleableRow.hide();
+					}
+				},
+			);
+		});
+
+		const separatorRow = new SeparatorRow({
+			className: 'ui-section__subrow',
+		});
+
+		new SettingsRow({
+			row: separatorRow,
+			parent: checkerRow,
+		});
+
+		return checkerRow;
 	}
 }
 

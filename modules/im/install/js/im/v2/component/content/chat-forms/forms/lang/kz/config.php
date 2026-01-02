@@ -1,0 +1,23 @@
+<?php
+$MESS["IM_CREATE_CHANNEL_CONFIRM"] = "Арна жасаңыз";
+$MESS["IM_CREATE_CHANNEL_DESCRIPTION_PLACEHOLDER_V3"] = "Арнаңыздың не туралы екенін айтыңыз";
+$MESS["IM_CREATE_CHANNEL_DESCRIPTION_TITLE"] = "Арнаның сипаты";
+$MESS["IM_CREATE_CHANNEL_MEMBERS_HINT"] = "Жарияланымдарды көру үшін арнаға адамдарды немесе бөлімдерді қосыңыз. Жаңа бөлім қызметкерлері арнаға автоматты түрде қосылады";
+$MESS["IM_CREATE_CHANNEL_MEMBERS_TITLE"] = "Жазылушылар #SUBTITLE_START#(адамды немесе бүкіл бөлімді қосыңыз)#SUBTITLE_END#";
+$MESS["IM_CREATE_CHANNEL_TITLE_PLACEHOLDER_V2"] = "Арна атауы";
+$MESS["IM_CREATE_CHANNEL_USER_SELECTOR_ADD_MEMBERS"] = "Жазылушыларды қосу";
+$MESS["IM_CREATE_CHAT_CONFIRM"] = "Чат құру";
+$MESS["IM_CREATE_CHAT_MEMBERS_TITLE"] = "Қатысушылар #SUBTITLE_START#(адамды немесе бүкіл бөлімді қосыңыз)#SUBTITLE_END#";
+$MESS["IM_CREATE_CHAT_TITLE_PLACEHOLDER"] = "Чат атауын енгізіңіз";
+$MESS["IM_CREATE_COLLAB_BANNER_TEXT_1"] = "Команданы күшейту және жақсы нәтижеге жету үшін коллаб жасаңыз. Коллабта чат, қоңыраулар, файлдар, міндеттер, күнтізбе бар. Артық адамдар жоқ — тек жобаға қатысушылар. Байланыстың бүкіл тарихы компанияда сақталады.";
+$MESS["IM_CREATE_COLLAB_BANNER_TEXT_2"] = "Қатысушыларды коллаб құрылғаннан кейін бірден шақыруға болады. [[learn-more]Толығырақ[/learn-more]";
+$MESS["IM_CREATE_COLLAB_BANNER_TITLE"] = "[learn-more]Коллаб[/learn-more] - сыртқы командалармен және клиенттермен бірлесіп жұмыс істеуге арналған кеңістік";
+$MESS["IM_CREATE_COLLAB_CONFIRM"] = "Коллаб құру";
+$MESS["IM_CREATE_COLLAB_DESCRIPTION_PLACEHOLDER"] = "Коллабта немен жұмыс істейтіндігіңізді айтыңыз. Осылайша қатысушылардың сұрақтары аз болады. Мысалы: «Мұнда жаңа өнімді шығару үшін жұмыс істейміз» ";
+$MESS["IM_CREATE_COLLAB_DESCRIPTION_TITLE"] = "Сипаты";
+$MESS["IM_CREATE_COLLAB_TITLE_PLACEHOLDER"] = "Коллабтың атауы";
+$MESS["IM_CREATE_CONFERENCE_CONFIRM"] = "Конференция құру";
+$MESS["IM_CREATE_CONFERENCE_TITLE_PLACEHOLDER"] = "Бейнеконференцияның атын енгізіңіз";
+$MESS["IM_UPDATE_CHANNEL_COLLAPSED_ELEMENT"] = "#COUNT# жазылушылары";
+$MESS["IM_UPDATE_CONFIRM"] = "Өзгерістерді сақтау";
+$MESS["IM_UPDATE_GROUP_CHAT_COLLAPSED_ELEMENT"] = "#COUNT# қатысушылары";

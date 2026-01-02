@@ -1,16 +1,28 @@
 <?php
+
 namespace Bitrix\Landing\Controller;
 
 use Bitrix\Landing\Landing as LandingCore;
 use Bitrix\Main\Engine\Controller;
+use Bitrix\Main\Engine;
 
 class Landing extends Controller
 {
 	public function getDefaultPreFilters(): array
 	{
 		return [
-			new \Bitrix\Main\Engine\ActionFilter\Authentication(),
-			new ActionFilter\Extranet()
+			new Engine\ActionFilter\Authentication(),
+		];
+	}
+
+	public function configureActions(): array
+	{
+		return [
+			'getByIdAction' => [
+				'+prefilters' => [
+					new ActionFilter\Extranet(),
+				],
+			]
 		];
 	}
 
@@ -23,18 +35,24 @@ class Landing extends Controller
 	{
 		$res = LandingCore::getList([
 			'select' => [
-				'*'
+				'*',
 			],
 			'filter' => [
-				'ID' => $landingId
-			]
+				'ID' => $landingId,
+			],
 		]);
 		if ($row = $res->fetch())
 		{
 			$row['ADDITIONAL_FIELDS'] = LandingCore::getAdditionalFieldsAsArray($landingId);
+
 			return $row;
 		}
 
 		return null;
+	}
+
+	public function isPhoneRegionCodeTourAlreadySeenAction(): bool
+	{
+		return \CUserOptions::GetOption('ui-tour', 'landing_phone_aha_shown', null) !== null;
 	}
 }

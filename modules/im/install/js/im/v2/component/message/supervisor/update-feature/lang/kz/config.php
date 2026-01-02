@@ -1,0 +1,21 @@
+<?php
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_info_enterprise_admin"] = "Сіз Энтерпрайз тарифінде көбірек әкімшілерді тағайындай аласыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_contact_center_mail_box_number"] = "Келесі тарифтерде сіз әр пайдаланушы үшін көбірек пошта жәшіктерін қоса аласыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_crm_analytics_max_number"] = "Сіз келесі тарифте CRM-аналитикасында көбірек элементтердің саны бойынша есептерді жасай аласыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_crm_free_invoices"] = "Сіз шоттарды CRM-де құра аласыз, клиент пен тауарлар туралы ақпарат автоматты түрде толтырылады";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_crm_history_view"] = "Сіз келесі тарифтерде CRM элементтерінің өзгеру тарихын көре аласыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_crm_lead_unlimited"] = "Әлеуетті клиенттерді жоғалтпаңыз, келесі тарифтер бойынша мәмілелерге лидтердің айырбасталымын талдаңыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_office_login_history"] = "Сіз қызметкерлер Битрикс24-ке кірген барлық құрылғылар мен IP-мекенжайларын бақылай аласыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_office_no_document"] = "Сіз әріптестеріңізбен бір уақытта келесі тарифтер бойынша құжаттар мен презентацияларды редакциялай аласыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_tasks_robots"] = "Сіз кәсіби тарифтерде міндеттер мен жобаларда роботтарды пайдалана аласыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DETAIL_BUTTON_TITLE"] = "Тарифті көтеру";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_INFO_BUTTON_TITLE"] = "Толығырақ";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_info_enterprise_admin"] = "Көбірек әкімшілерді тағайындаңыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_contact_center_mail_box_number"] = "Көбірек пошта жәшіктерін қосыңыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_crm_analytics_max_number"] = "Есептерде көбірек деректерді талдаңыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_crm_free_invoices"] = "Клиенттерге есепшот ұсыныңыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_crm_history_view"] = "CRM-дегі өзгерістер тарихын қадағалаңыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_crm_lead_unlimited"] = "CRM-де лидтермен жұмыс жасаңыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_office_login_history"] = "Энтерпрайз тарифіне кіру тарихы";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_office_no_document"] = "Құжаттармен онлайн жұмыс жасаңыз";
+$MESS["IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_tasks_robots"] = "Міндеттері бар жұмысты автоматтандырыңыз";

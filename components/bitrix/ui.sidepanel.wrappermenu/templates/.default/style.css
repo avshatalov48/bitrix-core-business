@@ -141,6 +141,11 @@
 	color: #fff;
 }
 
+.ui-sidepanel-sidebar-air-template .ui-sidepanel-submenu-active .ui-sidepanel-submenu-link .ui-sidepanel-menu-link-text,
+.ui-sidepanel-sidebar-air-template .ui-sidepanel-menu-active .ui-sidepanel-menu-link .ui-sidepanel-menu-link-text {
+	background-color: var(--ui-color-design-filled-bg);
+}
+
 .ui-sidepanel-menu-notice-icon {
 	width: 19px;
 	height: 19px;

@@ -30,11 +30,7 @@ class UpdateLogEntryHandler implements UpdateHandlerInterface
 	{
 		$handlerResult = new HandlerResult();
 
-		if (!
-			($command instanceof CollabUpdateCommand)
-			|| !($entityBefore instanceof Collab)
-			|| !($entityAfter instanceof Collab)
-		)
+		if (!$command instanceof CollabUpdateCommand)
 		{
 			$handlerResult->addError(new Error('Unexpected command type'));
 

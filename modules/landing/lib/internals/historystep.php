@@ -7,6 +7,22 @@ use \Bitrix\Main\Entity;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class HistoryStepTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_HistoryStep_Query query()
+ * @method static EO_HistoryStep_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_HistoryStep_Result getById($id)
+ * @method static EO_HistoryStep_Result getList(array $parameters = [])
+ * @method static EO_HistoryStep_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_HistoryStep createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_HistoryStep_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_HistoryStep wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_HistoryStep_Collection wakeUpCollection($rows)
+ */
 class HistoryStepTable extends Entity\DataManager
 {
 	/**

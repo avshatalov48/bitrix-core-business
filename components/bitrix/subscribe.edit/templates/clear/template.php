@@ -16,15 +16,15 @@
 
 foreach ($arResult['MESSAGE'] as $itemValue)
 {
-	echo ShowMessage(['MESSAGE' => $itemValue, 'TYPE' => 'OK']);
+	ShowMessage(['MESSAGE' => $itemValue, 'TYPE' => 'OK']);
 }
 foreach ($arResult['ERROR'] as $itemValue)
 {
-	echo ShowMessage(['MESSAGE' => $itemValue, 'TYPE' => 'ERROR']);
+	ShowMessage(['MESSAGE' => $itemValue, 'TYPE' => 'ERROR']);
 }
 
 if ($arResult['ALLOW_ANONYMOUS'] == 'N' && !$USER->IsAuthorized()):
-	echo ShowMessage(['MESSAGE' => GetMessage('CT_BSE_AUTH_ERR'), 'TYPE' => 'ERROR']);
+	ShowMessage(['MESSAGE' => GetMessage('CT_BSE_AUTH_ERR'), 'TYPE' => 'ERROR']);
 else:
 ?>
 <div class="subscription">

@@ -4,7 +4,7 @@ import { AnalyticsCategory, AnalyticsEvent, AnalyticsTool, AnalyticsSection } fr
 
 export class Supervisor
 {
-	onOpenPriceTable(featureId: string)
+	onOpenPriceTable(featureId: string): void
 	{
 		sendData({
 			tool: AnalyticsTool.infoHelper,
@@ -15,7 +15,7 @@ export class Supervisor
 		});
 	}
 
-	onOpenToolsSettings(toolId: string)
+	onOpenToolsSettings(toolId: string): void
 	{
 		sendData({
 			tool: AnalyticsTool.infoHelper,

@@ -23,7 +23,7 @@ export const RoleHeading = {
 	computed: {
 		RichMenuItemIcon: () => RichMenuItemIcon,
 		...mapState({
-			isSaving: (state) => state.application.isSaving,
+			isProgress: (state) => state.application.isProgress,
 			guid: (state) => state.application.guid,
 			maxVisibleUserGroups: (state) => state.application.options.maxVisibleUserGroups,
 		}),
@@ -122,6 +122,7 @@ export const RoleHeading = {
 						},
 					}),
 					new CancelButton({
+						text: this.$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_CANCEL'),
 						size: ButtonSize.SMALL,
 						events: {
 							click: () => {
@@ -135,7 +136,7 @@ export const RoleHeading = {
 			popup.show();
 		},
 		showActionsMenu(): void {
-			if (!this.isSaving)
+			if (!this.isProgress)
 			{
 				this.isPopupShown = true;
 			}
@@ -179,7 +180,7 @@ export const RoleHeading = {
 		<div ref="container" class='ui-access-rights-v2-role'>
 			<div class="ui-access-rights-v2-role-value-container">
 				<input
-					v-if="isEdit && !isSaving"
+					v-if="isEdit && !isProgress"
 					ref="input"
 					type='text'
 					class='ui-access-rights-v2-role-input'
@@ -191,7 +192,8 @@ export const RoleHeading = {
 			</div>
 			<div 
 				ref="menu"
-				class="ui-icon-set --more ui-access-rights-v2-icon-more" 
+				class="ui-icon-set --more-l ui-access-rights-v2-icon-more"
+				style="position: absolute; right: 11px; top: 5px;"
 				@click="showActionsMenu"
 			>
 				<RichMenuPopup v-if="isPopupShown" @close="isPopupShown = false" :popup-options="{bindElement: $refs.menu}">

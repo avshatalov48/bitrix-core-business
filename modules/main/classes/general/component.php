@@ -147,8 +147,15 @@ class CBitrixComponent
 		{
 			$this->setSiteId(SITE_ID);
 			$this->setLanguageId(LANGUAGE_ID);
-			if (defined('SITE_TEMPLATE_ID'))
+
+			if (defined('DEFAULT_COMPONENT_TEMPLATE_ID'))
+			{
+				$this->setSiteTemplateId(DEFAULT_COMPONENT_TEMPLATE_ID);
+			}
+			else if (defined('SITE_TEMPLATE_ID'))
+			{
 				$this->setSiteTemplateId(SITE_TEMPLATE_ID);
+			}
 		}
 
 		$this->request = \Bitrix\Main\Context::getCurrent()->getRequest();

@@ -39,12 +39,20 @@
 	  }, {
 	    key: "renameSession",
 	    value: function renameSession(sessionId) {
-	      var _grid$getRows$getById;
 	      var grid = this.getGrid();
-	      (_grid$getRows$getById = grid.getRows().getById(sessionId)) === null || _grid$getRows$getById === void 0 ? void 0 : _grid$getRows$getById.select();
-	      grid.getActionsPanel().getPanel().querySelector('#grid_edit_button > .edit').click();
-	      grid.enableActionsPanel();
-	      grid.getPinPanel().pinPanel(true);
+	      if (!grid) {
+	        return;
+	      }
+	      var editButton = grid.getActionsPanel().getButtons().find(function (button) {
+	        return button.id === 'grid_edit_button_control';
+	      });
+	      if (editButton) {
+	        var _grid$getRows$getById;
+	        (_grid$getRows$getById = grid.getRows().getById(sessionId)) === null || _grid$getRows$getById === void 0 ? void 0 : _grid$getRows$getById.select();
+	        editButton.click();
+	        grid.enableActionsPanel();
+	        grid.getPinPanel().pinPanel(true);
+	      }
 	    }
 	  }, {
 	    key: "deleteChosenSessions",

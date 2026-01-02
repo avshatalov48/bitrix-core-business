@@ -21,17 +21,11 @@ function BXDeleteFromSystem($absoluteFilePath, $path, $site)
 	if (!$sucess)
 		return false;
 
-	if(COption::GetOptionString("fileman", "log_page", "Y")=="Y")
+	if (COption::GetOptionString("fileman", "log_page", "Y")=="Y")
 	{
-		$res_log['path'] = mb_substr($path, 1);
-		CEventLog::Log(
-			"content",
-			"PAGE_DELETE",
-			"main",
-			"",
-			serialize($res_log)
-		);
+		CEventLog::Log("content", "PAGE_DELETE", "fileman", $path);
 	}
+
 	$GLOBALS["APPLICATION"]->RemoveFileAccessPermission(Array($site, $path));
 
 	if (CModule::IncludeModule("search"))
@@ -101,8 +95,6 @@ function BXDeleteFromMenu($documentRoot, $path, $site)
 
 function BXDeleteFromMenuFile($menuFile, $documentRoot, $site, $path)
 {
-	$aMenuLinks = Array();
-
 	$arMenu = CFileman::GetMenuArray($documentRoot.$menuFile);
 	if (empty($arMenu["aMenuLinks"]))
 		return false;
@@ -141,18 +133,7 @@ function BXDeleteFromMenuFile($menuFile, $documentRoot, $site, $path)
 
 		if(COption::GetOptionString("fileman", "log_page", "Y")=="Y")
 		{
-			$res_log = array();
-			$mt = COption::GetOptionString("fileman", "menutypes", $default_value, $site);
-			$mt = unserialize(str_replace("\\", "", $mt), ['allowed_classes' => false]);
-			$res_log['menu_name'] = $mt[$menuType];
-			$res_log['path'] = mb_substr($dirName, 1);
-			CEventLog::Log(
-				"content",
-				"MENU_EDIT",
-				"main",
-				"",
-				serialize($res_log)
-			);
+			CEventLog::Log("content", "MENU_EDIT", "fileman", $menuFile);
 		}
 	}
 	return $arFound;

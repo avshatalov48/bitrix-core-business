@@ -2,7 +2,6 @@
 
 namespace Bitrix\Calendar\Sync\Connection;
 
-use Bitrix\Main\Type;
 use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Base\EntityInterface;
 use Bitrix\Calendar\Core\Role\Role;

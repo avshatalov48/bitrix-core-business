@@ -965,3 +965,7 @@
 .mail-msg-header-control-item {
 	border-right: 1px solid rgba(82, 92, 105, .1);
 }
+
+.ui-toolbar-after-title {
+	margin-left: auto;
+}

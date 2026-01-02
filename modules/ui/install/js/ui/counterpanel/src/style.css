@@ -11,6 +11,28 @@
 	--border-radius-sm: 2px;
 }
 
+.ui-counter-panel.--air.ui-counter-panel__scope,
+.bitrix24-light-theme .ui-counter-panel.--air.ui-counter-panel__scope,
+.bitrix24-dark-theme .ui-counter-panel.--air.ui-counter-panel__scope {
+	--color-background: var(--ui-color-design-outline-bg);
+	--color-hover: color-mix(in srgb, var(--ui-color-design-outline-bg) 100%, var(--ui-color-bg-state-hover-default-hex)  var(--ui-color-bg-state-hover-default-opacity));
+	--color-active: var(--ui-color-design-selection-bg);
+	--color-active-hover: var(--ui-color-base-02);
+	--color-text: var(--ui-color-design-outline-content);
+	--color-text-active: var(--ui-color-design-selection-content);
+	--color-separator: rgba(var(--ui-color-palette-beige-base-rgb), .15);
+
+	--border-radius-xl: var(--ui-border-radius-sm);
+	--border-radius-sm: 2px;
+}
+
+.bitrix24-light-theme .ui-counter-panel.--air.ui-counter-panel__scope,
+.bitrix24-dark-theme .ui-counter-panel.--air.ui-counter-panel__scope {
+	--color-background: var(--ui-color-design-outline-bg);
+	--color-hover: color-mix(in srgb, var(--ui-color-design-outline-bg) 100%, var(--ui-color-bg-state-hover-default-hex)  var(--ui-color-bg-state-hover-default-opacity));
+	--color-text: var(--ui-color-design-outline-content);
+}
+
 .bitrix24-light-theme .ui-counter-panel__scope {
 	--color-background: rgba(var(--ui-color-on-primary-rgb), .15);
 	--color-hover: rgba(var(--ui-color-on-primary-rgb), .15);
@@ -27,6 +49,12 @@
 	border-radius: var(--border-radius-xl);
 	font: 14px/normal var(--ui-font-family-secondary);
 	font-weight: var(--ui-font-weight-regular, 400);
+}
+
+.ui-counter-panel.--air {
+	font: var(--ui-font-size-sm)/var(--ui-font-line-height-2xs) var(--ui-font-family-primary);
+	backdrop-filter: var(--ui-counter-panel-custom-backdrop-filter, var(--ui-bg-blur-content));
+	background: var(--ui-counter-panel-custom-background, none);
 }
 
 .ui-counter-panel__item-separator {
@@ -46,6 +74,10 @@
 	display: none;
 }
 
+.ui-counter-panel.--air .ui-counter-panel__item-separator {
+	display: none;
+}
+
 .ui-counter-panel__item {
 	display: inline-flex;
 	align-items: center;
@@ -57,6 +89,19 @@
 	cursor: pointer;
 	color: var(--color-text);
 	transition: .2s;
+}
+
+.ui-counter-panel.--air .ui-counter-panel__item {
+	min-height: 28px;
+	padding: 0 10px;
+	background-color: var(--color-background);
+	border-radius: var(--ui-border-radius-none);
+}
+
+.ui-counter-panel.--air .ui-counter-panel__item.--zero {
+	--color-background: var(--ui-color-design-outline-na-bg);
+	--color-hover: color-mix(in srgb, var(--ui-color-design-outline-na-bg) 100%, var(--ui-color-bg-state-hover-default-hex)  var(--ui-color-bg-state-hover-default-opacity));
+	--color-text: var(--ui-color-design-outline-na-content);
 }
 
 .ui-counter-panel__item.--string {
@@ -86,6 +131,12 @@
 	transition: .2s;
 }
 
+.ui-counter-panel.--air .ui-counter-panel__item:after {
+	display: none;
+	transform: none;
+	border-radius: var(--ui-border-radius-none);
+}
+
 .ui-counter-panel__item:first-child {
 	padding-left: 11px;
 	border-top-left-radius: var(--border-radius-xl);
@@ -106,6 +157,15 @@
 	transform: translateX(0);
 }
 
+.ui-counter-panel.--air .ui-counter-panel__item.--hover {
+	--color-background: var(--color-hover);
+}
+
+.ui-counter-panel.--air .ui-counter-panel__item.--active,
+.ui-counter-panel.--air .ui-counter-panel__item.--hover.--active {
+	--color-background: var(--color-active);
+}
+
 .ui-counter-panel__item.--hover:after {
 	background: var(--color-hover);
 	transition: .1s;
@@ -113,6 +173,10 @@
 
 .ui-counter-panel__item.--dropdown.--hover:not(.--active):after {
 	background: transparent;
+}
+
+.ui-counter-panel.--air .ui-counter-panel__item.--dropdown:hover:not(.--active) {
+	background: var(--color-hover);
 }
 
 .ui-counter-panel__item.--active:after {
@@ -142,6 +206,10 @@
 	z-index: 1;
 }
 
+.ui-counter-panel.--air .ui-counter-panel__item-value {
+	margin: auto 6px auto 0;
+}
+
 .ui-counter-panel__item-lock {
 	display: block;
 	width: 12px;
@@ -164,12 +232,46 @@
 	z-index: 1;
 }
 
+.ui-counter-panel.--air .ui-counter-panel__item-title {
+	margin-bottom: 0;
+}
+
+.ui-counter-panel__item.--collapsed .ui-counter-panel__item-title {
+	display: none;
+}
+
 .ui-counter-panel__item-title:first-child {
 	padding-left: 5px;
 }
 
 .ui-counter-panel__item.--string .ui-counter-panel__item-title {
 	padding-left: 0;
+}
+
+.ui-counter-panel__item-collapsed-icon {
+	--ui-icon-set__icon-color: var(--color-text-active);
+	--ui-icon-set__icon-size: 24px;
+
+	display: none;
+	width: 24px;
+	height: 24px;
+	mask-image: var(--ui-icon-set__icon);
+	mask-position: center center;
+	mask-size: 24px 24px;
+	mask-repeat: no-repeat;
+	background-color: var(--ui-icon-set__icon-color);
+}
+
+.ui-counter-panel__item.--collapsed .ui-counter-panel__item-collapsed-icon {
+	display: flex;
+}
+
+.ui-counter-panel__item-collapsed-icon.--icon-chat-check {
+	--ui-icon-set__icon: var(--ui-icon-set__path_chats-with-check);
+}
+
+.ui-counter-panel.--air .ui-counter-panel__item-collapsed-icon.--icon-chat-check {
+	--ui-icon-set__icon: var(--o-ui-icon-set__path_chats-with-check);
 }
 
 .ui-counter-panel__item-cross {
@@ -186,6 +288,10 @@
 	opacity: 0;
 	transform: translateX(-5px);
 	transition: .1s;
+}
+
+.ui-counter-panel.--air .ui-counter-panel__item-cross {
+	display: none;
 }
 
 /*for item "more"*/
@@ -245,8 +351,13 @@
 	overflow: hidden;
 	white-space: normal;
 	padding-left: 20px;
+	color: var(--color-text-active);
 	opacity: 1;
 	transition: .2s;
+}
+
+.ui-counter-panel.--air .ui-counter-panel__item-head {
+	display: none;
 }
 
 .ui-counter-panel__item-dropdown {
@@ -303,6 +414,10 @@
 	padding-left: 15px;
 }
 
+.ui-counter-panel__popup-item.--air .menu-popup-item-text > span {
+	padding-left: 0;
+}
+
 .ui-counter-panel__popup-item:before {
 	content: '';
 	position: absolute;
@@ -357,7 +472,7 @@
 	pointer-events: auto;
 }
 
-.ui-counter-panel__popup-item:(.--active):hover .ui-counter-panel__item-cross {
+.ui-counter-panel__popup-item.--active:hover .ui-counter-panel__item-cross {
 	transition: unset;
 	opacity: .75;
 }
@@ -369,4 +484,8 @@
 
 .ui-counter-panel__popup-item .ui-counter-panel__item-cross i {
 	background-image: url(../images/ui-counter-panel__icon-cross-blue.svg);
+}
+
+.ui-counter-panel__popup-item .ui-counter-panel__item-value {
+	margin: auto 6px auto 7px;
 }

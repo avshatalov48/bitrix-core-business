@@ -87,11 +87,23 @@ class FileService
 
 	public function deleteFilesByDiskFileId(int $diskFileId): Result
 	{
-		$result = new Result();
-
 		$links = FileCollection::getByDiskFileId($diskFileId);
 
-		if ($links->count() === 0)
+		return $this->deleteFiles($links);
+	}
+
+	public function deleteFilesByMessageIds(array $messageIds): Result
+	{
+		$links = FileCollection::getByMessageIds($messageIds);
+
+		return $this->deleteFiles($links);
+	}
+
+	protected function deleteFiles(FileCollection $links): Result
+	{
+		$result = new Result();
+
+		if ($links->isEmpty())
 		{
 			return $result;
 		}

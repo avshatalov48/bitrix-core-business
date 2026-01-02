@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 (function (exports,main_core,landing_node_base,landing_node_tableeditor) {
@@ -49,12 +50,30 @@ this.BX.Landing = this.BX.Landing || {};
 	   */
 	  onChange(preventAdjustPosition, preventHistory) {
 	    super.onChange.call(this, preventHistory);
-	    if (!preventAdjustPosition) {
-	      BX.Landing.UI.Panel.EditorPanel.getInstance().adjustPosition(this.node);
-	    }
+	    this.processNewTableContainers();
 	    if (!preventHistory) {
 	      BX.Landing.History.getInstance().push();
 	    }
+	    if (!preventAdjustPosition) {
+	      BX.Landing.UI.Panel.EditorPanel.getInstance().adjustPosition(this.node);
+	    }
+	  }
+	  processNewTableContainers() {
+	    const newTables = [...this.node.querySelectorAll('.landing-table-container-new')];
+	    if (newTables.length === 0) {
+	      return;
+	    }
+	    newTables.forEach(newTableElement => {
+	      const tableEditor = new landing_node_tableeditor.TableEditor(newTableElement, this, false);
+	      if (tableEditor.table) {
+	        tableEditor.toggleSelectAll();
+	        const thTech = tableEditor.table.querySelector('.landing-table-th-select-all');
+	        if (thTech) {
+	          this.addTableButtons(thTech);
+	        }
+	      }
+	      newTableElement.classList.remove('landing-table-container-new');
+	    });
 	  }
 	  onKeyDown(event) {
 	    if (event.code === 'Backspace') {
@@ -194,7 +213,7 @@ this.BX.Landing = this.BX.Landing || {};
 	   */
 	  onClick(event) {
 	    if (this.isTable(event)) {
-	      this.addTableButtons(event);
+	      this.addTableButtons(event.srcElement);
 	    }
 	    event.stopPropagation();
 	    event.preventDefault();
@@ -371,7 +390,10 @@ this.BX.Landing = this.BX.Landing || {};
 	    table.setAttribute('table-prepare', 'true');
 	    this.currentNode.onChange(true);
 	  }
-	  addTableButtons(event) {
+	  addTableButtons(srcElement) {
+	    if (!srcElement) {
+	      return;
+	    }
 	    const buttons = [];
 	    let neededButtons = [];
 	    let setTd = [];
@@ -383,20 +405,20 @@ this.BX.Landing = this.BX.Landing || {};
 	    let isButtonAddRow = false;
 	    let isButtonAddCol = false;
 	    let isNeedTablePanel = true;
-	    if (BX.Dom.hasClass(event.srcElement, 'landing-table') || BX.Dom.hasClass(event.srcElement, 'landing-table-col-dnd')) {
+	    if (BX.Dom.hasClass(srcElement, 'landing-table') || BX.Dom.hasClass(srcElement, 'landing-table-col-dnd')) {
 	      isNeedTablePanel = false;
 	    }
-	    if (BX.Dom.hasClass(event.srcElement, 'landing-table-row-add')) {
+	    if (BX.Dom.hasClass(srcElement, 'landing-table-row-add')) {
 	      isButtonAddRow = true;
 	    }
-	    if (BX.Dom.hasClass(event.srcElement, 'landing-table-col-add')) {
+	    if (BX.Dom.hasClass(srcElement, 'landing-table-col-add')) {
 	      isButtonAddCol = true;
 	    }
 	    let hideButtons = [];
 	    const nodeTableList = node.querySelectorAll('.landing-table');
 	    if (nodeTableList.length > 0) {
 	      nodeTableList.forEach(nodeTable => {
-	        if (nodeTable.contains(event.srcElement)) {
+	        if (nodeTable.contains(srcElement)) {
 	          table = nodeTable;
 	          return true;
 	        }
@@ -405,12 +427,12 @@ this.BX.Landing = this.BX.Landing || {};
 	    }
 	    let isSelectedAll;
 	    tableButtons.forEach(tableButton => {
-	      tableButton.options.srcElement = event.srcElement;
+	      tableButton.options.srcElement = srcElement;
 	      tableButton.options.node = node;
 	      tableButton.options.table = table;
 	    });
-	    if (BX.Dom.hasClass(event.srcElement, 'landing-table-row-dnd')) {
-	      setTd = event.srcElement.parentNode.children;
+	    if (BX.Dom.hasClass(srcElement, 'landing-table-row-dnd')) {
+	      setTd = srcElement.parentNode.children;
 	      setTd = [...setTd];
 	      neededButtons = this.getAmountTableRows(table) > 1 ? [0, 1, 2, 3, 4, 5, 6] : [0, 1, 2, 3, 4, 5];
 	      neededButtons.forEach(neededButton => {
@@ -419,8 +441,8 @@ this.BX.Landing = this.BX.Landing || {};
 	        buttons.push(tableButtons[neededButton]);
 	      });
 	    }
-	    if (BX.Dom.hasClass(event.srcElement.parentNode, 'landing-table-col-dnd')) {
-	      const childNodes = event.srcElement.parentElement.parentElement.childNodes;
+	    if (BX.Dom.hasClass(srcElement.parentNode, 'landing-table-col-dnd')) {
+	      const childNodes = srcElement.parentElement.parentElement.childNodes;
 	      const childNodesArray = [...childNodes];
 	      const childNodesArrayPrepare = [];
 	      childNodesArray.forEach(childNode => {
@@ -428,8 +450,8 @@ this.BX.Landing = this.BX.Landing || {};
 	          childNodesArrayPrepare.push(childNode);
 	        }
 	      });
-	      const neededPosition = childNodesArrayPrepare.indexOf(event.srcElement.parentElement);
-	      const rows = event.srcElement.parentElement.parentElement.parentElement.childNodes;
+	      const neededPosition = childNodesArrayPrepare.indexOf(srcElement.parentElement);
+	      const rows = srcElement.parentElement.parentElement.parentElement.childNodes;
 	      rows.forEach(row => {
 	        if (row.nodeType === 1) {
 	          const rowChildPrepare = [];
@@ -450,10 +472,10 @@ this.BX.Landing = this.BX.Landing || {};
 	        buttons.push(tableButtons[neededButton]);
 	      });
 	    }
-	    if (BX.Dom.hasClass(event.srcElement, 'landing-table-th-select-all')) {
-	      if (BX.Dom.hasClass(event.srcElement, 'landing-table-th-select-all-selected')) {
+	    if (BX.Dom.hasClass(srcElement, 'landing-table-th-select-all')) {
+	      if (BX.Dom.hasClass(srcElement, 'landing-table-th-select-all-selected')) {
 	        isSelectedAll = true;
-	        const rows = event.srcElement.parentElement.parentElement.childNodes;
+	        const rows = srcElement.parentElement.parentElement.childNodes;
 	        rows.forEach(row => {
 	          row.childNodes.forEach(th => {
 	            setTd.push(th);
@@ -470,8 +492,8 @@ this.BX.Landing = this.BX.Landing || {};
 	        BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 	      }
 	    }
-	    if (BX.Dom.hasClass(event.srcElement, 'landing-table-td') || event.srcElement.closest('.landing-table-td') !== null) {
-	      setTd.push(event.srcElement);
+	    if (BX.Dom.hasClass(srcElement, 'landing-table-td') || srcElement.closest('.landing-table-td') !== null) {
+	      setTd.push(srcElement);
 	      neededButtons = [3, 2, 1, 0];
 	      neededButtons.forEach(neededButton => {
 	        tableButtons[neededButton].options.target = 'cell';
@@ -560,8 +582,8 @@ this.BX.Landing = this.BX.Landing || {};
 	    return this.changeTagButton;
 	  }
 	  getTableButtons() {
-	    this.buttons = [];
-	    this.buttons.push(new BX.Landing.UI.Button.AlignTable('alignLeft', {
+	    const buttons = [];
+	    buttons.push(new BX.Landing.UI.Button.AlignTable('alignLeft', {
 	      html: '<span class="landing-ui-icon-editor-left"></span>',
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_LEFT')
@@ -620,7 +642,7 @@ this.BX.Landing = this.BX.Landing || {};
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_TABLE_DELETE')
 	      }
 	    }, this.currentNode));
-	    return this.buttons;
+	    return buttons;
 	  }
 
 	  /**

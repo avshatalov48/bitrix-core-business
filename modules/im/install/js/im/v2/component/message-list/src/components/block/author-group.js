@@ -1,5 +1,4 @@
-import { Core } from 'im.v2.application.core';
-import { MessageAvatar, AvatarSize } from 'im.v2.component.elements';
+import { MessageAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 import { ActionByRole, ChatType, UserType } from 'im.v2.const';
 import { CopilotManager } from 'im.v2.lib.copilot';
 import { PermissionManager } from 'im.v2.lib.permission';
@@ -46,7 +45,7 @@ export const AuthorGroup = {
 		},
 		isBulkActionsMode(): boolean
 		{
-			return this.$store.getters['messages/select/getBulkActionsMode'];
+			return this.$store.getters['messages/select/isBulkActionsModeActive'](this.contextDialogId);
 		},
 		authorGroup(): AuthorGroupItem
 		{
@@ -78,12 +77,6 @@ export const AuthorGroup = {
 
 			const copilotManager = new CopilotManager();
 			if (copilotManager.isCopilotBot(this.authorDialogId))
-			{
-				return false;
-			}
-
-			const isCurrentUser = authorUser.id === Core.getUserId();
-			if (isCurrentUser)
 			{
 				return false;
 			}
@@ -148,7 +141,7 @@ export const AuthorGroup = {
 		<div class="bx-im-message-list-author-group__container" :class="containerClasses">
 			<template v-for="(message, index) in authorGroup.messages">
 				<Transition name="bx-im-select-button-transition">
-					<MessageSelectButton v-if="isBulkActionsMode" :message="message" />
+					<MessageSelectButton v-if="isBulkActionsMode" :contextDialogId="contextDialogId" :message="message" />
 				</Transition>
 				<div v-if="isAvatarNeeded(index)" class="bx-im-message-list-author-group__avatar">
 					<MessageAvatar

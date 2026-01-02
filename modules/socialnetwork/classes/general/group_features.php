@@ -4,6 +4,7 @@ IncludeModuleLangFile(__FILE__);
 
 $GLOBALS["SONET_FEATURES_CACHE"] = array();
 
+use Bitrix\Socialnetwork\FeatureTable;
 use Bitrix\Socialnetwork\Integration;
 
 class CAllSocNetFeatures
@@ -165,6 +166,8 @@ class CAllSocNetFeatures
 				$CACHE_MANAGER->ClearByTag('sonet_features');
 				$CACHE_MANAGER->ClearByTag("sonet_feature_".$ID);
 			}
+
+			FeatureTable::cleanCache();
 		}
 		else
 		{
@@ -242,6 +245,8 @@ class CAllSocNetFeatures
 				$CACHE_MANAGER->ClearByTag('sonet_features');
 				$CACHE_MANAGER->ClearByTag("sonet_feature_".$ID);
 			}
+
+			FeatureTable::cleanCache();
 		}
 		else
 		{

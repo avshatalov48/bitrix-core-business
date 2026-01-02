@@ -67,6 +67,9 @@ $MESS["MAIL_CLIENT_CONFIG_ACCESS_HINT_MSGVER_1"] = "Разрешите друг�
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_MORE"] = "подробнее";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_ADD"] = "Добавить";
 
+$MESS["MAIL_CLIENT_CONFIG_OWNER"] = "Изменение владельца";
+$MESS["MAIL_CLIENT_CONFIG_OWNER_CHANGE"] = "Сменить";
+
 $MESS["MAIL_CLIENT_CONFIG_CRM"] = "Интеграция с CRM";
 $MESS["MAIL_CLIENT_CONFIG_CRM_ACTIVE"] = "Связать с CRM";
 $MESS["MAIL_CLIENT_CONFIG_CRM_AGE"] = "Обработать письма за #AGE#";
@@ -120,8 +123,6 @@ $MESS["MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_EXT"] = "Ошибка авторизац
 
 $MESS["MAIL_CLIENT_CONFIG_LAST_MAIL_CHECK_TITLE"] = "Последняя проверка #TIME_AGO#";
 $MESS["MAIL_CLIENT_CONFIG_LAST_MAIL_CHECK_NO_DATA"] = "Нет данных о состоянии ящика";
-$MESS["MAIL_CLIENT_CONFIG_LAST_MAIL_CHECK_SUCCESS"] = "Успешно";
-$MESS["MAIL_CLIENT_CONFIG_LAST_MAIL_CHECK_ERROR"] = "Ошибка";
 
 $MESS["MAIL_MAILBOX_LICENSE_AGE_LIMIT_TITLE"] = "Загрузка почты из почтового ящика";
 

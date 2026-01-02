@@ -54,7 +54,7 @@ html, body {
 .calendar-pub-footer {
 	padding-bottom: 17px;
 	text-align: center;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-weight: 400;
 	font-size: 15px;
 	line-height: 20px;
@@ -144,7 +144,7 @@ html, body {
 }
 
 .calendar-pub__cookies-title {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: 18px;
 	line-height: 20px;
 	color: #303030;
@@ -154,7 +154,7 @@ html, body {
 
 .calendar-pub__cookies-info {
 	margin-bottom: 20px;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-size: 14px;
 	line-height: 20px;
 	color: #303030;

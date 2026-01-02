@@ -1,0 +1,20 @@
+<?php
+$MESS["BPMOA_CHOOSE_PARAMETER"] = "Параметрді таңдау";
+$MESS["BPMOA_CHOOSE_VARIABLE"] = "Айнымалыны таңдау";
+$MESS["BPMOA_CREATE_GCONSTANT"] = "Константаны құру";
+$MESS["BPMOA_CREATE_GCONSTANT_QUESTION"] = "Жаңа константаны құру қажет пе?";
+$MESS["BPMOA_CREATE_GVARIABLE"] = "Айнымалыны құру";
+$MESS["BPMOA_CREATE_GVARIABLE_QUESTION"] = "Жаңа айнымалыны құру қажет пе?";
+$MESS["BPMOA_DOCUMENT"] = "Өріс мәні";
+$MESS["BPMOA_EMPTY"] = "Таңдалмаған";
+$MESS["BPMOA_EMPTY_OPERATION"] = "Оператор көрсетілмеген";
+$MESS["BPMOA_EMPTY_VARIABLE"] = "Ешқандай айнымалының мәні көрсетілмеген";
+$MESS["BPMOA_GCONSTANT_NOT_FOUND"] = "Константа табылмады";
+$MESS["BPMOA_GCONSTANT_NO_EXIST"] = "Константалар әзірше жоқ";
+$MESS["BPMOA_GVARIABLE_NOT_FOUND"] = "Айнымалы табылмады";
+$MESS["BPMOA_GVARIABLE_NO_EXIST"] = "Айнымалы әзірше жоқ";
+$MESS["BPMOA_INPUT_NUMBER"] = "Санды енгізіңіз";
+$MESS["BPMOA_INVALID_VALUE"] = "Өрнек мәндерінің бірі сандық мән емес";
+$MESS["BPMOA_LIST_OF_VALUES"] = "Мәндер тізімі";
+$MESS["BPMOA_NUMBER"] = "Өз мәні";
+$MESS["BPMOA_TYPE_OF_PARAMETER"] = "Параметр түрі";

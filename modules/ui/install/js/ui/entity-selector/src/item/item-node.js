@@ -2,6 +2,8 @@ import { ajax as Ajax, Cache, Dom, Runtime, Tag, Type, Browser, Event } from 'ma
 import { OrderedArray } from 'main.core.collections';
 import { Loader } from 'main.loader';
 
+import { Icon } from 'ui.icon-set.api.core';
+
 import ItemNodeComparator from './item-node-comparator';
 import Highlighter from '../search/highlighter';
 import ItemBadge from './item-badge';
@@ -104,6 +106,8 @@ export default class ItemNode
 				borderRadius: null,
 				outline: null,
 				outlineOffset: null,
+				icon: null,
+				iconColor: null,
 			};
 			this.textColor = '';
 			this.link = '';
@@ -668,6 +672,7 @@ export default class ItemNode
 			this.getTitleContainer().style.removeProperty('color');
 		}
 
+		Dom.clean(this.getAvatarContainer());
 		const avatar = this.getAvatar();
 		if (Type.isStringFilled(avatar))
 		{
@@ -731,6 +736,17 @@ export default class ItemNode
 
 		const outlineOffset = this.getAvatarOption('outlineOffset');
 		Dom.style(this.getAvatarContainer(), 'outline-offset', outlineOffset);
+
+		const icon = {
+			icon: this.getAvatarOption('icon'),
+			size: bgSize ?? undefined,
+			color: this.getAvatarOption('iconColor') ?? undefined,
+		};
+		if (Icon.isValid(icon))
+		{
+			Dom.style(this.getAvatarContainer(), 'background-image', 'none');
+			Dom.append(new Icon(icon).render(), this.getAvatarContainer());
+		}
 
 		Dom.clean(this.getBadgeContainer());
 		this.getBadges().forEach((badge: ItemBadge) => {
@@ -976,6 +992,26 @@ export default class ItemNode
 		{
 			Dom.removeClass(this.getOuterContainer(), '--hidden');
 		}
+	}
+
+	lock(): void
+	{
+		if (this.hasChildren() || this.isDynamic())
+		{
+			return;
+		}
+
+		Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-locked');
+	}
+
+	unlock(): void
+	{
+		if (this.hasChildren() || this.isDynamic())
+		{
+			return;
+		}
+
+		Dom.removeClass(this.getOuterContainer(), 'ui-selector-item-box-locked');
 	}
 
 	getTitle(): string
@@ -1259,6 +1295,10 @@ export default class ItemNode
 					className += ' ui-selector-item-box-max-depth';
 				}
 			}
+			else if (this.getItem().isLocked())
+			{
+				className += ' ui-selector-item-box-locked';
+			}
 			else if (this.getItem().isSelected())
 			{
 				className += ' ui-selector-item-box-selected';
@@ -1298,7 +1338,7 @@ export default class ItemNode
 	{
 		return this.cache.remember('container', () => {
 			const div = document.createElement('div');
-			div.className = 'ui-selector-item';
+			div.className = 'ui-selector-item --ui-hoverable';
 
 			Event.bind(div, 'click', this.handleClick.bind(this))
 			Event.bind(div, 'mouseenter', this.handleMouseEnter.bind(this))
@@ -1399,7 +1439,7 @@ export default class ItemNode
 	{
 		return this.cache.remember('indicator', () => {
 			const div = document.createElement('div');
-			div.className = 'ui-selector-item-indicator';
+			div.className = 'ui-selector-item-indicator ui-icon-set__scope';
 
 			return div;
 		});
@@ -1577,33 +1617,30 @@ export default class ItemNode
 				this.expand();
 			}
 		}
+		else if (this.getItem().isSelected())
+		{
+			if (this.getItem().isDeselectable())
+			{
+				this.getItem().deselect({ node: this });
+			}
+
+			if (!this.getItem().isSelected() && this.getDialog().shouldHideOnDeselect())
+			{
+				this.getDialog().hide();
+			}
+		}
 		else
 		{
-			if (this.getItem().isSelected())
-			{
-				if (this.getItem().isDeselectable())
-				{
-					this.getItem().deselect();
-				}
+			this.getItem().select({ node: this });
 
-				if (this.getDialog().shouldHideOnDeselect())
-				{
-					this.getDialog().hide();
-				}
+			if (this.getDialog().shouldClearSearchOnSelect())
+			{
+				this.getDialog().clearSearch();
 			}
-			else
+
+			if (this.getItem().isSelected() && this.getDialog().shouldHideOnSelect())
 			{
-				this.getItem().select();
-
-				if (this.getDialog().shouldClearSearchOnSelect())
-				{
-					this.getDialog().clearSearch();
-				}
-
-				if (this.getDialog().shouldHideOnSelect())
-				{
-					this.getDialog().hide();
-				}
+				this.getDialog().hide();
 			}
 		}
 

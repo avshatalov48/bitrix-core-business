@@ -1,5 +1,4 @@
 import 'im.v2.test';
-import { Loc } from 'main.core';
 import { Core } from 'im.v2.application.core';
 import { RecentModel } from 'im.v2.model';
 
@@ -19,7 +18,7 @@ const INITIAL_TOTAL_COUNTER = Object.values(INITIAL_COUNTERS).reduce((prev, curr
 	return prev + curr;
 }, 0);
 
-describe.only('chat counters', () => {
+describe('chat counters', () => {
 	let store: Store = null;
 
 	before(async () => {
@@ -29,7 +28,6 @@ describe.only('chat counters', () => {
 
 	beforeEach(() => {
 		sinon.stub(Core, 'getUserId').returns(1);
-		sinon.stub(Loc, 'getMessage').returns('');
 	});
 
 	afterEach(() => {

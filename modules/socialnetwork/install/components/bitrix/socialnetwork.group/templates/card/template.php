@@ -30,7 +30,7 @@ UI\Extension::load([
 	'ui.info-helper',
 	'ui.sidepanel-content',
 	'ui.graph.circle',
-	'intranet_theme_picker',
+	'intranet.theme-picker',
 ]);
 
 CJSCore::init([ 'avatar_editor' ]);
@@ -300,7 +300,7 @@ else
 				<?php
 				$style = (
 					!empty($arResult['themePickerData'])
-						? 'background-image: url("' . $arResult['themePickerData']['previewImage'] . '"); background-color: ' . ($arResult['themePickerData']['previewColor'] ?? '') . ';'
+						? 'background-image: url("' . Uri::urnEncode($arResult['themePickerData']['previewImage']) . '"); background-color: ' . ($arResult['themePickerData']['previewColor'] ?? '') . ';'
 						: ''
 				);
 				?>

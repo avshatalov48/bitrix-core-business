@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
@@ -11,8 +12,6 @@ CBitrixComponent::includeComponentClass('bitrix:landing.blocks.mp_widget.base');
 
 class LandingBlocksMainpageWidgetApps extends LandingBlocksMainpageWidgetBase
 {
-	private const PATH = 'https://dl.bitrix24.com/b24/bitrix24_desktop';
-
 	private const WIDGET_CSS_VAR_PROPERTIES = [
 		'COLOR_TITLE_MOBILE' => '--widget-color-title-mobile',
 		'COLOR_TITLE_DESKTOP' => '--widget-color-title-desktop',
@@ -33,7 +32,7 @@ class LandingBlocksMainpageWidgetApps extends LandingBlocksMainpageWidgetBase
 	public function executeComponent(): void
 	{
 		$this->checkParam('TITLE_MOBILE', Loc::getMessage('LANDING_WIDGET_CLASS_APPS_MOBILE_TITLE'));
-		$this->checkParam('TITLE_DESKTOP', Loc::getMessage('LANDING_WIDGET_CLASS_APPS_DESKTOP_TITLE'));
+		$this->checkParam('TITLE_DESKTOP', Loc::getMessage('LANDING_WIDGET_CLASS_APPS_DESKTOP_TITLE_MSGVER_1'));
 		//style params
 		$this->checkParam('COLOR_TITLE_MOBILE', '#333333');
 		$this->checkParam('COLOR_TITLE_DESKTOP', '#333333');
@@ -60,6 +59,7 @@ class LandingBlocksMainpageWidgetApps extends LandingBlocksMainpageWidgetBase
 	{
 		$this->arResult['TITLE_MOBILE'] = $this->arParams['TITLE_MOBILE'];
 		$this->arResult['TITLE_DESKTOP'] = $this->arParams['TITLE_DESKTOP'];
+		$this->arResult['TYPE'] = $this->arParams['TYPE'] ?? '1';
 
 		$os = $this->getOS();
 		if ($os !== null)
@@ -68,7 +68,7 @@ class LandingBlocksMainpageWidgetApps extends LandingBlocksMainpageWidgetBase
 			$ext = $this->getExtension($os);
 			if ($ext !== null)
 			{
-				$this->arResult['DESKTOP_APP_LINK'] = self::PATH . $ext;
+				$this->arResult['DESKTOP_APP_LINK'] = $this->getDownloadPath() . $ext;
 			}
 		}
 
@@ -77,6 +77,17 @@ class LandingBlocksMainpageWidgetApps extends LandingBlocksMainpageWidgetBase
 		{
 			$this->arResult['OS_NAME'] = $osName;
 		}
+	}
+
+	protected function getDownloadPath(): string
+	{
+		$region = Application::getInstance()->getLicense()->getRegion();
+		if (in_array($region, ['ru', 'by', 'kz', 'uz']))
+		{
+			return 'https://repos.1c-bitrix.ru/b24/bitrix24_desktop';
+		}
+
+		return 'https://dl.bitrix24.com/b24/bitrix24_desktop';
 	}
 
 	protected function getOS(): string|null

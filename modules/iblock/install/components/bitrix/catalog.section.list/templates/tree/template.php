@@ -44,7 +44,7 @@ $strTitle = "";
 
 		$count = $arParams["COUNT_ELEMENTS"] && $arSection["ELEMENT_CNT"] ? "&nbsp;(".$arSection["ELEMENT_CNT"].")" : "";
 
-		if ($_REQUEST['SECTION_ID']==$arSection['ID'])
+		if (isset($_REQUEST['SECTION_ID']) && $_REQUEST['SECTION_ID'] == $arSection['ID'])
 		{
 			$link = '<b>'.$arSection["NAME"].$count.'</b>';
 			$strTitle = $arSection["NAME"];

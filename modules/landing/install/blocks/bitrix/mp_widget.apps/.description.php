@@ -21,6 +21,7 @@ $return = [
 				'editable' => [
 					'TITLE_MOBILE' => [],
 					'TITLE_DESKTOP' => [],
+					'TYPE' => [],
 					// visual
 					'COLOR_TITLE_MOBILE' => [
 						'style' => true,
@@ -52,7 +53,7 @@ $return = [
 	],
 	'style' => [
 		'block' => [
-			'type' => ['margin-bottom', 'widget-type'],
+			'type' => ['margin-bottom', 'widget-type', 'font-family'],
 		],
 	],
 ];

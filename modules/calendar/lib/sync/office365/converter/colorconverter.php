@@ -75,16 +75,6 @@ class ColorConverter
 	 *
 	 * @return string
 	 */
-	public static function toOfficCode(?string $color = null): string
-	{
-		return self::MAP_EXPORT_INT[$color] ?? '-1';
-	}
-
-	/**
-	 * @param string|null $color
-	 *
-	 * @return string
-	 */
 	public static function toOffice(?string $color = null): string
 	{
 		return self::MAP_EXPORT[$color] ?? self::OFFICE_DEFAULT_COLOR;

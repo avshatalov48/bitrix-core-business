@@ -27,9 +27,9 @@ class ElementValues extends BaseValues
 	 *
 	 * @return string
 	 */
-	public function getValueTableName()
+	public function getValueTableName(): string
 	{
-		return "b_iblock_section_iprop";
+		return 'b_iblock_element_iprop';
 	}
 
 	/**

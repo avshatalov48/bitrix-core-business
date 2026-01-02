@@ -24,11 +24,10 @@ class ViewCollection extends EntityCollection
 			$viewOrder['ID'] = $order['ID'];
 		}
 
-		$query = MessageViewedTable::query()->setSelect(['ID', 'USER_ID', 'MESSAGE_ID', 'DATE_CREATE']);
-		if ($viewOrder['ID'] === 'DESC')
-		{
-			$query->setOrder($viewOrder);
-		}
+		$query = MessageViewedTable::query()
+			->setSelect(['ID', 'USER_ID', 'MESSAGE_ID', 'DATE_CREATE'])
+			->setOrder($viewOrder)
+		;
 		if (isset($limit))
 		{
 			$query->setLimit($limit);

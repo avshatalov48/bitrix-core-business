@@ -5,12 +5,14 @@ export class SeparatorRow
 	#id: string;
 	#isHidden: boolean;
 	#node: HTMLElement;
+	#className: string;
 
 	constructor(params)
 	{
 		params = Type.isNil(params) ? {} : params;
 		this.#isHidden = params.isHidden === true;
 		this.#id = Type.isNil(params.id) ? 'row_' + Text.getRandom(8) : params.id;
+		this.#className = Type.isStringFilled(params.className) ? params.className : '';
 	}
 
 	render(): HTMLElement
@@ -21,7 +23,7 @@ export class SeparatorRow
 		}
 
 		this.#node = Tag.render`
-			<div class="ui-section__separator-row" ${this.#isHidden ? 'hidden' : ''}></div>
+			<div class="ui-section__separator-row ${this.#className}" ${this.#isHidden ? 'hidden' : ''}></div>
 		`;
 
 		return this.#node;

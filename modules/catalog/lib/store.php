@@ -4,6 +4,7 @@ namespace Bitrix\Catalog;
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Event;
 use Bitrix\Main\ORM\EventResult;
 use Bitrix\Main\UserTable;
@@ -53,7 +54,7 @@ use Bitrix\Main\UserTable;
  * @method static \Bitrix\Catalog\EO_Store wakeUpObject($row)
  * @method static \Bitrix\Catalog\EO_Store_Collection wakeUpCollection($rows)
  */
-class StoreTable extends Main\Entity\DataManager
+class StoreTable extends DataManager
 {
 	/**
 	 * Returns DB table name for entity.
@@ -413,6 +414,14 @@ class StoreTable extends Main\Entity\DataManager
 		$defaultStoreId = (int)($row['ID'] ?? 0);
 
 		return ($defaultStoreId > 0 ? $defaultStoreId : null);
+	}
+
+	public static function getStoreCreatorId(int $storeId): ?int
+	{
+		$row = self::getRowById($storeId, ['select' => ['USER_ID']]);
+		$creatorId = (int)($row['USER_ID'] ?? 0);
+
+		return ($creatorId > 0 ? $creatorId : null);
 	}
 
 	/**

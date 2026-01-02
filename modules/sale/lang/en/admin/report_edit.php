@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SALE_REPORT"] = "Reports Settings";
 $MESS["SPS_USER_ID"] = "User ID";
 $MESS["SPS_USER_LOGIN"] = "Login";
@@ -80,4 +80,3 @@ $MESS["SRE_PARAM_PROP_TYPE_2"] = "User Parameter";
 $MESS["SRE_PARAM_PROP_TYPE_3"] = "Order Parameter";
 $MESS["SRE_PARAM_PROP_TYPE_4"] = "Order Property";
 $MESS["SRE_PARAM_USER"] = "Customer Information";
-?>

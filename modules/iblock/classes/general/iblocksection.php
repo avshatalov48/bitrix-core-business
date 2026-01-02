@@ -699,8 +699,10 @@ class CAllIBlockSection
 
 			$GLOBALS["USER_FIELD_MANAGER"]->Update("IBLOCK_".$IBLOCK_ID."_SECTION", $ID, $arFields);
 
-			if($bUpdateSearch)
-				CIBlockSection::UpdateSearch($ID);
+			if ($bUpdateSearch)
+			{
+				$this->UpdateSearch($ID);
+			}
 
 			if(
 				CIBlock::GetArrayByID($IBLOCK_ID, "SECTION_PROPERTY") === "Y"
@@ -1222,8 +1224,10 @@ class CAllIBlockSection
 				Iblock\PropertyIndex\Manager::markAsInvalid($db_record["IBLOCK_ID"]);
 			}
 
-			if($bUpdateSearch)
-				CIBlockSection::UpdateSearch($ID);
+			if ($bUpdateSearch)
+			{
+				$this->UpdateSearch($ID);
+			}
 
 			if($arIBlock["FIELDS"]["LOG_SECTION_EDIT"]["IS_REQUIRED"] == "Y")
 			{
@@ -1825,15 +1829,22 @@ class CAllIBlockSection
 		return $cnt;
 	}
 
-	public function UpdateSearch($ID, $bOverWrite=false)
+	public function UpdateSearch($ID, $bOverWrite = false)
 	{
-		if(!CModule::IncludeModule("search")) return;
+		if (!Loader::includeModule('search'))
+		{
+			return;
+		}
 
 		global $DB;
-		$ID = intval($ID);
+		$ID = (int)$ID;
+		if ($ID <= 0)
+		{
+			return;
+		}
 
-		static $arGroups = array();
-		static $arSITE = array();
+		static $arGroups = [];
+		static $arSITE = [];
 
 		$strSql = "
 			SELECT BS.ID, BS.NAME, BS.DESCRIPTION_TYPE, BS.DESCRIPTION, BS.XML_ID as EXTERNAL_ID,
@@ -1848,8 +1859,12 @@ class CAllIBlockSection
 				AND BS.ID=".$ID;
 
 		$dbrIBlockSection = $DB->Query($strSql);
+		$arIBlockSection = $dbrIBlockSection->Fetch();
+		unset(
+			$dbrIBlockSection,
+		);
 
-		if($arIBlockSection = $dbrIBlockSection->Fetch())
+		if ($arIBlockSection)
 		{
 			$IBLOCK_ID = $arIBlockSection["IBLOCK_ID"];
 			$SECTION_URL =
@@ -1864,6 +1879,7 @@ class CAllIBlockSection
 			if($arIBlockSection["ACTIVE1"]!="Y" || $arIBlockSection["ACTIVE2"]!="Y" || $arIBlockSection["INDEX_SECTION"]!="Y")
 			{
 				CSearch::DeleteIndex("iblock", "S".$arIBlockSection["ID"]);
+
 				return;
 			}
 

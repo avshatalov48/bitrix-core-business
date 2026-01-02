@@ -1,6 +1,7 @@
 import { Extension } from 'main.core';
 
 import { MessageComponent } from 'im.v2.const';
+import { Notifier } from 'im.v2.lib.notifier';
 
 import type { ImModelMessage } from 'im.v2.model';
 
@@ -20,6 +21,10 @@ export const MessageSelectButton = {
 	name: 'MessageSelectButton',
 	props:
 	{
+		contextDialogId: {
+			type: String,
+			required: true,
+		},
 		message: {
 			type: Object,
 			required: true,
@@ -33,7 +38,7 @@ export const MessageSelectButton = {
 		},
 		selectedMessages(): Set<number>
 		{
-			return this.$store.getters['messages/select/getCollection'];
+			return this.$store.getters['messages/select/getCollection'](this.contextDialogId);
 		},
 		bulkActionMessageLimit(): number
 		{
@@ -43,7 +48,7 @@ export const MessageSelectButton = {
 		},
 		isMessageSelected(): boolean
 		{
-			return this.$store.getters['messages/select/isMessageSelected'](this.messageItem.id);
+			return this.$store.getters['messages/select/isMessageSelected'](this.messageItem.id, this.contextDialogId);
 		},
 		isSelectionLimitReached(): boolean
 		{
@@ -74,16 +79,15 @@ export const MessageSelectButton = {
 
 			if (this.isSelectionLimitReached)
 			{
-				this.showNotification(this.loc('IM_MESSAGE_LIST_MAX_LIMIT_SELECTED_MESSAGES'));
+				Notifier.message.onSelectLimitError();
 
 				return;
 			}
 
-			this.$store.dispatch('messages/select/toggle', this.messageItem.id);
-		},
-		showNotification(text: string)
-		{
-			BX.UI.Notification.Center.notify({ content: text });
+			this.$store.dispatch('messages/select/toggleMessageSelection', {
+				messageId: this.messageItem.id,
+				dialogId: this.contextDialogId,
+			});
 		},
 		loc(phraseCode: string): string
 		{

@@ -932,7 +932,7 @@ BX.Lists.LiveFeedClass = (function ()
 	{
 		BX.unbindAll(BX('blog-submit-button-save'));
 
-		if (BX('feed-add-post-content-lists').style.display === 'none')
+		if (BX.Dom.style(BX('feed-add-post-content-lists'), 'display') === 'none')
 		{
 			BX.bind(BX('blog-submit-button-save'), 'click', submitBlogPostForm());
 		}

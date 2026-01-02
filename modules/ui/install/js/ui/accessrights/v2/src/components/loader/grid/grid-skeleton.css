@@ -1,0 +1,17 @@
+.ui-page-slider-wrapper:has(.ui-access-rights-v2-grid-skeleton) {
+	overflow: hidden;
+}
+
+.ui-access-rights-v2:has(.ui-access-rights-v2-grid-skeleton) {
+
+}
+
+.ui-access-rights-v2-grid-skeleton {
+	background-image: url('./grid-skeleton.svg');
+	background-color: var(--ui-color-white-base);
+	background-repeat: no-repeat;
+	background-size: cover;
+	height: 100vh;
+	width: 100%;
+	border-radius: var(--ui-side-panel-wrap-workarea-border-radius, var(--ui-border-radius-md));
+}

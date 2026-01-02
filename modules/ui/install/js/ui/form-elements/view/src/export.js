@@ -9,6 +9,7 @@ import { TextArea } from './textarea';
 import { TextInputInline } from './text-input-inline';
 import { UserSelector } from './user-selector';
 import { BaseField } from './base-field';
+import { FieldFactory } from './field-factory';
 
 import './css/main.css';
 
@@ -24,4 +25,5 @@ export {
 	TextInputInline,
 	UserSelector,
 	BaseField,
+	FieldFactory,
 };

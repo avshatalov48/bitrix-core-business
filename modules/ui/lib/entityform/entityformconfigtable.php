@@ -34,22 +34,22 @@ class EntityFormConfigTable extends Entity\DataManager
 		return [
 			new Entity\IntegerField('ID', [
 				'autocomplete' => true,
-				'primary' => true
+				'primary' => true,
 			]),
 			new Entity\StringField('CATEGORY', [
 				'required' => true,
-				'size' => 20
+				'size' => 20,
 			]),
 			new Entity\StringField('ENTITY_TYPE_ID', [
 				'required' => true,
-				'size' => 60
+				'size' => 60,
 			]),
 			new Entity\StringField('NAME', [
 				'required' => true,
-				'size' => 100
+				'size' => 100,
 			]),
 			(new ArrayField('CONFIG'))
-				->configureSerializeCallback(function ($value){
+				->configureSerializeCallback(function ($value) {
 					return EntityFormConfigTable::serialize($value);
 				})
 				->configureUnserializeCallback(function ($value) {
@@ -58,17 +58,27 @@ class EntityFormConfigTable extends Entity\DataManager
 			new Entity\BooleanField('COMMON', [
 				'values' => ['N', 'Y'],
 				'required' => true,
-				'default_value' => 'N'
+				'default_value' => 'N',
 			]),
 			new Entity\BooleanField('AUTO_APPLY_SCOPE', [
 				'values' => ['N', 'Y'],
 				'required' => true,
-				'default_value' => 'N'
+				'default_value' => 'N',
 			]),
 			new Entity\StringField('OPTION_CATEGORY', [
 				'required' => true,
-				'size' => 50
-			])
+				'size' => 50,
+			]),
+			new Entity\BooleanField('ON_ADD', [
+				'values' => ['N', 'Y'],
+				'required' => true,
+				'default_value' => 'Y',
+			]),
+			new Entity\BooleanField('ON_UPDATE', [
+				'values' => ['N', 'Y'],
+				'required' => true,
+				'default_value' => 'Y',
+			]),
 		];
 	}
 
@@ -90,7 +100,7 @@ class EntityFormConfigTable extends Entity\DataManager
 					{
 						$value = Emoji::decode($value);
 					}
-				}
+				},
 			);
 		}
 		elseif (is_string($unserialized))
@@ -110,7 +120,7 @@ class EntityFormConfigTable extends Entity\DataManager
 				{
 					$value = Emoji::encode($value);
 				}
-			}
+			},
 		);
 
 		return serialize($fieldValue);

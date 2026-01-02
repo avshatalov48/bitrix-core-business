@@ -12,6 +12,9 @@ use Bitrix\Calendar\Sync;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Type\DateTime;
 
+/**
+ * @deprecated
+ */
 class SectionConnection implements EntityInterface
 {
 	/** @var int|null */

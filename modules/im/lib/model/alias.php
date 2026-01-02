@@ -22,9 +22,9 @@ use Bitrix\Main\ORM\Fields\ExpressionField;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Alias_Query query()
- * @method static EO_Alias_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Alias_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Alias_Result getById($id)
- * @method static EO_Alias_Result getList(array $parameters = array())
+ * @method static EO_Alias_Result getList(array $parameters = [])
  * @method static EO_Alias_Entity getEntity()
  * @method static \Bitrix\Im\Model\EO_Alias createObject($setDefaultValues = true)
  * @method static \Bitrix\Im\Model\EO_Alias_Collection createCollection()

@@ -10,6 +10,8 @@ import './css/chat-content.css';
 import type { JsonObject } from 'main.core';
 import type { ImModelLayout } from 'im.v2.model';
 
+export { AiAssistantBotContent } from './components/content/ai-assistant-bot/ai-assistant-bot';
+
 // @vue/component
 export const ChatContent = {
 	name: 'ChatContent',

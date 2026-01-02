@@ -1,5 +1,6 @@
 import { Base } from 'landing.node.base';
-import {Env} from 'landing.env';
+import { Env } from 'landing.env';
+import { Image as ImageField } from 'landing.ui.field.image';
 
 const attr = BX.Landing.Utils.attr;
 const data = BX.Landing.Utils.data;
@@ -160,7 +161,8 @@ export class Img extends Base
 
 			if (this.manifest.editInStyle !== true)
 			{
-				this.field = new BX.Landing.UI.Field.Image({
+				this.field = new ImageField({
+					contextType: ImageField.CONTEXT_TYPE_CONTENT,
 					selector: this.selector,
 					title: this.manifest.name,
 					description: description,

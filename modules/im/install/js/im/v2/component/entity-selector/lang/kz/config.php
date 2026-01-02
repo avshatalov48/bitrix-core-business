@@ -1,0 +1,25 @@
+<?php
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_CHAT_ADD_MEMBERS_TITLE"] = "Қатысушыларды қосу";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_CHAT_ADD_MORE"] = "Қосу";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_CHAT_ADD_MSGVER_1"] = "Пайдаланушыны қосу";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_CHAT_CANCEL_BUTTON"] = "Болдырмау";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_CHAT_FORWARD_TITLE"] = "Хабарламаны қайта жіберу";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_CHAT_FORWARD_TITLE_SEVERAL_MESSAGES"] = "Хабарламаларды қайта жіберу";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_CHAT_INVITE_BUTTON"] = "Шақыру";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_CHAT_SHOW_HISTORY"] = "Чат тарихын көрсету";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_COPY_LINK"] = "Сілтемені көшіру";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_DEFAULT_LANGUAGE_TITLE"] = "#LANG_NAME# (әдепкі)";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_DESCRIPTION_TEXT_EMPLOYEE"] = "Қонақтар - коллаб қатысушылары сіздің компанияңыздан емес. Серіктестерді, мердігерлерді немесе клиенттерді бірлесіп жұмыс істеуге шақырыңыз. Қонақтар тек осы коллабқа кіре алады";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_DESCRIPTION_TEXT_GUEST"] = "Бірнеше рет басу арқылы коллабта бірге жұмыс істеу және хабарламаларды әртүрлі мессенджерлерге жібермеу үшін қажетті адамдарды қосыңыз";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_DESCRIPTION_TITLE_EMPLOYEE"] = "Қонақтарды коллабқа шақырыңыз";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_DESCRIPTION_TITLE_GUEST"] = "Басқа қатысушыларды шақырыңыз";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_HELPDESK_LINK"] = "Толығырақ";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_INVITE_BY_EMAIL"] = "E-mail бойынша";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_INVITE_BY_LINK"] = "Сілтеме бойынша";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_INVITE_BY_PHONE_OR_EMAIL"] = "Телефон нөмірі және e-mail бойынша";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_INVITE_LANGUAGE_TITLE"] = "Шақыру тілі:";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_LANGUAGE_SELECTOR_HINT"] = "Шақыру тілі мен қонақ интерфейсін таңдаңыз. Басқа қатысушылар үшін тіл өзгермейді";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_LINK_UPDATE_HINT"] = "Егер ескіге кіруді жапқыңыз келсе, шақыру сілтемесін жаңартыңыз";
+$MESS["IM_ENTITY_SELECTOR_ADD_TO_COLLAB_TITLE"] = "Коллабқа қосу";
+$MESS["IM_ENTITY_SELECTOR_EMPLOYEES_TAB"] = "Қызметкерлер";
+$MESS["IM_ENTITY_SELECTOR_GUESTS_TAB"] = "Қонақтар";

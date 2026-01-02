@@ -1,0 +1,25 @@
+<?php
+$MESS["SALE_ORDER_DISCOUNT_BAD_ORDER_ID"] = "Қате тапсырыс идентификаторы";
+$MESS["SALE_ORDER_DISCOUNT_ERR_BAD_APPLY_BLOCK_COUNTER"] = "Бағаны есептеу блогының дұрыс емес идентификаторы";
+$MESS["SALE_ORDER_DISCOUNT_ERR_BAD_DISCOUNT_HASH"] = "Тауарға жеңілдіктер/себет ережелеріне хеш жасау мүмкін емес";
+$MESS["SALE_ORDER_DISCOUNT_ERR_BAD_DISCOUNT_MODULE"] = "Тауарға жеңілдік модулі провайдерлер тізімінде жоқ";
+$MESS["SALE_ORDER_DISCOUNT_ERR_BAD_ORDER_ID"] = "Тапсырыс идентификаторы дұрыс емес";
+$MESS["SALE_ORDER_DISCOUNT_ERR_BAD_PREPARE_DISCOUNT"] = "Тауарға жеңілдік табылмады немесе дүкен пішіміне түрлендіріле алмайды";
+$MESS["SALE_ORDER_DISCOUNT_ERR_BAD_RESULT_ROW_ID"] = "Тауарға жеңілдік/себет ережелерін қолдану нәтижесі туралы дұрыс емес жазба идентификаторы";
+$MESS["SALE_ORDER_DISCOUNT_ERR_BAD_ROUND_ROW_ID"] = "Тауар бағасын дөңгелектеу нәтижесі туралы жазбаның дұрыс емес идентификаторы";
+$MESS["SALE_ORDER_DISCOUNT_ERR_BAD_STORAGE_TYPE"] = "Тапсырыс деректерінің түрі дұрыс емес";
+$MESS["SALE_ORDER_DISCOUNT_ERR_COUPON_CODE_ABSENT"] = "Купон коды көрсетілмеген";
+$MESS["SALE_ORDER_DISCOUNT_ERR_COUPON_ID_BAD"] = "#COUPON# купоны үшін купон ID-і көрсетілмеген";
+$MESS["SALE_ORDER_DISCOUNT_ERR_COUPON_TYPE_ABSENT"] = "#COUPON# купонының түрі көрсетілмеген";
+$MESS["SALE_ORDER_DISCOUNT_ERR_COUPON_TYPE_BAD"] = "#COUPON# купонының түрі дұрыс емес";
+$MESS["SALE_ORDER_DISCOUNT_ERR_EMPTY_COUPON"] = "Купонның сипаттамасы дұрыс емес";
+$MESS["SALE_ORDER_DISCOUNT_ERR_EMPTY_DISCOUNT"] = "Тауарға жеңілдік/себет ережелері туралы қате сипаттама";
+$MESS["SALE_ORDER_DISCOUNT_ERR_EMPTY_MANAGER_PARAMS"] = "Тауарға/себет ережесіне жеңілдікті сақтау қажет сайт көрсетілмеген";
+$MESS["SALE_ORDER_DISCOUNT_ERR_ORDER_STORED_DATA_ALREADY_EXISTS"] = "Жазбалар бар және оларды қайта жазу мүмкін емес";
+$MESS["SALE_ORDER_DISCOUNT_ERR_RESULT_ROW_DESCRIPTION_IS_EMPTY"] = "Тауарға жеңілдікті/себет ережелерін қолдану нәтижесінің сипаттамасы жоқ";
+$MESS["SALE_ORDER_DISCOUNT_ERR_RESULT_ROW_ID_IS_ABSENT"] = "Тауарға жеңілдік/себет ережелерін қолдану нәтижесі туралы жазба идентификаторы жоқ";
+$MESS["SALE_ORDER_DISCOUNT_ERR_RESULT_ROW_IS_EMPTY"] = "Тауарға жеңілдік/себет ережелерін қолдану нәтижесі туралы деректер жоқ";
+$MESS["SALE_ORDER_DISCOUNT_ERR_ROUND_ROW_ID_IS_ABSENT"] = "Тауар бағасын дөңгелектеу нәтижесі туралы жазба идентификаторы жоқ";
+$MESS["SALE_ORDER_DISCOUNT_ERR_RULE_COUPON_NOT_FOUND"] = "Жеңілдіктер мен #ID# себет ережелерін қолдану туралы жазба үшін #COUPON_ID# идентификаторы бар купон табылмады";
+$MESS["SALE_ORDER_DISCOUNT_ERR_SAVE_DISCOUNT_MODULES"] = "Тауарға жеңілдік/себет ережелері модульдерінің тізімін сақтау кезіндегі қате";
+$MESS["SALE_ORDER_DISCOUNT_NAME_TEMPLATE"] = "#ID# себет ережесі";

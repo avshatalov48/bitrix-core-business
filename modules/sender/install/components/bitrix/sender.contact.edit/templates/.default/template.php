@@ -11,6 +11,10 @@ use Bitrix\Sender\Internals\PrettyDate;
 /** @var CMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
+
+\Bitrix\Main\Loader::includeModule('ui');
+\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
+
 $containerId = 'bx-sender-campaign-edit';
 ?>
 <script>
@@ -27,14 +31,6 @@ $containerId = 'bx-sender-campaign-edit';
 </script>
 
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="sender-template-edit-wrap">
-
-	<?
-	$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' => array(
-		array('type' => 'buttons', 'list' => array(
-
-		)),
-	)));
-	?>
 
 	<form method="post" action="<?=htmlspecialcharsbx($arResult['SUBMIT_FORM_URL'])?>">
 		<?=bitrix_sessid_post()?>

@@ -1,0 +1,23 @@
+<?php
+$MESS["SALE_COMPANY"] = "Компаниялар";
+$MESS["SALE_COMPANY_ACTIVE"] = "Белсенділік";
+$MESS["SALE_COMPANY_ADD_NEW"] = "Компанияны қосу";
+$MESS["SALE_COMPANY_ADD_NEW_ALT"] = "Компанияны қосу";
+$MESS["SALE_COMPANY_ALL"] = "Барлығы";
+$MESS["SALE_COMPANY_CODE"] = "Код";
+$MESS["SALE_COMPANY_CONFIRM_DEL"] = "Компанияны жойғыңыз келетініне сенімдісіз бе?";
+$MESS["SALE_COMPANY_DELETE"] = "Жою";
+$MESS["SALE_COMPANY_DELETE_DESCR"] = "Жою";
+$MESS["SALE_COMPANY_EDIT"] = "Өзгерту";
+$MESS["SALE_COMPANY_EDIT_DESCR"] = "Өзгерту";
+$MESS["SALE_COMPANY_ERROR_DELETE"] = "Жазбаны жою қатесі";
+$MESS["SALE_COMPANY_ERROR_DELETE_LINK"] = "Компания төлеммен немесе жөнелтумен байланысты";
+$MESS["SALE_COMPANY_ERROR_NO_LOCATION_ID"] = "Компанияның мекенжайы көрсетілмеген.";
+$MESS["SALE_COMPANY_ERROR_NO_NAME"] = "Компанияның атауы көрсетілмеген.";
+$MESS["SALE_COMPANY_LOCATION"] = "Орналасқан жері";
+$MESS["SALE_COMPANY_LOCATION_ID"] = "Орналасқан жері";
+$MESS["SALE_COMPANY_NAME"] = "Атауы";
+$MESS["SALE_COMPANY_NO"] = "Жоқ";
+$MESS["SALE_COMPANY_SECTION_TITLE"] = "Компаниялар";
+$MESS["SALE_COMPANY_SORT"] = "Сұрыптау";
+$MESS["SALE_COMPANY_YES"] = "Иә";

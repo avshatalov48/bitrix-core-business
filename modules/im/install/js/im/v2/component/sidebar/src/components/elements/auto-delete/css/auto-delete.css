@@ -9,13 +9,8 @@
 	height: 36px;
 }
 
-.bx-im-sidebar-auto-delete__container.--not-active {
-	opacity: 0.3;
-	cursor: not-allowed;
-}
-
-.bx-im-sidebar-auto-delete__container.--not-active .bx-im-toggle__container {
-	cursor: not-allowed;
+.bx-im-sidebar-auto-delete__container .bx-im-toggle__container {
+	cursor: pointer;
 }
 
 .bx-im-sidebar-auto-delete__title {
@@ -29,11 +24,6 @@
 	font: var(--im-font-size-md)/var(--im-font-line-height-2xs) var(--im-font-family-system);
 	font-weight: var(--im-font-weight-semi-bold);
 	color: var(--im-sidebar-auto-delete-settings__color_title);
-}
-
-.bx-im-sidebar-auto-delete__status {
-	font: var(--im-font-size-xs)/var(--im-font-line-height-3xs) var(--im-font-family-system);
-	color: var(--im-sidebar-auto-delete-setttings__color_status);
 }
 
 .bx-im-sidebar-auto-delete__icon::before {

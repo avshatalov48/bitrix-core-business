@@ -1,10 +1,12 @@
 import { Cache } from 'main.core';
 import type { AccessRightItem } from '../store/model/access-rights-model';
+import type { AdditionalMembersParams } from '../store/model/application-model';
 import { DependentVariables } from './value/type/dependent-variables';
 import { Multivariables } from './value/type/multivariables';
 import { Toggler } from './value/type/toggler';
 import type { ValueType } from './value/type/value-type';
 import { Variables } from './value/type/variables';
+import { SelectorService } from './selector-service';
 
 export class ServiceLocator
 {
@@ -20,6 +22,7 @@ export class ServiceLocator
 		return this.#cache.remember(`hint-${appGuid}`, () => {
 			return BX.UI.Hint.createInstance({
 				id: `ui-access-rights-v2-hint-${appGuid}`,
+				classNameIcon: 'ui-icon-set --o-question',
 				popupParameters: {
 					className: 'ui-access-rights-v2-popup-pointer-events ui-hint-popup',
 					autoHide: true,
@@ -68,5 +71,10 @@ export class ServiceLocator
 
 			return null;
 		});
+	}
+
+	static getSelectorService(memberOptions: AdditionalMembersParams): SelectorService
+	{
+		return new SelectorService(memberOptions);
 	}
 }

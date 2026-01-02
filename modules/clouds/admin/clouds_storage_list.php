@@ -586,7 +586,7 @@ $rsData = CCloudStorageBucket::GetList(['SORT' => 'DESC', 'ID' => 'ASC']);
 $rsData = new CAdminResult($rsData, $sTableID);
 while (is_array($arRes = $rsData->Fetch()))
 {
-	$row =& $lAdmin->AddRow($arRes['ID'], $arRes);
+	$row = $lAdmin->AddRow($arRes['ID'], $arRes);
 
 	$row->AddViewField('ID', '<a href="clouds_storage_edit.php?lang=' . LANGUAGE_ID . '&ID=' . $arRes['ID'] . '">' . $arRes['ID'] . '</a>');
 	$row->AddViewField('FILE_COUNT', '<a href="clouds_file_list.php?lang=' . LANGUAGE_ID . '&bucket=' . $arRes['ID'] . '&path=%2F">' . intval($arRes['FILE_COUNT']) . '</a>');

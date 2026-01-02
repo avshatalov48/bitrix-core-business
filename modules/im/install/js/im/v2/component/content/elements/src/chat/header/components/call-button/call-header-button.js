@@ -1,7 +1,9 @@
 import { CallButton } from 'call.component.call-button';
-
+import { Extension } from 'main.core';
 import type { BitrixVueComponentProps } from 'ui.vue3';
 import type { ImModelChat } from 'im.v2.model';
+
+const { callInstalled } = Extension.getSettings('im.v2.lib.call');
 
 // @vue/component
 export const CallHeaderButton = {
@@ -25,6 +27,11 @@ export const CallHeaderButton = {
 		},
 		componentToRender(): BitrixVueComponentProps
 		{
+			if (!callInstalled)
+			{
+				return null;
+			}
+
 			return CallButton;
 		},
 	},

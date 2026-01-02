@@ -9,11 +9,11 @@
 namespace Bitrix\Main\ORM\Fields;
 use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\Result;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\EntityError;
-use Bitrix\Main\ORM\Data\Result;
 use Bitrix\Main\ORM\Fields\Validators\IValidator;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SystemException;
 
 /**
@@ -82,6 +82,7 @@ abstract class Field
 	 */
 	protected static $oldDataTypes = array(
 		'float' => 'Bitrix\Main\ORM\Fields\FloatField',
+		'decimal' => 'Bitrix\Main\ORM\Fields\DecimalField',
 		'string' => 'Bitrix\Main\ORM\Fields\StringField',
 		'text' => 'Bitrix\Main\ORM\Fields\TextField',
 		'datetime' => 'Bitrix\Main\ORM\Fields\DatetimeField',

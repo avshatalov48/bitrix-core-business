@@ -5,6 +5,9 @@ namespace Bitrix\Calendar\Sync\Push;
 use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Sync\Dictionary;
 
+/**
+ * @deprecated
+ */
 class Push
 {
 	/**

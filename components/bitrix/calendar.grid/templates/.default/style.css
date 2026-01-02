@@ -23,6 +23,8 @@
 	--border-dark: rgba(0, 0, 0, .1);
 	--color-sharing: #C48300;
 	--calendar-views-container-min-height: 300px;
+	--calendar-booking-event-icon-color: var(--ui-color-accent-extra-pink);
+	--calendar-booking-event-color: var(--ui-color-accent-extra-pink);
 }
 
 .calendar-slider-calendar-wrap {
@@ -1591,10 +1593,10 @@
 }
 
 .calendar-event-line-dot {
-	min-width: 7px;
-	min-height: 7px;
-	width: 7px;
-	height: 7px;
+	min-width: 8px;
+	min-height: 8px;
+	width: 8px;
+	height: 8px;
 	border-radius: var(--ui-border-radius-circle, 50%);
 	margin: 0 5px 0 1px;
 }
@@ -2285,7 +2287,7 @@ a.calendar-event-block-members-user {
 
 .calendar-event-block-collab {
 	font-size: var(--ui-font-size-3xs, 11px);
-	line-height: 15px;
+	line-height: 16px;
 	color: var(--ui-color-palette-white-base, #fff);
 }
 
@@ -2731,7 +2733,7 @@ select.calendar-field-select {
 .calendar-event-block-icon-sharing {
 	display: inline-block;
 	align-self: flex-start;
-	border: 1px solid #fff;
+	border: 1px solid #fefeff;
 	border-radius: 50%;
 	min-width: 14px;
 	min-height: 14px;
@@ -2743,10 +2745,17 @@ select.calendar-field-select {
 	z-index: 99;
 }
 
+.calendar-event-block-icon-sharing.--month {
+	min-width: 10px;
+	min-height: 10px;
+	width: 10px;
+	height: 10px;
+}
+
 .calendar-event-line-wrap .calendar-event-block-icon-sharing {
 	top: 0;
 	left: 15px;
-	margin: -1px 5px -1px 0;
+	margin: 1px 3px 0 -1px;
 }
 
 .calendar-event-block-icon-sharing-view-list {
@@ -2754,6 +2763,33 @@ select.calendar-field-select {
 	width: 22px;
 	height: 22px;
 	vertical-align: middle;
+}
+
+.calendar-event-block-icon-booking {
+	display: inline-block;
+	border: 1px solid #fefeff;
+	border-radius: 50%;
+	min-width: 14px;
+	min-height: 14px;
+	width: 14px;
+	height: 14px;
+	margin-right: 2px;
+	background-color: var(--calendar-booking-event-icon-color);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9.00171 2.111C9.29163 2.11104 9.5271 2.34646 9.5271 2.63639V2.86686H10.0974C10.9994 2.86686 11.7311 3.5977 11.7312 4.49967V6.41959C11.7312 6.64496 11.5483 6.82756 11.323 6.8278C11.0975 6.8278 10.9138 6.64511 10.9138 6.41959V4.49967C10.9137 4.04873 10.5484 3.68327 10.0974 3.68327H9.5271V4.05338C9.5271 4.34331 9.29163 4.57874 9.00171 4.57877C8.71176 4.57877 8.47632 4.34333 8.47632 4.05338V3.68327H5.51343V4.05338C5.51343 4.34333 5.27799 4.57877 4.98804 4.57877C4.69824 4.57859 4.46362 4.34322 4.46362 4.05338V3.68327H3.90503C3.45406 3.68327 3.08775 4.04873 3.08765 4.49967V9.50748C3.08774 9.95843 3.45406 10.3239 3.90503 10.3239H6.07007C6.29545 10.324 6.47816 10.5067 6.47827 10.7321C6.47827 10.9576 6.29552 11.1402 6.07007 11.1403H3.90503C3.00302 11.1403 2.27134 10.4095 2.27124 9.50748V4.49967C2.27135 3.5977 3.00303 2.86686 3.90503 2.86686H4.46362V2.63639C4.46362 2.34656 4.69824 2.11118 4.98804 2.111C5.27799 2.111 5.51343 2.34644 5.51343 2.63639V2.86686H8.47632V2.63639C8.47632 2.34644 8.71176 2.111 9.00171 2.111ZM11.9353 10.3239C12.1607 10.3239 12.3444 10.5067 12.3445 10.7321C12.3445 10.9576 12.1608 11.1403 11.9353 11.1403H8.23999C8.01447 11.1403 7.83081 10.9576 7.83081 10.7321C7.83092 10.5067 8.01455 10.3239 8.23999 10.3239H11.9353ZM11.9353 8.53971C12.1608 8.53971 12.3445 8.7224 12.3445 8.94791C12.3443 9.17327 12.1607 9.35612 11.9353 9.35612H8.23999C8.01459 9.35612 7.831 9.17327 7.83081 8.94791C7.83081 8.7224 8.01447 8.53873 8.23999 8.53873L11.9353 8.53971ZM5.1228 7.66862C5.38039 7.66862 5.58936 7.87691 5.5896 8.13444V8.62858C5.58953 8.88625 5.38049 9.09538 5.1228 9.09538H4.65112C4.3936 9.09518 4.18538 8.88613 4.1853 8.62858V8.13444C4.18554 7.87703 4.3937 7.66881 4.65112 7.66862H5.1228ZM4.87476 8.38151C4.87881 8.38558 4.88321 8.38936 4.88745 8.39323C4.89159 8.38944 4.89619 8.38549 4.90015 8.38151C4.89614 8.37748 4.89165 8.37362 4.88745 8.36979C4.88323 8.37364 4.87879 8.37746 4.87476 8.38151ZM5.1228 5.43717C5.3805 5.43717 5.58954 5.64629 5.5896 5.90397V6.39811C5.58935 6.65563 5.38038 6.86393 5.1228 6.86393H4.65112C4.39371 6.86374 4.18555 6.65551 4.1853 6.39811V5.90397C4.18536 5.64641 4.39359 5.43737 4.65112 5.43717H5.1228ZM7.26929 5.43717C7.52698 5.43717 7.73602 5.64629 7.73608 5.90397V6.39811C7.73583 6.65563 7.52687 6.86393 7.26929 6.86393H6.79761C6.54019 6.86374 6.33204 6.65551 6.33179 6.39811V5.90397C6.33185 5.64641 6.54008 5.43737 6.79761 5.43717H7.26929ZM9.32104 5.43717C9.57874 5.43717 9.78778 5.64629 9.78784 5.90397V6.39811C9.78759 6.65563 9.57862 6.86393 9.32104 6.86393H8.85034C8.59276 6.86393 8.3838 6.65563 8.38354 6.39811V5.90397C8.38361 5.64629 8.59265 5.43717 8.85034 5.43717H9.32104ZM4.87476 6.15104C4.87878 6.15508 4.88323 6.15891 4.88745 6.16276C4.89165 6.15893 4.89614 6.15507 4.90015 6.15104C4.89619 6.14706 4.89159 6.1431 4.88745 6.13932C4.88321 6.14319 4.8788 6.14697 4.87476 6.15104ZM7.02124 6.15104C7.02527 6.15508 7.02972 6.15891 7.03394 6.16276C7.03813 6.15893 7.04262 6.15507 7.04663 6.15104C7.04268 6.14706 7.03807 6.1431 7.03394 6.13932C7.02969 6.14319 7.02529 6.14697 7.02124 6.15104ZM9.073 6.15104C9.07705 6.15511 9.08145 6.15889 9.08569 6.16276C9.08992 6.1589 9.09435 6.1551 9.09839 6.15104C9.09441 6.14704 9.08986 6.14313 9.08569 6.13932C9.08148 6.14316 9.07702 6.147 9.073 6.15104Z' fill='white'/%3E%3C/svg%3E%0A");
+	z-index: 99;
+}
+
+.calendar-event-block-icon-booking.--month {
+	min-width: 10px;
+	min-height: 10px;
+	width: 10px;
+	height: 10px;
+}
+
+.calendar-event-block-icon-booking.--month ~ .calendar-event-line-text > span {
+	color: var(--calendar-booking-event-color);
 }
 
 .calendar-field-container-select.locked .calendar-field-select:hover {
@@ -2765,6 +2801,7 @@ select.calendar-field-select::-ms-expand {
 }
 
 @media (-webkit-min-device-pixel-ratio: 0) {
+	input.calendar-field-select,
 	select.calendar-field-select {
 		padding-right: 24px !important;
 	}
@@ -2833,6 +2870,15 @@ select:not(:-internal-list-box) {
 	z-index: 99;
 	background-size: 20px 20px;
 	background-position: -2px;
+}
+
+.calendar-event-block-icon-collab.--month {
+	width: 14px;
+	height: 13px;
+	min-width: 14px;
+	min-height: 13px;
+	background-size: 14px 14px;
+	margin-top: 1px
 }
 
 .calendar-event-block-icon-collab.--white {
@@ -3016,6 +3062,7 @@ select:not(:-internal-list-box) {
 	background-color: var(--ui-color-background-transparent, transparent);
 	vertical-align: top;
 	transition: 300ms all ease;
+	padding: 3px 3px 0 0;
 }
 
 .calendar-notification-btn-container:hover {
@@ -3023,12 +3070,11 @@ select:not(:-internal-list-box) {
 }
 
 .calendar-notification-text {
-	margin-left: 5px;
 	border-bottom: 1px dotted;
 	color: var(--ui-color-palette-gray-70, #828b95);
 	cursor: pointer;
 	vertical-align: middle;
-	font: 400 13px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: 400 14px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 .calendar-notification-icon {
 	position: absolute;
@@ -3162,8 +3208,8 @@ select:not(:-internal-list-box) {
 }
 
 .calendar-members-selected .calendar-attendees-label {
-	color: #A8ADB4;
-	font-size: var(--ui-font-size-3xs, 11px);
+	color: #9B9B9B;
+	font-size: var(--ui-font-size-sm, 13px);
 	display: block;
 	margin-bottom: 3px;
 }
@@ -3217,11 +3263,11 @@ select:not(:-internal-list-box) {
 	display: none;
 }
 .calendar-videocall-wrap{
-	padding-right: 10px;
+	padding-right: 0;
 }
 .calendar-videocall-wrap .ui-btn-split.intranet-control-btn {
 	border: none;
-	padding: 0 20px 0 0;
+	padding: 0;
 	height: 19px;
 	top: -3px;
 	white-space: nowrap;
@@ -3838,7 +3884,7 @@ select:not(:-internal-list-box) {
 	width: max-content;
 	height: max-content;
 	color: #bdc1c6;
-	font: var(--ui-font-size-xs, 12px)/var(--ui-font-size-xs, 12px) var(--ui-font-family-system);
+	font: var(--ui-font-size-xs, 12px)/var(--ui-font-size-xs, 12px) var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .calendar-slider-sidebar-user-more-container:hover {
@@ -3981,6 +4027,10 @@ select:not(:-internal-list-box) {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+.calendar-slider-sidebar-rrule-desc {
+	white-space: unset;
 }
 
 .calendar-slider-sidebar-remind-link {
@@ -6677,6 +6727,15 @@ select:not(:-internal-list-box) {
 	color: #da9100;
 }
 
+.calendar-timeline-stream-content-event-booking .calendar-timeline-stream-content-event-name-link {
+	color: var(--calendar-booking-event-color);
+}
+
+.calendar-timeline-stream-content-event-booking .calendar-timeline-stream-content-event-name-link:hover span {
+	color: var(--calendar-booking-event-color);
+	filter: brightness(90%);
+}
+
 .calendar-timeline-stream-content-event-location {
 	display: inline-block;
 	margin-left: 3px;
@@ -7757,7 +7816,7 @@ input.calendar-error {
 	line-height: 12px;
 	height: 14px;
 	border-radius: 7px;
-	border: 1px solid #fff;
+	border: 1px solid #fefeff;
 	box-sizing: border-box;
 	background: var(--ui-color-text-alert);
 	font-family: var(--ui-font-family-open-sans);
@@ -8129,8 +8188,13 @@ div#bx-selector-dialog-uf-crm-cal-event-search {
 }
 
 .calendar-field-container-info {
-	border-radius: var(--ui-border-radius-xs, 2px);
+	border: 1px solid var(--ui-color-base-10);
+	border-radius: var(--ui-border-radius-lg);
 	background: #f8f9fA;
+}
+
+.calendar-field-container-relations {
+	margin-top: var(--ui-space-stack-lg2);
 }
 
 /*.calendar-add-popup-planner-menu {*/
@@ -8301,6 +8365,9 @@ div#bx-selector-dialog-uf-crm-cal-event-search {
 	transition: border-color .2s linear;
 	border-color: rgba(128, 134, 142, .4);
 	line-height: 16px;
+}
+
+.calendar-location-clear-btn-text {
 	margin-top: 3px;
 }
 
@@ -9202,7 +9269,6 @@ input.calendar-field.calendar-field-select.calendar-field-location-select-border
 .calendar-collab-icon__wrapper {
 	grid-area: icon;
 	position: relative;
-	top: -1px;
 	width: var(--hexagon-width);
 	height: var(--hexagon-height);
 	display: flex;
@@ -9223,4 +9289,11 @@ input.calendar-field.calendar-field-select.calendar-field-location-select-border
 	text-overflow: ellipsis;
 	font-size: var(--ui-font-size-sm);
 	font-weight: var(--ui-font-weight-normal);
+	color: rgba( var(--ui-color-on-primary-alt-rgb), var(--ui-opacity-70));
+	white-space: nowrap;
+}
+
+.bitrix24-default-theme .calendar-collab__subtitle,
+.bitrix24-dark-theme .calendar-collab__subtitle {
+	color: var(--ui-color-base-default);
 }

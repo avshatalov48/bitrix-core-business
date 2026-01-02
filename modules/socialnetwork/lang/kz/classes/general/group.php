@@ -1,0 +1,25 @@
+<?php
+$MESS["SONET_ERROR_SAME_GROUP_NAME_EXISTS"] = "Мұндай атауы бар топ қазірдің өзінде бар";
+$MESS["SONET_GB_EMPTY_DATE_ACTIVITY"] = "Соңғы белсенділік күні дұрыс көрсетілмеген";
+$MESS["SONET_GB_EMPTY_DATE_CREATE"] = "Жасалған күні дұрыс көрсетілмеген";
+$MESS["SONET_GB_EMPTY_DATE_UPDATE"] = "Параметрлердің өзгертілген күні дұрыс көрсетілмеген";
+$MESS["SONET_GB_EMPTY_NAME"] = "Атауы көрсетілмеген";
+$MESS["SONET_GB_EMPTY_OWNER_ID"] = "Иесі көрсетілмеген";
+$MESS["SONET_GB_EMPTY_SUBJECT_ID"] = "Тақырып көрсетілмеген";
+$MESS["SONET_GB_ERROR_NO_OWNER_ID"] = "Иесінің коды дұрыс көрсетілмеген";
+$MESS["SONET_GB_ERROR_NO_SUBJECT_ID"] = "Тақырып дұрыс көрсетілмеген";
+$MESS["SONET_GG_EMPTY_SITE_ID"] = "Сайт көрсетілмеген";
+$MESS["SONET_GG_ERROR_CANNOT_DELETE_USER_1"] = "Пайдаланушы әлеуметтік желі топтарының иесі:<br>";
+$MESS["SONET_GG_ERROR_CANNOT_DELETE_USER_2"] = "Сервистер > Әлеуметтік желі > Топтар бөліміне өтіп, топ иесін өзгертіңіз немесе топтарды жойыңыз.";
+$MESS["SONET_GG_ERROR_NO_SITE"] = "Сайт дұрыс көрсетілмеген";
+$MESS["SONET_GP_ERROR_IMAGE_ID"] = "Кескін дұрыс емес";
+$MESS["SONET_NO_GROUP"] = "Жазба табылмады";
+$MESS["SONET_UG_EMPTY_INITIATE_PERMS"] = "Пайдаланушыларды топқа шақыру құқығы көрсетілмеген";
+$MESS["SONET_UG_EMPTY_SPAM_PERMS"] = "Топта хабарлама жіберу құқығы көрсетілмеген";
+$MESS["SONET_UG_ERROR_NO_INITIATE_PERMS"] = "Пайдаланушыларды топқа шақыру құқығы дұрыс көрсетілмеген";
+$MESS["SONET_UG_ERROR_NO_SPAM_PERMS"] = "Топта хабарлама жіберу құқығы дұрыс көрсетілмеген";
+$MESS["SONET_UR_EMPTY_FIELDS"] = "Топ параметрлері көрсетілмеген";
+$MESS["SONET_UR_EMPTY_OWNERID"] = "Топ иесінің коды көрсетілмеген";
+$MESS["SONET_UR_ERROR_CREATE_GROUP"] = "Топ құру қатесі";
+$MESS["SONET_UR_ERROR_CREATE_U_GROUP"] = "Пайдаланушыны топқа байланыстыру қатесі";
+$MESS["SONET_WRONG_PARAMETER_ID"] = "Әдіске ID-дің дұрыс емес параметрі жіберілді";

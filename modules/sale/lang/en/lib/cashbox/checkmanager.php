@@ -5,6 +5,7 @@ $MESS["SALE_CASBHOX_ERROR_CHECK_IS_PRINTING"] = "Receipt ##CHECK_ID# is being pr
 $MESS["SALE_CASHBOX_CHECK_ADVANCE"] = "Advance payment";
 $MESS["SALE_CASHBOX_CHECK_CREDIT"] = "Deferred payment";
 $MESS["SALE_CASHBOX_ERROR_CHECK"] = "Incorrect receipt type";
+$MESS["SALE_CASHBOX_ERROR_CHECK_CORRECTION_VAT_20_AND_22"] = "You can add a tax rate of 20% or 22% to the receipt. These two rates cannot be selected simultaneously in one receipt.";
 $MESS["SALE_CASHBOX_ERROR_CHECK_ID"] = "Incorrect receipt ID";
 $MESS["SALE_CASHBOX_ERROR_CHECK_NOT_CREATED"] = "Receipt was not created. Please contact your Bitrix24 administrator to resolve the issue.";
 $MESS["SALE_CASHBOX_ERROR_CHECK_NOT_FOUND"] = "Receipt ##CHECK_ID# was not found";

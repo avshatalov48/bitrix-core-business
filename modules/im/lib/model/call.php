@@ -5,11 +5,14 @@ namespace Bitrix\Im\Model;
 use Bitrix\Im\Call\Call;
 use Bitrix\Main\Application;
 use Bitrix\Main\Type\DateTime;
-use Bitrix\Main\Entity\DataManager;
-use Bitrix\Main\Entity\StringField;
-use Bitrix\Main\Entity\IntegerField;
-use Bitrix\Main\Entity\DatetimeField;
-use Bitrix\Main\Entity\BooleanField;
+use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\DatetimeField;
+use Bitrix\Main\ORM\Fields\BooleanField;
+use Bitrix\Main\ORM\Fields\EnumField;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
 
 /**
  * Class CallTable
@@ -43,6 +46,11 @@ class CallTable extends DataManager
 
 			new IntegerField('TYPE'),
 
+			(new EnumField('SCHEME'))
+				->configureValues([Call::SCHEME_CLASSIC, Call::SCHEME_JWT])
+				->configureDefaultValue(Call::SCHEME_CLASSIC)
+				->configureNullable(),
+
 			new IntegerField('INITIATOR_ID'),
 
 			(new StringField('IS_PUBLIC'))
@@ -57,6 +65,9 @@ class CallTable extends DataManager
 			new StringField('ENTITY_ID'),
 
 			new IntegerField('PARENT_ID'),
+
+			(new StringField('PARENT_UUID'))
+				->configureSize(36),
 
 			new StringField('STATE'),
 
@@ -84,6 +95,10 @@ class CallTable extends DataManager
 			(new BooleanField('AI_ANALYZE'))
 				->configureValues('N', 'Y')
 				->configureDefaultValue('N'),
+
+			(new Reference('CALL_USER',CallUserTable::class,
+				Join::on('this.ID', 'ref.CALL_ID')))
+				->configureJoinType(Join::TYPE_INNER),
 		];
 	}
 

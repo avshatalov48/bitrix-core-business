@@ -1,0 +1,27 @@
+<?php
+$MESS["ADDRESS"] = "Мекенжай";
+$MESS["CSTORE_SORT"] = "Сұрыптау";
+$MESS["DATE_CREATE"] = "Құрылған күні";
+$MESS["DATE_MODIFY"] = "Өзгерту күні";
+$MESS["DELETE_STORE_ALT"] = "Жою";
+$MESS["DELETE_STORE_CONFIRM"] = "Қойманы жойғыңыз келетініне сенімдісіз бе?";
+$MESS["DESCRIPTION"] = "Сипаттама";
+$MESS["EDIT_STORE_ALT"] = "Редакциялау";
+$MESS["GPS_N"] = "GPS ендік";
+$MESS["GPS_S"] = "GPS бойлық";
+$MESS["ISSUING_CENTER"] = "Беру пункті";
+$MESS["IS_DEFAULT"] = "Әдепкі бойынша";
+$MESS["MODIFIED_BY"] = "Кім өзгерткен";
+$MESS["PHONE"] = "Телефон";
+$MESS["SCHEDULE"] = "Жұмыс күнінің тәртібі";
+$MESS["SHIPPING_CENTER"] = "Жөнелту үшін";
+$MESS["STORE_ACTIVE"] = "Белсенді";
+$MESS["STORE_ADD_NEW"] = "Қосу";
+$MESS["STORE_ADD_NEW_ALT"] = "Жаңа қойма қосу";
+$MESS["STORE_CODE"] = "Символдық код";
+$MESS["STORE_IMAGE"] = "Кескін";
+$MESS["STORE_SITE_ID"] = "Сайт";
+$MESS["STORE_TITLE"] = "Қоймалар";
+$MESS["STORE_XML_ID"] = "Сыртқы код";
+$MESS["TITLE"] = "Атауы";
+$MESS["USER_ID"] = "Кім жасады";

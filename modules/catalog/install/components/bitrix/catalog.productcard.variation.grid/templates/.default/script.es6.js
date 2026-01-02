@@ -338,7 +338,7 @@ class VariationGrid
 		{
 			if (!Reflection.getClass('BX.Main.gridManager.getInstanceById'))
 			{
-				throw new Error(`Cannot find grid with '${this.gridId}' id.`)
+				throw new Error(`Cannot find grid with '${this.gridId}' id.`);
 			}
 
 			this.grid = BX.Main.gridManager.getInstanceById(this.gridId);
@@ -1023,7 +1023,7 @@ class VariationGrid
 		if (Type.isDomNode(newNode))
 		{
 			const newRowDataId = Text.getRandom();
-			this.gridEditData[newRowDataId] = {...this.gridEditData['template_0']};
+			this.gridEditData[newRowDataId] = { ...this.gridEditData['template_0'] };
 			newNode.setAttribute('data-id', newRowDataId);
 			this.markNodeAsNew(newNode);
 			this.modifyCustomSkuProperties(newNode);
@@ -1094,9 +1094,9 @@ class VariationGrid
 	removeRowFromGrid(skuId)
 	{
 		const data = {
-			'id': skuId,
-			'action': 'deleteRow'
-		}
+			id: skuId,
+			action: 'deleteRow',
+		};
 		this.getGrid().reloadTable('POST', data);
 	}
 
@@ -1127,14 +1127,14 @@ class VariationGrid
 
 		if (newRowData)
 		{
-			newRowData = {...newRowData};
+			newRowData = { ...newRowData };
 			this.prepareNewRowData(newRowData);
 
 			const data = this.getGridEditData();
 			const originalTemplateData = data[GRID_TEMPLATE_ROW];
 			const customEditData = this.prepareCustomEditData(originalTemplateData);
 
-			this.setOriginalTemplateEditData({...originalTemplateData, ...newRowData, ...customEditData})
+			this.setOriginalTemplateEditData({ ...originalTemplateData, ...newRowData, ...customEditData });
 
 			return originalTemplateData;
 		}
@@ -1169,7 +1169,7 @@ class VariationGrid
 				&& (i.includes('[VIEW_HTML]') || i.includes('[EDIT_HTML]') || i.includes('XML_ID'))
 			)
 			{
-				delete newRowData[i]
+				delete newRowData[i];
 			}
 		}
 		newRowData['SKU_GRID_BARCODE'] = '<div data-role="barcode-selector"></div>';
@@ -1234,9 +1234,9 @@ class VariationGrid
 					gridId: this.getGrid().getId(),
 					propertyCode: item.id,
 					anchor: item.anchor || null,
-					currentHeaders: this.getHeaderNames()
-				}
-			}
+					currentHeaders: this.getHeaderNames(),
+				},
+			},
 		).then((response) => {
 			this.reloadGrid();
 		});
@@ -1250,12 +1250,13 @@ class VariationGrid
 	onGridUpdated(event: BaseEvent)
 	{
 		this.getGrid().getSettingsWindow().getItems().forEach((column) => {
-			if(this.getHeaderNames().indexOf(column.node.dataset.name) !== -1)
+			if (this.getHeaderNames().indexOf(column.node.dataset.name) !== -1)
 			{
 				column.state.selected = true;
 				column.checkbox.checked = true;
 			}
-			else{
+			else
+			{
 				column.state.selected = false;
 				column.checkbox.checked = false;
 			}
@@ -1271,7 +1272,7 @@ class VariationGrid
 			const eventArgs = sliderEvent.getData();
 
 			this.addPropertyToGridHeader({
-				id: eventArgs.fields.CODE
+				id: eventArgs.fields.CODE,
 			});
 		}
 
@@ -1289,7 +1290,7 @@ class VariationGrid
 		BX.SidePanel.Instance.open(link, {
 			width: 550,
 			allowChangeHistory: false,
-			cacheable: false
+			cacheable: false,
 		});
 	}
 

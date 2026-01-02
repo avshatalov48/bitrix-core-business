@@ -9,7 +9,7 @@
 		this.wrapper = BX('grid-tile-wrap');
 		this.inner = BX('grid-tile-inner');
 		this.navigation = BX('landing-demo-navigation');
-		this.workarea = BX('workarea-content');
+		this.workarea = BX('workarea-content') || BX('air-workarea-content');
 		this.loader = new BX.Loader();
 
 		if (!this.wrapper || !this.inner)
@@ -70,8 +70,18 @@
 			this.links = [].slice.call(this.inner.querySelectorAll('.landing-template-pseudo-link'));
 			this.bindPseudoLinks();
 
-			this.linkEmpty = BX('landing-demo-empty');
-			BX.Event.bind(this.linkEmpty, 'click', this.onPseudoLinkClick);
+			if (BX.Landing.Component.Demo.createEmptyId)
+			{
+				const toolbar = BX.UI.ToolbarManager.getDefaultToolbar();
+				if (toolbar)
+				{
+					this.linkEmpty = toolbar.getButton(BX.Landing.Component.Demo.createEmptyId);
+					if (this.linkEmpty)
+					{
+						BX.Event.bind(this.linkEmpty.button, 'click', this.onPseudoLinkClick);
+					}
+				}
+			}
 
 			// tiles
 			this.tiles = [].slice.call(this.inner.querySelectorAll('.' + BX.Landing.Component.Demo.CLASS_TILE));

@@ -11,6 +11,7 @@ enum CounterType: string
 	case Copilot = 'copilot';
 	case Openline = 'openline';
 	case Collab = 'collab';
+	case TasksTask = 'tasksTask'; // TODO: delete this asap
 
 	public static function tryFromType(?string $type): self
 	{

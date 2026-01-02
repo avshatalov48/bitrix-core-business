@@ -210,7 +210,7 @@ final class SocialnetworkBlogPost extends CBitrixComponent
 		$this->arResult['IS_COPILOT_READONLY_ENABLED_BY_SETTINGS'] = $this->isCopilotEnabledBySettings();
 
 		$userId = \Bitrix\Main\Engine\CurrentUser::get()->getId();
-		$pathToPostEdit = $this->arParams['PATH_TO_POST_EDIT'];
+		$pathToPostEdit = $this->arParams['PATH_TO_POST_EDIT'] ?? '';
 		$this->arResult['PATH_TO_CREATE_NEW_POST'] = str_replace(['#user_id#', '#post_id#'], [$userId, 0], $pathToPostEdit);
 
 		return $this->__includeComponent();

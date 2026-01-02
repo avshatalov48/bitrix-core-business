@@ -68,9 +68,17 @@ class CatalogStoreEntityDetails extends CBitrixComponent implements Controllerab
 	{
 		$this->init();
 
-		if (!$this->checkAccess() || !$this->loadEntity())
+		if (!$this->loadEntity())
 		{
 			$this->includeComponentTemplate();
+
+			return;
+		}
+
+		if (!$this->checkAccess())
+		{
+			$this->includeComponentTemplate();
+
 			return;
 		}
 
@@ -121,10 +129,12 @@ class CatalogStoreEntityDetails extends CBitrixComponent implements Controllerab
 		{
 			$this->arResult['ERROR']['TITLE'] = Loc::getMessage('CATALOG_STORE_DETAIL_NOT_FOUND_ERROR');
 			$this->arResult['ERROR']['DESCRIPTION'] = '';
+
 			return false;
 		}
 
 		$this->entityFields = $entity;
+
 		return true;
 	}
 
@@ -136,12 +146,21 @@ class CatalogStoreEntityDetails extends CBitrixComponent implements Controllerab
 	private function checkAccess(): bool
 	{
 		$can =
-			$this->accessController->check(ActionDictionary::ACTION_STORE_MODIFY)
-			|| $this->accessController->check(ActionDictionary::ACTION_STORE_VIEW)
+			$this->entityId > 0
+			? (
+				(
+					(int)$this->entityFields['USER_ID'] === $this->accessController->getUser()->getUserId()
+					&& $this->accessController->check(ActionDictionary::ACTION_STORE_MODIFY)
+				)
+				|| $this->accessController->checkByValue(ActionDictionary::ACTION_STORE_VIEW, (string)$this->entityId)
+			)
+			: $this->accessController->check(ActionDictionary::ACTION_STORE_MODIFY)
 		;
+
 		if (!$can)
 		{
 			$this->arResult['ERROR']['TITLE'] = Loc::getMessage('CATALOG_STORE_DETAIL_ACCESS_DENIED_ERROR');
+
 			return false;
 		}
 
@@ -200,6 +219,16 @@ class CatalogStoreEntityDetails extends CBitrixComponent implements Controllerab
 		$id = $this->entityId;
 		if ($id > 0)
 		{
+			if (
+				!$this->isUserStoreCreator($id)
+				&& !$this->accessController->checkByValue(ActionDictionary::ACTION_STORE_VIEW, (string)$this->entityId)
+			)
+			{
+				return [
+					'ERROR' => Loc::getMessage('CATALOG_STORE_DETAIL_ACCESS_DENIED_ERROR'),
+				];
+			}
+
 			$ret =  CCatalogStore::Update($id, $fields);
 			if ($ret === false)
 			{
@@ -370,5 +399,13 @@ class CatalogStoreEntityDetails extends CBitrixComponent implements Controllerab
 
 		$manager = new CUserTypeManager();
 		$manager->Update(StoreTable::getUfId(), $storeId, $userFields);
+	}
+
+	private function isUserStoreCreator(int $storeId): bool
+	{
+		$storeCreatorId = StoreTable::getStoreCreatorId($storeId);
+		$currentUserId = $this->accessController->getUser()->getUserId();
+
+		return $storeCreatorId == $currentUserId;
 	}
 }

@@ -1,9 +1,11 @@
 <?php
+
 namespace Bitrix\Catalog;
 
-use Bitrix\Main\Entity,
-	Bitrix\Main\Type\DateTime,
-	Bitrix\Main\Application;
+use Bitrix\Main\Application;
+use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\Type\DateTime;
 
 /**
  * Class SubscribeAccessTable
@@ -21,7 +23,7 @@ use Bitrix\Main\Entity,
  * @method static \Bitrix\Catalog\EO_SubscribeAccess wakeUpObject($row)
  * @method static \Bitrix\Catalog\EO_SubscribeAccess_Collection wakeUpCollection($rows)
  */
-class SubscribeAccessTable extends Entity\DataManager
+class SubscribeAccessTable extends DataManager
 {
 	const TOKEN_LIFE_TIME = 3600;
 
@@ -30,7 +32,7 @@ class SubscribeAccessTable extends Entity\DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_subscribe_access';
 	}
@@ -40,7 +42,7 @@ class SubscribeAccessTable extends Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return array(
 			'ID' => array(

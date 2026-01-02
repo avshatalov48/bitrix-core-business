@@ -6,7 +6,10 @@ use Bitrix\Im\V2\Analytics\MessageAnalytics;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Controller\BaseController;
 use Bitrix\Im\V2\Controller\Filter\CheckActionAccess;
+use Bitrix\Im\V2\Controller\Filter\PlatformContext;
+use Bitrix\Im\V2\Controller\Filter\DiskQuickAccessGrantor;
 use Bitrix\Im\V2\Entity\View\ViewCollection;
+use Bitrix\Im\V2\Message\Delete\DeletionMode;
 use Bitrix\Im\V2\Message\Delete\DisappearService;
 use Bitrix\Im\V2\Message\Forward\ForwardService;
 use Bitrix\Im\V2\Message\MessageError;
@@ -118,6 +121,12 @@ class Message extends BaseController
 			'send' => [
 				'+prefilters' => [
 					new CheckActionAccess(Action::Send),
+					new PlatformContext(),
+				],
+			],
+			'update' => [
+				'+prefilters' => [
+					new PlatformContext(),
 				],
 			],
 			'pin' => [
@@ -128,6 +137,11 @@ class Message extends BaseController
 			'unpin' => [
 				'+prefilters' => [
 					new CheckActionAccess(Action::PinMessage),
+				],
+			],
+			'list' => [
+				'+prefilters' => [
+					new DiskQuickAccessGrantor(),
 				],
 			],
 		];
@@ -263,10 +277,16 @@ class Message extends BaseController
 	/**
 	 * @restMethod im.v2.Chat.Message.delete
 	 */
-	public function deleteAction(\Bitrix\Im\V2\Message $message): ?bool
+	public function deleteAction(\Bitrix\Im\V2\MessageCollection $messages): ?bool
 	{
-		$service = new DeleteService($message);
-		$service->setMode(DeleteService::MODE_AUTO);
+		if ($messages->count() > MessageService::getMultipleActionMessageLimit())
+		{
+			$this->addError(new MessageError(MessageError::TOO_MANY_MESSAGES));
+
+			return null;
+		}
+
+		$service = new DeleteService($messages);
 		$result = $service->delete();
 
 		if (!$result->isSuccess())
@@ -284,9 +304,9 @@ class Message extends BaseController
 	 */
 	public function disappearAction(\Bitrix\Im\V2\Message $message, int $hours): ?bool
 	{
-		$deleteService = new DeleteService($message);
+		$deleteService = DeleteService::getInstanceByMessage($message);
 
-		if ($deleteService->canDelete() < DeleteService::DELETE_HARD)
+		if ($deleteService->canDelete($message->getId()) !== DeletionMode::Complete)
 		{
 			$this->addError(new MessageError(MessageError::ACCESS_DENIED));
 
@@ -349,7 +369,7 @@ class Message extends BaseController
 
 			foreach ($forwardMessages as $message)
 			{
-				(new MessageAnalytics($message))->addShareMessage();
+				(new MessageAnalytics($message))->addShareMessage($chat);
 			}
 		}
 
@@ -371,6 +391,7 @@ class Message extends BaseController
 	 */
 	public function updateAction(
 		\Bitrix\Im\V2\Message $message,
+		?\CRestServer $restServer = null,
 		array $fields = [],
 		string $urlPreview = 'Y',
 		int $botId = 0

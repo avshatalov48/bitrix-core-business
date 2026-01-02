@@ -1,0 +1,27 @@
+<?php
+$MESS["BX_CATALOG_SETTINGS_ACCESS_DENIED"] = "Қолжетімділікке тыйым салынған";
+$MESS["BX_CAT_IBLOCK_CATALOG_BTN_CANCEL"] = "Болдырмау";
+$MESS["BX_CAT_IBLOCK_CATALOG_BTN_SAVE"] = "Сақтау";
+$MESS["BX_CAT_IBLOCK_CATALOG_EDIT_TAB_NAME_COMMON"] = "Параметрлер";
+$MESS["BX_CAT_IBLOCK_CATALOG_EDIT_TAB_TITLE_COMMON"] = "Сауда каталогының параметрлері";
+$MESS["BX_CAT_IBLOCK_CATALOG_EDIT_TITLE_EDIT"] = "Сауда каталогының баптауларын өзгерту";
+$MESS["BX_CAT_IBLOCK_CATALOG_ERR_BAD_PRODUCT_IBLOCK"] = "Сауда ұсыныстарының ақпараттық блогы үшін мұнда жоқ #ID# кодты тауарлардың каталогы көрсетілген";
+$MESS["BX_CAT_IBLOCK_CATALOG_ERR_SAVE"] = "Сақтау қатесі";
+$MESS["BX_CAT_IBLOCK_CATALOG_FIELD_CATALOG"] = "Сауда каталогы болып табылады:";
+$MESS["BX_CAT_IBLOCK_CATALOG_FIELD_IBLOCK_ACTIVE"] = "Белсенді:";
+$MESS["BX_CAT_IBLOCK_CATALOG_FIELD_IBLOCK_ID"] = "ID:";
+$MESS["BX_CAT_IBLOCK_CATALOG_FIELD_IBLOCK_NAME"] = "Атауы:";
+$MESS["BX_CAT_IBLOCK_CATALOG_FIELD_IBLOCK_SITES"] = "Сайт(тар):";
+$MESS["BX_CAT_IBLOCK_CATALOG_FIELD_IBLOCK_TYPE"] = "Түрі:";
+$MESS["BX_CAT_IBLOCK_CATALOG_FIELD_SKU"] = "Сауда ұсыныстары:";
+$MESS["BX_CAT_IBLOCK_CATALOG_FIELD_SUBSCRIPTION"] = "Контентті сату";
+$MESS["BX_CAT_IBLOCK_CATALOG_FIELD_VAT_ID"] = "Каталог ҚҚС";
+$MESS["BX_CAT_IBLOCK_CATALOG_FIELD_YANDEX_EXPORT"] = "Яндекс.Тауарларға экспорттау";
+$MESS["BX_CAT_IBLOCK_CATALOG_IBLOCK_BAD_SESSION"] = "Сіздің сессияңыз аяқталды. Диалогтық терезені жауып, қайта кіру керек.";
+$MESS["BX_CAT_IBLOCK_CATALOG_MESS_EMPTY_OFFERS_LIST"] = "Сауда каталогтары жоқ";
+$MESS["BX_CAT_IBLOCK_CATALOG_MESS_NO"] = "Жоқ";
+$MESS["BX_CAT_IBLOCK_CATALOG_MESS_NOT_SELECT"] = "таңдалмаған";
+$MESS["BX_CAT_IBLOCK_CATALOG_MESS_PRODUCT_IBLOCK"] = "<a href\"#LINK#\">#TITLE#</a> арналған сауда ұсыныстарының ақпараттық блогы";
+$MESS["BX_CAT_IBLOCK_CATALOG_MESS_SUBSCRIPTION_RESET"] = "Контентті сату функциясы сіздің өнім редакцияңызда жоқ. Параметрлер сақталған кезде жалауша қалпына келтіріледі.";
+$MESS["BX_CAT_IBLOCK_CATALOG_MESS_SUBSCRIPTION_WITH_SKU"] = "Сауда ұсыныстары бар тауарлардың ақпараттық блогын контентті сату үшін пайдалану мүмкін емес.  Параметрлер сақталған кезде жалауша қалпына келтіріледі.";
+$MESS["BX_CAT_IBLOCK_CATALOG_MESS_YES"] = "Иә";

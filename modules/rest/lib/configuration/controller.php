@@ -59,6 +59,7 @@ class Controller
 					'MANIFEST' => $manifest,
 					'ITEM_CODE' => $itemCode,
 					'SETTING' => $setting->get(Setting::SETTING_MANIFEST),
+					'ADDITIONAL_OPTION' => $setting->get(Setting::SETTING_ACTION_ADDITIONAL_OPTION),
 					'USER_ID' => $setting->get(Setting::SETTING_USER_ID) ?? 0,
 				]
 			);
@@ -69,11 +70,11 @@ class Controller
 				$result[] = [
 					'FILE_NAME' => $parameters['FILE_NAME'],
 					'CONTENT' => $parameters['CONTENT'],
-					'FILES' => $parameters['FILES'],
+					'FILES' => $parameters['FILES'] ?? null,
 					'NEXT' => $parameters['NEXT'],
-					'ERROR_MESSAGES' => $parameters['ERROR_MESSAGES'],
-					'ERROR_ACTION' => $parameters['ERROR_ACTION'],
-					'ERROR_EXCEPTION' => $parameters['ERROR_EXCEPTION'],
+					'ERROR_MESSAGES' => $parameters['ERROR_MESSAGES'] ?? null,
+					'ERROR_ACTION' => $parameters['ERROR_ACTION'] ?? null,
+					'ERROR_EXCEPTION' => $parameters['ERROR_EXCEPTION'] ?? null,
 				];
 			}
 		}

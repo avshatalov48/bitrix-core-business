@@ -1,0 +1,20 @@
+<?php
+$MESS["SBBS_PATH_TO_BASKET"] = "Себет парақшасы";
+$MESS["SBBS_PATH_TO_ORDER"] = "Тапсырысты рәсімдеу парақшасы";
+$MESS["SBBS_SHOW_DELAY"] = "Кейінге қалдырылған тауарларды көрсету.";
+$MESS["SBBS_SHOW_NOTAVAIL"] = "Сатып алуға қолжетімсіз тауарларды көрсету";
+$MESS["SBBS_SHOW_SUBSCRIBE"] = "Сатып алушы жазылған тауарларды көрсету";
+$MESS["SBBS_USER_ID"] = "Пайдаланушы коды";
+$MESS["SBB_BDELAY"] = "Кейінге қалдыру";
+$MESS["SBB_BDELETE"] = "Жою";
+$MESS["SBB_BDISCOUNT"] = "Жеңілдік";
+$MESS["SBB_BNAME"] = "Тауар атауы";
+$MESS["SBB_BPRICE"] = "Бағасы";
+$MESS["SBB_BPROPS"] = "Тауардың қасиеттері";
+$MESS["SBB_BQUANTITY"] = "Саны ";
+$MESS["SBB_BSUM"] = "Сома";
+$MESS["SBB_BTYPE"] = "Баға түрі";
+$MESS["SBB_BWEIGHT"] = "Салмағы";
+$MESS["SBB_COLUMNS_LIST"] = "Шығарылатын бағандар";
+$MESS["SBB_DETAIL_PICTURE"] = "Егжей-тегжейлі сурет";
+$MESS["SBB_PREVIEW_PICTURE"] = "Аңдатпаға арналған сурет";

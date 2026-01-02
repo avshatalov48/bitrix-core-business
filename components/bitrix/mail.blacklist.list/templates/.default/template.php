@@ -1,11 +1,15 @@
 <?php
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\UI\Buttons\Color;
+use Bitrix\UI\Toolbar\ButtonLocation;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
+\Bitrix\Main\Loader::includeModule('ui');
 \Bitrix\Main\UI\Extension::load([
 	'ui.forms',
 	'ui.buttons',
@@ -17,52 +21,20 @@ $isIframe = isset($arResult["IFRAME"]) && $arResult["IFRAME"] === "Y";
 
 $bodyClass = $APPLICATION->getPageProperty('BodyClass', false);
 $APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, 'pagetitle-toolbar-field-view pagetitle-mail-view')));
-
-if ($isIframe):?>
-<div class="mail-blacklist-is-iframe">
-<?endif;
-
-if (SITE_TEMPLATE_ID == 'bitrix24' || $isIframe)
-{
-	$this->setViewTarget('inside_pagetitle'); ?>
-
-	<div class="pagetitle-container mail-pagetitle-flexible-space">
-		<? $APPLICATION->includeComponent(
-			'bitrix:main.ui.filter', '',
-			[
-				'FILTER_ID' => $arResult['FILTER_ID'],
-				'GRID_ID' => $arResult['GRID_ID'],
-				'ENABLE_LABEL' => true,
-				'FILTER' => $arResult['FILTER'],
-			]
-		); ?>
-	</div>
-
-	<button class="ui-btn ui-btn-primary mail-blacklist-create-btn" data-role="blacklist-create-btn"
-		style="<? if ($_REQUEST['IFRAME'] != 'Y'): ?> margin-right: 20px;<? endif ?>">
-		<?= Loc::getMessage('MAIL_BLACKLIST_LIST_CREATE_BLACKLIST_2') ?>
-	</button>
-
-	<? $this->endViewTarget();
-}
-else
-{
-	$APPLICATION->includeComponent(
-		'bitrix:main.ui.filter', '',
-		[
-			'FILTER_ID' => $arResult['FILTER_ID'],
-			'GRID_ID' => $arResult['GRID_ID'],
-			'ENABLE_LABEL' => true,
-			'FILTER' => $arResult['FILTER'],
-		]
-	);?>
-
-	<button class="ui-btn ui-btn-primary mail-blacklist-create-btn" data-role="blacklist-create-btn">
-		<?= Loc::getMessage('MAIL_BLACKLIST_LIST_CREATE_BLACKLIST_2') ?>
-	</button>
-
-	<?
-}
+Toolbar::addFilter([
+	'FILTER_ID' => $arResult['FILTER_ID'],
+	'GRID_ID' => $arResult['GRID_ID'],
+	'ENABLE_LABEL' => true,
+	'FILTER' => $arResult['FILTER'],
+]);
+Toolbar::addButton(
+	new Bitrix\UI\Buttons\Button([
+		'text' => Loc::getMessage('MAIL_BLACKLIST_LIST_CREATE_BLACKLIST_2'),
+		'classList' => ['blacklist-create-btn'],
+		'color' => Color::PRIMARY,
+	]),
+	ButtonLocation::AFTER_TITLE
+);
 
 $APPLICATION->SetTitle(Loc::getMessage('MAIL_BLACKLIST_LIST_PAGE_TITLE_2'));
 
@@ -162,6 +134,3 @@ $APPLICATION->IncludeComponent(
 			gridId: '<?= CUtil::JSEscape($arResult['GRID_ID'])?>'
 		});
 	</script>
-<?if ($isIframe):?>
-	</div>
-<?endif;

@@ -6,7 +6,7 @@
 // region environment initialization
 if (!defined("UPDATE_SYSTEM_VERSION"))
 {
-	define("UPDATE_SYSTEM_VERSION", "25.100.100");
+	define("UPDATE_SYSTEM_VERSION", "25.700.0");
 }
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -461,7 +461,7 @@ function UpdateSystemRenderLicenseIsNotActive()
 							<td class="icon-new"><div class="icon icon-licence"></div></td>
 							<td>
 								<?= GetMessage("SUP_SUBA_ACTIVATE_HINT") ?><br><br>
-								<input TYPE="button" NAME="activate_key_btn" value="<?= GetMessage("SUP_SUBA_ACTIVATE_BUTTON") ?>" onclick="ShowActivateForm()">
+								<input TYPE="button" NAME="activate_key_btn" value="<?= GetMessage("SUP_SUBA_ACTIVATE_BUTTON") ?>" onclick="javascript:document.getElementById('check_key_info_form').submit()">
 							</td>
 						</tr>
 					</table>
@@ -804,13 +804,7 @@ $tabControl->BeginNextTab();
 				$countTotalImportantUpdates = $countLangUpdatesInst;
 				if ($countModuleUpdates > 0)
 				{
-					for ($i = 0, $cnt = count($arUpdateList["MODULES"][0]["#"]["MODULE"]); $i < $cnt; $i++)
-					{
-						if (isset($arUpdateList["MODULES"][0]["#"]["MODULE"][$i]["#"]["VERSION"]))
-							$countTotalImportantUpdates += count($arUpdateList["MODULES"][0]["#"]["MODULE"][$i]["#"]["VERSION"]);
-						if (!array_key_exists($arUpdateList["MODULES"][0]["#"]["MODULE"][$i]["@"]["ID"], $arClientModules))
-							$countTotalImportantUpdates += 1;
-					}
+					$countTotalImportantUpdates += array_sum(CUpdateClient::getUpdatesCount($arUpdateList, $arClientModules));
 				}
 
 				$newLicenceSignedKey = CUpdateClient::getNewLicenseSignedKey();
@@ -1221,7 +1215,6 @@ $tabControl->BeginNextTab();
 					</table>
 				</div>
 				<SCRIPT>
-				<!--
 				function ActivateCoupon()
 				{
 					document.getElementById("id_coupon_btn").disabled = true;
@@ -1257,7 +1250,6 @@ $tabControl->BeginNextTab();
 						alert("<?= GetMessageJS("SUP_SUAC_NO_COUP") ?>");
 					}
 				}
-				//-->
 				</SCRIPT>
 				<?
 			}
@@ -1346,7 +1338,6 @@ $tabControl->BeginNextTab();
 					</table>
 				</div>
 				<SCRIPT>
-				<!--
 				function SwithStability()
 				{
 					var sel = document.getElementById("id_stable_select");
@@ -1371,7 +1362,6 @@ $tabControl->BeginNextTab();
 					updRand++;
 					CHttpRequest.Send('/bitrix/admin/update_system_act.php?query_type=stability&<?= bitrix_sessid_get() ?>&STABILITY=' + encodeURIComponent(sel.options[sel.selectedIndex].value) + "&updRand=" + updRand);
 				}
-				//-->
 				</SCRIPT>
 
 				<BR>
@@ -1400,7 +1390,6 @@ $tabControl->BeginNextTab();
 					</table>
 				</div>
 				<SCRIPT>
-				<!--
 				function SubscribeMail()
 				{
 					document.getElementById("id_email_btn").disabled = true;
@@ -1436,7 +1425,6 @@ $tabControl->BeginNextTab();
 						alert("<?= GetMessageJS("SUP_SUSU_NO_EMAIL") ?>");
 					}
 				}
-				//-->
 				</SCRIPT>
 				<?
 			}
@@ -1477,7 +1465,10 @@ $tabControl->End();
 					$strTitleTmp .= '<p><b>';
 					$strTitleTmp .= str_replace("#VER#", $arModuleTmp["#"]["VERSION"][$j]["@"]["ID"], GetMessage("SUP_SULL_VERSION"));
 					$strTitleTmp .= '</b><br />';
-					$strTitleTmp .= $arModuleTmp["#"]["VERSION"][$j]["#"]["DESCRIPTION"][0]["#"];
+					if (isset($arModuleTmp["#"]["VERSION"][$j]["#"]["DESCRIPTION"][0]["#"]))
+					{
+						$strTitleTmp .= $arModuleTmp["#"]["VERSION"][$j]["#"]["DESCRIPTION"][0]["#"];
+					}
 					$strTitleTmp .= '</p>';
 				}
 			}
@@ -1493,24 +1484,17 @@ $tabControl->End();
 	var arModuleUpdatesCnt = {<?
 	if ($countModuleUpdates > 0)
 	{
-		for ($i = 0, $cnt = count($arUpdateList["MODULES"][0]["#"]["MODULE"]); $i < $cnt; $i++)
+		$updatesCount = CUpdateClient::getUpdatesCount($arUpdateList, $arClientModules);
+		$s = '';
+		foreach ($updatesCount as $module => $count)
 		{
-			if ($i > 0)
-				echo ", ";
-			echo "\"".$arUpdateList["MODULES"][0]["#"]["MODULE"][$i]["@"]["ID"]."\" : ";
-			if (isset($arUpdateList["MODULES"][0]["#"]["MODULE"][$i]["#"]["VERSION"])
-				&& is_array($arUpdateList["MODULES"][0]["#"]["MODULE"][$i]["#"]["VERSION"]))
+			if ($s != '')
 			{
-				if (!array_key_exists($arUpdateList["MODULES"][0]["#"]["MODULE"][$i]["@"]["ID"], $arClientModules))
-					echo count($arUpdateList["MODULES"][0]["#"]["MODULE"][$i]["#"]["VERSION"]) + 1;
-				else
-					echo count($arUpdateList["MODULES"][0]["#"]["MODULE"][$i]["#"]["VERSION"]);
+				$s .= ", ";
 			}
-			else
-			{
-				echo "0";
-			}
+			$s .= "\"" . $module . "\": " . $count;
 		}
+		echo $s;
 	}
 	?>};
 
@@ -1752,10 +1736,6 @@ $tabControl->End();
 			if (result == "Y")
 			{
 				window.location.href = "/bitrix/admin/update_system.php?lang=<?= LANG ?>";
-				//var udl = document.getElementById("upd_activate_div");
-				//udl.style["display"] = "none";
-				//UnLockControls();
-				//CloseActivateForm();
 			}
 			else
 			{
@@ -1768,347 +1748,6 @@ $tabControl->End();
 		CHttpRequest.Send('/bitrix/admin/update_system_act.php?query_type=key&<?= bitrix_sessid_get() ?>&NEW_LICENSE_KEY=' + encodeURIComponent(document.licence_key_form.NEW_LICENSE_KEY.value) + "&updRand=" + updRand);
 	}
 	//endregion
-	// region license is not active
-	function ActivateEnableDisableUser(value)
-	{
-		document.activate_form.USER_NAME.disabled = !value;
-		document.activate_form.USER_LAST_NAME.disabled = !value;
-		document.getElementById("USER_LOGIN_activate").disabled = !value;
-		document.getElementById("USER_LOGIN").disabled = value;
-		document.activate_form.USER_PASSWORD.disabled = !value;
-		document.activate_form.USER_PASSWORD_CONFIRM.disabled = !value;
-		document.activate_form.USER_EMAIL.disabled = !value;
-
-		if(!value)
-		{
-			document.getElementById("new-user").style.display = 'none';
-			document.getElementById("exist-user").style.display = 'block';
-		}
-		else
-		{
-			document.getElementById("new-user").style.display = 'block';
-			document.getElementById("exist-user").style.display = 'none';
-		}
-	}
-
-	function ActivateFormSubmit()
-	{
-		document.getElementById("id_activate_form_button").disabled = true;
-		ShowWaitWindow();
-
-		var bEr = false;
-		var erImg = '<img src="/bitrix/themes/.default/images/icon_warn.gif" width="20" height="20" alt="Error" title="Error" align="left" />';
-
-		document.getElementById('errorDiv').style.diplay = 'none';
-		document.getElementById('id_activate_name_error').innerHTML = '';
-		document.getElementById('SITE_URL_error').innerHTML = '';
-		document.getElementById('PHONE_error').innerHTML = '';
-		document.getElementById('EMAIL_error').innerHTML = '';
-		document.getElementById('CONTACT_PERSON_error').innerHTML = '';
-		document.getElementById('CONTACT_EMAIL_error').innerHTML = '';
-		document.getElementById('CONTACT_PHONE_error').innerHTML = '';
-
-		if(document.getElementById('id_activate_name').value.length <= 3)
-		{
-			document.getElementById('id_activate_name_error').innerHTML = erImg;
-			bEr = true;
-		}
-		if(document.getElementById('SITE_URL').value.length <= 3)
-		{
-			document.getElementById('SITE_URL_error').innerHTML = erImg;
-			bEr = true;
-		}
-		if(document.getElementById('PHONE').value.length <= 3)
-		{
-			document.getElementById('PHONE_error').innerHTML = erImg;
-			bEr = true;
-		}
-		if(document.activate_form.EMAIL.value.length <= 3)
-		{
-			document.getElementById('EMAIL_error').innerHTML = erImg;
-			bEr = true;
-		}
-		if(document.getElementById('CONTACT_PERSON').value.length <= 3)
-		{
-			document.getElementById('CONTACT_PERSON_error').innerHTML = erImg;
-			bEr = true;
-		}
-		if(document.getElementById('CONTACT_EMAIL').value.length <= 3)
-		{
-			document.getElementById('CONTACT_EMAIL_error').innerHTML = erImg;
-			bEr = true;
-		}
-		if(document.getElementById('CONTACT_PHONE').value.length <= 3)
-		{
-			document.getElementById('CONTACT_PHONE_error').innerHTML = erImg;
-			bEr = true;
-		}
-		var generateUser = "N";
-		if(document.getElementById('GENERATE_USER').checked)
-		{
-			generateUser = "Y";
-			document.getElementById('USER_NAME_error').innerHTML = '';
-			document.getElementById('USER_LAST_NAME_error').innerHTML = '';
-			document.getElementById('USER_LOGIN_error').innerHTML = '';
-			document.getElementById('USER_PASSWORD_error').innerHTML = '';
-			document.getElementById('USER_PASSWORD_CONFIRM_error').innerHTML = '';
-			document.getElementById('USER_EMAIL_error').innerHTML = '';
-
-			if(document.getElementById('USER_NAME').value.length <= 0)
-			{
-				document.getElementById('USER_NAME_error').innerHTML = erImg;
-				bEr = true;
-			}
-			if(document.getElementById('USER_LAST_NAME').value.length <= 0)
-			{
-				document.getElementById('USER_LAST_NAME_error').innerHTML = erImg;
-				bEr = true;
-			}
-			if(document.getElementById('USER_LOGIN_activate').value.length < 3)
-			{
-				document.getElementById('USER_LOGIN_error').innerHTML = erImg;
-				bEr = true;
-			}
-			var UserLogin = document.getElementById('USER_LOGIN_activate').value;
-			if(document.getElementById('USER_PASSWORD').value.length < 6)
-			{
-				document.getElementById('USER_PASSWORD_error').innerHTML = erImg;
-				bEr = true;
-			}
-			if(document.getElementById('USER_PASSWORD').value != document.getElementById('USER_PASSWORD_CONFIRM').value)
-			{
-				document.getElementById('USER_PASSWORD_error').innerHTML = erImg;
-				bEr = true;
-				document.getElementById('USER_PASSWORD_CONFIRM_error').innerHTML = erImg;
-				bEr = true;
-			}
-			if(document.getElementById('USER_EMAIL').value.length <= 3)
-			{
-				document.getElementById('USER_EMAIL_error').innerHTML = erImg;
-				bEr = true;
-			}
-		}
-		else
-		{
-			if(document.getElementById('USER_LOGIN').value.length < 3)
-			{
-				document.getElementById('USER_LOGIN_EXIST_error').innerHTML = erImg;
-				bEr = true;
-			}
-			var UserLogin = document.getElementById('USER_LOGIN').value;
-		}
-
-		if(bEr)
-		{
-			document.getElementById("id_activate_form_button").disabled = false;
-			CloseWaitWindow();
-			document.getElementById('errorDiv').innerHTML = '<table style="color:red;"><tr><td><img src="/bitrix/themes/.default/images/icon_error.gif" width="32" height="32" alt="Error" title="Error" align="left" valign="center"/></td><td><b><?=GetMessageJS("SUP_SUBA_CONFIRM_ERROR")?></b></td></tr></table>';
-			document.getElementById('errorDiv').style.border = "1px solid red";
-
-			document.getElementById('activate_content').scrollTop = 0;
-
-			return false;
-		}
-		else
-		{
-			var param = "NAME=" + encodeURIComponent(document.activate_form.NAME.value)
-				+ "&EMAIL=" + encodeURIComponent(document.activate_form.EMAIL.value)
-				+ "&CONTACT_INFO=" + encodeURIComponent(document.activate_form.CONTACT_INFO.value)
-				+ "&PHONE=" + encodeURIComponent(document.activate_form.PHONE.value)
-				+ "&CONTACT_PERSON=" + encodeURIComponent(document.activate_form.CONTACT_PERSON.value)
-				+ "&CONTACT_EMAIL=" + encodeURIComponent(document.activate_form.CONTACT_EMAIL.value)
-				+ "&CONTACT_PHONE=" + encodeURIComponent(document.activate_form.CONTACT_PHONE.value)
-				+ "&SITE_URL=" + encodeURIComponent(document.activate_form.SITE_URL.value)
-				+ "&GENERATE_USER=" + encodeURIComponent(generateUser)
-				+ "&USER_NAME=" + encodeURIComponent(document.activate_form.USER_NAME.value)
-				+ "&USER_LAST_NAME=" + encodeURIComponent(document.activate_form.USER_LAST_NAME.value)
-				+ "&USER_LOGIN=" + encodeURIComponent(UserLogin)
-				+ "&USER_PASSWORD=" + encodeURIComponent(document.activate_form.USER_PASSWORD.value)
-				+ "&USER_PASSWORD_CONFIRM=" + encodeURIComponent(document.activate_form.USER_PASSWORD_CONFIRM.value);
-
-			CHttpRequest.Action = function(result)
-			{
-				CloseWaitWindow();
-
-				result = PrepareString(result);
-
-				if (result == "Y")
-				{
-					window.location.href = "update_system.php?lang=<?= LANG ?>";
-				}
-				else
-				{
-					document.getElementById("id_activate_form_button").disabled = false;
-					document.getElementById('errorDiv').innerHTML = '<table style="color:red;"><tr><td><img src="/bitrix/themes/.default/images/icon_error.gif" width="32" height="32" alt="Error" title="Error" align="left" valign="center"/></td><td><b>'+result+'</b></td></tr></table>';
-					document.getElementById('errorDiv').style.border = "1px solid red";
-
-					document.getElementById('activate_content').scrollTop = 0;
-				}
-			}
-
-			updRand++;
-			CHttpRequest.Send('/bitrix/admin/update_system_act.php?query_type=activate&<?= bitrix_sessid_get() ?>&' + param + "&updRand=" + updRand);
-			return true;
-
-		}
-	}
-
-	function ShowActivateForm()
-	{
-		if (document.getElementById("activate_float_div"))
-			return;
-
-		LockControls();
-
-		var div = document.body.appendChild(document.createElement("DIV"));
-
-		div.id = "activate_float_div";
-		div.className = "settings-float-form";
-		div.style.position = 'absolute';
-
-		var txt = '<div class="title">';
-		txt += '<table cellspacing="0" width="100%">';
-		txt += '<tr>';
-		txt += '<td width="100%" class="title-text" onmousedown="jsFloatDiv.StartDrag(arguments[0], document.getElementById(\'activate_float_div\'));"><?= GetMessage("SUP_SUBA_ACTIVATE") ?></td>';
-		txt += '<td width="0%"><a class="close" href="javascript:CloseActivateWindow();" title="<?= GetMessageJS("SUP_SULD_CLOSE") ?>"></a></td>';
-		txt += '</tr>';
-		txt += '</table>';
-		txt += '</div>';
-		txt += '<div class="content" id="activate_content" style="overflow:auto;overflow-y:auto;height:400px;">';
-		txt += '<form name="activate_form" id="activate_form" onsubmit="return validate();" method="POST">';
-		txt += '<h2><?= GetMessageJS("SUP_SUBA_ACTIVATE") ?></h2>';
-
-		txt += '<input type="hidden" name="TYPE" VALUE="ACTIVATE_KEY">';
-		txt += '<input type="hidden" name="STEP" VALUE="1">';
-		txt += '<input type="hidden" name="lang" id="lang" VALUE="<?=LANGUAGE_ID?>">';
-		txt += '<table>';
-		txt += '<tr>';
-		txt += '	<td colspan="2"><div id="errorDiv"></div></td>';
-		txt += '</tr>';
-		txt += '	<tr>';
-		txt += '		<td width="50%"><span class="required">*</span><?= GetMessageJS("SUP_SUBA_RI_NAME") ?>:</td>';
-		txt += '		<td width="50%" nowrap><div id="id_activate_name_error"></div><input type="text" id="id_activate_name" name="NAME" value="<?=htmlspecialcharsEx(isset($_POST["NAME"]) ? $_POST["NAME"] : '')?>" size="40"></td>';
-		txt += '	</tr>';
-		txt += '	<tr>';
-		txt += '		<td width="50%"><span class="required">*</span><?= GetMessageJS("SUP_SUBA_RI_URI") ?>:</td>';
-		txt += '		<td width="50%" nowrap><div id="SITE_URL_error"></div><input type="text" id="SITE_URL" name="SITE_URL" value="<?=htmlspecialcharsEx(isset($_POST["SITE_URL"]) ? $_POST["SITE_URL"] : '')?>" size="40"></td>';
-		txt += '	</tr>';
-		txt += '	<tr>';
-		txt += '		<td width="50%"><span class="required">*</span><?= GetMessageJS("SUP_SUBA_RI_PHONE") ?>:</td>';
-		txt += '		<td width="50%" nowrap><div id="PHONE_error"></div><input type="text" id="PHONE" name="PHONE" value="<?=htmlspecialcharsEx(isset($_POST["PHONE"]) ? $_POST["PHONE"] : '')?>" size="40"></td>';
-		txt += '	</tr>';
-		txt += '	<tr>';
-		txt += '		<td width="50%"><span class="required">*</span><?= GetMessageJS("SUP_SUBA_RI_EMAIL") ?>:</td>';
-		txt += '		<td width="50%" nowrap><div id="EMAIL_error"></div><input type="text" id="EMAIL" name="EMAIL" value="<?=htmlspecialcharsEx(isset($_POST["EMAIL"]) ? $_POST["EMAIL"] : '')?>" size="40"></td>';
-		txt += '	</tr>';
-		txt += '	<tr>';
-		txt += '		<td width="50%"><span class="required">*</span><?= GetMessageJS("SUP_SUBA_RI_CONTACT_PERSON") ?>:</td>';
-		txt += '		<td width="50%" nowrap><div id="CONTACT_PERSON_error"></div><input type="text" id="CONTACT_PERSON" name="CONTACT_PERSON" value="<?=htmlspecialcharsEx(isset($_POST["CONTACT_PERSON"]) ? $_POST["CONTACT_PERSON"] : '')?>" size="40"></td>';
-		txt += '	</tr>';
-		txt += '	<tr>';
-		txt += '		<td width="50%"><span class="required">*</span><?= GetMessageJS("SUP_SUBA_RI_CONTACT_EMAIL") ?>:</td>';
-		txt += '		<td width="50%" nowrap><div id="CONTACT_EMAIL_error"></div><input type="text" id="CONTACT_EMAIL" name="CONTACT_EMAIL" value="<?=htmlspecialcharsEx(isset($_POST["CONTACT_EMAIL"]) ? $_POST["CONTACT_EMAIL"] : '')?>" size="40"></td>';
-		txt += '	</tr>';
-		txt += '	<tr>';
-		txt += '		<td width="50%"><span class="required">*</span><?= GetMessageJS("SUP_SUBA_RI_CONTACT_PHONE") ?>:</td>';
-		txt += '		<td width="50%" nowrap><div id="CONTACT_PHONE_error"></div><input type="text" id="CONTACT_PHONE" name="CONTACT_PHONE" value="<?=htmlspecialcharsEx(isset($_POST["CONTACT_PHONE"]) ? $_POST["CONTACT_PHONE"] : '')?>" size="40"></td>';
-		txt += '	</tr>';
-		txt += '	<tr>';
-		txt += '		<td width="50%"><?= GetMessage("SUP_SUBA_RI_CONTACT") ?>:</td>';
-		txt += '		<td width="50%" nowrap><input type="text" name="CONTACT_INFO" value="<?=htmlspecialcharsEx(isset($_POST["CONTACT_INFO"]) ? $_POST["CONTACT_INFO"] : '')?>" size="40"></td>';
-		txt += '	</tr>';
-		txt += '<tr>';
-		txt += '	<td colspan="2">';
-		txt += '		<?= GetMessageJS("SUP_SUBA_UI_HINT") ?><br />';
-		txt += '		<input name="GENERATE_USER" id="GENERATE_USER" type="radio" onclick="ActivateEnableDisableUser(true)" value="Y"<?if(!isset($GENERATE_USER) || $GENERATE_USER != "N") echo " checked"?>><label for="GENERATE_USER"><?= GetMessageJS("SUP_SUBA_UI_CREATE") ?></label><br />';
-		txt += '		<input name="GENERATE_USER" id="GENERATE_USER_NO" type="radio" onclick="ActivateEnableDisableUser(false)" value="N"<?if(isset($GENERATE_USER) && $GENERATE_USER == "N") echo " checked"?>><label for="GENERATE_USER_NO"><?echo GetMessageJS("SUP_SUBA_UI_EXIST");?></label>';
-
-		txt += '	</td>';
-		txt += '</tr>';
-		txt += '<tr>';
-		txt += '	<td colspan="2">';
-		txt += '		<div id="new-user">';
-		txt += '			<table width="100%" border="0">';
-		txt += '			<tr id="tr_USER_NAME">';
-		txt += '				<td width="50%" class="field-name" style="padding: 3px;"><span class="required">*</span><?= GetMessageJS("SUP_SUBA__UI_NAME") ?>:</td>';
-		txt += '				<td width="50%" style="padding: 3px;" nowrap><div id="USER_NAME_error"></div><input type="text" id="USER_NAME" name="USER_NAME" value="<?=htmlspecialcharsEx(isset($_POST["USER_NAME"]) ? $_POST["USER_NAME"] : '')?>" size="40"></td>';
-		txt += '			</tr>';
-		txt += '			<tr id="tr_USER_LAST_NAME">';
-		txt += '				<td width="50%" class="field-name" style="padding: 3px;"><span class="required">*</span><?= GetMessageJS("SUP_SUBA_UI_LASTNAME") ?>:</td>';
-		txt += '				<td width="50%" style="padding: 3px;" nowrap><div id="USER_LAST_NAME_error"></div><input type="text" id="USER_LAST_NAME" name="USER_LAST_NAME" value="<?=htmlspecialcharsEx(isset($_POST["USER_LAST_NAME"]) ? $_POST["USER_LAST_NAME"] : '')?>" size="40"></td>';
-		txt += '			</tr>';
-		txt += '			<tr id="tr_USER_LOGIN">';
-		txt += '				<td width="50%" class="field-name" style="padding: 3px;"><span class="required">*</span><?= GetMessageJS("SUP_SUBA_UI_LOGIN") ?>:</td>';
-		txt += '				<td width="50%" style="padding: 3px;" nowrap><div id="USER_LOGIN_error"></div><input type="text" id="USER_LOGIN_activate" name="USER_LOGIN_A" value="<?=htmlspecialcharsEx(isset($_POST["USER_LOGIN_A"]) ? $_POST["USER_LOGIN_A"] : '')?>" size="40"></td>';
-		txt += '			</tr>';
-		txt += '			<tr id="tr_USER_PASSWORD">';
-		txt += '				<td width="50%" class="field-name" style="padding: 3px;"><span class="required">*</span><?= GetMessageJS("SUP_SUBA_UI_PASSWORD") ?>:</td>';
-		txt += '				<td width="50%" style="padding: 3px;" nowrap><div id="USER_PASSWORD_error"></div><input type="password" id="USER_PASSWORD" name="USER_PASSWORD" value="" size="40" autocomplete="off"></td>';
-		txt += '			</tr>';
-		txt += '			<tr id="tr_USER_PASSWORD_CONFIRM">';
-		txt += '				<td width="50%" class="field-name" style="padding: 3px;"><span class="required">*</span><?= GetMessageJS("SUP_SUBA_UI_PASSWORD_CONF") ?>:</td>';
-		txt += '				<td width="50%" style="padding: 3px;" nowrap><div id="USER_PASSWORD_CONFIRM_error"></div><input type="password" id="USER_PASSWORD_CONFIRM" name="USER_PASSWORD_CONFIRM" value="" size="40"></td>';
-		txt += '			</tr>';
-		txt += '			<tr id="tr_USER_EMAIL">';
-		txt += '				<td width="50%" class="field-name" style="padding: 3px;"><span class="required">*</span>E-mail:</td>';
-		txt += '				<td width="50%" style="padding: 3px;" nowrap><div id="USER_EMAIL_error"></div><input type="text" id="USER_EMAIL" name="USER_EMAIL" value="<?=htmlspecialcharsEx(isset($_POST["USER_EMAIL"]) ? $_POST["USER_EMAIL"] : '')?>" size="40"></td>';
-		txt += '			</tr>';
-		txt += '			</table>';
-		txt += '		</div>';
-		txt += '		<div id="exist-user" style="display:none;">';
-		txt += '			<table width="100%" border="0">';
-		txt += '			<tr>';
-		txt += '				<td width="50%" class="field-name" style="padding: 3px;"><span class="required">*</span><?= GetMessageJS("SUP_SUBA_UI_LOGIN") ?>:</td>';
-		txt += '				<td width="50%" style="padding: 3px;" nowrap><div id="USER_LOGIN_EXIST_error"></div><input id="USER_LOGIN" name="USER_LOGIN" maxlength="50" value="<?=htmlspecialcharsEx(isset($_POST["USER_LOGIN"]) ? $_POST["USER_LOGIN"] : '')?>" size="40" type="text"></td>';
-		txt += '			</tr>';
-		txt += '			</table>';
-		txt += '		</div>';
-		txt += '		</td>';
-		txt += '	</tr>';
-		txt += '	</table>';
-
-		txt += '<div class="buttons">';
-		txt += '<input type="button" id="id_activate_form_button" value="<?= GetMessageJS("SUP_SUBA_ACTIVATE_BUTTON") ?>" onclick="ActivateFormSubmit()" title="<?= GetMessageJS("SUP_SUBA_ACTIVATE_BUTTON") ?>">';
-		txt += '</div><br />';
-		txt += '</form>';
-
-		div.innerHTML = txt;
-
-		var left = parseInt(document.body.scrollLeft + document.body.clientWidth/2 - div.offsetWidth/2);
-		var top = parseInt(document.body.scrollTop + document.body.clientHeight/2 - div.offsetHeight/2);
-
-		jsFloatDiv.Show(div, left, top);
-
-		jsUtils.addEvent(document, "keypress", ActivateOnKeyPress);
-
-		document.getElementById("id_activate_name").focus();
-	}
-
-	function ActivateOnKeyPress(e)
-	{
-		if (!e)
-			e = window.event;
-		if (!e)
-			return;
-		if (e.keyCode == 27)
-			CloseActivateWindow();
-	}
-
-	function CloseActivateWindow()
-	{
-		jsUtils.removeEvent(document, "keypress", ActivateOnKeyPress);
-		var div = document.getElementById("activate_float_div");
-		jsFloatDiv.Close(div);
-		div.parentNode.removeChild(div);
-	}
-
-	function CloseActivateForm()
-	{
-		var div = document.getElementById("activate_float_div");
-		jsFloatDiv.Close(div);
-		div.parentNode.removeChild(div);
-	}
-	// endregion
 	//region update client
 	function UpdateUpdate()
 	{

@@ -1,0 +1,25 @@
+<?php
+$MESS['PERFMON_COMP_CACHE_COUNT'] = "Кеш-операциялар";
+$MESS['PERFMON_COMP_CACHE_COUNT_C'] = "Кеш-қалпына келтірулер";
+$MESS['PERFMON_COMP_CACHE_COUNT_R'] = "Кеш-оқулар";
+$MESS['PERFMON_COMP_CACHE_COUNT_W'] = "Кеш-жазбалар";
+$MESS['PERFMON_COMP_CACHE_SIZE'] = "Кеш";
+$MESS['PERFMON_COMP_CACHE_TYPE'] = "Кэштеу";
+$MESS['PERFMON_COMP_CACHE_TYPE_AUTO'] = "Авто";
+$MESS['PERFMON_COMP_CACHE_TYPE_NO'] = "Жоқ";
+$MESS['PERFMON_COMP_CACHE_TYPE_YES'] = "Иә";
+$MESS['PERFMON_COMP_COMPONENT_NAME'] = "Компонент";
+$MESS['PERFMON_COMP_COMPONENT_TIME'] = "Уақыт";
+$MESS['PERFMON_COMP_COUNT'] = "Саны";
+$MESS['PERFMON_COMP_FIND'] = "Табу";
+$MESS['PERFMON_COMP_GROUP'] = "Топтастыру";
+$MESS['PERFMON_COMP_GROUP_OFF'] = "Топтастыру өшірулі";
+$MESS['PERFMON_COMP_GROUP_ON'] = "Топтастыру қосулы";
+$MESS['PERFMON_COMP_HIT_ID'] = "Хит";
+$MESS['PERFMON_COMP_HIT_SCRIPT_NAME'] = "Парақша";
+$MESS['PERFMON_COMP_ID'] = "ID";
+$MESS['PERFMON_COMP_NN'] = "#";
+$MESS['PERFMON_COMP_PAGE'] = "Компоненттер";
+$MESS['PERFMON_COMP_QUERIES'] = "Сұраулар";
+$MESS['PERFMON_COMP_QUERIES_TIME'] = "Сұраулар-уақыт";
+$MESS['PERFMON_COMP_TITLE'] = "Өнімділік мониторы: компоненттер";

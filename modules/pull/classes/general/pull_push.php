@@ -37,7 +37,7 @@ class CPullPush
 			$params["select"] = $arSelect;
 		}
 
-		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) > 0)
+		if (isset($arNavStartParams["nTopCount"]) && intval($arNavStartParams["nTopCount"]) > 0)
 		{
 			$params["limit"] = intval($arNavStartParams["nTopCount"]);
 		}
@@ -821,7 +821,7 @@ class CPushManager
 		foreach (static::$pushServices as $serviceID => $serviceFields)
 		{
 			$className = $serviceFields["CLASS"];
-			if (!$arPushMessages[$serviceID])
+			if (empty($arPushMessages[$serviceID]))
 			{
 				continue;
 			}

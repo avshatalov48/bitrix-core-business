@@ -1,0 +1,34 @@
+.bx-im-elements-send-button {
+	--im-textarea__background-color_send-button: #00ace3;
+	--im-textarea__background-color_send-button-channel: var(--im-color-accent-turquoise);
+	--im-textarea__background-color_send-button-copilot: var(--im-color-palette-copilot-primary);
+
+	width: 36px;
+	height: 36px;
+	background-color: var(--im-textarea__background-color_send-button);
+	background-image: url('./images/send.svg');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 26px 26px;
+	border-radius: 50%;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+.bx-im-elements-send-button.--edit {
+	background-image: url('./images/check.svg');
+}
+
+.bx-im-elements-send-button.--disabled {
+	background-image: url('./images/send-inactive.svg');
+}
+
+.bx-im-elements-send-button.--channel,
+.bx-im-elements-send-button.--openChannel,
+.bx-im-elements-send-button.--generalChannel {
+	background-color: var(--im-textarea__background-color_send-button-channel);
+}
+
+.bx-im-elements-send-button.--copilot {
+	background-color: var(--im-textarea__background-color_send-button-copilot);
+}

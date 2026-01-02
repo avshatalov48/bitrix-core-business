@@ -2,6 +2,7 @@
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main;
+use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\UI;
 use Bitrix\Ui\EntityForm\Scope;
 
@@ -110,6 +111,8 @@ class UIFormComponent extends \CBitrixComponent
 			'ENABLE_USER_FIELD_CREATION' => false,
 			'ENABLE_USER_FIELD_MANDATORY_CONTROL' => true,
 			'ENABLE_PAGE_TITLE_CONTROLS' => false,
+			'ENABLE_PAGE_TITLE_CONTROLS_VIA_TOOLBAR' => false,
+			'ENABLE_PAGE_TITLE_EDIT' => false,
 			'USER_FIELD_ENTITY_ID' => '',
 			'USER_FIELD_PREFIX' => '',
 			'USER_FIELD_CREATE_PAGE_URL' => '',
@@ -696,16 +699,13 @@ class UIFormComponent extends \CBitrixComponent
 
 	protected function loadLanguages(): array
 	{
-		$languages = [];
-
-		$dbResultLangs = \CLanguage::GetList();
-
-		while($lang = $dbResultLangs->Fetch())
-		{
-			$languages[] = ['LID' => $lang['LID'], 'NAME' => $lang['NAME']];
-		}
-
-		return $languages;
+		return LanguageTable::query()
+			->setSelect(['LID', 'NAME'])
+			->setOrder(['SORT' => 'ASC'])
+			->setCacheTtl(3600)
+			->exec()
+			->fetchAll()
+		;
 	}
 
 	protected function initialize()
@@ -721,17 +721,19 @@ class UIFormComponent extends \CBitrixComponent
 
 		$this->prepareConfig();
 
-		if(isset($this->arParams['~ENABLE_CONFIGURATION_UPDATE']))
+		if (isset($this->arParams['~ENABLE_CONFIGURATION_UPDATE']))
 		{
 			$this->arResult['CAN_UPDATE_PERSONAL_CONFIGURATION'] = $this->arParams['~ENABLE_CONFIGURATION_UPDATE'];
 			$this->arResult['CAN_UPDATE_COMMON_CONFIGURATION'] = $this->arParams['~ENABLE_CONFIGURATION_UPDATE'];
 		}
 		else
 		{
-			$this->arResult['CAN_UPDATE_PERSONAL_CONFIGURATION'] = !isset($this->arParams['~ENABLE_PERSONAL_CONFIGURATION_UPDATE'])
+			$this->arResult['CAN_UPDATE_PERSONAL_CONFIGURATION'] =
+				!isset($this->arParams['~ENABLE_PERSONAL_CONFIGURATION_UPDATE'])
 				|| $this->arParams['~ENABLE_PERSONAL_CONFIGURATION_UPDATE'];
 
-			$this->arResult['CAN_UPDATE_COMMON_CONFIGURATION'] = isset($this->arParams['~ENABLE_COMMON_CONFIGURATION_UPDATE'])
+			$this->arResult['CAN_UPDATE_COMMON_CONFIGURATION'] =
+				isset($this->arParams['~ENABLE_COMMON_CONFIGURATION_UPDATE'])
 				&& $this->arParams['~ENABLE_COMMON_CONFIGURATION_UPDATE'];
 		}
 
@@ -743,10 +745,24 @@ class UIFormComponent extends \CBitrixComponent
 
 		$this->arResult['ENTITY_CONFIG_OPTIONS'] = $this->getEntityConfigOptions();
 
-		$this->arResult['EDITOR_OPTIONS'] = array('show_always' => 'Y');
-	}
+		$this->arResult['EDITOR_OPTIONS'] = ['show_always' => 'Y'];
 
-	protected function getEntityConfigOptions(): array
+		if ($this->arResult['ENABLE_PAGE_TITLE_CONTROLS'] && $this->arResult['ENABLE_PAGE_TITLE_CONTROLS_VIA_TOOLBAR'])
+		{
+			UI\Toolbar\Facade\Toolbar::enableMultiLineTitle();
+
+			UI\Toolbar\Facade\Toolbar::setCopyLinkButton([
+				'title' => $this->arResult['MESSAGES']['COPY_PAGE_URL'] ?? null,
+				'successfulCopyMessage' => $this->arResult['MESSAGES']['PAGE_URL_COPIED'] ?? null,
+			]);
+			if ($this->arResult['ENABLE_PAGE_TITLE_EDIT'])
+			{
+				UI\Toolbar\Facade\Toolbar::addEditableTitle();
+			}
+		}
+}
+
+protected function getEntityConfigOptions(): array
 	{
 		$optionId = $this->arParams['~OPTION_PREFIX'] ?? $this->configID;
 		$optionId = \Bitrix\UI\Form\EntityEditorConfiguration::prepareOptionsName(
@@ -825,6 +841,7 @@ class UIFormComponent extends \CBitrixComponent
 		return  (new \Bitrix\UI\Form\EntityEditorConfigSigner($this->configID))->sign([
 			'CAN_UPDATE_COMMON_CONFIGURATION' => $this->arResult['CAN_UPDATE_COMMON_CONFIGURATION'],
 			'CAN_UPDATE_PERSONAL_CONFIGURATION' => $this->arResult['CAN_UPDATE_PERSONAL_CONFIGURATION'],
+			'MODULE_ID' => $this->arParams['MODULE_ID'] ?? '',
 		]);
 	}
 }

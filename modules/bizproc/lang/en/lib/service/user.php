@@ -1,9 +1,11 @@
 <?php
 $MESS["BP_SERVICE_USER_ACTIVE"] = "Active";
-$MESS["BP_SERVICE_USER_DEPARTMENT"] = "Department (ID list)";
-$MESS["BP_SERVICE_USER_DEPARTMENT_PRINTABLE"] = "Department (names)";
+$MESS["BP_SERVICE_USER_DEPARTMENT_1"] = "User department IDs (legacy)";
+$MESS["BP_SERVICE_USER_DEPARTMENT_PRINTABLE_1"] = "User department names (legacy)";
 $MESS["BP_SERVICE_USER_EMAIL"] = "Email";
 $MESS["BP_SERVICE_USER_HEAD"] = "Supervisor";
+$MESS["BP_SERVICE_USER_HR_NODE"] = "User departments";
+$MESS["BP_SERVICE_USER_HR_NODE_IDS"] = "User department IDs";
 $MESS["BP_SERVICE_USER_IS_ABSENT"] = "Out of office (as per absence schedule)";
 $MESS["BP_SERVICE_USER_LAST_NAME"] = "Last name";
 $MESS["BP_SERVICE_USER_LOGIN"] = "Login";

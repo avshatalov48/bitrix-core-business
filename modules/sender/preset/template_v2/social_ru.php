@@ -2,7 +2,7 @@
 	<tbody>
 	<tr>
 		<td valign="top" class="" style="padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 10px;">
-			<a class="bxBlockContentSocial" href="http://vk.com/" target="_blank" style="font-weight: bold; letter-spacing: normal; line-height: 100%; text-align: center; font-size: 12px;">vk.com</a>
+			<a class="bxBlockContentSocial" href="http://vk.ru/" target="_blank" style="font-weight: bold; letter-spacing: normal; line-height: 100%; text-align: center; font-size: 12px;">vk.ru</a>
 		</td>
 	</tr>
 	</tbody>

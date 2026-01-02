@@ -604,7 +604,9 @@ function addType(oType)
 			zIndex: 0,
 			offsetLeft: 0,
 			offsetTop: 0,
-			draggable: true,
+			draggable: {
+				restrict: true,
+			},
 			bindOnResize: false,
 			closeByEsc : true,
 			titleBar: '<?= GetMessage("CAL_EDIT_TYPE_DIALOG")?>',

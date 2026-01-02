@@ -1,6 +1,6 @@
 .bx-im-content-bulk-actions-panel {
 	--im-content-bulk-actions-panel__background-color_cancel: var(--im-color-palette-gray-35);
-	--im-content-bulk-actions-panel__background-color-hover_cancel: var(--im-color-palette-gray-50);
+	--im-content-bulk-actions-panel__background-color-hover_cancel: var(--im-color-palette-gray-60);
 	--im-content-bulk-actions-panel__color_counter-number: var(--im-color-palette-gray-50);
 	--im-content-bulk-actions-panel__color_counter-name: var(--im-color-palette-black-base);
 	--im-content-bulk-actions-panel__background-color_panel: var(--im-color-palette-white-base);
@@ -64,6 +64,7 @@
 	width: 16px;
 	height: 3px;
 	background-color: var(--im-content-bulk-actions-panel__background-color_cancel);
+	transition: background-color 160ms linear;
 }
 
 .bx-im-content-bulk-actions-panel__cancel::before {
@@ -89,6 +90,20 @@
 .bx-im-content-bulk-actions-panel__right-section .bx-im-button__text {
 	font-size: 13px;
 	font-weight: 600;
+}
+
+.bx-im-content-bulk-actions-panel__delete-button {
+	position: relative;
+}
+
+.bx-im-content-bulk-actions-panel__tooltip {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 10;
+	cursor: not-allowed;
 }
 
 .bx-im-content-bulk-actions-panel__counter-name, .bx-im-content-bulk-actions-panel__counter-number {

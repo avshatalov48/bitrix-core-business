@@ -4,6 +4,14 @@ var MainUserConsentSelectorManager = function(params)
 	this.init = function (params)
 	{
 		this.actionRequestUrl = params.actionRequestUrl;
+		this.template = params.template ?? null;
+		if (this.template)
+		{
+			this.template = BX.Tag.render([this.template]);
+			var selector = this.template.querySelector('select[data-bx-selector]');
+			this.selectors.push(selector);
+		}
+		this.inputName = params.inputName;
 		this.initSlider();
 
 		var contexts = document.querySelectorAll('[data-bx-user-consent-selector]');
@@ -11,21 +19,99 @@ var MainUserConsentSelectorManager = function(params)
 		contexts.forEach(this.initByContext, this);
 	};
 
-	this.initByContext = function(context)
+	this.initByBlockContext = function(block)
 	{
-		var selector = context.querySelector('select[data-bx-selector]');
-		var linkEdit = context.querySelector('a[data-bx-link-edit]');
-		var linkView = context.querySelector('a[data-bx-link-view]');
+		var selector = block.querySelector('select[data-bx-selector]');
+		var linkEdit = block.querySelector('a[data-bx-link-edit]');
+		var linkView = block.querySelector('a[data-bx-link-view]');
+
 		if (!selector || !linkEdit || !linkView)
 		{
 			return;
 		}
 
+		var deleteButton = block.querySelector('[data-bx-delete]');
+		BX.bind(deleteButton, 'click', this.removeBlock.bind(this, block));
+
 		this.selectors.push(selector);
 		BX.bind(selector, 'change', this.onChange.bind(this, selector, linkEdit, linkView));
 		this.onChange(selector, linkEdit, linkView);
+	};
+
+	this.initByContext = function(context)
+	{
+		var blocks = context.querySelectorAll('[data-bx-user-consent-selector-block]');
+		blocks = BX.convert.nodeListToArray(blocks);
+		blocks.forEach(this.initByBlockContext, this);
 
 		this.initSliderButtons(context);
+
+		var linkAdd = context.querySelector('a[data-bx-link-add]');
+		if (linkAdd)
+		{
+			BX.bind(linkAdd, 'click', this.onAddClick.bind(this, context));
+		}
+	};
+
+	this.onAddClick = function(context)
+	{
+		var blocksContainer = context.querySelector('[data-bx-user-consent-selector-blocks-container]');
+		if (blocksContainer)
+		{
+			var newBlock = this.template.cloneNode(true);
+			var blocks = blocksContainer.querySelectorAll('[data-bx-user-consent-selector-block]');
+			var newBlockIndex = blocks.length;
+
+			this.updateBlockInputNames(newBlock, newBlockIndex);
+			blocksContainer.appendChild(newBlock);
+			this.initByBlockContext(newBlock);
+			this.initSliderButtons(newBlock);
+			blocks = blocksContainer.querySelectorAll('[data-bx-user-consent-selector-block]');
+			if (blocks.length === 2)
+			{
+				var deleteButton = blocks[0].querySelector('[data-bx-delete]');
+				deleteButton.style.display = 'inline';
+			}
+		}
+	};
+
+	this.removeBlock = function(removedBlock)
+	{
+		var blocksContainer = removedBlock.parentNode;
+		var blocks = blocksContainer.querySelectorAll('[data-bx-user-consent-selector-block]');
+		if (blocks.length > 1)
+		{
+			removedBlock.remove();
+		}
+
+		blocks = blocksContainer.querySelectorAll('[data-bx-user-consent-selector-block]');
+		if (blocks.length > 1)
+		{
+			blocks.forEach((block, index) => {
+				this.updateBlockInputNames(block, index);
+			});
+		}
+		else
+		{
+			var deleteButton = blocks[0].querySelector('[data-bx-delete]');
+			deleteButton.style.display = 'none';
+		}
+	};
+
+	this.updateBlockInputNames = function(block, index)
+	{
+		var selector = block.querySelector('[data-bx-selector]');
+		selector.name = this.inputName + '[' + index + ']' + '[ID]';
+
+		var defaultInputs = block.querySelectorAll('[data-bx-default-input]');
+		defaultInputs.forEach((defaultInput) => {
+			defaultInput.name = this.inputName + '[' + index + ']' + '[CHECKED]';
+		});
+
+		var requiredInputs = block.querySelectorAll('[data-bx-required-input]');
+		requiredInputs.forEach((requiredInput) => {
+			requiredInput.name = this.inputName + '[' + index + ']' + '[REQUIRED]';
+		});
 	};
 
 	this.onChange = function(selector, linkEdit, linkView)

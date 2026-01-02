@@ -5,8 +5,17 @@ export const HtmlFormatterComponent = {
 	props: {
 		bbcode: {
 			type: String,
-			required: false,
 			default: '',
+		},
+		/** @type HtmlFormatterOptions */
+		options: {
+			type: Object,
+			default: undefined,
+		},
+		/** @type FormatterData */
+		formatData: {
+			type: Object,
+			default: () => ({}),
 		},
 	},
 	beforeCreate(): void
@@ -15,41 +24,38 @@ export const HtmlFormatterComponent = {
 	},
 	mounted(): void
 	{
-		this.format(this.bbcode);
+		this.format();
 	},
 	unmounted(): void
 	{
 		this.htmlFormatter = null;
 	},
 	watch: {
-		bbcode(newValue): void
+		bbcode(): void
 		{
-			this.format(newValue);
+			this.format();
+		},
+		formatData(): void
+		{
+			this.format();
 		},
 	},
 	methods: {
-		format(bbcode: string): void
+		format(): void
 		{
-			const result = this.getHtmlFormatter().format({ source: bbcode });
-			const container = this.$refs.content;
+			const result = this.getHtmlFormatter().format({ source: this.bbcode, data: this.formatData });
 
-			Dom.clean(container);
-			// eslint-disable-next-line @bitrix24/bitrix24-rules/no-native-dom-methods
-			container.appendChild(result);
-			// container.parentNode.replaceChild(result, container);
+			Dom.clean(this.$el);
+			Dom.append(result, this.$el);
 		},
 		getHtmlFormatter(): HtmlFormatter
 		{
-			if (this.htmlFormatter !== null)
-			{
-				return this.htmlFormatter;
-			}
-
-			this.htmlFormatter = new HtmlFormatter();
+			this.htmlFormatter ??= new HtmlFormatter(this.options);
 
 			return this.htmlFormatter;
 		},
 	},
-
-	template: '<div class="ui-typography-container" ref="content"></div>',
+	template: `
+		<div class="ui-typography-container"></div>
+	`,
 };

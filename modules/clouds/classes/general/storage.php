@@ -15,7 +15,6 @@ class CCloudStorage
 		null;
 
 	public static $file_skip_reason = '';
-	protected static $lockId = '';
 
 	/**
 	 * @return void
@@ -223,7 +222,7 @@ class CCloudStorage
 				1 => $info->getHeight(),
 				2 => $info->getFormat(),
 				3 => $info->getAttributes(),
-				"mime" => $info->getMime(),
+				'mime' => $info->getMime(),
 			];
 		}
 
@@ -502,7 +501,7 @@ class CCloudStorage
 			else //the file is already in the cloud
 			{
 				$source = new \Bitrix\Main\File\Image\Rectangle($arFile['WIDTH'], $arFile['HEIGHT']);
-				$destination = new \Bitrix\Main\File\Image\Rectangle($arResizeParams[0]["width"], $arResizeParams[0]["height"]);
+				$destination = new \Bitrix\Main\File\Image\Rectangle($arResizeParams[0]['width'], $arResizeParams[0]['height']);
 				$source->resize($destination, $arResizeParams[1]);
 				$cacheImageFile = $obTargetBucket->GetFileSRC($callbackData['fileURL'], false);
 				$arImageSize = [
@@ -656,7 +655,7 @@ class CCloudStorage
 		$arFilters = $arResizeParams[4];
 
 		$source = new \Bitrix\Main\File\Image\Rectangle($sourceFile['WIDTH'], $sourceFile['HEIGHT']);
-		$destination = new \Bitrix\Main\File\Image\Rectangle($arSize["width"], $arSize["height"]);
+		$destination = new \Bitrix\Main\File\Image\Rectangle($arSize['width'], $arSize['height']);
 		$bNeedCreatePicture = $source->resize($destination, $resizeType);
 		$bNeedCreatePicture |= is_array($arWaterMark) && !empty($arWaterMark);
 		$bNeedCreatePicture |= is_array($arFilters) && !empty($arFilters);
@@ -1193,7 +1192,7 @@ class CCloudStorage
 				}
 
 				$pos = $obUpload->GetPos();
-				if ($pos > filesize($temp_fileX))
+				if ($pos >= filesize($temp_fileX))
 				{
 					if ($obUpload->Finish())
 					{
@@ -1480,10 +1479,6 @@ class CCloudStorage
 				//control of duplicates
 				if ($arFile['FILE_HASH'] <> '')
 				{
-					if (is_callable(['CFile', 'lockFileHash']))
-					{
-						static::$lockId = CFile::lockFileHash($size, $arFile['FILE_HASH'], $bucket->ID);
-					}
 					$original = CFile::FindDuplicate($size, $arFile['FILE_HASH'], $bucket->ID);
 					if ($original !== null)
 					{
@@ -1576,11 +1571,6 @@ class CCloudStorage
 			,$arFile['SUBDIR']
 			,$arFile['FILE_NAME']
 		);
-		if (static::$lockId)
-		{
-			CFile::unlockFileHash(static::$lockId);
-			static::$lockId = '';
-		}
 	}
 
 	public static function OnAfterFileDeleteDuplicate($original, $duplicate)

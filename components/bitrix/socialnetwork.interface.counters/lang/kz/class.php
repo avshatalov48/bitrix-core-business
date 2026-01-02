@@ -1,0 +1,9 @@
+<?php
+$MESS["SONET_SIC_COUNTER_TITLE_WORKGROUP_LIST_LIVEFEED"] = "Жаңалықтар";
+$MESS["SONET_SIC_COUNTER_TITLE_WORKGROUP_LIST_TASKS"] = "Міндеттер";
+$MESS["SONET_SIC_COUNTER_TITLE_WORKGROUP_REQUESTS_IN"] = "Растауды күтіп отырған";
+$MESS["SONET_SIC_COUNTER_TITLE_WORKGROUP_REQUESTS_OUT"] = "Шақырылды";
+$MESS["SONET_SIC_ENTITY_TITLE_WORKGROUP_DETAIL"] = "Кіруге өтінімдер:";
+$MESS["SONET_SIC_ENTITY_TITLE_WORKGROUP_LIST"] = "Барлық топтар:";
+$MESS["SONET_SIC_SYSTEM_ERROR"] = "Жүйелік қате пайда болды.";
+$MESS["SONET_SIC_SYSTEM_ERROR_INCLUDE_MODULE"] = "Қажетті модульдерді қосу мүмкін болмады.";

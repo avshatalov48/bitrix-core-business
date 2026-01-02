@@ -1,0 +1,25 @@
+<svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M31.2221 25.5882V23.2709L38.8756 13.9962V13.9412H31.2221V10.998H43.0021V13.5283L35.5298 22.6102V22.679H43.0021V25.5882H31.2221Z" fill="url(#paint0_radial_37963_15564)"/>
+<path d="M42.7524 11.248V13.4375L35.3364 22.4512L35.2797 22.5205V22.9287H42.7524V25.3379H31.4721V23.3594L39.0688 14.1553L39.1254 14.0859V13.6914H31.4721V11.248H42.7524Z" stroke="black" stroke-opacity="0.15" stroke-width="0.5"/>
+<path d="M20.2997 35.0674V33.1011L26.794 25.2311V25.1844H20.2997V22.687H30.2955V24.834L23.955 32.5405V32.5989H30.2955V35.0674H20.2997Z" fill="url(#paint1_radial_37963_15564)"/>
+<path d="M30.0458 22.937V24.7437L23.7616 32.3813L23.705 32.4507V32.8491H30.0458V34.8179H20.5497V33.1899L26.9872 25.3901L27.0438 25.3208V24.9341H20.5497V22.937H30.0458Z" stroke="black" stroke-opacity="0.15" stroke-width="0.5"/>
+<path d="M10.9979 43.0022V41.3547L16.4393 34.7608V34.7216H10.9979V32.6292H19.373V34.428L14.0605 40.885V40.9339H19.373V43.0022H10.9979Z" fill="url(#paint2_radial_37963_15564)"/>
+<path d="M19.1229 32.8792V34.3372L13.8671 40.7258L13.8104 40.7952V41.1838H19.1229V42.7522H11.2479V41.4436L16.6317 34.9202L16.6893 34.8508V34.4719H11.2479V32.8792H19.1229Z" stroke="black" stroke-opacity="0.15" stroke-width="0.5"/>
+<defs>
+<radialGradient id="paint0_radial_37963_15564" cx="0" cy="0" r="1" gradientTransform="matrix(7.47758 14.7658 -18.4759 10.0787 31.4525 10.8224)" gradientUnits="userSpaceOnUse">
+<stop stop-color="#5BA6F4"/>
+<stop offset="0.45" stop-color="#3C92EB"/>
+<stop offset="1" stop-color="#257EDA"/>
+</radialGradient>
+<radialGradient id="paint1_radial_37963_15564" cx="0" cy="0" r="1" gradientTransform="matrix(6.34507 12.5295 -15.6777 8.55226 20.4952 22.538)" gradientUnits="userSpaceOnUse">
+<stop stop-color="#5BA6F4"/>
+<stop offset="0.45" stop-color="#3C92EB"/>
+<stop offset="1" stop-color="#257EDA"/>
+</radialGradient>
+<radialGradient id="paint2_radial_37963_15564" cx="0" cy="0" r="1" gradientTransform="matrix(5.31627 10.4979 -13.1357 7.16559 11.1617 32.5043)" gradientUnits="userSpaceOnUse">
+<stop stop-color="#5BA6F4"/>
+<stop offset="0.45" stop-color="#3C92EB"/>
+<stop offset="1" stop-color="#257EDA"/>
+</radialGradient>
+</defs>
+</svg>

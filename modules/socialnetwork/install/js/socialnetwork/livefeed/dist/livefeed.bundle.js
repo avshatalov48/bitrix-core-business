@@ -1707,9 +1707,9 @@ this.BX = this.BX || {};
 	      });
 	      this.isSpaceFeatureEnabled ? this.subscribeOnSpaceCounters() : this.subscribeOnLiveFeedCounters();
 	      main_core_events.EventEmitter.subscribe('onImUpdateCounter', function (event) {
-	        var _event$getData = event.getData(),
-	          _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
-	          counterData = _event$getData2[0];
+	        var _event$getCompatData = event.getCompatData(),
+	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
+	          counterData = _event$getCompatData2[0];
 	        if (_this.isSpaceFeatureEnabled || !main_core.Type.isObjectLike(counterData) || main_core.Type.isUndefined(counterData[_this.currentCounterType])) {
 	          return;
 	        }
@@ -1719,11 +1719,11 @@ this.BX = this.BX || {};
 	        if (_this.isSpaceFeatureEnabled) {
 	          return;
 	        }
-	        var _event$getData3 = event.getData(),
-	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 3),
-	          xmlId = _event$getData4[0],
-	          id = _event$getData4[1],
-	          options = _event$getData4[2];
+	        var _event$getData = event.getData(),
+	          _event$getData2 = babelHelpers.slicedToArray(_event$getData, 3),
+	          xmlId = _event$getData2[0],
+	          id = _event$getData2[1],
+	          options = _event$getData2[2];
 	        if (!main_core.Type.isObjectLike(options) || !options.live || !options["new"]) {
 	          return;
 	        }
@@ -1739,10 +1739,10 @@ this.BX = this.BX || {};
 	      var _this2 = this;
 	      main_core_events.EventEmitter.subscribe('onPullEvent-socialnetwork', function (event) {
 	        var _eventParams$userId, _eventParams$spaces;
-	        var _event$getData5 = event.getData(),
-	          _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 2),
-	          command = _event$getData6[0],
-	          eventParams = _event$getData6[1];
+	        var _event$getData3 = event.getData(),
+	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 2),
+	          command = _event$getData4[0],
+	          eventParams = _event$getData4[1];
 	        var userFromEvent = (_eventParams$userId = eventParams.userId) !== null && _eventParams$userId !== void 0 ? _eventParams$userId : null;
 	        var spaces = (_eventParams$spaces = eventParams.spaces) !== null && _eventParams$spaces !== void 0 ? _eventParams$spaces : [];
 	        if (command !== 'user_spaces_counter' || parseInt(_this2.currentUserId) !== parseInt(userFromEvent)) {
@@ -1760,10 +1760,10 @@ this.BX = this.BX || {};
 	    value: function subscribeOnLiveFeedCounters() {
 	      var _this3 = this;
 	      main_core_events.EventEmitter.subscribe('onPullEvent-main', function (event) {
-	        var _event$getData7 = event.getData(),
-	          _event$getData8 = babelHelpers.slicedToArray(_event$getData7, 2),
-	          command = _event$getData8[0],
-	          eventParams = _event$getData8[1];
+	        var _event$getData5 = event.getData(),
+	          _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 2),
+	          command = _event$getData6[0],
+	          eventParams = _event$getData6[1];
 	        if (command !== 'user_counter' || !eventParams[_this3.currentSiteId] || !eventParams[_this3.currentSiteId][_this3.currentCounterType]) {
 	          return;
 	        }

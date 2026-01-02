@@ -26,7 +26,7 @@ class CBPSocNetLogActivity
 		$documentId = $rootActivity->GetDocumentId();
 
 		$documentService = $this->workflow->GetService("DocumentService");
-		$document = $documentService->GetDocument($documentId);
+		$document = $documentService->GetDocument($documentId, select: ['NAME']);
 
 		$entityType = $this->EntityType;
 		if ($entityType == "user")
@@ -37,7 +37,7 @@ class CBPSocNetLogActivity
 		$USER_ID = false;
 		if ($GLOBALS["USER"]->IsAuthorized())
 			$USER_ID = $GLOBALS["USER"]->GetID();
-			
+
 		$logID = CSocNetLog::Add(
 			array(
 				"ENTITY_TYPE" => $entityType,
@@ -59,7 +59,7 @@ class CBPSocNetLogActivity
 		if (intval($logID > 0))
 			CSocNetLog::Update($logID, array("TMP_ID" => $logID));
 
-		CSocNetLog::SendEvent($logID, "SONET_NEW_EVENT", $logID);			
+		CSocNetLog::SendEvent($logID, "SONET_NEW_EVENT", $logID);
 
 		return CBPActivityExecutionStatus::Closed;
 	}

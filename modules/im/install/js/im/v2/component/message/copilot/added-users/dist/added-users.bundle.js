@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_public,im_v2_component_message_base,im_v2_component_elements) {
+(function (exports,im_public,im_v2_component_message_base,im_v2_component_elements_userListPopup) {
 	'use strict';
 
 	// @vue/component
@@ -11,7 +11,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  name: 'ChatCopilotAddedUsersMessage',
 	  components: {
 	    BaseMessage: im_v2_component_message_base.BaseMessage,
-	    UserListPopup: im_v2_component_elements.UserListPopup
+	    UserListPopup: im_v2_component_elements_userListPopup.UserListPopup
 	  },
 	  props: {
 	    item: {

@@ -37,9 +37,10 @@ if ($arResult['IS_NEW_ORDER'])
 		'paySystem' => $scheme['paySystems'],
 	];
 
-	if ($arParams['USER_CONSENT_ID'] > 0)
+	if (!empty($arParams['USER_CONSENTS']))
 	{
 		$options['consent'] = [
+			'items' => $parameters['userConsents'],
 			'id' => $arParams['USER_CONSENT_ID'],
 			'title' => Loc::getMessage('SOC_T_CHECKOUT_ORDER_BUTTON'),
 			'isLoaded' => $arParams['USER_CONSENT_IS_LOADED'],

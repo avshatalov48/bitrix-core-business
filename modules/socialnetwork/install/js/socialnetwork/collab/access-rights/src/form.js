@@ -17,6 +17,7 @@ type FormData = {
 	permissionsLabels: { [string]: string },
 	rightsPermissionsLabels: { [string]: string },
 	optionsLabels: { [string]: string },
+	isAllowedInviteCollabers: boolean,
 };
 
 export type Data = {
@@ -35,6 +36,7 @@ export class Form extends EventEmitter
 		moderatorsField: UserSelector,
 		showHistory: Selector,
 		whoCanInvite: Selector,
+		allowGuestsInvitation: Selector,
 		manageMessages: Selector,
 		tasksViewUsersField: Selector,
 		tasksSortTasksField: Selector,
@@ -74,6 +76,7 @@ export class Form extends EventEmitter
 			permissionsLabels: Type.isPlainObject(data.permissionsLabels) ? data.permissionsLabels : {},
 			rightsPermissionsLabels: Type.isPlainObject(data.rightsPermissionsLabels) ? data.rightsPermissionsLabels : {},
 			optionsLabels: Type.isPlainObject(data.optionsLabels) ? data.optionsLabels : {},
+			isAllowedInviteCollabers: Type.isBoolean(data.isAllowedInviteCollabers) ? data.isAllowedInviteCollabers : false,
 		};
 	}
 
@@ -93,12 +96,13 @@ export class Form extends EventEmitter
 				<form ref="form" class="${uiStyles} sn-collab__access-right-form">
 					<div class="sn-collab__access-right-form-box">
 						<div class="sn-collab__access-right-form-box-label">
-							${Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_MANAGEMENT_LABEL')}
+							${Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_MANAGEMENT_LABEL_MSGVER_1')}
 						</div>
 						${this.#layout.ownerField.render()}
 						${this.#layout.moderatorsField.render()}
 						${this.#layout.showHistory.render()}
 						${this.#layout.whoCanInvite.render()}
+						${this.#layout.allowGuestsInvitation.render()}
 						${this.#layout.manageMessages.render()}
 					</div>
 					<div class="sn-collab__access-right-form-box --selectors">
@@ -231,6 +235,7 @@ export class Form extends EventEmitter
 				showHistory: this.#layout.showHistory.getValue(),
 				manageMessages: this.#layout.manageMessages.getValue(),
 				whoCanInvite: this.#layout.whoCanInvite.getValue(),
+				allowGuestsInvitation: this.#layout.allowGuestsInvitation.getValue(),
 			},
 			permissions: {
 				tasks: {
@@ -246,6 +251,7 @@ export class Form extends EventEmitter
 
 	#prepareFields(formData: FormData): void
 	{
+		this.#prepareParams(formData);
 		this.#prepareBaseFields(formData);
 		this.#prepareTasksFields(formData);
 	}
@@ -263,6 +269,11 @@ export class Form extends EventEmitter
 		this.#layout.whoCanInvite = this.#getWhoCanInviteField(
 			formData.permissionsLabels,
 			formData.options?.whoCanInvite,
+		);
+
+		this.#layout.allowGuestsInvitation = this.#getAllowGuestsInvitationField(
+			formData.optionsLabels,
+			formData.options?.allowGuestsInvitation,
 		);
 
 		this.#layout.manageMessages = this.#getManageMessagesField(
@@ -295,6 +306,11 @@ export class Form extends EventEmitter
 			formData.rightsPermissionsLabels,
 			tasks?.delete_tasks,
 		);
+	}
+
+	#prepareParams(formData: FormData): void
+	{
+		this.#params.isAllowedInviteCollabers = formData.isAllowedInviteCollabers;
 	}
 
 	#getOwnerField(ownerId: number): UserSelector
@@ -352,6 +368,19 @@ export class Form extends EventEmitter
 		);
 
 		return this.#getSelector('whoCanInvite', label, options, selectedValue);
+	}
+
+	#getAllowGuestsInvitationField(options: { [string]: string }, selectedValue: ?string): Selector
+	{
+		// is collabers invitation enabled at the portal level
+		const isFieldDisabled = !this.#params.isAllowedInviteCollabers;
+
+		const label = this.#getFieldLabel(
+			'AllowGuestsInvitationHint',
+			Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_ALLOW_GUESTS_INVITATION_LABEL'),
+		);
+
+		return this.#getSelector('allowGuestsInvitation', label, options, selectedValue, isFieldDisabled);
 	}
 
 	#getManageMessagesField(options: { [string]: string }, selectedValue: ?string): Selector
@@ -444,6 +473,7 @@ export class Form extends EventEmitter
 		label: HTMLElement,
 		options: { [string]: string },
 		selectedValue: string = 'K',
+		isFieldDisabled: boolean = false,
 	): Selector
 	{
 		const items = [];
@@ -460,6 +490,7 @@ export class Form extends EventEmitter
 			id: `sn-collab-form-field-${id}`,
 			label,
 			items,
+			isFieldDisabled,
 			current: selectedValue,
 		});
 	}

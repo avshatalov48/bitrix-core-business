@@ -1,15 +1,16 @@
 <?php
 
-use Bitrix\Main\Application;
-use Bitrix\Main\Data\Cache;
-use Bitrix\Main\Diag\CacheTracker;
-
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
+
+use Bitrix\Main\Application;
+use Bitrix\Main\Data\Cache;
+use Bitrix\Main\Data\CacheEngineStatInterface;
+use Bitrix\Main\Diag\CacheTracker;
 
 class CPageCache
 {
@@ -87,7 +88,7 @@ class CPageCache
 		{
 			if (isset($_GET["clear_cache_session"]))
 			{
-				if (mb_strtoupper($_GET["clear_cache_session"]) == "Y")
+				if (strtoupper($_GET["clear_cache_session"]) == "Y")
 				{
 					Application::getInstance()->getKernelSession()["SESS_CLEAR_CACHE"] = "Y";
 				}
@@ -97,7 +98,7 @@ class CPageCache
 				}
 			}
 
-			if (isset($_GET["clear_cache"]) && mb_strtoupper($_GET["clear_cache"]) == "Y")
+			if (isset($_GET["clear_cache"]) && strtoupper($_GET["clear_cache"]) == "Y")
 			{
 				return false;
 			}
@@ -120,7 +121,7 @@ class CPageCache
 		{
 			$read = 0;
 			$path = '';
-			if ($this->_cache instanceof \Bitrix\Main\Data\ICacheEngineStat)
+			if ($this->_cache instanceof CacheEngineStatInterface)
 			{
 				$read = $this->_cache->getReadBytes();
 				$path = $this->_cache->getCachePath();
@@ -181,7 +182,7 @@ class CPageCache
 		{
 			$written = 0;
 			$path = '';
-			if ($this->_cache instanceof \Bitrix\Main\Data\ICacheEngineStat)
+			if ($this->_cache instanceof CacheEngineStatInterface)
 			{
 				$written = $this->_cache->getWrittenBytes();
 				$path = $this->_cache->getCachePath();

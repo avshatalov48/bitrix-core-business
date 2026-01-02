@@ -1,0 +1,12 @@
+<?php
+$MESS["SALE_ORDER_BASKET_JS_SETTINGS_APPLY"] = "Қолдану";
+$MESS["SALE_ORDER_BASKET_JS_SETTINGS_TITLE"] = "Ұсыну баптаулары";
+$MESS["SALE_ORDER_BASKET_SETTINGS_ADD_COLUMN"] = "Бағанды қосу";
+$MESS["SALE_ORDER_BASKET_SETTINGS_AVAILABLE_COLUMNS"] = "Қолжетімді бағандар";
+$MESS["SALE_ORDER_BASKET_SETTINGS_DELETE_COLUMN"] = "Бағанды жою";
+$MESS["SALE_ORDER_BASKET_SETTINGS_DOWN"] = "Төмен";
+$MESS["SALE_ORDER_BASKET_SETTINGS_MOVE_DOWN"] = "Тізімде төмен жылжыту";
+$MESS["SALE_ORDER_BASKET_SETTINGS_MOVE_UP"] = "Тізімде жоғары жылжыту";
+$MESS["SALE_ORDER_BASKET_SETTINGS_SELECTED_COLUMNS"] = "Таңдалған бағандар";
+$MESS["SALE_ORDER_BASKET_SETTINGS_SHOW_PROPERTIES"] = "Қарау режимінде суреттің астындағы өнімнің қасиеттерін көрсету";
+$MESS["SALE_ORDER_BASKET_SETTINGS_UP"] = "Жоғары";

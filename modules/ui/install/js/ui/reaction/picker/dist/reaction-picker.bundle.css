@@ -1,0 +1,150 @@
+.reactions-select-popover {
+	--reactions-select__list-elem-size: 44px;
+
+	box-sizing: border-box;
+	position: absolute;
+	min-height: 56px;
+	background-color: var(--ui-color-bg-content-primary);
+	-webkit-background-clip: padding-box;
+	background-clip: padding-box;
+	border-radius: 18px;
+	box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.21);
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: flex-start;
+	padding-right: 4px;
+
+	opacity: 0;
+	transition: opacity 0.1s ease-in-out;
+	pointer-events: none;
+}
+
+.reactions-select-popover.--visible {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.reactions-select-popover.--hiding {
+	opacity: 0;
+}
+
+.reactions-select-popover__inner {
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: flex-start;
+	padding: 6px 8px 6px 12px;
+}
+
+.reactions-select-popover.--expanded .reactions-select-popover__inner {
+	flex-direction: column;
+	max-height: 276px;
+	overflow-x: hidden;
+	overflow-y: hidden;
+
+	/* Firefox */
+	scrollbar-width: thin;
+	scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+	overscroll-behavior: contain;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+.reactions-select-popover.--expanded .reactions-select-popover__inner::-webkit-scrollbar {
+	width: 4px;
+}
+
+.reactions-select-popover.--expanded .reactions-select-popover__inner::-webkit-scrollbar-track {
+	border-radius: 18px;
+	width: 4px;
+	background: rgba(0, 0, 0, 0.05);
+}
+
+.reactions-select-popover.--expanded .reactions-select-popover__inner::-webkit-scrollbar-thumb {
+	background: rgba(0, 0, 0, 0.3);
+	border-radius: 18px;
+	width: 4px;
+}
+
+.reactions-select-popover.--expanded .reactions-select-popover__inner::-webkit-scrollbar-thumb:hover {
+	background: rgba(0, 0, 0, 0.4);
+}
+
+.reactions-select__list {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.reactions-select-popover__expanded-list {
+	width: 100%;
+}
+
+.reactions-select__list.--expanded {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, var(--reactions-select__list-elem-size));
+}
+
+.reactions-select__list-elem {
+	width: var(--reactions-select__list-elem-size);
+	height: var(--reactions-select__list-elem-size);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.reactions-select__list-elem-inner {
+	width: 30px;
+	height: 30px;
+	transition: 0.2s ease-in-out transform;
+}
+
+.reactions-select__list-elem-inner .ui-reaction {
+	--ui-reaction-size: 30px;
+}
+
+.reactions-select__list-elem:hover {
+	cursor: pointer;
+}
+
+.reactions-select__list-elem:hover .reactions-select__list-elem-inner {
+	transform: scale(1.2);
+}
+
+.reactions-select__expand-button-wrapper {
+	min-width: var(--reactions-select__list-elem-size);
+	height: var(--reactions-select__list-elem-size);
+
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+
+.reactions-select__expand-button {
+	--ui-color: var(--ui-color-bg-content-tertiary);
+	--ui-icon-set__icon-color: var(--ui-color-base-3);
+
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	border-radius: var(--ui-border-radius-circle);
+	background-color: var(--ui-color);
+	cursor: pointer;
+}
+
+.reactions-select__expand-button:hover {
+	background-color: var(--ui-color-hover);
+}
+
+.reactions-select__expand-button:active {
+	background-color: var(--ui-color-active);
+}

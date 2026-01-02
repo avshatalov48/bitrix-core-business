@@ -14,6 +14,7 @@ import { FileEvent } from './enums/file-event';
 import { FilterType } from './enums/filter-type';
 
 import * as Helpers from './helpers/index';
+import Filter from './filters/filter';
 
 import type { UploaderOptions } from './types/uploader-options';
 import type { UploaderFileOptions } from './types/uploader-file-options';
@@ -44,6 +45,7 @@ export {
 	AbstractLoadController,
 	AbstractUploadController,
 	AbstractRemoveController,
+	Filter,
 };
 
 export * from './helpers/index';

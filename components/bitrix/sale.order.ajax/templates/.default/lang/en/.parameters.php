@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ADDITIONAL_PROPS"] = "Extra product properties buttons";
 $MESS["ADDITIONAL_PROPS_DEFAULT"] = "Additional properties";
 $MESS["ALLOW_NEW_PROFILE"] = "Allow multiple customer profiles";
@@ -147,4 +147,3 @@ $MESS["YM_GOALS_NEXT_PICKUP"] = "Goal ID for transfer from pick-up locations to 
 $MESS["YM_GOALS_NEXT_PROPERTIES"] = "Goal ID for transfer from product properties to 'Next' button";
 $MESS["YM_GOALS_NEXT_REGION"] = "Goal ID for transfer from delivery area to 'Next' button";
 $MESS["YM_GOALS_SAVE_ORDER"] = "Goal ID for order processing";
-?>

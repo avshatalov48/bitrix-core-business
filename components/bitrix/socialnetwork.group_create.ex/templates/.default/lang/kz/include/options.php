@@ -1,0 +1,24 @@
+<?php
+$MESS["SONET_GCE_T_IS_EXTRANET_GROUP2_HINT"] = "Топқа сыртқы қатысушыларды шақыруға болады";
+$MESS["SONET_GCE_T_IS_EXTRANET_GROUP2_HINT_PROJECT"] = "Жобаға сыртқы қатысушыларды шақыруға болады";
+$MESS["SONET_GCE_T_IS_EXTRANET_GROUP3"] = "Сыртқы пайдаланушыларға қолжетімділікке рұқсат беру";
+$MESS["SONET_GCE_T_IS_EXTRANET_TITLE"] = "Сыртқы пайдаланушылар";
+$MESS["SONET_GCE_T_PARAMS_CLOSED2"] = "Мұрағаттық";
+$MESS["SONET_GCE_T_PARAMS_CLOSED2_HINT"] = "Топ мұрағаттық болып табылады";
+$MESS["SONET_GCE_T_PARAMS_CLOSED2_HINT_PROJECT"] = "Жоба мұрағаттық болып табылады";
+$MESS["SONET_GCE_T_PARAMS_CLOSED2_PROJECT"] = "Мұрағаттық";
+$MESS["SONET_GCE_T_PARAMS_LANDING"] = "Жариялау үшін";
+$MESS["SONET_GCE_T_PARAMS_LANDING_MSGVER_1"] = "Жариялау үшін";
+$MESS["SONET_GCE_T_PARAMS_LANDING_MSGVER_2"] = "Жариялау үшін";
+$MESS["SONET_GCE_T_PARAMS_OPEN2"] = "Ашық";
+$MESS["SONET_GCE_T_PARAMS_OPEN2_HINT"] = "Топқа модератордың мақұлдауынсыз кіруге болады";
+$MESS["SONET_GCE_T_PARAMS_OPEN2_HINT_PROJECT"] = "Жобаға жетекшінің немесе оның көмекшісінің мақұлдауынсыз кіруге болады";
+$MESS["SONET_GCE_T_PARAMS_OPEN2_PROJECT"] = "Ашық";
+$MESS["SONET_GCE_T_PARAMS_PROJECT"] = "Жоба";
+$MESS["SONET_GCE_T_PARAMS_VIS2"] = "Көрінетін";
+$MESS["SONET_GCE_T_PARAMS_VIS2_HINT"] = "Топтың болуы оның қатысушыларына ғана емес, барлық пайдаланушыларға көрінеді";
+$MESS["SONET_GCE_T_PARAMS_VIS2_HINT_PROJECT"] = "Жобаның болуы оның қатысушыларына ғана емес, барлық пайдаланушыларға көрінеді";
+$MESS["SONET_GCE_T_PARAMS_VIS2_PROJECT"] = "Көрінетін";
+$MESS["SONET_GCE_T_TITLE_TYPE"] = "Топ түрі";
+$MESS["SONET_GCE_T_TITLE_TYPE_PROJECT"] = "Жоба түрі";
+$MESS["SONET_GCE_T_TITLE_TYPE_SCRUM"] = "Скрам түрі";

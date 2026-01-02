@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
@@ -245,17 +246,21 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return '';
 	    }
 	  }, {
-	    key: "createResourceBookingFieldController",
-	    value: function createResourceBookingFieldController(options) {
+	    key: "createCustomFieldController",
+	    value: function createCustomFieldController(options) {
 	      if (options.type === 'resourcebooking') {
 	        var root = landing_pageobject.PageObject.getRootWindow();
 	        var crmField = this.getCrmFieldById(options.id);
 	        return root.BX.Calendar.ResourcebookingUserfield.initCrmFormFieldController({
-	          field: _objectSpread(_objectSpread({}, options), {}, {
+	          field: _objectSpread(_objectSpread({}, options.sourceOptions), {}, {
 	            dict: crmField,
 	            node: main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div><div class=\"crm-webform-resourcebooking-wrap\"></div></div>"])))
 	          })
 	        });
+	      }
+	      if (options.type === 'booking' && BX.Booking) {
+	        var BookingFieldController = BX.Booking.CrmForms.Settings;
+	        return new BookingFieldController(options, this.data.formOptions);
 	      }
 	      return null;
 	    }
@@ -281,7 +286,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          listItemOptions.description = options.label || (crmField ? crmField.caption : '');
 	          listItemOptions.editable = true;
 	          listItemOptions.isSeparator = false;
-	          listItemOptions.fieldController = this.createResourceBookingFieldController(options);
+	          listItemOptions.fieldController = this.createCustomFieldController(listItemOptions);
 	          if (options.editing.supportAutocomplete) {
 	            var autocompleteButton = new landing_ui_component_iconbutton.IconButton({
 	              id: 'autocomplete',
@@ -942,11 +947,21 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "onItemEdit",
 	    value: function onItemEdit(event) {
 	      var _this11 = this;
+	      var listItem = event.getTarget();
 	      var _event$getTarget = event.getTarget(),
 	        options = _event$getTarget.options;
 	      if (options.fieldController) {
 	        event.preventDefault();
 	        options.fieldController.showSettingsPopup();
+	        if (options.sourceOptions.settingsData) {
+	          options.form.unsubscribe('onChange', listItem.onFormChange);
+	          options.form.subscribe('onChange', listItem.onFormChange);
+	          options.fieldController.settingsPopup.subscribeOnce('onClose', function () {
+	            options.sourceOptions.settingsData = options.fieldController.getSettings();
+	            options.form.emit('onChange');
+	          });
+	          return;
+	        }
 	        setTimeout(function () {
 	          options.fieldController.settingsPopup.subscribeOnce('onClose', function () {
 	            options.sourceOptions.booking.settings_data = options.fieldController.getSettings().data;
@@ -1048,7 +1063,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return FieldsListField;
 	}(landing_ui_field_basefield.BaseField);
 	function _getFieldsPanelAllowedTypes2() {
-	  return ['list', 'string', 'checkbox', 'date', 'text', 'typed_string', 'file', 'datetime', 'integer', 'double', 'enumeration', 'url', 'money', 'boolean', 'resourcebooking', 'radio', 'bool', 'hr', 'br', 'phone', 'email', 'page', 'section'];
+	  return ['list', 'string', 'checkbox', 'date', 'text', 'typed_string', 'file', 'datetime', 'integer', 'double', 'enumeration', 'url', 'money', 'boolean', 'booking', 'resourcebooking', 'radio', 'bool', 'hr', 'br', 'phone', 'email', 'page', 'section'];
 	}
 
 	exports.FieldsListField = FieldsListField;

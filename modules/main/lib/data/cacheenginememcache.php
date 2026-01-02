@@ -1,7 +1,11 @@
 <?php
+
 namespace Bitrix\Main\Data;
 
-class CacheEngineMemcache extends CacheEngine
+use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\Data\LocalStorage\Storage;
+
+class CacheEngineMemcache extends Cache\KeyValueEngine implements Storage\CacheEngineInterface
 {
 	public function getConnectionName(): string
 	{
@@ -13,8 +17,12 @@ class CacheEngineMemcache extends CacheEngine
 		return MemcacheConnection::class;
 	}
 
-	protected function modifyConfigByEngine(&$config, $cacheConfig, array $options = []): void
+	protected function configure($options = []): array
 	{
+		$config = parent::configure($options);
+
+		$cacheConfig = Configuration::getValue('cache');
+
 		$config['persistent'] = true;
 		if (isset($cacheConfig['persistent']) && $cacheConfig['persistent'] == 0)
 		{
@@ -23,8 +31,10 @@ class CacheEngineMemcache extends CacheEngine
 
 		if (isset($cacheConfig['connectionTimeout']))
 		{
-			$config['connectionTimeout'] = (int) $cacheConfig['connectionTimeout'];
+			$config['connectionTimeout'] = (int)$cacheConfig['connectionTimeout'];
 		}
+
+		return $config;
 	}
 
 	protected static function getExpire($ttl)

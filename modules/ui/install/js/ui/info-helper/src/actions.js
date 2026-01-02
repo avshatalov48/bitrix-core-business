@@ -1,11 +1,13 @@
 import { ajax, Extension, Uri } from 'main.core';
 import { sendData } from 'ui.analytics';
 import { FeaturePromotersRegistry } from 'ui.info-helper';
+import { SliderProvider } from './providers/slider-provider';
 
 export class Actions
 {
 	static ClosePage()
 	{
+		BX.SidePanel.Instance.getTopSlider()?.close();
 		BX.UI.InfoHelper.close();
 	}
 
@@ -131,14 +133,25 @@ export class Actions
 				if (!result.error)
 				{
 					const settings = Extension.getSettings('ui.info-helper');
+					let url = window.location.href;
 
 					if (settings.region === 'ru' && settings.licenseNeverPayed)
 					{
-						Actions.openInformer({ code: 'limit_market_trial_active' });
+						url += url.includes('?') ? '&' : '?';
+						url += 'feature_promoter=limit_market_trial_active';
+
+						window.location.href = url;
 					}
 					else if (settings.marketUrl)
 					{
-						Actions.openSlider({ url: settings.marketUrl });
+						if (url.includes(settings.marketUrl))
+						{
+							window.location.reload();
+						}
+						else
+						{
+							window.location.href = settings.marketUrl;
+						}
 					}
 				}
 			};
@@ -166,16 +179,34 @@ export class Actions
 	{
 		ajax.runAction('ui.infoHelper.activateDemoLicense').then((response) => {
 			const slider = BX.SidePanel.Instance.getTopSlider();
+			const promoter = FeaturePromotersRegistry.getLastPromoter();
+			const provider = promoter?.getProvider();
 
 			if (slider)
 			{
-				BX.UI.InfoHelper.sliderProviderForOldFormat?.getFrame().contentWindow.postMessage(
-					{
-						action: 'onActivateDemoLicenseResult',
-						result: response,
-					},
-					'*',
-				);
+				if (
+					provider instanceof SliderProvider
+					&& promoter.getCode() === 'limit_demo'
+				)
+				{
+					provider?.getFrame().contentWindow.postMessage(
+						{
+							action: 'onActivateDemoLicenseResult',
+							result: response,
+						},
+						'*',
+					);
+				}
+				else
+				{
+					BX.UI.InfoHelper.sliderProviderForOldFormat?.getFrame().contentWindow.postMessage(
+						{
+							action: 'onActivateDemoLicenseResult',
+							result: response,
+						},
+						'*',
+					);
+				}
 			}
 
 			if (response.data.success === 'Y')
@@ -183,6 +214,8 @@ export class Actions
 				BX.onCustomEvent('BX.UI.InfoHelper:onActivateDemoLicenseSuccess', {
 					result: response,
 				});
+
+				window.location.reload();
 			}
 		});
 	}

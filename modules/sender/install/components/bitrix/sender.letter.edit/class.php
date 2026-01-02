@@ -159,7 +159,8 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 					$value = PostFiles::getFromContext($key, $value);
 					break;
 				case Message\ConfigurationOption::TYPE_MAIL_EDITOR:
-					$value = Security\Sanitizer::fixReplacedStyles($value);
+					$value = $this->request->getRaw($key);
+
 					$value = Security\Sanitizer::sanitizeHtml($value, $option->getValue());
 					$this->contentValue = $value;
 					break;

@@ -206,6 +206,11 @@ class Component extends \Bitrix\Landing\Node
 	 */
 	public static function prepareManifest(Block $block, array $manifest, array &$manifestFull = array())
 	{
+		// set predefined
+		Component::setPredefineForDynamicProps(array(
+			'LANDING_MODE' => (\Bitrix\Landing\Landing::getEditMode() === true) ? 'Y' : 'N',
+		));
+
 		if (
 			!isset($manifest['extra']['editable']) ||
 			!is_array($manifest['extra']['editable'])
@@ -339,6 +344,7 @@ class Component extends \Bitrix\Landing\Node
 							'original_type' => 'component',
 							'component_type' => $newExtra[$field]['TYPE'] ?? '',
 							'attribute' => $field,
+							'placeholder' => $newExtra[$field]['PLACEHOLDER'] ?? '',
 							'value' => self::preparePropValue(
 								$newExtra[$field]['VALUE'],
 								$fieldItem
@@ -621,7 +627,7 @@ class Component extends \Bitrix\Landing\Node
 						}
 						default:
 						{
-							$item['placeholder'] = '';
+							$item['placeholder'] = $item['placeholder'] ?? '';
 						}
 					}
 					break;

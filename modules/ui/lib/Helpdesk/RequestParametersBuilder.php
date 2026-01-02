@@ -135,6 +135,7 @@ class RequestParametersBuilder
 			$this->parameters += [
 				'portal_date_register' => Option::get('main', '~controller_date_create', ''),
 				'canAllUsersBuyTariff' => \CBitrix24::canAllBuyLicense(),
+				'isSidePanelDemoLicense' => Option::get('bitrix24', 'isSidePanelDemoLicense') === 'Y',
 			];
 		}
 	}

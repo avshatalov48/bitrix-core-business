@@ -10,4 +10,5 @@ final class EventType
 	public const AFTER_OPEN_EVENT_CREATED = 'afterOpenEventCreated';
 	public const AFTER_OPEN_EVENT_EDITED = 'afterOpenEventEdited';
 	public const AFTER_OPEN_EVENT_DELETED = 'afterOpenEventDeleted';
+	public const AFTER_MEETING_STATUS_CHANGED = 'afterMeetingStatusChanged';
 }

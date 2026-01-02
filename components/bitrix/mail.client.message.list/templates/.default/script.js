@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,mail_avatar,mail_messagegrid,mail_directorymenu,main_core_events,main_core,ui_buttons) {
 	'use strict';
 

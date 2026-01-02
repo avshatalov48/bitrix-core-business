@@ -49,3 +49,4 @@ $MESS["SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_TITLE_SCRUM"] = "О Скраме"
 $MESS["SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_DESCRIPTION_GROUP"] = "Здесь вы найдете больше информации о группе и сможете изменить данные, если необходимо";
 $MESS["SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_DESCRIPTION_PROJECT"] = "Здесь вы найдете больше информации о проекте и сможете изменить данные, если необходимо";
 $MESS["SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_DESCRIPTION_SCRUM"] = "Здесь вы найдете больше информации и сможете изменить данные, если необходимо";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_CONVERT_TO_COLLAB"] = "Перенести в коллабу";

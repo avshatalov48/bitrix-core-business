@@ -34,6 +34,9 @@ class ActionDictionary
 	public const ACTION_EVENT_CATEGORY_VIEW = 'event_category_view';
 	public const ACTION_EVENT_CATEGORY_POST = 'event_category_post';
 
+	public const ACTION_SYNC_RUN = 'sync_run';
+	public const ACTION_SYNC_DELETE = 'sync_delete';
+
 	public static function getOldActionKeysMap(): array
 	{
 		return [

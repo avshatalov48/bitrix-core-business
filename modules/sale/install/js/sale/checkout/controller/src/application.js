@@ -1,19 +1,18 @@
 import { Runtime, ajax } from 'main.core';
-import { EventEmitter } from 'main.core.events'
-import { BasketRestHandler } from 'sale.checkout.provider.rest'
+import { EventEmitter } from 'main.core.events';
+import { BasketRestHandler } from 'sale.checkout.provider.rest';
 import {
 	Application as ApplicationConst,
 	RestMethod as RestMethodConst,
 	Component as ComponentConst,
 	Consent as ConsentConst,
 	Loader as LoaderConst,
-	Property as PropertyConst,
-	EventType
+	EventType,
 } from 'sale.checkout.const';
 
 import { History } from 'sale.checkout.lib';
 
-import { Basket } from "./basket";
+import { Basket } from './basket';
 
 export class Application
 {
@@ -24,6 +23,7 @@ export class Application
 			.then(() => this.iniController())
 			.then(() => this.subscribeToEvents())
 			.then(() => this.subscribeToStoreChanges())
+		;
 	}
 
 	/**
@@ -32,7 +32,34 @@ export class Application
 	init(option)
 	{
 		this.store = option.store;
+		this.orderSaveAllowed = false;
+		this.preselectedConsentsIsSubmitted = false;
+
 		return new Promise((resolve, reject) => resolve());
+	}
+
+	/**
+	 * @private
+	 */
+	isAllowOrderSave(): boolean
+	{
+		return this.orderSaveAllowed;
+	}
+
+	/**
+	 * @private
+	 */
+	allowOrderSave(): void
+	{
+		this.orderSaveAllowed = true;
+	}
+
+	/**
+	 * @private
+	 */
+	disallowOrderSave(): void
+	{
+		this.orderSaveAllowed = false;
 	}
 
 	/**
@@ -40,7 +67,8 @@ export class Application
 	 */
 	initProvider()
 	{
-		this.provider = BasketRestHandler.create({store: this.store})
+		this.provider = BasketRestHandler.create({ store: this.store });
+
 		return new Promise((resolve, reject) => resolve());
 	}
 
@@ -50,6 +78,7 @@ export class Application
 	iniController()
 	{
 		this.basket = new Basket().setStore(this.store).setProvider(this.provider);
+
 		return new Promise((resolve, reject) => resolve());
 	}
 
@@ -66,12 +95,12 @@ export class Application
 	 */
 	subscribeToEvents()
 	{
-		EventEmitter.subscribe(EventType.order.success, (e)=>this.basket.handlerOrderSuccess(e));
+		EventEmitter.subscribe(EventType.order.success, (e) => this.basket.handlerOrderSuccess(e));
 
-		EventEmitter.subscribe(EventType.basket.removeProduct, (e)=>this.basket.handlerRemoveProductSuccess(e));
-		EventEmitter.subscribe(EventType.basket.restoreProduct, (e)=>this.basket.handlerRestoreProductSuccess(e));
+		EventEmitter.subscribe(EventType.basket.removeProduct, (e) => this.basket.handlerRemoveProductSuccess(e));
+		EventEmitter.subscribe(EventType.basket.restoreProduct, (e) => this.basket.handlerRestoreProductSuccess(e));
 
-		EventEmitter.subscribe(EventType.basket.buttonRemoveProduct, Runtime.debounce((e)=>this.basket.handlerRemove(e), 500, this));
+		EventEmitter.subscribe(EventType.basket.buttonRemoveProduct, Runtime.debounce((e) => this.basket.handlerRemove(e), 500, this));
 		EventEmitter.subscribe(EventType.basket.buttonPlusProduct, (e) => this.basket.handlerQuantityPlus(e));
 		EventEmitter.subscribe(EventType.basket.buttonMinusProduct, (e) => this.basket.handlerQuantityMinus(e));
 		EventEmitter.subscribe(EventType.basket.inputChangeQuantityProduct, (e) => this.basket.handlerChangeQuantity(e));
@@ -81,8 +110,8 @@ export class Application
 
 		EventEmitter.subscribe(EventType.basket.changeSku, (e) => this.basket.handlerChangeSku(e));
 
-		EventEmitter.subscribe(EventType.consent.refused, () => this.handlerConsentRefused());
-		EventEmitter.subscribe(EventType.consent.accepted, () => this.handlerConsentAccepted());
+		EventEmitter.subscribe(EventType.consent.refused, (e) => this.handlerConsentRefused(e));
+		EventEmitter.subscribe(EventType.consent.accepted, (e) => this.handlerConsentAccepted(e));
 
 		EventEmitter.subscribe(EventType.property.validate, (e) => this.handlerValidateProperty(e));
 
@@ -115,7 +144,8 @@ export class Application
 	 */
 	paySystemSetStatusWait()
 	{
-		let paySystem = { status: LoaderConst.status.wait};
+		const paySystem = { status: LoaderConst.status.wait };
+
 		return this.store.dispatch('pay-system/setStatus', paySystem);
 	}
 
@@ -124,7 +154,8 @@ export class Application
 	 */
 	paySystemSetStatusNone()
 	{
-		let paySystem = { status: LoaderConst.status.none};
+		const paySystem = { status: LoaderConst.status.none };
+
 		return this.store.dispatch('pay-system/setStatus', paySystem);
 	}
 
@@ -133,7 +164,8 @@ export class Application
 	 */
 	appSetStatusWait()
 	{
-		let app = { status: LoaderConst.status.wait};
+		const app = { status: LoaderConst.status.wait };
+
 		return this.store.dispatch('application/setStatus', app);
 	}
 
@@ -142,24 +174,50 @@ export class Application
 	 */
 	appSetStatusNone()
 	{
-		let app = { status: LoaderConst.status.none};
+		const app = { status: LoaderConst.status.none };
+
 		return this.store.dispatch('application/setStatus', app);
 	}
 
 	/**
 	 * @private
 	 */
-	handlerConsentAccepted()
+	handlerConsentAccepted(event)
 	{
-		this.store.dispatch('consent/setStatus', ConsentConst.status.accepted);
+		const item = event.getData()[0];
+		this.store.dispatch('consent/setChecked', { id: item.config.id, checked: 'Y' });
+		if (this.isAllowOrderSave())
+		{
+			this.handlerCheckout();
+		}
 	}
 
 	/**
 	 * @private
 	 */
-	handlerConsentRefused()
+	handlerConsentRefused(event)
 	{
-		this.store.dispatch('consent/setStatus', ConsentConst.status.refused);
+		const item = event.getData()[0];
+		this.store.dispatch('consent/setChecked', { id: item.config.id, checked: 'N' });
+		this.disallowOrderSave();
+	}
+
+	sendEventsForCheckedConsents(): void
+	{
+		const consent = this.store.getters['consent/get'];
+		consent.items.forEach((item) => {
+			if (item.checked === 'Y')
+			{
+				EventEmitter.emit(`${ConsentConst.validate.submit}-${item.id}`, []);
+			}
+		});
+	}
+
+	getFirstRequiredUncheckedConsentItem()
+	{
+		const consent = this.store.getters['consent/get'];
+
+		return consent.items.find((item) => item.required === 'Y' && item.checked === 'N');
 	}
 
 	/**
@@ -167,42 +225,47 @@ export class Application
 	 */
 	handlerCheckout()
 	{
-		BX.onCustomEvent(ConsentConst.validate.submit, []);
-
-		const consent = this.store.getters['consent/get'];
-		const consentStatus = this.store.getters['consent/getStatus'];
-		const allowed = consent.id > 0 ?  consentStatus === ConsentConst.status.accepted:true;
-
-		if(allowed)
+		this.allowOrderSave();
+		if (!this.preselectedConsentsIsSubmitted)
 		{
-			// this.propertiesValidate();
-			// this.propertiesIsValid() ? alert('propsSuccess'):alert('propsError')
-
-			this.appSetStatusWait();
-
-			this.saveOrder()
-				.then(() => {
-						this.appSetStatusNone()
-							.then(()=>
-							{
-								let order = this.store.getters['order/getOrder'];
-
-								if(order.id>0)
-								{
-									const url = History.pushState(
-										this.store.getters['application/getPathLocation'],
-										{
-											accountNumber: order.accountNumber,
-											access: order.hash
-										})
-
-									this.store.dispatch('application/setPathLocation', url);
-								}
-							})
-					}
-				)
-				.catch(() => this.appSetStatusNone())
+			this.sendEventsForCheckedConsents();
+			this.preselectedConsentsIsSubmitted = true;
 		}
+
+		const firstRequiredUncheckedConsentItem = this.getFirstRequiredUncheckedConsentItem();
+		if (firstRequiredUncheckedConsentItem)
+		{
+			EventEmitter.emit(`${ConsentConst.validate.submit}-${firstRequiredUncheckedConsentItem.id}`, []);
+
+			return;
+		}
+
+		// this.propertiesValidate();
+		// this.propertiesIsValid() ? alert('propsSuccess'):alert('propsError')
+
+		this.appSetStatusWait();
+
+		this.saveOrder()
+			.then(() => {
+				this.appSetStatusNone()
+					.then(() => {
+						const order = this.store.getters['order/getOrder'];
+
+						if (order.id > 0)
+						{
+							const url = History.pushState(
+								this.store.getters['application/getPathLocation'],
+								{
+									accountNumber: order.accountNumber,
+									access: order.hash,
+								},
+							);
+
+							this.store.dispatch('application/setPathLocation', url);
+						}
+					});
+			})
+			.catch(() => this.appSetStatusNone());
 	}
 
 	/**
@@ -210,15 +273,16 @@ export class Application
 	 */
 	handlerShipping()
 	{
-		this.store.dispatch('application/setStage', {stage: ApplicationConst.stage.view});
+		this.store.dispatch('application/setStage', { stage: ApplicationConst.stage.view });
 		// todo
 		delete BX.UserConsent;
 
-		let order = this.store.getters['order/getOrder'];
-		if(order.id>0)
+		const order = this.store.getters['order/getOrder'];
+		if (order.id > 0)
 		{
 			const component = ComponentConst.bitrixSaleOrderCheckout;
 			const cmd = RestMethodConst.saleEntityPaymentPay;
+
 			return ajax.runComponentAction(
 				component,
 				cmd,
@@ -226,12 +290,12 @@ export class Application
 					data: {
 						fields: {
 							orderId: order.id,
-							accessCode: order.hash
-						}
+							accessCode: order.hash,
+						},
 					},
-					signedParameters: this.store.getters['application/getSignedParameters']
-				}
-			)
+					signedParameters: this.store.getters['application/getSignedParameters'],
+				},
+			);
 		}
 	}
 
@@ -242,6 +306,7 @@ export class Application
 	{
 		const component = ComponentConst.bitrixSaleOrderCheckout;
 		const cmd = RestMethodConst.saleEntitySaveOrder;
+
 		return ajax.runComponentAction(
 			component,
 			cmd,
@@ -252,15 +317,15 @@ export class Application
 						personTypeId: this.store.getters['application/getPersonTypeId'],
 						tradingPlatformId: this.store.getters['application/getTradingPlatformId'],
 						properties: this.preparePropertyFields(
-							this.getPropertyList()
+							this.getPropertyList(),
 						),
-					}
+					},
 				},
-				signedParameters: this.store.getters['application/getSignedParameters']
-			}
+				signedParameters: this.store.getters['application/getSignedParameters'],
+			},
 		)
 			.then((result) => this.executeRestAnswer(cmd, result))
-			.catch((result) => this.executeRestAnswer(cmd, {error: result.errors}));
+			.catch((result) => this.executeRestAnswer(cmd, { error: result.errors }));
 	}
 
 	/**
@@ -315,11 +380,12 @@ export class Application
 	{
 		for (const errorIndex in errors)
 		{
-			if (errors[errorIndex]['propertyId'] === fields.id)
+			if (errors[errorIndex].propertyId === fields.id)
 			{
 				errors.splice(errorIndex, 1);
 			}
 		}
+
 		return errors;
 	}
 
@@ -328,11 +394,12 @@ export class Application
 	 */
 	addPropertyError(fields, errors)
 	{
-		const errorIds = errors.map(item => item.propertyId);
+		const errorIds = errors.map((item) => item.propertyId);
 		if (!errorIds.includes(fields.id))
 		{
-			errors.push({propertyId: fields.id});
+			errors.push({ propertyId: fields.id });
 		}
+
 		return errors;
 	}
 
@@ -342,10 +409,10 @@ export class Application
 	getPropertyList()
 	{
 		const result = [];
-		let list = this.store.getters['property/getProperty'];
+		const list = this.store.getters['property/getProperty'];
 		try
 		{
-			for (let key in list)
+			for (const key in list)
 			{
 				if (!list.hasOwnProperty(key))
 				{
@@ -355,7 +422,8 @@ export class Application
 				result[list[key].id] = list[key];
 			}
 		}
-		catch (e) {}
+		catch
+		{}
 
 		return result;
 	}
@@ -365,11 +433,11 @@ export class Application
 	 */
 	preparePropertyFields(list)
 	{
-		let fields = {};
-		list.forEach((property, inx)=>
-		{
-			fields[inx] = property.value
-		})
+		const fields = {};
+		list.forEach((property, inx) => {
+			fields[inx] = property.value;
+		});
+
 		return fields;
 	}
 }

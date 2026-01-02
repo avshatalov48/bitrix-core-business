@@ -274,7 +274,6 @@ if($message)
 	echo $message->Show();
 ?>
 <script>
-<!--
 function addNewRow(tableID)
 {
 	var tbl = document.getElementById(tableID);
@@ -338,7 +337,6 @@ BX.ready(function(){
 	});
 
 });
-//-->
 </script>
 <?
 $formAction = $APPLICATION->GetCurPage();

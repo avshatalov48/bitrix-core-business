@@ -1,0 +1,27 @@
+<?php
+$MESS["OP_NAME_SECURITY_ANTIVIRUS_SETTINGS_READ"] = "Антивирустық баптауларды қарау";
+$MESS["OP_NAME_SECURITY_ANTIVIRUS_SETTINGS_WRITE"] = "Антивирустық баптауларды өзгерту";
+$MESS["OP_NAME_SECURITY_EDIT_USER_OTP"] = "Бір реттік құпиясөздерді басқару";
+$MESS["OP_NAME_SECURITY_FILE_VERIFIER_COLLECT"] = "Тұтастықты бақылау үшін деректерді жинау";
+$MESS["OP_NAME_SECURITY_FILE_VERIFIER_SIGN"] = "Тұтастықты бақылау скриптінің қолы";
+$MESS["OP_NAME_SECURITY_FILE_VERIFIER_VERIFY"] = "Тұтастықты тексеруді орындау";
+$MESS["OP_NAME_SECURITY_FILTER_BYPASS"] = "Проактивті сүзгіні айналып өту";
+$MESS["OP_NAME_SECURITY_FILTER_SETTINGS_READ"] = "Проактивті сүзгі баптауларын қарау";
+$MESS["OP_NAME_SECURITY_FILTER_SETTINGS_WRITE"] = "Проактивті сүзгі баптауларын өзгерту";
+$MESS["OP_NAME_SECURITY_FRAME_SETTINGS_READ"] = "Фреймдерден қорғау баптауларын қарау";
+$MESS["OP_NAME_SECURITY_FRAME_SETTINGS_WRITE"] = "Фреймдерден қорғау баптауларын өзгерту";
+$MESS["OP_NAME_SECURITY_IPRULE_ADMIN_SETTINGS_READ"] = "Әкімшілік бөлімді қорғау баптауларын қарау";
+$MESS["OP_NAME_SECURITY_IPRULE_ADMIN_SETTINGS_WRITE"] = "Әкімшілік бөлімді қорғау баптауларын өзгерту";
+$MESS["OP_NAME_SECURITY_IPRULE_SETTINGS_READ"] = "Тоқтатым-парағын қарау";
+$MESS["OP_NAME_SECURITY_IPRULE_SETTINGS_WRITE"] = "Тоқтатым-парағын басқару";
+$MESS["OP_NAME_SECURITY_MODULE_SETTINGS_READ"] = "Модуль баптауларын қарау";
+$MESS["OP_NAME_SECURITY_MODULE_SETTINGS_WRITE"] = "Модуль баптауларын өзгерту";
+$MESS["OP_NAME_SECURITY_OTP_SETTINGS_READ"] = "Бір реттік құпиясөз баптауларын қарау";
+$MESS["OP_NAME_SECURITY_OTP_SETTINGS_WRITE"] = "Бір реттік құпиясөз баптауларын өзгерту";
+$MESS["OP_NAME_SECURITY_PANEL_VIEW"] = "Басқару тақтасын қарау";
+$MESS["OP_NAME_SECURITY_REDIRECT_SETTINGS_READ"] = "Редиректтерді қорғау баптауларын қарау";
+$MESS["OP_NAME_SECURITY_REDIRECT_SETTINGS_WRITE"] = "Редиректтерді қорғау баптауларын өзгерту";
+$MESS["OP_NAME_SECURITY_SESSION_SETTINGS_READ"] = "Сессияларды қорғау баптауларын қарау";
+$MESS["OP_NAME_SECURITY_SESSION_SETTINGS_WRITE"] = "Сессияларды қорғау баптауларын өзгерту";
+$MESS["OP_NAME_SECURITY_STAT_ACTIVITY_SETTINGS_READ"] = "Белсенділікті басқару баптауларын қарау";
+$MESS["OP_NAME_SECURITY_STAT_ACTIVITY_SETTINGS_WRITE"] = "Белсенділікті басқару баптауларын өзгерту";

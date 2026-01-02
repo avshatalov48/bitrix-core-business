@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Bitrix\Socialnetwork\Provider;
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\Collab\Permission\UserRole;
 use Bitrix\Socialnetwork\Collab\Property\Feature;
 use Bitrix\Socialnetwork\Collab\Property\Permission;
 use Bitrix\Socialnetwork\FeatureTable;
 use Bitrix\Socialnetwork\Helper\InstanceTrait;
+use Bitrix\Extranet\Settings\CollaberInvitation;
 
 class FeatureProvider
 {
@@ -126,5 +128,10 @@ class FeatureProvider
 			'Y' => Loc::getMessage('SOCIALNETWORK_FEATURE_LABEL_YES'),
 			'N' => Loc::getMessage('SOCIALNETWORK_FEATURE_LABEL_NO'),
 		];
+	}
+
+	public function isAllowedInviteCollabers(): bool
+	{
+		return Loader::includeModule('extranet') && (new CollaberInvitation())->isEnabled();
 	}
 }

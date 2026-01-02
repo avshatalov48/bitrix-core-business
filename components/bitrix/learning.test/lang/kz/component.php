@@ -1,0 +1,20 @@
+<?php
+$MESS["LEARNING_ATTEMPT_CREATE_ERROR"] = "Тапсырманы жасау кезінде қате орын алды.";
+$MESS["LEARNING_ATTEMPT_FAILED"] = "Тесттен өтпедіңіз";
+$MESS["LEARNING_ATTEMPT_NOT_FOUND_ERROR"] = "Әрекет табылмады.";
+$MESS["LEARNING_COURSES_QUESTION_EDIT"] = "Сұрақты өзгерту";
+$MESS["LEARNING_COURSES_TEST_DELETE"] = "Тестті жою";
+$MESS["LEARNING_COURSES_TEST_DELETE_CONF"] = "Осы жазбаға қатысты барлық ақпарат жойылады! Жалғастыру керек пе?";
+$MESS["LEARNING_COURSES_TEST_EDIT"] = "Тестті өзгерту";
+$MESS["LEARNING_LIMIT_ERROR"] = "Әрекеттер шегі асып кетті.";
+$MESS["LEARNING_MODULE_NOT_FOUND"] = "Оқыту модулі орнатылмаған.";
+$MESS["LEARNING_NEW_TEXT_ANSWER"] = "Жаңа мәтіндік жауап";
+$MESS["LEARNING_NO_AUTHORIZE"] = "Бұл бетті көру үшін сізге авторландыру керек.";
+$MESS["LEARNING_RESPONSE_SAVE_ERROR"] = "Жауапты сақтау кезінде қате орын алды.";
+$MESS["LEARNING_TEST_DENIED"] = "Тест табылмады немесе оған кіруге тыйым салынды.";
+$MESS["LEARNING_TEST_DENIED_PREVIOUS"] = "Тестке кіруге тыйым салынады, өйткені сіз #TEST_LINK# тестінен өтпедіңіз";
+$MESS["LEARNING_TEST_TIME_INTERVAL_ERROR"] = "Сіз тестті ... кейін қайта тапсыра аласыз ";
+$MESS["LEARNING_TEST_TIME_INTERVAL_ERROR_D"] = "к.";
+$MESS["LEARNING_TEST_TIME_INTERVAL_ERROR_H"] = "сағ.";
+$MESS["LEARNING_TEST_TIME_INTERVAL_ERROR_M"] = "мин.";
+$MESS["LEARNING_TIME_LIMIT"] = "Тестілеу уақыты аяқталды.";

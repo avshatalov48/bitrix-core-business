@@ -73,4 +73,5 @@ $MESS["MAIN_LOGIN_CHANGE_PASSWORD"] = "Срок действия пароля и
 $MESS["main_change_pass_empty_checkword"] = "Не указан проверочный код либо текущий пароль.";
 $MESS["main_change_pass_incorrect_pass"] = "Указан неверный текущий пароль.";
 $MESS["main_check_password_weak"] = "Слишком слабый пароль (присутствует в списке слабых паролей).";
+$MESS['main_password_policy_min_days'] = 'Не прошло минимальное количество дней до смены пароля (#DAYS#).';
 ?>

@@ -83,7 +83,7 @@ class UrlPreviewComponent extends \CBitrixComponent
 
 		if($this->arResult['SELECT_IMAGE'])
 		{
-			$this->arResult['SELECTED_IMAGE'] = $this->arResult['METADATA']['EXTRA']['SELECTED_IMAGE'] ?: 0;
+			$this->arResult['SELECTED_IMAGE'] = $this->arResult['METADATA']['EXTRA']['SELECTED_IMAGE'] ?? 0;
 		}
 		else
 		{

@@ -1,0 +1,13 @@
+<?php
+$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_ACCOUNT_NO"] = "Шот №";
+$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_ACTION"] = "Төлеу";
+$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_BUTTON_PAID"] = "Төлеу";
+$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_DESCRIPTION"] = "Қызметті <b>&laquo;ЮKassa&raquo</b>онлайн-төлемдер сервисі ұсынады.<br/><br/> Шот бойынша төлем сомасы: ";
+$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_NOTES"] = "Дүкен төлемді қосымша телефон арқылы авторландыру құқығын өзіне қалдырады. Барлық тапсырыстар автоматты режимде өңделмейді: жұмыс күндері 10:00-ден 18: 00-ге дейін (Мәскеу уақыты бойынша).<br><br>Visa және Eurocard/MasterCard карталары бойынша транзакциялардың халықаралық төлем жүйелерімен алаяқтыққа қарсы күрестің күшеюіне байланысты CVV2/CVC2 (CVV2 немесе CVC2 - картаның артқы жағында оның нөмірінен кейін жазылған бірегей бақылау нөмірі)) көрсетуге арналған өрісті толтырмай, бұл төлем жүйелері өңдеуге қабылданбайды.<br><br> <a href=\"http://www.assist.ru/\">Ассист</a>жүйесінде төлем қауіпсіздігі клиенттен <a href=\" http://www.assist.ru/\">Ассист жүйелер</a> серверіне қосымша өңдеу үшін құпия ақпаратты беруге арналған SSL хаттамасын қолдану арқылы қамтамасыз етіледі.<br><br>Ақпаратты одан әрі беру жабық банк желілері арқылы жүзеге асырылады, оларды бұзу іс жүзінде мүмкін емес.<br><br>Клиенттің алынған құпия деректерін өңдеу <a href=\"http://www.alfabank.ru/\">КБ \"Альфа-Банк\"</a> өңдеу орталығында жүзеге асырылады. Осылайша, ешкім, тіпті сатушы да клиенттің жеке және банктік деректерін ала алмайды.<br><br>";
+$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_NOTES1"] = "Ақпаратты рұқсатсыз қолжетімділіктен қорғау үшін клиенттен жүйе серверіне беру кезеңінде SSL 3.0 хаттамасы пайдаланылады, (128 bit) сервер сертификаты <a href=\"https://www.thawte.com\">Thawte</a> компаниясы - цифрлық сертификат беру орталығы ретінде танылған компаниямен берілген. <br><br> Сіз <a href=\"https://sealinfo.thawte.com/thawtesplash?form_file=fdf/thawtesplash.fdf&dn=WWW.ASSIST.RU&lang=en\">сервер Ассист сертификатының түпнұсқалығын</a> тексере аласыз.";
+$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_NOTES_TITLE"] = "Тапсырысты өңдеу";
+$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_NOTES_TITLE1"] = "Берілетін ақпараттың қауіпсіздігі";
+$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_ORDER_FROM"] = " күні ";
+$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_ORDER_SUM"] = "Шот бойынша төленетін сома:";
+$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_PROMT"] = "Сіз <b>www.assist.ru</b> жүйесі арқылы төлегіңіз келеді.";
+$MESS["SALE_HANDLERS_PAY_SYSTEM_ASSIST_WARNING_RETURN"] = "<b>Назар аударыңыз:</b> егер сіз сатып алудан бас тартсаңыз, ақшаны қайтару үшін дүкенге хабарласуыңыз керек.";

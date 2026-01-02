@@ -7,6 +7,19 @@ use Bitrix\Main\ORM\Fields\ExpressionField;
 
 /**
  * Class UserTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_User_Query query()
+ * @method static EO_User_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_User_Result getById($id)
+ * @method static EO_User_Result getList(array $parameters = [])
+ * @method static EO_User_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_User createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_User_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_User wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_User_Collection wakeUpCollection($rows)
  */
 class UserTable extends \Bitrix\Main\UserTable
 {

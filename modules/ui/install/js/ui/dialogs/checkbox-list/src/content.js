@@ -222,18 +222,24 @@ export const Content = {
 		},
 		selectAll()
 		{
-			const visibleOptionIds: Set<string> = new Set(this.getOptions().map((option) => option.id));
-
-			this.getOptionRefs().forEach((option) => {
-				return !option.isLocked && visibleOptionIds.has(option.getId()) && option.setValue(true);
-			});
+			this.setValueForAllVisibleOptions(true);
 		},
 		deselectAll()
+		{
+			this.setValueForAllVisibleOptions(false);
+		},
+		setValueForAllVisibleOptions(value: boolean): void
 		{
 			const visibleOptionIds: Set<string> = new Set(this.getOptions().map((option) => option.id));
 
 			this.getOptionRefs().forEach((option) => {
-				return !option.isLocked && visibleOptionIds.has(option.getId()) && option.setValue(false);
+				if (option.isLocked || !visibleOptionIds.has(option.getId()))
+				{
+					return;
+				}
+
+				this.dataOptions.get(option.getId()).value = value;
+				option.setValue(value);
 			});
 		},
 		getOptionRefs(): []

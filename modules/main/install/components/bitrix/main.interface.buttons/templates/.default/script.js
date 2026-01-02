@@ -137,11 +137,14 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			showMoreMenu: this.showMoreMenu.bind(this),
 			closeMoreMenu: this.closeMoreMenu.bind(this),
 			refreshMoreMenu: this.refreshMoreMenu.bind(this),
+			reset: this.reset.bind(this),
 
 			getCurrentSettings: this.getCurrentSettings.bind(this),
 			saveSettings: this.saveSettings.bind(this),
 			updateCounter: this.updateCounter.bind(this),
 			getActive: this.getActive.bind(this),
+			setActive: this.setActive.bind(this),
+			unsetActive: this.unsetActive.bind(this),
 			isDisabled: this.isDisabled.bind(this),
 			isVisibleItem: this.isVisibleItem.bind(this),
 			isEditEnabled: this.isEditEnabled.bind(this),
@@ -574,6 +577,96 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			return result;
 		},
 
+		setActive: function(itemId)
+		{
+			const items = this.getAllItemsData();
+			this.setActiveInternal(items, itemId);
+			if (this.isActiveInMoreMenu())
+			{
+				this.activateItem(this.moreButton);
+			}
+			else
+			{
+				this.deactivateItem(this.moreButton);
+			}
+		},
+
+		setActiveInternal: function(subItems, itemId, rootPath = [])
+		{
+			for (const subItem of subItems)
+			{
+				if (subItem['DATA_ID'] === itemId)
+				{
+					subItem['IS_ACTIVE'] = true;
+					this.activateItem(subItem.NODE);
+
+					for (let index = rootPath.length - 1; index >= 0; index--)
+					{
+						const rootItem = rootPath[index];
+
+						rootItem['IS_ACTIVE'] = true;
+						this.activateItem(rootItem.NODE);
+					}
+				}
+
+				if (subItem['ITEMS'])
+				{
+					this.setActiveInternal(subItem['ITEMS'], itemId, [...rootPath, subItem]);
+				}
+			}
+		},
+
+		unsetActive: function(itemId)
+		{
+			const items = this.getAllItemsData();
+			this.unsetActiveInternal(items, itemId);
+			if (this.isActiveInMoreMenu())
+			{
+				this.activateItem(this.moreButton);
+			}
+			else
+			{
+				this.deactivateItem(this.moreButton);
+			}
+		},
+
+		unsetActiveInternal: function(subItems, itemId, parentItem = null)
+		{
+			for (const subItem of subItems)
+			{
+				if (subItem['DATA_ID'] === itemId)
+				{
+					subItem['IS_ACTIVE'] = false;
+					this.deactivateItem(subItem.NODE);
+				}
+				else if (parentItem !== null)
+				{
+					if (parentItem['IS_ACTIVE'] === false)
+					{
+						subItem['IS_ACTIVE'] = false;
+						this.deactivateItem(subItem.NODE);
+					}
+					else
+					{
+						const hasSelected = parentItem['ITEMS'].some((parentSubItem) => {
+							return parentSubItem['IS_ACTIVE'] === true;
+						});
+
+						if (!hasSelected)
+						{
+							parentItem['IS_ACTIVE'] = false;
+							this.deactivateItem(parentItem.NODE);
+						}
+					}
+				}
+
+				if (subItem['ITEMS'])
+				{
+					this.unsetActiveInternal(subItem['ITEMS'], itemId, subItem);
+				}
+			}
+		},
+
 		/**
 		 * @param {HTMLElement} item
 		 * @return {boolean}
@@ -803,45 +896,11 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			return menu;
 		},
 
-		prepareMenuItemData: function(data)
-		{
-			const itemMenuData = {
-				CLASS: "",
-				CLASS_SUBMENU_ITEM: "",
-				COUNTER: 0,
-				COUNTER_ID: data.counterId,
-				DATA_ID: data.dataId,
-				HAS_CHILD: false,
-				HAS_MENU: false,
-				HTML: "",
-				ID: data.id,
-				IS_ACTIVE: false,
-				IS_DISABLED: "false",
-				IS_LOCKED: false,
-				IS_PASSIVE: false,
-				MAX_COUNTER_SIZE: 99,
-				NODE: BX.Tag.render`<div id="${data.id}" class="main-buttons-item"></div>`,
-				ON_CLICK: data.onClick,
-				SUB_LINK: false,
-				SUPER_TITLE: false,
-				TEXT: data.text,
-				TITLE: "",
-				URL: data.url,
-			};
-
-			return itemMenuData;
-		},
-
 		addMenuItem: function(itemData)
 		{
-			const settings = this.getCurrentSettings();
-			const settingsKeys = Object.keys(settings);
-			const menuItemData = this.prepareMenuItemData(itemData);
-			const item = this.createRootItem(menuItemData);
-
-			const afterNode = this.getItemById(settingsKeys[settingsKeys.length - 1]);
-			BX.Dom.insertAfter(item, afterNode);
-			this.initItems();
+			const item = this.createRootItem(itemData);
+			BX.Dom.append(item, this.listContainer);
+			this.initItem(item);
 		},
 
 		deleteMenuItem: function(itemElement)
@@ -1774,6 +1833,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 					'ui-btn-no-caps',
 					'ui-btn-round',
 					'ui-btn-icon-main-buttons-apply',
+					this.theme === 'air' ? '--air --style-outline-accent-2 --with-left-icon' : '',
 				];
 
 				result.push({
@@ -2084,15 +2144,22 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			let params = null;
 			if (this.theme === 'default')
 			{
+				const menuClasses = [
+					'main-buttons-menu-popup',
+					'main-buttons-more-menu-popup',
+					'main-buttons__scope',
+					'ui-icon-set__scope',
+					`--${this.theme}`,
+				];
 				const maxWidth = 350;
 				const activeItemMargin = 25;
 				params = {
-					className: 'main-buttons-menu-popup main-buttons-more-menu-popup',
+					className: menuClasses.join(' '),
 					offsetLeft: -activeItemMargin,
 					minWidth: 240,
 					maxWidth,
 					subMenuOptions: {
-						className: 'main-buttons-menu-popup main-buttons-more-menu-popup --sub-menu',
+						className: `${menuClasses.join(' ')} --sub-menu`,
 						minWidth: 150,
 						maxWidth,
 					},
@@ -2104,14 +2171,22 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			else if (this.theme === 'air')
 			{
 				const maxWidth = 350;
+				const menuClasses = [
+					'main-buttons-default-menu-popup',
+					'main-buttons-more-menu-popup',
+					'main-buttons__scope',
+					'ui-icon-set__scope',
+					`--${this.theme}`,
+				];
+
 				params = {
-					className: 'main-buttons-default-menu-popup main-buttons-more-menu-popup',
+					className: menuClasses.join(' '),
 					offsetLeft: -10,
 					offsetTop: -5,
 					minWidth: 240,
 					maxWidth,
 					subMenuOptions: {
-						className: 'main-buttons-default-menu-popup main-buttons-more-menu-popup --sub-menu',
+						className: `${menuClasses.join(' ')} --sub-menu`,
 					},
 				};
 			}
@@ -2119,13 +2194,20 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			{
 				const moreButtonTitle = this.moreButton.querySelector('.main-buttons-item-text-title');
 				const targetNodeWidth = moreButtonTitle.offsetWidth;
-				const popupWidth = 250;
+				const popupWidth = 280;
 				const offsetLeft = (targetNodeWidth / 2) - (popupWidth / 2) + BX.Main.Popup.getOption('angleLeftOffset');
 				const angleShift = BX.Main.Popup.getOption('angleLeftOffset') - BX.Main.Popup.getOption('angleMinTop');
 				const angleOffset = popupWidth / 2 - angleShift;
+				const menuClasses = [
+					'main-buttons-default-menu-popup',
+					'main-buttons-more-menu-popup',
+					'main-buttons__scope',
+					'ui-icon-set__scope',
+					`--${this.theme}`,
+				];
 
 				params = {
-					className: 'main-buttons-default-menu-popup main-buttons-more-menu-popup',
+					className: menuClasses.join(' '),
 					offsetLeft,
 					minWidth: popupWidth,
 					maxWidth: popupWidth,
@@ -2134,7 +2216,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 						offset: angleOffset,
 					},
 					subMenuOptions: {
-						className: 'main-buttons-default-menu-popup main-buttons-more-menu-popup --sub-menu',
+						className: `${menuClasses.join(' ')} --sub-menu`,
 					},
 				};
 			}
@@ -2143,7 +2225,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 			if (this.isEditEnabled())
 			{
-				params.className += ' ' + this.classEditState;
+				params.className += ` ${this.classEditState}`;
 			}
 
 			return [menuId, moreButton, menuItems, params];
@@ -2179,9 +2261,15 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			if (this.theme === 'default')
 			{
 				const activeItemMargin = 25;
+				const menuClasses = [
+					'main-buttons-menu-popup',
+					'main-buttons__scope',
+					'ui-icon-set__scope',
+					`--${this.theme}`,
+				];
 
 				params = {
-					className: 'main-buttons-menu-popup',
+					className: menuClasses.join(' '),
 					maxWidth: 350,
 					minWidth: item.offsetWidth + activeItemMargin * 2 + 30,
 					offsetLeft: -activeItemMargin,
@@ -2189,32 +2277,46 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 						onBeforeAdjustPosition: this.handleAdjustPosition.bind(this, item),
 					},
 					subMenuOptions: {
-						className: 'main-buttons-menu-popup --sub-menu',
+						className: `${menuClasses.join(' ')} --sub-menu`,
 					},
 				};
 			}
 			else if (this.theme === 'air')
 			{
+				const menuClasses = [
+					'main-buttons-default-menu-popup',
+					'main-buttons__scope',
+					'ui-icon-set__scope',
+					`--${this.theme}`,
+				];
+
 				params = {
-					className: 'main-buttons-default-menu-popup',
+					className: menuClasses.join(' '),
 					offsetTop: -5,
 					offsetLeft: -10,
 					maxWidth: 350,
 					minWidth: 200,
 					subMenuOptions: {
-						className: 'main-buttons-default-menu-popup --sub-menu',
+						className: `${menuClasses.join(' ')} --sub-menu`,
 					},
 				};
 			}
 			else
 			{
 				const maxWidth = 250;
+				const menuClasses = [
+					'main-buttons-default-menu-popup',
+					'main-buttons__scope',
+					'ui-icon-set__scope',
+					`--${this.theme}`,
+				];
+
 				params = {
-					className: 'main-buttons-default-menu-popup',
+					className: menuClasses.join(' '),
 					maxWidth,
 					minWidth: Math.min(item.offsetWidth + 25 * 2 + 30, maxWidth),
 					subMenuOptions: {
-						className: 'main-buttons-default-menu-popup --sub-menu',
+						className: `${menuClasses.join(' ')} --sub-menu`,
 					},
 				};
 			}
@@ -2445,6 +2547,13 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		destroyChildMenu: function()
 		{
 			BX.Main.MenuManager.destroy(this.getChildMenuId());
+		},
+
+		reset: function()
+		{
+			this.disableEdit();
+			this.destroyMoreMenu();
+			this.destroyChildMenu();
 		},
 
 		/**
@@ -3910,18 +4019,24 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 			this.closeChildMenu();
 			this.destroyItemEditMenu();
-
-			if (this.isListItem(this.dragItem))
-			{
-				this.showMoreMenu();
-			}
-
 			this.setDragStyles();
 
-			if (!this.isEditEnabled())
-			{
-				this.enableEdit();
-			}
+			setTimeout(() => {
+				if (!this.onDragStarted)
+				{
+					return;
+				}
+
+				if (this.isListItem(this.dragItem))
+				{
+					this.showMoreMenu();
+				}
+
+				if (!this.isEditEnabled())
+				{
+					this.enableEdit();
+				}
+			}, 300);
 		},
 
 		/**

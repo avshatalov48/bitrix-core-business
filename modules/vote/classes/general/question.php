@@ -1,11 +1,11 @@
 <?php
 
-#############################################
-# Bitrix Site Manager Forum					#
-# Copyright (c) 2002-2009 Bitrix			#
-# https://www.bitrixsoft.com					#
-# mailto:admin@bitrixsoft.com				#
-#############################################
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
 
 use Bitrix\Vote;
 
@@ -13,12 +13,6 @@ IncludeModuleLangFile(__FILE__);
 
 class CAllVoteQuestion
 {
-	public static function err_mess()
-	{
-		$module_id = "vote";
-		return "<br>Module: ".$module_id."<br>Class: CAllVoteQuestion<br>File: ".__FILE__;
-	}
-
 	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		$aMsg = array();
@@ -141,6 +135,11 @@ class CAllVoteQuestion
 		if ($DB->type == "ORACLE")
 			$arFields["ID"] = $DB->NextID("SQ_B_VOTE_QUESTION");
 
+		if (isset($arFields['QUESTION']))
+		{
+			$arFields['QUESTION'] = \Bitrix\Main\Text\Emoji::encode($arFields['QUESTION']);
+		}
+
 		$arInsert = $DB->PrepareInsert("b_vote_question", $arFields);
 
 		$DB->QueryBind("INSERT INTO b_vote_question (".$arInsert[0].", TIMESTAMP_X) VALUES(".$arInsert[1].", ".$DB->GetNowFunction().")", array("QUESTION" => $arFields["QUESTION"]), false);
@@ -156,8 +155,8 @@ class CAllVoteQuestion
 	public static function Update($ID, $arFields, $strUploadDir = false)
 	{
 		global $DB;
+
 		$arBinds = array();
-		$err_mess = (CAllVoteQuestion::err_mess())."<br>Function: Update<br>Line: ";
 		$strUploadDir = ($strUploadDir === false ? "vote" : $strUploadDir);
 
 		$ID = intval($ID);
@@ -183,13 +182,18 @@ class CAllVoteQuestion
 
 		CFile::SaveForDB($arFields, "IMAGE_ID", $strUploadDir);
 
+		if (isset($arFields['QUESTION']))
+		{
+			$arFields['QUESTION'] = \Bitrix\Main\Text\Emoji::encode($arFields['QUESTION']);
+		}
+
 		$arFields["~TIMESTAMP_X"] = $DB->GetNowFunction();
 		$strUpdate = $DB->PrepareUpdate("b_vote_question", $arFields);
 		if (is_set($arFields, "QUESTION"))
 			$arBinds["QUESTION"] = $arFields["QUESTION"];
 
 		if (!empty($strUpdate))
-			$DB->QueryBind("UPDATE b_vote_question SET ".$strUpdate." WHERE ID=".$ID, $arBinds, false, $err_mess);
+			$DB->QueryBind("UPDATE b_vote_question SET ".$strUpdate." WHERE ID=".$ID, $arBinds);
 
 		unset($GLOBALS["VOTE_CACHE"]["QUESTION"][$ID]);
 /***************** Event onAfterVoteQuestionUpdate *****************/
@@ -232,10 +236,10 @@ class CAllVoteQuestion
 	public static function GetNextSort($VOTE_ID)
 	{
 		global $DB;
-		$err_mess = (CAllVoteQuestion::err_mess())."<br>Function: GetNextSort<br>Line: ";
+
 		$VOTE_ID = intval($VOTE_ID);
 		$strSql = "SELECT max(C_SORT) as MAX_SORT FROM b_vote_question WHERE VOTE_ID='$VOTE_ID'";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		$zr = $z->Fetch();
 		return (intval($zr["MAX_SORT"]) + 100);
 	}
@@ -264,7 +268,6 @@ class CAllVoteQuestion
 	public static function GetList($VOTE_ID, $by = 's_c_sort', $order = 'asc', $arFilter = [])
 	{
 		global $DB;
-		$err_mess = (CAllVoteQuestion::err_mess()).'<br>Function: GetList<br>Line: ';
 
 		$VOTE_ID = (int) $VOTE_ID;
 		$arSqlSearch = [];
@@ -317,7 +320,7 @@ class CAllVoteQuestion
 			FROM b_vote_question Q
 			WHERE ' . $strSqlSearch . '
 			ORDER BY ' . $strSqlOrder;
-		$res = $DB->Query($strSql, false, $err_mess . __LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
@@ -397,13 +400,12 @@ class CAllVoteQuestion
 			WHERE VQ.VOTE_ID = V.ID ".
 			$strSqlSearch."
 			".$strSqlOrder;
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function Delete($ID, $VOTE_ID = false)
 	{
 		global $DB;
-		$err_mess = (CVoteQuestion::err_mess())."<br>Function: Delete<br>Line: ";
 /***************** Event onBeforeVoteQuestionDelete ****************/
 		foreach (GetModuleEvents("vote", "onBeforeVoteQuestionDelete", true) as $arEvent)
 			if (ExecuteModuleEventEx($arEvent, array(&$ID, &$VOTE_ID)) === false)
@@ -424,11 +426,11 @@ class CAllVoteQuestion
 
 		$DB->StartTransaction();
 		$strSql = "SELECT IMAGE_ID FROM b_vote_question WHERE ID IN (".$strSqlID.") AND IMAGE_ID > 0";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		while ($zr = $z->Fetch()) CFile::Delete($zr["IMAGE_ID"]);
 
 		// drop question events
-		if (!$DB->Query("DELETE FROM b_vote_event_question WHERE QUESTION_ID IN (".$strSqlID.")", false, $err_mess.__LINE__)):
+		if (!$DB->Query("DELETE FROM b_vote_event_question WHERE QUESTION_ID IN (".$strSqlID.")")):
 			$DB->Rollback();
 			return false;
 		endif;
@@ -439,7 +441,7 @@ class CAllVoteQuestion
 			$strSql = "DELETE FROM b_vote_question WHERE ID=".$ID;
 		endif;
 
-		if (!$DB->Query($strSql, false, $err_mess.__LINE__)):
+		if (!$DB->Query($strSql)):
 			$DB->Rollback();
 			return false;
 		endif;
@@ -463,7 +465,7 @@ class CAllVoteQuestion
 	public static function Reset($ID, $VOTE_ID = false)
 	{
 		global $DB;
-		$err_mess = (CVoteQuestion::err_mess())."<br>Function: Reset<br>Line: ";
+
 		$ID = (intval($ID) > 0 ? intval($ID) : false);
 		$VOTE_ID = (intval($VOTE_ID) > 0 ? intval($VOTE_ID) : false);
 
@@ -477,18 +479,18 @@ class CAllVoteQuestion
 
 		// drop answer events
 		$DB->Query("DELETE FROM b_vote_event_answer WHERE EVENT_QUESTION_ID IN (
-			SELECT ID FROM b_vote_event_question WHERE QUESTION_ID IN (".$strSqlID."))", false, $err_mess.__LINE__);
+			SELECT ID FROM b_vote_event_question WHERE QUESTION_ID IN (".$strSqlID."))");
 		// drop question events
-		$DB->Query("DELETE FROM b_vote_event_question WHERE QUESTION_ID IN (".$strSqlID.")", false, $err_mess.__LINE__);
+		$DB->Query("DELETE FROM b_vote_event_question WHERE QUESTION_ID IN (".$strSqlID.")");
 
 		// zeroize answers counter
 		$arFields = array("COUNTER"=>"0");
-		$DB->Update("b_vote_answer", $arFields, "WHERE QUESTION_ID IN (".$strSqlID.")", $err_mess.__LINE__);
+		$DB->Update("b_vote_answer", $arFields, "WHERE QUESTION_ID IN (".$strSqlID.")");
 
 		// zeroize questions counter
 		$arFields = array("COUNTER" => "0");
 		$DB->Update("b_vote_question", $arFields, "WHERE ".(
-			$ID > 0 ? "ID = ".$ID."" : "VOTE_ID = ".$VOTE_ID.""), $err_mess.__LINE__);
+			$ID > 0 ? "ID = ".$ID."" : "VOTE_ID = ".$VOTE_ID.""));
 
 
 /***************** Cleaning cache **********************************/
@@ -513,9 +515,9 @@ class CAllVoteQuestion
 /***************** /Event ******************************************/
 
 		global $DB;
-		$err_mess = (CAllVoteQuestion::err_mess())."<br>Function: activate<br>Line: ";
+
 		$strUpdate = $DB->PrepareUpdate("b_vote_question", array("ACTIVE" => ($activate ? "Y" : "N"), "~TIMESTAMP_X" => $DB->GetNowFunction()));
-		$DB->QueryBind("UPDATE b_vote_question SET ".$strUpdate." WHERE ID=".$ID, array(), false, $err_mess);
+		$DB->QueryBind("UPDATE b_vote_question SET ".$strUpdate." WHERE ID=".$ID, array());
 		unset($GLOBALS["VOTE_CACHE"]["QUESTION"][$ID]);
 
 		return $ID;

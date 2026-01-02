@@ -11,6 +11,7 @@ return [
 		'main.polyfill.core',
 		'landing.node.base',
 		'landing.env',
+		'landing.ui.field.image',
 	],
 	'skip_core' => true,
 ];

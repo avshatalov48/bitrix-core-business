@@ -1,5 +1,5 @@
 import { ChannelList } from 'im.v2.component.list.items.channel';
-import { CreateChatPromo } from 'im.v2.component.elements';
+import { CreateChatPromo } from 'im.v2.component.list.container.elements.create-chat-promo';
 import { Layout, ChatType, PromoId } from 'im.v2.const';
 import { Analytics } from 'im.v2.lib.analytics';
 import { Logger } from 'im.v2.lib.logger';
@@ -33,7 +33,7 @@ export const ChannelListContainer = {
 	{
 		onChatClick(dialogId): void
 		{
-			this.$emit('selectEntity', { layoutName: Layout.channel.name, entityId: dialogId });
+			this.$emit('selectEntity', { layoutName: Layout.channel, entityId: dialogId });
 		},
 		onCreateClick(): void
 		{

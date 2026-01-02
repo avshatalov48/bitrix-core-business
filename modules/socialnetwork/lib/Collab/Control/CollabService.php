@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bitrix\Socialnetwork\Collab\Control;
 
 use Bitrix\Main\Error;
+use Bitrix\Main\Validation\ValidationError;
 use Bitrix\Socialnetwork\Collab\Collab;
 use Bitrix\Socialnetwork\Collab\Control\Command\CollabAddCommand;
 use Bitrix\Socialnetwork\Collab\Control\Command\CollabDeleteCommand;
@@ -40,6 +41,7 @@ use Bitrix\Socialnetwork\Control\GroupResult;
 use Bitrix\Socialnetwork\Control\Handler\Add\AddFeatureHandler;
 use Bitrix\Socialnetwork\Control\Handler\Update\UpdatePermissionsHandler;
 use Bitrix\Socialnetwork\Item\Workgroup;
+use Bitrix\SocialNetwork\Validation\Validator\NotContainsUrlValidator;
 
 class CollabService extends AbstractGroupService
 {
@@ -119,11 +121,15 @@ class CollabService extends AbstractGroupService
 
 	protected function finalizeAddResult(GroupResult $result): CollabResult
 	{
+		$this->remapValidationErrors($result);
+
 		return $this->setCollabToResult($result);
 	}
 
 	protected function finalizeUpdateResult(GroupResult $result): CollabResult
 	{
+		$this->remapValidationErrors($result);
+
 		return $this->setCollabToResult($result);
 	}
 
@@ -200,5 +206,26 @@ class CollabService extends AbstractGroupService
 		$collabResult->setGroup($collab);
 
 		return $collabResult;
+	}
+
+	private function remapValidationErrors(GroupResult $result): void
+	{
+		if (!$result->isSuccess())
+		{
+			foreach ($result->getErrorCollection() as $error)
+			{
+				if ($error instanceof ValidationError)
+				{
+					if (
+						$error->getCode() === 'name'
+						&& $error->getFailedValidator() instanceof NotContainsUrlValidator
+					)
+					{
+						$error->setCode('ERROR_NAME_CONTAINS_URL');
+						break;
+					}
+				}
+			}
+		}
 	}
 }

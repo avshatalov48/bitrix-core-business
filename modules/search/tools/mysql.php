@@ -42,6 +42,11 @@ class CSearchMysql extends CSearchFullText
 		$DB->Query('DELETE FROM b_search_content_text WHERE SEARCH_CONTENT_ID = ' . $ID);
 	}
 
+	public function update($ID, $arFields)
+	{
+		return $this->replace($ID, $arFields);
+	}
+
 	public function replace($ID, $arFields)
 	{
 		$DB = CDatabase::GetModuleConnection('search');

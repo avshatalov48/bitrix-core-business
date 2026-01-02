@@ -42,13 +42,13 @@ export const NotificationBlock = {
 				<div class="bx-im-settings-expert-notifications__header">
 					<div class="bx-im-settings-expert-notifications__header_title"></div>
 					<div class="bx-im-settings-expert-notifications__header_type">
-						{{ loc('IM_CONTENT_SETTINGS_EXPERT_NOTIFICATIONS_TYPE_WEB') }}
+						{{ loc('IM_CONTENT_SETTINGS_EXPERT_NOTIFICATIONS_TYPE_WEB_MSGVER_1') }}
 					</div>
 					<div class="bx-im-settings-expert-notifications__header_type">
 						{{ loc('IM_CONTENT_SETTINGS_EXPERT_NOTIFICATIONS_TYPE_MAIL') }}
 					</div>
 					<div class="bx-im-settings-expert-notifications__header_type">
-						{{ loc('IM_CONTENT_SETTINGS_EXPERT_NOTIFICATIONS_TYPE_PUSH') }}
+						{{ loc('IM_CONTENT_SETTINGS_EXPERT_NOTIFICATIONS_TYPE_PUSH_MSGVER_1') }}
 					</div>
 				</div>
 				<NotificationItem v-for="item in block.items" :item="item" :blockId="block.id" :key="item.id" />

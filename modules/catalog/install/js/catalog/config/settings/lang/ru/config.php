@@ -1,5 +1,4 @@
 <?php
-
 $MESS["CAT_CONFIG_SETTINGS_TITLE"] = "Складской учёт";
 $MESS["CAT_CONFIG_SETTINGS_DESCRIPTION"] = "Настройте учёт для повышения эффективности работы склада, установите сроки резервирования индивидуально для вашей компании";
 $MESS["CAT_CONFIG_SETTINGS_RESERVATION_SECTION_TITLE"] = "Настройки резервирования";

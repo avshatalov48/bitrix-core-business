@@ -1,0 +1,35 @@
+.landing__create-site-copilot-chat-popup {
+	position: fixed;
+	animation-fill-mode: forwards;
+}
+
+.landing__create-site-copilot-chat-popup.create-site-chat-hide {
+	animation: landing__create-site-copilot-chat-popup-to-right 0.2s ease-in-out;
+}
+
+.landing__create-site-copilot-chat-popup.create-site-chat-show {
+	animation: landing__create-site-copilot-chat-popup-from-right 0.1s ease-in-out;
+	transform: translateX(0px);
+}
+
+@keyframes landing__create-site-copilot-chat-popup-from-right {
+	0%   {
+		opacity: 0;
+		transform: translateX(50px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateX(0px);
+	}
+}
+
+@keyframes landing__create-site-copilot-chat-popup-to-right {
+	0%   {
+		opacity: 1;
+		transform: translateX(0px);
+	}
+	100% {
+		opacity: 0;
+		transform: translateX(50px);
+	}
+}

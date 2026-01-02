@@ -1,0 +1,24 @@
+<?php
+$MESS["SONET_AJAX_LONG_TIMEOUT"] = "Серверді сұрау кезеңі";
+$MESS["SONET_DATE_TIME_FORMAT"] = "Күн мен уақытты көрсету пішімі";
+$MESS["SONET_EVENTS_DYN_POPUP"] = "Хабарламаны қайта көрсетуді бұғаттау";
+$MESS["SONET_ID"] = "Пайдаланушы идентификаторы";
+$MESS["SONET_MESSAGE_VAR"] = "Хабарлама үшін айнымалының атауы";
+$MESS["SONET_NAME_TEMPLATE"] = "Атты көрсету";
+$MESS["SONET_NAME_TEMPLATE_DEFAULT"] = "#NOBR##LAST_NAME# #NAME##/NOBR#";
+$MESS["SONET_PAGE_VAR"] = "Парақша үшін айнымалының атауы";
+$MESS["SONET_PATH_TO_CONPANY_DEPARTMENT"] = "Бөлімше парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_GROUP"] = "Топтың парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_MESSAGES_CHAT"] = "Чат парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_MESSAGE_FORM"] = "Хабарламаларды жіберу парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_MESSAGE_FORM_MESS"] = "Хабарламаға жауап беру бетіне жол қалыбы";
+$MESS["SONET_PATH_TO_SMILE"] = "Сайттың түбіріне қатысты смайликтер бар бумаға жол";
+$MESS["SONET_PATH_TO_USER"] = "Пайдаланушы парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_VIDEO_CALL"] = "Бейнеқоңырау парақшасы";
+$MESS["SONET_SHOW_LOGIN"] = "Егер аты көрсетілмесе, логинді көрсету";
+$MESS["SONET_SHOW_YEAR"] = "Туған жылын көрсету";
+$MESS["SONET_SHOW_YEAR_VALUE_M"] = "тек ерлерге";
+$MESS["SONET_SHOW_YEAR_VALUE_N"] = "ешкімге";
+$MESS["SONET_SHOW_YEAR_VALUE_Y"] = "бәріне";
+$MESS["SONET_USER_VAR"] = "Пайдаланушы үшін айнымалының атауы";
+$MESS["SONET_VARIABLE_ALIASES"] = "Айнымалылардың атаулары";

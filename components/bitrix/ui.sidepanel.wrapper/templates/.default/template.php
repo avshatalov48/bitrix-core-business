@@ -124,24 +124,45 @@ Main\UI\Extension::load([
 
 <?php
 $bodyClass = "ui-page-slider-wrapper";
-if (!$arParams['PLAIN_VIEW'])
-{
-	$bodyClass .= " ui-page-slider-padding";
-}
-
+$bodyClass .= $arParams['PLAIN_VIEW'] ? ' ui-page-slider-plain-view' : ' ui-page-slider-padding';
 $bodyClass .= " template-".(defined('SITE_TEMPLATE_ID') ? SITE_TEMPLATE_ID  : 'def');
+$bodyClass .= defined("AIR_SITE_TEMPLATE") ? ' template-air' : '';
 
 if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 {
-	$bodyClass .= " bitrix24-".$themePicker->getCurrentBaseThemeId()."-theme";
+	if (method_exists($themePicker, 'getBodyClasses'))
+	{
+		$bodyClass .= ' ' . $themePicker->getBodyClasses();
+	}
+	else
+	{
+		$bodyClass .= " bitrix24-".$themePicker->getCurrentBaseThemeId()."-theme";
+	}
 }
 else if ($arResult["CUSTOM_BACKGROUND_STYLE"])
 {
 	$bodyClass .= " ui-page-slider-wrapper-custom-background";
+	if (empty($this->arResult['DESIGN_SYSTEM_CONTEXT']))
+	{
+		$bodyClass .= " --ui-context-edge-dark";
+	}
+	else
+	{
+		$bodyClass .= ' ' . $this->arResult['DESIGN_SYSTEM_CONTEXT'];
+	}
 }
 else
 {
 	$bodyClass .= " ui-page-slider-wrapper-default-theme";
+
+	if (empty($this->arResult['DESIGN_SYSTEM_CONTEXT']))
+	{
+		$bodyClass .= " --ui-context-content-light";
+	}
+	else
+	{
+		$bodyClass .= ' ' . $this->arResult['DESIGN_SYSTEM_CONTEXT'];
+	}
 }
 
 $bodyStyle = "";
@@ -159,8 +180,21 @@ if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 {
 	$themePicker->showBodyAssets();
 }
+
+$classes = ['ui-slider-page'];
+if ($arParams['USE_UI_TOOLBAR'])
+{
+	$classes[] = '--use-ui-toolbar';
+}
+
+if (defined('AIR_SITE_TEMPLATE'))
+{
+	$classes[] = '--air --ui-reset-bg-blur';
+}
+
+$showToolbar = $arParams['USE_UI_TOOLBAR'] || (!$arParams['HIDE_TOOLBAR'] && !$arParams['PLAIN_VIEW']);
 ?>
-<div class="ui-slider-page"><?php
+<div class="<?=join(' ', $classes)?>"><?php
 		$APPLICATION->AddBufferContent(function() {
 			$content = trim($GLOBALS['APPLICATION']->getViewContent('left-panel-before'));
 			$content .= trim($GLOBALS['APPLICATION']->getViewContent('left-panel'));
@@ -174,68 +208,64 @@ if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 		})
 	?>
 	<div id="ui-page-slider-content" class="ui-side-panel-content">
-		<div class="pagetitle-above"><?php
-			$APPLICATION->ShowViewContent("above_pagetitle");
-			if ($arParams['USE_TOP_MENU'])
+		<div class="ui-side-panel-header">
+			<div class="ui-side-panel-menu pagetitle-above"><?php
+				$APPLICATION->showViewContent("above_pagetitle");
+				if ($arParams['USE_TOP_MENU'])
+				{
+					$APPLICATION->IncludeComponent(
+						"bitrix:menu",
+						$arParams['TOP_MENU_TEMPLATE'],
+						$arParams['TOP_MENU_PARAMS'],
+						false
+					);
+				}
+			?></div>
+			<?php
+			if ($showToolbar):
+			?>
+			<div class="ui-side-panel-toolbar<?if (!$arParams['USE_UI_TOOLBAR_MARGIN']):?> --no-margin<?endif?>">
+			<?php
+			if (!$arParams['USE_UI_TOOLBAR'])
 			{
-				$APPLICATION->IncludeComponent(
-					"bitrix:menu",
-					$arParams['TOP_MENU_TEMPLATE'],
-					$arParams['TOP_MENU_PARAMS'],
-					false
-				);
-			}
-		?></div>
-
-		<?php
-		if ($arParams['HIDE_TOOLBAR']):
-			?>
-			<div></div>
-			<?php
-		else:
-		?>
-		<div class="ui-side-panel-toolbar<?if (!$arParams['USE_UI_TOOLBAR_MARGIN']):?> --no-margin<?endif?>">
-		<?php
-		if (!isset($arParams['USE_UI_TOOLBAR']) || $arParams['USE_UI_TOOLBAR'] !== 'Y')
-		{
-			?>
-			<div class="ui-side-panel-wrap-title-wrap" style="<?=($arParams['PLAIN_VIEW'] ? 'display: none;' : '')?>">
-				<div class="ui-side-panel-wrap-title-inner-container">
-					<div class="ui-side-panel-wrap-title-menu ui-side-panel-wrap-title-last-item-in-a-row">
-						<?php $APPLICATION->ShowViewContent("pagetitle"); ?>
-					</div>
-					<div class="ui-side-panel-wrap-title">
-						<div class="ui-side-panel-wrap-title-box" >
-							<span id="pagetitle" class="ui-side-panel-wrap-title-item">
-								<span class="ui-side-panel-wrap-title-name-item ui-side-panel-wrap-title-name"><?php $APPLICATION->ShowTitle(false); ?></span>
-								<span class="ui-side-panel-wrap-title-edit-button" style="display: none;"></span>
-								<input type="text" class="ui-side-panel-wrap-title-item ui-side-panel-wrap-title-input" style="display: none;">
-							</span>
-							<span class="ui-side-panel-wrap-subtitle-box">
-								<span class="ui-side-panel-wrap-subtitle-item"></span>
-								<span class="ui-side-panel-wrap-subtitle-control"></span>
-							</span>
+				?>
+				<div class="ui-side-panel-wrap-title-wrap" style="<?=($arParams['PLAIN_VIEW'] ? 'display: none;' : '')?>">
+					<div class="ui-side-panel-wrap-title-inner-container">
+						<div class="ui-side-panel-wrap-title-menu ui-side-panel-wrap-title-last-item-in-a-row">
+							<?php $APPLICATION->ShowViewContent("pagetitle"); ?>
 						</div>
-						<?php $APPLICATION->ShowViewContent("inside_pagetitle_below"); ?>
+						<div class="ui-side-panel-wrap-title">
+							<div class="ui-side-panel-wrap-title-box" >
+								<span id="pagetitle" class="ui-side-panel-wrap-title-item">
+									<span class="ui-side-panel-wrap-title-name-item ui-side-panel-wrap-title-name"><?php $APPLICATION->ShowTitle(false); ?></span>
+									<span class="ui-side-panel-wrap-title-edit-button" style="display: none;"></span>
+									<input type="text" class="ui-side-panel-wrap-title-item ui-side-panel-wrap-title-input" style="display: none;">
+								</span>
+								<span class="ui-side-panel-wrap-subtitle-box">
+									<span class="ui-side-panel-wrap-subtitle-item"></span>
+									<span class="ui-side-panel-wrap-subtitle-control"></span>
+								</span>
+							</div>
+							<?php $APPLICATION->ShowViewContent("inside_pagetitle_below"); ?>
+						</div>
+						<?php $APPLICATION->ShowViewContent("inside_pagetitle"); ?>
 					</div>
-					<?php $APPLICATION->ShowViewContent("inside_pagetitle"); ?>
 				</div>
+				<script>console.error('Side Panel Wrapper: do not use an old toolbar.')</script>
+				<?php
+			}
+			else
+			{
+				$APPLICATION->IncludeComponent('bitrix:ui.toolbar', '', [
+					'FAVORITES_TITLE_TEMPLATE' => (!empty($arParams['~UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE']) ? $arParams['~UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE'] : ''),
+					'FAVORITES_URL' => (!empty($arParams['UI_TOOLBAR_FAVORITES_URL']) ? $arParams['UI_TOOLBAR_FAVORITES_URL'] : ''),
+				]);
+			}
+			?>
 			</div>
-			<?php
-		}
-		else
-		{
-			$APPLICATION->IncludeComponent('bitrix:ui.toolbar', '', [
-				'FAVORITES_TITLE_TEMPLATE' => (!empty($arParams['~UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE']) ? $arParams['~UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE'] : ''),
-				'FAVORITES_URL' => (!empty($arParams['UI_TOOLBAR_FAVORITES_URL']) ? $arParams['UI_TOOLBAR_FAVORITES_URL'] : ''),
-			]);
-		}
-		?>
+			<?php endif;?>
+			<div class="ui-side-panel-actions ui-side-panel-wrap-below"><? $APPLICATION->showViewContent('below_pagetitle') ?></div>
 		</div>
-		<?php endif;?>
-
-		<div class="ui-side-panel-wrap-below"><?php $APPLICATION->ShowViewContent("below_pagetitle")?></div>
-
 		<div class="ui-page-slider-workarea">
 			<div class="ui-side-panel-wrap-sidebar"><?php $APPLICATION->ShowViewContent("sidebar"); ?></div>
 			<?php

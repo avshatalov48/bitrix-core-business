@@ -11,6 +11,8 @@ namespace Bitrix\Main;
 
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\DI\ServiceLocator;
+use Bitrix\Main\Messenger\Config\WorkerRunMode;
+use Bitrix\Main\Messenger\Internals\Worker;
 use Bitrix\Main\Routing\CompileCache;
 use Bitrix\Main\Routing\Route;
 use Bitrix\Main\Routing\Router;
@@ -84,6 +86,7 @@ abstract class Application
 		$this->backgroundJobs = new \SplPriorityQueue();
 		$this->initializeExceptionHandler();
 		$this->initializeCache();
+		$this->initializeMessengerWorker();
 		$this->createDatabaseConnection();
 	}
 
@@ -550,6 +553,30 @@ abstract class Application
 		{
 			Data\Cache::setClearCache($_GET["clear_cache"] === 'Y');
 		}
+	}
+
+	protected function initializeMessengerWorker(): void
+	{
+		$config = Config\Configuration::getValue('messenger');
+
+		if (!$config)
+		{
+			$config = ['run_mode' => WorkerRunMode::BackgroundInWeb->value];
+		}
+
+		if (!isset($config['run_mode']))
+		{
+			$config['run_mode'] = WorkerRunMode::BackgroundInWeb->value;
+		}
+
+		if ($config['run_mode'] === WorkerRunMode::Cli->value)
+		{
+			return;
+		}
+
+		$worker = new Worker();
+
+		$this->addBackgroundJob([$worker, 'process']);
 	}
 
 	/**

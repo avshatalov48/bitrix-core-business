@@ -78,6 +78,7 @@ Class lists extends CModule
 
 			$eventManager = \Bitrix\Main\EventManager::getInstance();
 			$eventManager->registerEventHandler('socialnetwork', 'onLogIndexGetContent', 'lists', '\Bitrix\Lists\Integration\Socialnetwork\Log', 'onIndexGetContent');
+			$eventManager->registerEventHandlerCompatible('im', 'OnGetNotifySchema', 'lists', \Bitrix\Lists\Integration\Im\NotifySchema::class, 'onGetNotifySchema');
 
 			if (isset($arParams["INSTALL_DEMO_DATA"]) && $arParams["INSTALL_DEMO_DATA"] == "Y")
 			{
@@ -233,6 +234,8 @@ Class lists extends CModule
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
 		$eventManager->unregisterEventHandler('socialnetwork', 'onLogIndexGetContent', 'lists', '\Bitrix\Lists\Integration\Socialnetwork\Log', 'onIndexGetContent');
+		$eventManager->unRegisterEventHandler('im', 'OnGetNotifySchema', 'lists', \Bitrix\Lists\Integration\Im\NotifySchema::class, 'onGetNotifySchema');
+
 
 		UnRegisterModule("lists");
 

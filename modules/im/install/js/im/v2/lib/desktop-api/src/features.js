@@ -19,4 +19,8 @@ export const DesktopFeature = {
 		id: 'openPage',
 		version: 79,
 	},
+	portalTabActivation: {
+		id: 'portalTabActivation',
+		version: 85,
+	},
 };

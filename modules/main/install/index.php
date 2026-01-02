@@ -112,8 +112,6 @@ class main extends CModule
 
 		RegisterModule("main");
 		RegisterModuleDependences('iblock', 'OnIBlockPropertyBuildList', 'main', 'CIBlockPropertyUserID', 'GetUserTypeDescription', 100, '/modules/main/tools/prop_userid.php');
-		RegisterModuleDependences('main', 'OnUserDelete', 'main', 'CFavorites', 'OnUserDelete', 100, "/modules/main/classes/mysql/favorites.php");
-		RegisterModuleDependences('main', 'OnLanguageDelete', 'main', 'CFavorites', 'OnLanguageDelete', 100, "/modules/main/classes/mysql/favorites.php");
 		RegisterModuleDependences('main', 'OnUserDelete', 'main', 'CUserOptions', 'OnUserDelete');
 		RegisterModuleDependences('main', 'OnChangeFile', 'main', 'CMain', 'OnChangeFileComponent');
 		RegisterModuleDependences('main', 'OnUserTypeRightsCheck', 'main', 'CUser', 'UserTypeRightsCheck');
@@ -133,10 +131,6 @@ class main extends CModule
 		RegisterModuleDependences('main', 'OnGetRatingRuleConfigs', 'main', 'CRatingRulesMain', 'OnGetRatingRuleConfigs');
 		RegisterModuleDependences('main', 'OnAfterUserAdd', 'main', 'CRatings', 'OnAfterUserRegister');
 		RegisterModuleDependences('main', 'OnUserDelete', 'main', 'CRatings', 'OnUserDelete');
-		RegisterModuleDependences('main', 'OnAfterGroupAdd', 'main', 'CGroupAuthProvider', 'OnAfterGroupAdd');
-		RegisterModuleDependences('main', 'OnBeforeGroupUpdate', 'main', 'CGroupAuthProvider', 'OnBeforeGroupUpdate');
-		RegisterModuleDependences('main', 'OnBeforeGroupDelete', 'main', 'CGroupAuthProvider', 'OnBeforeGroupDelete');
-		RegisterModuleDependences('main', 'OnAfterSetUserGroup', 'main', 'CGroupAuthProvider', 'OnAfterSetUserGroup');
 		RegisterModuleDependences("main", "OnEventLogGetAuditTypes", "main", "CEventMain", "GetAuditTypes");
 		RegisterModuleDependences("main", "OnEventLogGetAuditHandlers", "main", "CEventMain", "MakeMainObject");
 		RegisterModuleDependences("perfmon", "OnGetTableSchema", "main", "CTableSchema", "OnGetTableSchema");
@@ -154,8 +148,6 @@ class main extends CModule
 		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeIBlockElement", "GetUserTypeDescription", 190);
 		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeStringFormatted", "GetUserTypeDescription", 200);
 		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "\\Bitrix\\Main\\UrlPreview\\UrlPreviewUserType", "getUserTypeDescription", 210);
-		RegisterModuleDependences("main", "OnBeforeEndBufferContent", "main", "\\Bitrix\\Main\\Analytics\\Counter", "onBeforeEndBufferContent");
-		RegisterModuleDependences("main", "OnBeforeRestartBuffer", "main", "\\Bitrix\\Main\\Analytics\\Counter", "onBeforeRestartBuffer");
 		RegisterModuleDependences("main", "OnFileDelete", "main", "\\Bitrix\\Main\\UI\\Viewer\\FilePreviewTable", "onFileDelete");
 		RegisterModuleDependences("socialnetwork", "OnSocNetLogDelete", "main", "CUserCounter", "OnSocNetLogDelete");
 		RegisterModuleDependences("socialnetwork", "OnSocNetLogCommentDelete", "main", "CUserCounter", "OnSocNetLogCommentDelete");
@@ -164,12 +156,17 @@ class main extends CModule
 		RegisterModuleDependences("main", "OnBeforeUserTypeAdd", "main", '\Bitrix\Main\UserField\Internal\UserFieldHelper', "OnBeforeUserTypeAdd");
 		RegisterModuleDependences("main", "OnAfterUserTypeAdd", "main", '\Bitrix\Main\UserField\Internal\UserFieldHelper', "onAfterUserTypeAdd");
 		RegisterModuleDependences("main", "OnBeforeUserTypeDelete", "main", '\Bitrix\Main\UserField\Internal\UserFieldHelper', "OnBeforeUserTypeDelete");
+		RegisterModuleDependences("main", "OnAfterUserTypeDelete", "main", '\Bitrix\Main\UserField\Internal\UserFieldHelper', "OnAfterUserTypeDelete");
 		RegisterModuleDependences("main", "OnAuthProvidersBuildList", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessAuthProvider", "getProviders");
 		RegisterModuleDependences("iblock", "OnBeforeIBlockSectionUpdate", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessEventHandler", "onBeforeIBlockSectionUpdate");
 		RegisterModuleDependences("iblock", "OnBeforeIBlockSectionAdd", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessEventHandler", "onBeforeIBlockSectionAdd");
 		RegisterModuleDependences("iblock", "OnBeforeIBlockSectionDelete", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessEventHandler", "onBeforeIBlockSectionDelete");
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
+		$eventManager->registerEventHandler("humanresources", "OnMemberUpdated", "main", "\\Bitrix\\Main\\Access\\Auth\\HrAccessEventHandler", "onMemberUpdated");
+		$eventManager->registerEventHandler("humanresources", "OnMemberDeleted", "main", "\\Bitrix\\Main\\Access\\Auth\\HrAccessEventHandler", "onMemberDeleted");
+		$eventManager->registerEventHandler("humanresources", "OnMemberAdded", "main", "\\Bitrix\\Main\\Access\\Auth\\HrAccessEventHandler", "onMemberAdded");
+
 		$eventManager->registerEventHandler("sale", "OnSaleBasketItemSaved", "main", "\\Bitrix\\Main\\Analytics\\Catalog", "catchCatalogBasket");
 		$eventManager->registerEventHandler("sale", "OnSaleOrderSaved", "main", "\\Bitrix\\Main\\Analytics\\Catalog", "catchCatalogOrder");
 		$eventManager->registerEventHandler("sale", "OnSaleOrderPaid", "main", "\\Bitrix\\Main\\Analytics\\Catalog", "catchCatalogOrderPayment");
@@ -721,15 +718,15 @@ class main extends CModule
 		COption::SetOptionString("main", "rating_authority_rating", $ratingId);
 
 		// set default rating vote group config
-		$rsGroup = $DB->Query("SELECT * FROM b_group WHERE STRING_ID='RATING_VOTE'", true);
-		if ($arGroup = $rsGroup->Fetch())
+		$groupId = CGroup::GetIDByCode('RATING_VOTE');
+		if ($groupId)
 		{
 			$arVoteGroup[] = [
 				'GROUP_ID' => 1,
 				'TYPE' => "'R'",
 			];
 			$arVoteGroup[] = [
-				'GROUP_ID' => $arGroup['ID'],
+				'GROUP_ID' => $groupId,
 				'TYPE' => "'R'",
 			];
 			foreach ($arVoteGroup as $arField)
@@ -753,7 +750,7 @@ class main extends CModule
 				'ACTION_NAME' => 'ADD_TO_GROUP',
 				'ACTION_CONFIG' => [
 					'ADD_TO_GROUP' => [
-						'GROUP_ID' => $arGroup['ID'],
+						'GROUP_ID' => $groupId,
 					],
 				],
 				'ACTIVATE' => 'N',
@@ -785,7 +782,7 @@ class main extends CModule
 				'ACTION_NAME' => 'REMOVE_FROM_GROUP',
 				'ACTION_CONFIG' => [
 					'REMOVE_FROM_GROUP' => [
-						'GROUP_ID' => $arGroup['ID'],
+						'GROUP_ID' => $groupId,
 					],
 				],
 				'ACTIVATE' => 'N',
@@ -803,17 +800,18 @@ class main extends CModule
 
 			COption::SetOptionString("main", "rating_assign_rating_group_add", 1);
 			COption::SetOptionString("main", "rating_assign_rating_group_delete", 1);
-			COption::SetOptionString("main", "rating_assign_rating_group", $arGroup['ID']);
+			COption::SetOptionString("main", "rating_assign_rating_group", $groupId);
 		}
-		$rsGroup = $DB->Query("SELECT * FROM b_group WHERE STRING_ID='RATING_VOTE_AUTHORITY'", true);
-		if ($arGroup = $rsGroup->Fetch())
+
+		$groupId = CGroup::GetIDByCode('RATING_VOTE_AUTHORITY');
+		if ($groupId)
 		{
 			$arVoteGroup[] = [
 				'GROUP_ID' => 1,
 				'TYPE' => "'A'",
 			];
 			$arVoteGroup[] = [
-				'GROUP_ID' => $arGroup['ID'],
+				'GROUP_ID' => $groupId,
 				'TYPE' => "'A'",
 			];
 			foreach ($arVoteGroup as $arField)
@@ -837,7 +835,7 @@ class main extends CModule
 				'ACTION_NAME' => 'ADD_TO_GROUP',
 				'ACTION_CONFIG' => [
 					'ADD_TO_GROUP' => [
-						'GROUP_ID' => $arGroup['ID'],
+						'GROUP_ID' => $groupId,
 					],
 				],
 				'ACTIVATE' => 'N',
@@ -869,7 +867,7 @@ class main extends CModule
 				'ACTION_NAME' => 'REMOVE_FROM_GROUP',
 				'ACTION_CONFIG' => [
 					'REMOVE_FROM_GROUP' => [
-						'GROUP_ID' => $arGroup['ID'],
+						'GROUP_ID' => $groupId,
 					],
 				],
 				'ACTIVATE' => 'N',
@@ -887,7 +885,7 @@ class main extends CModule
 
 			COption::SetOptionString("main", "rating_assign_authority_group_add", 2);
 			COption::SetOptionString("main", "rating_assign_authority_group_delete", 2);
-			COption::SetOptionString("main", "rating_assign_authority_group", $arGroup['ID']);
+			COption::SetOptionString("main", "rating_assign_authority_group", $groupId);
 		}
 
 		// auto authority vote

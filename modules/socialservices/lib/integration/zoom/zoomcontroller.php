@@ -2,16 +2,17 @@
 
 namespace Bitrix\SocialServices\Integration\Zoom;
 
+use Bitrix\Main\License\UrlProvider;
 use Bitrix\Main\Result;
 use Bitrix\Main\Service\MicroService\BaseSender;
 
 class ZoomController extends BaseSender
 {
-	protected const DEFAULT_SERVICE_URL = "https://zoom.bitrix.info/";
-
 	protected function getServiceUrl(): string
 	{
-		return defined("ZOOM_SERVICE_URL") ? ZOOM_SERVICE_URL : static::DEFAULT_SERVICE_URL;
+		$domain = (new UrlProvider())->getTechDomain();
+		$defaultServiceUrl = 'https://zoom.' . $domain . '/';
+		return defined("ZOOM_SERVICE_URL") ? ZOOM_SERVICE_URL : $defaultServiceUrl;
 	}
 
 	public function registerZoomUser(array $userData): Result

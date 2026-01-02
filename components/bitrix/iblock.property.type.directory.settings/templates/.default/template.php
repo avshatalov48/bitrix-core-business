@@ -57,7 +57,7 @@ $this->addExternalCss('/bitrix/js/ui/install/js/ui/entity-editor/entity-editor.c
 	<div  v-if="isNewDirectory" class="iblock-property-type-directory-settings-group">
 		<div class="ui-ctl-label-text"><?= Loc::getMessage('IBLOCK_PROPERTY_TYPE_DIRECTORY_SETTINGS_NEW_DIRECTORY_LABEL') ?></div>
 		<div class="ui-ctl ui-ctl-w100">
-		<input class="ui-ctl-element" type="text" v-model="directoryName" name="DIRECTORY_NAME" @change.prevent="normalizeName">
+		<input class="ui-ctl-element" type="text" v-model="directoryName" name="DIRECTORY_NAME">
 		</div>
 	</div>
 

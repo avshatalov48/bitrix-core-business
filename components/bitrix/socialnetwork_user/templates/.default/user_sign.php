@@ -2,7 +2,7 @@
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
-	die();
+	die;
 }
 
 /** @var CBitrixComponentTemplate $this */
@@ -22,7 +22,7 @@ $pageId = "user_sign";
 include("util_menu.php");
 include("util_profile.php");
 
-Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].$this->getFolder().'/result_modifier.php');
+Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'] . $this->getFolder() . '/result_modifier.php');
 
 if (Loader::includeModule('sign'))
 {
@@ -47,7 +47,6 @@ if (Loader::includeModule('sign'))
 			'USE_PADDING' => false,
 			'USE_UI_TOOLBAR' => 'Y',
 			'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
-		]
+		],
 	);
 }
-?>

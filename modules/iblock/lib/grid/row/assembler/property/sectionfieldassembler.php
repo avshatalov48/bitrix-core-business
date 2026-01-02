@@ -122,11 +122,6 @@ final class SectionFieldAssembler extends BaseFieldAssembler
 		}
 	}
 
-	private function isCustomEditable(string $columnId): bool
-	{
-		return in_array($columnId, $this->customEditableColumnIds);
-	}
-
 	private function getEditValue(string $rowId, string $columnId, array $property, $values): string
 	{
 		return Section::renderSelector(

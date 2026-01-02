@@ -1,0 +1,22 @@
+<?php
+$MESS["VOTE_ACTUALITY"] = "Өзектілігі:";
+$MESS["VOTE_ANSWERS"] = "Жауаптар:";
+$MESS["VOTE_CHANNEL"] = "Топ:";
+$MESS["VOTE_DATE"] = "Күні:";
+$MESS["VOTE_EDIT_USER"] = "Пайдаланушы профайлы";
+$MESS["VOTE_END_DATE"] = "Аяқталу күні:";
+$MESS["VOTE_ENLARGE"] = "Үлкейту";
+$MESS["VOTE_F_IP"] = "IP-мекенжай:";
+$MESS["VOTE_GUEST"] = "Келуші:";
+$MESS["VOTE_NOT_AUTHORIZED"] = "авторландырылмаған";
+$MESS["VOTE_PAGE_TITLE"] = "# #ID# дауыс беру";
+$MESS["VOTE_PARAMS"] = "Параметрлер";
+$MESS["VOTE_PARAMS_TITE"] = "Параметрлерді баптау";
+$MESS["VOTE_RESULTS_LIST"] = "Сауалнама нәтижелері";
+$MESS["VOTE_RESULT_NOT_FOUND"] = "Дауыс беру нәтижесі табылмады";
+$MESS["VOTE_SESSION"] = "Сессия:";
+$MESS["VOTE_START_DATE"] = "Басталу күні:";
+$MESS["VOTE_VALID"] = "Жарамды:";
+$MESS["VOTE_VOTE"] = "Сауалнама:";
+$MESS["VOTE_VOTE1"] = "Сауалнама";
+$MESS["VOTE_VOTES"] = "Жалпы дауыстар саны:";

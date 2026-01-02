@@ -1,0 +1,25 @@
+<?php
+$MESS["SB_ADD_TO_BASKET_OK"] = "Тауар себетке салынды";
+$MESS["SB_AMOUNT"] = "Сату көлеміне";
+$MESS["SB_CATALOG_BASKET_UNKNOWN_ERROR"] = "Тауарды себетке қосу кезіндегі белгісіз қате";
+$MESS["SB_CATALOG_BTN_MESSAGE_BASKET_REDIRECT"] = "Себетке өту";
+$MESS["SB_CATALOG_BTN_MESSAGE_CLOSE"] = "Жабу";
+$MESS["SB_CATALOG_BTN_MESSAGE_SEND_PROPS"] = "Таңдау";
+$MESS["SB_CATALOG_SET_BUTTON_BUY"] = "Себетке өту";
+$MESS["SB_CATALOG_TITLE_BASKET_PROPS"] = "Себетке қосылған тауардың қасиеттері";
+$MESS["SB_CATALOG_TITLE_ERROR"] = "Қате";
+$MESS["SB_DAYS"] = "күн";
+$MESS["SB_HREF_TITLE"] = "Сату көшбасшылары";
+$MESS["SB_NO_PRODUCTS"] = "Тауарлар жоқ.";
+$MESS["SB_QUANTITY"] = "Сатылған тауар санына";
+$MESS["SB_SHOW_LIDER_BY"] = "дейін";
+$MESS["SB_SHOW_PERIOD"] = "Үшін:";
+$MESS["SB_TPL_ELEMENT_DELETE_CONFIRM"] = "Осы жазбаға қатысты барлық ақпарат өшіріледі. Жалғастыру керек пе?";
+$MESS["SB_TPL_MESS_BTN_ADD_TO_BASKET"] = "Себетке салу";
+$MESS["SB_TPL_MESS_BTN_BUY"] = "Сатып алу";
+$MESS["SB_TPL_MESS_BTN_COMPARE"] = "Салыстыру";
+$MESS["SB_TPL_MESS_BTN_DETAIL"] = "Толығырақ";
+$MESS["SB_TPL_MESS_BTN_SUBSCRIBE"] = "Жазылу";
+$MESS["SB_TPL_MESS_MEASURE_SIMPLE_MODE"] = "#VALUE# #UNIT#";
+$MESS["SB_TPL_MESS_PRICE_SIMPLE_MODE"] = "#MEASURE# үшін #PRICE# бастап";
+$MESS["SB_TPL_MESS_PRODUCT_NOT_AVAILABLE"] = "Қолда жоқ";

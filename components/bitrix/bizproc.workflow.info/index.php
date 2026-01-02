@@ -27,7 +27,7 @@ if (($_REQUEST['IFRAME'] ?? '') === 'Y' && ($_REQUEST['IFRAME_TYPE'] ?? '') === 
 }
 else
 {
-	$APPLICATION->IncludeComponent('bitrix:bizproc.workflow.info', 'slider', $cmpParams);
+	$APPLICATION->IncludeComponent('bitrix:bizproc.workflow.info', 'page-slider', $cmpParams);
 }
 
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/footer.php');

@@ -37,13 +37,16 @@ try
 	$rsData->InitFromArray($arFiles);
 	$rsData = new CAdminResult($rsData, $sTableID);
 	$arData = [];
-	while ($arRes = $rsData->GetNext())
+	while ($arRes = $rsData->Fetch())
 	{
-		if (preg_match('/^(\\d{8}_\\d{6}_\\d+\\.enc\\.gz)/', $arRes['FILE_NAME'], $match))
+		if (preg_match('/^(\d{8}_\d{6}_\d+)\./', $arRes['FILE_NAME'], $match))
 		{
 			if (!isset($arData[$match[1]]))
 			{
-				$arData[$match[1]] = $arRes;
+				$arData[$match[1]] = [
+					'FILE_NAME' => rtrim($arRes['FILE_NAME'], '.0123456789'),
+					'FILE_SIZE' => $arRes['FILE_SIZE'],
+				];
 			}
 			else
 			{

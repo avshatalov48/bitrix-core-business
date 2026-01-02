@@ -528,7 +528,8 @@ class CSocNetLogRestService extends IRestService
 
 		try
 		{
-			$postId = Helper::addBlogPost($arFields, \Bitrix\Main\Engine\Controller::SCOPE_REST);
+			$post = Helper::addBlogPost($arFields, \Bitrix\Main\Engine\Controller::SCOPE_REST);
+			$postId = is_array($post) && isset($post['id']) ? (int)$post['id'] : 0;
 			if ($postId <= 0)
 			{
 				$e = $APPLICATION->getException();
@@ -549,7 +550,8 @@ class CSocNetLogRestService extends IRestService
 
 		try
 		{
-			$postId = Helper::updateBlogPost($arFields, \Bitrix\Main\Engine\Controller::SCOPE_REST);
+			$post = Helper::updateBlogPost($arFields, \Bitrix\Main\Engine\Controller::SCOPE_REST);
+			$postId = is_array($post) && isset($post['id']) ? (int)$post['id'] : 0;
 			if ($postId <= 0)
 			{
 				$e = $APPLICATION->getException();
@@ -1740,20 +1742,34 @@ class CSocNetLogRestService extends IRestService
 			unset($fields['IMAGE']);
 		}
 
+		$validateExtranetField = static fn ($siteId) =>
+			Option::get('socialnetwork', 'enable_extranet_for_groups', 0)
+			|| (
+				Loader::includeModule('extranet')
+				&& !CExtranet::IsExtranetSite($siteId)
+			)
+		;
+
 		if (!isset($fields['SITE_ID']))
 		{
-			$siteIdForCheck = SITE_ID;
-			$fields['SITE_ID'] = [ $siteIdForCheck ];
-		}
-		elseif (!is_array($fields['SITE_ID']))
-		{
-			$siteIdForCheck = ((string)$fields['SITE_ID'] === '' ? SITE_ID : $fields['SITE_ID']);
-			$fields['SITE_ID'] = [ $siteIdForCheck ];
+			$fields['SITE_ID'] = [SITE_ID];
 		}
 		else
 		{
-			$siteIdForCheck = $fields['SITE_ID'][0];
+			$siteIds = is_array($fields['SITE_ID']) ? $fields['SITE_ID'] : [$fields['SITE_ID']];
+			$filteredSiteIds = array_filter($siteIds, $validateExtranetField);
+
+			if (empty($filteredSiteIds))
+			{
+				$fields['SITE_ID'] = [SITE_ID];
+			}
+			else
+			{
+				$fields['SITE_ID'] = $filteredSiteIds;
+			}
 		}
+
+		$siteIdForCheck = $fields['SITE_ID'][0];
 
 		if (
 			Loader::includeModule('extranet')
@@ -1945,6 +1961,19 @@ class CSocNetLogRestService extends IRestService
 			throw new RestException('Wrong group ID');
 		}
 
+		$isModifySiteIdsNeeded =
+			isset($arFields['SITE_ID'])
+			&& !Option::get('socialnetwork', 'enable_extranet_for_groups', 0)
+		;
+
+		if ($isModifySiteIdsNeeded)
+		{
+			$arFields['SITE_ID'] = self::getModifiedGroupSiteIdsForDisabledExtranet(
+				$groupID,
+				is_array($arFields['SITE_ID']) ? $arFields['SITE_ID'] : [$arFields['SITE_ID']]
+			);
+		}
+
 		if (!Workgroup\Access::canUpdate([
 			'groupId' => $groupID,
 			'checkAdminSession' => false,
@@ -1953,13 +1982,68 @@ class CSocNetLogRestService extends IRestService
 			throw new RestException('User has no permissions to update group');
 		}
 
+		$groupFields = \Bitrix\Socialnetwork\WorkgroupTable::getList([
+			'select' => [
+				'TYPE',
+				'SITE_ID',
+				'OWNER_ID',
+				'NAME',
+			],
+			'filter' => ['ID' => $groupID],
+		])->fetch();
+
 		$res = CSocNetGroup::Update($groupID, $arFields, false);
 		if ((int)$res <= 0)
 		{
 			throw new RestException('Cannot update group');
 		}
 
+		$newOwnerId = (int)($arFields['OWNER_ID'] ?? 0);
+		if ($newOwnerId && $newOwnerId !== (int)$groupFields['OWNER_ID'])
+		{
+			CSocNetUserToGroup::setOwner($newOwnerId, $groupID, $groupFields);
+		}
+
 		return $res;
+	}
+
+	private static function getModifiedGroupSiteIdsForDisabledExtranet(int $groupId, array $siteIds): array
+	{
+		if (!Loader::includeModule('extranet'))
+		{
+			return $siteIds;
+		}
+
+		$leaveGroupTypeExtranet = CExtranet::IsExtranetSocNetGroup($groupId);
+
+		$extranetSiteId = CExtranet::GetExtranetSiteID();
+
+		$addSiteIdIfMissing = static function (array &$siteIds, mixed $siteId) {
+			if (!in_array($siteId, $siteIds, true))
+			{
+				$siteIds[] = $siteId;
+			}
+		};
+
+		$removeSiteIdIfExists = static function (array &$siteIds, mixed $siteId) {
+			$key = array_search($siteId, $siteIds, true);
+
+			if ($key !== false)
+			{
+				unset($siteIds[$key]);
+			}
+		};
+
+		$addSiteIdIfMissing(
+			$siteIds,
+			$leaveGroupTypeExtranet ? $extranetSiteId : SITE_ID
+		);
+		$removeSiteIdIfExists(
+			$siteIds,
+			$leaveGroupTypeExtranet ? SITE_ID : $extranetSiteId
+		);
+
+		return $siteIds;
 	}
 
 	public static function deleteGroup($arFields): bool

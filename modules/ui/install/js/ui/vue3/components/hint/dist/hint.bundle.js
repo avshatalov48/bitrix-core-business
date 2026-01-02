@@ -18,6 +18,7 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 		<Hint text="Custom position top and light mode" position="top" :popupOptions="{darkMode: false}"/>
 	*/
 
+	// @vue/component
 	const Hint = {
 	  props: {
 	    text: {

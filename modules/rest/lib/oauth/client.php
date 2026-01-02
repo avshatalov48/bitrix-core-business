@@ -15,10 +15,12 @@ use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 use Bitrix\Rest\OAuthService;
+use Bitrix\Rest\Public\Provider;
 
 if(!defined("BITRIX_OAUTH_URL"))
 {
-	$defaultValue = \Bitrix\Main\Config\Option::get('rest', 'oauth_server', 'https://oauth.bitrix.info');
+//	replaced \Bitrix\Main\Config\Option::get('rest', 'oauth_server', 'https://oauth.bitrix.info');
+	$defaultValue = (new Provider\OAuth\AuthorizationServerProvider())->getCurrentAuthorizationUrl();
 	define("BITRIX_OAUTH_URL", $defaultValue);
 }
 

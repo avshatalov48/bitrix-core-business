@@ -5,5 +5,9 @@ export type AnalyticsOptions = {
 	c_sub_section?: string,
 	c_element?: string,
 	type?: string,
-	params: {[key: string]: string|number},
+	p1?: [string, string],
+	p2?: [string, string],
+	p3?: [string, string],
+	p4?: [string, string],
+	p5?: [string, string],
 };

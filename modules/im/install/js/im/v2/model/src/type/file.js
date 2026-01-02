@@ -22,9 +22,10 @@ export type File = {
 	type: string,
 	extension: string,
 	icon: string,
+	isTranscribable: boolean,
 	name: string,
 	size: number,
-	image: boolean | {width: number, height: number},
+	image: null | boolean | {width: number, height: number},
 	status: string,
 	progress: number,
 	urlPreview: string,
@@ -32,3 +33,9 @@ export type File = {
 	urlShow: string,
 	viewerAttrs: ?ViewerAttributes
 };
+
+export type Transcription = {
+	fileId: number,
+	status: 'Success' | 'Pending' | 'Error',
+	transcriptText: string | null,
+}

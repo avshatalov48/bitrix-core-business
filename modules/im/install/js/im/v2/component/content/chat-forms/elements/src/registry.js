@@ -6,6 +6,7 @@ export { RadioOption } from './elements/radio';
 export type { RadioOptionItem } from './elements/radio';
 export { TextareaInput } from './elements/textarea';
 export { TitleInput } from './elements/title-input';
+export { AutoDelete } from './elements/auto-delete';
 
 export { CreateChatSection } from './sections/section/section';
 export { CreateChatExternalSection } from './sections/section/external-section';

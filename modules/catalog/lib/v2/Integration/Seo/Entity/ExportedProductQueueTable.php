@@ -2,10 +2,7 @@
 
 namespace Bitrix\Catalog\v2\Integration\Seo\Entity;
 
-use Bitrix\Main\Entity;
-use Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\ORM\Data\DataManager;
 
 /**
  * Class ExportedProductQueueTable
@@ -23,14 +20,14 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue wakeUpObject($row)
  * @method static \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue_Collection wakeUpCollection($rows)
  */
-class ExportedProductQueueTable extends Entity\DataManager
+class ExportedProductQueueTable extends DataManager
 {
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_exported_product_queue';
 	}
 
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return [
 			'QUEUE_ID' => [

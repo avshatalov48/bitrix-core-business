@@ -10,9 +10,10 @@ import { Logger } from 'im.v2.lib.logger';
 import { CallManager } from 'im.v2.lib.call';
 import { LayoutManager } from 'im.v2.lib.layout';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { AccessManager, AccessErrorCode } from 'im.v2.lib.access';
+import { AccessManager } from 'im.v2.lib.access';
 import { FeatureManager } from 'im.v2.lib.feature';
-import { MessageService, ChatService } from 'im.v2.provider.service';
+import { MessageService } from 'im.v2.provider.service.message';
+import { ChatService } from 'im.v2.provider.service.chat';
 import {
 	DialogBlockType as BlockType,
 	EventType,
@@ -20,23 +21,30 @@ import {
 	DialogScrollThreshold,
 	UserRole,
 	ActionByRole,
+	ErrorCode,
+	AnchorType,
 } from 'im.v2.const';
 
+import { AnchorService } from './classes/anchor-service';
 import { ScrollManager } from './classes/scroll-manager';
 import { PullWatchManager } from './classes/pull-watch-manager';
 import { VisibleMessagesManager } from './classes/visible-messages-manager';
+import { findUniqueNumbers } from './helpers/find-unique-numbers';
+import { sequentialize } from './helpers/sequentialize';
+
 import { PinnedMessages } from './components/pinned/pinned-messages';
 import { QuoteButton } from './components/quote-button';
-import { ScrollButton } from './components/scroll-button';
+import { FloatButtons } from './components/float-buttons';
 
 import './css/chat-dialog.css';
+import './css/float-button.css';
 
-import type { BitrixVueComponentProps } from 'ui.vue3';
 import type { ImModelMessage, ImModelChat, ImModelLayout } from 'im.v2.model';
 import type { ScrollToBottomEvent } from 'im.v2.const';
 
 export { ScrollManager } from './classes/scroll-manager';
 export { PinnedMessages } from './components/pinned/pinned-messages';
+export { FloatButton, FloatButtonIcon, FloatButtonColor } from './components/float-button';
 
 // @vue/component
 export const ChatDialog = {
@@ -45,7 +53,7 @@ export const ChatDialog = {
 		MessageList,
 		PinnedMessages,
 		QuoteButton,
-		ScrollButton,
+		FloatButtons,
 		PullStatus,
 		ForwardPopup,
 	},
@@ -58,7 +66,11 @@ export const ChatDialog = {
 			type: Boolean,
 			default: true,
 		},
-		resetOnExit: {
+		reloadOnExit: {
+			type: Boolean,
+			default: true,
+		},
+		clearOnExit: {
 			type: Boolean,
 			default: false,
 		},
@@ -77,7 +89,9 @@ export const ChatDialog = {
 			isScrolledUp: false,
 			windowFocused: false,
 			showQuoteButton: false,
+			isJumpingToAnchor: false,
 			messagesToRead: new Set(),
+			containerHeight: 0,
 		};
 	},
 	computed:
@@ -124,13 +138,17 @@ export const ChatDialog = {
 
 			return Runtime.debounce(this.readQueuedMessages, READING_DEBOUNCE_DELAY, this);
 		},
-		messageListComponent(): BitrixVueComponentProps
+		sequentiallyHighlightMessageHandler(): Function
 		{
-			return MessageList;
+			return sequentialize(this.highlightMessage, 300, this);
 		},
 		showScrollButton(): boolean
 		{
 			return this.isScrolledUp || this.dialog.hasNextPage;
+		},
+		anchorMessages(): number[]
+		{
+			return this.$store.getters['messages/anchors/getChatMessageIdsWithAnchors'](this.dialog.chatId);
 		},
 		hasCommentsOnTop(): boolean
 		{
@@ -139,6 +157,18 @@ export const ChatDialog = {
 	},
 	watch:
 	{
+		anchorMessages(newValue: number[], oldValue: number[])
+		{
+			const newMessageIdsWithAnchor = findUniqueNumbers(newValue, oldValue);
+			const visibleMessageIds = this.getVisibleMessagesManager().getVisibleMessages();
+
+			newMessageIdsWithAnchor.forEach((messageId) => {
+				if (visibleMessageIds.includes(messageId))
+				{
+					this.getAnchorService().debouncedReadMessageAnchors(messageId);
+				}
+			});
+		},
 		dialogInited(newValue: boolean, oldValue: boolean)
 		{
 			if (!newValue || oldValue)
@@ -168,8 +198,11 @@ export const ChatDialog = {
 		Logger.warn('Dialog: Chat created', this.dialogId);
 		this.initContextMode();
 	},
-	mounted()
+	async mounted()
 	{
+		await this.$nextTick();
+		this.containerHeight = this.$refs.container.clientHeight;
+
 		this.getScrollManager().setContainer(this.getContainer());
 		if (this.dialogInited)
 		{
@@ -193,15 +226,16 @@ export const ChatDialog = {
 		if (this.dialogInited)
 		{
 			this.saveScrollPosition();
-			this.handleMessagesOnExit();
+			void this.handleMessagesOnExit();
 		}
 		this.getPullWatchManager().unsubscribe();
 		this.closeDialogPopups();
 		this.forwardPopup.show = false;
+		this.readAllAnchors();
 	},
 	methods:
 	{
-		async scrollOnStart()
+		async scrollOnStart(): void
 		{
 			await this.$nextTick();
 
@@ -291,7 +325,7 @@ export const ChatDialog = {
 			}
 
 			const { hasAccess, errorCode } = await AccessManager.checkMessageAccess(messageId);
-			if (!hasAccess && errorCode === AccessErrorCode.messageAccessDeniedByTariff)
+			if (!hasAccess && errorCode === ErrorCode.message.accessDeniedByTariff)
 			{
 				Analytics.getInstance().historyLimit.onGoToContextLimitExceeded({ dialogId: this.dialogId });
 				FeatureManager.chatHistory.openFeatureSlider();
@@ -300,10 +334,7 @@ export const ChatDialog = {
 			}
 
 			this.showLoadingBar();
-			await this.getMessageService().loadContext(messageId)
-				.catch((error) => {
-					Logger.error('goToMessageContext error', error);
-				});
+			await this.getMessageService().loadContext(messageId);
 			await this.$nextTick();
 			this.hideLoadingBar();
 			this.getScrollManager().scrollToMessage(messageId, { position });
@@ -344,19 +375,22 @@ export const ChatDialog = {
 		},
 		async handleMessagesOnExit()
 		{
-			if (this.resetOnExit)
+			if (this.clearOnExit)
 			{
-				void this.getChatService().resetChat(this.dialogId);
+				void this.getChatService().clearChat(this.dialogId);
 
 				return;
 			}
 
 			await this.getChatService().readChatQueuedMessages(this.dialog.chatId);
 
-			const LOAD_MESSAGES_ON_EXIT_DELAY = 200;
-			setTimeout(async () => {
-				void this.getMessageService().reloadMessageList();
-			}, LOAD_MESSAGES_ON_EXIT_DELAY);
+			if (this.reloadOnExit)
+			{
+				const LOAD_MESSAGES_ON_EXIT_DELAY = 200;
+				setTimeout(async () => {
+					this.getMessageService().reloadMessageList();
+				}, LOAD_MESSAGES_ON_EXIT_DELAY);
+			}
 		},
 		/* region Reading */
 		readQueuedMessages(): void
@@ -388,6 +422,13 @@ export const ChatDialog = {
 
 				this.getChatService().readMessage(this.dialog.chatId, messageId);
 			});
+		},
+		readAllAnchors(): void
+		{
+			if (this.$store.getters['messages/anchors/isChatHasAnchors'](this.dialog.chatId))
+			{
+				this.getAnchorService().readChatAnchors(this.dialog.chatId);
+			}
 		},
 		messagesCanBeRead(): boolean
 		{
@@ -543,6 +584,7 @@ export const ChatDialog = {
 		onPinnedMessageUnpin(messageId: number)
 		{
 			this.getMessageService().unpinMessage(this.dialog.chatId, messageId);
+			Analytics.getInstance().messagePins.onUnpin({ dialogId: this.dialogId });
 		},
 		onScroll(event: Event)
 		{
@@ -580,6 +622,40 @@ export const ChatDialog = {
 
 			await this.getScrollManager().animatedScrollToMessage(firstUnreadId);
 		},
+		async onMentionsButtonClick(): void
+		{
+			if (this.isJumpingToAnchor)
+			{
+				return;
+			}
+
+			this.isJumpingToAnchor = true;
+			await this.goToNearestMessageWithAnchor(AnchorType.mention);
+			this.isJumpingToAnchor = false;
+		},
+		async onReactionsButtonClick(): void
+		{
+			if (this.isJumpingToAnchor)
+			{
+				return;
+			}
+
+			this.isJumpingToAnchor = true;
+			await this.goToNearestMessageWithAnchor(AnchorType.reaction);
+			this.isJumpingToAnchor = false;
+		},
+		async goToNearestMessageWithAnchor(anchorType: string)
+		{
+			const nextMessage: ?number = this.$store.getters['messages/anchors/getNextMessageIdWithAnchorType'](
+				this.dialog.chatId,
+				anchorType,
+			);
+
+			if (nextMessage)
+			{
+				await this.goToMessageContext(nextMessage, { position: ScrollManager.scrollPosition.messageTop });
+			}
+		},
 		onWindowFocus()
 		{
 			this.windowFocused = true;
@@ -616,10 +692,7 @@ export const ChatDialog = {
 			if (this.dialog.hasNextPage)
 			{
 				this.showLoadingBar();
-				await this.getMessageService().loadContext(this.dialog.lastMessageId)
-					.catch((error) => {
-						Logger.error('ChatDialog: scroll to chat end loadContext error', error);
-					});
+				await this.getMessageService().loadContext(this.dialog.lastMessageId);
 				this.hideLoadingBar();
 
 				EventEmitter.emit(EventType.dialog.scrollToBottom, {
@@ -649,14 +722,48 @@ export const ChatDialog = {
 			{
 				return;
 			}
+
 			this.getVisibleMessagesManager().setMessageAsVisible(messageId);
 
+			if (this.isChatVisible() === false)
+			{
+				return;
+			}
+
+			if (this.$store.getters['messages/anchors/isMessageHasAnchors'](messageId))
+			{
+				this.readAnchorsIfMessageVisibleLongEnough(messageId);
+			}
+
 			const message: ImModelMessage = this.$store.getters['messages/getById'](messageId);
-			if (!message.viewed && this.isChatVisible())
+			if (!message.viewed)
 			{
 				this.messagesToRead.add(messageId);
 				this.debouncedReadHandler();
 			}
+		},
+		readAnchorsIfMessageVisibleLongEnough(messageId: number)
+		{
+			const messageVisibilityTimeThreshold = 200;
+
+			if (this.getScrollManager().isScrolling)
+			{
+				this.readMessageAnchorsAfterVisibilityThreshold(messageId, messageVisibilityTimeThreshold);
+			}
+			else
+			{
+				this.getAnchorService().debouncedReadMessageAnchors(messageId);
+			}
+		},
+		readMessageAnchorsAfterVisibilityThreshold(messageId: number, messageVisibilityTimeThreshold: number)
+		{
+			setTimeout(() => {
+				if (this.getVisibleMessagesManager().getVisibleMessages().includes(messageId))
+				{
+					this.sequentiallyHighlightMessageHandler(messageId);
+					this.getAnchorService().debouncedReadMessageAnchors(messageId);
+				}
+			}, messageVisibilityTimeThreshold);
 		},
 		onMessageIsNotVisible(event: BaseEvent<{ messageId: number, dialogId: string }>)
 		{
@@ -699,6 +806,15 @@ export const ChatDialog = {
 			}
 
 			return this.chatService;
+		},
+		getAnchorService(): AnchorService
+		{
+			if (!this.anchorService)
+			{
+				this.anchorService = new AnchorService();
+			}
+
+			return this.anchorService;
 		},
 		getScrollManager(): ScrollManager
 		{
@@ -797,18 +913,23 @@ export const ChatDialog = {
 			<!-- Message list -->
 			<div @scroll="onScroll" class="bx-im-dialog-chat__scroll-container" ref="container">
 				<slot name="message-list">
-					<component :is="messageListComponent" :dialogId="dialogId"/>
+					<MessageList :dialogId="dialogId" :containerHeight="containerHeight" />
 				</slot>
 			</div>
-			<!-- Float buttons -->
-			<slot name="additional-float-button"></slot>
-			<Transition name="float-button-transition">
-				<ScrollButton v-if="showScrollButton" :dialogId="dialogId" @click="onScrollButtonClick" />
-			</Transition>
+			<FloatButtons
+				:dialogId="dialogId"
+				:isScrolledUp="isScrolledUp"
+				@scrollButtonClick="onScrollButtonClick"
+				@reactionsButtonClick="onReactionsButtonClick"
+				@mentionsButtonClick="onMentionsButtonClick"
+			>
+				<template #additional-float-button><slot name="additional-float-button" /></template>
+			</FloatButtons>
 			<!-- Absolute elements -->
 			<ForwardPopup
 				v-if="forwardPopup.show"
 				:messagesIds="forwardPopup.messagesIds"
+				:dialogId="dialogId"
 				@close="onCloseForwardPopup"
 			/>
 			<Transition name="fade-up">

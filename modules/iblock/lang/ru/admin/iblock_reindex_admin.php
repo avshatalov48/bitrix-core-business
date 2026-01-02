@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_RADM_ID"] = "ID";
 $MESS["IBLOCK_RADM_NAME"] = "Название";
 $MESS["IBLOCK_RADM_ACTIVE"] = "Акт.";
@@ -12,4 +12,3 @@ $MESS["IBLOCK_RADM_INDEX_OK"] = "Работает";
 $MESS["IBLOCK_RADM_REINDEX_ALL"] = "Создать все";
 $MESS["IBLOCK_RADM_ACTIVE_YES"] = "да";
 $MESS["IBLOCK_RADM_ACTIVE_NO"] = "нет";
-?>

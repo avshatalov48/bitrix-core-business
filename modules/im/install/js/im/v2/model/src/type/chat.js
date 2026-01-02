@@ -1,10 +1,5 @@
 import { ChatType, UserRole, ChatActionGroup } from 'im.v2.const';
 
-type WritingListItem = {
-	userId: number,
-	userName: string
-};
-
 type ActionGroupItem = $Keys<typeof ChatActionGroup>;
 type RoleItem = $Keys<typeof UserRole>;
 
@@ -17,6 +12,7 @@ export type Chat = {
 	avatar: string,
 	color: string,
 	extranet: boolean,
+	containsCollaber: boolean,
 	counter: number,
 	userCounter: number,
 	lastReadId: number,
@@ -33,7 +29,6 @@ export type Chat = {
 	},
 	savedPositionMessageId: number,
 	managerList: number[],
-	writingList: WritingListItem[],
 	muteList: number[],
 	quoteId: number,
 	ownerId: number,
@@ -58,6 +53,8 @@ export type Chat = {
 		isHistoryLimitExceeded: boolean,
 	},
 	parentChatId: number,
+	backgroundId: string,
+	isTextareaEnabled: boolean,
 };
 
 export type CollabInfo = {

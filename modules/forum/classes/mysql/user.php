@@ -724,6 +724,7 @@ class CForumStat extends CALLForumStat
 	public static function GetListEx($arOrder = Array("ID"=>"ASC"), $arFilter = Array(), $arAddParams = array())
 	{
 		global $DB;
+		$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
 		$arSqlSearch = array();
 		$arSqlFrom = array();
 		$arSqlOrder = array();
@@ -781,9 +782,11 @@ class CForumStat extends CALLForumStat
 					if($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FSTAT.LAST_VISIT IS NULL)";
 					else
-						$arSqlSearch[] = ($strNegative=="Y"?" FSTAT.LAST_VISIT IS NULL OR NOT ":"").
-							"(FROM_UNIXTIME(UNIX_TIMESTAMP(CURRENT_TIMESTAMP) - ".intval($val).") ".$strOperation."  FSTAT.LAST_VISIT)";
-						break;
+					{
+						$arSqlSearch[] = ($strNegative == "Y" ? " FSTAT.LAST_VISIT IS NULL OR NOT " : "") .
+							'(' . $sqlHelper->addSecondsToDateTime(-intval($val)) . ' ' . $strOperation . "  FSTAT.LAST_VISIT)";
+					}
+					break;
 				case "HIDE_FROM_ONLINE":
 					$arSqlFrom["FU"] = "LEFT JOIN b_forum_user FU ON (FSTAT.USER_ID=FU.USER_ID)";
 					if ($val == '')

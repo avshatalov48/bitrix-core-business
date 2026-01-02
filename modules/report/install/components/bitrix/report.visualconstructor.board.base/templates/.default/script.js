@@ -443,12 +443,10 @@
 	{
 		this.sidePanel = null;
 		options.actionItems = [
-			BX.create('div', {
+			{
 				text: BX.message('DASHBOARD_WIDGET_PROPERTIES_TITLE'),
-				events: {
-					click: this.onPropertiesClickHandler.bind(this)
-				}
-			})
+				onclick: this.onPropertiesClickHandler.bind(this),
+			},
 		];
 		options.events = options.events || {};
 		BX.Report.Dashboard.Widget.apply(this, arguments);

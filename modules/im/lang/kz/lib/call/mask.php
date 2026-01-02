@@ -1,0 +1,24 @@
+<?php
+$MESS["IM_CALL_MASK_BEAR_1"] = "Аю-романтик";
+$MESS["IM_CALL_MASK_BEAR_2"] = "Бұзақы аю";
+$MESS["IM_CALL_MASK_BEAR_3"] = "Аю-оқымысты";
+$MESS["IM_CALL_MASK_BEAR_4"] = "Аю-әкімші";
+$MESS["IM_CALL_MASK_FOX_1"] = "Тентек түлкі";
+$MESS["IM_CALL_MASK_FOX_2"] = "Түлкі-философ";
+$MESS["IM_CALL_MASK_FOX_3"] = "Түлкі-меломан";
+$MESS["IM_CALL_MASK_FOX_4"] = "Түлкі-диджей";
+$MESS["IM_CALL_MASK_OWL_1"] = "Үкі-кеңесші";
+$MESS["IM_CALL_MASK_OWL_2"] = "Бадырақ көз үкі";
+$MESS["IM_CALL_MASK_OWL_3"] = "Ақылды үкі";
+$MESS["IM_CALL_MASK_PANTHER_1"] = "Жабайы пантера";
+$MESS["IM_CALL_MASK_PANTHER_2"] = "Сәнді пантера";
+$MESS["IM_CALL_MASK_PANTHER_3"] = "Ғалым пантера";
+$MESS["IM_CALL_MASK_PANTHER_4"] = "Сүйкімді пантера";
+$MESS["IM_CALL_MASK_POLEBEAR_1"] = "Поляр аюы";
+$MESS["IM_CALL_MASK_POLEBEAR_2"] = "Сәнқой-аю";
+$MESS["IM_CALL_MASK_POLEBEAR_3"] = "Ақылды-аю";
+$MESS["IM_CALL_MASK_POLEBEAR_4"] = "Сәнгер-аю";
+$MESS["IM_CALL_MASK_SANTA_1"] = "Кербез Аяз Ата";
+$MESS["IM_CALL_MASK_SANTA_2"] = "Аяз Қызыл Мұрын";
+$MESS["IM_CALL_MASK_SANTA_3"] = "Байсалды Аяз Ата";
+$MESS["IM_CALL_MASK_SANTA_4"] = "Жаңа жыл жақындап қалды";

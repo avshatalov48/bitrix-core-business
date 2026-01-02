@@ -1,7 +1,8 @@
 <?php
+
 namespace Bitrix\Main\Component;
 
-use Bitrix\Main\Entity\DataManager;
+use Bitrix\Main\ORM\Data;
 
 /**
  * Class ParametersTable
@@ -19,8 +20,7 @@ use Bitrix\Main\Entity\DataManager;
  * @method static \Bitrix\Main\Component\EO_Parameters wakeUpObject($row)
  * @method static \Bitrix\Main\Component\EO_Parameters_Collection wakeUpCollection($rows)
  */
-class ParametersTable
-	extends DataManager
+class ParametersTable extends Data\DataManager
 {
 	const SEF_MODE = 'Y';
 	const NOT_SEF_MODE = 'N';
@@ -79,7 +79,7 @@ class ParametersTable
 		if (empty($siteId))
 			throw new \Bitrix\Main\ArgumentNullException("siteId");
 
-		$result = new \Bitrix\Main\Entity\DeleteResult();
+		$result = new Data\DeleteResult();
 
 		// event PRE
 
@@ -101,7 +101,7 @@ class ParametersTable
 		if (empty($filter))
 			throw new \Bitrix\Main\ArgumentNullException("filter");
 
-		$result = new \Bitrix\Main\Entity\DeleteResult();
+		$result = new Data\DeleteResult();
 
 		$dbResult = static::getList(
 			array(

@@ -1,5 +1,11 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Localization\Loc;
 ?>
 
 <?
@@ -43,25 +49,25 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 	<td><?=CBPDocument::ShowParameterField("string", 'task_button_message', $arCurrentValues['task_button_message'], Array('size'=>'50'))?></td>
 </tr>
 <tr>
-	<td align="right"><?= GetMessage("BPAR_PD_SHOW_COMMENT") ?>:</td>
+	<td align="right"><?= Loc::getMessage('BPAR_PD_SHOW_COMMENT_1') ?>:</td>
 	<td>
 		<select name="show_comment">
-			<option value="Y"<?= $arCurrentValues["show_comment"] != "N" ? " selected" : "" ?>><?= GetMessage("BPAR_PD_YES") ?></option>
-			<option value="N"<?= $arCurrentValues["show_comment"] == "N" ? " selected" : "" ?>><?= GetMessage("BPAR_PD_NO") ?></option>
+			<option value="Y"<?= $arCurrentValues["show_comment"] !== "N" ? " selected" : "" ?>><?= GetMessage("BPAR_PD_YES") ?></option>
+			<option value="N"<?= $arCurrentValues["show_comment"] === "N" ? " selected" : "" ?>><?= GetMessage("BPAR_PD_NO") ?></option>
 		</select>
 	</td>
 </tr>
 <tr>
-	<td align="right"><?= GetMessage("BPAR_PD_COMMENT_REQUIRED") ?>:</td>
+	<td align="right"><?= Loc::getMessage('BPAR_PD_COMMENT_REQUIRED_1') ?>:</td>
 	<td>
 		<select name="comment_required">
 			<option value="N"><?= GetMessage("BPAR_PD_NO") ?></option>
-			<option value="Y"<?= $arCurrentValues["comment_required"] == "Y" ? " selected" : "" ?>><?= GetMessage("BPAR_PD_YES") ?></option>
+			<option value="Y"<?= $arCurrentValues["comment_required"] === "Y" ? " selected" : "" ?>><?= GetMessage("BPAR_PD_YES") ?></option>
 		</select>
 	</td>
 </tr>
 <tr>
-	<td align="right"><?= GetMessage("BPAR_PD_COMMENT_LABEL_MESSAGE") ?>:</td>
+	<td align="right"><?= Loc::getMessage('BPAR_PD_COMMENT_LABEL_MESSAGE_1') ?>:</td>
 	<td><?=CBPDocument::ShowParameterField("string", 'comment_label_message', $arCurrentValues['comment_label_message'], Array('size'=>'50'))?></td>
 </tr>
 <tr>

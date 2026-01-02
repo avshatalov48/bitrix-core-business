@@ -10,7 +10,7 @@ return [
 	'rel' => [
 		'main.core',
 		'im.v2.lib.market',
-		'im.v2.component.elements',
+		'im.v2.component.elements.loader',
 	],
 	'skip_core' => false,
 ];

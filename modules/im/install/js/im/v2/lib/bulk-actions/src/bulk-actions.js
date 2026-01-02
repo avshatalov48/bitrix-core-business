@@ -1,9 +1,8 @@
 import { BaseEvent, EventEmitter } from 'main.core.events';
-import { Event } from 'main.core';
 
 import { EventType } from 'im.v2.const';
 import { Core } from 'im.v2.application.core';
-import { Utils } from 'im.v2.lib.utils';
+import { EscEventAction } from 'im.v2.lib.esc-manager';
 
 export class BulkActionsManager
 {
@@ -19,50 +18,63 @@ export class BulkActionsManager
 		return this.#instance;
 	}
 
-	init()
+	static init()
 	{
-		this.enableBulkModeHandler = this.enableBulkMode.bind(this);
-		this.disableBulkModeHandler = this.disableBulkMode.bind(this);
+		BulkActionsManager.getInstance();
+	}
+
+	constructor()
+	{
+		EventEmitter.subscribe(EventType.dialog.openBulkActionsMode, this.enableBulkMode.bind(this));
+		EventEmitter.subscribe(EventType.dialog.closeBulkActionsMode, this.disableBulkMode.bind(this));
+
 		this.keyPressHandler = this.#onKeyPressCloseBulkActions.bind(this);
-
-		EventEmitter.subscribe(EventType.dialog.openBulkActionsMode, this.enableBulkModeHandler);
-		EventEmitter.subscribe(EventType.dialog.closeBulkActionsMode, this.disableBulkModeHandler);
 	}
 
-	destroy()
+	enableBulkMode(event: BaseEvent<{messageId: number, dialogId: string}>)
 	{
-		EventEmitter.unsubscribe(EventType.dialog.openBulkActionsMode, this.enableBulkModeHandler);
-		EventEmitter.unsubscribe(EventType.dialog.closeBulkActionsMode, this.disableBulkModeHandler);
+		const { messageId, dialogId } = event.getData();
 
-		Event.unbind(document, 'keydown', this.keyPressHandler);
+		void Core.getStore().dispatch('messages/select/enableBulkMode', {
+			messageId,
+			dialogId,
+		});
+
+		this.#bindEscHandler();
 	}
 
-	enableBulkMode(event: BaseEvent<{messageId: number}>)
+	disableBulkMode(event: BaseEvent<{dialogId: string}>)
 	{
-		const { messageId } = event.getData();
+		const { dialogId } = event.getData();
 
-		void Core.getStore().dispatch('messages/select/toggle', messageId);
-		this.#toggleBulkActionsMode(true);
+		void Core.getStore().dispatch('messages/select/disableBulkMode', {
+			dialogId,
+		});
 
-		Event.bind(document, 'keydown', this.keyPressHandler);
+		this.#unbindEscHandler();
 	}
 
-	disableBulkMode()
+	clearCollection()
 	{
-		void Core.getStore().dispatch('messages/select/clear');
-		this.#toggleBulkActionsMode(false);
+		void Core.getStore().dispatch('messages/select/clearCollection');
+
+		this.#unbindEscHandler();
 	}
 
-	#toggleBulkActionsMode(active: boolean)
+	#bindEscHandler()
 	{
-		void Core.getStore().dispatch('messages/select/toggleBulkActionsMode', active);
+		EventEmitter.subscribe(EventType.key.onBeforeEscape, this.keyPressHandler);
 	}
 
-	#onKeyPressCloseBulkActions(event: KeyboardEvent)
+	#unbindEscHandler()
 	{
-		if (Utils.key.isCombination(event, 'Escape'))
-		{
-			this.disableBulkMode();
-		}
+		EventEmitter.unsubscribe(EventType.key.onBeforeEscape, this.keyPressHandler);
+	}
+
+	#onKeyPressCloseBulkActions(): $Values<typeof EscEventAction>
+	{
+		this.clearCollection();
+
+		return EscEventAction.handled;
 	}
 }

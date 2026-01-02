@@ -9,6 +9,7 @@ return [
 	'css' => 'dist/interface.bundle.css',
 	'js' => 'dist/interface.bundle.js',
 	'rel' => [
+		'ui.switcher',
 		'main.date',
 		'calendar.sharing.analytics',
 		'ui.entity-selector',
@@ -19,7 +20,6 @@ return [
 		'ui.icon-set.actions',
 		'main.qrcode',
 		'ui.design-tokens',
-		'ui.switcher',
 		'spotlight',
 		'ui.tour',
 		'ui.cnt',

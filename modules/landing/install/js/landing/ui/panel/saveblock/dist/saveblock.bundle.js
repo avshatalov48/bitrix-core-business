@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
@@ -5,10 +6,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	'use strict';
 
 	var _templateObject;
+
 	/**
 	 * @memberOf BX.Landing.UI.Panel
 	 */
-
 	var SaveBlock = /*#__PURE__*/function (_Content) {
 	  babelHelpers.inherits(SaveBlock, _Content);
 	  babelHelpers.createClass(SaveBlock, null, [{
@@ -17,23 +18,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      if (!SaveBlock.instance) {
 	        SaveBlock.instance = new SaveBlock('landing_save_block_panel');
 	      }
-
 	      return SaveBlock.instance;
 	    }
 	  }]);
-
 	  function SaveBlock(id, data) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, SaveBlock);
 	    data = data || {};
 	    data.title = landing_loc.Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_TITLE_MSGVER_1');
 	    data.showFromRight = true;
-
 	    if (!data.block) {
 	      return babelHelpers.possibleConstructorReturn(_this);
 	    }
-
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SaveBlock).call(this, id, data));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "cache", new main_core.Cache.MemoryCache());
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "bock", null);
@@ -42,14 +38,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.mainInstance = landing_main.Main.getInstance();
 	    main_core.Dom.addClass(_this.layout, 'landing-ui-panel-save-block');
 	    main_core.Dom.addClass(_this.overlay, 'landing-ui-panel-save-block');
-
 	    _this.setButtons();
-
 	    _this.renderTo(window.parent.document.body);
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(SaveBlock, [{
 	    key: "setButtons",
 	    value: function setButtons() {
@@ -79,12 +71,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function getSectionsField() {
 	      return this.cache.remember('sectionsField', function () {
 	        var items = [];
-
 	        var _Env$getInstance$getO = landing_env.Env.getInstance().getOptions(),
-	            blocks = _Env$getInstance$getO.blocks;
-
+	          blocks = _Env$getInstance$getO.blocks;
 	        Object.keys(blocks).map(function (key) {
-	          if (key !== 'last' && key !== 'separator_apps' && key.indexOf('.') === -1) {
+	          if (key !== 'last' && key !== 'favourite' && key !== 'separator_apps' && key.indexOf('.') === -1) {
 	            items.push({
 	              value: key,
 	              name: blocks[key].name
@@ -113,7 +103,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getPreviewField",
 	    value: function getPreviewField() {
 	      var _this2 = this;
-
 	      return this.cache.remember('preview', function () {
 	        return new BX.Landing.UI.Field.Image({
 	          title: landing_loc.Loc.getMessage('LANDING_SAVE_BLOCK_PANEL_FIELD_PREVIEW'),
@@ -152,7 +141,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getForm",
 	    value: function getForm() {
 	      var _this3 = this;
-
 	      return this.cache.remember('form', function () {
 	        return new BX.Landing.UI.Form.BaseForm({
 	          fields: [_this3.getTitleField(), _this3.getSectionsField(), _this3.mainInstance.getTemplateCode() ? _this3.getTemplateRefField() : null, _this3.getPreviewField()]
@@ -163,7 +151,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "makeScreenshot",
 	    value: function makeScreenshot() {
 	      var _this4 = this;
-
 	      this.getPreviewField().showLoader();
 	      void landing_screenshoter.Screenshoter.makeBlockScreenshot(this.block.id).then(function (sourceFile) {
 	        return landing_imagecompressor.ImageCompressor.compress(sourceFile, {
@@ -177,7 +164,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        });
 	      }).then(function (response) {
 	        _this4.getPreviewField().setValue(response);
-
 	        _this4.getPreviewField().hideLoader();
 	      });
 	    }
@@ -185,7 +171,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "show",
 	    value: function show(options) {
 	      var _this$block, _this$block$manifest, _this$block$manifest$, _this$block2, _this$block2$manifest, _this$block2$manifest2, _this$block3, _this$block3$manifest, _this$block4, _this$block4$manifest, _this$block4$manifest2;
-
 	      main_core.Dom.style(this.footer, 'display', null);
 	      this.getTitleField().setValue((_this$block = this.block) === null || _this$block === void 0 ? void 0 : (_this$block$manifest = _this$block.manifest) === null || _this$block$manifest === void 0 ? void 0 : (_this$block$manifest$ = _this$block$manifest.block) === null || _this$block$manifest$ === void 0 ? void 0 : _this$block$manifest$.name);
 	      this.getSectionsField().setValue(((_this$block2 = this.block) === null || _this$block2 === void 0 ? void 0 : (_this$block2$manifest = _this$block2.manifest) === null || _this$block2$manifest === void 0 ? void 0 : (_this$block2$manifest2 = _this$block2$manifest.block) === null || _this$block2$manifest2 === void 0 ? void 0 : _this$block2$manifest2.section) || []);
@@ -210,9 +195,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "onSave",
 	    value: function onSave() {
 	      var _this$block5,
-	          _this$block5$manifest,
-	          _this5 = this;
-
+	        _this$block5$manifest,
+	        _this5 = this;
 	      var backend = landing_backend.Backend.getInstance();
 	      var title = this.getTitleField().getValue();
 	      var templateRef = this.getTemplateRefField().getValue().length > 0;
@@ -221,11 +205,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var sections = this.getSectionsField().getValue();
 	      this.clear();
 	      this.hide();
-
 	      if (!blockCode) {
 	        return;
 	      }
-
 	      backend.action('Landing::favoriteBlock', {
 	        lid: this.block.lid,
 	        block: this.block.id,

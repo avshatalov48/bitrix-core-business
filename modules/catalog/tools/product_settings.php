@@ -21,15 +21,21 @@ if (!Loader::includeModule('catalog'))
 	die();
 }
 
-if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS))
+$accessController = AccessController::getCurrent();
+if (
+	!$accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+	|| !$accessController->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS)
+)
 {
 	ShowError(Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_ACCESS_DENIED'));
+
 	die();
 }
 
 if (!check_bitrix_sessid())
 {
 	ShowError(Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_ERRORS_INCORRECT_SESSION'));
+
 	die();
 }
 
@@ -37,9 +43,12 @@ $request = Main\Context::getCurrent()->getRequest();
 
 $settingIds = [
 	'default_quantity_trace',
-	'default_can_buy_zero',
 	'default_subscribe',
 ];
+if ($accessController->check(ActionDictionary::ACTION_SELL_NEGATIVE_COMMODITIES_SETTINGS_EDIT))
+{
+	$settingIds[] = 'default_can_buy_zero';
+}
 $settings = [];
 foreach ($settingIds as $id)
 {

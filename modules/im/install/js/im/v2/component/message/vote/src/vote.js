@@ -25,10 +25,10 @@ export const VoteMessage = {
 		{
 			messageComponentToRender(): BitrixVueComponentProps
 			{
-				return VoteChatDisplay ? VoteChatDisplay : UnsupportedMessage;
+				return VoteChatDisplay || UnsupportedMessage;
 			},
 		},
 	template: `
-		<component :is="messageComponentToRender" :item="item" :dialogId="dialogId" :withTitle="withTitle" />
+		<component :is="messageComponentToRender" :item="item" :dialogId="dialogId"/>
 	`,
 };

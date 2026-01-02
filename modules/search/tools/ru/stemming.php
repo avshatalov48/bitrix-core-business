@@ -126,11 +126,12 @@ function stemming_ru($word, $flags = 0)
 		'РУКАВ' => 'РУКАВ',
 		'ПРИЕМ' => 'ПРИЕМ',
 		'ОХРАНА' => 'ОХРАН',
+		'ОХРАНЫ' => 'ОХРАН',
 		'ЗАЖИМ' => 'ЗАЖИМ',
 	];
 	if (isset($STEMMING_RU_EX[$word]))
 	{
-		return $word;
+		return $STEMMING_RU_EX[$word];
 	}
 
 	//HERE IS AN ATTEMPT TO STEM RUSSIAN SECOND NAMES BEGINS

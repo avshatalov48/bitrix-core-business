@@ -1,12 +1,9 @@
 import { EventEmitter } from 'main.core.events';
 import { Event as CoreEvent } from 'main.core';
 
-import { Messenger } from 'im.public';
-import { Utils } from 'im.v2.lib.utils';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { RecentList } from 'im.v2.component.list.items.recent';
-import { ChatSearchInput } from 'im.v2.component.search.chat-search-input';
-import { ChatSearch } from 'im.v2.component.search.chat-search';
+import { ChatSearchInput, ChatSearch } from 'im.v2.component.search';
 import { Layout, EventType, ActionByUserType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 
@@ -16,11 +13,6 @@ import { CreateChatMenu } from './components/create-chat-menu/create-chat-menu';
 import './css/recent-container.css';
 
 import type { JsonObject } from 'main.core';
-
-const searchConfig = Object.freeze({
-	chats: true,
-	users: true,
-});
 
 // @vue/component
 export const RecentListContainer = {
@@ -38,7 +30,6 @@ export const RecentListContainer = {
 	},
 	computed:
 	{
-		searchConfig: () => searchConfig,
 		canCreateChat(): boolean
 		{
 			const actions = [
@@ -67,7 +58,7 @@ export const RecentListContainer = {
 	{
 		onChatClick(dialogId)
 		{
-			this.$emit('selectEntity', { layoutName: Layout.chat.name, entityId: dialogId });
+			this.$emit('selectEntity', { layoutName: Layout.chat, entityId: dialogId });
 		},
 		onOpenSearch()
 		{
@@ -86,7 +77,7 @@ export const RecentListContainer = {
 		onDocumentClick(event: Event)
 		{
 			const clickOnRecentContainer = event.composedPath().includes(this.$refs['recent-container']);
-			if (!clickOnRecentContainer)
+			if (this.searchMode && !clickOnRecentContainer)
 			{
 				EventEmitter.emit(EventType.search.close);
 			}
@@ -94,17 +85,6 @@ export const RecentListContainer = {
 		onLoading(value: boolean)
 		{
 			this.isSearchLoading = value;
-		},
-		async onItemClick(event: {dialogId: string, nativeEvent: KeyboardEvent})
-		{
-			const { dialogId, nativeEvent } = event;
-
-			void Messenger.openChat(dialogId);
-
-			if (!Utils.key.isAltOrOption(nativeEvent))
-			{
-				EventEmitter.emit(EventType.search.close);
-			}
 		},
 	},
 	template: `
@@ -127,11 +107,8 @@ export const RecentListContainer = {
 					<ChatSearch 
 						v-show="searchMode" 
 						:searchMode="searchMode"
-						:searchQuery="searchQuery"
-						:searchConfig="searchConfig"
-						:saveSearchHistory="true"
+						:query="searchQuery"
 						@loading="onLoading"
-						@clickItem="onItemClick"
 					/>
 					<RecentList v-show="!searchMode && !unreadOnlyMode" @chatClick="onChatClick" />
 				</div>

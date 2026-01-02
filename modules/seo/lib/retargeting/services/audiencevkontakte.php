@@ -12,7 +12,7 @@ class AudienceVkontakte extends Audience
 
 	const MAX_CONTACTS_PER_PACKET = 1000;
 	const MIN_CONTACTS_FOR_ACTIVATING = 20;
-	const URL_AUDIENCE_LIST = 'https://ads.vk.com/hq/audience/user_lists';
+	const URL_AUDIENCE_LIST = 'https://ads.vk.ru/hq/audience/user_lists';
 
 	const ENUM_CONTACT_TYPE_IDFA_GAID = 'gaid'; // IDFA (Identifier For Advertising) or device ID (Android ID and UDID on iOS)
 	const ENUM_CONTACT_TYPE_INTERNAL_ID = 'vk';

@@ -60,6 +60,53 @@
 		});
 	};
 
+	BX.Bizproc.WorkflowEditComponent.Globals.showDrafts = function(signedDocumentType)
+	{
+		const url = BX.Uri.addParam('/bitrix/tools/bizproc/show_dratfs_tmp.php', { signedDocumentType });
+
+		BX.SidePanel.Instance.open(url, {
+			width: 900,
+			cacheable: false,
+			allowChangeHistory: false,
+		});
+	};
+
+	BX.Bizproc.WorkflowEditComponent.Globals.loadDraft = function(draftId)
+	{
+		return new Promise((resolve, reject) => {
+			BX.ajax.runAction('bizprocdesigner.Template.loadDraft', {
+				data: { draftId },
+			}).then((response) => {
+				if (!response.data || !response.data.TEMPLATE_DATA)
+				{
+					return;
+				}
+
+				const { TEMPLATE, NAME, DESCRIPTION, AUTO_EXECUTE, SORT, IS_SYSTEM } = response.data.TEMPLATE_DATA;
+
+				if (!TEMPLATE || TEMPLATE.length === 0)
+				{
+					return;
+				}
+
+				arWorkflowTemplate = TEMPLATE[0];
+				workflowTemplateName = NAME || '';
+				workflowTemplateDescription = DESCRIPTION || '';
+				workflowTemplateAutostart = AUTO_EXECUTE || 1;
+				workflowTemplateSort = SORT || 10;
+				workflowTemplateIsSystem = IS_SYSTEM ?? 'N';
+
+				BPTemplateIsModified = true;
+
+				ReDraw();
+
+				resolve(response.data);
+			}).catch((error) => {
+				alert(error.errors?.[0]?.message);
+				reject(error);
+			});
+		});
+	};
 })();
 
 function BPImportToClipboard()

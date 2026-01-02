@@ -1,0 +1,7 @@
+<?php
+$MESS['IM_LIB_AUTO_DELETE_STATUS_OFF'] = "Выкл";
+$MESS['IM_LIB_AUTO_DELETE_STATUS_1H'] = "Через 1 час";
+$MESS['IM_LIB_AUTO_DELETE_STATUS_1D'] = "Через 1 день";
+$MESS['IM_LIB_AUTO_DELETE_STATUS_1W'] = "Через 1 неделю";
+$MESS['IM_LIB_AUTO_DELETE_STATUS_1M'] = "Через 1 месяц";
+$MESS['IM_LIB_AUTO_DELETE_STATUS_CUSTOM'] = "Через #NUMBER# час(ов)";

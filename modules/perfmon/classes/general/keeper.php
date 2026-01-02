@@ -594,7 +594,13 @@ class CPerfomanceKeeper
 				'MODULE_NAME' => $module_id,
 				'COMPONENT_NAME' => $comp_id,
 				'SQL_TEXT' => $arQueryInfo['QUERY'],
+				'SELECTED_ROWS' => $arQueryInfo->getSelectedRowsCount(),
+				'SELECTED_FIELDS' => $arQueryInfo->getSelectedFieldsCount(),
+				'FETCHED_ROWS' => $arQueryInfo->getFetchedRowsCount(),
+				'FETCHED_LENGTH' => $arQueryInfo->getLength(),
+				'HAS_BIG_FIELDS' => $arQueryInfo->hasBigFields() ? 'Y' : 'N',
 			];
+
 			$SQL_ID = $DB->Add('b_perf_sql', $arFields, ['SQL_TEXT']);
 
 			if ($SQL_ID && COption::GetOptionString('perfmon', 'sql_backtrace') === 'Y')

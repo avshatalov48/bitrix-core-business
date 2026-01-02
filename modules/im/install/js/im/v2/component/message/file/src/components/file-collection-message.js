@@ -35,6 +35,7 @@ export const FileCollectionMessage = {
 			default: true,
 		},
 	},
+	emits: ['cancelClick'],
 	computed:
 	{
 		FileType: () => FileType,
@@ -66,6 +67,10 @@ export const FileCollectionMessage = {
 			const context = { dialogId: this.dialogId, fileId, ...this.message };
 			this.contextMenu.openMenu(context, event.target);
 		},
+		onCancel(event)
+		{
+			this.$emit('cancelClick', event);
+		},
 	},
 	template: `
 		<BaseMessage :item="item" :dialogId="dialogId">
@@ -78,6 +83,7 @@ export const FileCollectionMessage = {
 						:id="fileId"
 						:messageId="messageId"
 						@openContextMenu="onOpenContextMenu"
+						@cancelClick="onCancel"
 					/>
 				</div>
 				<DefaultMessageContent 

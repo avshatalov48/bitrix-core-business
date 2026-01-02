@@ -1,0 +1,22 @@
+<?php
+$MESS["MAIN_ADMIN_LIST_CHECKED"] = "Белгіленген:";
+$MESS["MAIN_ADMIN_LIST_DELETE"] = "жою";
+$MESS["MAIN_ADMIN_LIST_SELECTED"] = "Таңдалған:";
+$MESS["SONET_ADMIN_LIST_CHANGE_OWNER"] = "Иесін өзгерту";
+$MESS["SONET_DELETE_ALT"] = "Топты жою";
+$MESS["SONET_DELETE_CONF"] = "Бұл топты жойғыңыз келетініне сенімдісіз бе?";
+$MESS["SONET_DELETE_ERROR"] = "Топты жою қатесі";
+$MESS["SONET_ERROR_UPDATE"] = "Топ параметрлерін жаңарту қатесі";
+$MESS["SONET_FILTER_SITE_ID"] = "Сайт";
+$MESS["SONET_FILTER_SUBJECT_ID"] = "Тақырып";
+$MESS["SONET_GROUP_NAME"] = "Атауы";
+$MESS["SONET_GROUP_NAV"] = "Топтар";
+$MESS["SONET_GROUP_OWNER_ID"] = "Иесі";
+$MESS["SONET_GROUP_SUBJECT_ID"] = "Тақырып";
+$MESS["SONET_OWNER_ID"] = "Иесінің ID-і";
+$MESS["SONET_OWNER_USER"] = "Иесі";
+$MESS["SONET_SPT_ALL"] = "[барлығы]";
+$MESS["SONET_SUBJECT_SORT"] = "Сұрыптау";
+$MESS["SONET_TITLE"] = "Топтар";
+$MESS["SONET_UPDATE_ALT"] = "Топ параметрлерін өзгерту";
+$MESS["USER_NAME_TEMPLATE"] = "[#ID#] #LAST_NAME# #NAME#";

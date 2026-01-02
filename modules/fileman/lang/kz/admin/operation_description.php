@@ -1,0 +1,26 @@
+<?php
+$MESS["OP_NAME_FILEMAN_ADD_ELEMENT_TO_MENU"] = "Мәзірге тармақтарды қосу";
+$MESS["OP_NAME_FILEMAN_ADMIN_FILES"] = "Файлдарды басқару";
+$MESS["OP_NAME_FILEMAN_ADMIN_FOLDERS"] = "Бумаларды басқару";
+$MESS["OP_NAME_FILEMAN_EDIT_ALL_SETTINGS"] = "Модуль баптауларын редакциялау";
+$MESS["OP_NAME_FILEMAN_EDIT_EXISTENT_FILES"] = "Файлдарды редакциялау";
+$MESS["OP_NAME_FILEMAN_EDIT_EXISTENT_FOLDERS"] = "Бума/бөлім параметрлерін редакциялау";
+$MESS["OP_NAME_FILEMAN_EDIT_MENU_ELEMENTS"] = "Мәзір тармақтарын редакциялау";
+$MESS["OP_NAME_FILEMAN_EDIT_MENU_TYPES"] = "Мәзір түрлерін басқару";
+$MESS["OP_NAME_FILEMAN_INSTALL_CONTROL"] = "Модульді орнату / жою";
+$MESS["OP_NAME_FILEMAN_UPLOAD_FILES"] = "Файлдарды жүктеу";
+$MESS["OP_NAME_FILEMAN_VIEW_ALL_SETTINGS"] = "Модуль баптауларын қарау";
+$MESS["OP_NAME_FILEMAN_VIEW_FILE_STRUCTURE"] = "Файлдық құрылымын қарау";
+$MESS["OP_NAME_FILEMAN_VIEW_PERMISSIONS"] = "Файлдар мен бумаларға қолжетімділік құқығын қарау";
+$MESS["OP_NAME_MEDIALIB_ACCESS"] = "Топтамаларға қол жеткізу құқықтарын басқару";
+$MESS["OP_NAME_MEDIALIB_DEL_COLLECTION"] = "Медиадерекхана топтамаларын жою";
+$MESS["OP_NAME_MEDIALIB_DEL_ITEM"] = "Медиадерекхана элементтерін жою";
+$MESS["OP_NAME_MEDIALIB_EDIT_COLLECTION"] = "Медиадерекхана топтамаларын редакциялау";
+$MESS["OP_NAME_MEDIALIB_EDIT_ITEM"] = "Медиадерекхана элементтерін редакциялау";
+$MESS["OP_NAME_MEDIALIB_NEW_COLLECTION"] = "Медиадерекхананың жаңа топтамаларын жасау";
+$MESS["OP_NAME_MEDIALIB_NEW_ITEM"] = "Медиадерекхана элементтерін жасау";
+$MESS["OP_NAME_MEDIALIB_VIEW_COLLECTION"] = "Медиадерекхана топтамаларын қарау";
+$MESS["OP_NAME_STICKER_DEL"] = "Стикерлерді жою";
+$MESS["OP_NAME_STICKER_EDIT"] = "Стикерлерді редакциялау ";
+$MESS["OP_NAME_STICKER_NEW"] = "Жаңа стикерлерді қосу";
+$MESS["OP_NAME_STICKER_VIEW"] = "Стикерлерді қарау";

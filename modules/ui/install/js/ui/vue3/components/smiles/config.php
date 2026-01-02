@@ -1,4 +1,5 @@
-<?
+<?php
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -13,10 +14,9 @@ return [
 	],
 	'rel' => [
 		'main.polyfill.core',
-		'ui.vue3.directives.lazyload',
-		'ui.vue3',
-		'ui.dexie',
 		'rest.client',
+		'ui.dexie',
+		'ui.vue3.directives.lazyload',
 	],
 	'skip_core' => true,
 ];

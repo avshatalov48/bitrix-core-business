@@ -257,29 +257,39 @@ class UserContentView
 			];
 		}
 
-		$userIdToCheckList = [];
+		$userId = $USER->getId();
 
+		$userIdToCheckList = [];
 		if (Loader::includeModule('extranet'))
 		{
 			$userIdToCheckList = (
-				\CExtranet::isIntranetUser(SITE_ID, $USER->getId())
+				\CExtranet::isIntranetUser(SITE_ID, $userId)
 					? $extranetIdList
 					: array_keys($userList)
 			);
 		}
 
+		$isTaskContentId = str_contains($contentId, 'TASK');
 		if (!empty($userIdToCheckList))
 		{
 			$myGroupsUserList = \CExtranet::getMyGroupsUsersSimple(\CExtranet::getExtranetSiteID());
+
 			foreach ($userIdToCheckList as $userIdToCheck)
 			{
 				if (
 					!in_array($userIdToCheck, $myGroupsUserList)
-					&& $userIdToCheck != $USER->getId()
+					&& $userIdToCheck != $userId
 				)
 				{
-					unset($userList[$userIdToCheck]);
-					$result['hiddenCount']++;
+					if ($isTaskContentId)
+					{
+						$userList[$userIdToCheck]['PUBLIC_MODE'] = false;
+					}
+					else
+					{
+						unset($userList[$userIdToCheck]);
+						$result['hiddenCount']++;
+					}
 				}
 			}
 		}

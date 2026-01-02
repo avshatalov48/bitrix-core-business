@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'main.core',
 		'ui.buttons',
+		'ui.icon-set.api.core',
 	],
 	'skip_core' => false,
 ];

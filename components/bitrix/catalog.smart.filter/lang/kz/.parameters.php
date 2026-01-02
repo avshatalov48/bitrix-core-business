@@ -1,0 +1,21 @@
+<?php
+$MESS["CP_BCSF_CACHE_GROUPS"] = "Қолжетімділік құқықтарын ескеру";
+$MESS["CP_BCSF_CONVERT_CURRENCY"] = "Бағаларды бір валютада көрсету";
+$MESS["CP_BCSF_CURRENCY_ID"] = "Бағалар айырбасталатын валюта";
+$MESS["CP_BCSF_FILTER_NAME"] = "Шығатын массивтің атауы үшін сүзгілеу";
+$MESS["CP_BCSF_GROUP_XML_EXPORT"] = "Яндекс Аралдарын қолдау (сүзгіні XML-ге экспорттау)";
+$MESS["CP_BCSF_HIDE_NOT_AVAILABLE_EXT"] = "Қолжетімсіз тауарларды көрсетпеу";
+$MESS["CP_BCSF_IBLOCK_ID"] = "Ақпараттық блок";
+$MESS["CP_BCSF_IBLOCK_TYPE"] = "Ақпараттық блоктың түрі";
+$MESS["CP_BCSF_PAGER_PARAMS_NAME"] = "Парақша бойынша навигацияда сілтемелер құру үшін айнымалылар массивінің атауы.";
+$MESS["CP_BCSF_PREFILTER_NAME"] = "Элементтерді қосымша сүзу үшін кіріс массивінің атауы";
+$MESS["CP_BCSF_PRICES"] = "Бағалар";
+$MESS["CP_BCSF_PRICE_CODE"] = "Баға түрі";
+$MESS["CP_BCSF_SAVE_IN_SESSION"] = "Пайдаланушы сессиясында сүзгі баптауларын сақтау";
+$MESS["CP_BCSF_SECTION_CODE"] = "Бөлім коды";
+$MESS["CP_BCSF_SECTION_CODE_PATH"] = "Бөлімнің символдық кодтарынан жол";
+$MESS["CP_BCSF_SECTION_DESCRIPTION"] = "Сипаттама";
+$MESS["CP_BCSF_SECTION_ID"] = "Ақпараттық блок бөлімінің ID-і";
+$MESS["CP_BCSF_SECTION_TITLE"] = "Тақырыпаты";
+$MESS["CP_BCSF_SMART_FILTER_PATH"] = "Ақылды сүзгінің СББ блогы";
+$MESS["CP_BCSF_XML_EXPORT"] = "Яндекс Аралдарын қолдауды қосу";

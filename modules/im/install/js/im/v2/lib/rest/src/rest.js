@@ -9,11 +9,15 @@ type RunActionConfig = {
 	analyticsLabel?: JsonObject
 };
 
+type RunActionResultData = any;
+
 type RunActionResult = {
 	status: 'success' | 'error',
-	data: any,
+	data: RunActionResultData,
 	errors: RunActionError[]
 };
+
+type RunActionResponse = RunActionResultData | RunActionError[];
 
 export type RunActionError = {
 	code: number | string,
@@ -21,26 +25,45 @@ export type RunActionError = {
 	message: string
 };
 
+export type CallBatchError = {
+	method: string,
+	code: string,
+	description: string,
+};
+
 type BatchQuery = {
 	[method: string]: {[param: string]: any}
 }
 
-const INVALID_AUTH_ERROR_CODE = 'invalid_authentication';
-let retryAllowed = true;
+type ErrorsConfig = {
+	retryCount: number,
+	timeout: ?number,
+}
 
-export const runAction = (action: string, config: RunActionConfig = {}): Promise<RunActionResult> => {
+const INVALID_AUTH_ERROR_CODE = 'invalid_authentication';
+
+const errorCodesConfig = {
+	[INVALID_AUTH_ERROR_CODE]: { retryCount: 1, timeout: null },
+};
+
+let retryCounter = null;
+
+export const runAction = (action: string, config: RunActionConfig = {}): Promise<RunActionResponse> => {
 	const preparedConfig = { ...config, data: prepareRequestData(config.data) };
 
 	return new Promise((resolve, reject) => {
 		ajax.runAction(action, preparedConfig).then((response: RunActionResult) => {
-			retryAllowed = true;
+			retryCounter = null;
 
 			return resolve(response.data);
 		}).catch((response: RunActionResult) => {
+			if (retryCounter === 0)
+			{
+				return reject(response.errors);
+			}
+
 			if (needRetryRequest(response.errors))
 			{
-				retryAllowed = false;
-
 				return handleErrors(action, preparedConfig, response);
 			}
 
@@ -49,18 +72,48 @@ export const runAction = (action: string, config: RunActionConfig = {}): Promise
 	});
 };
 
-const handleErrors = async (action: string, config: RunActionConfig, response: RunActionResult) => {
-	await EventEmitter.emitAsync(EventType.request.onAuthError, { errors: response.errors });
+const needRetryRequest = (responseErrors: RunActionError[]): boolean => {
+	return responseErrors.some((responseError) => errorCodesConfig[responseError.code]);
+};
+
+const handleErrors = async (
+	action: string,
+	config: RunActionConfig,
+	response: RunActionResult,
+): Promise<RunActionResult> => {
+	const errorConfig = getErrorConfig(response.errors);
+
+	if (!retryCounter)
+	{
+		retryCounter = errorConfig.retryCount;
+	}
+
+	retryCounter--;
+
+	if (hasInvalidAuthError(response.errors))
+	{
+		await EventEmitter.emitAsync(EventType.request.onAuthError, { errors: response.errors });
+	}
+
+	if (errorConfig.timeout)
+	{
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				resolve(runAction(action, config));
+			}, errorConfig.timeout);
+		});
+	}
 
 	return runAction(action, config);
 };
 
-const needRetryRequest = (responseErrors: RunActionError[]): boolean => {
-	if (!retryAllowed)
-	{
-		return false;
-	}
+const getErrorConfig = (responseErrors: RunActionError[]): ErrorsConfig => {
+	const error = responseErrors.find((responseError) => errorCodesConfig[responseError.code]);
 
+	return errorCodesConfig[error.code];
+};
+
+const hasInvalidAuthError = (responseErrors: RunActionError[]): boolean => {
 	return responseErrors.some((error) => error.code === INVALID_AUTH_ERROR_CODE);
 };
 

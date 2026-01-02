@@ -55,28 +55,6 @@
     bottom: 0;
 }
 
-.report-visualconstructor-dashboard-widget-properties-popup-wrapper
-{
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
-.report-visualconstructor-dashboard-widget-properties-popup-item
-{
-    font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-    color: #525c68;
-    line-height: 36px;
-    padding: 0 15px 0 9px;
-    text-decoration: none;
-    vertical-align: middle;
-    -webkit-transition: color 0.2s linear;
-    transition: color 0.2s linear;
-    cursor: pointer;
-}
-.report-visualconstructor-dashboard-widget-properties-popup-item:hover
-{
-    background-color: #f6f8f9;
-}
 
 .report-visualconstructor-dashboard-widget-lazy-load-preset-disable {
     display: none;

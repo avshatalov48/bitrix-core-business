@@ -1,10 +1,15 @@
 <?php
+
 namespace Bitrix\Bizproc\Script\Queue;
 
 use Bitrix\Bizproc\Script\Entity\EO_Script;
 use Bitrix\Bizproc\Script\Entity\EO_ScriptQueueDocument;
 use Bitrix\Bizproc\Script\Entity\ScriptQueueTable;
 use Bitrix\Bizproc\Script\Manager;
+use Bitrix\Bizproc\Starter\Dto\ContextDto;
+use Bitrix\Bizproc\Starter\Dto\DocumentDto;
+use Bitrix\Bizproc\Starter\Enum\Scenario;
+use Bitrix\Bizproc\Starter\Starter;
 use Bitrix\Main;
 
 final class Stepper extends Main\Update\Stepper
@@ -25,6 +30,7 @@ final class Stepper extends Main\Update\Stepper
 		if ($result['steps'] >= $result['count'])
 		{
 			ScriptQueueTable::markCompleted($queueId);
+
 			return self::FINISH_EXECUTION;
 		}
 
@@ -33,6 +39,7 @@ final class Stepper extends Main\Update\Stepper
 		if (!$script)
 		{
 			ScriptQueueTable::delete($queueId);
+
 			return self::FINISH_EXECUTION;
 		}
 
@@ -41,10 +48,12 @@ final class Stepper extends Main\Update\Stepper
 		if (!$document)
 		{
 			ScriptQueueTable::markCompleted($queueId);
+
 			return self::FINISH_EXECUTION;
 		}
 
 		ScriptQueueTable::markExecuting($queueId);
+
 		return $this->executeDocument($document, $script);
 	}
 
@@ -82,13 +91,34 @@ final class Stepper extends Main\Update\Stepper
 				$startParameters = [];
 			}
 
-			$startParameters[\CBPDocument::PARAM_TAGRET_USER] = 'user_' . $queue->getStartedBy();
-			$startParameters[\CBPDocument::PARAM_USE_FORCED_TRACKING] = true;
-			$startParameters[\CBPDocument::PARAM_IGNORE_SIMULTANEOUS_PROCESSES_LIMIT] = true;
-			$startParameters[\CBPDocument::PARAM_DOCUMENT_TYPE] = $documentType;
-			$startParameters[\CBPDocument::PARAM_DOCUMENT_EVENT_TYPE] = \CBPDocumentEventType::Script;
+			if (Starter::isEnabled())
+			{
+				$starter =
+					Starter::getByScenario(Scenario::onScript)
+						->setDocument(new DocumentDto($documentId, $documentType))
+						->setParameters($startParameters)
+						->setValidateParameters(false)
+						->setUser($queue->getStartedBy())
+						->setTemplateIds([$script->getWorkflowTemplateId()])
+						->setContext(new ContextDto('bizproc'))
+				;
+				$result = $starter->start();
+				$workflowId = current($result->getWorkflowIds()) ?: null;
+				if (!$result->isSuccess())
+				{
+					$errors = array_map(static fn($message) => ['message' => $message], $result->getErrorMessages());
+				}
+			}
+			else
+			{
+				$startParameters[\CBPDocument::PARAM_TAGRET_USER] = 'user_' . $queue->getStartedBy();
+				$startParameters[\CBPDocument::PARAM_USE_FORCED_TRACKING] = true;
+				$startParameters[\CBPDocument::PARAM_IGNORE_SIMULTANEOUS_PROCESSES_LIMIT] = true;
+				$startParameters[\CBPDocument::PARAM_DOCUMENT_TYPE] = $documentType;
+				$startParameters[\CBPDocument::PARAM_DOCUMENT_EVENT_TYPE] = \CBPDocumentEventType::Script;
 
-			$workflowId = \CBPDocument::StartWorkflow($script->getWorkflowTemplateId(), $documentId, $startParameters, $errors);
+				$workflowId = \CBPDocument::StartWorkflow($script->getWorkflowTemplateId(), $documentId, $startParameters, $errors);
+			}
 		}
 		else
 		{

@@ -79,8 +79,8 @@ if(!IsModuleInstalled("intranet"))
 \Bitrix\UI\Toolbar\Facade\Toolbar::addButton([
 		'link' => $arResult["LIST_SECTION_URL"],
 		'color' => \Bitrix\UI\Buttons\Color::LINK,
-		'text' => GetMessage("CT_BLEE_TOOLBAR_RETURN_LIST_ELEMENT"),
-		'classList' => ['lists-list-back'],
+		'text' => GetMessage("CT_BLEE_TOOLBAR_RETURN_LIST_ELEMENT_MSGVER_1"),
+		'icon' => Bitrix\UI\Buttons\Icon::BACK,
 	]
 );
 

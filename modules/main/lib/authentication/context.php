@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Authentication;
@@ -12,121 +12,111 @@ namespace Bitrix\Main\Authentication;
 class Context implements \JsonSerializable
 {
 	protected $userId;
+	protected $previousUserId;
 	protected $applicationId;
 	protected $applicationPasswordId;
 	protected $storedAuthId;
 	protected $storedAuthHash;
 	protected $hitAuthId;
+	protected $requestId;
+	protected Method $method = Method::Unspecified;
 
-	public function __construct()
-	{
-	}
-
-	/**
-	 * @return int
-	 */
 	public function getUserId(): int
 	{
 		return (int)$this->userId;
 	}
 
-	/**
-	 * @param int|null $userId
-	 * @return Context
-	 */
-	public function setUserId(?int $userId): Context
+	public function setUserId(?int $userId): static
 	{
 		$this->userId = $userId;
 		return $this;
 	}
 
-	/**
-	 * @return string|null
-	 */
+	public function getPreviousUserId(): int
+	{
+		return (int)$this->previousUserId;
+	}
+
+	public function setPreviousUserId(?int $userId): static
+	{
+		$this->previousUserId = $userId;
+		return $this;
+	}
+
 	public function getApplicationId(): ?string
 	{
 		return $this->applicationId;
 	}
 
-	/**
-	 * @param string|null $applicationId
-	 * @return Context
-	 */
-	public function setApplicationId(?string $applicationId): Context
+	public function setApplicationId(?string $applicationId): static
 	{
 		$this->applicationId = $applicationId;
 		return $this;
 	}
 
-	/**
-	 * @return int|null
-	 */
 	public function getApplicationPasswordId(): ?int
 	{
 		return $this->applicationPasswordId;
 	}
 
-	/**
-	 * @param int|null $applicationPasswordId
-	 * @return Context
-	 */
-	public function setApplicationPasswordId(?int $applicationPasswordId): Context
+	public function setApplicationPasswordId(?int $applicationPasswordId): static
 	{
 		$this->applicationPasswordId = $applicationPasswordId;
 		return $this;
 	}
 
-	/**
-	 * @return int|null
-	 */
 	public function getStoredAuthId(): ?int
 	{
 		return $this->storedAuthId;
 	}
 
-	/**
-	 * @param int|null $storedAuthId
-	 * @return Context
-	 */
-	public function setStoredAuthId(?int $storedAuthId): Context
+	public function setStoredAuthId(?int $storedAuthId): static
 	{
 		$this->storedAuthId = $storedAuthId;
 		return $this;
 	}
 
-	/**
-	 * @return int|null
-	 */
 	public function getHitAuthId(): ?int
 	{
 		return $this->hitAuthId;
 	}
 
-	/**
-	 * @param int|null $hitAuthId
-	 * @return Context
-	 */
-	public function setHitAuthId(?int $hitAuthId): Context
+	public function setHitAuthId(?int $hitAuthId): static
 	{
 		$this->hitAuthId = $hitAuthId;
 		return $this;
 	}
 
-	/**
-	 * @return string|null
-	 */
-	public function getStoredAuthHash()
+	public function getStoredAuthHash(): ?string
 	{
 		return $this->storedAuthHash;
 	}
 
-	/**
-	 * @param string|null $storedAuthHash
-	 * @return Context
-	 */
-	public function setStoredAuthHash(?string $storedAuthHash)
+	public function setStoredAuthHash(?string $storedAuthHash): static
 	{
 		$this->storedAuthHash = $storedAuthHash;
+		return $this;
+	}
+
+	public function getMethod(): Method
+	{
+		return $this->method;
+	}
+
+	public function setMethod(Method $method): static
+	{
+		$this->method = $method;
+		return $this;
+	}
+
+	public function getRequestId(): ?string
+	{
+		return $this->requestId;
+	}
+
+	public function setRequestId(?string $requestId): static
+	{
+		$this->requestId = $requestId;
 		return $this;
 	}
 
@@ -142,11 +132,7 @@ class Context implements \JsonSerializable
 		return $data;
 	}
 
-	/**
-	 * @param string $json
-	 * @return Context
-	 */
-	public static function jsonDecode(string $json): Context
+	public static function jsonDecode(string $json): static
 	{
 		$obj = new static();
 
@@ -158,11 +144,35 @@ class Context implements \JsonSerializable
 			{
 				if (isset($data[$property]))
 				{
-					$obj->{$property} = $data[$property];
+					if ($obj->{$property} instanceof Method)
+					{
+						$obj->{$property} = Method::tryFrom($data[$property]) ?? Method::Unspecified;
+					}
+					else
+					{
+						$obj->{$property} = $data[$property];
+					}
 				}
 			}
 		}
 
 		return $obj;
+	}
+
+	public function prepareForLog(): static
+	{
+		$context = clone $this;
+
+		unset($context->storedAuthHash);
+
+		foreach ($this as $property => $dummy)
+		{
+			if (empty($this->{$property}))
+			{
+				unset($context->{$property});
+			}
+		}
+
+		return $context;
 	}
 }

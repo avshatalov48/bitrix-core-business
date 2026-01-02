@@ -64,17 +64,24 @@ class EventBuilder
 
 		if ($event->getOriginalDateFrom())
 		{
+			$originalDateFrom = clone $event->getOriginalDateFrom();
+
+			if ($event->getStartTimeZone())
+			{
+				$originalDateFrom->setTimezone($event->getStartTimeZone()->getTimeZone());
+			}
+
 			if ($event->isFullDayEvent())
 			{
 				$content['RECURRENCE-ID'] = [
-					'VALUE' => $event->getOriginalDateFrom()->format('Ymd'),
+					'VALUE' => $originalDateFrom->format('Ymd'),
 					'PARAMETERS' => ['VALUE' => 'DATE'],
 				];
 			}
 			else
 			{
 				$content['RECURRENCE-ID'] = [
-					'VALUE' => $event->getOriginalDateFrom()->format('Ymd\\THis'),
+					'VALUE' => $originalDateFrom->format('Ymd\\THis'),
 					'PARAMETERS' => ['TZID' => $this->prepareTimeZone($event->getStartTimeZone())],
 				];
 			}

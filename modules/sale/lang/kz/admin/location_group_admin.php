@@ -1,0 +1,20 @@
+<?php
+$MESS["ERROR_DELETE"] = "Жою қатесі.";
+$MESS["SALE_ACTION"] = "Әрекеттер";
+$MESS["SALE_ADD"] = "Қосу";
+$MESS["SALE_ALL"] = "(барлығы)";
+$MESS["SALE_CONFIRM_DEL_MESSAGE"] = "Орналасу тобын жойғыңыз келетініне сенімдісіз бе?";
+$MESS["SALE_DELETE"] = "Жою";
+$MESS["SALE_DELETE_TEXT"] = "Орналасу тобын жою";
+$MESS["SALE_EDIT"] = "Өзгерту";
+$MESS["SALE_EDIT_DESCR"] = "Орналасу тобының параметрлерін өзгерту";
+$MESS["SALE_F_DEL"] = "Қалпына келтіру";
+$MESS["SALE_F_FILTER"] = "Сүзгі";
+$MESS["SALE_F_LOCATION"] = "Орналасқан жері";
+$MESS["SALE_F_SUBMIT"] = "Орнату";
+$MESS["SALE_NAME"] = "Атауы";
+$MESS["SALE_PRLIST"] = "Орналасу топтары";
+$MESS["SALE_SECTION_TITLE"] = "Орналасу топтары";
+$MESS["SALE_SORT"] = "Сұрыптау";
+$MESS["SLGAN_ADD_NEW"] = "Жаңа топ";
+$MESS["SLGAN_ADD_NEW_ALT"] = "Жаңа топты қосу үшін басыңыз";

@@ -1,4 +1,3 @@
-import 'ui.notification';
 import { Dom, Loc, Type } from 'main.core';
 
 import { Utils } from 'im.v2.lib.utils';
@@ -6,6 +5,7 @@ import { Parser } from 'im.v2.lib.parser';
 import { BaseMessage } from 'im.v2.component.message.base';
 import { ReactionList, MessageStatus, AuthorTitle } from 'im.v2.component.message.elements';
 import { openHelpdeskArticle } from 'im.v2.lib.helpdesk';
+import { Notifier } from 'im.v2.lib.notifier';
 
 import './css/copilot-answer.css';
 
@@ -68,9 +68,7 @@ export const CopilotMessage = {
 		async onCopyClick()
 		{
 			await Utils.text.copyToClipboard(this.message.text);
-			BX.UI.Notification.Center.notify({
-				content: Loc.getMessage('IM_MESSAGE_COPILOT_ANSWER_ACTION_COPY_SUCCESS'),
-			});
+			Notifier.onCopyTextComplete();
 		},
 		onWarningDetailsClick(event: PointerEvent)
 		{

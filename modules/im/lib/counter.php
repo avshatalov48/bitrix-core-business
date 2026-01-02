@@ -12,6 +12,7 @@ class Counter
 	const CACHE_PATH = '/bx/im/counter/';
 
 	const TYPE_MESSENGER = 'messenger';
+	const TYPE_NOTIFY = 'notify';
 	const MODULE_ID = 'im';
 
 	public static function get($userId = null, $options = [])
@@ -305,12 +306,20 @@ class Counter
 
 	public static function onGetMobileCounterTypes(\Bitrix\Main\Event $event)
 	{
-		return new EventResult(EventResult::SUCCESS, Array(
-			self::TYPE_MESSENGER => Array(
-				'NAME' => Loc::getMessage('IM_COUNTER_TYPE_MESSENGER_2'),
-				'DEFAULT' => true
-			),
-		), self::MODULE_ID);
+		return new EventResult(
+			EventResult::SUCCESS,
+			[
+				self::TYPE_MESSENGER => [
+					'NAME' => Loc::getMessage('IM_COUNTER_TYPE_MESSENGER'),
+					'DEFAULT' => true
+				],
+				self::TYPE_NOTIFY => [
+					'NAME' => Loc::getMessage('IM_COUNTER_TYPE_NOTIFY'),
+					'DEFAULT' => false
+				],
+			],
+			self::MODULE_ID
+		);
 	}
 
 	public static function onGetMobileCounter(\Bitrix\Main\Event $event)
@@ -319,9 +328,20 @@ class Counter
 
 		$counters = self::get($params['USER_ID']);
 
-		return new EventResult(EventResult::SUCCESS, Array(
-			'TYPE' => self::TYPE_MESSENGER,
-			'COUNTER' => $counters['TYPE']['ALL']
-		), self::MODULE_ID);
+		$messengerCounter = $counters['TYPE']['MESSENGER'] ?? $counters['TYPE']['ALL'];
+		$notifyCounter = isset($counters['TYPE']['MESSENGER']) ? $counters['TYPE']['NOTIFY'] : 0;
+
+		$mobileCounters = [
+			[
+				'TYPE' => self::TYPE_MESSENGER,
+				'COUNTER' => $messengerCounter,
+			],
+			[
+				'TYPE' => self::TYPE_NOTIFY,
+				'COUNTER' => $notifyCounter,
+			],
+		];
+
+		return new EventResult(EventResult::SUCCESS, $mobileCounters, self::MODULE_ID);
 	}
 }

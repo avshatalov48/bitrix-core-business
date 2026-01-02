@@ -1,5 +1,4 @@
 <?php
-
 $MESS["CATALOG_INVENTORY_MANAGEMENT_TITLE_B24"] = "Складской учёт[break]в Битрикс24";
 $MESS["CATALOG_INVENTORY_MANAGEMENT_TITLE_B24_SOLO"] = "Складской учёт";
 $MESS["CATALOG_INVENTORY_MANAGEMENT_LIST_ITEM_B24_1"] = "Cкладские документы ведутся в Битрикс24";
@@ -43,7 +42,6 @@ $MESS["CATALOG_INVENTORY_MANAGEMENT_INNER_DESC_1C"] = "Если вашей ве�
 $MESS["CATALOG_INVENTORY_MANAGEMENT_INNER_SELECT_TITLE_1C"] = "Версия 1С";
 $MESS["CATALOG_INVENTORY_MANAGEMENT_POPUP_BUTTON_NEXT"] = "продолжить";
 $MESS["CATALOG_INVENTORY_MANAGEMENT_POPUP_BUTTON_NEXT_2"] = "всё равно включить";
-$MESS["CATALOG_INVENTORY_MANAGEMENT_POPUP_BUTTON_CANCEL"] = "Отмена";
 $MESS["CATALOG_INVENTORY_MANAGEMENT_POPUP_BUTTON_TURN_OFF"] = "Выключить";
 $MESS["CATALOG_INVENTORY_MANAGEMENT_POPUP_BUTTON_TURN_OFF_ANYWAY"] = "Всё равно выключить";
 $MESS["CATALOG_INVENTORY_MANAGEMENT_POPUP_BUTTON_CANCEL"] = "Отменить";
@@ -75,4 +73,4 @@ $MESS["CATALOG_INVENTORY_MANAGEMENT_1C_POPUP_WARNING_TEXT_2"] = "При вклю
 $MESS["CATALOG_INVENTORY_MANAGEMENT_1C_POPUP_WARNING_TEXT_3"] = "Магазины Битрикс24 будут сняты с публикации. Публикация новых будет невозможна.";
 $MESS["CATALOG_INVENTORY_MANAGEMENT_1C_POPUP_WARNING_TEXT_4"] = "Товары, которые сейчас есть в каталоге Битрикс24, будут[break]недоступны.";
 $MESS["CATALOG_INVENTORY_MANAGEMENT_1C_POPUP_WARNING_TEXT_4_HINT"] = "Пока включён режим Складского учёта 1С, вы можете работать только с каталогом из 1С. Каталог товаров Битрикс24 станет неактивен.";
-$MESS["CATALOG_INVENTORY_MANAGEMENT_ENABLED"] = "Складской учёт включён";
+$MESS['CATALOG_INVENTORY_MANAGEMENT_ENABLED'] = "Складской учёт включён";

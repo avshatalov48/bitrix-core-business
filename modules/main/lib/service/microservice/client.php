@@ -2,54 +2,72 @@
 
 namespace Bitrix\Main\Service\MicroService;
 
+use Bitrix\Main\Loader;
+use Bitrix\Main\Context;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Loader;
+
 
 class Client
 {
-	const TYPE_BITRIX24 = "B24";
-	const TYPE_BOX = "BOX";
+	public const
+		TYPE_BITRIX24 = 'B24',
+		TYPE_BOX = 'BOX';
 
+	/**
+	 * Defines portal type.
+	 * @return string
+	 */
 	public static function getPortalType(): string
 	{
-		if(Loader::includeModule("bitrix24") && defined("BX24_HOST_NAME"))
+		if (Loader::includeModule('bitrix24') && defined('BX24_HOST_NAME'))
 		{
 			return static::TYPE_BITRIX24;
 		}
-		else
-		{
-			return static::TYPE_BOX;
-		}
+
+		return static::TYPE_BOX;
 	}
 
 	/**
 	 * Return license code of the portal (to be used as a part of request verification scheme).
-	 *
 	 * @return string
 	 */
 	public static function getLicenseCode(): string
 	{
-		if(defined('BX24_HOST_NAME'))
+		if (defined('BX24_HOST_NAME'))
 		{
 			return BX24_HOST_NAME;
 		}
-		else
-		{
-			return Application::getInstance()->getLicense()->getPublicHashKey();
-		}
+
+		return Application::getInstance()->getLicense()->getPublicHashKey();
 	}
 
+	/**
+	 * Detects portal server name.
+	 * @return string
+	 */
 	public static function getServerName(): string
 	{
-		if(defined('BX24_HOST_NAME'))
+		if (defined('BX24_HOST_NAME'))
 		{
-			return "https://" . BX24_HOST_NAME;
+			return 'https://'. BX24_HOST_NAME;
+		}
+
+		if (Context::getCurrent()?->getRequest()->isHttps())
+		{
+			$scheme = 'https://';
 		}
 		else
 		{
-			return (\CMain::isHTTPS() ? "https" : "http")."://".((defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : Option::get("main", "server_name"));
+			$scheme = 'http://';
 		}
+
+		if (defined('SITE_SERVER_NAME') && strlen(SITE_SERVER_NAME) > 0)
+		{
+			return $scheme. SITE_SERVER_NAME;
+		}
+
+		return $scheme. Option::get('main', 'server_name');
 	}
 
 	/**
@@ -69,9 +87,7 @@ class Client
 		{
 			return bx_sign($paramStr);
 		}
-		else
-		{
-			return md5($paramStr . Application::getInstance()->getLicense()->getHashLicenseKey());
-		}
+
+		return md5($paramStr . Application::getInstance()->getLicense()->getHashLicenseKey());
 	}
 }

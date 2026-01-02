@@ -6,8 +6,8 @@ namespace Bitrix\Im\V2\Message\Send;
  * Config for sending process.
  *
  * @method bool generateUrlPreview()
- * @method self enableUrlPreview()
- * @method self disableUrlPreview()
+ * @method self enableGenerateUrlPreview()
+ * @method self disableGenerateUrlPreview()
  *
  * @method bool skipUserCheck()
  * @method self enableSkipUserCheck()
@@ -63,11 +63,14 @@ namespace Bitrix\Im\V2\Message\Send;
  *
  * @method int fakeRelation()
  * @method self setFakeRelation(int $value)
+ *
+ * @method array|null counterRecipients()
  */
 class SendingConfig
 {
 	protected const TYPE_BOOL = 'BOOL';
 	protected const TYPE_INT = 'INT';
+	protected const TYPE_SET = 'SET';
 
 	protected const MAP_LEGACY_TO_ACTUAL_FIELD = [
 		'URL_PREVIEW' => [
@@ -129,6 +132,10 @@ class SendingConfig
 		'SKIP_URL_INDEX' => [
 			'actual' => 'skipUrlIndex',
 			'type' => self::TYPE_BOOL,
+		],
+		'COUNTER_RECIPIENTS' => [
+			'actual' => 'counterRecipients',
+			'type' => self::TYPE_SET,
 		],
 	];
 
@@ -192,6 +199,8 @@ class SendingConfig
 
 	private int $fakeRelation = 0;
 
+	private ?array $counterRecipients = null;
+
 	public function __construct(?array $args = null)
 	{
 		if (is_array($args))
@@ -226,7 +235,7 @@ class SendingConfig
 
 			$fieldInfo = self::MAP_LEGACY_TO_ACTUAL_FIELD[$fieldName];
 			$actualFieldName = $fieldInfo['actual'];
-			$this->{$actualFieldName} = $this->prepareValue($fieldInfo['type'], $actualFieldName, $fieldValue);
+			$this->{$actualFieldName} = $this->prepareValue($fieldInfo['type'], $fieldValue);
 		}
 	}
 
@@ -238,6 +247,13 @@ class SendingConfig
 	public function skipFireEventBeforeMessageNotifySend(bool $flag = true): self
 	{
 		$this->skipFireEventBeforeMessageNotifySend = $flag;
+
+		return $this;
+	}
+
+	public function setCounterRecipients(?array $counterRecipients): self
+	{
+		$this->counterRecipients = $counterRecipients !== null ? $this->prepareSet($counterRecipients) : null;
 
 		return $this;
 	}
@@ -311,12 +327,13 @@ class SendingConfig
 		return $data;
 	}
 
-	protected function prepareValue(string $type, string $key, $value)
+	protected function prepareValue(string $type, $value)
 	{
 		return match ($type)
 		{
 			self::TYPE_BOOL => $this->prepareFlag($value),
 			self::TYPE_INT => (int)$value,
+			self::TYPE_SET => is_array($value) ? $this->prepareSet($value) : null,
 			default => null,
 		};
 	}
@@ -329,6 +346,13 @@ class SendingConfig
 		}
 
 		return $value === 'Y';
+	}
+
+	protected function prepareSet(?array $array): array
+	{
+		$array = array_unique(array_map('intval', $array));
+
+		return array_combine($array, $array);
 	}
 	//endregion
 }

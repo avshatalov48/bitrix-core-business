@@ -55,4 +55,4 @@ $MESS["IBLOCK_SECTION_ADD"] = "New information block section added";
 $MESS["IBLOCK_SECTION_DELETE"] = "Information block section deleted";
 $MESS["IBLOCK_SECTION_EDIT"] = "Information block section changed";
 $MESS["IBLOCK_SITE_LINKS_EXISTS"] = "Some information blocks linked to this site have been found: #ID_LIST#.";
-$MESS["IBLOCK_TABLE_CREATION_ERROR"] = "Error creating the table for storing property values of information block.";
+$MESS['IBLOCK_TABLE_CREATION_ERROR'] = "Error creating the table for storing property values of information block.";

@@ -90,6 +90,7 @@ if (Context::getCurrent()->getRequest()->get('IFRAME'))
 				'POPUP_COMPONENT_NAME' => 'bitrix:tasks.task.template',
 				'POPUP_COMPONENT_TEMPLATE_NAME' => $popupComponentTemplate,
 				'POPUP_COMPONENT_PARAMS' => $popupComponentParams,
+				'USE_UI_TOOLBAR' => 'Y',
 			],
 			$component,
 

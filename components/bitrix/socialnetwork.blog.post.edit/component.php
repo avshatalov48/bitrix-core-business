@@ -21,6 +21,7 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\Component\BlogPostEdit;
 use Bitrix\Socialnetwork\ComponentHelper;
+use Bitrix\Socialnetwork\Helper\Analytics\FeedAnalytics;
 use Bitrix\Socialnetwork\Helper\Mention;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
@@ -1695,7 +1696,7 @@ if (
 								$bNeedMail = false;
 							}
 
-							$analytics = \Bitrix\Socialnetwork\Helper\Analytics::getInstance();
+							$analytics = FeedAnalytics::getInstance();
 
 							$postType = '';
 							switch($this->request->get('changePostFormTab'))
@@ -2540,7 +2541,7 @@ if (
 				defined("SITE_SERVER_NAME")
 				&& SITE_SERVER_NAME <> ''
 					? SITE_SERVER_NAME
-					: COption::GetOptionString("main", "server_name", "www.bitrixsoft.com")
+					: COption::GetOptionString("main", "server_name")
 			);
 
 			if ($serverName == '')

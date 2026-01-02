@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -67,8 +68,11 @@ class BackupStep extends \CWizardStep
 			return false;
 		}
 
-		$instructionLink = "https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=35&CHAPTER_ID=04833&LESSON_PATH=3906.4833";
-		if (!in_array($this->component->getLanguageId(), ["ru", "ua"]))
+		if (Application::getInstance()->getLicense()->getRegion() === 'ru')
+		{
+			$instructionLink = "https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=35&CHAPTER_ID=04833&LESSON_PATH=3906.4833";
+		}
+		else
 		{
 			$instructionLink = "https://training.bitrix24.com/support/training/course/index.php?COURSE_ID=20&LESSON_ID=1188";
 		}

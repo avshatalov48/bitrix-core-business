@@ -14,7 +14,7 @@ return [
 		'im.v2.component.message.elements',
 		'im.v2.component.message.default',
 		'main.core',
-		'im.v2.component.elements',
+		'im.v2.component.elements.button',
 	],
 	'skip_core' => false,
 ];

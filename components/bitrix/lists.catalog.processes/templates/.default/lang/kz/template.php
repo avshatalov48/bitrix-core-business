@@ -1,0 +1,10 @@
+<?php
+$MESS["LISTS_LCP_TEMPLATE_BUTTON_INSTALL"] = "Орнату";
+$MESS["LISTS_LCP_TEMPLATE_DESCRIPTION_PAGE"] = "Орнату керек процестерді таңдаңыз";
+$MESS["LISTS_LCP_TEMPLATE_DESCRIPTION_PAGE_ALL_INSTALL"] = "Сізде барлық қолжетімді Бизнес-процестер орнатылған.";
+$MESS["LISTS_LCP_TEMPLATE_PROCESS_INSTALLED"] = " (Орнатылған)";
+$MESS["LISTS_LCP_TEMPLATE_STATUS_ACTION_ERROR"] = "Қате орын алды";
+$MESS["LISTS_LCP_TEMPLATE_STATUS_ACTION_SUCCESS"] = "Сәтті";
+$MESS["LISTS_LCP_TEMPLATE_TITLE_SYSTEM_PROCESSES"] = "Жүйелік процестер";
+$MESS["LISTS_LCP_TEMPLATE_TITLE_USER_PROCESSES"] = "Пайдаланушы процестері";
+$MESS["LISTS_LCP_TEMPLATE_TRANSITION_PROCESSES"] = "Процестер";

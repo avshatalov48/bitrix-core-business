@@ -12,6 +12,7 @@ export type GroupData = {
 	selected?: boolean,
 	disabled?: boolean,
 	compare?: (ItemData, ItemData) => number,
+	isHeaderGroup?: boolean,
 }
 
 export type GroupId = number | string;

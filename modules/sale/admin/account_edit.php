@@ -291,6 +291,8 @@ $tabControl->BeginNextTab();
 			<?if ($ID > 0):?>
 				<input type="hidden" name="USER_ID" value="<?=$str_USER_ID?>">
 				[<a title="<?echo GetMessage("SAE_USER_PROFILE")?>" href="<?=$profileUrl?>"><?=$str_USER_ID?></a>] (<?=$str_USER_LOGIN?>) <?=$str_USER_NAME?> <?=$str_USER_LAST_NAME?>
+			<?elseif ($adminSidePanelHelper->getPublicPageProcessMode()):?>
+			<?= \Bitrix\Sale\UI\Input\User::renderSelector(); ?>
 			<?else:?>
 			<?echo FindUserID("USER_ID", $str_USER_ID);?>
 			<?endif;?>

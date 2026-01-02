@@ -70,7 +70,7 @@ class JNRouterComponent extends \CBitrixComponent
 		}
 
 		\Bitrix\Main\Loader::includeModule("mobileapp");
-		$component = Component::createInstanceByName($this->name, $this->namespace);
+		$component = Component::createInstanceByName($this->name, $this->namespace ?? "bitrix");
 		header('Content-Type: text/javascript;charset=UTF-8');
 		if ($component == null)
 		{

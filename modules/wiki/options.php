@@ -1,12 +1,14 @@
-<?
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2002-2012 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage wiki
+ * @copyright 2001-2025 Bitrix
+ */
 
 use \Bitrix\Main\Localization\Loc;
+
 Loc::loadMessages(__FILE__);
 Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/main/options.php');
 

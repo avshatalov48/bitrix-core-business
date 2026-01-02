@@ -472,6 +472,14 @@
 	transform: rotate(45deg);
 }
 
+#mail-owner-selector-container .ui-tag-selector-add-button-caption::before {
+	display: none;
+}
+
+#mail-owner-selector-container .ui-tag-selector-add-button-caption {
+	margin-left: 7px;
+}
+
 .mail-connect-footer {
 	padding-top: 10px;
 	border-top: 1px solid #d8d8d8;
@@ -909,12 +917,6 @@
 	font-size: 13px;
 	font-weight: var(--ui-font-weight-bold);
 	margin: 0 28px 0 0;
-}
-.mail-connect-last-sync-success {
-	color: #6f950d;
-}
-.mail-connect-last-sync-error {
-	color: #d04749;
 }
 .mail-connect-last-sync-wrapper {
 	margin: 8px 0 0 0;

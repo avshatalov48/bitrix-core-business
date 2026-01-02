@@ -3,7 +3,6 @@
 namespace Bitrix\Im\V2\Controller;
 
 use Bitrix\Im\V2\Error;
-use Bitrix\Im\V2\Sync\SyncError;
 use Bitrix\Im\V2\Sync\SyncService;
 use Bitrix\Main\ObjectException;
 use Bitrix\Main\Type\DateTime;
@@ -11,33 +10,28 @@ use DateTimeInterface;
 
 class Sync extends BaseController
 {
-	public function listAction(array $filter = [], int $limit = 50): ?array
+	private const LIMIT = 50;
+
+	private const DATE_FORMAT = DateTimeInterface::RFC3339;
+
+	public function listAction(string $lastDate, ?int $lastId = null, int $limit = self::LIMIT): ?array
 	{
-		$syncService = new SyncService();
-
-		if (isset($filter['lastDate']))
+		if ($limit <= 0 || $limit > 10000)
 		{
-			try
-			{
-				$date = new DateTime($filter['lastDate'], DateTimeInterface::RFC3339);
-			}
-			catch (ObjectException $exception)
-			{
-				$this->addError(new Error($exception->getCode(), $exception->getMessage()));
-
-				return null;
-			}
-
-			return $syncService->getChangesFromDate($date, $limit);
+			$limit = self::LIMIT;
 		}
 
-		$lastId = null;
-
-		if (isset($filter['lastId']))
+		try
 		{
-			$lastId = (int)$filter['lastId'];
+			$lastDate = new DateTime($lastDate, self::DATE_FORMAT);
+		}
+		catch (ObjectException $exception)
+		{
+			$this->addError(new Error($exception->getCode(), $exception->getMessage()));
+
+			return null;
 		}
 
-		return $syncService->getChangesFromId($lastId, $limit);
+		return (new SyncService())->getChangesFromDate($lastDate, $lastId, $limit);
 	}
 }

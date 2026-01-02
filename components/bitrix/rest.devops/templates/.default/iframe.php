@@ -25,5 +25,6 @@ $APPLICATION->IncludeComponent(
 		'PAGE_MODE'=> false,
 		'PAGE_MODE_OFF_BACK_URL' =>	$arResult['PATH_TO_INDEX'],
 		'BUTTONS' => ['close'],
+		'USE_UI_TOOLBAR' => 'Y',
 	)
 );

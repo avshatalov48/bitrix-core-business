@@ -1,4 +1,4 @@
-import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 
 import type { ImModelUser } from 'im.v2.model';
 

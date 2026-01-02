@@ -15,6 +15,7 @@
 	flex-grow: 1;
 	overflow: hidden;
 	overflow-y: scroll;
+	overscroll-behavior: contain;
 	background-color: var(--im-list-recent__background-color)
 }
 

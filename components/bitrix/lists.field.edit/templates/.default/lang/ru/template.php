@@ -51,5 +51,5 @@ $MESS["CT_BLFE_FIELD_SHOW_FIELD_PREVIEW"] = "Показать поле при ф
 $MESS["CT_BLEE_SAVE_BUTTON"] = "Сохранить";
 $MESS["CT_BLEE_CANCEL_BUTTON"] = "Отмена";
 $MESS["CT_BLFE_TOOLBAR_ACTION"] = "Действия";
-$MESS["CT_BLFE_TOOLBAR_RETURN_LIST_ELEMENT"] = "К СПИСКУ ПОЛЕЙ";
+$MESS["CT_BLFE_TOOLBAR_RETURN_LIST_ELEMENT_MSGVER_1"] = "К списку полей";
 ?>

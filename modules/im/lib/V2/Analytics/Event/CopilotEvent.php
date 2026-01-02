@@ -3,7 +3,9 @@
 namespace Bitrix\Im\V2\Analytics\Event;
 
 use Bitrix\AI\Engine;
+use Bitrix\Im\V2\Chat\CopilotChat;
 use Bitrix\Im\V2\Integration\AI\AIHelper;
+use Bitrix\Im\V2\Integration\AI\EngineManager;
 use Bitrix\Im\V2\Integration\AI\RoleManager;
 use Bitrix\Imbot\Bot\CopilotChatBot;
 use Bitrix\Main\Result;
@@ -76,14 +78,23 @@ class CopilotEvent extends Event
 
 	public function setCopilotP1(?string $promptCode): self
 	{
-		$this->p1 = isset($promptCode) ? ('1st-type_' . $this->convertUnderscore($promptCode)) : 'none';
+		$this->p1 = isset($promptCode) ? ('1st-type_' . self::convertUnderscore($promptCode)) : 'none';
 
 		return $this;
 	}
 
 	protected function setCopilotP2(): self
 	{
-		$this->p2 = 'provider_' . (AIHelper::getProviderName() ?? 'none');
+		$engineName = null;
+
+		if ($this->chat instanceof CopilotChat)
+		{
+			$engineCode = $this->chat->getEngineCode();
+			$engineName = (new EngineManager())->getEngineNameByCode($engineCode);
+		}
+
+		$engineName ??= 'none';
+		$this->p2 = 'provider_' . $engineName;
 
 		return $this;
 	}
@@ -97,8 +108,8 @@ class CopilotEvent extends Event
 
 	protected function setCopilotP4(): self
 	{
-		$role = (new RoleManager())->getMainRole($this->chat->getChatId()) ?? RoleManager::getDefaultRoleCode();
-		$this->p4 = 'role_' . $this->convertUnderscore($role);
+		$role = (new RoleManager())->getMainRole($this->chat->getChatId()) ?? '';
+		$this->p4 = 'role_' . self::convertUnderscore($role);
 
 		return $this;
 	}

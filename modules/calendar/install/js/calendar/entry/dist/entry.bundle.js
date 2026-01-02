@@ -36,10 +36,10 @@ this.BX = this.BX || {};
 	      });
 	      newEntryData.ATTENDEE_LIST = [{
 	        id: options.ownerId,
-	        status: "H"
+	        status: 'H'
 	      }, {
 	        id: calendar_util.Util.getCurrentUserId(),
-	        status: "Y"
+	        status: 'Y'
 	      }];
 	    } else if (options.type === 'group') {
 	      newEntryData.attendeesEntityList.push({
@@ -134,13 +134,18 @@ this.BX = this.BX || {};
 	  static openEditSlider(options = {}) {
 	    const bx = calendar_util.Util.getBX();
 	    if (bx.Calendar && bx.Calendar.SliderLoader) {
-	      new bx.Calendar.SliderLoader(options.entry ? 'EDIT' + options.entry.id : 'NEW', {
-	        calendarContext: options.calendarContext || bx.Calendar.Util.getCalendarContext(),
+	      const util = BX.Calendar.Util || bx.Calendar.Util;
+	      const calendarContext = util.getCalendarContext();
+	      const roomsManager = options != null && options.isLocationCalendar ? calendarContext.roomsManager : null;
+	      const categoryManager = options != null && options.isLocationCalendar ? calendarContext.categoryManager : null;
+	      new bx.Calendar.SliderLoader(options.entry ? `EDIT${options.entry.id}` : 'NEW', {
+	        calendarContext: options.calendarContext || calendarContext,
 	        entry: options.entry || null,
 	        type: options.type,
 	        isLocationCalendar: options.isLocationCalendar || false,
-	        roomsManager: options.roomsManager || null,
-	        locationAccess: options.locationAccess || false,
+	        roomsManager,
+	        categoryManager,
+	        locationAccess: options.locationAccess || util.hasLocationAccess(),
 	        locationCapacity: options.locationCapacity || 0,
 	        ownerId: options.ownerId || 0,
 	        userId: options.userId,
@@ -162,11 +167,110 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }
+	  static openSettingsSlider() {
+	    const bx = calendar_util.Util.getBX();
+	    const util = BX.Calendar.Util || bx.Calendar.Util;
+
+	    // eslint-disable-next-line promise/catch-or-return
+	    EntryManager$$1.getSettingsSlider().then(SettingsInterfaceInstance => {
+	      new SettingsInterfaceInstance({
+	        calendarContext: util.getCalendarContext(),
+	        showPersonalSettings: util.userIsOwner(),
+	        showGeneralSettings: util.hasFullAccess(),
+	        settings: util.getSettings(),
+	        isExtranet: util.isExtranet()
+	      }).show();
+	    });
+	  }
+	  static getSettingsSlider() {
+	    return new Promise(resolve => {
+	      const bx = calendar_util.Util.getBX();
+	      if (bx.Calendar.SettingsInterface) {
+	        resolve(bx.Calendar.SettingsInterface);
+	      } else {
+	        const extensionName = 'calendar.settingsinterface';
+	        // eslint-disable-next-line promise/catch-or-return
+	        bx.Runtime.loadExtension(extensionName).then(() => {
+	          if (bx.Calendar.SettingsInterface) {
+	            resolve(bx.Calendar.SettingsInterface);
+	          } else {
+	            console.error(`Extension ${extensionName} not found`);
+	          }
+	        });
+	      }
+	    });
+	  }
+	  static openSectionsSlider() {
+	    const bx = calendar_util.Util.getBX();
+	    const util = BX.Calendar.Util || bx.Calendar.Util;
+	    const calendarContext = util.getCalendarContext();
+
+	    // eslint-disable-next-line promise/catch-or-return
+	    EntryManager$$1.getSectionsSlider().then(SectionInterfaceInstance => {
+	      new SectionInterfaceInstance({
+	        calendarContext,
+	        readonly: util.isReadOnlyMode(),
+	        sectionManager: calendarContext.sectionManager,
+	        isCollabFeatureEnabled: util.isCollabFeatureEnabled()
+	      }).show();
+	    });
+	  }
+	  static getSectionsSlider() {
+	    return new Promise(resolve => {
+	      const bx = calendar_util.Util.getBX();
+	      if (bx.Calendar.SectionInterface) {
+	        resolve(bx.Calendar.SectionInterface);
+	      } else {
+	        const extensionName = 'calendar.sectioninterface';
+	        // eslint-disable-next-line promise/catch-or-return
+	        bx.Runtime.loadExtension(extensionName).then(() => {
+	          if (bx.Calendar.SectionInterface) {
+	            resolve(bx.Calendar.SectionInterface);
+	          } else {
+	            console.error(`Extension ${extensionName} not found`);
+	          }
+	        });
+	      }
+	    });
+	  }
+	  static openRoomsSlider() {
+	    const bx = calendar_util.Util.getBX();
+	    const util = BX.Calendar.Util || bx.Calendar.Util;
+	    const calendarContext = bx.Calendar.Util.getCalendarContext();
+
+	    // eslint-disable-next-line promise/catch-or-return
+	    EntryManager$$1.getRoomsSlider().then(RoomsInterfaceInstance => {
+	      new RoomsInterfaceInstance({
+	        calendarContext,
+	        readonly: util.isReadOnlyMode(),
+	        roomsManager: calendarContext.roomsManager,
+	        categoryManager: calendarContext.categoryManager
+	      }).show();
+	    });
+	  }
+	  static getRoomsSlider() {
+	    return new Promise(resolve => {
+	      const bx = calendar_util.Util.getBX();
+	      if (bx.Calendar.Rooms.RoomsInterface) {
+	        resolve(bx.Calendar.Rooms.RoomsInterface);
+	      } else {
+	        const extensionName = 'calendar.rooms';
+	        // eslint-disable-next-line promise/catch-or-return
+	        bx.Runtime.loadExtension(extensionName).then(() => {
+	          if (bx.Calendar.Rooms.RoomsInterface) {
+	            resolve(bx.Calendar.Rooms.RoomsInterface);
+	          } else {
+	            console.error(`Extension ${extensionName} not found`);
+	          }
+	        });
+	      }
+	    });
+	  }
 	  static deleteEntry(entry, calendarContext = null) {
 	    if (entry instanceof Entry) {
 	      const slider = calendar_util.Util.getBX().SidePanel.Instance.getTopSlider();
 	      const beforeDeleteHandler = () => {
-	        if (slider && slider.options.type === 'calendar:slider') {
+	        if (slider && slider.getData().get('type') === 'calendar:slider') {
 	          calendar_util.Util.getBX().SidePanel.Instance.close();
 	        }
 	      };

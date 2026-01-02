@@ -1,0 +1,35 @@
+.bp-workflow-result {
+	display: block;
+	margin: 10px 4px;
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-normal);
+}
+
+.bp-workflow-result.no-rights {
+	color: var(--ui-color-base-60);
+}
+
+.bp-workflow-result.no-rights span.ui-hint {
+	display: inline;
+	line-height: 1em;
+	margin: 0;
+}
+
+.bp-workflow-result.no-rights span.ui-hint .ui-hint-icon {
+	margin: 0;
+	line-height: 1em;
+}
+
+.bp-workflow-result-full {
+	display: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bp-workflow-result.--expanded .bp-workflow-result-collapsed {
+	display: none;
+}
+
+.bp-workflow-result.--expanded .bp-workflow-result-full {
+	display: inline-block;
+}

@@ -10,14 +10,12 @@ use Bitrix\Disk\File;
 use Bitrix\Im\V2\Analytics\Event\ChatEvent;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Chat\CollabChat;
-use Bitrix\Im\V2\Relation\Reason;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
 use Bitrix\Main\Loader;
 
 class ChatAnalytics extends AbstractAnalytics
 {
 	public const SUBMIT_CREATE_NEW = 'submit_create_new';
-
-	protected const JOIN = 'join';
 	protected const ADD_DEPARTMENT = 'add_department';
 	protected const ADD_USER = 'add_user';
 	protected const DELETE_USER = 'delete_user';
@@ -27,6 +25,8 @@ class ChatAnalytics extends AbstractAnalytics
 	protected const DELETE_DEPARTMENT = 'delete_department';
 	protected const EDIT_PERMISSIONS = 'edit_permissions';
 	protected const SET_TYPE = 'set_type';
+	protected const AUTODELETE_ON = 'autodelete_on';
+	protected const AUTODELETE_OFF = 'autodelete_off';
 
 	protected static array $oneTimeEvents = [];
 	protected static array|bool $blockSingleUserEvents = [];
@@ -42,28 +42,21 @@ class ChatAnalytics extends AbstractAnalytics
 		});
 	}
 
-	public function addAddUser(Reason $reason = Reason::DEFAULT, bool $isJoin = false): void
+	public function addAddUser(AddUsersConfig $config): void
 	{
 		if ($this->isSingleUserEventsBlocked())
 		{
 			return;
 		}
 
-		$this->async(function () use ($reason, $isJoin) {
-			if ($isJoin)
-			{
-				$eventName = self::JOIN;
-			}
-			else
-			{
-				$eventName = match ($reason) {
-					Reason::STRUCTURE => self::ADD_DEPARTMENT,
-					default => self::ADD_USER,
-				};
-			}
+		if ($config->skipAnalytics)
+		{
+			return;
+		}
 
+		$this->async(function () {
 			$this
-				->createChatEvent($eventName)
+				->createChatEvent(self::ADD_USER)
 				?->send()
 			;
 			(new CopilotAnalytics($this->chat))->addAddUser();
@@ -92,6 +85,34 @@ class ChatAnalytics extends AbstractAnalytics
 			$this
 				->createChatEvent($flag ? self::FOLLOW_COMMENTS : self::UNFOLLOW_COMMENTS)
 				?->send()
+			;
+		});
+	}
+
+	public function addAutoDeleteOn(int $messagesAutoDeleteDelay): void
+	{
+		$this->async(function () use ($messagesAutoDeleteDelay) {
+			$this
+				->createChatEvent(self::AUTODELETE_ON)
+				?->setP2(null)
+				->setP3('timer_' . $messagesAutoDeleteDelay)
+				->setP4(null)
+				->setP5(null)
+				->send()
+			;
+		});
+	}
+
+	public function addAutoDeleteOff(): void
+	{
+		$this->async(function () {
+			$this
+				->createChatEvent(self::AUTODELETE_OFF)
+				?->setP2(null)
+				->setP3(null)
+				->setP4(null)
+				->setP5(null)
+				->send()
 			;
 		});
 	}
@@ -171,7 +192,7 @@ class ChatAnalytics extends AbstractAnalytics
 			return null;
 		}
 
-		return (new ChatEvent($eventName, $this->chat));
+		return (new ChatEvent($eventName, $this->chat, $this->userId));
 	}
 
 	protected function isFirstTimeEvent(string $eventName): bool

@@ -2,7 +2,6 @@
 
 namespace Bitrix\Im\V2\Sync;
 
-use Bitrix\Im\Model\EO_Log_Collection;
 use Bitrix\Im\Model\LogTable;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Sync\Entity\EntityFactory;
@@ -13,7 +12,6 @@ class SyncService
 {
 	use ContextCustomer;
 
-	private const OFFSET_INTERVAL_IN_SECONDS = 5;
 	private const MODULE_ID = 'im';
 	private const ENABLE_OPTION_NAME = 'sync_logger_enable';
 
@@ -22,28 +20,7 @@ class SyncService
 		return Option::get(self::MODULE_ID, self::ENABLE_OPTION_NAME, 'Y') === 'Y';
 	}
 
-	public function getChangesFromDate(DateTime $date, int $limit): array
-	{
-		if (!self::isEnable())
-		{
-			return [];
-		}
-
-		$date = $this->getDateWithOffset($date);
-		$logCollection = LogTable::query()
-			->setSelect(['ID'])
-			->where('USER_ID', $this->getContext()->getUserId())
-			->where('DATE_CREATE', '>=', $date)
-			->setLimit($limit)
-			->fetchCollection()
-		;
-		$logCollection->fill();
-		Logger::getInstance()->updateDateDelete($logCollection);
-
-		return $this->formatData($logCollection, $limit);
-	}
-
-	public function getChangesFromId(?int $id, int $limit): array
+	public function getChangesFromDate(DateTime $lastDate, ?int $lastId, int $limit): array
 	{
 		if (!self::isEnable())
 		{
@@ -51,77 +28,74 @@ class SyncService
 		}
 
 		$query = LogTable::query()
-			->setSelect(['ID'])
+			->setSelect(['ID', 'USER_ID', 'ENTITY_TYPE', 'ENTITY_ID', 'EVENT', 'DATE_CREATE'])
 			->where('USER_ID', $this->getContext()->getUserId())
 			->setLimit($limit)
+			->setOrder(['USER_ID' => 'ASC','DATE_CREATE' => 'ASC', 'ID' => 'ASC'])
 		;
 
-		if ($id !== null)
+		if (isset($lastId))
 		{
-			$query->where('ID', '>', $id)->setOrder(['ID' => 'ASC']);
+			$filter = [[
+					'LOGIC' => 'OR',
+					[
+						'>DATE_CREATE' => $lastDate,
+					],
+					[
+						'=DATE_CREATE' => $lastDate,
+						'>=ID' => $lastId,
+					],
+			]];
+			$query->setFilter($filter);
 		}
 		else
 		{
-			$query->setOrder(['DATE_CREATE' => 'DESC']);
+			$query->where('DATE_CREATE', '>=', $lastDate);
 		}
 
-		$logCollection = $query->fetchCollection();
-		$logCollection->fill();
-		Logger::getInstance()->updateDateDelete($logCollection);
-
-		return $this->formatData($logCollection, $limit);
+		return $this->formatData($query->fetchAll(), $limit);
 	}
 
-	private function getDateWithOffset(DateTime $date): DateTime
+	private function formatData(array $logEntities, int $limit): array
 	{
-		$offset = self::OFFSET_INTERVAL_IN_SECONDS;
-		$date->add("- {$offset} seconds");
+		$entities = (new EntityFactory())->createEntities(Event::initByArray($logEntities));
+		$rest = $entities->getRestData();
+		$rest['navigationData'] = $this->getNavigationData($logEntities, $limit);
 
-		return $date;
+		return $rest;
 	}
 
-	/**
-	 * @param EO_Log_Collection $logCollection
-	 * @param int $limit
-	 * @return array
-	 */
-	private function formatData(EO_Log_Collection $logCollection, int $limit): array
-	{
-		$entities = (new EntityFactory())->createEntities(Event::initByOrmEntities($logCollection));
-		$data = [];
-
-		foreach ($entities as $entity)
-		{
-			foreach ($entity->getData() as $name => $datum)
-			{
-				$data[$name] = $datum;
-			}
-		}
-
-		$data['hasMore'] = $logCollection->count() >= $limit;
-		$ids = $logCollection->getIdList();
-		$data['lastServerDate'] = $this->getLastServerDate($logCollection);
-		if (!empty($ids))
-		{
-			$data['lastId'] = max($ids);
-		}
-
-		return $data;
-	}
-
-	protected function getLastServerDate(EO_Log_Collection $logCollection): ?DateTime
+	protected function getNavigationData(array $logEntities, int $limit): array
 	{
 		$maxDateTime = null;
 		$maxTimestamp = 0;
-		foreach ($logCollection as $logItem)
+		$lastId = 0;
+		foreach ($logEntities as $logEntity)
 		{
-			if ($logItem->getDateCreate()->getTimestamp() > $maxTimestamp)
+			$dateCreate = $logEntity['DATE_CREATE'];
+			$entityId = (int)$logEntity['ID'];
+
+			if (!$dateCreate instanceof DateTime)
 			{
-				$maxTimestamp = $logItem->getDateCreate()->getTimestamp();
-				$maxDateTime = $logItem->getDateCreate();
+				continue;
+			}
+
+			if ($dateCreate->getTimestamp() > $maxTimestamp)
+			{
+				$maxTimestamp = $dateCreate->getTimestamp();
+				$maxDateTime = $dateCreate;
+				$lastId = $entityId;
+			}
+			elseif ($dateCreate->getTimestamp() === $maxTimestamp && $entityId > $lastId)
+			{
+				$lastId = $entityId;
 			}
 		}
 
-		return $maxDateTime;
+		return [
+			'lastServerDate' => $maxDateTime,
+			'hasMore' => count($logEntities) >= $limit,
+			'lastId' => $lastId,
+		];
 	}
 }

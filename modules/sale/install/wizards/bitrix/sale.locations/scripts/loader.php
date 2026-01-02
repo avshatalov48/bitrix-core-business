@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main;
+
 /** @global CMain $APPLICATION */
 
 const STOP_STATISTICS = true;
@@ -17,6 +19,13 @@ $wizard->IncludeWizardLang("scripts/loader.php");
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions < "W")
+{
+	echo GetMessage('WSL_LOADER_ERROR_ACCESS_DENIED');
+	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_after.php");
+	die();
+}
+$region = Main\Application::getInstance()->getLicense()->getRegion();
+if ($region !== 'ru' && $region !== 'by' && $region !== 'kz')
 {
 	echo GetMessage('WSL_LOADER_ERROR_ACCESS_DENIED');
 	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_after.php");

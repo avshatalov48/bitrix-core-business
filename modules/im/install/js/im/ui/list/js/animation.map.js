@@ -1,1 +1,0 @@
-{"version":3,"sources":["animation.js"],"names":["BX","namespace","im","list","animation","options"],"mappings":"CAAC,WAED,aAEAA,GAAGC,UAAU,wBAUbD,GAAGE,GAAGC,KAAKC,UAAY,SAASC,MAd/B","file":""}

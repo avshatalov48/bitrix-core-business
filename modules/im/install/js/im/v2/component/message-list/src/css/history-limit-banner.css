@@ -9,7 +9,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	max-width: var(--im-content-chat__max-width_textarea_container);
+	max-width: var(--im-content-chat__max-width_message_container);
 	height: 68px;
 	margin-left: var(--im-dialog-chat__offset_avatar-block);
 	margin-right: var(--im-message-base__offset_context-menu);

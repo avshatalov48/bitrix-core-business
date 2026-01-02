@@ -6,4 +6,5 @@ enum SyncDirection: string
 {
 	case ADD = 'ADD';
 	case DELETE = 'DELETE';
+	case NODE_DELETE = 'NODE_DELETE';
 }

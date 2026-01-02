@@ -38,23 +38,16 @@ $arUserPermsVar = array(
 	SONET_RELATIONS_TYPE_NONE => GetMessage("SONET_PVU_NONE"),
 	SONET_RELATIONS_TYPE_FRIENDS => GetMessage("SONET_PVU_FR"),
 	SONET_RELATIONS_TYPE_AUTHORIZED => GetMessage("SONET_PVU_AUTHORIZED"),
+	SONET_RELATIONS_TYPE_ALL => GetMessage("SONET_PVU_ALL"),
 );
-if (!ModuleManager::isModuleInstalled('bitrix24'))
-{
-	$arUserPermsVar[SONET_RELATIONS_TYPE_ALL] = GetMessage("SONET_PVU_ALL");
-}
 
 $arGroupPermsVar = array(
 	UserToGroupTable::ROLE_OWNER => GetMessage("SONET_PVG_OWNER"),
 	UserToGroupTable::ROLE_MODERATOR => GetMessage("SONET_PVG_MOD"),
 	UserToGroupTable::ROLE_USER => GetMessage("SONET_PVG_USER"),
 	SONET_ROLES_AUTHORIZED => GetMessage("SONET_PVG_AUTHORIZED"),
+	SONET_ROLES_ALL => GetMessage("SONET_PVG_ALL"),
 );
-if (!ModuleManager::isModuleInstalled('bitrix24'))
-{
-	$arGroupPermsVar[SONET_ROLES_ALL] = GetMessage("SONET_PVG_ALL");
-}
-
 
 $bIntranet = IsModuleInstalled('intranet');
 

@@ -3,6 +3,7 @@ import { RichMenuItem, RichMenuItemIcon, RichMenuPopup } from 'ui.vue3.component
 import { ServiceLocator } from '../../../service/service-locator';
 import { Hint } from '../../util/hint';
 import { RowValue } from './row-value';
+import { EventEmitter } from 'main.core.events';
 
 export const TitleCell = {
 	name: 'TitleCell',
@@ -39,6 +40,17 @@ export const TitleCell = {
 		isRowValueConfigurable(): boolean
 		{
 			return ServiceLocator.getValueTypeByRight(this.right)?.isRowValueConfigurable() ?? false;
+		},
+		isRightDeletable(): boolean
+		{
+			return this.right.isDeletable;
+		},
+		rightCellStyle(): Object
+		{
+			return {
+				'margin-left': !this.right.groupHead && !this.right.group && !this.right.iconClass ? '23px' : null,
+				'max-width': this.right.iconClass ? 'calc(100% - 52px)' : 'auto',
+			};
 		},
 	},
 	methods: {
@@ -81,35 +93,74 @@ export const TitleCell = {
 
 			this.isRowValueShown = true;
 		},
+		onRightClick(): void
+		{
+			const eventData = {
+				guid: this.$store.getters['application/guid'],
+				right: this.right,
+			};
+			EventEmitter.emit('BX.UI.AccessRights.V2:onRightClick', eventData);
+		},
+		deleteRight(): void
+		{
+			this.$store.dispatch('userGroups/deleteRight', { rightId: this.right.id });
+			this.$store.dispatch('accessRights/deleteRight', {
+				sectionCode: this.section.sectionCode,
+				rightId: this.right.id,
+			});
+			EventEmitter.emit('BX.UI.AccessRights.V2:onRightDelete', {
+				guid: this.$store.getters['application/guid'],
+				right: this.right,
+			});
+		},
 	},
 	// data attributes are needed for e2e automated tests
 	template: `
 		<div
 			class='ui-access-rights-v2-column-item-text ui-access-rights-v2-column-item-title'
 			@click="toggleGroup"
-			:title="right.title"
 			:style="{
 				cursor: right.groupHead ? 'pointer' : null,
 			}"
-			v-memo="[right.isGroupExpanded]"
+			v-memo="[right.isGroupExpanded, right.title, right.subtitle]"
 			:data-accessrights-right-id="right.id"
 		>
 			<span
 				v-if="right.groupHead"
 				class="ui-icon-set"
 				:class="{
-					'--minus-in-circle': right.isGroupExpanded,
-					'--plus-in-circle': !right.isGroupExpanded,
+					'--o-circle-minus': right.isGroupExpanded,
+					'--o-circle-plus': !right.isGroupExpanded,
 				}"
 			></span>
-			<span class="ui-access-rights-v2-text-ellipsis" :style="{
-				'margin-left': !right.groupHead && !right.group ? '23px' : null,
-			}">{{ right.title }}</span>
-			<Hint v-once v-if="right.hint" :html="right.hint" />
+			<div 
+				v-if="right.iconClass" 
+				:class="right.iconClass"
+				class="ui-access-rights-v2-column-item-title-icon"
+			><i></i></div>
+			<div class="ui-access-rights-v2-column-item-title-block" :style="rightCellStyle">
+				<span
+					v-if="right.isClickable"
+					class="ui-access-rights-v2-column-item-title-link ui-access-rights-v2-text-ellipsis"
+					@click="onRightClick"
+				>
+					{{ right.title }}<Hint v-once v-if="right.hint" :html="right.hint"/>
+				</span>
+				<span 
+					v-else 
+					class="ui-access-rights-v2-text-wrap"
+				>
+					{{ right.title }}<Hint v-once v-if="right.hint" :html="right.hint"/>
+				</span>
+				<span 
+					v-if="right.subtitle" 
+					class="ui-access-rights-v2-column-item-subtitle ui-access-rights-v2-text-ellipsis"
+				>{{ right.subtitle }}</span>
+			</div>
 		</div>
 		<div
 			ref="icon" 
-			class="ui-icon-set --more ui-access-rights-v2-icon-more ui-access-rights-v2-title-column-menu" 
+			class="ui-icon-set --more-l ui-access-rights-v2-icon-more ui-access-rights-v2-title-column-menu" 
 			@click="toggleMenu"
 		>
 			<RichMenuPopup
@@ -137,6 +188,13 @@ export const TitleCell = {
 					:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_OPEN_ROW_VALUE')"
 					:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_OPEN_ROW_VALUE_SUBTITLE')"
 					@click="openRowValue"
+				/>
+				<RichMenuItem
+					v-if="isRightDeletable"
+					:icon="RichMenuItemIcon['trash-bin']"
+					:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_DELETE_ROW')"
+					:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_DELETE_ROW_SUBTITLE')"
+					@click="deleteRight"
 				/>
 			</RichMenuPopup>
 			<RowValue v-if="isRowValueShown" @close="isRowValueShown = false"/>

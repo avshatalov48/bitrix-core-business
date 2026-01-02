@@ -2,6 +2,7 @@
 
 use Bitrix\Calendar\Integration\UI\EntitySelector;
 use Bitrix\Calendar\Integration;
+use Bitrix\Calendar\Internals\Container;
 use Bitrix\Calendar\Internals\EventManager\EventManagerInterface;
 
 return [
@@ -45,6 +46,9 @@ return [
 			],
 			EventManagerInterface::class => [
 				'className' => '\\Bitrix\\Calendar\\Internals\\EventManager\\EventManager',
+			],
+			'calendar.container' => [
+				'className' => Container::class,
 			],
 		],
 		'readonly' => true,
@@ -90,6 +94,102 @@ return [
 					'id' => 'calendar.jointSharingFilter',
 					'entityId' => 'user',
 					'className' => '\\Bitrix\\Calendar\\Integration\\UI\\EntitySelector\\JointSharing\\Filter',
+				],
+			],
+		],
+		'readonly' => true,
+	],
+	'messenger' => [
+		'value' => [
+			'brokers' => [
+				'calendar_db' => [
+					'type' => \Bitrix\Main\Messenger\Internals\Broker\DbBroker::TYPE_CODE,
+					'params' => [
+						'table' => \Bitrix\Calendar\Synchronization\Internal\Model\MessengerTable::class,
+						'module' => 'calendar',
+					]
+				]
+			],
+			'queues' => [
+				'google_section_sync' => [
+					'broker' => 'calendar_db',
+					'handler' => \Bitrix\Calendar\Synchronization\Internal\Service\Messenger\Receiver\GoogleSectionReceiver::class,
+					'retry_strategy' => [
+						'max_retries' => 30,
+						'delay' => 5,
+						'multiplier' => 2,
+						'max_delay' => 1200
+					],
+				],
+				'icloud_section_sync' => [
+					'broker' => 'calendar_db',
+					'handler' => \Bitrix\Calendar\Synchronization\Internal\Service\Messenger\Receiver\ICloudSectionReceiver::class,
+					'retry_strategy' => [
+						'max_retries' => 30,
+						'delay' => 5,
+						'multiplier' => 2,
+						'max_delay' => 1200
+					],
+				],
+				'office365_section_sync' => [
+					'broker' => 'calendar_db',
+					'handler' => \Bitrix\Calendar\Synchronization\Internal\Service\Messenger\Receiver\Office365SectionReceiver::class,
+					'retry_strategy' => [
+						'max_retries' => 30,
+						'delay' => 5,
+						'multiplier' => 2,
+						'max_delay' => 1200
+					],
+				],
+				'google_event_sync' => [
+					'broker' => 'calendar_db',
+					'handler' => \Bitrix\Calendar\Synchronization\Internal\Service\Messenger\Receiver\GoogleEventReceiver::class,
+					'retry_strategy' => [
+						'max_retries' => 30,
+						'delay' => 5,
+						'multiplier' => 2,
+						'max_delay' => 1800
+					],
+				],
+				'icloud_event_sync' => [
+					'broker' => 'calendar_db',
+					'handler' => \Bitrix\Calendar\Synchronization\Internal\Service\Messenger\Receiver\ICloudEventReceiver::class,
+					'retry_strategy' => [
+						'max_retries' => 30,
+						'delay' => 5,
+						'multiplier' => 2,
+						'max_delay' => 1800
+					],
+				],
+				'office365_event_sync' => [
+					'broker' => 'calendar_db',
+					'handler' => \Bitrix\Calendar\Synchronization\Internal\Service\Messenger\Receiver\Office365EventReceiver::class,
+					'retry_strategy' => [
+						'max_retries' => 30,
+						'delay' => 5,
+						'multiplier' => 2,
+						'max_delay' => 1800
+					],
+				],
+				'google_push' => [
+					'broker' => 'calendar_db',
+					'handler' => \Bitrix\Calendar\Synchronization\Internal\Service\Messenger\Receiver\GooglePushReceiver::class,
+					'retry_strategy' => [
+						'max_retries' => 30,
+						'delay' => 5,
+						'multiplier' => 2,
+						'max_delay' => 1200
+					],
+				],
+				'office365_push' => [
+					'broker' => 'calendar_db',
+					'handler' => \Bitrix\Calendar\Synchronization\Internal\Service\Messenger\Receiver\Office365PushReceiver::class,
+					'retry_strategy' => [
+						'max_retries' => 30,
+						'delay' => 5,
+						'multiplier' => 2,
+						'max_delay' => 1200
+					],
 				],
 			],
 		],

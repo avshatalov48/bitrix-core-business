@@ -1,16 +1,18 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2012 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Mail\Internal;
 
-use Bitrix\Main\Orm;
-use Bitrix\Main\Entity;
-use Bitrix\Main\Type as Type;
+use Bitrix\Main\Type;
+use Bitrix\Main\ORM;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\ArrayField;
 
 /**
  * Class EventMessageTable
@@ -28,7 +30,7 @@ use Bitrix\Main\Type as Type;
  * @method static \Bitrix\Main\Mail\Internal\EO_EventMessage wakeUpObject($row)
  * @method static \Bitrix\Main\Mail\Internal\EO_EventMessage_Collection wakeUpCollection($rows)
  */
-class EventMessageTable extends Entity\DataManager
+class EventMessageTable extends DataManager
 {
 	/**
 	 * @return string
@@ -52,7 +54,9 @@ class EventMessageTable extends Entity\DataManager
 			'TIMESTAMP_X' => array(
 				'data_type' => 'datetime',
 				'required' => true,
-				'default_value' => function(){return new Type\DateTime();},
+				'default_value' => function() {
+					return new Type\DateTime();
+				},
 			),
 			'EVENT_NAME' => array(
 				'data_type' => 'string',
@@ -120,7 +124,7 @@ class EventMessageTable extends Entity\DataManager
 			'SITE_TEMPLATE_ID' => array(
 				'data_type' => 'string',
 			),
-			(new Orm\Fields\ArrayField('ADDITIONAL_FIELD'))->configureSerializationPhp(),
+			(new ArrayField('ADDITIONAL_FIELD'))->configureSerializationPhp(),
 			'EVENT_MESSAGE_SITE' => array(
 				'data_type' => 'Bitrix\Main\Mail\Internal\EventMessageSite',
 				'reference' => array('=this.ID' => 'ref.EVENT_MESSAGE_ID'),
@@ -217,19 +221,19 @@ class EventMessageTable extends Entity\DataManager
 		if(!empty($arReplaceTagsOne))
 			$strResult = str_replace(array_keys($arReplaceTagsOne), array_values($arReplaceTagsOne), $strResult);
 
-		// php parser delete newline folowing the closing tag in string passed to eval
+		// php parser delete newline following the closing tag in string passed to eval
 		$strResult = str_replace(array("?>\n", "?>\r\n"), array("?>\n\n", "?>\r\n\r\n"), $strResult);
 
 		return $strResult;
 	}
 
 	/**
-	 * @param Entity\Event $event
-	 * @return Entity\EventResult
+	 * @param ORM\Event $event
+	 * @return ORM\EventResult
 	 */
-	public static function onBeforeUpdate(Entity\Event $event)
+	public static function onBeforeUpdate(ORM\Event $event)
 	{
-		$result = new Entity\EventResult;
+		$result = new ORM\EventResult();
 		$data = $event->getParameters();
 
 		if(array_key_exists('MESSAGE', $data['fields']))
@@ -242,12 +246,12 @@ class EventMessageTable extends Entity\DataManager
 	}
 
 	/**
-	 * @param Entity\Event $event
-	 * @return Entity\EventResult
+	 * @param ORM\Event $event
+	 * @return ORM\EventResult
 	 */
-	public static function onBeforeAdd(Entity\Event $event)
+	public static function onBeforeAdd(ORM\Event $event)
 	{
-		$result = new Entity\EventResult;
+		$result = new ORM\EventResult();
 		$data = $event->getParameters();
 
 		if(array_key_exists('MESSAGE', $data['fields']))

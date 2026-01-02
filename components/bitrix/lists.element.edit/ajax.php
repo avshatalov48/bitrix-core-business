@@ -329,6 +329,7 @@ class ListsElementEditAjaxController extends Controller
 			'FROM_USER_ID' => $userIdFrom,
 			'NOTIFY_TYPE' => IM_NOTIFY_FROM,
 			'NOTIFY_MODULE' => 'lists',
+			'NOTIFY_EVENT' => 'admin_notification',
 			'NOTIFY_TAG' => 'LISTS|NOTIFY_ADMIN|'.$userIdTo.'|'.$userIdFrom,
 			'NOTIFY_MESSAGE' => Loc::getMessage(
 				'LISTS_NOTIFY_MESSAGE', array('#URL#' => $this->request->getPost('elementUrl')))

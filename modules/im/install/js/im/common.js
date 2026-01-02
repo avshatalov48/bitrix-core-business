@@ -242,93 +242,6 @@
 		return birthday == currentDate;
 	};
 
-	MessengerCommon.prototype.checkInternetConnection = function (successCallback, failureCallback, tryCount, tryName)
-	{
-		if (typeof(successCallback) != 'function')
-		{
-			successCallback = function ()
-			{
-				if (typeof(BXIM) != 'undefined')
-				{
-					BXIM.messenger.connectionStatus('online', false);
-				}
-			};
-		}
-
-		if (typeof(failureCallback) != 'function')
-			failureCallback = function() {};
-
-		if (typeof(tryCount) != "number")
-			tryCount = 1;
-
-		if (!tryName && tryCount > 1)
-			tryName = +new Date();
-
-		if (typeof(BXIM) != 'undefined')
-		{
-			BXIM.messenger.connectionStatus('connecting');
-		}
-
-		BX.ajax({
-			url: '//www.bitrixsoft.com/200.ok.'+(+new Date),
-			method: 'GET',
-			dataType: 'html',
-			skipAuthCheck: true,
-			skipBxHeader: true,
-			timeout: 1,
-			onsuccess: function(data){
-				if (data == 'OK')
-				{
-					console.log('Checking internet connection... success!');
-					delete BX.MessengerCommon.tryCheckConnect[tryName];
-					successCallback();
-				}
-				else
-				{
-					if (typeof(BXIM) != 'undefined')
-					{
-						BXIM.messenger.connectionStatus('offline');
-					}
-
-					console.log('Checking internet connection... failure!');
-					if (tryCount == 1)
-					{
-						delete BX.MessengerCommon.tryCheckConnect[tryName];
-						failureCallback();
-					}
-					else
-					{
-						if (typeof(BXIM) != 'undefined')
-						{
-							BXIM.messenger.connectionStatus('connecting');
-						}
-						clearTimeout(BX.MessengerCommon.tryCheckConnect[tryName]);
-						BX.MessengerCommon.tryCheckConnect[tryName] = setTimeout(function(){
-							BX.MessengerCommon.checkInternetConnection(successCallback, failureCallback, tryCount-1, tryName)
-						}, 5000);
-					}
-				}
-			},
-			onfailure: function(){
-				console.log('Checking internet connection... failure!');
-				if (tryCount == 1)
-				{
-					delete BX.MessengerCommon.tryCheckConnect[tryName];
-					failureCallback();
-				}
-				else
-				{
-					clearTimeout(BX.MessengerCommon.tryCheckConnect[tryName]);
-					BX.MessengerCommon.tryCheckConnect[tryName] = setTimeout(function(){
-						BX.MessengerCommon.checkInternetConnection(successCallback, failureCallback, tryCount-1, tryName)
-					}, 5000);
-				}
-			}
-		});
-
-		return true;
-	}
-
 	MessengerCommon.prototype.pinDialog = function(dialogId, active)
 	{
 		this.recentListElementPin(dialogId, active);
@@ -7753,6 +7666,8 @@
 					}
 				}
 
+				const textOriginal = params.message.textOriginal ?? params.message.text;
+
 				if (params.message.senderId == this.BXIM.userId)
 				{
 					if (this.isMobile())
@@ -7796,7 +7711,7 @@
 							date: params.message.date,
 							author_id: params.message.senderId,
 							status: 'received',
-							text: BX.util.htmlspecialchars(params.message.textOriginal),
+							text: BX.util.htmlspecialchars(textOriginal),
 							attach: params.message.params && params.message.params.ATTACH? params.message.params.ATTACH.length > 0: false,
 							file: params.message.params && params.message.params.FILE_ID? params.message.params.FILE_ID.length > 0: false,
 						},
@@ -7880,7 +7795,7 @@
 							date: params.message.date,
 							author_id: params.message.senderId,
 							status: 'delivered',
-							text: BX.util.htmlspecialchars(params.message.textOriginal),
+							text: BX.util.htmlspecialchars(textOriginal),
 							attach: params.message.params && params.message.params.ATTACH? params.message.params.ATTACH.length > 0: false,
 							file: params.message.params && params.message.params.FILE_ID? params.message.params.FILE_ID.length > 0: false,
 						},

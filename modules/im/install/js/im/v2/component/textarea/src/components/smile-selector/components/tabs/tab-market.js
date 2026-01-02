@@ -1,35 +1,35 @@
-import {Runtime} from 'main.core';
+import { Runtime } from 'main.core';
 
-import {Spinner, SpinnerSize} from 'im.v2.component.elements';
-import {MarketManager} from 'im.v2.lib.market';
+import { Spinner, SpinnerSize } from 'im.v2.component.elements.loader';
+import { MarketManager } from 'im.v2.lib.market';
 
 import '../../../../css/smile-selector/tabs/tab-market.css';
 
 // @vue/component
 export const TabMarket = {
 	name: 'SmilePopupMarketContent',
-	components: {Spinner},
+	components: { Spinner },
 	props:
 	{
 		entityId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		dialogId: {
 			type: String,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['close'],
 	data() {
 		return {
 			isLoading: true,
-			handleResult: true
+			handleResult: true,
 		};
 	},
 	computed:
 	{
-		SpinnerSize: () => SpinnerSize
+		SpinnerSize: () => SpinnerSize,
 	},
 	watch:
 	{
@@ -37,7 +37,7 @@ export const TabMarket = {
 		{
 			this.isLoading = true;
 			this.load(newValue);
-		}
+		},
 	},
 	created()
 	{
@@ -72,7 +72,7 @@ export const TabMarket = {
 		{
 			this.handleResult = false;
 			this.$emit('close');
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-smile-popup-market-content__container">
@@ -85,5 +85,5 @@ export const TabMarket = {
 				ref="im-messenger-smile-selector-placement"
 			></div>
 		</div>
-	`
+	`,
 };

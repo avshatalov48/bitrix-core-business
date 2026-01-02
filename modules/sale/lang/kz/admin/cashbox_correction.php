@@ -1,0 +1,23 @@
+<?php
+$MESS["CORRECTION_CHECK_EXPORT_CSV_TITLE"] = "Жазбаларды CSV-ге экспорттау";
+$MESS["CORRECTION_CHECK_EXPORT_EXCEL_TITLE"] = "Жазбаларды Excel-ге экспорттау";
+$MESS["CORRECTION_CHECK_STEXPORT_SUMMARY"] = "Кестедегі жазбалар үшін экспорттау файлы құрылады. Деректер көлемді болған кезде бұл әрекетті орындау ұзақ уақыт алуы мүмкін.";
+$MESS["SALE_CASHBOX_CORRECTION_ACCESS_DENIED"] = "Қолжетімділікке тыйым салынған.";
+$MESS["SALE_CASHBOX_CORRECTION_ADD"] = "Түзету чегін қосу";
+$MESS["SALE_CASHBOX_CORRECTION_GROUP_ADD"] = "Чекті қосу";
+$MESS["SALE_CASHBOX_CORRECTION_GROUP_EXPORT_TO_CSV"] = "Төлемдерді CSV-ге экспорттау";
+$MESS["SALE_CASHBOX_CORRECTION_GROUP_EXPORT_TO_EXCEL"] = "Төлемдерді Excel-ге экспорттау";
+$MESS["SALE_CASHBOX_CORRECTION_SAVE_CHECK"] = "Чек жасалды және басып шығаруға жіберілді";
+$MESS["SALE_CASHBOX_CORRECTION_TITLE"] = "Түзету";
+$MESS["SALE_CHECK_CORRECTION_ORDER_DATE_BILL"] = "Төлем жасалған күн";
+$MESS["SALE_CHECK_CORRECTION_ORDER_ID"] = "Тапсырыс ID-і";
+$MESS["SALE_CHECK_CORRECTION_ORDER_PAID"] = "Төленген";
+$MESS["SALE_CHECK_CORRECTION_ORDER_PAID_N"] = "Жоқ";
+$MESS["SALE_CHECK_CORRECTION_ORDER_PAID_Y"] = "Иә";
+$MESS["SALE_CHECK_CORRECTION_ORDER_SUM"] = "Сома";
+$MESS["SALE_CHECK_CORRECTION_PAYMENT_ID"] = "Төлем ID-і";
+$MESS["SALE_CHECK_CORRECTION_PAY_SYSTEM_NAME"] = "Төлем жүйесі";
+$MESS["SALE_F_CORRECTION_CHECK_PRINTED"] = "Чек басып шығарылды";
+$MESS["SALE_F_CORRECTION_DATE_BILL"] = "Жасалған күні";
+$MESS["SALE_F_CORRECTION_ORDER_ID"] = "Тапсырыс ID-і";
+$MESS["SALE_F_CORRECTION_PAID"] = "Төленген";

@@ -61,5 +61,5 @@ $MESS["T_IBLOCK_DESC_PAGER_TEMPLATE_SITE_DEFAULT"] = "Common template";
 $MESS["T_IBLOCK_DESC_PAGER_TEMPLATE_SYSTEM"] = "Built-in template";
 $MESS["T_IBLOCK_DESC_PAGER_TITLE"] = "Category name";
 $MESS["T_IBLOCK_DESC_PARAMS_NAME"] = "The name of an array with variables to build links";
-$MESS["T_IBLOCK_DESC_SHOW_ALL"] = "Show the ALL link";
-$MESS["T_IBLOCK_DESC_TOP_PAGER"] = "Display at the top of the list";
+$MESS['T_IBLOCK_DESC_SHOW_ALL'] = "Show the ALL link";
+$MESS['T_IBLOCK_DESC_TOP_PAGER'] = "Display at the top of the list";

@@ -19,7 +19,20 @@ use Bitrix\Main\ORM\Data\DataManager,
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_OptionUser_Query query()
+ * @method static EO_OptionUser_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_OptionUser_Result getById($id)
+ * @method static EO_OptionUser_Result getList(array $parameters = [])
+ * @method static EO_OptionUser_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_OptionUser createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_OptionUser_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_OptionUser wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_OptionUser_Collection wakeUpCollection($rows)
+ */
 
 class OptionUserTable extends DataManager
 {

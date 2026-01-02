@@ -6,7 +6,7 @@ namespace Bitrix\Calendar\Core\Queue\Queue;
 class QueueRegistry
 {
 	public const QUEUE_LIST = [
-		'EventDelayedSync' => 1,
+		'EventDelayedSync' => 1, // @todo Remove with deprecated agent
 		'UpdateDepartmentStructure' => 2,
 		'UpdateSocialGroupStructure' => 3,
 		'DelayedSyncSection' => 4,
@@ -18,6 +18,7 @@ class QueueRegistry
 	];
 
 	public const ROUTING_TO_QUEUES = [
+		// @todo Remove with deprecated agent
 		'calendar:update_meeting_status' => [
 			'EventDelayedSync'
 		],

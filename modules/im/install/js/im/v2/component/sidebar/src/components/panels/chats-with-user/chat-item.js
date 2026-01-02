@@ -3,7 +3,8 @@ import { Loc } from 'main.core';
 import { ChatType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
-import { ChatAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { ChatTitle } from 'im.v2.component.elements.chat-title';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 
 import './css/chat-item.css';
 

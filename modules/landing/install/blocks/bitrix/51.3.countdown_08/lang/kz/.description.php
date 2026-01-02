@@ -1,0 +1,7 @@
+<?php
+$MESS["LANDING_BLOCK_51_3_COUNTDOWN_08--DATW"] = "Аяқталу күні";
+$MESS["LANDING_BLOCK_51_3_COUNTDOWN_08--IMG"] = "Фондық сурет";
+$MESS["LANDING_BLOCK_51_3_COUNTDOWN_08--NAME"] = "Қараңғы фондық суреттегі жақтау ішіндегі таймер";
+$MESS["LANDING_BLOCK_51_3_COUNTDOWN_08--NUMBER_NUMBER"] = "Сан";
+$MESS["LANDING_BLOCK_51_3_COUNTDOWN_08--NUMBER_TEXT"] = "Қолтаңба";
+$MESS["LANDING_BLOCK_51_3_COUNTDOWN_08--TITLE"] = "Тақырыпаты";

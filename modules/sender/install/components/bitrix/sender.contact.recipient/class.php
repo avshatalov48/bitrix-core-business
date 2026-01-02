@@ -414,7 +414,7 @@ class ContactRecipientSenderComponent extends Bitrix\Sender\Internals\CommonSend
 			$list[] = [
 				"id" => "LETTER_TITLE",
 				"name" => Loc::getMessage('SENDER_LETTER_RCP_UI_COLUMN_LETTER_TITLE'),
-				"sort" => "LETTER_TITLE",
+				"sort" => "POSTING.LETTER.TITLE",
 				"default" => true
 			];
 		}

@@ -121,3 +121,19 @@
 	background-image: url('./images/calendar-hover.svg');
 }
 /* End compact mode */
+
+.bx-im-collab-header__links-container.--highlight {
+	position: relative;
+}
+
+.bx-im-collab-header__links-container.--highlight::after {
+	content: '';
+	position: absolute;
+	inset: -6px;
+	border-radius: inherit;
+	background: conic-gradient(#1BCE7B, #7CFFC2, #1BCE7B);
+	padding: 2px;
+	mask: linear-gradient(white, white) content-box, linear-gradient(white, white);
+	mask-composite: exclude;
+	pointer-events: none;
+}

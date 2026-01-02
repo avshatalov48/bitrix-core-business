@@ -255,7 +255,7 @@ export class AdditionalFilter extends EventEmitter
 				<div class="main-ui-control main-ui-filter-additional-filter-placeholder" data-type="${typeId}">
 					<div class="main-ui-square">
 						<div class="main-ui-square-item">${message}</div>
-						<div class="main-ui-item-icon main-ui-square-delete" onclick="${onRemoveClick}"></div>
+						<div class="main-ui-item-icon main-ui-square-delete" tabindex="-1" onclick="${onRemoveClick}"></div>
 					</div>
 				</div>
 			`;

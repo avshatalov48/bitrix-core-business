@@ -1,0 +1,116 @@
+@property --ui-highlighter-angle {
+	syntax: '<angle>';
+	initial-value: 0deg;
+	inherits: false;
+}
+
+@keyframes ui-highlighter-rotate-gradient {
+	to {
+		--ui-highlighter-angle: 360deg;
+	}
+}
+
+@keyframes ui-highlighter-fade-out {
+	0% {
+		opacity: 1;
+	}
+	90% {
+		opacity: 0;
+	}
+	100% {
+		display: none;
+	}
+}
+
+.ui-highlighter {
+	--ui-highlighter-angle: 0deg;
+	--ui-highlighter-glow-size-default: 2px;
+	--ui-highlighter-radius-default: 29px;
+	--ui-highlighter-border-size-default: 1px;
+	--ui-highlighter-iteration-count: 2;
+	--ui-highlighter-animation-duration-default: 5s;
+
+	--ui-highlighter-glow-size-current: var(--ui-highlighter-glow-size, var(--ui-highlighter-glow-size-default));
+	--ui-highlighter-radius-current: var(--ui-highlighter-radius, var(--ui-highlighter-radius-default));
+	--ui-highlighter-border-size-current: var(--ui-highlighter-border-size, var(--ui-highlighter-border-size-default));
+	--ui-highlighter-animation-duration-current: var(--ui-highlighter-animation-duration, var(--ui-highlighter-animation-duration-default));
+}
+
+/* Glow */
+.ui-highlighter.--with-glow::before {
+	content: '';
+	position: absolute;
+	inset: calc((var(--ui-highlighter-glow-size-current) + var(--ui-highlighter-border-size-current)) * -1);
+	padding: calc((var(--ui-highlighter-glow-size-current) + var(--ui-highlighter-border-size-current)) * 1);
+	background: conic-gradient(from var(--ui-highlighter-angle) at 50% 51.19%, rgba(0, 117, 255, 0) -104.82deg, rgba(0, 117, 255, 0) 104.9deg, #7CFFC2 180deg, rgba(0, 117, 255, 0) 255.18deg, rgba(0, 117, 255, 0) 464.9deg),
+	conic-gradient(from var(--ui-highlighter-angle) at 50% 50%, rgba(255, 255, 255, 0) -57.96deg, rgba(230, 230, 230, 0) 89.51deg, #7CFFC2 163.7deg, #7CFFC2 198.58deg, #7CFFC2 222.67deg, rgba(255, 255, 255, 0) 302.04deg, rgba(230, 230, 230, 0) 449.51deg);
+	border-radius: calc(var(--ui-highlighter-radius-current) + var(--ui-highlighter-glow-size-current) + var(--ui-highlighter-border-size-current));
+	z-index: 0;
+	animation: ui-highlighter-rotate-gradient var(--ui-highlighter-animation-duration-current) linear var(--ui-highlighter-iteration-count),
+	ui-highlighter-fade-out 0.5s ease-out calc(var(--ui-highlighter-iteration-count) * var(--ui-highlighter-animation-duration-current)) 1;
+	animation-fill-mode: forwards;
+	opacity: 1;
+	-webkit-mask:
+			linear-gradient(#fff 0 0) content-box,
+			linear-gradient(#fff 0 0);
+	        mask:
+			linear-gradient(#fff 0 0) content-box,
+			linear-gradient(#fff 0 0);
+	-webkit-mask-composite: xor;
+	        mask-composite: exclude;
+}
+
+/* Border */
+.ui-highlighter::after {
+	content: '';
+	position: absolute;
+	inset: calc(var(--ui-highlighter-border-size-current) * -1);
+	padding: var(--ui-highlighter-border-size-current);
+	background: conic-gradient(from var(--ui-highlighter-angle) at 50% 51.19%, #0075FF 0deg, #7CFFC2 180deg, #0075FF 360deg);
+	border-radius: calc(var(--ui-highlighter-radius-current) + var(--ui-highlighter-border-size-current));
+	-webkit-mask:
+			linear-gradient(#fff 0 0) content-box,
+			linear-gradient(#fff 0 0);
+	        mask:
+			linear-gradient(#fff 0 0) content-box,
+			linear-gradient(#fff 0 0);
+	-webkit-mask-composite: xor;
+	        mask-composite: exclude;
+	z-index: 0;
+	animation: ui-highlighter-rotate-gradient var(--ui-highlighter-animation-duration-current) linear var(--ui-highlighter-iteration-count);
+}
+
+.ui-highlighter.--alert::before {
+	background: conic-gradient(from var(--ui-highlighter-angle) at 50% 51.19%, rgba(255, 140, 114, 0) -104.82deg, rgba(255, 140, 114, 0) 104.9deg, #FDC63B 180deg, rgba(255, 140, 114, 0) 255.18deg, rgba(255, 140, 114, 0) 464.9deg);
+}
+
+.ui-highlighter.--alert::after {
+	background: conic-gradient(from var(--ui-highlighter-angle) at 50% 51.19%, #FF8C72 0deg, #FDC63B 180deg, #FF8C72 360deg);
+}
+
+.ui-highlighter.--success::after {
+	background: conic-gradient(from var(--ui-highlighter-angle) at 50% 51.19%, #1BCE7B 0deg, #7CFFC2 180deg, #1BCE7B 360deg);
+}
+
+.ui-highlighter.--success::before {
+	background: conic-gradient(from var(--ui-highlighter-angle) at 50% 51.19%, rgba(0, 117, 255, 0) -104.82deg, rgba(0, 117, 255, 0) 104.9deg, #7CFFC2 180deg, rgba(0, 117, 255, 0) 255.18deg, rgba(0, 117, 255, 0) 464.9deg),
+	conic-gradient(from var(--ui-highlighter-angle) at 50% 50%, rgba(255, 255, 255, 0) -57.96deg, rgba(230, 230, 230, 0) 89.51deg, #7CFFC2 163.7deg, #7CFFC2 198.58deg, #7CFFC2 222.67deg, rgba(255, 255, 255, 0) 302.04deg, rgba(230, 230, 230, 0) 449.51deg);
+}
+
+.ui-highlighter.--border-md::after {
+	--ui-highlighter-border-size-current: 1px;
+}
+
+.ui-highlighter.--border-lg::after {
+	--ui-highlighter-border-size-current: 2px;
+}
+
+.ui-highlighter.--glow-md::before {
+	--ui-highlighter-glow-size-current: 1px;
+}
+
+.ui-highlighter.--glow-lg::before {
+	--ui-highlighter-glow-size-current: 2px;
+}
+
+

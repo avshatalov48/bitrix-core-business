@@ -1,0 +1,25 @@
+<?php
+$MESS["DOCUMENT_CONTRACTOR_CRM_COMPANY_ID_NAME"] = "Жеткізуші: компания";
+$MESS["DOCUMENT_CONTRACTOR_CRM_CONTACT_ID_NAME"] = "Жеткізуші: байланыс";
+$MESS["DOCUMENT_CONTRACTOR_ID_NAME"] = "Жеткізуші";
+$MESS["DOCUMENT_CREATED_BY_NAME"] = "Кім жасады";
+$MESS["DOCUMENT_DATE_CREATE_NAME"] = "Құрылған күні";
+$MESS["DOCUMENT_DATE_DOCUMENT_NAME"] = "Негіздеме құжатының күні";
+$MESS["DOCUMENT_DATE_MODIFY_NAME"] = "Өзгерту күні";
+$MESS["DOCUMENT_DATE_STATUS_NAME"] = "Мәртебенің өзгерген күні";
+$MESS["DOCUMENT_DOC_NUMBER_NAME"] = "Негіздеме құжатының нөмірі";
+$MESS["DOCUMENT_DOC_TYPE_NAME"] = "Құжаттың түрі";
+$MESS["DOCUMENT_ID_NAME"] = "ID";
+$MESS["DOCUMENT_MODIFIED_BY_NAME"] = "Кім өзгерткен";
+$MESS["DOCUMENT_PRODUCTS_NAME"] = "Тауар";
+$MESS["DOCUMENT_RESPONSIBLE_ID_NAME"] = "Жауапты";
+$MESS["DOCUMENT_STATUS_BY_NAME"] = "Мәртебені өзгерткен";
+$MESS["DOCUMENT_STATUS_NAME"] = "Мәртебе";
+$MESS["DOCUMENT_STORES_FROM_NAME"] = "Қойма-жөнелтуші";
+$MESS["DOCUMENT_STORES_NAME"] = "Қоймалар";
+$MESS["DOCUMENT_STORES_TO_NAME"] = "Қабылдаушы қойма";
+$MESS["DOCUMENT_TITLE_NAME"] = "Атауы";
+$MESS["DOCUMENT_TOTAL_NAME"] = "Сомасы";
+$MESS["DOCUMENT_TYPE_A"] = "Кіріс";
+$MESS["DOCUMENT_TYPE_NAME"] = "Түрі";
+$MESS["DOCUMENT_TYPE_S"] = "Кіріске алу";

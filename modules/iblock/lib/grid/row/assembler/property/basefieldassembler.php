@@ -219,4 +219,9 @@ abstract class BaseFieldAssembler extends FieldAssembler
 			return $result;
 		}
 	}
+
+	protected function isCustomEditable(string $columnId): bool
+	{
+		return in_array($columnId, $this->customEditableColumnIds);
+	}
 }

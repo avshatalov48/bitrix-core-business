@@ -24,6 +24,21 @@ class CSearchStemTable extends CSearchFullText
 		$DB->Query('DELETE FROM b_search_content_stem WHERE SEARCH_CONTENT_ID = ' . $ID);
 	}
 
+	public function update($ID, $arFields)
+	{
+		$DB = CDatabase::GetModuleConnection('search');
+		if (!isset($arFields['SITE_ID']))
+		{
+			$dbSites = $DB->Query('SELECT * from b_search_content_site WHERE SEARCH_CONTENT_ID = ' . $ID);
+			while ($site = $dbSites->fetch())
+			{
+				$arFields['SITE_ID'][$site['SITE_ID']] = $site['URL'];
+			}
+		}
+
+		return $this->replace($ID, $arFields);
+	}
+
 	public function replace($ID, $arFields)
 	{
 		$DB = CDatabase::GetModuleConnection('search');
@@ -55,7 +70,7 @@ class CSearchStemTable extends CSearchFullText
 					'SEARCH_CONTENT_MD5' => $text_md5,
 					'SEARCHABLE_CONTENT' => $arFields['SEARCHABLE_CONTENT']
 				]);
-				if ($merge)
+				if ($merge && $merge[0])
 				{
 					$DB->Query($merge[0]);
 				}

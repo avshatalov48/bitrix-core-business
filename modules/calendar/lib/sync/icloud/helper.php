@@ -24,4 +24,13 @@ class Helper
 	{
 		return $accountType === self::ACCOUNT_TYPE;
 	}
+
+	public function getConnectionName(string $appleId): string
+	{
+		return str_replace(
+			'#NAME#',
+			$appleId,
+			self::CONNECTION_NAME,
+		);
+	}
 }

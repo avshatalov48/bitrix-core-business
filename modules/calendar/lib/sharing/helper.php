@@ -59,7 +59,7 @@ class Helper
 		$optionValue = CUserOptions::getOption(
 			'calendar',
 			self::PAY_ATTENTION_TO_NEW_SHARING_JOINT_FEATURE_OPTION_NAME,
-			$defaultValue
+			$defaultValue,
 		);
 
 		if ($optionValue === $defaultValue)
@@ -70,7 +70,7 @@ class Helper
 		CUserOptions::setOption(
 			'calendar',
 			self::PAY_ATTENTION_TO_NEW_SHARING_JOINT_FEATURE_OPTION_NAME,
-			$value
+			$value,
 		);
 	}
 
@@ -138,10 +138,16 @@ class Helper
 	 */
 	public static function getOwnerInfo(int $id): array
 	{
-		$user = CUser::GetByID($id)->Fetch();
-		$arFileTmp = CFile::ResizeImageGet(
-			$user["PERSONAL_PHOTO"],
-			array('width' => 512, 'height' => 512),
+		return self::getUserInfo($id);
+	}
+
+	public static function getUserInfo(int $userId): array
+	{
+		$user = CUser::getById($userId)->fetch();
+
+		$personalPhoto = CFile::resizeImageGet(
+			$user['PERSONAL_PHOTO'],
+			['width' => 512, 'height' => 512],
 			BX_RESIZE_IMAGE_EXACT,
 			false,
 			false,
@@ -152,7 +158,7 @@ class Helper
 			'id' => $user['ID'],
 			'name' => $user['NAME'],
 			'lastName' => $user['LAST_NAME'],
-			'photo' => $arFileTmp['src'] ?? null,
+			'photo' => $personalPhoto['src'] ?? null,
 			'gender' => $user['PERSONAL_GENDER'] ?? null,
 		];
 	}

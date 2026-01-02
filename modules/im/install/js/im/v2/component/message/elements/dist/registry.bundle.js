@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_lib_dateFormatter,ui_vue3,ui_lottie,im_v2_lib_user,im_v2_lib_logger,ui_reactionsSelect,im_v2_lib_utils,im_v2_application_core,im_v2_lib_menu,im_v2_lib_copilot,im_v2_lib_channel,main_core_events,im_v2_const,im_v2_component_elements,im_v2_lib_permission,im_v2_component_animation,im_v2_provider_service,main_core,ui_vue3_components_reactions,im_v2_lib_parser) {
+(function (exports,im_v2_lib_dateFormatter,ui_vue3,im_v2_component_elements_attach,im_v2_component_elements_keyboard,ui_lottie,im_v2_component_elements_userListPopup,im_v2_lib_user,im_v2_lib_logger,ui_reactionsSelect,im_v2_component_elements_chatTitle,im_v2_lib_utils,im_v2_application_core,im_v2_lib_menu,im_v2_provider_service_sending,im_v2_provider_service_message,im_v2_provider_service_uploading,ui_system_menu,im_v2_lib_copilot,im_v2_lib_channel,main_core_events,im_v2_const,im_v2_component_elements_avatar,im_v2_lib_permission,im_v2_component_animation,im_v2_provider_service_comments,main_core,ui_vue3_components_reactions,im_v2_lib_parser) {
 	'use strict';
 
 	// @vue/component
@@ -64,7 +64,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const MessageAttach = {
 	  name: 'MessageAttach',
 	  components: {
-	    Attach: im_v2_component_elements.Attach
+	    Attach: im_v2_component_elements_attach.Attach
 	  },
 	  props: {
 	    item: {
@@ -104,7 +104,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const MessageKeyboard = {
 	  name: 'MessageKeyboard',
 	  components: {
-	    Keyboard: im_v2_component_elements.Keyboard
+	    Keyboard: im_v2_component_elements_keyboard.Keyboard
 	  },
 	  props: {
 	    item: {
@@ -137,7 +137,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	// @vue/component
 	const ReactionUser = {
 	  components: {
-	    ChatAvatar: im_v2_component_elements.ChatAvatar
+	    ChatAvatar: im_v2_component_elements_avatar.ChatAvatar
 	  },
 	  props: {
 	    userId: {
@@ -150,7 +150,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  computed: {
-	    AvatarSize: () => im_v2_component_elements.AvatarSize,
+	    AvatarSize: () => im_v2_component_elements_avatar.AvatarSize,
 	    user() {
 	      return this.$store.getters['users/get'](this.userId);
 	    },
@@ -176,15 +176,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
 	var _restClient = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
 	var _userManager = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("userManager");
 	class UserService {
 	  constructor() {
-	    Object.defineProperty(this, _store, {
-	      writable: true,
-	      value: void 0
-	    });
 	    Object.defineProperty(this, _restClient, {
 	      writable: true,
 	      value: void 0
@@ -193,12 +188,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = im_v2_application_core.Core.getStore();
 	    babelHelpers.classPrivateFieldLooseBase(this, _restClient)[_restClient] = im_v2_application_core.Core.getRestClient();
 	    babelHelpers.classPrivateFieldLooseBase(this, _userManager)[_userManager] = new im_v2_lib_user.UserManager();
 	  }
-	  loadReactionUsers(messageId, reaction) {
-	    let users = [];
+	  async loadReactionUsers(messageId, reaction) {
 	    im_v2_lib_logger.Logger.warn('Reactions: UserService: loadReactionUsers', messageId, reaction);
 	    const queryParams = {
 	      messageId,
@@ -206,22 +199,20 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        reaction
 	      }
 	    };
-	    return babelHelpers.classPrivateFieldLooseBase(this, _restClient)[_restClient].callMethod(im_v2_const.RestMethod.imV2ChatMessageReactionTail, queryParams).then(response => {
-	      users = response.data().users;
-	      return babelHelpers.classPrivateFieldLooseBase(this, _userManager)[_userManager].setUsersToModel(Object.values(users));
-	    }).then(() => {
-	      return users.map(user => user.id);
-	    }).catch(error => {
-	      console.error('Reactions: UserService: loadReactionUsers error', error);
-	      throw new Error(error);
+	    const response = await babelHelpers.classPrivateFieldLooseBase(this, _restClient)[_restClient].callMethod(im_v2_const.RestMethod.imV2ChatMessageReactionTail, queryParams).catch(result => {
+	      console.error('Reactions: UserService: loadReactionUsers error', result.error());
+	      throw result.error();
 	    });
+	    const users = response.data().users;
+	    await babelHelpers.classPrivateFieldLooseBase(this, _userManager)[_userManager].setUsersToModel(Object.values(users));
+	    return users.map(user => user.id);
 	  }
 	}
 
 	// @vue/component
 	const AdditionalUsers = {
 	  components: {
-	    UserListPopup: im_v2_component_elements.UserListPopup
+	    UserListPopup: im_v2_component_elements_userListPopup.UserListPopup
 	  },
 	  props: {
 	    messageId: {
@@ -442,11 +433,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	var _store$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
+	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
 	var _restClient$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
 	class ReactionService {
 	  constructor() {
-	    Object.defineProperty(this, _store$1, {
+	    Object.defineProperty(this, _store, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -454,35 +445,35 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1] = im_v2_application_core.Core.getStore();
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = im_v2_application_core.Core.getStore();
 	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$1)[_restClient$1] = im_v2_application_core.Core.getRestClient();
 	  }
 	  setReaction(messageId, reaction) {
 	    im_v2_lib_logger.Logger.warn('ReactionService: setReaction', messageId, reaction);
-	    babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('messages/reactions/setReaction', {
-	      messageId,
-	      reaction,
-	      userId: im_v2_application_core.Core.getUserId()
-	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$1)[_restClient$1].callMethod(im_v2_const.RestMethod.imV2ChatMessageReactionAdd, {
+	    const payload = {
 	      messageId,
 	      reaction
-	    }).catch(error => {
-	      console.error('ReactionService: error setting reaction', error);
+	    };
+	    void babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/reactions/setReaction', {
+	      ...payload,
+	      userId: im_v2_application_core.Core.getUserId()
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$1)[_restClient$1].callMethod(im_v2_const.RestMethod.imV2ChatMessageReactionAdd, payload).catch(result => {
+	      console.error('ReactionService: error setting reaction', result.error());
 	    });
 	  }
 	  removeReaction(messageId, reaction) {
 	    im_v2_lib_logger.Logger.warn('ReactionService: removeReaction', messageId, reaction);
-	    babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('messages/reactions/removeReaction', {
-	      messageId,
-	      reaction,
-	      userId: im_v2_application_core.Core.getUserId()
-	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$1)[_restClient$1].callMethod(im_v2_const.RestMethod.imV2ChatMessageReactionDelete, {
+	    const payload = {
 	      messageId,
 	      reaction
-	    }).catch(error => {
-	      console.error('ReactionService: error removing reaction', error);
+	    };
+	    void babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/reactions/removeReaction', {
+	      ...payload,
+	      userId: im_v2_application_core.Core.getUserId()
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$1)[_restClient$1].callMethod(im_v2_const.RestMethod.imV2ChatMessageReactionDelete, payload).catch(result => {
+	      console.error('ReactionService: error removing reaction', result.error());
 	    });
 	  }
 	}
@@ -629,15 +620,31 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      var _this$reactionsData, _this$reactionsData$o;
 	      return ((_this$reactionsData = this.reactionsData) == null ? void 0 : (_this$reactionsData$o = _this$reactionsData.ownReactions) == null ? void 0 : _this$reactionsData$o.size) > 0;
 	    },
-	    isBot() {
+	    isChatWithBot() {
 	      const user = this.$store.getters['users/get'](this.dialog.dialogId);
 	      return (user == null ? void 0 : user.type) === im_v2_const.UserType.bot;
+	    },
+	    areBotReactionsEnabled() {
+	      const bot = this.$store.getters['users/bots/getByUserId'](this.message.authorId);
+	      if (!bot) {
+	        return false;
+	      }
+	      return bot.reactionsEnabled;
 	    },
 	    hasError() {
 	      return this.message.error;
 	    },
+	    isRealMessage() {
+	      return this.$store.getters['messages/isRealMessage'](this.messageId);
+	    },
 	    canSetReactions() {
-	      return main_core.Type.isNumber(this.messageId) && this.canSetReactionsByRole && !this.isBot && !this.hasError;
+	      if (!this.isRealMessage || !this.canSetReactionsByRole || this.hasError) {
+	        return false;
+	      }
+	      if (this.isChatWithBot) {
+	        return this.areBotReactionsEnabled;
+	      }
+	      return true;
 	    },
 	    canSetReactionsByRole() {
 	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
@@ -804,7 +811,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const AuthorTitle = {
 	  name: 'AuthorTitle',
 	  components: {
-	    MessageAuthorTitle: im_v2_component_elements.MessageAuthorTitle
+	    MessageAuthorTitle: im_v2_component_elements_chatTitle.MessageAuthorTitle
 	  },
 	  props: {
 	    item: {
@@ -897,10 +904,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: Object,
 	      required: true
 	    },
-	    menuIsActiveForId: {
-	      type: [String, Number],
-	      default: 0
-	    },
 	    showContextMenu: {
 	      type: Boolean,
 	      default: true
@@ -922,7 +925,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.showContextMenu && !this.messageHasError;
 	    },
 	    isBulkActionsMode() {
-	      return this.$store.getters['messages/select/getBulkActionsMode'];
+	      return this.$store.getters['messages/select/isBulkActionsModeActive'](this.dialogId);
 	    }
 	  },
 	  methods: {
@@ -930,6 +933,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.onClickMessageContextMenu, {
 	        message: this.message,
 	        dialogId: this.dialogId,
+	        bindElement: event.currentTarget,
 	        event
 	      });
 	    }
@@ -941,7 +945,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					:title="menuTitle"
 					@click="onMenuClick"
 					@contextmenu.prevent
-					:class="{'--active': menuIsActiveForId === message.id}"
 					class="bx-im-message-context-menu__button"
 				></button>
 			</div>
@@ -952,6 +955,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	var _isOwnMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isOwnMessage");
 	var _hasError = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasError");
+	var _hasFiles = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasFiles");
 	var _retrySend = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("retrySend");
 	var _retrySendMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("retrySendMessage");
 	class RetryContextMenu extends im_v2_lib_menu.BaseMenu {
@@ -962,6 +966,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    });
 	    Object.defineProperty(this, _retrySend, {
 	      value: _retrySend2
+	    });
+	    Object.defineProperty(this, _hasFiles, {
+	      value: _hasFiles2
 	    });
 	    Object.defineProperty(this, _hasError, {
 	      value: _hasError2
@@ -979,8 +986,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return null;
 	    }
 	    return {
-	      text: main_core.Loc.getMessage('IM_MESSENGER_MESSAGE_CONTEXT_MENU_RETRY'),
-	      onclick: () => {
+	      title: main_core.Loc.getMessage('IM_MESSENGER_MESSAGE_CONTEXT_MENU_RETRY'),
+	      onClick: () => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _retrySend)[_retrySend]();
 	        this.menuInstance.close();
 	      }
@@ -990,14 +997,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isOwnMessage)[_isOwnMessage]() || !babelHelpers.classPrivateFieldLooseBase(this, _hasError)[_hasError]()) {
 	      return null;
 	    }
-	    const phrase = main_core.Loc.getMessage('IM_MESSENGER_MESSAGE_CONTEXT_MENU_DELETE');
 	    return {
-	      html: `<span class="bx-im-message-retry-button__context-menu-delete">${phrase}</span>`,
-	      onclick: () => {
-	        const messageService = new im_v2_provider_service.MessageService({
+	      title: main_core.Loc.getMessage('IM_MESSENGER_MESSAGE_CONTEXT_MENU_DELETE'),
+	      design: ui_system_menu.MenuItemDesign.Alert,
+	      onClick: () => {
+	        const messageService = new im_v2_provider_service_message.MessageService({
 	          chatId: this.context.chatId
 	        });
-	        messageService.deleteMessage(this.context.id);
+	        messageService.deleteMessages([this.context.id]);
 	        this.menuInstance.close();
 	      }
 	    };
@@ -1009,15 +1016,20 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	function _hasError2() {
 	  return this.context.error;
 	}
+	function _hasFiles2() {
+	  return this.context.files.length > 0;
+	}
 	function _retrySend2() {
-	  const hasFiles = this.context.files.length > 0;
-	  if (hasFiles) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _hasFiles)[_hasFiles]()) {
+	    const uploadingService = im_v2_provider_service_uploading.UploadingService.getInstance();
+	    const uploaderId = uploadingService.getUploaderIdByFileId(this.context.files[0]);
+	    uploadingService.retry(uploaderId);
 	    return;
 	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _retrySendMessage)[_retrySendMessage]();
 	}
 	function _retrySendMessage2() {
-	  new im_v2_provider_service.SendingService().retrySendMessage({
+	  void new im_v2_provider_service_sending.SendingService().retrySendMessage({
 	    tempMessageId: this.context.id,
 	    dialogId: this.context.dialogId
 	  });
@@ -1165,7 +1177,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const CommentsPanel = {
 	  name: 'CommentsPanel',
 	  components: {
-	    ChatAvatar: im_v2_component_elements.ChatAvatar,
+	    ChatAvatar: im_v2_component_elements_avatar.ChatAvatar,
 	    FadeAnimation: im_v2_component_animation.FadeAnimation
 	  },
 	  props: {
@@ -1182,7 +1194,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    return {};
 	  },
 	  computed: {
-	    AvatarSize: () => im_v2_component_elements.AvatarSize,
+	    AvatarSize: () => im_v2_component_elements_avatar.AvatarSize,
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId);
 	    },
@@ -1251,10 +1263,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    onSubscribeIconClick() {
 	      if (this.isSubscribed) {
-	        im_v2_provider_service.CommentsService.unsubscribe(this.message.id);
+	        im_v2_provider_service_comments.CommentsService.unsubscribe(this.message.id);
 	        return;
 	      }
-	      im_v2_provider_service.CommentsService.subscribe(this.message.id);
+	      im_v2_provider_service_comments.CommentsService.subscribe(this.message.id);
 	    },
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
@@ -1422,5 +1434,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.MessageFooter = MessageFooter;
 	exports.DefaultMessageContent = DefaultMessageContent$$1;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Lib,BX.Vue3,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Ui,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Service,BX,BX.Vue3.Components,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Lib,BX.Vue3,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Elements,BX.UI,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Ui,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Service,BX.Messenger.v2.Service,BX.UI.System,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Service,BX,BX.Vue3.Components,BX.Messenger.v2.Lib));
 //# sourceMappingURL=registry.bundle.js.map

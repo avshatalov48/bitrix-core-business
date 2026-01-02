@@ -203,7 +203,7 @@ final class NodeAttributes extends Stepper
 	{
 		$this->dataToUpdate = Option::get(self::$moduleId, $this->getOptionName());
 		$this->dataToUpdate = ($this->dataToUpdate !== '' ? @unserialize($this->dataToUpdate, ['allowed_classes' => false]) : array());
-		$this->codesToStep = array_unique(array_keys($this->dataToUpdate['BLOCKS']));
+		$this->codesToStep = array_unique(array_keys($this->dataToUpdate['BLOCKS'] ?? []));
 		$this->codesToStep = array_slice($this->codesToStep, 0, self::STEP_PORTION);
 
 //		load BLOCKS

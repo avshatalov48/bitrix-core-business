@@ -1,0 +1,21 @@
+<?php
+$MESS["IBLOCK_XML_IMPORT_ERR_BAD_STEP_ID"] = "Импорттау операциясының идентификаторы жарамсыз.";
+$MESS["IBLOCK_XML_IMPORT_ERR_CANNOT_CREATE_TEMPORARY_TABLES_INDEX"] = "Уақыт кестелері индекстерін жасау қатесі.";
+$MESS["IBLOCK_XML_IMPORT_ERR_CANNOT_PREPARE_TEMPORARY_TABLES"] = "Уақытша кестелерді дайындау қатесі.";
+$MESS["IBLOCK_XML_IMPORT_ERR_ELEMENTS_IMPORT_FAILURE"] = "Элементтерді импорттау қатесі. #ERROR#";
+$MESS["IBLOCK_XML_IMPORT_ERR_IBLOCK_SECTIONS_IMPORT_FAILURE"] = "Бөлімдерді импорттау қатесі. #ERROR#";
+$MESS["IBLOCK_XML_IMPORT_ERR_METADATA_IMPORT_FAILURE"] = "Метадеректерді импорттау қатесі. #ERROR#";
+$MESS["IBLOCK_XML_IMPORT_ERR_OPEN_XML_FILE"] = "Импорттау файлын ашу қатесі.";
+$MESS["IBLOCK_XML_IMPORT_ERR_PARAMETER_FILE_IS_EMPTY"] = "Импорттау файлы көрсетілмеген.";
+$MESS["IBLOCK_XML_IMPORT_MESS_CREATE_TEMPORARY_TABLES_INDEX_COMPLETE"] = "Уақыт кестелері индекстелді.";
+$MESS["IBLOCK_XML_IMPORT_MESS_FINAL_SUCCESS"] = "Импорт сәтті аяқталды.";
+$MESS["IBLOCK_XML_IMPORT_MESS_IBLOCK_ELEMENTS_IMPORT_COMPLETE"] = "Элементтерді жүктеу аяқталды.";
+$MESS["IBLOCK_XML_IMPORT_MESS_IBLOCK_ELEMENTS_IMPORT_PROGRESS"] = "#TOTAL# элементтерінен #DONE# өңделген.";
+$MESS["IBLOCK_XML_IMPORT_MESS_IBLOCK_SECTIONS_IMPORT_COMPLETE"] = "Бөлімдер импортталды.";
+$MESS["IBLOCK_XML_IMPORT_MESS_IBLOCK_SECTIONS_RESORT_COMPLETE"] = "Бөлімдер ағашын қайта құру аяқталды.";
+$MESS["IBLOCK_XML_IMPORT_MESS_METADATA_IMPORT_COMPLETE"] = "Метадеректер сәтті импортталды.";
+$MESS["IBLOCK_XML_IMPORT_MESS_PROCESS_MISSING_IBLOCK_ELEMENTS_COMPLETE"] = "Элементтерді өшіру/жою аяқталды.";
+$MESS["IBLOCK_XML_IMPORT_MESS_PROCESS_MISSING_IBLOCK_SECTIONS_COMPLETE"] = "Импорттау файлында жоқ бөлімдер өңделді.";
+$MESS["IBLOCK_XML_IMPORT_MESS_PRODUCT_BUNDLES_IMPORT_COMPLETE"] = "Жинақтарды импорттау аяқталды.";
+$MESS["IBLOCK_XML_IMPORT_MESS_XML_FILE_READ_COMPLETE"] = "Импорттау файлы оқылды.";
+$MESS['IBLOCK_XML_IMPORT_MESS_XML_FILE_READ_PROGRESS'] = "Файлдың #PERCENT#% өңделген.";

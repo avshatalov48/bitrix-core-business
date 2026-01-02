@@ -307,6 +307,7 @@ class LandingSiteTileComponent extends LandingBaseComponent
 				'error' => [
 					'publication' => $publicationError,
 				],
+				'copilotProcess' => $item['COPILOT_PROCESS'],
 			];
 		}
 

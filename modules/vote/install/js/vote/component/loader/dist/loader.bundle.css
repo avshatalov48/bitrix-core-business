@@ -1,0 +1,31 @@
+.vote-loader__container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex: 1 0 auto;
+}
+
+.vote-loader {
+	border-radius: 50%;
+	border-style: solid;
+	border-color: #555 #555 #555 transparent;
+	animation: loader-animation 1s infinite linear;
+}
+
+.vote-loader.--size-s {
+	width: 18px;
+	height: 18px;
+	border-width: 1px;
+}
+
+.vote-loader.--size-m {
+	width: 24px;
+	height: 24px;
+	border-width: 2px;
+}
+
+@keyframes loader-animation {
+	to {
+		transform: rotate(1turn)
+	}
+}

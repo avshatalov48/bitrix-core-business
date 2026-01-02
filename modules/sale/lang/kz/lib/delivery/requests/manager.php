@@ -1,0 +1,27 @@
+<?php
+$MESS["SALE_DLVR_REQ_MNGR_ALREADY_ADDED"] = "Жөнелту көлік өтініміне қосылып қойған";
+$MESS["SALE_DLVR_REQ_MNGR_EMPTY_REQ_DELETED"] = "\"#REQUEST_ID#\" көлік өтінімі алынып тасталды, өйткені онда жөнелтулер қалмады";
+$MESS["SALE_DLVR_REQ_MNGR_EMPTY_REQ_NOT_DELETED"] = "Соңғы жеткізілім жойылғаннан кейін оған кіретін \"#REQUEST_LINK#\" бос көлік өтінімін жою мүмкін болмады";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_ACTION_EXEC"] = "Әрекетті орындау мүмкін болмады";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_ANSW_TYPE"] = "Көлік өтінімін жасау туралы сұратуға жауаптың белгісіз түрі";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_DELIVERY_NOT_FOUND"] = "\"#SHIPMENT_LINK#\" идентификаторы бар жөнелтуге арналған жеткізу қызметі белгіленбеген";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_DELIVERY_NOT_SUPPORT"] = "\"#DELIVERY_LINK#\" идентификаторы бар жөнелтуге арналған жеткізу қызметі белгіленбеген";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_NOT_SUPPORT"] = "Көлік өтінімін жіберу мүмкін болмады. \"#DELIVERY_LINK#\" жеткізу қызметі көлік өтінімдерін қолдамайды";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_REQ_ID"] = "Көлік өтінімінің идентификаторы нөлден үлкен болуы керек";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_REQ_OBJ"] = "Өтінім өңдеуішін алу қатесі";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_RES_EMPTY"] = "Операцияның нәтижесі туралы ақпарат жоқ";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_RES_UNKNOWN"] = "Нәтижесі белгісіз";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_SAVE_SHIPMENT"] = "Бақылау нөмірін, жөнелту құжатының нөмірін және күнін сақтау қатесі";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_SAVE_SHIPMENT_ID"] = "Жөнелтуді сақтау қатесі. Жеткізу идентификаторы нөлден үлкен болуы керек";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_SHIPMENT_ID"] = "Жеткізу идентификаторы нөлден үлкен болуы керек";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_SHIPMENT_NOT_IN_REQUEST"] = "\"#SHIPMENT_ID#\" жөнелтуі бірде-бір көлік өтініміне кірмейді";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_SHP_ABSENT"] = "Көлік өтінімін жасау үшін бірде бір қолайлы жөнелту жоқ";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_SHP_ABSENT2"] = "Көлік өтініміне бірде бір жөнелтуді қосу мүмкін болмады";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_SHP_ADD2"] = "Көлік өтініміне жөнелтулерді қосу мүмкін болмады";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_SHP_ID_LIST_EMPTY"] = "Жөнелту идентификаторларының тізімі бос";
+$MESS["SALE_DLVR_REQ_MNGR_ERROR_SHP_UPD"] = "\"#REQUEST_LINK#\" көлік өтініміндегі жөнелтулерді жаңарту мүмкін болмады ";
+$MESS["SALE_DLVR_REQ_MNGR_NOT_UPDATED"] = "Жөнелту өзгертілді. Көлік өтінімін жаңарту қажет.";
+$MESS["SALE_DLVR_REQ_MNGR_RES_WRONG"] = "Жөнелтуді \"#REQUEST_LINK#\" өтініміне қосу нәтижесінің дұрыс емес түрі";
+$MESS["SALE_DLVR_REQ_MNGR_RES_WRONG_UPD"] = "Жөнелтуді жаңарту кезінде нәтиженің дұрыс емес түрі";
+$MESS["SALE_DLVR_REQ_MNGR_SHP_ID_LESS_ZERO"] = "Көлік өтінімдерін өңдеуші жөнелту идентификаторын нөлден аз қайтарды";
+$MESS["SALE_DLVR_REQ_MNGR_SHP_NOT_FOUND"] = "\"#SHIPMENT_ID#\" идентификаторы бар жөнелтуді табу мүмкін болмады";

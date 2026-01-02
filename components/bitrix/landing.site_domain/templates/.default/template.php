@@ -4,11 +4,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Landing\Restriction;
-use \Bitrix\Landing\Domain\Register;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\UI\Extension;
-use \Bitrix\Landing\Manager;
+use Bitrix\Landing\Restriction;
+use Bitrix\Landing\Domain\Register;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
+use Bitrix\Landing\Manager;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 /** @var \LandingSiteDomainComponent $component */
 /** @var \CMain $APPLICATION */
@@ -39,6 +40,7 @@ Extension::load([
 	'ui.info-helper', 'ui.hint'
 ]);
 Manager::setPageTitle(Loc::getMessage('LANDING_TPL_TITLE'));
+Toolbar::deleteFavoriteStar();
 
 // errors
 if ($arResult['ERRORS'])
@@ -137,12 +139,18 @@ if ($menuItems[$tab]['HELP_CODE'])
 	);
 	if ($helpUrl)
 	{
-		$this->setViewTarget('inside_pagetitle');
-		?><a class="landing-domain-link" href="<?= $helpUrl;?>" target="_blank">
-			<?= Loc::getMessage('LANDING_TPL_HELP_LINK');?>
-			<span data-hint="<?= Loc::getMessage('LANDING_TPL_HELP_LINK_HINT');?>" class="ui-hint"></span>
-		</a><?
-		$this->endViewTarget();
+		$helpText = Loc::getMessage('LANDING_TPL_HELP_LINK');
+		$helpHint = Loc::getMessage('LANDING_TPL_HELP_LINK_HINT');
+		$helpLink = <<<HTML
+			<a class="landing-domain-link" href="$helpUrl" target="_blank">
+				$helpText
+				<span data-hint="$helpHint" class="ui-hint"></span>
+			</a>
+		HTML;
+
+		Toolbar::addRightCustomHtml($helpLink, [
+			'align' => 'right',
+		]);
 	}
 }
 

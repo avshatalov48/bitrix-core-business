@@ -4,12 +4,12 @@ namespace Bitrix\Im\V2\Message\Reaction;
 
 use Bitrix\Im\Model\ReactionTable;
 use Bitrix\Im\V2\Analytics\MessageAnalytics;
-use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Anchor\AnchorFeature;
+use Bitrix\Im\V2\Anchor\DI\AnchorContainer;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Result;
 use Bitrix\Imopenlines\MessageParameter;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SystemException;
 
 class ReactionService
@@ -63,12 +63,11 @@ class ReactionService
 			$this->addLegacy();
 		}
 
-		$this->sendNotification($reactionItem);
-
 		(new PushService())->add($reactionItem);
-
 		(new MessageAnalytics($this->message))->addAddReaction($reaction);
+		(new ReactionEvent($this->message, $reactionItem, ReactionEvent::ADD_REACTION))->sendBotEvent();
 
+		$this->addAnchors($reaction);
 		return $result;
 	}
 
@@ -100,95 +99,11 @@ class ReactionService
 		}
 
 		(new PushService())->delete($reactionItem);
+		(new ReactionEvent($this->message, $reactionItem, ReactionEvent::DELETE_REACTION))->sendBotEvent();
+
+		$this->deleteAnchor();
 
 		return $result;
-	}
-
-	private function sendNotification(ReactionItem $reaction): void
-	{
-		$authorId = $this->message->getAuthorId();
-		$chat = Chat::getInstance($reaction->getChatId());
-		if (
-			$authorId === 0
-			|| $authorId === $this->getContext()->getUserId()
-			|| $chat->getEntityType() === 'LIVECHAT'
-			|| !$chat->checkAccess($authorId)->isSuccess()
-		)
-		{
-			return;
-		}
-
-		$arMessageFields = [
-			'MESSAGE_TYPE' => IM_MESSAGE_SYSTEM,
-			'TO_USER_ID' => $this->message->getAuthorId(),
-			'FROM_USER_ID' => $this->getContext()->getUserId(),
-			'NOTIFY_TYPE' => IM_NOTIFY_FROM,
-			'NOTIFY_MODULE' => 'im',
-			'NOTIFY_EVENT' => 'like',
-			'NOTIFY_TAG' => $this->getNotifyTag($reaction),
-			'NOTIFY_MESSAGE' => $this->getTextNotification($reaction),
-		];
-		\CIMNotify::Add($arMessageFields);
-	}
-
-	private function getNotifyTag(ReactionItem $reaction): string
-	{
-		$chat = Chat::getInstance($reaction->getChatId());
-		if ($chat instanceof Chat\PrivateChat)
-		{
-			$type = 'P';
-			$id = $this->getContext()->getUserId();
-		}
-		else
-		{
-			$type = 'G';
-			$id = $chat->getChatId();
-		}
-
-		return "RATING|IM|{$type}|{$id}|{$reaction->getMessageId()}|{$reaction->getReaction()}";
-	}
-
-	private function getTextNotification(ReactionItem $reaction): callable
-	{
-		$chat = Chat::getInstance($reaction->getChatId())->withContext($this->context);
-		$code = $this->getTextNotificationCode($chat);
-		$contextStart = $this->getForTextNotificationContextStart($chat);
-
-		return fn (?string $languageId = null) => Loc::getMessage(
-			$code,
-			[
-				'#REACTION_NAME#' => $reaction->getLocName($languageId),
-				'#CONTEXT_START#' => $contextStart,
-				'#CONTEXT_END#' => "[/CONTEXT]",
-				'#QOUTED_MESSAGE#' => $this->message->getForPush(50),
-			],
-			$languageId
-		);
-	}
-
-	protected function getTextNotificationCode(Chat $chat): string
-	{
-		$genderModifier = "_{$this->getContext()->getUser()->getGender()}";
-		$chatType = match (true)
-		{
-			$chat instanceof Chat\PrivateChat => '_PRIVATE',
-			$chat instanceof Chat\CommentChat => '_COMMENT',
-			default => '',
-		};
-
-		return "IM_MESSAGE_REACTION{$genderModifier}{$chatType}_V2";
-	}
-
-	protected function getForTextNotificationContextStart(Chat $chat): string
-	{
-		if ($chat instanceof Chat\CommentChat)
-		{
-			$parentChat = $chat->getParentChat();
-
-			return "[CONTEXT={$parentChat->getDialogContextId()}/{$chat->getParentMessageId()}]";
-		}
-
-		return "[CONTEXT={$chat->getDialogContextId()}/{$this->message->getMessageId()}]";
 	}
 
 	private function processAddForLiveChat(string $reaction): void
@@ -258,5 +173,28 @@ class ReactionService
 		{
 			\CIMMessenger::Like($this->message->getMessageId(), 'minus', $this->getContext()->getUserId(), false, false);
 		}
+	}
+
+	private function addAnchors(string $reaction): void
+	{
+		if (!AnchorFeature::isOn())
+		{
+			return;
+		}
+
+		$anchorService = AnchorContainer::getInstance()
+			->getAnchorService($this->message)
+			->setContext($this->getContext());
+
+		$anchorService->addReactionAnchor($reaction);
+	}
+
+	private function deleteAnchor(): void
+	{
+		$anchorService = AnchorContainer::getInstance()
+			->getAnchorService($this->message)
+			->setContext($this->getContext());
+
+		$anchorService->deleteReactionAnchors();
 	}
 }

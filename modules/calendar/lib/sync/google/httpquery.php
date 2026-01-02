@@ -2,8 +2,8 @@
 
 namespace Bitrix\Calendar\Sync\Google;
 
-use Bitrix\Calendar\Sync\Util\RequestLogger;
-use Bitrix\Main\DB\Exception;
+use Bitrix\Calendar\Synchronization\Internal\Service\Logger\RequestLogger;
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Web\HttpClient;
 
 class HttpQuery
@@ -14,17 +14,15 @@ class HttpQuery
 	 */
 	private HttpClient $client;
 	/**
-	 * @var RequestLogger|null
+	 * @var RequestLogger
 	 */
-	private ?RequestLogger $logger = null;
+	private RequestLogger $logger;
 
-	public function __construct(HttpClient $client, int $userId, string $serviceName = 'google')
+	public function __construct(HttpClient $client, private int $userId, string $serviceName = 'google')
 	{
 		$this->client = $client;
-		if (RequestLogger::isEnabled())
-		{
-			$this->logger = new RequestLogger($userId, self::SERVICE_NAME);
-		}
+
+		$this->logger = ServiceLocator::getInstance()->get(RequestLogger::class);
 	}
 
 	/**
@@ -39,24 +37,26 @@ class HttpQuery
 	 * @param string $method
 	 * @param string $url
 	 * @param $body
+	 *
 	 * @return void
-	 * @throws \Bitrix\Main\LoaderException
 	 */
 	public function query(string $method, string $url, $body = null): void
 	{
 		$this->client->query($method, $url, $body);
 
-		if ($this->logger)
-		{
-			$this->logger->write([
+		$this->logger->debug(
+			sprintf('Old Google sync. %s. %s "%s"', $this->client->getStatus(), $method, $url),
+			[
 				'requestParams' => $body,
 				'url' => $url,
 				'method' => $method,
 				'statusCode' => $this->client->getStatus(),
 				'response' => $this->prepareResponseForDebug($this->client->getResult()),
 				'error' => $this->prepareErrorForDebug($this->client->getResult()),
-			]);
-		}
+				'type' => self::SERVICE_NAME,
+				'userId' => $this->userId,
+			]
+		);
 	}
 
 	/**

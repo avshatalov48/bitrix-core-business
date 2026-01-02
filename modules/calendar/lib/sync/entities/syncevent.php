@@ -284,6 +284,8 @@ class SyncEvent implements Core\Base\EntityInterface
 	 * @param Core\Base\Date $newExDate
 	 *
 	 * @return void
+	 *
+	 * @deprecated Use $event->addExcludedDate
 	 */
 	private function addExcludeDate(Core\Base\Date $newExDate)
 	{

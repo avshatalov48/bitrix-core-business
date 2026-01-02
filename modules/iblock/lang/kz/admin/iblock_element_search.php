@@ -1,0 +1,23 @@
+<?php
+$MESS["IBLOCK_ELSEARCH_CHOOSE_IBLOCK"] = "Ақпараттық блокты таңдаңыз";
+$MESS["IBLOCK_ELSEARCH_DESC"] = "Сипаттамасы:";
+$MESS["IBLOCK_ELSEARCH_ELEMENTS"] = "Элементтер";
+$MESS["IBLOCK_ELSEARCH_ELEMENT_EDIT"] = "Элементті редакциялау бетіне өтіңіз";
+$MESS["IBLOCK_ELSEARCH_FROMTO_ID"] = "ID (бастапқы және соңғы):";
+$MESS["IBLOCK_ELSEARCH_F_ACTIVE"] = "Белсенділік";
+$MESS["IBLOCK_ELSEARCH_F_CHANGED"] = "Кім өзгертті";
+$MESS["IBLOCK_ELSEARCH_F_DATE"] = "Күні";
+$MESS["IBLOCK_ELSEARCH_F_DSC"] = "Сипаттама";
+$MESS["IBLOCK_ELSEARCH_F_SECTION"] = "Бөлім";
+$MESS["IBLOCK_ELSEARCH_F_STATUS"] = "Мәртебе";
+$MESS["IBLOCK_ELSEARCH_F_TITLE"] = "Атауы";
+$MESS["IBLOCK_ELSEARCH_IBLOCK"] = "Ақпараттық блок:";
+$MESS["IBLOCK_ELSEARCH_INCLUDING_SUBSECTIONS"] = "Кіші бөлімдерді қоса алғанда";
+$MESS["IBLOCK_ELSEARCH_LOCK_BY"] = "Кім бұғаттаған";
+$MESS["IBLOCK_ELSEARCH_NOT_SET"] = "(орнатылмаған)";
+$MESS["IBLOCK_ELSEARCH_SECTION_EDIT"] = "Бөлімді редакциялау бетіне өту";
+$MESS["IBLOCK_ELSEARCH_SELECT"] = "Таңдау";
+$MESS["IBLOCK_ELSEARCH_TITLE"] = "Элементті іздеу";
+$MESS["IBLOCK_ELSEARCH_USERINFO"] = "Пайдаланушы параметрлерін көру";
+$MESS["IBLOCK_FIELD_CODE"] = "Символдық код";
+$MESS['IBLOCK_FIELD_EXTERNAL_ID'] = "Сыртқы код";

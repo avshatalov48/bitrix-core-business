@@ -1,12 +1,11 @@
-<? 
-/*
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2004 Bitrix                  #
-# https://www.bitrixsoft.com          #
-# mailto:admin@bitrix.ru                     #
-##############################################
-*/
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage support
+ * @copyright 2001-2025 Bitrix
+ */
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/support/prolog.php");
@@ -30,12 +29,12 @@ $err_mess = "File: ".__FILE__."<br>Line: ";
 							Обработка GET | POST
 ****************************************************************************/
 if (
-	!isset($find_type) ||
-	mb_strlen($find_type) < 0 ||
-	!in_array($find_type, Array("C","K","S","M","F","SR", "D"))
-	)
+	empty($find_type)
+	|| !in_array($find_type, Array("C","K","S","M","F","SR", "D"))
+)
+{
 	$find_type = "C";
-
+}
 
 $sTableID = "t_dict_list_".mb_strtolower($find_type);
 $oSort = new CAdminSorting($sTableID, "s_c_sort", "asc");// инициализация сортировки

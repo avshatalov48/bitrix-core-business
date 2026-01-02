@@ -6,7 +6,7 @@
  * @copyright 2001-2021 Bitrix
  */
 
-import {hint} from "ui.vue3.directives.hint";
+import { hint } from 'ui.vue3.directives.hint';
 
 /*
 	<Hint :text="$Bitrix.Loc.getMessage('HINT_PLAIN')"/>
@@ -14,6 +14,7 @@ import {hint} from "ui.vue3.directives.hint";
 	<Hint text="Custom position top and light mode" position="top" :popupOptions="{darkMode: false}"/>
 */
 
+// @vue/component
 export const Hint = {
 	props:
 	{
@@ -23,16 +24,16 @@ export const Hint = {
 		popupOptions:
 		{
 			default() {
-				return {}
-			}
+				return {};
+			},
 		},
 	},
 	directives: {
-		hint
+		hint,
 	},
 	template: `
 		<span class="ui-hint" v-hint="{text, html, position, popupOptions}" data-hint-init="vue">
 			<span class="ui-hint-icon"/>
 		</span>
-	`
+	`,
 };

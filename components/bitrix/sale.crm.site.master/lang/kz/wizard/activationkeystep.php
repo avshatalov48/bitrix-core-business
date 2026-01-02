@@ -1,0 +1,7 @@
+<?php
+$MESS["SALE_CSM_WIZARD_ACTIVATIONKEYSTEP_BUY_LINK"] = "Кілтті сатып алу";
+$MESS["SALE_CSM_WIZARD_ACTIVATIONKEYSTEP_CHECK_BUTTON"] = "Белсендіру";
+$MESS["SALE_CSM_WIZARD_ACTIVATIONKEYSTEP_CONTENT"] = "Орнатуды жалғастыру үшін сатып алынған кілтті немесе купонды енгізіңіз";
+$MESS["SALE_CSM_WIZARD_ACTIVATIONKEYSTEP_NEXT"] = "Әрі қарай";
+$MESS["SALE_CSM_WIZARD_ACTIVATIONKEYSTEP_PREV"] = "Артқа";
+$MESS["SALE_CSM_WIZARD_ACTIVATIONKEYSTEP_TITLE"] = "Кілтті (купонды) белсендіру";

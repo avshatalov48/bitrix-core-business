@@ -44,14 +44,13 @@ export class ErrorBox
 
 			if (mailboxId !== undefined && this.#mailboxId === Number(mailboxId))
 			{
-				BX.ajax.runComponentAction('bitrix:mail.client.message.list', 'getLastMailboxSyncIsSuccessStatus', {
+				BX.ajax.runComponentAction('bitrix:mail.client.message.list', 'getMailboxCachedConnectionStatus', {
 					mode: 'class',
 					data:
 						{
 							mailboxId,
-						}
-					}
-				).then((response) => {
+						},
+				}).then((response) => {
 					const {
 						data,
 					} = response;

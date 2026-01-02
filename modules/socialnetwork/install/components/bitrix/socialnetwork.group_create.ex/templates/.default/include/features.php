@@ -39,7 +39,11 @@ Loc::loadMessages(__FILE__);
 
 			if ($featureTitle === '')
 			{
-				$featureTitle = Loc::getMessage('SONET_FEATURES_' . $feature);
+				$featureMessageCode = "SONET_FEATURES_{$feature}";
+				$featureMessageCodeWithVersion = "{$featureMessageCode}_MSGVER_1";
+
+				$featureTitle = Loc::getMessage($featureMessageCode) ?? Loc::getMessage($featureMessageCodeWithVersion);
+
 				$featureTitleOriginal = $featureTitle;
 			}
 
@@ -53,7 +57,7 @@ Loc::loadMessages(__FILE__);
 
 			if (
 				$feature === 'search'
-				&& SITE_TEMPLATE_ID === 'bitrix24'
+				&& (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 			)
 			{
 				?><input type="hidden" name="<?= $feature ?>_active"  value="<?= $featureActive ?>">

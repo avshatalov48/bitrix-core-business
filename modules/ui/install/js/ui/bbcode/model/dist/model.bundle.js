@@ -755,6 +755,13 @@ this.BX.UI = this.BX.UI || {};
 	    this.trimStartLinebreaks();
 	    this.trimEndLinebreaks();
 	  }
+	  trimLinebreaksOnce() {
+	    [this.getFirstChild(), this.getLastChild()].forEach(child => {
+	      if (child && child.getName() === '#linebreak') {
+	        child.remove();
+	      }
+	    });
+	  }
 	  toString(options = {}) {
 	    const tagScheme = this.getTagScheme();
 	    const stringifier = tagScheme.getStringifier();
@@ -1099,12 +1106,14 @@ this.BX.UI = this.BX.UI || {};
 	    this.childConverter = null;
 	    this.allowedChildren = [];
 	    this.notAllowedChildrenCallback = null;
+	    this.onParseHandler = null;
 	    this.setVoid(options.void);
 	    this.setCanBeEmpty(options.canBeEmpty);
 	    this.setChildConverter(options.convertChild);
 	    this.setAllowedChildren(options.allowedChildren);
 	    this.setOnChangeHandler(options.onChange);
 	    this.setNotAllowedChildrenCallback(options.onNotAllowedChildren);
+	    this.setOnParseHandler(options.onParse);
 	  }
 	  static defaultBlockStringifier(node, scheme, options = {}) {
 	    const isAllowNewlineBeforeOpeningTag = (() => {
@@ -1120,6 +1129,11 @@ this.BX.UI = this.BX.UI || {};
 	    const closingTag = node.getClosingTag();
 	    const isAllowContentLinebreaks = content.length > 0;
 	    return [isAllowNewlineBeforeOpeningTag ? '\n' : '', openingTag, isAllowContentLinebreaks ? '\n' : '', content, isAllowContentLinebreaks ? '\n' : '', closingTag, isAllowNewlineAfterClosingTag ? '\n' : ''].join('');
+	  }
+	  static defaultOnBlockParseHandler(node) {
+	    if (node) {
+	      node.trimLinebreaksOnce();
+	    }
 	  }
 	  setVoid(value) {
 	    if (main_core.Type.isBoolean(value)) {
@@ -1169,6 +1183,18 @@ this.BX.UI = this.BX.UI || {};
 	  runNotAllowedChildrenCallback(options) {
 	    if (main_core.Type.isFunction(this.notAllowedChildrenCallback)) {
 	      this.notAllowedChildrenCallback(options);
+	    }
+	  }
+	  setOnParseHandler(handler) {
+	    this.onParseHandler = handler;
+	  }
+	  getOnParseHandler() {
+	    return this.onParseHandler;
+	  }
+	  runOnParseHandler(node) {
+	    const handler = this.getOnParseHandler();
+	    if (main_core.Type.isFunction(handler)) {
+	      handler(node);
 	    }
 	  }
 	}
@@ -1500,12 +1526,14 @@ this.BX.UI = this.BX.UI || {};
 	      group: ['#block'],
 	      allowedChildren: ['#text', '#linebreak', '#inline', '#inlineBlock'],
 	      stringify: BBCodeTagScheme.defaultBlockStringifier,
+	      onParse: BBCodeTagScheme.defaultOnBlockParseHandler,
 	      allowedIn: ['#root', '#shadowRoot']
 	    }), new BBCodeTagScheme({
 	      name: 'list',
 	      group: ['#block'],
 	      allowedChildren: ['*'],
 	      stringify: BBCodeTagScheme.defaultBlockStringifier,
+	      onParse: BBCodeTagScheme.defaultOnBlockParseHandler,
 	      allowedIn: ['#root', '#shadowRoot'],
 	      canBeEmpty: false,
 	      onNotAllowedChildren: ({
@@ -1525,7 +1553,8 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }), new BBCodeTagScheme({
 	      name: ['*'],
-	      allowedChildren: ['#text', '#linebreak', '#inline', '#inlineBlock'],
+	      group: ['#shadowRoot'],
+	      allowedChildren: ['#text', '#linebreak', '#inline', '#inlineBlock', '#block'],
 	      stringify: (node, scheme, toStringOptions) => {
 	        const openingTag = node.getOpeningTag();
 	        const content = node.getContent(toStringOptions).trim();
@@ -1551,6 +1580,7 @@ this.BX.UI = this.BX.UI || {};
 	      group: ['#block'],
 	      allowedChildren: ['tr'],
 	      stringify: BBCodeTagScheme.defaultBlockStringifier,
+	      onParse: BBCodeTagScheme.defaultOnBlockParseHandler,
 	      allowedIn: ['#root', 'td', 'th', 'quote', 'spoiler'],
 	      canBeEmpty: false
 	    }), new BBCodeTagScheme({
@@ -1572,6 +1602,7 @@ this.BX.UI = this.BX.UI || {};
 	      name: 'code',
 	      group: ['#block'],
 	      stringify: BBCodeTagScheme.defaultBlockStringifier,
+	      onParse: BBCodeTagScheme.defaultOnBlockParseHandler,
 	      allowedChildren: ['#text', '#linebreak', '#tab'],
 	      allowedIn: ['#root', '#shadowRoot'],
 	      convertChild: (child, scheme, toStringOptions) => {

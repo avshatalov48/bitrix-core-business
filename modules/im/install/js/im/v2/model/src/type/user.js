@@ -37,4 +37,6 @@ export type Bot = {
 	isHidden: boolean,
 	isSupportOpenline: boolean,
 	isHuman: boolean,
+	backgroundId: string,
+	reactionsEnabled: boolean,
 };

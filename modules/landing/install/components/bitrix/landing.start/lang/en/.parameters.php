@@ -5,6 +5,7 @@ $MESS["LANDING_CMP_PAR_EDIT_FULL_PUBLICATION"] = "By default, publish all site p
 $MESS["LANDING_CMP_PAR_EDIT_PANEL_LIGHT_MODE"] = "Use simple pane mode in the editor";
 $MESS["LANDING_CMP_PAR_REOPEN_LOCATION_IN_SLIDER"] = "Reopen current location in slider";
 $MESS["LANDING_CMP_PAR_SHOW_MENU"] = "Show Menu";
+$MESS["LANDING_CMP_PAR_SM_AI"] = "CoPilot web designer";
 $MESS["LANDING_CMP_PAR_SM_DOMAINS"] = "Domains";
 $MESS["LANDING_CMP_PAR_SM_DOMAIN_EDIT"] = "Domain edit page";
 $MESS["LANDING_CMP_PAR_SM_FOLDER_EDIT"] = "Folder edit page";

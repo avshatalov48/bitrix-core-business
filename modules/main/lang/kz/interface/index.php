@@ -17,7 +17,6 @@ $MESS["admin_index_product_name_1c_bitrix_eduportal"] = "1С-Битрикс: О�
 $MESS["admin_index_product_name_1c_bitrix_gosportal"] = "1С-Битрикс: Билік органының ішкі порталы";
 $MESS["admin_index_product_name_1c_bitrix_gossite"] = "1С-Битрикс: Билік органының ресми сайты";
 $MESS["admin_index_product_name_1c_bitrix_portal"] = "1С-Битрикс: Корпоративтік портал";
-$MESS["admin_index_product_name_ua_bitrix_portal"] = "Битрикс: Корпоративтік портал";
 $MESS["admin_index_project"] = "Жобаның әкімшілік бөліміне қош келдіңіз";
 $MESS["admin_index_sec"] = "Проактивті қорғаныс";
 $MESS["admin_index_sec_check"] = "Параметрлерді тексеріңіз";

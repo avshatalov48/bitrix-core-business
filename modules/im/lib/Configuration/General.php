@@ -5,9 +5,9 @@ namespace Bitrix\Im\Configuration;
 use Bitrix\Im\Call\VideoStrategyType;
 use Bitrix\Im\Model\OptionStateTable;
 use Bitrix\Im\Model\OptionUserTable;
+use Bitrix\Im\V2\Application\Features;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Loader;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
@@ -332,7 +332,7 @@ class General extends Base
 				)
 				->whereIn('USER_ID', $userList)
 				->where('USER.ACTIVE', 'Y')
-				->where('USER.IS_REAL_USER', 'Y')
+				->where('USER.REAL_USER', 'expr', true)
 		;
 		$notifySchemas = [
 			'simple' => [],
@@ -387,7 +387,7 @@ class General extends Base
 				)
 				->whereIn('USER_ID', $userList)
 				->where('USER.ACTIVE', 'Y')
-				->where('USER.IS_REAL_USER', 'Y')
+				->where('USER.REAL_USER', 'expr', true)
 				->whereExpr("COALESCE(%s, '$defaultSettingValue') = 'Y'", ['OPTION_STATE.VALUE'])
 		;
 
@@ -431,7 +431,40 @@ class General extends Base
 
 		$settings = static::decodeSettings($settings);
 
-		return array_replace_recursive($defaultSettings, $settings);
+		return self::prepareRawGroupSettings($settings);
+	}
+
+	public static function prepareRawGroupSettings(array $settings): array
+	{
+		$settings = self::filterGroupSettingsByDefault($settings);
+		$redefinedSettings = self::getRedefinedSettings();
+
+		return array_replace($settings, $redefinedSettings);
+	}
+
+	public static function filterGroupSettingsByDefault(array $settings): array
+	{
+		$result = [];
+		$defaultSettings = self::getDefaultSettings();
+
+		foreach ($defaultSettings as $name => $value)
+		{
+			$result[$name] = $settings[$name] ?? $value;
+		}
+
+		return $result;
+	}
+
+	protected static function getRedefinedSettings(): array
+	{
+		$result = [];
+
+		if (!Features::isDesktopRedirectAvailable())
+		{
+			$result['openDesktopFromPanel'] = false;
+		}
+
+		return $result;
 	}
 
 	/**

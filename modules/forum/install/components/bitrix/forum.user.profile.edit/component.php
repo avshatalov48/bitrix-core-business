@@ -1,4 +1,11 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+/**
+ * @global CMain $APPLICATION
+ * @global CUser $USER
+ */
+
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 if (!CModule::IncludeModule("forum")):
 	ShowError(GetMessage("F_NO_MODULE"));
 	return 0;
@@ -102,7 +109,6 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"]=="EDIT")
 	if (!empty($_REQUEST["cancel"]))
 	{
 		LocalRedirect($arResult["~profile_view"]);
-		return 0;
 	}
 	elseif (!check_bitrix_sessid())
 	{
@@ -202,8 +208,6 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"]=="EDIT")
 	}
 	else
 	{
-		if ($USER->GetId() == $arParams["UID"])
-			$USER->Authorize($arParams["UID"]);
 		if ($_POST["OLD_LOGIN"]!=$_POST["LOGIN"] || $_POST["NEW_PASSWORD"] <> '')
 		{
 			$USER->SendUserInfo($USER->GetParam("USER_ID"), LANG, GetMessage("FP_CHG_REG_INFO"), true);
@@ -220,7 +224,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"]=="EDIT")
 ********************************************************************/
 if ($bVarsFromForm)
 {
-	$arUserFields = &$DB->GetTableFieldsList("b_user");
+	$arUserFields = $DB->GetTableFieldsList("b_user");
 	for ($i = 0; $i < count($arUserFields); $i++)
 	{
 		if (array_key_exists($arUserFields[$i], $_REQUEST))
@@ -230,7 +234,7 @@ if ($bVarsFromForm)
 		}
 	}
 
-	$arUserFields = &$DB->GetTableFieldsList("b_forum_user");
+	$arUserFields = $DB->GetTableFieldsList("b_forum_user");
 	for ($i = 0; $i < count($arUserFields); $i++)
 	{
 		if (array_key_exists("FORUM_".$arUserFields[$i], $_REQUEST))

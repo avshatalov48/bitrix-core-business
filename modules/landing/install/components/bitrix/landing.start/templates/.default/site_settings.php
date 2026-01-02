@@ -29,5 +29,6 @@ $APPLICATION->includeComponent(
 		'CLOSE_AFTER_SAVE' => false,
 		'RELOAD_GRID_AFTER_SAVE' => false,
 		'RELOAD_PAGE_AFTER_SAVE' => true,
+		'HIDE_TOOLBAR' => 'Y',
 	]
 );

@@ -1,8 +1,10 @@
+import { Core } from 'im.v2.application.core';
 import { ActionTree, BuilderModel, MutationTree, GetterTree } from 'ui.vue3.vuex';
 
 type SelectState = {
-	collection: Set<number>,
-	isBulkActionsMode: boolean,
+	collection: {
+		[dialogId: string]: Set<number>,
+	},
 };
 
 export class SelectModel extends BuilderModel
@@ -10,8 +12,7 @@ export class SelectModel extends BuilderModel
 	getState(): SelectState
 	{
 		return {
-			collection: new Set(),
-			isBulkActionsMode: false,
+			collection: {},
 		};
 	}
 
@@ -19,16 +20,32 @@ export class SelectModel extends BuilderModel
 	{
 		return {
 			/** @function messages/select/getCollection */
-			getCollection: (state: SelectState): Set<number> => {
-				return state.collection;
+			getCollection: (state: SelectState) => (dialogId: string): ?Set<number> => {
+				if (!state.collection[dialogId])
+				{
+					return null;
+				}
+
+				const preparedCollection = [...state.collection[dialogId]];
+
+				const filteredMessageIds = preparedCollection.filter((messageId) => {
+					return Core.getStore().getters['messages/isExists'](messageId);
+				});
+
+				return new Set(filteredMessageIds);
 			},
-			/** @function messages/select/getBulkActionsMode */
-			getBulkActionsMode: (state: SelectState): boolean => {
-				return state.isBulkActionsMode;
+			/** @function messages/select/isBulkActionsModeActive */
+			isBulkActionsModeActive: (state: SelectState) => (dialogId: string): boolean => {
+				return Boolean(state.collection[dialogId]);
 			},
 			/** @function messages/select/isMessageSelected */
-			isMessageSelected: (state: SelectState) => (messageId: number): boolean => {
-				return state.collection.has(messageId);
+			isMessageSelected: (state: SelectState) => (messageId: number, dialogId: string): boolean => {
+				if (!state.collection[dialogId])
+				{
+					return false;
+				}
+
+				return state.collection[dialogId].has(messageId);
 			},
 		};
 	}
@@ -36,33 +53,50 @@ export class SelectModel extends BuilderModel
 	getActions(): ActionTree
 	{
 		return {
-			/** @function messages/select/toggle */
-			toggle: (store: Object, messageId: number) => {
-				if (store.state.collection.has(messageId))
-				{
-					store.commit('delete', messageId);
-				}
-				else
-				{
-					store.commit('add', messageId);
-				}
-			},
-			/** @function messages/select/deleteByMessageId */
-			deleteByMessageId: (store: Object, messageId: number) => {
-				if (!store.state.collection.has(messageId))
+			/** @function messages/select/enableBulkMode */
+			enableBulkMode: (store: Object, payload: {messageId: number, dialogId: string}) => {
+				const { messageId, dialogId } = payload;
+
+				if (store.state.collection[dialogId])
 				{
 					return;
 				}
 
-				store.commit('delete', messageId);
+				store.commit('enableBulkMode', {
+					messageId,
+					dialogId,
+				});
 			},
-			/** @function messages/select/toggleBulkActionsMode */
-			toggleBulkActionsMode: (store: Object, active: boolean) => {
-				store.commit('toggleBulkActionsMode', active);
+			/** @function messages/select/disableBulkMode */
+			disableBulkMode: (store: Object, payload: {dialogId: string}) => {
+				const { dialogId } = payload;
+
+				if (!store.state.collection[dialogId])
+				{
+					return;
+				}
+
+				store.commit('disableBulkMode', {
+					dialogId,
+				});
 			},
-			/** @function messages/select/clear */
-			clear: (store: Object) => {
-				store.commit('clear');
+			/** @function messages/select/toggleMessageSelection */
+			toggleMessageSelection: (store: Object, payload: {messageId: number, dialogId: string}) => {
+				const { messageId, dialogId } = payload;
+
+				if (!store.state.collection[dialogId])
+				{
+					return;
+				}
+
+				store.commit('toggleMessageSelection', {
+					messageId,
+					dialogId,
+				});
+			},
+			/** @function messages/select/clearCollection */
+			clearCollection: (store: Object) => {
+				store.commit('clearCollection');
 			},
 		};
 	}
@@ -70,18 +104,34 @@ export class SelectModel extends BuilderModel
 	getMutations(): MutationTree
 	{
 		return {
-			add: (state: SelectState, messageId: number) => {
-				state.collection.add(messageId);
-			},
-			delete: (state: SelectState, messageId: number) => {
-				state.collection.delete(messageId);
-			},
-			toggleBulkActionsMode: (state: SelectState, active: boolean) => {
+			enableBulkMode: (state: SelectState, payload: {messageId: number, dialogId: string}) => {
+				const { messageId, dialogId } = payload;
+
 				// eslint-disable-next-line no-param-reassign
-				state.isBulkActionsMode = active;
+				state.collection[dialogId] = new Set();
+				state.collection[dialogId].add(messageId);
 			},
-			clear: (state: SelectState) => {
-				state.collection.clear();
+			disableBulkMode: (state: SelectState, payload: {dialogId: string}) => {
+				const { dialogId } = payload;
+
+				// eslint-disable-next-line no-param-reassign
+				delete state.collection[dialogId];
+			},
+			toggleMessageSelection: (state: SelectState, payload: {messageId: number, dialogId: string}) => {
+				const { messageId, dialogId } = payload;
+
+				if (state.collection[dialogId].has(messageId))
+				{
+					state.collection[dialogId].delete(messageId);
+
+					return;
+				}
+
+				state.collection[dialogId].add(messageId);
+			},
+			clearCollection: (state: SelectState) => {
+				// eslint-disable-next-line no-param-reassign
+				state.collection = {};
 			},
 		};
 	}

@@ -1,0 +1,16 @@
+.ui-block-diagram-open-search-btn {
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	cursor: pointer;
+}
+
+.ui-block-diagram-open-search-btn__icon {
+	background-color: var(--ui-color-gray-60);
+}
+
+.ui-block-diagram-open-search-btn__icon:hover {
+	background-color: var(--ui-color-accent-main-primary);
+}

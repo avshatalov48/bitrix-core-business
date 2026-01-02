@@ -1,8 +1,13 @@
 <?php
 
+use Bitrix\HumanResources\Compatibility\Utils\DepartmentBackwardAccessCode;
+use Bitrix\HumanResources\Service\Container;
+use Bitrix\HumanResources\Type\MemberEntityType;
+use Bitrix\HumanResources\Type\MemberSubordinateRelationType;
 use Bitrix\Main;
 use Bitrix\Bitrix24;
 use Bitrix\Bizproc;
+use Bitrix\Main\Loader;
 
 class CBPHelper
 {
@@ -44,7 +49,7 @@ class CBPHelper
 						|| is_array($arWorkflowTemplate) && CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $r[0]) != null
 						)
 					{
-						return "{=".$r[0].":".$r[1]."}";
+						return '{=' . $r[0] . ':' . $r[1] . '}';
 					}
 				}
 			}
@@ -98,10 +103,11 @@ class CBPHelper
 					return str_replace(",", " ", $str);
 				}
 			}
-			else if (mb_strpos($arUsers, 'group_') === 0)
+			else if (str_starts_with($arUsers, 'group_'))
 			{
 				$str = self::getExtendedGroupName($arUsers, $appendId);
-				return str_replace(array(',', ';'), array(' ', ' '), $str);
+
+				return str_replace([',', ';'], [' ', ' '], $str);
 			}
 
 			return str_replace(",", " ", $arUsers);
@@ -112,7 +118,7 @@ class CBPHelper
 	{
 		if (static::isEmptyValue($users))
 		{
-			return "";
+			return '';
 		}
 
 		$uniqueUsers = is_array($users) ? [] : $users;
@@ -172,7 +178,8 @@ class CBPHelper
 
 		$arAllowableUserGroups = null;
 
-		$arResult = $arResultAlt = [];
+		$result = [];
+		$resultAlt = [];
 		foreach ($arUsers as $user)
 		{
 			$bCorrectUser = false;
@@ -180,7 +187,7 @@ class CBPHelper
 			if (CBPActivity::isExpression($user))
 			{
 				$bCorrectUser = true;
-				$arResult[] = $user;
+				$result[] = $user;
 			}
 			else
 			{
@@ -197,17 +204,37 @@ class CBPHelper
 				if (array_key_exists(mb_strtolower($user), $arAllowableUserGroups))
 				{
 					$bCorrectUser = true;
-					$arResult[] = $user;
+					$result[] = $user;
 				}
 				elseif (($k1 = array_search(mb_strtolower($user), $arAllowableUserGroups)) !== false)
 				{
 					$bCorrectUser = true;
-					$arResult[] = $k1;
+					$result[] = $k1;
 				}
-				elseif (preg_match('#\[([A-Z]{1,}[0-9A-Z_]+)\]$#i', $user, $arMatches))
+				elseif (preg_match('#\[([A-Z]{1,}[0-9A-Z_]+)\]$#i', $user, $matches))
 				{
 					$bCorrectUser = true;
-					$arResult[] = 'group_' . mb_strtolower($arMatches[1]);
+					$code = $matches[1];
+
+					if (
+						preg_match('/^(D|DR)(\d+)$/', $code, $match)
+						&& Loader::includeModule('humanresources')
+					)
+					{
+						$departmentId = $match[2];
+						$node =
+							Container::getNodeRepository()
+								->getByAccessCode(
+									DepartmentBackwardAccessCode::makeById((int)$departmentId)
+								)
+						;
+						if ($node)
+						{
+							$code = 'hr' . ($match[1] === 'DR' ? 'r' : '') . $node->id;
+						}
+					}
+
+					$result[] = 'group_' . mb_strtolower($code);
 				}
 				else
 				{
@@ -216,7 +243,7 @@ class CBPHelper
 					if ($cnt == 1)
 					{
 						$bCorrectUser = true;
-						$arResult[] = 'user_' . $ar[0];
+						$result[] = 'user_' . $ar[0];
 					}
 					elseif ($cnt > 1)
 					{
@@ -235,7 +262,7 @@ class CBPHelper
 						$s = call_user_func_array($callbackFunction, [$user]);
 						if ($s != null)
 						{
-							$arResultAlt[] = $s;
+							$resultAlt[] = $s;
 							$bCorrectUser = true;
 						}
 					}
@@ -258,7 +285,7 @@ class CBPHelper
 			}
 		}
 
-		return ($callbackFunction != null) ? [$arResult, $arResultAlt] : $arResult;
+		return ($callbackFunction != null) ? [$result, $resultAlt] : $result;
 	}
 
 	private static function searchUserByName($user)
@@ -893,6 +920,11 @@ class CBPHelper
 		if ($entity === '')
 		{
 			throw new CBPArgumentNullException("entity");
+		}
+
+		if ($moduleId && !Main\ModuleManager::isValidModule($moduleId))
+		{
+			throw new CBPArgumentNullException("moduleId");
 		}
 
 		return [$moduleId, $entity, $documentId];
@@ -1798,7 +1830,7 @@ class CBPHelper
 
 	/**
 	 * Method return array of user ids, extracting from special codes. Supported: user (U), group (G),
-	 * intranet (IU, D, DR, Dextranet, UA), socnet (SU, SG1_A, SG1_E, SG1_K)
+	 * intranet (IU, D, DR, UA), socnet (SU, SG1_A, SG1_E, SG1_K), humanresources(HR, HRR)
 	 *
 	 * @param string $code - group code, ex. group_D1
 	 * @return bool|array
@@ -1812,109 +1844,56 @@ class CBPHelper
 			return $cache[$code];
 		}
 
-		if (mb_strpos($code, 'group_') !== 0)
+		if (!str_starts_with($code, 'group_'))
 		{
 			return false;
 		}
+
 		$code = mb_strtoupper(mb_substr($code, mb_strlen('group_')));
+		$userService = CBPRuntime::getRuntime()->getUserService();
 
-		if (mb_strpos($code, 'G') === 0)
+		if (str_starts_with($code, 'G'))
 		{
-			$group = (int)mb_substr($code, 1);
-			if ($group <= 0)
-			{
-				return [];
-			}
-			$result = [];
+			$groupId = (int)mb_substr($code, 1);
+			$cache[$code] = $userService->extractUsersFromGroup($groupId);
 
-			$iterator = CUser::GetList(
-				"ID",
-				"ASC",
-				[
-					"GROUPS_ID" => $group,
-					"ACTIVE" => "Y",
-				],
-				['FIELDS' => ['ID']]
-			);
-			while ($user = $iterator->fetch())
-			{
-				$result[] = $user['ID'];
-			}
-			$cache[$code] = $result;
-
-			return $result;
+			return $cache[$code];
 		}
 
 		if (preg_match('/^(U|IU|SU)([0-9]+)$/i', $code, $match))
 		{
-			return array($match[2]);
+			return [(int)$match[2]];
 		}
 
-		if ($code == 'UA' && CModule::IncludeModule('intranet'))
+		if ($code === 'UA')
 		{
-			$result = [];
-			$iterator = CUser::GetList("id", "asc",
-				array('ACTIVE' => 'Y', '>UF_DEPARTMENT' => 0),
-				array('FIELDS' => array('ID'))
-			);
-			while($user = $iterator->fetch())
-			{
-				$result[] = $user['ID'];
-			}
-			$cache[$code] = $result;
+			$cache[$code] = $userService->extractUsersFromAllDepartments();
 
-			return $result;
+			return $cache[$code];
 		}
 
-		if (preg_match('/^(D|DR)([0-9]+)$/', $code, $match))
+		if (preg_match('/^(D|DR)(\d+)$/', $code, $match))
 		{
-			$userService = CBPRuntime::getRuntime()->getUserService();
 			$cache[$code] = $userService->extractUsersFromDepartment($match[2], $match[1] === 'DR');
 
 			return $cache[$code];
 		}
-		if ($code == 'Dextranet' && CModule::IncludeModule('extranet'))
-		{
-			$result = array();
-			$iterator = CUser::GetList("id", "asc",
-				array(COption::GetOptionString("extranet", "extranet_public_uf_code", "UF_PUBLIC") => "1",
-					"!UF_DEPARTMENT" => false,
-					"GROUPS_ID" => array(CExtranet::GetExtranetUserGroupID()),
-				),
-				array('FIELDS' => array('ID'))
-			);
-			while($user = $iterator->fetch())
-			{
-				$result[] = $user['ID'];
-			}
-			$cache[$code] = $result;
 
-			return $result;
-		}
-		if (preg_match('/^SG([0-9]+)_?([AEK])?$/', $code, $match) && CModule::IncludeModule('socialnetwork'))
+		if (preg_match('/^SG([0-9]+)_?([AEK])?$/', $code, $match))
 		{
 			$groupId = (int)$match[1];
-			$role = isset($match[2])? $match[2] : 'K';
+			$role = $match[2] ?? 'K';
+			$cache[$code] = $userService->extractUsersFromSocNetGroup($groupId, $role);
 
-			$iterator = CSocNetUserToGroup::GetList(
-				array("USER_ID" => "ASC"),
-				array(
-					"=GROUP_ID" => $groupId,
-					"<=ROLE" => $role,
-					"USER_ACTIVE" => "Y",
-				),
-				false,
-				false,
-				array("USER_ID")
-			);
-			$result = array();
-			while($user = $iterator->fetch())
-			{
-				$result[] = $user['USER_ID'];
-			}
-			$cache[$code] = $result;
+			return $cache[$code];
+		}
 
-			return $result;
+		if (preg_match('/^(HR|HRR)(\d+)$/', $code, $match))
+		{
+			$nodeId = (int)$match[2];
+			$cache[$code] = $userService->extractUsersFromHrNode($nodeId, $match[1] === 'HRR');
+
+			return $cache[$code];
 		}
 
 		return false;
@@ -1956,7 +1935,7 @@ class CBPHelper
 				$parsed = \CBPActivity::parseExpression($user);
 				if ($parsed && $parsed['object'] === 'Document')
 				{
-					$document = $documentService->GetDocument($documentId);
+					$document = $documentService->GetDocument($documentId, select: [$parsed['field']]);
 					if ($document && $document[$parsed['field']])
 					{
 						foreach ((array) $document[$parsed['field']] as $docUser)
@@ -2160,16 +2139,28 @@ class CBPHelper
 	 */
 	public static function getUserExtendedGroups($userId)
 	{
+		$canUseHrModule = Loader::includeModule('humanresources');
+
 		if (!isset(self::$groupsCache[$userId]))
 		{
-			self::$groupsCache[$userId] = array();
-			$access = self::getAccessProvider();
-			$userCodes = $access->GetUserCodesArray($userId);
-			foreach ($userCodes AS $code)
+			self::$groupsCache[$userId] = [];
+			$access = static::getAccessProvider();
+			$userCodes = $access::GetUserCodesArray($userId);
+
+			foreach ($userCodes as $code)
 			{
-				self::$groupsCache[$userId][] = 'group_'.mb_strtolower($code);
+				self::$groupsCache[$userId][] = 'group_' . mb_strtolower($code);
+				if ($canUseHrModule && preg_match('/^(d|dr)(\d+)$/', mb_strtolower($code), $match))
+				{
+					$node = Container::getNodeRepository()->getByAccessCode($code);
+					if ($node)
+					{
+						self::$groupsCache[$userId][] = 'group_' . ($match[1] === 'dr' ? 'hrr' : 'hr') . $node->id;
+					}
+				}
 			}
 		}
+
 		return self::$groupsCache[$userId];
 	}
 
@@ -2180,14 +2171,47 @@ class CBPHelper
 	 */
 	public static function getExtendedGroupName($group, $appendId = true)
 	{
-		if (mb_strpos($group, 'group_') === 0)
+		if (str_starts_with($group, 'group_'))
+		{
 			$group = mb_substr($group, mb_strlen('group_'));
+		}
+
+		if (
+			preg_match('/^(d|dr)(\d+)$/', $group, $match)
+			&& Loader::includeModule('humanresources')
+		)
+		{
+			$departmentId = $match[2];
+			$node =
+				Container::getNodeRepository()
+					->getByAccessCode(DepartmentBackwardAccessCode::makeById((int)$departmentId))
+			;
+			if ($node)
+			{
+				return ($node->name ?? '') . ($appendId ? ' [HR' . ($match[1] === 'dr' ? 'R' : '') . $node->id . ']' : '');
+			}
+		}
+
+		if (preg_match('/^(hr|hrr)(\d+)$/', $group, $match))
+		{
+			$groupId = $match[2];
+			$groupName = '';
+			if (Loader::includeModule('humanresources'))
+			{
+				$nodeRepository = Container::getNodeRepository();
+				$node = $nodeRepository->getById((int)$groupId);
+				$groupName = $node->name ?? '';
+			}
+
+			return $groupName . ($appendId ? ' [' . mb_strtoupper($group) . ']' : '');
+		}
+
 		$group = mb_strtoupper($group);
-		$access = self::getAccessProvider();
+		$access = static::getAccessProvider();
 		$arNames = $access->GetNames(array($group));
 		$groupName = $arNames[$group]['name'] ?? null;
 
-		return $groupName . ($appendId ? ' ['.$group.']' : '');
+		return $groupName . ($appendId ? ' [' . $group . ']' : '');
 	}
 
 	/**
@@ -2290,23 +2314,57 @@ class CBPHelper
 	 * @param int $subUserId
 	 * @return bool
 	 */
-	public static function checkUserSubordination($headUserId, $subUserId)
+	public static function checkUserSubordination(mixed $headUserId, mixed $subUserId): bool
 	{
-		if (CModule::IncludeModule('intranet'))
+		if (Loader::includeModule('intranet'))
 		{
-			$headUserId = (int)$headUserId;
-			$subUserId = (int)$subUserId;
-
-			if ($headUserId && $subUserId)
+			if (Loader::IncludeModule('humanresources'))
 			{
-				$headDepts = (array) CIntranetUtils::GetSubordinateDepartments($headUserId, true);
-				if (!empty($headDepts))
+				$headNodes = Container::getNodeMemberRepository()->findAllByEntityIdAndEntityType(
+					(int)$headUserId,
+					MemberEntityType::USER,
+				);
+				$subNodes = Container::getNodeMemberRepository()->findAllByEntityIdAndEntityType(
+					(int)$subUserId,
+					MemberEntityType::USER,
+				);
+
+				foreach ($headNodes as $headNode)
 				{
-					$subDepts = (array) CIntranetUtils::GetUserDepartments($subUserId);
-					return (sizeof(array_intersect($headDepts, $subDepts)) > 0);
+					foreach ($subNodes as $subNode)
+					{
+						$relation = Container::getNodeMemberService()->getMemberSubordination(
+							$headNode->id,
+							$subNode->id,
+						);
+						if ($relation === MemberSubordinateRelationType::RELATION_HIGHER)
+						{
+							return true;
+						}
+					}
 				}
 			}
+			else
+			{
+				return self::checkUserSubordinationDeprecated((int)$headUserId, (int)$subUserId);
+			}
 		}
+
+		return false;
+	}
+
+	private static function checkUserSubordinationDeprecated(int $headUserId, int $subUserId): bool
+	{
+		if ($headUserId && $subUserId)
+		{
+			$headDepts = (array) CIntranetUtils::GetSubordinateDepartments($headUserId, true);
+			if (!empty($headDepts))
+			{
+				$subDepts = (array) CIntranetUtils::GetUserDepartments($subUserId);
+				return (sizeof(array_intersect($headDepts, $subDepts)) > 0);
+			}
+		}
+
 		return false;
 	}
 
@@ -2344,7 +2402,7 @@ class CBPHelper
 			'arWorkflowConstants',
 			'USER_PARAMS',
 			'documentCategories',
-			'workflowTemplateSettings'
+			'workflowTemplateSettings',
 		];
 
 		foreach ($jsonParams as $k)
@@ -2384,6 +2442,18 @@ class CBPHelper
 			return $date->getTimestamp();
 		}
 
+		if ($date instanceof Bitrix\Bizproc\BaseType\Value\Time)
+		{
+			$time = $date->toSystemObject();
+			$currentDate = new \Bitrix\Main\Type\DateTime();
+
+			return $time->setDate(
+				$currentDate->format('Y'),
+				$currentDate->format('m'),
+				$currentDate->format('d')
+			)->getTimestamp();
+		}
+
 		if (intval($date) . '!' === $date . '!')
 		{
 			return $date;
@@ -2406,18 +2476,18 @@ class CBPHelper
 	public static function isWorkTimeAvailable(): bool
 	{
 		if (
-			Main\Loader::includeModule('bitrix24')
+			Loader::includeModule('bitrix24')
 			&& !Bitrix24\Feature::isFeatureEnabled('bizproc_timeman')
 		)
 		{
 			return false;
 		}
 
-		if (Main\Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet'))
 		{
 			$workTime = \Bitrix\Intranet\Site\Sections\TimemanSection::getWorkTime();
 
-			return $workTime['available'] && \Bitrix\Main\Loader::includeModule('timeman');
+			return $workTime['available'] && Loader::includeModule('timeman');
 		}
 
 		return false;
@@ -2454,5 +2524,17 @@ class CBPHelper
 		}
 
 		return !Bizproc\WorkflowInstanceTable::exists($workflowId);
+	}
+
+	public static function normalizeComplexDocumentId(array $complexId): ?array
+	{
+		try
+		{
+			return self::parseDocumentId($complexId);
+		}
+		catch (\CBPArgumentNullException $exception)
+		{
+			return null;
+		}
 	}
 }

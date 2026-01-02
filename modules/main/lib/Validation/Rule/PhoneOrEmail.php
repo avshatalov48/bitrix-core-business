@@ -10,7 +10,7 @@ use Bitrix\Main\Validation\ValidationResult;
 use Bitrix\Main\Validation\Validator\PhoneValidator;
 use Bitrix\Main\Validation\Validator\EmailValidator;
 
-#[Attribute(Attribute::TARGET_PROPERTY)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class PhoneOrEmail implements PropertyValidationAttributeInterface
 {
 	use ValidationErrorTrait;

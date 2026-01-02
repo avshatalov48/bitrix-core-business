@@ -1,24 +1,24 @@
 <?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/interface/init_admin.php");
 
 $bFileMan = CModule::IncludeModule('fileman');
 if(!$bFileMan)
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+	CMain::FinalActions();
 
 CComponentUtil::__IncludeLang(BX_PERSONAL_ROOT."/components/bitrix/player", "player_playlist_edit.php");
 
 $strWarning = "";
 $menufilename = "";
 $path = Rel2Abs("/", $path);
-$arPath = Array($site, $path);
-$DOC_ROOT = CSite::GetSiteDocRoot($site);
+$arPath = Array($site->getName(), $path);
+$DOC_ROOT = CSite::GetSiteDocRoot($site->getName());
 $abs_path = $DOC_ROOT.$path;
 $bCreate = !file_exists($abs_path);
 
 if (($bCreate && (!$USER->CanDoFileOperation('fm_create_new_file', $arPath) || !$USER->CanDoOperation('fileman_edit_existent_files'))) ||
 (!$bCreate && (!$USER->CanDoFileOperation('fm_edit_existent_file', $arPath) || !$USER->CanDoOperation('fileman_admin_files'))))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+	CMain::FinalActions();
 
 $arTracks = Array();
 /* * * * * * * * * * * * * * POST * * * * * * * * * * * * * */
@@ -277,7 +277,7 @@ CAdminFileDialog::ShowScript(
 	(
 		"event" => "OpenFD_playlist_video",
 		"arResultDest" => Array("FUNCTION_NAME" => 'BXSaveVideoPath'),
-		"arPath" => Array("SITE" => $site, 'PATH' => $aMenuLinksItem[1]),
+		"arPath" => Array("SITE" => $site->getName(), 'PATH' => $aMenuLinksItem[1]),
 		"select" => 'F',// F - file only, D - folder only
 		"operation" => 'O',// O - open, S - save
 		"showUploadTab" => true,
@@ -294,7 +294,7 @@ CAdminFileDialog::ShowScript(
 	(
 		"event" => "OpenFD_playlist_image",
 		"arResultDest" => Array("FUNCTION_NAME" => 'BXSaveImagePath'),
-		"arPath" => Array("SITE" => $site, 'PATH' => $aMenuLinksItem[1]),
+		"arPath" => Array("SITE" => $site->getName(), 'PATH' => $aMenuLinksItem[1]),
 		"select" => 'F',// F - file only, D - folder only
 		"operation" => 'O',// O - open, S - save
 		"showUploadTab" => true,

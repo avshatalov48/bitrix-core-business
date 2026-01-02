@@ -23,47 +23,7 @@ $sender = $arResult['sender'];
 
 $messageSuffix = (defined('ADMIN_SECTION') && ADMIN_SECTION === true) ? '_ADMIN' : '';
 
-if ($sender->isRegistered())
-{
-	if (defined('SITE_TEMPLATE_ID') && SITE_TEMPLATE_ID === 'bitrix24')
-	{
-		$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
-		$APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'pagetitle-toolbar-field-view flexible-layout crm-toolbar crm-pagetitle-view');
-	}
-
-	if (!defined('ADMIN_SECTION'))
-	{
-		$this->SetViewTarget('inside_pagetitle', 10000);
-	}
-	?>
-	<div id="messageservice_toolbar" class="pagetitle-container pagetitle-align-right-container">
-		<div class="webform-small-button webform-small-button-transparent webform-cogwheel">
-			<span class="webform-button-icon"></span>
-		</div>
-		<script>
-			BX.ready(
-				function ()
-				{
-					BX.MessageService.ToolBar.create(
-						"messageservice_toolbar",
-						{
-							"containerId": "messageservice_toolbar",
-							"items": [{
-								'TEXT': '<?=CUtil::JSEscape(Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTIONS"))?>',
-								'ONCLICK': 'BX.MessageService.ConfigSenderSms&&BX.MessageService.ConfigSenderSms.clearOptions?BX.MessageService.ConfigSenderSms.clearOptions():null;'
-							}],
-							"menuButtonClassName": "webform-cogwheel"
-						}
-					);
-				}
-			);
-		</script>
-	</div><?
-	if (!defined('ADMIN_SECTION'))
-	{
-		$this->EndViewTarget();
-	}
-}
+include 'toolbar.php';
 ?>
 <div class="sms-settings">
 	<h2 class="sms-settings-title"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE")?></h2>

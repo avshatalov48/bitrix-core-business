@@ -47,7 +47,7 @@ class CollabChat extends GroupChat
 			return (new Result())->addError(new ChatError(ChatError::ENTITY_ID_EMPTY));
 		}
 
-		$params['ENTITY_TYPE'] = Type::Sonet->value;
+		$params['ENTITY_TYPE'] = ExtendedType::Sonet->value;
 
 		return parent::prepareParams($params);
 	}
@@ -101,7 +101,7 @@ class CollabChat extends GroupChat
 		return parent::canDo($action, $target);
 	}
 
-	protected function updateStateAfterUsersAdd(array $usersToAdd): self
+	protected function updateStateAfterRelationsAdd(array $usersToAdd): self
 	{
 		Initializer::onAfterUsersAddToCollab($usersToAdd, $this->getId());
 
@@ -110,7 +110,7 @@ class CollabChat extends GroupChat
 			GuestCounter::cleanCache($this->chatId);
 		}
 
-		return parent::updateStateAfterUsersAdd($usersToAdd);
+		return parent::updateStateAfterRelationsAdd($usersToAdd);
 	}
 
 	protected function updateStateAfterUserDelete(int $deletedUserId, DeleteUserConfig $config): self
@@ -146,5 +146,10 @@ class CollabChat extends GroupChat
 	protected function filterCollabers(array $userIds): array
 	{
 		return array_filter($userIds, fn (int $userId) => User::getInstance($userId) instanceof UserCollaber);
+	}
+
+	protected function needToSendMessageUserDelete(): bool
+	{
+		return false;
 	}
 }

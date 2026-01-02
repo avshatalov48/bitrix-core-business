@@ -44,8 +44,12 @@ if (!empty($arResult['ERROR']))
 			}
 
 			// title
-			$arUserField = $arResult['fields'][$col];
-			$title = trim((string)($arUserField["LIST_COLUMN_LABEL"] ?? ''));
+			$title = '';
+			if (isset($arResult['fields'][$col]))
+			{
+				$arUserField = $arResult['fields'][$col];
+				$title = trim((string)($arUserField["LIST_COLUMN_LABEL"] ?? ''));
+			}
 			if ($title === '')
 			{
 				$title = $col;

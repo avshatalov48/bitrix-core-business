@@ -2,11 +2,13 @@
 
 namespace Bitrix\UI\Controller;
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\AutoWire\Parameter;
 use Bitrix\Main\Engine\Controller;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Engine\Response;
 use Bitrix\Main\Error;
 use Bitrix\Main\Web\Json;

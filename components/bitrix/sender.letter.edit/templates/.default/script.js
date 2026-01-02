@@ -1,14 +1,13 @@
 ;(function (window)
 {
-
 	BX.namespace('BX.Sender');
 	if (BX.Sender.Letter)
 	{
 		return;
 	}
 
-	var Page = BX.Sender.Page;
-	var Helper = BX.Sender.Helper;
+	const Page = BX.Sender.Page;
+	const Helper = BX.Sender.Helper;
 
 	/**
 	 * Letter.
@@ -18,19 +17,23 @@
 	{
 		this.context = null;
 	}
-	Letter.prototype.init = function (params)
+
+	Letter.prototype.init = function(params)
 	{
 		this.context = BX(params.containerId);
 		this.actionUri = params.actionUri;
 		this.isFrame = params.isFrame || false;
-		this.prettyDateFormat = params.prettyDateFormat;
 		this.isSaved = params.isSaved || false;
 		this.isOutside = params.isOutside || false;
+		this.prettyDateFormat = params.prettyDateFormat;
 		this.mess = params.mess;
+		this.isSlider = params.isSlider;
+		this.toolbarId = params.toolbarId;
 		this.letterTile = params.letterTile || {};
-		this.hasBottomTextareaPanel = params.hasBottomTextareaPanel;
 		this.AITextContextId = params.AITextContextId;
 		this.isAITextAvailable = params.isAITextAvailable === 'Y';
+		this.hasBottomTextareaPanel = params.hasBottomTextareaPanel;
+		this.isTemplateSelectorShowed = params.isTemplateSelectorShowed;
 
 		this.templateChangeButton = BX('SENDER_LETTER_BUTTON_CHANGE');
 		this.selectorNode = Helper.getNode('template-selector', this.context);
@@ -42,6 +45,25 @@
 		this.templateTypeNode = Helper.getNode('template-type', this.editorNode);
 		this.templateIdNode = Helper.getNode('template-id', this.editorNode);
 		this.consentPreviewNodes = Helper.getNodes('consent-preview', this.editorNode);
+		this.uiToolbar = BX.UI.ToolbarManager.get(this.toolbarId);
+		this.titleNode.value = this.mess.initTitle;
+
+		if (this.isTemplateSelectorShowed)
+		{
+			this.uiToolbar.getTitleEditor()?.disable();
+		}
+
+		if (this.uiToolbar && this.isSlider)
+		{
+			this.uiToolbar.subscribe(BX.UI.ToolbarEvents.finishEditing, (event) => {
+				const updatedTitle = event.getData().updatedTitle;
+
+				if (updatedTitle && this.titleNode)
+				{
+					this.titleNode.value = updatedTitle;
+				}
+			});
+		}
 
 		if (BX.Sender.Template && BX.Sender.Template.Selector)
 		{
@@ -64,12 +86,6 @@
 
 		if (this.isFrame)
 		{
-			Helper.titleEditor.init({
-				dataNode: this.titleNode,
-				disabled: params.isTemplateShowed,
-				defaultTitle: this.getPatternTitle(this.mess.name)
-			});
-
 			BX.addCustomEvent("SidePanel.Slider:onClose", this.onPopupClose.bind(this));
 		}
 
@@ -247,7 +263,10 @@
 		BX.fireEvent(this.titleNode, 'change');
 
 		this.closeTemplateSelector();
-		window.scrollTo(0,0);
+		window.scrollTo(0, 0);
+
+		this.uiToolbar.getTitleEditor()?.enable();
+		this.uiToolbar.setTitle(this.getPatternTitle(template.name));
 	};
 	Letter.prototype.closeTemplateSelector = function ()
 	{
@@ -279,7 +298,7 @@
 		Helper.changeDisplay(this.templateChangeButton, !isShow);
 		Helper.changeDisplay(this.buttonsNode, !isShow);
 
-		isShow ? Helper.titleEditor.disable() : Helper.titleEditor.enable();
+		this.uiToolbar.getTitleEditor()?.disable();
 	};
 	Letter.prototype.applyChanges = function()
 	{

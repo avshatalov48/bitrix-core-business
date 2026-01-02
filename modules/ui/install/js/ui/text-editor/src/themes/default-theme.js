@@ -17,7 +17,8 @@ export const defaultTheme = {
 	list: {
 		listitem: 'ui-typography-li',
 		nested: {
-			listitem: 'ui-text-editor__nestedListItem',
+			list: '--nested',
+			listitem: 'ui-text-editor__nestedListItem --nested',
 		},
 		olDepth: [
 			'ui-typography-ol ui-text-editor__ol1',

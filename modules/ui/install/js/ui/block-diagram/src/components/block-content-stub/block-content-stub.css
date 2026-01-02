@@ -1,0 +1,79 @@
+.ui-block-diagram-block-content-stub {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    min-width: 200px;
+    padding: 10px 0;
+    border: 1px solid var(--ui-color-white-base);
+    border-radius: 10px;
+    background-color: var(--ui-color-white-base);
+    box-sizing: border-box;
+    user-select: none;
+    cursor: pointer;
+}
+
+.ui-block-diagram-block-content-stub.--highlighted {
+	border: 1px solid var(--ui-color-palette-blue-50);
+}
+
+.ui-block-diagram-block-content-stub__id {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: 30px;
+    padding: 0 10px;
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+    font-size: 14px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    user-select: none;
+}
+
+.ui-block-diagram-block-content-stub__left-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    width: 50%;
+}
+
+.ui-block-diagram-block-content-stub__right-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    width: 50%;
+}
+
+.ui-block-diagram-block-content-stub__port-line {
+    position: relative;
+    width: 100%;
+    height: 30px;
+}
+
+.ui-block-diagram-block-content-stub__port {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    width: 9px;
+    height: 9px;
+    background-color: transparent;
+}
+
+.ui-block-diagram-block-content-stub__port.--left {
+    left: -6px;
+}
+
+.ui-block-diagram-block-content-stub__port.--right {
+    right: -6px;
+}

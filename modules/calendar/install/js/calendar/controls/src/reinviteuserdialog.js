@@ -24,7 +24,9 @@ export class ReinviteUserDialog extends EventEmitter
 			zIndex: this.zIndex,
 			offsetLeft: 0,
 			offsetTop: 0,
-			draggable: true,
+			draggable: {
+				restrict: true,
+			},
 			bindOnResize: false,
 			titleBar: Loc.getMessage('EC_REINVITE_TITLE'),
 			closeIcon: { right : "12px", top : "10px"},

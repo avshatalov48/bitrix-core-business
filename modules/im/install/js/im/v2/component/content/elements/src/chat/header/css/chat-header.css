@@ -20,6 +20,7 @@
 	align-items: center;
 	padding: 11px 15px;
 	background-color: #fff;
+	flex-shrink: 0;
 }
 
 .bx-im-chat-header__left {

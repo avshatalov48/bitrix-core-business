@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Bizproc\BaseType;
 
+use Bitrix\HumanResources\Compatibility\Utils\DepartmentBackwardAccessCode;
+use Bitrix\HumanResources\Service\Container;
 use Bitrix\Main;
 use Bitrix\Bizproc\FieldType;
 use Bitrix\Bizproc\Automation;
@@ -172,6 +174,7 @@ class User extends Base
 				'items' => $value ? static::getSelectedItems($value, $settings) : [],
 				'multiple' => $fieldType->isMultiple(),
 				'required' => $fieldType->isRequired(),
+				'canUseHumanResources' => static::canUseHumanResources(),
 			];
 
 			if ($settings)
@@ -179,9 +182,11 @@ class User extends Base
 				$config += $settings;
 			}
 
-			$groups = \CBPRuntime::GetRuntime()
-				->GetService('DocumentService')
-				->GetAllowableUserGroups($fieldType->getDocumentType(), true);
+			$groups =
+				\CBPRuntime::GetRuntime()
+					->getDocumentService()
+					->GetAllowableUserGroups($fieldType->getDocumentType(), true)
+			;
 
 			if ($groups)
 			{
@@ -211,7 +216,7 @@ class User extends Base
 			return <<<HTML
 				<script>
 					BX.ready(function(){
-						var c = document.getElementById('{$controlIdJs}');
+						const c = document.getElementById('{$controlIdJs}');
 						if (c)
 						{
 							BX.Bizproc.FieldType.initControl(c.parentNode, JSON.parse(c.dataset.property));
@@ -358,15 +363,21 @@ HTML;
 			return null;
 		}
 
-		$mapCallback = function ($value)
+		$mapCallback = static function ($value)
 		{
-			if ($value && strpos($value, 'user_') === 0)
+			if ($value && str_starts_with($value, 'user_'))
 			{
 				return ['user', \CBPHelper::StripUserPrefix($value)];
 			}
-			if ($value && strpos($value, 'group_d') === 0)
+
+			if ($value && str_starts_with($value, 'group_d'))
 			{
-				return ['department', preg_replace('|[^0-9]+|', '', $value)];
+				return ['department', preg_replace('|\D+|', '', $value)];
+			}
+
+			if ($value && str_starts_with($value, 'group_hr'))
+			{
+				return ['structure-node', preg_replace('|\D+|', '', $value)];
 			}
 
 			return null;
@@ -377,6 +388,23 @@ HTML;
 		if (!$preselectedItems)
 		{
 			return [];
+		}
+
+		if (static::canUseHumanResources())
+		{
+			$nodeRepository = Container::getNodeRepository();
+			foreach ($preselectedItems as $key => $item)
+			{
+				if ($item[0] === 'department')
+				{
+					$node = $nodeRepository->getByAccessCode(DepartmentBackwardAccessCode::makeById((int)$item[1]));
+					if ($node)
+					{
+						unset($preselectedItems[$key]);
+						$preselectedItems[] = ['structure-node', $node->id];
+					}
+				}
+			}
 		}
 
 		$options = [];
@@ -394,7 +422,7 @@ HTML;
 			];
 		}
 
-		return \Bitrix\UI\EntitySelector\Dialog::getSelectedItems($preselectedItems, $options)->toArray();
+		return \Bitrix\UI\EntitySelector\Dialog::getPreselectedItems($preselectedItems, $options)->toArray();
 	}
 
 	public static function validateValueSingle($value, FieldType $fieldType)
@@ -460,5 +488,10 @@ HTML;
 			&& strpos($value, 'user_') === false
 			&& strpos($value, 'group_') === false
 		);
+	}
+
+	private static function canUseHumanResources(): bool
+	{
+		return Main\Loader::includeModule('humanresources');
 	}
 }

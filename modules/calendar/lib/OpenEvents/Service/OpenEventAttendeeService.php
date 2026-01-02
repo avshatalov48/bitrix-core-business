@@ -202,7 +202,7 @@ final class OpenEventAttendeeService
 				'ID' => $event->getId(),
 			],
 		]);
-		$attendeeListData = CCalendarEvent::getAttendeeList($event->getId());
+		$attendeeListData = CCalendarEvent::getAttendeeList([], [$event->getId()]);
 		$eventParams = [
 			'ID' => $event->getId(),
 			'NAME' => $event->getName(),

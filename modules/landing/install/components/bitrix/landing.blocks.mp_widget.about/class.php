@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Landing\Connector\Crm;
 use Bitrix\Landing\Mainpage;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -73,6 +74,11 @@ class LandingBlocksMainpageWidgetAbout extends LandingBlocksMainpageWidgetBase
 		else
 		{
 			$data = $this->getRealData();
+		}
+
+		if ($data['TITLE'] === '#COMPANY_NAME#')
+		{
+			$data['TITLE'] = $this->getCompanyName();
 		}
 
 		$this->arResult['TITLE'] = $data['TITLE'];
@@ -263,5 +269,19 @@ class LandingBlocksMainpageWidgetAbout extends LandingBlocksMainpageWidgetBase
 		}
 
 		return $boss;
+	}
+
+	private function getCompanyName(): string
+	{
+		$defaultCompanyName = Loc::getMessage('LANDING_WIDGET_CLASS_ABOUT_TITLE');
+
+		if (!Loader::includeModule('crm'))
+		{
+			return $defaultCompanyName;
+		}
+
+		$crmContacts = Crm::getContacts(0);
+
+		return isset($crmContacts['COMPANY']) ? (string)$crmContacts['COMPANY'] : $defaultCompanyName;
 	}
 }

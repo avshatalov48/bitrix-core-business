@@ -1,0 +1,23 @@
+<?php
+$MESS["LEARNING_CHAPTERS_LIST"] = "Тараулар тізімі";
+$MESS["LEARNING_LESSONS_LIST"] = "Барлық сабақтардың тізімі";
+$MESS["LEARNING_MENU_ATTEMPT"] = "Әрекеттер";
+$MESS["LEARNING_MENU_ATTEMPT_ALT"] = "Тесттен өтудің әрекеттері";
+$MESS["LEARNING_MENU_CERTIFICATION"] = "Сертификаттау";
+$MESS["LEARNING_MENU_CERTIFICATION_ALT"] = "Сертификаттау";
+$MESS["LEARNING_MENU_COURSES"] = "Курстар";
+$MESS["LEARNING_MENU_COURSES_ALT"] = "Курстар тізімі";
+$MESS["LEARNING_MENU_COURSES_OTHER"] = "Басқалары";
+$MESS["LEARNING_MENU_EXPORT"] = "Экспорт";
+$MESS["LEARNING_MENU_EXPORT_ALT"] = "Курсты экспорттау";
+$MESS["LEARNING_MENU_GRADEBOOK"] = "Журнал";
+$MESS["LEARNING_MENU_GRADEBOOK_ALT"] = "Журнал";
+$MESS["LEARNING_MENU_GROUPS"] = "Оқу топтары";
+$MESS["LEARNING_MENU_GROUPS_ALT"] = "Оқу топтарын басқару";
+$MESS["LEARNING_MENU_IMPORT"] = "Импорттау";
+$MESS["LEARNING_MENU_IMPORT_ALT"] = "Курсты импорттау";
+$MESS["LEARNING_MENU_LEARNING"] = "Оқыту";
+$MESS["LEARNING_MENU_LEARNING_TITLE"] = "Онлайн-оқытуды басқару";
+$MESS["LEARNING_MENU_STUDENTS"] = "Оқушылар";
+$MESS["LEARNING_MENU_STUDENTS_ALT"] = "Оқушылар тізімі";
+$MESS["LEARNING_QUESTION_LIST"] = "Барлық сұрақтардың тізімі";

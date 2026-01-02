@@ -1,0 +1,27 @@
+<?php
+$MESS["CP_BPD_BROWSER_TITLE"] = "Браузер терезесінің тақырыпатын қасиеттен орнату";
+$MESS["CP_BPD_CACHE_GROUPS"] = "Қолжетімділік құқықтарын ескеру";
+$MESS["CP_BPD_SET_LAST_MODIFIED"] = "Жауаптың тақырыпаттарында парақшаның өзгертілген уақытын орнату";
+$MESS["IBLOCK_DETAIL_URL"] = "Бөлім элементінің мазмұны бар парақшаға апаратын URL";
+$MESS["IBLOCK_ELEMENT_CODE"] = "Элемент коды";
+$MESS["IBLOCK_ELEMENT_ID"] = "Элементтің ID-і";
+$MESS["IBLOCK_ELEMENT_SORT_FIELD_NEXT_PREV_LINK"] = "Фотосуреттерді \"келесі\" және \"алдыңғы\" сілтемелері үшін қай өріс бойынша сұрыптау керек.";
+$MESS["IBLOCK_ELEMENT_SORT_ORDER_NEXT_PREV_LINK"] = "Фотосуреттерді \"келесі\" және \"алдыңғы\" сілтемелері үшін қандай тәртіппен сұрыптау керек.";
+$MESS["IBLOCK_FIELD"] = "Өрістер";
+$MESS["IBLOCK_IBLOCK"] = "Ақпараттық блок";
+$MESS["IBLOCK_PROPERTY"] = "Қасиеттері";
+$MESS["IBLOCK_SECTION_CODE"] = "Бөлім коды";
+$MESS["IBLOCK_SECTION_ID"] = "Бөлім ID-і";
+$MESS["IBLOCK_SECTION_URL"] = "Бөлімнің мазмұны бар парақшаға апаратын URL";
+$MESS["IBLOCK_SORT_ACTIVE_FROM"] = "белсенділік күні (бастап)";
+$MESS["IBLOCK_SORT_ACTIVE_TO"] = "белсенділік күні (дейін)";
+$MESS["IBLOCK_SORT_ASC"] = "өсу бойынша";
+$MESS["IBLOCK_SORT_DESC"] = "кему бойынша";
+$MESS["IBLOCK_SORT_ID"] = "ID";
+$MESS["IBLOCK_SORT_NAME"] = "атауы";
+$MESS["IBLOCK_SORT_SHOWS"] = "көрулердің орташа саны";
+$MESS["IBLOCK_SORT_SORT"] = "сұрыптау индексі";
+$MESS["IBLOCK_SORT_TIMESTAMP"] = "өзгерту күні";
+$MESS["IBLOCK_TYPE"] = "Ақпараттық блоктың түрі";
+$MESS["T_IBLOCK_DESC_DESCRIPTION"] = "Парақшаның сипаттамасын қасиеттен орнату";
+$MESS["T_IBLOCK_DESC_KEYWORDS"] = "Парақшаның кілт сөздерін қасиеттен орнату";

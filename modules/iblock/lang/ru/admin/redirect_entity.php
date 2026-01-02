@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BX_IBLOCK_REDIRECT_ENTITY_ENTITY_IBLOCK"] = "Инфоблок";
 $MESS["BX_IBLOCK_REDIRECT_ENTITY_ENTITY_SECTION"] = "Раздел инфоблока";
 $MESS["BX_IBLOCK_REDIRECT_ENTITY_ENTITY_ELEMENT"] = "Элемент инфоблока";
@@ -11,4 +11,3 @@ $MESS["BX_IBLOCK_REDIRECT_ENTITY_ERR_IBLOCK_NOT_FOUND"] = "Инфоблок не
 $MESS["BX_IBLOCK_REDIRECT_ENTITY_ERR_SECTION_NOT_FOUND"] = "Раздел не найден";
 $MESS["BX_IBLOCK_REDIRECT_ENTITY_ERR_ELEMENT_NOT_FOUND"] = "Элемент не найден";
 $MESS["BX_IBLOCK_REDIRECT_ENTITY_NOTE"] = "При поиске учитываются права доступа к сущности. Если прав недостаточно, будет выведено сообщение о том, что сущность не найдена.";
-?>

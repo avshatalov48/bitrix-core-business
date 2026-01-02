@@ -10,6 +10,7 @@ return [
 	'js' => 'dist/manager.bundle.js',
 	'rel' => [
 		'ui.design-tokens',
+		'ui.buttons',
 		'ui.tour',
 		'main.popup',
 		'main.core.events',

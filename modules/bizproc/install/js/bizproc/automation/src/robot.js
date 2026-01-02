@@ -703,8 +703,6 @@ export class Robot extends EventEmitter
 
 			const menu = new Menu({
 				bindElement: button,
-				width: 150,
-				height: 90,
 				autoHide: true,
 				angle: {
 					offset: (Dom.getPosition(button).width / 2) + 23,

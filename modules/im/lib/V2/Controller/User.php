@@ -4,6 +4,8 @@ namespace Bitrix\Im\V2\Controller;
 
 use Bitrix\Im\V2\Entity;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
+use Bitrix\HumanResources\Service\Container;
+use Bitrix\HumanResources\Type;
 
 class User extends BaseController
 {
@@ -23,14 +25,20 @@ class User extends BaseController
 	 */
 	public function getDepartmentAction(Entity\User\User $user): ?array
 	{
-		$department = $user->getDepartments()->filterExist()->getDeepest()->getAny();
+		$nodeRepository = Container::getNodeRepository();
+		$userNodes = $nodeRepository->findAllByUserId($user->getId())->getItemMap();
+		$userDepartments = array_filter($userNodes, function($node) {
+			return $node->type === Type\NodeEntityType::DEPARTMENT;
+		});
+		usort($userDepartments, function($a, $b) {
+			return $a->depth <=> $b->depth;
+		});
+		$department = array_pop($userDepartments);
 
-		if ($department === null)
-		{
-			return null;
-		}
-
-		return $this->toRestFormat($department);
+		return [
+			'id' => $department->id,
+			'name' => $department->name,
+		];
 	}
 
 	protected function getUserById(int $id): ?Entity\User\User

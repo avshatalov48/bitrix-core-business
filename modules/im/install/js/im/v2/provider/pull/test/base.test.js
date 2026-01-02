@@ -337,6 +337,7 @@ function getDefaultFileData(additionalData = {})
 			extension: 'txt',
 			id: defaultFileId,
 			image: false,
+			isTranscribable: false,
 			name: 'testFile.txt',
 			progress: 100,
 			size: 999,

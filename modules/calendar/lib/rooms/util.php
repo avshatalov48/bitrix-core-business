@@ -48,10 +48,7 @@ class Util
 			$res['str'] = Emoji::decode($location);
 		}
 
-		if (
-			mb_strlen($location) > 5
-			&& mb_strpos($location, 'ECMR_') === 0
-		)
+		if (mb_strlen($location) > 5 && str_starts_with($location, 'ECMR_'))
 		{
 			$parsedLocation = explode('_', $location);
 			if (count($parsedLocation) >= 2)
@@ -66,10 +63,7 @@ class Util
 				}
 			}
 		}
-		else if (
-			mb_strlen($location) > 9
-			&& mb_strpos($location, 'calendar_') === 0
-		)
+		else if (mb_strlen($location) > 9 && str_starts_with($location, 'calendar_'))
 		{
 			$parsedLocation = explode('_', $location);
 			if (count($parsedLocation) >= 2)
@@ -236,19 +230,18 @@ class Util
 
 			$locNew =
 				($mrevid && $mrevid !== 'reserved' && $mrevid !== 'expire' && $mrevid > 0)
-					? 'ECMR_'.$locNew['mrid'].'_'.$mrevid
+					? 'ECMR_' . $locNew['mrid'] . '_' . $mrevid
 					: ''
 			;
 		}
-
 		// Release room
-		if (
+		else if (
 			$locOld['room_id'] !== false
 			&& $locOld['room_event_id'] !== false
 			&& $locNew['room_id'] === false
 		)
 		{
-			Util::releaseLocation($locOld);
+			self::releaseLocation($locOld);
 
 			$locNew = $locNew['str'];
 		}

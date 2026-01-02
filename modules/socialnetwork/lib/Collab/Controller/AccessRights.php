@@ -105,7 +105,7 @@ class AccessRights extends Controller
 	}
 
 	/**
-	 * @restMethod socialnetwork.collab.AccessRights.getEditForm
+	 * @restMethod socialnetwork.collab.AccessRights.getAddForm
 	 */
 	public function getAddFormAction(): ?array
 	{
@@ -124,6 +124,7 @@ class AccessRights extends Controller
 			'rightsPermissionsLabels' => $featureProvider->getRightsPermissionLabels(),
 			'optionsLabels' => $featureProvider->getOptionLabels(),
 			'permissions' => $featureProvider->getAllDefaultPermissions(),
+			'isAllowedInviteCollabers' => $featureProvider->isAllowedInviteCollabers(),
 		];
 	}
 
@@ -149,6 +150,7 @@ class AccessRights extends Controller
 		$data['rightsPermissionsLabels'] = FeatureProvider::getInstance()->getRightsPermissionLabels();
 		$data['permissionsLabels'] = FeatureProvider::getInstance()->getPermissionLabels();
 		$data['optionsLabels'] = FeatureProvider::getInstance()->getOptionLabels();
+		$data['isAllowedInviteCollabers'] = FeatureProvider::getInstance()->isAllowedInviteCollabers();
 
 		return $data;
 	}

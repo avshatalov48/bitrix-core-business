@@ -633,7 +633,7 @@ class CPullOptions
 		{
 			$userId = intval($GLOBALS['USER']->GetID());
 		}
-		else if (IsModuleInstalled('statistic') && intval($_SESSION["SESS_SEARCHER_ID"]) <= 0 && intval($_SESSION["SESS_GUEST_ID"]) > 0 && COption::GetOptionString("pull", "guest", self::GetDefaultOption("guest")) == 'Y')
+		else if (IsModuleInstalled('statistic') && intval($_SESSION["SESS_SEARCHER_ID"] ?? 0) <= 0 && intval($_SESSION["SESS_GUEST_ID"] ?? 0) > 0 && COption::GetOptionString("pull", "guest", self::GetDefaultOption("guest")) == 'Y')
 		{
 			$userId = intval($_SESSION["SESS_GUEST_ID"])*-1;
 		}

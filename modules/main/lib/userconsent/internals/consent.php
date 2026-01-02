@@ -7,10 +7,10 @@
  */
 namespace Bitrix\Main\UserConsent\Internals;
 
-use Bitrix\Main\Entity;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -30,7 +30,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Main\UserConsent\Internals\EO_Consent wakeUpObject($row)
  * @method static \Bitrix\Main\UserConsent\Internals\EO_Consent_Collection wakeUpCollection($rows)
  */
-class ConsentTable extends Entity\DataManager
+class ConsentTable extends DataManager
 {
 	/**
 	 * Get table name.

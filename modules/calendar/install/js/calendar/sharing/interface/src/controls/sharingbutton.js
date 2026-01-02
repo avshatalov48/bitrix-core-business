@@ -1,10 +1,10 @@
-import { Dom, Event, Loc, Tag, Type } from 'main.core';
+import { Dom, Event, Loc, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
-import { Button, ButtonSize, ButtonColor, ButtonIcon } from 'ui.buttons';
+import { SplitButton, Button, ButtonSize, ButtonColor, ButtonIcon } from 'ui.buttons';
+import { SwitcherColor, SwitcherSize } from 'ui.switcher';
 import { MessageBox } from 'ui.dialogs.messagebox';
 import { Util } from 'calendar.util';
 import DialogNew from './dialog-new';
-import 'ui.switcher';
 import 'spotlight';
 import { Guide } from 'ui.tour';
 import { Counter } from 'ui.cnt';
@@ -26,6 +26,8 @@ export default class SharingButton
 
 	];
 
+	button: SplitButton;
+
 	constructor(options = {})
 	{
 		this.wrap = options.wrap;
@@ -43,7 +45,8 @@ export default class SharingButton
 	show()
 	{
 		Dom.addClass(this.wrap, 'calendar-sharing__btn-wrap');
-		this.button = new Button({
+
+		this.button = new SplitButton({
 			text: Loc.getMessage('SHARING_BUTTON_TITLE'),
 			round: true,
 			size: ButtonSize.EXTRA_SMALL,
@@ -51,15 +54,27 @@ export default class SharingButton
 			icon: this.sharingFeatureLimit ? ButtonIcon.LOCK : null,
 			className: 'ui-btn-themes calendar-sharing__btn',
 			onclick: (button, event) => {
-				if (!this.switcher.getNode().contains(event.target))
+				if (!button.getSwitcher().getNode().contains(event.target))
 				{
 					this.handleSharingButtonClick();
 				}
 			},
+			dataset: {
+				id: 'calendar_sharing_btn',
+			},
+			switcher: {
+				checked: this.isSharingEnabled() && !this.sharingFeatureLimit,
+				color: SwitcherColor.green,
+				useAirDesign: true,
+				handlers: {
+					toggled: () => this.handleSwitcherToggled(),
+				},
+			},
 		});
 
 		this.button.renderTo(this.wrap);
-		this.renderSwitcher();
+
+		Event.bind(this.button.getSwitcher().getNode(), 'click', this.handleSwitcherWrapClick.bind(this), { capture: true });
 
 		if (this.payAttentionToNewFeatureMode === this.PAY_ATTENTION_TO_NEW_FEATURE_JOINT)
 		{
@@ -88,47 +103,13 @@ export default class SharingButton
 		}
 		else
 		{
-			this.switcher.toggle();
+			this.button.getSwitcher().toggle();
 		}
-	}
-
-	getSwitcherContainer()
-	{
-		return Tag.render`
-			<div class="calendar-sharing__switcher"></div>
-		`;
-	}
-
-	getSwitcherDivider()
-	{
-		return Tag.render`
-			<div class="calendar-sharing__switcher_divider"></div>
-		`;
-	}
-
-	renderSwitcher()
-	{
-		Dom.append(this.getSwitcherDivider(), this.wrap);
-		this.switcherWrap = Tag.render`<div class="calendar-sharing__switcher-wrap"></div>`;
-		Dom.append(this.switcherWrap, this.wrap);
-		Event.bind(this.switcherWrap, 'click', this.handleSwitcherWrapClick.bind(this), { capture: true });
-
-		this.switcher = new BX.UI.Switcher({
-			node: this.getSwitcherContainer(),
-			checked: this.isSharingEnabled() && !this.sharingFeatureLimit,
-			color: 'green',
-			size: 'small',
-			handlers: {
-				toggled: () => this.handleSwitcherToggled(),
-			},
-		});
-
-		this.switcher.renderTo(this.switcherWrap);
 	}
 
 	handleSwitcherWrapClick(event)
 	{
-		if (this.switcher.isChecked())
+		if (this.button.getSwitcher().isChecked())
 		{
 			this.showWarningPopup();
 			event.stopPropagation();
@@ -137,10 +118,10 @@ export default class SharingButton
 
 	handleSwitcherToggled()
 	{
-		if (this.sharingFeatureLimit && this.switcher.isChecked())
+		if (this.sharingFeatureLimit && this.button.getSwitcher().isChecked())
 		{
 			FeaturePromotersRegistry.getPromoter({ featureId: 'calendar_sharing' }).show();
-			this.switcher.toggle();
+			this.button.getSwitcher().toggle();
 
 			return;
 		}
@@ -150,7 +131,7 @@ export default class SharingButton
 			return;
 		}
 
-		if (this.switcher.isChecked())
+		if (this.button.getSwitcher().isChecked())
 		{
 			this.enableSharing();
 		}
@@ -160,12 +141,12 @@ export default class SharingButton
 		}
 	}
 
-	isToggledAfterErrorOccurred()
+	isToggledAfterErrorOccurred(): boolean
 	{
-		return this.switcher.isChecked() === this.isSharingEnabled();
+		return this.button.getSwitcher().isChecked() === this.isSharingEnabled();
 	}
 
-	isSharingEnabled()
+	isSharingEnabled(): boolean
 	{
 		return Type.isString(this.sharingUrl);
 	}
@@ -185,13 +166,13 @@ export default class SharingButton
 				EventEmitter.emit(
 					event,
 					{
-						isChecked: this.switcher.isChecked(),
+						isChecked: this.button.getSwitcher().isChecked(),
 						url: response.data.url,
 					},
 				);
 			})
 			.catch(() => {
-				this.switcher.toggle();
+				this.button.getSwitcher().toggle();
 			})
 		;
 	}
@@ -241,10 +222,10 @@ export default class SharingButton
 					this.newDialog.destroy();
 					this.newDialog = null;
 				}
-				EventEmitter.emit(event, { isChecked: this.switcher.isChecked() });
+				EventEmitter.emit(event, { isChecked: this.button.getSwitcher().isChecked() });
 			})
 			.catch(() => {
-				this.switcher.toggle();
+				this.button.getSwitcher().toggle();
 			})
 		;
 	}
@@ -272,12 +253,12 @@ export default class SharingButton
 		this.warningPopup.show();
 	}
 
-	getWarningPopupButtons()
+	getWarningPopupButtons(): Array<Button>
 	{
 		return [this.getSubmitButton(), this.getCancelButton()];
 	}
 
-	getSubmitButton()
+	getSubmitButton(): Button
 	{
 		return new Button({
 			size: ButtonSize.MEDIUM,
@@ -289,7 +270,7 @@ export default class SharingButton
 		});
 	}
 
-	getCancelButton()
+	getCancelButton(): Button
 	{
 		return new Button({
 			size: ButtonSize.MEDIUM,
@@ -303,7 +284,7 @@ export default class SharingButton
 
 	handleSubmitButtonClick()
 	{
-		this.switcher.toggle();
+		this.button.getSwitcher().toggle();
 		this.warningPopup.close();
 	}
 
@@ -357,7 +338,7 @@ export default class SharingButton
 		pulsar.show();
 	}
 
-	getGuide(title, text)
+	getGuide(title, text): Guide
 	{
 		const guide = new Guide({
 			simpleMode: true,
@@ -391,6 +372,7 @@ export default class SharingButton
 			targetVertex: 'middle-center',
 			lightMode: true,
 		});
+
 		if (hideOnHover)
 		{
 			pulsar.bindEvents({

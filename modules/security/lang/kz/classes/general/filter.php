@@ -1,0 +1,22 @@
+<?php
+$MESS["SECURITY_FILTER_FORM_ACCEPT"] = "Бәрібір қабылдау";
+$MESS["SECURITY_FILTER_FORM_CONVERT"] = "Модификациялау";
+$MESS["SECURITY_FILTER_FORM_MESSAGE"] = "Сұрауда ықтимал қауіпті деректер анықталды.";
+$MESS["SECURITY_FILTER_FORM_SUB_TITLE"] = "Проактивті сүзгі.";
+$MESS["SECURITY_FILTER_FORM_TITLE"] = "Ықтимал қауіпті деректер анықталды";
+$MESS["SECURITY_FILTER_FORM_VARDATA"] = "Деректер";
+$MESS["SECURITY_FILTER_FORM_VARNAME"] = "Айнымалы";
+$MESS["SECURITY_FILTER_INFORM_EVENT_COUNT"] = "7 күн ішінде басып кіру әрекеттері тойтарылды: ";
+$MESS["SECURITY_FILTER_INFORM_EVENT_COUNT_EMPTY"] = "Басып кіру әрекеттері анықталмады";
+$MESS["SECURITY_FILTER_INFORM_FILTER_OFF"] = "Қорғаныс өшірулі : (<br>";
+$MESS["SECURITY_FILTER_INFORM_FILTER_ON"] = "Қорғаныс қосулы.<br>";
+$MESS["SECURITY_FILTER_INFORM_FILTER_ON_RECOMMENDATION"] = "Сайттың қауіпсіздігі айтарлықтай төмендеді.";
+$MESS["SECURITY_FILTER_INFORM_LINK_TO_SETUP"] = "Қорғанысты баптау";
+$MESS["SECURITY_FILTER_INFORM_LINK_TO_SETUP_ON"] = "Қорғанысты қосу";
+$MESS["SECURITY_FILTER_INFORM_TITLE"] = "Проактивті қорғаныс";
+$MESS["SECURITY_FILTER_IP_RULE"] = "#IP# -ді проактивті сүзгі автоматты түрде құлыптады.";
+$MESS["SECURITY_FILTER_PHP"] = "PHP енгізу әрекеті";
+$MESS["SECURITY_FILTER_SQL"] = "SQL енгізу әрекеті";
+$MESS["SECURITY_FILTER_XSS"] = "XSS арқылы шабуыл жасау";
+$MESS["SECURITY_OTP"] = "OTP кодын сұрау";
+$MESS["SECURITY_REDIRECT"] = "Редирект арқылы фишинг әрекеті";

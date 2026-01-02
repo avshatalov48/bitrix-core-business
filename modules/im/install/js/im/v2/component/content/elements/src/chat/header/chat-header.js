@@ -1,9 +1,7 @@
-import 'ui.notification';
-import { EventEmitter } from 'main.core.events';
-
-import { LineLoader, ChatAvatar } from 'im.v2.component.elements';
-import { ChatService } from 'im.v2.provider.service';
-import { ChatType, ActionByRole, EventType, SidebarDetailBlock, UserType, ActionByUserType } from 'im.v2.const';
+import { LineLoader } from 'im.v2.component.elements.loader';
+import { ChatAvatar } from 'im.v2.component.elements.avatar';
+import { ChatService } from 'im.v2.provider.service.chat';
+import { ChatType, ActionByRole, UserType, ActionByUserType } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { FadeAnimation } from 'im.v2.component.animation';
 
@@ -37,7 +35,7 @@ export const ChatHeader = {
 		SearchButton,
 		SidebarButton,
 	},
-	inject: ['currentSidebarPanel', 'withSidebar'],
+	inject: ['withSidebar'],
 	props:
 	{
 		dialogId: {
@@ -49,6 +47,10 @@ export const ChatHeader = {
 			default: true,
 		},
 		withSearchButton: {
+			type: Boolean,
+			default: true,
+		},
+		withAddToChatButton: {
 			type: Boolean,
 			default: true,
 		},
@@ -98,7 +100,7 @@ export const ChatHeader = {
 		},
 		showAddToChatButton(): boolean
 		{
-			if (this.isBot)
+			if (this.isBot || !this.withAddToChatButton)
 			{
 				return false;
 			}
@@ -126,10 +128,6 @@ export const ChatHeader = {
 
 			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.openSidebar, this.dialogId);
 		},
-		isMembersPanelActive(): boolean
-		{
-			return this.currentSidebarPanel === SidebarDetailBlock.members;
-		},
 		chatTitleComponent(): string
 		{
 			return this.isUser ? UserChatTitle : GroupChatTitle;
@@ -138,6 +136,13 @@ export const ChatHeader = {
 		{
 			return { '--compact': this.compactMode };
 		},
+	},
+	created()
+	{
+		if (this.isInited)
+		{
+			this.emitButtonPanelReady();
+		}
 	},
 	mounted()
 	{
@@ -165,32 +170,9 @@ export const ChatHeader = {
 				this.compactMode = newCompactMode;
 			}
 		},
-		onMembersClick()
-		{
-			if (!this.isInited)
-			{
-				return;
-			}
-
-			if (this.isMembersPanelActive)
-			{
-				EventEmitter.emit(EventType.sidebar.close, { panel: SidebarDetailBlock.members });
-
-				return;
-			}
-
-			EventEmitter.emit(EventType.sidebar.open, {
-				panel: SidebarDetailBlock.members,
-				dialogId: this.dialogId,
-			});
-		},
 		onNewTitleSubmit(newTitle: string)
 		{
-			this.getChatService().renameChat(this.dialogId, newTitle).catch(() => {
-				BX.UI.Notification.Center.notify({
-					content: this.loc('IM_CONTENT_CHAT_HEADER_RENAME_ERROR'),
-				});
-			});
+			void this.getChatService().renameChat(this.dialogId, newTitle);
 		},
 		getChatService(): ChatService
 		{
@@ -204,6 +186,10 @@ export const ChatHeader = {
 		getResizeObserver(): ResizeObserver
 		{
 			return this.resizeObserver;
+		},
+		emitButtonPanelReady()
+		{
+			this.$emit('buttonPanelReady');
 		},
 		loc(phraseCode: string, replacements: {[string]: string} = {}): string
 		{
@@ -219,14 +205,13 @@ export const ChatHeader = {
 						<component
 							:is="chatTitleComponent"
 							:dialogId="dialogId"
-							@membersClick="onMembersClick"
 							@newTitle="onNewTitleSubmit"
 						/>
 					</slot>
 				</slot>
 			</div>
 			<LineLoader v-if="!isInited" :width="45" :height="22" />
-			<FadeAnimation @afterEnter="$emit('buttonPanelReady')" :duration="100">
+			<FadeAnimation @afterEnter="emitButtonPanelReady" :duration="100">
 				<div v-if="isInited" class="bx-im-chat-header__right">
 					<slot name="before-actions"></slot>
 					<CallHeaderButton v-if="showCallButton" :dialogId="dialogId" :compactMode="compactMode" />

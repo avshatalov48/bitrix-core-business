@@ -4,10 +4,12 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Internals\PrettyDate;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 Loc::loadMessages(__FILE__);
 
@@ -17,41 +19,57 @@ Loc::loadMessages(__FILE__);
 /** @var array $arResult */
 $containerId = 'bx-sender-toloka-edit';
 
-\Bitrix\Main\Loader::includeModule('ui');
+Extension::load([
+	"main.ui.filter",
+	"ui.icons",
+	"ui.buttons",
+	"ui.buttons.icons",
+	"ui.notification",
+	"sender.toloka",
+	"ui.sidepanel-content"
+]);
 
-Extension::load(["main.ui.filter", "ui.icons", "ui.buttons", "ui.buttons.icons", "ui.notification", "sender.toloka", "ui.sidepanel-content"]);
+if(
+	$arParams['IFRAME'] === true
+	&& Loader::includeModule('ui')
+)
+{
+	$title = (trim(htmlspecialcharsbx($arResult['ROW']['TITLE'])) !== '')
+		? htmlspecialcharsbx($arResult['ROW']['TITLE'])
+		: Loc::getMessage('SENDER_COMP_TMPL_TOLOKA_PATTERN_TITLE', [
+			'%name%' => $arResult['MESSAGE_NAME'],
+			'%date%' => FormatDate(PrettyDate::getDateFormat(), (new DateTime())->getTimestamp()),
+		]);
 
-$APPLICATION->IncludeComponent(
-	"bitrix:sender.ui.panel.title",
-	"",
-	[
-		'LIST' => [
-			[
-				'type' => 'buttons',
-				'list' => [
-					[
-						'type'    => 'ui-feedback',
-						'content' => [
-							'ID'          => 'sender-toloka',
-							'FORMS'       => [
-								['zones' => ['ru', 'by', 'kz'], 'id' => '267', 'lang' => 'ru', 'sec' => 'v0qv3c'],
-							],
-							'VIEW_TARGET' => false,
-							'PRESETS'     => []
-						]
-					],
-					[
-						'type'    => 'default',
-						'id'      => 'SENDER_TOLOKA_BUTTON_CHANGE',
-						'caption' => Loc::getMessage('SENDER_TOLOKA_EDIT_CHANGE_TEMPLATE'),
-						'visible' => true
+	$APPLICATION->SetTitle($title);
+	Toolbar::deleteFavoriteStar();
+	Toolbar::addEditableTitle();
+}
+
+$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", ['LIST' => [
+		[
+			'type' => 'buttons',
+			'list' => [
+				[
+					'type' => 'ui-feedback',
+					'feedbackParams' => [
+						'id' => 'sender-toloka',
+						'forms' => [
+							['zones' => ['ru', 'by', 'kz'], 'id' => '267', 'lang' => 'ru', 'sec' => 'v0qv3c'],
+						],
+						'presets' => []
 					]
+				],
+				[
+					'type' => 'default',
+					'id' => 'SENDER_TOLOKA_BUTTON_CHANGE',
+					'caption' => Loc::getMessage('SENDER_TOLOKA_EDIT_CHANGE_TEMPLATE'),
+					'visible' => true,
+					'location' => \Bitrix\UI\Toolbar\ButtonLocation::AFTER_TITLE,
 				]
-			],
-		]
-	]
-);
-\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
+			]
+		],
+	]]);
 ?>
 <div data-role="login" style="display: none" class="">
 	<div class="ui-slider-section ui-slider-section-icon">
@@ -155,7 +173,7 @@ $APPLICATION->IncludeComponent(
 					'SENDER_TOLOKA_EDIT_FIELD_NAME'
 				)?>:
 			</div>
-			<div class="bx-sender-value">
+			<div id="toloka-edit-title" class="bx-sender-value">
 				<input data-role="title" type="text" name="TITLE" value="<?=htmlspecialcharsbx(
 					$arResult['ROW']['TITLE'] ?? ''
 				)?>" class="bx-sender-letter-form-control bx-sender-letter-field-input"
@@ -212,6 +230,8 @@ $APPLICATION->IncludeComponent(
 	BX.ready(function() {
 		window.Toloka = BX.Sender.Toloka.create(<?=Json::encode(
 			[
+				'toolbarId' => Toolbar::getId(),
+				'isSlider' => $arParams['IFRAME'] === true,
 				'containerId'      => 'workarea-content',
 				'actionUri'        => $arResult['ACTION_URL'],
 				'isAvailable'      => $arResult['IS_AVAILABLE'] ?? '',
@@ -221,9 +241,7 @@ $APPLICATION->IncludeComponent(
 				'letterTile'       => $arResult['LETTER_TILE'] ?? '',
 				'isRegistered'     => $arResult['IS_REGISTERED'] ?? '',
 				'prettyDateFormat' => PrettyDate::getDateFormat(),
-				'preset'           => json_encode(
-					$arResult['ROW']['TEMPLATE']['FIELDS'] ?? []
-				),
+				'preset'           => json_encode($arResult['ROW']['TEMPLATE']['FIELDS'] ?? [], JSON_THROW_ON_ERROR),
 				'mess'             => [
 					'patternTitle'       => Loc::getMessage('SENDER_COMP_TMPL_TOLOKA_PATTERN_TITLE'),
 					'name'               => $arResult['MESSAGE_NAME'],

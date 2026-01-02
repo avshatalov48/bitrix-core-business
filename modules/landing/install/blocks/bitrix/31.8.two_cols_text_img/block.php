@@ -1,4 +1,7 @@
-<section class="landing-block g-max-width-container g-pt-30 g-pr-75 g-pb-30">
+<section
+	class="landing-block g-max-width-container g-pt-30 g-pr-75 g-pb-30 g-bg"
+	style="--bg: #ffffff;"
+>
 	<div class="row">
 		<div class="landing-block-node-content-container col-md-7 col-lg-7 text-center text-md-left g-pt-40 g-pb-50 g-px-15 g-pl-60--md g-pr-50--md">
 			<h3 class="landing-block-node-title js-animation fadeInUp g-font-size-30 g-mb-35">

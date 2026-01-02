@@ -212,12 +212,12 @@ export class SidebarPullHandler
 		void this.userManager.setUsersToModel(params.users);
 		void this.store.dispatch('files/set', params.files);
 
-		const subType = params.link.subType ?? SidebarDetailBlock.fileUnsorted;
+		const group = params.link.group ?? SidebarDetailBlock.fileUnsorted;
 
 		void this.store.dispatch('sidebar/files/set', {
 			chatId: params.link.chatId,
 			files: [params.link],
-			subType,
+			group,
 		});
 	}
 
@@ -357,10 +357,11 @@ export class SidebarPullHandler
 		void this.store.dispatch('files/set', Object.values(files));
 
 		Object.values(files).forEach((file) => {
+			const group = file.group ?? SidebarDetailBlock.fileUnsorted;
 			void this.store.dispatch('sidebar/files/set', {
 				chatId: file.chatId,
 				files: [file],
-				subType: SidebarDetailBlock.fileUnsorted,
+				group,
 			});
 		});
 	}

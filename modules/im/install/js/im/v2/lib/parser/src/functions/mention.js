@@ -6,7 +6,7 @@ import { Parser } from '../parser';
 import { ParserUtils } from '../utils/utils';
 import { getCore, getConst, getUtils } from '../utils/core-proxy';
 
-const { EventType, MessageMentionType } = getConst();
+const { UserType, EventType, MessageMentionType } = getConst();
 
 export const ParserMention = {
 
@@ -20,9 +20,10 @@ export const ParserMention = {
 				return userName;
 			}
 
+			const user = getCore().getStore().getters['users/get'](userId);
+
 			if (replace || !userName)
 			{
-				const user = getCore().getStore().getters['users/get'](userId);
 				if (user)
 				{
 					userName = user.name;
@@ -42,6 +43,11 @@ export const ParserMention = {
 			if (getCore().getUserId() === userId)
 			{
 				className += ' --highlight';
+			}
+
+			if (user && user.type === UserType.extranet)
+			{
+				className += ' --extranet';
 			}
 
 			return Dom.create({

@@ -6,6 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Main;
+use Bitrix\Main\Engine\Response\HtmlContent;
 use Bitrix\Sale;
 use BItrix\Catalog;
 use Bitrix\Rest;
@@ -309,10 +310,10 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 
 	/**
 	 * @param array $fields
-	 * @return Main\Engine\Response\Component|null
+	 * @return HtmlContent|null
 	 * @example BX.ajax.runComponentAction('bitrix:sale.order.checkout', 'userConsentRequest', { mode: 'ajax', data: { fields: { ... }}});
 	 */
-	public function userConsentRequestAction(array $fields): ?Main\Engine\Response\Component
+	public function userConsentRequestAction(array $fields): ?HtmlContent
 	{
 		$action = new Sale\Controller\Action\Entity\UserConsentRequestAction($this->actionName, $this, $this->config);
 
@@ -322,6 +323,7 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 		if ($errors)
 		{
 			$this->addErrors($errors);
+
 			return null;
 		}
 

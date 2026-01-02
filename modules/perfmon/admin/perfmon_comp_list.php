@@ -228,7 +228,7 @@ $lAdmin->NavText($rsData->GetNavPrint(GetMessage('PERFMON_COMP_PAGE')));
 $max_display_url = COption::GetOptionInt('perfmon', 'max_display_url');
 while ($arRes = $rsData->GetNext())
 {
-	$row =& $lAdmin->AddRow($arRes['NAME'], $arRes);
+	$row = $lAdmin->AddRow($arRes['NAME'], $arRes);
 	foreach ($arNumCols as $column_name => $precision)
 	{
 		$row->AddViewField($column_name, perfmon_NumberFormat($arRes[$column_name], $precision));

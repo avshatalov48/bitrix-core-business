@@ -27,14 +27,14 @@ class CCalendarReminder
 					"ID" => $eventId,
 					"DELETED" => "N",
 					"FROM_LIMIT" => CCalendar::Date($nowTime - 3600, false),
-					"TO_LIMIT" => CCalendar::Date(CCalendar::GetMaxTimestamp(), false),
+					"TO_LIMIT" => CCalendar::GetMaxDate(),
 					"ACTIVE_SECTION" => "Y"
 				],
 				'userId' => $userId,
 				'parseRecursion' => true,
 				'maxInstanceCount' => 3,
 				'preciseLimits' => true,
-				'fetchAttendees' => true,
+				'fetchAttendees' => false,
 				'checkPermissions' => false,
 				'setDefaultLimit' => false
 			]);
@@ -277,11 +277,12 @@ class CCalendarReminder
 							"FROM_LIMIT" => CCalendar::Date(time() - 3600, false),
 							"TO_LIMIT" => CCalendar::GetMaxDate()
 						],
+						'arSelect' => CCalendarEvent::$defaultSelectEvent,
 						'userId' => $userId,
 						'parseRecursion' => true,
 						'maxInstanceCount' => 4,
 						'preciseLimits' => true,
-						'fetchAttendees' => true,
+						'fetchAttendees' => false,
 						'checkPermissions' => false,
 						'setDefaultLimit' => false
 					]

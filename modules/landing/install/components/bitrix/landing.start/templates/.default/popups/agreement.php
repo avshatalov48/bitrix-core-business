@@ -62,7 +62,14 @@ $pageName = $this->getPageName();
 		oPopup.setTitleBar('<?= \CUtil::jsEscape($arResult['AGREEMENT']['NAME']);?>');
 		oPopup.show();
 	};
-	<?if ($pageName === 'landing_view' && !$arResult['AGREEMENT_ACCEPTED'] && \Bitrix\Landing\Site\Type::isPublicScope()):?>
+	<?php
+		$pageIsNeededAgreement = false;
+		if ($pageName === 'landing_view' || $pageName === 'ai')
+		{
+			$pageIsNeededAgreement = true;
+		}
+	?>
+	<?if ($pageIsNeededAgreement && !$arResult['AGREEMENT_ACCEPTED'] && \Bitrix\Landing\Site\Type::isPublicScope()):?>
 	landingAgreementPopup();
 	<?endif;?>
 </script>

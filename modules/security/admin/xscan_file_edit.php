@@ -184,7 +184,7 @@ if($strWarning == '')
 			$filesrc_tmp = CFileman::GetTemplateContent($arTemplates[0]["file"], LANGUAGE_ID, array($site_template));
 	}
 
-	if($REQUEST_METHOD == "POST" && $save <> '' && $propeditmore == '' && !$only_read)
+	if($_SERVER['REQUEST_METHOD'] == "POST" && $save <> '' && $propeditmore == '' && !$only_read)
 	{
 		if(!check_bitrix_sessid())
 		{

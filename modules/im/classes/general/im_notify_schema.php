@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Im\Configuration\Notification;
 
@@ -18,6 +18,7 @@ class CIMNotifySchema
 		{
 			self::$arNotifySchema = Notification::getDefaultSettings();
 		}
+
 		return self::$arNotifySchema;
 	}
 
@@ -38,58 +39,63 @@ class CIMNotifySchema
 
 	public static function OnGetNotifySchema()
 	{
-		$config = array(
-			"im" => Array(
+		$config = [
+			"im" => [
 				"NAME" => GetMessage('IM_NS_IM'),
-				"NOTIFY" => Array(
-					"message" => Array(
-						"NAME" => GetMessage('IM_NS_MESSAGE_NEW_MSGVER_1'),
+				"NOTIFY" => [
+					"message" => [
+						"NAME" => GetMessage('IM_NS_MESSAGE_NEW_MSGVER_2'),
 						"PUSH" => 'Y',
-						"DISABLED" => Array(IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP)
-					),
-					"chat" => Array(
+						"DISABLED" => [IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP],
+					],
+					"chat" => [
 						"NAME" => GetMessage('IM_NS_CHAT_NEW'),
 						"MAIL" => 'N',
 						"PUSH" => 'Y',
-						"DISABLED" => Array(IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP, IM_NOTIFY_FEATURE_MAIL)
-					),
-					"openChat" => Array(
-						"NAME" => GetMessage('IM_NS_OPEN_NEW_MSGVER_1'),
+						"DISABLED" => [IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP, IM_NOTIFY_FEATURE_MAIL],
+					],
+					"openChat" => [
+						"NAME" => GetMessage('IM_NS_OPEN_NEW_MSGVER_2'),
 						"MAIL" => 'N',
 						"PUSH" => 'Y',
-						"DISABLED" => Array(IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP, IM_NOTIFY_FEATURE_MAIL)
-					),
-					"like" => Array(
-						"NAME" => GetMessage('IM_NS_LIKE'),
-					),
-					"mention" => Array(
+						"DISABLED" => [IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP, IM_NOTIFY_FEATURE_MAIL],
+					],
+					"like" => [
+						"NAME" => GetMessage('IM_NS_LIKE_MSGVER_1'),
+					],
+					"mention" => [
 						"NAME" => GetMessage('IM_NS_MENTION_2'),
 						"PUSH" => 'Y',
-					),
-					"default" => Array(
-						"NAME" => GetMessage('IM_NS_DEFAULT'),
+					],
+					"videconf_new_guest" => [
+						"NAME" => GetMessage('IM_NS_VIDEOCONF_NEW_GUEST'),
+						"MAIL" => "N",
+						"PUSH" => "Y",
+					],
+					"default" => [
+						"NAME" => GetMessage('IM_NS_DEFAULT_MSGVER_1'),
 						"PUSH" => 'N',
 						"MAIL" => 'N',
-					),
-				)
-			)
-		);
+					],
+				],
+			],
+		];
 
 		if (!IsModuleInstalled("b24network"))
 		{
-			$config["main"] = array(
+			$config["main"] = [
 				"NAME" => GetMessage('IM_NS_MAIN'),
-				"NOTIFY" => Array(
-					"rating_vote" => Array(
+				"NOTIFY" => [
+					"rating_vote" => [
 						"NAME" => GetMessage('IM_NS_MAIN_RATING_VOTE'),
-						"LIFETIME" => 86400*7
-					),
-					"rating_vote_mentioned" => Array(
+						"LIFETIME" => 86400*7,
+					],
+					"rating_vote_mentioned" => [
 						"NAME" => GetMessage('IM_NS_MAIN_RATING_VOTE_MENTIONED'),
-						"LIFETIME" => 86400*7
-					),
-				),
-			);
+						"LIFETIME" => 86400*7,
+					],
+				],
+			];
 		}
 
 		return $config;

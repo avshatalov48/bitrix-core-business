@@ -1,0 +1,26 @@
+<?php
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_CAN_USE_ERROR"] = "SMS.RU компаниясының провайдері реттелмеген";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_201"] = "Жеке шотта қаражат жетіспейді";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_202"] = "Алушы дұрыс көрсетілмеген";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_203"] = "Хабарлама мәтіні жоқ";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_204"] = "Жіберушінің аты жөні әкімшілікпен келісілмеген";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_205"] = "Хабарлама тым ұзын (8 СМС-тен асады)";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_206"] = "Хабарламаларды жіберудің күнделікті шегі асып кетеді немесе асып кетті";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_207"] = "Бұл нөмірге (немесе нөмірлердің біріне) хабарлама жіберуге болмайды немесе алушылар тізімінде 100-ден астам нөмір бар";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_209"] = "Сіз бұл нөмірді (немесе нөмірлердің бірін) тоқтату тізіміне қостыңыз";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_230"] = "Күніне осы нөмірге хабарламалар санының жалпы шегінен асып кетті";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_231"] = "Минутына осы нөмірге бірдей хабарламалар шегінен асып кетті";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_232"] = "Күніне осы нөмірге бірдей хабарламалар шегінен асып кетті";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_301"] = "Қате құпиясөз немесе пайдаланушы табылмады";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_302"] = "Аккаунт расталмаған (пайдаланушы тіркеу SMS-ке жіберілген кодты енгізбеген)";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_303"] = "Растау коды дұрыс емес";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_304"] = "Тым көп растау кодтары жіберілді. Сұрауды кейінірек қайталаңыз";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_305"] = "Қате код тым көп рет енгізілді, кейінірек қайталап көріңіз";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_703"] = "Ұялы телефон нөміріндегі қате немесе қолдау көрсетілмейтін елдің нөмірі";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_900"] = "Растау коды дұрыс көрсетілмеген";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_901"] = "Телефон нөмірі дұрыс көрсетілмеген, пішімдегі қате";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_903"] = "Қазіргі уақытта мұндай кодпен нөмірді тіркеу мүмкін емес";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_905"] = "Пайдаланушы есімін көрсетпеді (немесе ол 2 символдан аз)";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_906"] = "Пайдаланушы тегін көрсетпеді (немесе ол 2 символдан аз)";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_ERROR_OTHER"] = "Жүйелік қате. Сұрауды тағы бір рет қайталау қажет";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSRU_NAME"] = "SMS.RU компаниясы";

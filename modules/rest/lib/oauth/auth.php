@@ -16,6 +16,7 @@ use Bitrix\Rest\AuthStorageInterface;
 use Bitrix\Rest\Engine\Access;
 use Bitrix\Rest\Engine\Access\HoldEntity;
 use Bitrix\Rest\Event\Session;
+use Bitrix\Rest\Internal\Access\UserAccessChecker;
 use Bitrix\Rest\OAuthService;
 use Bitrix\Main\SystemException;
 
@@ -260,6 +261,12 @@ class Auth
 					$authResult = $tokenInfo['result'];
 					$authResult['user_id'] = $authResult['parameters'][static::PARAM_LOCAL_USER];
 					unset($authResult['parameters'][static::PARAM_LOCAL_USER]);
+					$accessChecker = new UserAccessChecker((int)$authResult['user_id']);
+
+					if (!$accessChecker->canAuthorize())
+					{
+						return ['error' => 'ACCESS_DENIED', 'error_description' => "Current user can't be authorized in this context"];
+					}
 
 					// compatibility with old oauth response
 					if(!isset($authResult['expires']) && isset($authResult['expires_in']))

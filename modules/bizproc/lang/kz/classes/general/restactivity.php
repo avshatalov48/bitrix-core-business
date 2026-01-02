@@ -1,0 +1,20 @@
+<?php
+$MESS["BPRA_DEBUG_EVENT"] = "Ретке келтіргіш оқиғасы бойынша қосымшаның жауабын күту өткізіп жіберілді";
+$MESS["BPRA_DEFAULT_LOG_MESSAGE"] = "Қосымшадан жауап алынды";
+$MESS["BPRA_DEFAULT_STATUS_MESSAGE"] = "Қосымшадан жауап күту";
+$MESS["BPRA_NOT_FOUND_ERROR"] = "Қосымша әрекеті орнатылмаған.";
+$MESS["BPRA_PD_CONFIGURE"] = "Баптау";
+$MESS["BPRA_PD_ERROR_EMPTY_PROPERTY"] = "Міндетті өріс толтырылмаған: #NAME#";
+$MESS["BPRA_PD_NO"] = "Жоқ";
+$MESS["BPRA_PD_SET_STATUS_MESSAGE"] = "Мәртебе мәтінін орнату";
+$MESS["BPRA_PD_STATUS_MESSAGE"] = "Мәртебе мәтіні";
+$MESS["BPRA_PD_TIMEOUT_DURATION"] = "Күту мерзімі";
+$MESS["BPRA_PD_TIMEOUT_DURATION_HINT"] = "Қосымшадан жауап күту уақыты";
+$MESS["BPRA_PD_TIMEOUT_LIMIT"] = "Күтудің ең қысқа кезеңі";
+$MESS["BPRA_PD_TIME_D"] = "күн";
+$MESS["BPRA_PD_TIME_H"] = "сағат";
+$MESS["BPRA_PD_TIME_M"] = "минут";
+$MESS["BPRA_PD_TIME_S"] = "секунд";
+$MESS["BPRA_PD_USER_ID"] = "Атынан іске қосу";
+$MESS["BPRA_PD_USE_SUBSCRIPTION"] = "Жауапты күту";
+$MESS["BPRA_PD_YES"] = "Иә";

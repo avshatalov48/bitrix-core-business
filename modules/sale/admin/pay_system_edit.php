@@ -746,7 +746,7 @@ $tabControl->BeginNextTab();
 		if (class_exists($className))
 			$handlerModeList = $className::getHandlerModeList();
 
-		if ($id > 0 && !isset($handlerModeList[$psMode]))
+		if ($id > 0 && !empty($handlerModeList) && empty($handlerModeList[$psMode]))
 		{
 			$handlerModeList[$psMode] = $psMode;
 		}

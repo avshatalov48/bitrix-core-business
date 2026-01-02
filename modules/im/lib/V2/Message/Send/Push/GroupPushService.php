@@ -31,6 +31,7 @@ class GroupPushService extends PushService
 		$watchPullMessage = $pullMessage;
 		$watchPullMessage['params']['message']['params']['NOTIFY'] = 'N';
 		$watchPullMessage['extra']['is_shared_event'] = true;
+		$watchPullMessage['params']['recentConfig']['sections'] = $chat->getRecentSectionsForGuest();
 		if ($chat->needToSendPublicPull())
 		{
 			\CPullWatch::AddToStack('IM_PUBLIC_'. $chat->getChatId(), $watchPullMessage);

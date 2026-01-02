@@ -1,15 +1,19 @@
-<?
+<?php
 
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Uri;
+
 use Bitrix\Sender\Access\ActionDictionary;
 use Bitrix\Sender\Access\Map\AdsAction;
 use Bitrix\Sender\Access\Map\MailingAction;
 use Bitrix\Sender\Access\Map\RcAction;
 use Bitrix\Sender\Integration;
 use Bitrix\Sender\Message;
+
+use Bitrix\Ui\Form\UrlProvider;
+use Bitrix\UI\Form\FormsProvider;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -238,22 +242,34 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 			);
 		}
 
-		$mailingMessages = $this->filterMessages(Message\Factory::getMailingMessages(), MailingAction::getMap());
-		$adsMessages = $this->filterMessages(Message\Factory::getAdsMessages(), AdsAction::getMap());
-		$marketingMessages = $this->filterMessages(Message\Factory::getMarketingMessages(), AdsAction::getMap());
-		$rcMessages = $this->filterMessages(Message\Factory::getReturnCustomerMessages(), RcAction::getMap());
+		$mailingMessages = $this->filterMessages(
+			Message\Factory::getMailingMessages(),
+			MailingAction::getMap(),
+		);
+		$adsMessages = $this->filterMessages(
+			Message\Factory::getAdsMessages(),
+			AdsAction::getMap(),
+		);
+		$marketingMessages = $this->filterMessages(
+			Message\Factory::getMarketingMessages(),
+			AdsAction::getMap(),
+		);
+		$rcMessages = $this->filterMessages(
+			Message\Factory::getReturnCustomerMessages(),
+			RcAction::getMap(),
+		);
 		$yandexMessages = $this->filterMessages(
 			Message\Factory::getYandexMessages(Integration\Bitrix24\Service::isTolokaVisibleInRegion()),
-			RcAction::getMap()
+			RcAction::getMap(),
 		);
 
-		$this->arResult['MESSAGES'] = array(
+		$this->arResult['MESSAGES'] = [
 			'MAILING' =>  $this->getSenderMessages($mailingMessages),
 			'ADS' =>  $this->getSenderMessages($adsMessages),
 			'MARKETING' =>  $this->getSenderMessages($marketingMessages),
 			'RC' =>  $this->getSenderMessages($rcMessages),
 			'YANDEX' =>  $this->getSenderMessages($yandexMessages),
-		);
+		];
 
 		foreach ($this->arResult['MESSAGES'] as $section => $data)
 		{
@@ -284,6 +300,9 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 		$this->arResult['SHOW_MASTER_YANDEX_INITIAL_TOUR'] = $this->isMasterYandexInitialTourAvailable();
 		$this->arResult['MASTER_YANDEX_INITIAL_TOUR_ID'] = $this->getMasterYandexTourInitialId();
 		$this->arResult['MASTER_YANDEX_INITIAL_TOUR_HELPDESK_CODE'] = $this->getMasterYandexTourInitialHelpdeskCode();
+
+		$this->arResult['FEEDBACK_FORM_URI'] = (new UrlProvider())->getPartnerPortalUrl();
+		$this->arResult['FEEDBACK_FORMS_DATA'] = FormsProvider::getForms();
 
 		return true;
 	}

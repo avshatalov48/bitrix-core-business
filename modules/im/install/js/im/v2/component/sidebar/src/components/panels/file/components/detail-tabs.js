@@ -3,6 +3,7 @@ import { Dom } from 'main.core';
 import '../css/detail-tabs.css';
 
 import type { JsonObject } from 'main.core';
+import type { ImModelSidebarFileTab } from 'im.v2.model';
 
 const ARROW_CONTROL_SIZE = 50;
 
@@ -78,9 +79,15 @@ export const DetailTabs = {
 		{
 			this.currentElementIndex = event.index;
 		},
-		getTabTitle(tab: string): string
+		getTabTitle(tab: ImModelSidebarFileTab): string
 		{
-			const langPhraseCode = `IM_SIDEBAR_FILES_${tab.toUpperCase()}_TAB`;
+			const tabNameToUpperCase = tab.toUpperCase();
+			let langPhraseCode = `IM_SIDEBAR_FILES_${tabNameToUpperCase}_TAB`;
+
+			if (tabNameToUpperCase === 'BRIEF')
+			{
+				langPhraseCode += '_MSGVER_2';
+			}
 
 			return this.$Bitrix.Loc.getMessage(langPhraseCode);
 		},

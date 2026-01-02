@@ -92,7 +92,7 @@ $componentParams = array(
 	"ALLOWALL_USER_PROFILE_FIELDS" => $arParams["ALLOWALL_USER_PROFILE_FIELDS"] ?? '',
 );
 
-if (\Bitrix\Main\ModuleManager::isModuleInstalled("intranet") && SITE_TEMPLATE_ID == "bitrix24")
+if (\Bitrix\Main\ModuleManager::isModuleInstalled("intranet") && (SITE_TEMPLATE_ID == "bitrix24" || SITE_TEMPLATE_ID === 'air'))
 {
 	if (
 		\Bitrix\Main\Context::getCurrent()->getRequest()->get('IFRAME') === 'Y'
@@ -116,7 +116,8 @@ if (\Bitrix\Main\ModuleManager::isModuleInstalled("intranet") && SITE_TEMPLATE_I
 						'ENTITY' => 'SUPPORT_BOT',
 					],
 					'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
-					'USE_PADDING' => false,
+					"USE_PADDING" => true,
+					"USE_UI_TOOLBAR" => "Y",
 					'POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID' => $arResult['VARIABLES']['user_id'],
 				]
 			);
@@ -139,7 +140,8 @@ if (\Bitrix\Main\ModuleManager::isModuleInstalled("intranet") && SITE_TEMPLATE_I
 					"PATH_TO_USER_STRESSLEVEL" => $arResult["PATH_TO_USER_STRESSLEVEL"],
 				)),
 				"POPUP_COMPONENT_USE_BITRIX24_THEME" => "Y",
-				'USE_PADDING' => false,
+				"USE_PADDING" => true,
+				"USE_UI_TOOLBAR" => "Y",
 				"POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID" => $arResult["VARIABLES"]["user_id"],
 				"POPUP_COMPONENT_PARENT" => $this->getComponent()
 			)

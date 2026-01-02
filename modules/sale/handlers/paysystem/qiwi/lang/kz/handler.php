@@ -1,0 +1,25 @@
+<?php
+$MESS["SALE_HPS_QIWI_ERROR_CODE_0"] = "Табыс";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_5"] = "Сұрау салу параметрлеріндегі қате деректер";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_13"] = "Сервер бос емес, сұрау салуды кейінірек қайталаңыз";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_78"] = "Жарамсыз операция";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_150"] = "Авторландыру қатесі";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_152"] = "Хаттама қосылмаған немесе ажыратылған";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_210"] = "Шот табылмады";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_215"] = "Мұндай bill_id бар шот қазірдің өзінде бар";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_241"] = "Сома тым кішкентай";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_242"] = "Сома тым үлкен";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_298"] = "Мұндай нөмірі бар әмиян тіркелмеген";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_300"] = "Техникалық қате";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_303"] = "Қате телефон нөмірі";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_316"] = "Бұғатталған провайдерді авторландыру әрекеті";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_319"] = "Бұл операцияға құқықтар жоқ";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_341"] = "Міндетті параметр қате көрсетілген немесе сұрауда жоқ";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_1001"] = "Провайдер үшін тыйым салынған валюта";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_1003"] = "Осы валюта жұбы үшін айырбастау бағамын алу мүмкін болмады";
+$MESS["SALE_HPS_QIWI_ERROR_CODE_1019"] = "Ұялы байланыс операторын анықтау мүмкін болмады";
+$MESS["SALE_HPS_QIWI_STATUS_MESSAGE_EXPIRED"] = "Шоттың жарамдылық мерзімі аяқталды. Шот төленбеді.";
+$MESS["SALE_HPS_QIWI_STATUS_MESSAGE_PAID"] = "Шот төленді.";
+$MESS["SALE_HPS_QIWI_STATUS_MESSAGE_REJECTED"] = "Шот кері қайтарылды.";
+$MESS["SALE_HPS_QIWI_STATUS_MESSAGE_UNPAID"] = "Төлем жасау кезіндегі қате. Шот төленбеді.";
+$MESS["SALE_HPS_QIWI_STATUS_MESSAGE_WAITING"] = "Шот дайын, төлемді күтеуде.";

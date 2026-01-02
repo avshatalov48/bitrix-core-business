@@ -5,9 +5,11 @@ namespace Bitrix\Rest\Marketplace;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\Date;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\Engine\Access;
+use Bitrix\Rest\Integration\Bitrix24\Bitrix24;
 
 Loc::loadMessages(__FILE__);
 
@@ -121,35 +123,48 @@ class Notification
 					$url = \Bitrix\Rest\Marketplace\Url::getSubscriptionBuyUrl();
 				}
 			}
-			$urlBtn = '';
-			if ($url !== '')
+
+			if (
+				$option === 'SUBSCRIPTION_MARKET_DEMO_END'
+				&& Bitrix24::getInstance()->isAvailableForRuRegion()
+			)
 			{
-				$urlBtn = '<a target="_blank" href="'
-					. $url
-					. '">'
-					. Loc::getMessage('REST_MARKETPLACE_NOTIFICATION_' . $option . '_BTN')
-					. '</a>';
+				return self::getNotificationAboutDemoEnd($option);
 			}
 
-			$message = Loc::getMessage(
-				'REST_MARKETPLACE_NOTIFICATION_' . $option . '_MESS',
-				[
-					'#BTN#' => $urlBtn
-				]
-			);
-			if ($message !== '')
+			$message = \Bitrix\Rest\Integration\Market\Label::isRenamedMarket()
+				? Loc::getMessage('REST_MARKETPLACE_NOTIFICATION_' . $option . '_MESS_MSGVER_1')
+				: Loc::getMessage('REST_MARKETPLACE_NOTIFICATION_' . $option . '_MESS_MSGVER_2');
+
+			if (!empty($message))
 			{
 				$result = [
+					'BUTTON_TEXT' => $url !== '' ? Loc::getMessage('REST_MARKETPLACE_NOTIFICATION_' . $option . '_BTN') : null,
+					'PANEL_LINK' => $url ?? null,
 					'PANEL_MESSAGE' => $message
 				];
 			}
 			else
 			{
+				\Bitrix\Main\Application::getInstance()->getExceptionHandler()->writeToLog(
+					new SystemException("Notification message for code '$option' not found.")
+				);
 				static::reset();
 			}
 		}
 
 		return $result;
+	}
+
+	private static function getNotificationAboutDemoEnd(string $option): array
+	{
+		return [
+			'BUTTON_TEXT' => Loc::getMessage('REST_MARKETPLACE_NOTIFICATION_' . $option . '_BTN_MSGVER_1'),
+			'PANEL_LINK' => Bitrix24::getInstance()->getBuyPath(),
+			'PANEL_MESSAGE' => \Bitrix\Rest\Integration\Market\Label::isRenamedMarket()
+				? Loc::getMessage('REST_MARKETPLACE_NOTIFICATION_' . $option . '_MESS_MSGVER_2')
+				: Loc::getMessage('REST_MARKETPLACE_NOTIFICATION_' . $option . '_MESS_MSGVER_1')
+		];
 	}
 
 	public static function setLastCheckTimestamp($timestamp)

@@ -18,6 +18,7 @@ class WorkgroupList extends \CBitrixComponent implements \Bitrix\Main\Engine\Con
 	public const AVAILABLE_ACTION_REMOVE_FROM_ARCHIVE = 'remove_from_archive';
 	public const AVAILABLE_ACTION_ADD_TO_FAVORITES = 'add_to_favorites';
 	public const AVAILABLE_ACTION_REMOVE_FROM_FAVORITES = 'remove_from_favorites';
+	public const AVAILABLE_ACTION_CONVERT_TO_COLLAB = 'convert_to_collab';
 
 	public const AVAILABLE_ACTION_SET_CURRENT_USER_OWNER = 'set_current_user_owner';
 	public const AVAILABLE_ACTION_SET_CURRENT_USER_SCRUM_MASTER = 'set_current_user_scrum_master';
@@ -185,6 +186,11 @@ class WorkgroupList extends \CBitrixComponent implements \Bitrix\Main\Engine\Con
 			if ($accessManager->canRemoveFromArchive())
 			{
 				$result[] = self::AVAILABLE_ACTION_REMOVE_FROM_ARCHIVE;
+			}
+
+			if ($accessManager->canConvertToCollab())
+			{
+				$result[] = self::AVAILABLE_ACTION_CONVERT_TO_COLLAB;
 			}
 
 			if ($accessManager->canDelete())

@@ -22,7 +22,7 @@ Class bizproc extends CModule
 		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 
-		$this->MODULE_NAME = Loc::getMessage("BIZPROC_INSTALL_NAME");
+		$this->MODULE_NAME = Loc::getMessage("BIZPROC_INSTALL_NAME_MSGVER_1");
 		$this->MODULE_DESCRIPTION = Loc::getMessage("BIZPROC_INSTALL_DESCRIPTION");
 	}
 
@@ -177,6 +177,7 @@ Class bizproc extends CModule
 		$this->InstallDB(false);
 		$this->InstallEvents();
 		$this->InstallPublic();
+		$this->installAgents();
 
 		$GLOBALS["errors"] = $this->errors;
 		$APPLICATION->IncludeAdminFile(Loc::getMessage("BIZPROC_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/install/step2.php");
@@ -222,5 +223,17 @@ Class bizproc extends CModule
 				)
 			);
 		return $arr;
+	}
+
+	private function installAgents(): void
+	{
+		$startTime = \ConvertTimeStamp(time() + \CTimeZone::GetOffset() + 600, 'FULL');
+		\CAgent::AddAgent(
+			name: 'Bitrix\\Bizproc\\Install\\Agent\\CreateRobotVersionIndex::run();',
+			module: $this->MODULE_ID,
+			interval: 60,
+			next_exec: $startTime,
+			existError: false,
+		);
 	}
 }

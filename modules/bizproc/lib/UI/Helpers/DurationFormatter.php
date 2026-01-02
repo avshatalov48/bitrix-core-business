@@ -13,78 +13,132 @@ class DurationFormatter
 	public const HOURS = 24;
 	public const HALF_HOURS = self::HOURS / 2;
 	public const DAYS = 31;
-	public const HALF_DAYS = self::DAYS / 2;
+	public const HALF_DAYS = 15;
 	public const MONTHS = 12;
 	public const HALF_MONTHS = self::MONTHS / 2;
 	public const DAYS_YEAR = 365;
 
-	public static function roundTimeInSeconds(int $timeInSeconds): int
+	public static function roundTimeInSeconds(int $timeInSeconds, int $meaningUnit = 1): int
 	{
-		if ($timeInSeconds <= self::SECONDS)
-		{
-			return $timeInSeconds;
-		}
+		$checkUnits = static function (array $units) use ($meaningUnit) {
+			return count(array_filter($units)) <= $meaningUnit;
+		};
+
+		$roundUnitFunction = [
+			'self::removeOrRoundSeconds',
+			'self::removeOrRoundMinutes',
+			'self::removeOrRoundHours',
+			'self::removeOrRoundDays',
+			'self::removeOrRoundMonths',
+		];
 
 		$unitMod = self::getUnitMod($timeInSeconds);
+		for ($i = -1; $i <= 4; $i++)
+		{
+			if (isset($roundUnitFunction[$i]))
+			{
+				$unitMod = call_user_func($roundUnitFunction[$i], $unitMod);;
+			}
 
+			if ($checkUnits($unitMod))
+			{
+				break;
+			}
+		}
+
+		return self::getFromUnitMod($unitMod);
+	}
+
+	private static function removeOrRoundSeconds(array $unitMod): array
+	{
 		$seconds = $unitMod['s'];
-
 		$minutes = $unitMod['i'];
+
 		if (($minutes !== 0 && $seconds >= self::HALF_SECONDS) || ($minutes === 0 && $seconds === self::SECONDS))
 		{
 			++$minutes;
 		}
 
+		$unitMod['s'] = 0;
+		$unitMod['i'] = $minutes;
+
+		return $unitMod;
+	}
+
+	private static function removeOrRoundMinutes(array $unitMod): array
+	{
+		$minutes = $unitMod['i'];
 		$hours = $unitMod['H'];
+
 		if (($hours !== 0 && $minutes >= self::HALF_MINUTES) || ($hours === 0 && $minutes === self::MINUTES))
 		{
 			++$hours;
 		}
 
+		$unitMod['i'] = 0;
+		$unitMod['H'] = $hours;
+
+		return $unitMod;
+	}
+
+	private static function removeOrRoundHours(array $unitMod): array
+	{
+		$hours = $unitMod['H'];
 		$days = $unitMod['d'];
+
 		if (($days !== 0 && $hours >= self::HALF_HOURS) || ($days === 0 && $hours === self::HOURS))
 		{
 			++$days;
 		}
 
+		$unitMod['H'] = 0;
+		$unitMod['d'] = $days;
+
+		return $unitMod;
+	}
+
+	private static function removeOrRoundDays(array $unitMod): array
+	{
+		$days = $unitMod['d'];
 		$months = $unitMod['m'];
+
 		if (($months !== 0 && $days >= self::HALF_DAYS) || ($months === 0 && $days === self::DAYS))
 		{
 			++$months;
 		}
 
+		$unitMod['d'] = 0;
+		$unitMod['m'] = $months;
+
+		return $unitMod;
+	}
+
+	private static function removeOrRoundMonths(array $unitMod): array
+	{
+		$months = $unitMod['m'];
 		$years = $unitMod['Y'];
+
 		if (($years !== 0 && $months >= self::HALF_MONTHS) || ($years === 0 && $months === self::MONTHS))
 		{
 			++$years;
 		}
 
-		if ($years !== 0)
-		{
-			return self::getSecondsFromYears($years);
-		}
+		$unitMod['m'] = 0;
+		$unitMod['Y'] = $years;
 
-		if ($months !== 0)
-		{
-			return self::getSecondsFromMonths($months);
-		}
+		return $unitMod;
+	}
 
-		if ($days !== 0)
-		{
-			return self::getSecondsFromDays($days);
-		}
-
-		if ($hours !== 0)
-		{
-			return self::getSecondsFromHours($hours);
-		}
-
-		if ($minutes !== 0)
-		{
-			return self::getSecondsFromMinutes($minutes);
-		}
-
-		return $seconds;
+	public static function getFromUnitMod(array $unitMod): int
+	{
+		return (
+			($unitMod['s'] ?? 0)
+			+ self::getSecondsFromMinutes($unitMod['i'] ?? 0)
+			+ self::getSecondsFromHours($unitMod['H'] ?? 0)
+			+ self::getSecondsFromDays($unitMod['d'] ?? 0)
+			+ self::getSecondsFromMonths($unitMod['m'] ?? 0)
+			+ self::getSecondsFromYears($unitMod['Y'] ?? 0)
+		);
 	}
 
 	public static function roundUpTimeInSeconds(int $timeInSeconds): int
@@ -158,11 +212,11 @@ class DurationFormatter
 
 	public static function getUnitMod(int $seconds): array
 	{
-		$minutes = $seconds >= self::SECONDS ? ($seconds / self::SECONDS) : 0;
-		$hours = $minutes >= self::MINUTES ? ($minutes / self::MINUTES) : 0;
-		$days = $hours >= self::HOURS ? ($hours / self::HOURS) : 0;
-		$months = $days >= self::DAYS ? ($days / self::DAYS) : 0;
-		$years = $days >= self::DAYS_YEAR ? ($days / self::DAYS_YEAR) : 0;
+		$minutes = $seconds >= self::SECONDS ? (int)($seconds / self::SECONDS) : 0;
+		$hours = $minutes >= self::MINUTES ? (int)($minutes / self::MINUTES) : 0;
+		$days = $hours >= self::HOURS ? (int)($hours / self::HOURS) : 0;
+		$months = $days >= self::DAYS ? (int)($days / self::DAYS) : 0;
+		$years = $months >= self::MONTHS ? (int)($months / self::MONTHS) : 0;
 
 		return [
 			's' => $seconds % self::SECONDS,
@@ -196,7 +250,7 @@ class DurationFormatter
 
 	public static function getSecondsFromYears(int $years): int
 	{
-		return $years * self::DAYS_YEAR * self::HOURS * self::MINUTES * self::SECONDS;
+		return $years * self::MONTHS * self::DAYS * self::HOURS * self::MINUTES * self::SECONDS;
 	}
 
 	public static function format(int $duration): ?string

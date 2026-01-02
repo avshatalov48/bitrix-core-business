@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Security\Random;
+
 IncludeModuleLangFile(__FILE__);
 
 class CSocServVKontakte extends CSocServAuth
@@ -13,7 +16,7 @@ class CSocServVKontakte extends CSocServAuth
 		return array(
 			array("vkontakte_appid", GetMessage("socserv_vk_id"), "", Array("text", 40)),
 			array("vkontakte_appsecret", GetMessage("socserv_vk_key"), "", Array("text", 40)),
-			array("note" => GetMessage("socserv_vk_sett_note2", array('#URL#'=>$this->getEntityOAuth()->GetRedirectURI()))),
+			array("note" => GetMessage("socserv_vk_sett_note2_MSGVER_1", array('#URL#'=>$this->getEntityOAuth()->GetRedirectURI()))),
 		);
 	}
 
@@ -248,7 +251,7 @@ window.close();
 				foreach ($res['response'] as $key => $contact)
 				{
 					$res['response'][$key]['name'] = $contact["first_name"];
-					$res['response'][$key]['url'] = "https://vk.com/id" . $contact["id"];
+					$res['response'][$key]['url'] = "https://vk.ru/id" . $contact["id"];
 					$res['response'][$key]['picture'] = $contact['photo_200_orig'];
 				}
 
@@ -278,7 +281,7 @@ window.close();
 
 	public function getProfileUrl($uid)
 	{
-		return "http://vk.com/id" . $uid;
+		return "http://vk.ru/id" . $uid;
 	}
 }
 
@@ -287,14 +290,15 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 	const SERVICE_ID = "VKontakte";
 
 	// https://vk.com/dev/constant_version_updates
-	const AUTH_URL = "https://oauth.vk.com/authorize";
-	const TOKEN_URL = "https://oauth.vk.com/access_token";
-	const CONTACTS_URL = "https://api.vk.com/method/users.get";
-	const FRIENDS_URL = "https://api.vk.com/method/friends.get";
-	const MESSAGE_URL = "https://api.vk.com/method/messages.send";
-	const APP_URL = "https://api.vk.com/method/apps.get";
-	// https://vk.com/dev/versions
-	const API_VERSION = "5.107";
+	const AUTH_URL = "https://id.vk.ru/authorize";
+	const TOKEN_URL = "https://id.vk.ru/oauth2/auth";
+	const CONTACTS_URL = "https://api.vk.ru/method/users.get";
+	const FRIENDS_URL = "https://api.vk.ru/method/friends.get";
+	const MESSAGE_URL = "https://api.vk.ru/method/messages.send";
+	const APP_URL = "https://api.vk.ru/method/apps.get";
+
+	// https://dev.vk.com/ru/reference/versions
+	const API_VERSION = "5.199";
 
 	protected $userID = false;
 	protected $userEmail = false;
@@ -320,6 +324,36 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 		parent::__construct($appID, $appSecret, $code);
 	}
 
+	private function generateCodeVerifier(): string
+	{
+		return Random::getString(40);
+	}
+
+	private function getCodeVerifier(): string
+	{
+		if(!isset($_SESSION["CODE_VERIFIER"]))
+		{
+			$this->setCodeVerifier();
+		}
+
+		return $_SESSION["CODE_VERIFIER"];
+	}
+
+	private function setCodeVerifier(): void
+	{
+		$_SESSION["CODE_VERIFIER"] = $this->generateCodeVerifier();
+	}
+
+	private function getCodeChallenge(): string
+	{
+		return str_replace(
+			['+', '/', '='],
+			['-', '_', ''],
+			base64_encode(hash('sha256', $this->getCodeVerifier(), true))
+		);
+	}
+
+
 	public function GetRedirectURI()
 	{
 		return \CHTTP::URN2URI("/bitrix/tools/oauth/vkontakte.php");
@@ -337,6 +371,8 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 		"&redirect_uri=" . urlencode($redirect_uri) .
 		"&scope=" . $this->getScopeEncode() .
 		"&response_type=code" .
+		"&code_challenge_method=S256" .
+		"&code_challenge=" . urlencode($this->getCodeChallenge()) .
 		($state <> '' ? '&state=' . urlencode($state) : '');
 	}
 
@@ -356,10 +392,13 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 		}
 
 		$query = array(
-			"client_id" => $this->appID,
-			"client_secret" => $this->appSecret,
-			"code" => $this->code,
-			"redirect_uri" => $redirect_uri,
+			'grant_type' => 'authorization_code',
+			'code' => $this->code,
+			'code_verifier' => $this->getCodeVerifier(),
+			'client_id' => $this->appID,
+			'device_id' => $_REQUEST["device_id"],
+			'redirect_uri' => $redirect_uri,
+			'state' => $_REQUEST["state"],
 		);
 
 		$h = new \Bitrix\Main\Web\HttpClient(array(

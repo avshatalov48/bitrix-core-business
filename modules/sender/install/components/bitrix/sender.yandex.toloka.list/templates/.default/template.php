@@ -222,23 +222,8 @@ foreach ($arResult['ROWS'] as $index => $data)
 	);
 }
 
-ob_start();
-$APPLICATION->IncludeComponent(
-	"bitrix:main.ui.filter",
-	"",
-	array(
-		"FILTER_ID" => $arParams['FILTER_ID'],
-		"GRID_ID" => $arParams['GRID_ID'],
-		"FILTER" => $arResult['FILTERS'],
-		"FILTER_PRESETS" => $arResult['FILTER_PRESETS'],
-		'ENABLE_LIVE_SEARCH' => true,
-		"ENABLE_LABEL" => true,
-	)
-);
-$filterLayout = ob_get_clean();
-
-$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' => array(
-	array('type' => 'buttons', 'list' => [
+$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", ['LIST' => [
+	['type' => 'buttons', 'list' => [
 		$arParams['CAN_EDIT']
 			?
 			[
@@ -250,9 +235,16 @@ $APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' 
 			]
 			:
 			null
-	]),
-	array('type' => 'filter', 'content' => $filterLayout),
-)));
+	]],
+	['type' => 'filter', 'params' => [
+		"FILTER_ID" => $arParams['FILTER_ID'],
+		"GRID_ID" => $arParams['GRID_ID'],
+		"FILTER" => $arResult['FILTERS'],
+		"FILTER_PRESETS" => $arResult['FILTER_PRESETS'],
+		'ENABLE_LIVE_SEARCH' => true,
+		"ENABLE_LABEL" => true,
+	]],
+]]);
 
 
 $snippet = new \Bitrix\Main\Grid\Panel\Snippet();

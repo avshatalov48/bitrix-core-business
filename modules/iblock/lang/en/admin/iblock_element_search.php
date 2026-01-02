@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_ELSEARCH_TITLE"] = "Element search";
 $MESS["IBLOCK_ELSEARCH_LOCK_BY"] = "Locked by";
 $MESS["IBLOCK_ELSEARCH_CHOOSE_IBLOCK"] = "Choose information block";
@@ -21,4 +21,3 @@ $MESS["IBLOCK_ELSEARCH_FROMTO_ID"] = "ID (first and last values):";
 $MESS["IBLOCK_ELSEARCH_ELEMENTS"] = "Elements";
 $MESS["IBLOCK_FIELD_EXTERNAL_ID"] = "External ID";
 $MESS["IBLOCK_FIELD_CODE"] = "Symbolic code";
-?>

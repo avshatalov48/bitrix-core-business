@@ -5,7 +5,6 @@ namespace Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Message\Send\SendResult;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Im\Notify;
 use Bitrix\Im\User;
 use Bitrix\Im\Model\UserTable;
 use Bitrix\Im\Model\MessageTable;
@@ -16,10 +15,9 @@ use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Im\V2\Message\Send\SendingConfig;
-use Bitrix\Im\V2\Message\Send\SendingService;
 use Bitrix\Im\V2\Message\Send\PushService;
 use Bitrix\Im\V2\Message\Params;
-use Bitrix\Im\V2\Message\ReadService;
+use Bitrix\Im\V2\Chat\Add\AddResult;
 
 class NotifyChat extends Chat
 {
@@ -127,13 +125,17 @@ class NotifyChat extends Chat
 				'ENTITY_ID' => $row['ENTITY_ID'],
 			]);
 		}
+		else
+		{
+			$result->addError(new ChatError(ChatError::NOT_FOUND));
+		}
 
 		return $result;
 	}
 
-	public function add(array $params, ?Context $context = null): Result
+	public function add(array $params, ?Context $context = null): AddResult
 	{
-		$result = new Result;
+		$result = new AddResult();
 
 		$paramsResult = $this->prepareParams($params);
 		if ($paramsResult->isSuccess())
@@ -172,10 +174,7 @@ class NotifyChat extends Chat
 
 		$chat->isFilledNonCachedData = false;
 
-		return $result->setResult([
-			'CHAT_ID' => $chat->getChatId(),
-			'CHAT' => $chat,
-		]);
+		return $result->setChat($chat);
 	}
 
 	/**

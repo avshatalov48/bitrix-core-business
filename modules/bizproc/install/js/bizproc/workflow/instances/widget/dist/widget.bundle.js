@@ -224,7 +224,7 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 				</div>
 				${0}
 			</div>
-		`), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TITLE'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TEXT_P1'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TEXT_P2'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_AUTHOR'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_IN_PROGRESS'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TIME'), babelHelpers.classPrivateFieldLooseBase(this, _popupListNode)[_popupListNode]);
+		`), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TITLE'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TEXT_P1'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TEXT_P2'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_AUTHOR'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_IN_PROGRESS_MSGVER_1'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TIME'), babelHelpers.classPrivateFieldLooseBase(this, _popupListNode)[_popupListNode]);
 	}
 	function _renderListSkeleton2() {
 	  let i = 0;
@@ -253,9 +253,11 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 	function _renderListPage2(list) {
 	  const pageNode = main_core.Tag.render(_t6 || (_t6 = _`<div class="bizproc-workflow-instances-popup-list-page"></div>`));
 	  list.forEach(item => {
-	    const facesNode = babelHelpers.classPrivateFieldLooseBase(this, _renderListItemFaces)[_renderListItemFaces](item.avatars.author, item.avatars.running);
+	    var _steps$at, _steps$find;
+	    const steps = item.steps;
+	    const facesNode = babelHelpers.classPrivateFieldLooseBase(this, _renderListItemFaces)[_renderListItemFaces]((_steps$at = steps.at(0)) == null ? void 0 : _steps$at.avatarsData, (_steps$find = steps.find(step => step.id === 'running')) == null ? void 0 : _steps$find.avatarsData);
 	    const label = new ui_label.Label({
-	      text: babelHelpers.classPrivateFieldLooseBase(this, _formatDuration)[_formatDuration](item.time.current),
+	      text: babelHelpers.classPrivateFieldLooseBase(this, _formatDuration)[_formatDuration](item.timeStep.duration),
 	      color: ui_label.LabelColor.LIGHT_BLUE,
 	      size: ui_label.LabelSize.SM,
 	      fill: true

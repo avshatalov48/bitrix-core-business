@@ -1,0 +1,27 @@
+<?php
+$MESS["ADMIN_TOOLS_ACCESS_DENIED"] = "Қолжетімділікке тыйым салынған";
+$MESS["ADMIN_TOOLS_ERROR_HB_NOT_CREATE"] = "Highload блогын құру мүмкін емес, импорттау файлында ақпарат жоқ.";
+$MESS["ADMIN_TOOLS_ERROR_HB_NOT_FOUND"] = "Деректерді қосу үшін Highload блогы көрсетілмеген.";
+$MESS["ADMIN_TOOLS_ERROR_IMPORT"] = "Импорттау кезінде қателер пайда болды";
+$MESS["ADMIN_TOOLS_ERROR_IMPORT_ITEM"] = "##ID# элементін сақтау кезінде:";
+$MESS["ADMIN_TOOLS_ERROR_IMPORT_ITEM_UNKNOWN"] = "Белгісіз өріс #CODE#.";
+$MESS["ADMIN_TOOLS_FIELD_IMPORT_DATA"] = "Деректерді импорттау";
+$MESS["ADMIN_TOOLS_FIELD_IMPORT_FILE"] = "Импорттауға арналған файл";
+$MESS["ADMIN_TOOLS_FIELD_IMPORT_HL"] = "Highload-блок";
+$MESS["ADMIN_TOOLS_FIELD_IMPORT_HLS"] = "Құрылымды импорттау";
+$MESS["ADMIN_TOOLS_FIELD_IMPORT_HL_NEW"] = "- жаңасын жасау -";
+$MESS["ADMIN_TOOLS_FIELD_IMPORT_XML_ID"] = "Сыртқы кілт өрісі";
+$MESS["ADMIN_TOOLS_FIELD_SAVE_REFERENCE"] = "Бөгде мәндермен байланысты сақтау";
+$MESS["ADMIN_TOOLS_NOTE_IMPORT_XML_ID"] = "Параметрде мәндері бойынша highload-блокта файл жазбаларын іздеу орындалатын өріс көрсетіледі. Егер жазба табылса, оның өрістері файлдағы мәндерге сәйкес жаңартылады. Егер жазба болмаса, ол highload блогына қосылады. Егер өріс параметрі таңдалмаса, онда файлдағы барлық жазбалар highload блогына жаңа жазба ретінде қосылады (тіпті олар толығымен қайталанса да).";
+$MESS["ADMIN_TOOLS_NOTE_SAVE_REFERENCE"] = "Құсбелгіні алып тастаған кезде байланысты мәндер қалпына келтіріледі: қызметкер, Highload-блок, CRM, бөлімдер және ақпараттық блок элементтері.";
+$MESS["ADMIN_TOOLS_PROCESS_FINAL"] = "Импорт аяқталды.";
+$MESS["ADMIN_TOOLS_PROCESS_FINISH_DELETE"] = "Импортталған файлдарды жоюды ұмытпаңыз.";
+$MESS["ADMIN_TOOLS_PROCESS_IMPORT"] = "Импорттау процесі";
+$MESS["ADMIN_TOOLS_PROCESS_PERCENT"] = "Импортталды #percent#% (импортталған элементтер: #count#).";
+$MESS["ADMIN_TOOLS_SELECT_HL"] = "Highload-блокты таңдаңыз.";
+$MESS["ADMIN_TOOLS_START_IMPORT"] = "Импорттау";
+$MESS["ADMIN_TOOLS_STOP_IMPORT"] = "Импортты тоқтату";
+$MESS["ADMIN_TOOLS_TAB_IMPORT"] = "Highload-блок импорты";
+$MESS["ADMIN_TOOLS_TAB_IMPORT_TITLE"] = "Highload-блок импорты (баптаулар, өрістер, деректер)";
+$MESS["ADMIN_TOOLS_TITLE_IMPORT"] = "Highload-блок импорты";
+$MESS["XML_FILE_NOT_ACCESSIBLE"] = "Импортталатын файл табылмады немесе оқылмады.";

@@ -21,7 +21,7 @@ export const AddEmployeesTab = {
 	{
 		inviteMembers({ members })
 		{
-			void (new CollabInvitationService()).addEmployees({ dialogId: this.dialogId, members });
+			(new CollabInvitationService()).addEmployees({ dialogId: this.dialogId, members });
 			this.$emit('close');
 		},
 	},

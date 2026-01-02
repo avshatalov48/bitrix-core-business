@@ -65,7 +65,6 @@ return [
 		'ui.vue.vuex',
 		'main.popup',
 		'main.loader',
-		'ui.label',
 		'ui.messagecard',
 		'ui.vue.components.hint',
 		'ui.notification',

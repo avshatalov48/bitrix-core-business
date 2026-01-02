@@ -433,6 +433,11 @@ class LandingFilterComponent extends LandingBaseComponent
 					$this->arParams['FOLDER_SITE_ID'] = 0;
 				}
 			}
+
+			$grid = self::getGrid($this->arParams['FILTER_TYPE'], $this->arParams['TYPE']);
+			$gridFilter = self::getFilterPresets();
+			$search = $grid->getFilter($gridFilter);
+			self::$isDeleted = $search['DELETED'] === 'Y';
 		}
 
 		parent::executeComponent();

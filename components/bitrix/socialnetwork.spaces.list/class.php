@@ -54,6 +54,13 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 			return null;
 		}
 
+		return [];
+		$isExtranetUser = Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser();
+		if ($isExtranetUser)
+		{
+			return null;
+		}
+
 		if (!in_array($mode, Dictionary::FILTER_MODES))
 		{
 			return null;
@@ -78,6 +85,13 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 	public function reloadSpacesAction(string $mode): ?array
 	{
 		if (!Loader::includeModule('socialnetwork'))
+		{
+			return null;
+		}
+
+		return [];
+		$isExtranetUser = Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser();
+		if ($isExtranetUser)
 		{
 			return null;
 		}
@@ -109,6 +123,13 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 			return null;
 		}
 
+		return [];
+		$isExtranetUser = Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser();
+		if ($isExtranetUser)
+		{
+			return null;
+		}
+
 		$userId = Helper\User::getCurrentUserId();
 		$provider = $this->getProvider($userId, Dictionary::FILTER_MODES['all']);
 		$provider->setOffset($loadedSpacesCount);
@@ -132,6 +153,13 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 			return null;
 		}
 
+		return null;
+		$isExtranetUser = Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser();
+		if ($isExtranetUser)
+		{
+			return null;
+		}
+
 		$userId = Helper\User::getCurrentUserId();
 		$recentSearchManager = new RecentSearchManager($userId);
 		$recentSearchManager->addSpaceToRecentSearch($spaceId);
@@ -140,6 +168,13 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 	public function loadRecentSearchSpacesAction(): ?array
 	{
 		if (!Loader::includeModule('socialnetwork'))
+		{
+			return null;
+		}
+
+		return [];
+		$isExtranetUser = Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser();
+		if ($isExtranetUser)
 		{
 			return null;
 		}
@@ -174,6 +209,13 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 			return null;
 		}
 
+		return null;
+		$isExtranetUser = Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser();
+		if ($isExtranetUser)
+		{
+			return null;
+		}
+
 		$userId = Helper\User::getCurrentUserId();
 
 		$invitation = $spaceId > 0 ? (new InvitationManager($userId))->getInvitationBySpaceId($spaceId) : null;
@@ -190,6 +232,13 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 	public function loadSpacesDataAction(array $spaceIds): ?array
 	{
 		if (!Loader::includeModule('socialnetwork'))
+		{
+			return null;
+		}
+
+		return [];
+		$isExtranetUser = Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser();
+		if ($isExtranetUser)
 		{
 			return null;
 		}
@@ -218,6 +267,13 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 	public function loadSpaceThemeAction(int $spaceId): ?array
 	{
 		if ($spaceId < 0 || !Loader::includeModule('socialnetwork'))
+		{
+			return null;
+		}
+
+		return null;
+		$isExtranetUser = Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser();
+		if ($isExtranetUser)
 		{
 			return null;
 		}

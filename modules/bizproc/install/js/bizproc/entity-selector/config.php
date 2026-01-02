@@ -33,7 +33,7 @@ return [
 					'dynamicLoad' => true,
 					'dynamicSearch' => true,
 				],
-			]
+			],
 		],
 	],
 ];

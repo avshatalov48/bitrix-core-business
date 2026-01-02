@@ -1,9 +1,9 @@
-<?
+<?php
 
 namespace Bitrix\Main\Numerator;
 
-use Bitrix\Main\Entity\ExpressionField;
-use Bitrix\Main\Entity\Query;
+use Bitrix\Main\ORM\Fields\ExpressionField;
+use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
 use Bitrix\Main\Localization\Loc;
@@ -268,7 +268,7 @@ class Numerator
 	/**
 	 * @param $numId
 	 * @param $config - same configuration structure as using via setConfig method
-	 * @return \Bitrix\Main\Entity\AddResult|\Bitrix\Main\Entity\UpdateResult|Result
+	 * @return \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|Result
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\NotImplementedException
 	 * @throws \Bitrix\Main\ObjectException
@@ -315,7 +315,7 @@ class Numerator
 	}
 
 	/**
-	 * @return \Bitrix\Main\Entity\AddResult|\Bitrix\Main\Entity\UpdateResult
+	 * @return \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectException
 	 * @throws \Bitrix\Main\ObjectPropertyException
@@ -400,7 +400,7 @@ class Numerator
 
 	/**
 	 * @param $id
-	 * @return $this|\Bitrix\Main\Entity\DeleteResult|Result
+	 * @return $this|\Bitrix\Main\ORM\Data\DeleteResult|Result
 	 * @throws \Exception
 	 */
 	public static function delete($id)

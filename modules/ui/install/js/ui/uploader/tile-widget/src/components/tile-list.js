@@ -1,3 +1,4 @@
+import { Text } from 'main.core';
 import { TileItem } from './tile-item';
 import { TileMoreItem } from './tile-more-item';
 
@@ -21,6 +22,18 @@ export const TileList: BitrixVueComponentProps = {
 		items: {
 			type: Array,
 			default: [],
+		},
+		readonly: {
+			type: Boolean,
+			default: false,
+		},
+		removeFromServer: {
+			type: Boolean,
+			default: true,
+		},
+		forceDisableSelection: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	data: (): Object => ({
@@ -103,6 +116,10 @@ export const TileList: BitrixVueComponentProps = {
 
 			return lastIndex - firstIndex + 1;
 		},
+		groupBy(): string
+		{
+			return Text.getRandom(16);
+		},
 	},
 	methods: {
 		getMore(): void
@@ -152,13 +169,32 @@ export const TileList: BitrixVueComponentProps = {
 	template: `
 		<div class="ui-tile-uploader-items">
 			<transition-group name="ui-tile-uploader-item" type="animation">
-				<TileItem v-for="item in visibleItems" :key="item.id" :item="item" />
+				<TileItem
+					v-for="item in visibleItems"
+					:key="item.id" :item="item"
+					:readonly="readonly"
+					:viewerGroupBy="groupBy"
+					:removeFromServer="removeFromServer"
+					:forceDisableSelection="forceDisableSelection"
+				/>
 			</transition-group>
 			<transition name="ui-tile-uploader-item" type="animation">
-				<TileMoreItem v-if="hiddenFilesCount > 0" :hidden-files-count="hiddenFilesCount" @onClick="getMore"/>
+				<TileMoreItem
+					v-if="hiddenFilesCount > 0"
+					:hiddenFilesCount="hiddenFilesCount"
+					@onClick="getMore"
+				/>
 			</transition>
 			<transition-group name="ui-tile-uploader-item" type="animation">
-				<TileItem v-for="item in realtimeItems" :key="item.id" :item="item" />
+				<TileItem
+					v-for="item in realtimeItems"
+					:key="item.id"
+					:item="item"
+					:readonly="readonly"
+					:viewerGroupBy="groupBy"
+					:removeFromServer="removeFromServer"
+					:forceDisableSelection="forceDisableSelection"
+				/>
 			</transition-group>
 		</div>
 	`,

@@ -8,11 +8,11 @@ return [
 	'css' => 'script.css',
 	'js' => 'script.js',
 	'rel' => [
-		'main.core',
 		'main.core.events',
 		'ui.buttons',
 		'bizproc.task',
 		'ui.dialogs.messagebox',
+		'main.core',
 		'sidepanel',
 	],
 	'skip_core' => false,

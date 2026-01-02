@@ -1191,7 +1191,7 @@ class CAllSocNetUserToGroup
 			$arSite = $dbSite->Fetch();
 			$serverName = htmlspecialcharsEx($arSite["SERVER_NAME"]);
 
-			if ($serverName === '')
+			if (!$serverName)
 			{
 				$serverName = (
 					defined("SITE_SERVER_NAME")
@@ -1201,7 +1201,7 @@ class CAllSocNetUserToGroup
 				);
 			}
 
-			if ($serverName === '')
+			if (!$serverName)
 			{
 				$serverName = $_SERVER["SERVER_NAME"];
 			}
@@ -1761,7 +1761,7 @@ class CAllSocNetUserToGroup
 						$senderId = (int)$arResult["USER_ID"];
 						$chatNotificationResult = ActionMessageFactory::getInstance()
 							->getActionMessage(ActionType::AcceptUser, $collab->getId(), $senderId)
-							->runAction();
+							->send();
 					}
 					else
 					{
@@ -1785,14 +1785,14 @@ class CAllSocNetUserToGroup
 							"NOTIFY_TAG" => "SOCNET|INVITE_GROUP_SUCCESS|" . (int)$arResult["GROUP_ID"],
 							"NOTIFY_MESSAGE" => fn (?string $languageId = null) =>
 								Loc::getMessage(
-									"SONET_UG_CONFIRM_MEMBER_MESSAGE",
+									"SONET_UG_CONFIRM_MEMBER_MESSAGE_MSGVER_1",
 									["#NAME#" => "<a href=\"".$domainName.$url."\" class=\"bx-notifier-item-action\">".$arResult["GROUP_NAME"]."</a>"],
 									$languageId
 								)
 							,
 							"NOTIFY_MESSAGE_OUT" => fn (?string $languageId = null) =>
 								Loc::getMessage(
-									"SONET_UG_CONFIRM_MEMBER_MESSAGE",
+									"SONET_UG_CONFIRM_MEMBER_MESSAGE_MSGVER_1",
 									['#NAME#' => $arResult['GROUP_NAME'],
 									$languageId]
 								)
@@ -1928,14 +1928,14 @@ class CAllSocNetUserToGroup
 						"NOTIFY_TAG" => "SOCNET|INVITE_GROUP_REJECT|" . (int)$arResult["GROUP_ID"],
 						"NOTIFY_MESSAGE" => fn (?string $languageId = null) =>
 							Loc::getMessage(
-								"SONET_UG_REJECT_MEMBER_MESSAGE",
+								"SONET_UG_REJECT_MEMBER_MESSAGE_MSGVER_1",
 								["#NAME#" => "<a href=\"".$domainName.$url."\" class=\"bx-notifier-item-action\">".$arResult["GROUP_NAME"]."</a>"],
 								$languageId
 							)
 						,
 						"NOTIFY_MESSAGE_OUT" => fn (?string $languageId = null) =>
 							Loc::getMessage(
-								"SONET_UG_REJECT_MEMBER_MESSAGE",
+								"SONET_UG_REJECT_MEMBER_MESSAGE_MSGVER_1",
 								['#NAME#' => $arResult['GROUP_NAME']],
 								$languageId
 							) . " (".$serverName.$url.")"
@@ -2541,7 +2541,6 @@ class CAllSocNetUserToGroup
 					'SITE_ID',
 					'OWNER_ID',
 					'NAME',
-					'TYPE',
 				],
 				'filter' => ['ID' => $groupId],
 			])->fetch();
@@ -2750,7 +2749,7 @@ class CAllSocNetUserToGroup
 			);
 
 			$notifyNewOwnerMessageKey = 'SONET_UG_OWNER2MEMBER_MESSAGE';
-			if ($groupFields['TYPE'] === Workgroup\Type::Collab->value)
+			if (($groupFields['TYPE'] ?? null) === Workgroup\Type::Collab->value)
 			{
 				$notifyNewOwnerMessageKey = 'SONET_UG_OWNER2MEMBER_MESSAGE_COLLAB';
 			}
@@ -2768,14 +2767,16 @@ class CAllSocNetUserToGroup
 						$languageId
 					)
 				,
-				"NOTIFY_MESSAGE_OUT" => fn (?string $languageId = null) =>
-					Loc::getMessage(
+				"NOTIFY_MESSAGE_OUT" => function (?string $languageId = null) use ($groupFields, $serverName, $groupUrl) {
+					$message = Loc::getMessage(
 						"SONET_UG_OWNER2MEMBER_MESSAGE",
 						["#NAME#" => $groupFields['NAME']],
 						$languageId
-					)
-					." (".$serverName.$groupUrl.")"
-				,
+					);
+
+					return $message . " (" . $serverName . $groupUrl . ")";
+				},
+
 			);
 
 			CIMNotify::Add($messageFields);
@@ -2806,7 +2807,7 @@ class CAllSocNetUserToGroup
 			}
 
 			$notifyOldOwnerMessageKey = 'SONET_UG_MEMBER2OWNER_MESSAGE';
-			if ($groupFields['TYPE'] === Workgroup\Type::Collab->value)
+			if (($groupFields['TYPE'] ?? null) === Workgroup\Type::Collab->value)
 			{
 				$notifyOldOwnerMessageKey = 'SONET_UG_MEMBER2OWNER_MESSAGE_COLLAB';
 			}
@@ -2825,13 +2826,15 @@ class CAllSocNetUserToGroup
 						$languageId
 					)
 				,
-				"NOTIFY_MESSAGE_OUT" => fn (?string $languageId = null) =>
-					Loc::getMessage(
+				"NOTIFY_MESSAGE_OUT" => function (?string $languageId = null) use ($groupFields, $serverName, $groupUrl) {
+					$message = Loc::getMessage(
 						"SONET_UG_MEMBER2OWNER_MESSAGE",
 						["#NAME#" => $groupFields['NAME']],
 						$languageId
-					) . " (".$serverName.$groupUrl.")"
-				,
+					);
+
+					return $message . " (" . $serverName . $groupUrl . ")";
+				},
 			);
 
 			CIMNotify::Add($messageFields);
@@ -3096,7 +3099,7 @@ class CAllSocNetUserToGroup
 				$arReturn["UserCanAutoJoinGroup"] = false;
 				$arReturn["UserCanModifyGroup"] = $arReturn["UserIsOwner"];
 				if (
-					!$arReturn['UserCanModifyGroup'] 
+					!$arReturn['UserCanModifyGroup']
 					&& $groupFields['SCRUM'] === 'Y'
 				)
 				{

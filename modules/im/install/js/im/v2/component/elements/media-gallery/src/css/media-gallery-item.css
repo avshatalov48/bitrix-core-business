@@ -1,0 +1,172 @@
+:root {
+	--bx-im-elements-dynamic-gallery__item-background: rgba(var(--ui-color-palette-gray-04-rgb), var(--ui-opacity-80));
+	--bx-im-elements-dynamic-gallery__item-border-radius: var(--ui-border-radius-2xs);
+	--bx-im-elements-dynamic-gallery__item-source-fit: scale-down;
+	--bx-im-elements-dynamic-gallery__item-source-width: 100%;
+	--bx-im-elements-dynamic-gallery__item-source-height: 100%;
+	--bx-im-elements-dynamic-gallery__item-cursor: pointer;
+	--bx-im-elements-dynamic-gallery__item-play-icon-hovered-background: var(--ui-color-palette-blue-60);
+}
+
+.bx-im-elements-media-gallery__item {
+	background-color: var(--bx-im-elements-dynamic-gallery__item-background);
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--bx-im-elements-dynamic-gallery__item-border-radius);
+	overflow: hidden;
+	margin-right: 1px;
+	cursor: var(--bx-im-elements-dynamic-gallery__item-cursor);
+	transition: 150ms transform ease;
+	box-sizing: border-box;
+}
+
+.bx-im-elements-media-gallery__item-inner {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	height: 100%;
+}
+
+.bx-im-elements-media-gallery__item.--draggable {
+	opacity: 0.3;
+}
+
+.bx-im-elements-media-gallery__item:last-child {
+	margin-right: 0;
+}
+
+.bx-im-elements-media-gallery__item-source {
+	object-fit: var(--bx-im-elements-dynamic-gallery__item-source-fit);
+	width: var(--bx-im-elements-dynamic-gallery__item-source-width);
+	height: var(--bx-im-elements-dynamic-gallery__item-source-height);
+	z-index: 1;
+}
+
+.bx-im-elements-media-gallery__item-remove {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 32px;
+	height: 32px;
+	background-color: rgba(var(--im-color-palette-black-solid-rgb), .5);
+	border-radius: 50%;
+	transition: opacity 200ms ease;
+	opacity: 0;
+	cursor: pointer;
+	z-index: 20;
+}
+
+.bx-im-elements-media-gallery__item-remove-icon {
+	width: 15px;
+	height: 19px;
+	background: url("./images/remove-icon.svg") no-repeat center;
+	transition: opacity 200ms ease;
+	opacity: .8;
+}
+
+.bx-im-elements-media-gallery__item:hover .bx-im-elements-media-gallery__item-remove,
+.bx-im-elements-media-gallery__item-remove:hover .bx-im-elements-media-gallery__item-remove-icon {
+	opacity: 1;
+}
+
+.bx-im-elements-media-gallery__item.--draggable .bx-im-elements-media-gallery__item-remove {
+	opacity: 0;
+}
+
+.bx-im-elements-media-gallery__item-play {
+	cursor: pointer;
+}
+
+.bx-im-elements-media-gallery__item-play-icon {
+	width: 50px;
+	height: 50px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-right: -50%;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	z-index: 4;
+	transition: 250ms linear background-color;
+	background-color: rgba(0, 0, 0, 0.39);
+}
+
+.bx-im-elements-media-gallery__item-play-icon::after {
+	border-style: solid;
+	border-width: 10px 0 10px 15px;
+	border-color: transparent transparent transparent #fff;
+	width: 0;
+	height: 0;
+	margin-top: 16px;
+	margin-left: 20px;
+	position: absolute;
+	content: '';
+	transition: background-color 200ms ease;
+}
+
+.bx-im-elements-media-gallery__item-play-icon:hover {
+	background-color: var(--bx-im-elements-dynamic-gallery__item-play-icon-hovered-background);
+}
+
+.bx-im-elements-media-gallery__item-blur {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	will-change: transform;
+	transform: scale(1.2);
+	filter: blur(20px);
+	background-position: center;
+	background-size: auto;
+	background-repeat: no-repeat;
+}
+
+.bx-im-elements-media-gallery__item.--dropzone-after {
+	transform: translateX(-5px) scale(0.87);
+	border-right: 2px solid red;
+}
+
+.bx-im-elements-media-gallery__item.--dropzone-before {
+	transform: translateX(5px) scale(0.87);
+	border-left: 2px solid red;
+}
+
+.bx-im-elements-media-gallery__item-drag {
+	display: flex;
+	align-items: center;
+	position: absolute;
+	top: 2px;
+	left: 0;
+	cursor: move;
+	user-select: none;
+	margin-right: 3px;
+	z-index: 10;
+}
+
+.bx-im-elements-media-gallery__item-drag-icon {
+	background-image: url("./images/drag-icon.svg");
+	width: 36px;
+	height: 36px;
+	opacity: 0;
+	transition: opacity 200ms ease;
+}
+
+.bx-im-elements-media-gallery__item:hover .bx-im-elements-media-gallery__item-drag-icon {
+	opacity: 1;
+}
+
+.bx-im-elements-media-gallery__item-viewer-clickable-overlay {
+	position: absolute;
+	z-index: 1;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}

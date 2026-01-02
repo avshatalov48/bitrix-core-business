@@ -4,6 +4,9 @@ namespace Bitrix\Perfmon;
 
 class MysqliDatabase extends BaseDatabase
 {
+	/**
+	 * @inheritDoc
+	 */
 	public function getTables($full = true)
 	{
 		$sqlHelper = $this->connection->getSqlHelper();
@@ -45,49 +48,50 @@ class MysqliDatabase extends BaseDatabase
 		return $result;
 	}
 
-	public function getIndexes($tableName = false)
+	/**
+	 * @inheritDoc
+	 */
+	protected function fillTableIndexes($tableName)
 	{
-		$sqlHelper = $this->connection->getSqlHelper();
-		$strSql = 'SHOW INDEXES FROM ' . $sqlHelper->quote($tableName);
-		$result = [];
-		try
+		$table = $this->schema->tables->search($tableName);
+		if (!$table)
 		{
-			$indexList = $this->connection->query($strSql);
-			while ($indexColumn = $indexList->fetch())
-			{
-				$result[$indexColumn['Key_name']][$indexColumn['Seq_in_index']] = $indexColumn['Column_name'];
-			}
-		}
-		catch (\Bitrix\Main\DB\SqlQueryException $_)
-		{
-		}
+			$table = new \Bitrix\Perfmon\Sql\Table($tableName);
 
-		return $result;
-	}
-
-	public function getUniqueIndexes($tableName = false)
-	{
-		$sqlHelper = $this->connection->getSqlHelper();
-		$strSql = 'SHOW INDEXES FROM ' . $sqlHelper->quote($tableName);
-		$result = [];
-		try
-		{
-			$indexList = $this->connection->query($strSql);
-			while ($indexColumn = $indexList->fetch())
+			$sqlHelper = $this->connection->getSqlHelper();
+			$strSql = 'SHOW INDEXES FROM ' . $sqlHelper->quote($tableName);
+			$indexColumns = [];
+			$unique = [];
+			$fulltext = [];
+			try
 			{
-				if (!$indexColumn['Non_unique'])
+				$indexList = $this->connection->query($strSql);
+				while ($indexColumn = $indexList->fetch())
 				{
-					$result[$indexColumn['Key_name']][$indexColumn['Seq_in_index']] = $indexColumn['Column_name'];
+					$indexColumns[$indexColumn['Key_name']][$indexColumn['Seq_in_index']] = $indexColumn['Column_name'];
+					$unique[$indexColumn['Key_name']] = !$indexColumn['Non_unique'];
+					$fulltext[$indexColumn['Key_name']] = $indexColumn['Index_type'] === 'FULLTEXT';
 				}
 			}
-		}
-		catch (\Bitrix\Main\DB\SqlQueryException $_)
-		{
+			catch (\Bitrix\Main\DB\SqlQueryException $_)
+			{
+			}
+
+			foreach ($indexColumns as $indexName => $columns)
+			{
+				$index = new \Bitrix\Perfmon\Sql\Index($indexName, $unique[$indexName], $fulltext[$indexName]);
+				$index->columns = array_values($columns);
+				$table->indexes->add($index);
+			}
+			$this->schema->tables->add($table);
 		}
 
-		return $result;
+		return $table;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function getTableFields($tableName = false)
 	{
 		$sqlHelper = $this->connection->getSqlHelper();

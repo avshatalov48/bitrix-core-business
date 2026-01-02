@@ -1,0 +1,27 @@
+.bx-im-create-chat-menu-item__button {
+	--im-create-chat-menu-item__button-background-color_copilot: #f9f6ff;
+
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	cursor: pointer;
+}
+
+.bx-im-create-chat-menu-item__button.--copilot {
+	width: 24px;
+	height: 44px;
+	border-radius: 6px;
+	margin-left: 5px;
+	background-color: var(--im-create-chat-menu-item__button-background-color_copilot);
+}
+
+.bx-im-create-chat-menu-item__icon-more {
+	width: 14px;
+	height: 4px;
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
+	background-image: url('./images/more-icon.svg');
+}

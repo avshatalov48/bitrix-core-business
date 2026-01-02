@@ -64,7 +64,7 @@ $MESS["CT_BLLE_COPY_POPUP_TEXT"] = "Вы действительно хотите
 $MESS["CT_BLLE_COPY_CONFIRM_BUTTON"] = "Да, скопировать";
 $MESS["CT_BLLE_COPY_POPUP_ACCEPT_BUTTON"] = "Копировать";
 $MESS["CT_BLLE_COPY_POPUP_CANCEL_BUTTON"] = "Отмена";
-$MESS["CT_BLLE_TOOLBAR_RETURN_LIST_ELEMENT"] = "К СПИСКУ";
+$MESS["CT_BLLE_TOOLBAR_RETURN_LIST_ELEMENT_MSGVER_1"] = "К списку";
 $MESS["CT_BLLE_COPY_POPUP_COPIED_SUCCESS"] = "Список скопирован. <a href=\"#URL#\">Перейти к настройкам нового списка</a>";
 $MESS["CT_BLLE_COPY_POPUP_COPIED_SUCCESS_PROCESS"] = "Процесс скопирован. <a href=\"#URL#\">Перейти к настройкам нового процесса</a>";
 $MESS["CT_BLLE_FIELD_LOCK"] = "Включить функционал автоблокировки элементов при редактировании";

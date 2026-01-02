@@ -34,6 +34,7 @@ class CollabMemberFacade extends AbstractMemberService
 			->setAddMembers($command->getMembers())
 			->setInitiatorId($command->getInitiatorId())
 			->setId($command->getGroupId())
+			->setInitiatedByType($command->getInitiatedByType())
 		;
 
 		$updateResult = $this->collabService->update($updateCommand);

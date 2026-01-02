@@ -264,14 +264,14 @@ class CBPRequestInformationOptionalActivity extends CBPRequestInformationActivit
 				'Default' => 'N'
 			],
 			'CommentRequired' => [
-				'Name' => GetMessage('BPAR_COMMENT_REQUIRED'),
+				'Name' => Loc::getMessage('BPAR_COMMENT_REQUIRED_1'),
 				'FieldName' => 'comment_required',
 				'Type' => Bizproc\FieldType::SELECT,
 				'Options' => [
-					'N' => GetMessage('BPSFA_PD_NO'),
-					'Y' => GetMessage('BPSFA_YES'),
-					'YA' => GetMessage('BPSFA_COMMENT_REQUIRED_YA'),
-					'YR' => GetMessage("BPSFA_COMMENT_REQUIRED_YR"),
+					'N' => Loc::getMessage('BPSFA_PD_NO'),
+					'Y' => Loc::getMessage('BPSFA_YES'),
+					'YA' => Loc::getMessage('BPSFA_COMMENT_REQUIRED_YA_1'),
+					'YR' => Loc::getMessage('BPSFA_COMMENT_REQUIRED_YR_1'),
 				],
 				'Default' => 'N'
 			],

@@ -19,16 +19,28 @@ if (!Bitrix\Main\Loader::includeModule('catalog'))
 
 class CatalogConfigPermissionsAjaxController extends \Bitrix\Main\Engine\Controller
 {
-	public function savePermissionsAction(array $userGroups, array $parameters = []): ?array
+	public function savePermissionsAction(array $userGroups = [], array $deletedUserGroups = [], array $parameters = []): ?array
 	{
-		if (
-			!$userGroups
-			|| !AccessController::can(CurrentUser::get()->getId(), ActionDictionary::ACTION_CATALOG_RIGHTS_EDIT)
-		)
+		if (!AccessController::can(CurrentUser::get()->getId(), ActionDictionary::ACTION_CATALOG_RIGHTS_EDIT))
 		{
 			return null;
 		}
 
+		if (!empty($userGroups))
+		{
+			$this->saveUserGroups($userGroups);
+		}
+
+		if (!empty($deletedUserGroups))
+		{
+			$this->deleteUserGroups($deletedUserGroups);
+		}
+
+		return $this->errorCollection->isEmpty() ? $this->loadData() : null;
+	}
+
+	private function saveUserGroups(array $userGroups): void
+	{
 		try
 		{
 			$rolePermissionService = new RolePermissionService();
@@ -38,31 +50,27 @@ class CatalogConfigPermissionsAjaxController extends \Bitrix\Main\Engine\Control
 			}
 
 			$rolePermissionService->saveRolePermissions($userGroups);
-
-			return $this->loadData();
 		}
 		catch (\Exception $e)
 		{
 			$this->errorCollection[] = new Error(Loc::getMessage('CATALOG_CONFIG_PERMISSIONS_DB_ERROR'));
 		}
-
-		return null;
 	}
 
-	public function deleteRoleAction(int $roleId): void
+	private function deleteUserGroups(array $deletedUserGroups): void
 	{
-		if (!AccessController::can(CurrentUser::get()->getId(), ActionDictionary::ACTION_CATALOG_RIGHTS_EDIT))
-		{
-			return;
-		}
+		\Bitrix\Main\Type\Collection::normalizeArrayValuesByInt($deletedUserGroups);
 
-		try
+		foreach ($deletedUserGroups as $roleId)
 		{
-			(new RolePermissionService())->deleteRole($roleId);
-		}
-		catch (\Bitrix\Main\DB\SqlQueryException $e)
-		{
-			$this->errorCollection[] = new Error(Loc::getMessage('CATALOG_CONFIG_ROLE_DELETE_DB_ERROR'));
+			try
+			{
+				(new RolePermissionService())->deleteRole($roleId);
+			}
+			catch (\Bitrix\Main\DB\SqlQueryException $e)
+			{
+				$this->errorCollection[] = new Error(Loc::getMessage('CATALOG_CONFIG_ROLE_DELETE_DB_ERROR'));
+			}
 		}
 	}
 
@@ -89,7 +97,6 @@ class CatalogConfigPermissionsAjaxController extends \Bitrix\Main\Engine\Control
 
 		return [
 			'USER_GROUPS' => $configPermissions->getUserGroups(),
-			'ACCESS_RIGHTS' => $configPermissions->getAccessRights()
 		];
 	}
 }

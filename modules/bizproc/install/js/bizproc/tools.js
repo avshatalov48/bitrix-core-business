@@ -145,10 +145,12 @@ if (typeof BX.Bizproc.doInlineTask === 'undefined')
 
 		if (BX.Reflection.getClass('BX.UI.EntitySelector.Dialog'))
 		{
+			const options = BX.Dom.attr(scope, 'data-options');
+
 			BX.Bizproc.delegationSelected = null;
 			BX.Bizproc.delegationPopup = new BX.UI.EntitySelector.Dialog({
 				targetNode: scope,
-				id: "bp-task-delegation-" + Math.round(Math.random() * 100000),
+				id: `bp-task-delegation-${Math.round(Math.random() * 100_000)}`,
 				context: 'bp-task-delegation',
 				entities: [
 					{
@@ -161,11 +163,11 @@ if (typeof BX.Bizproc.doInlineTask === 'undefined')
 						},
 					},
 					{
-						id: 'department',
+						id: options && options.canUseHumanResources === true ? 'structure-node' : 'department',
 						options: {
 							selectMode: 'usersOnly',
 						},
-					}
+					},
 				],
 				popupOptions: {
 					bindOptions: { forceBindPosition: true },

@@ -3,7 +3,9 @@
 namespace Bitrix\Seo\Analytics\Services;
 
 use Bitrix\Main\Context;
+use Bitrix\Main\Error;
 use Bitrix\Main\Result;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Seo\Analytics\Internals\Expenses;
 use Bitrix\Main\Type\Date;
 use Bitrix\Seo\Analytics\Internals\ExpensesCollection;
@@ -64,7 +66,7 @@ class AccountVkads extends \Bitrix\Seo\Analytics\Account
 			$result = [
 				'ID' => $data['ID'],
 				'NAME' => $data['FIRST_NAME'] . ' ' . $data['LAST_NAME'],
-				'LINK' => 'https://ads.vk.com/hq/budget/transactions/',
+				'LINK' => 'https://ads.vk.ru/hq/budget/transactions/',
 			];
 
 			$result['PICTURE'] = (Context::getCurrent()->getRequest()->isHttps() ? 'https' : 'http')
@@ -152,46 +154,52 @@ class AccountVkads extends \Bitrix\Seo\Analytics\Account
 		}
 		else
 		{
-			$params['date_from'] = '0';
-			$params['date_to'] = '0';
+			$params['date_from'] = (new DateTime())->add('-1 year')->format('Y-m-d');
+			$params['date_to'] = (new DateTime())->format('Y-m-d');
 		}
 
 		$response = $this->getRequest()->send([
-			'methodName' => 'analytics.campaigns.expenses.get',
+			'methodName' => 'analytics.banners.expenses.get',
 			'parameters' => $params,
 			'streamTimeout' => static::LOAD_DAILY_EXPENSES_TIMEOUT,
+			'listenHttpErrors' => true,
 		]);
 
 		if (!$response->isSuccess())
 		{
-			return $result->addErrors($response->getErrors());
+			$innerErrors = implode(',', $response->getErrorMessages());
+			$errorMessage = $this->buildErrorMessage("Error occurred while load daily expenses: {$innerErrors}");
+
+			return $result->addError(new Error($errorMessage));
 		}
 
-		$campaignList = $response->getData();
-		if (!is_array($campaignList))
+		$responseData = $response->getData();
+		if (!is_array($responseData) || !is_array($responseData['banners']))
 		{
 			$result->setData(['expenses' => new ExpensesCollection()]);
 
 			return $result;
 		}
 
+		$bannersList = $responseData['banners'];
+		$campaigns = $responseData['campaigns'];
+		$groups = $responseData['groups'];
+
 		$expensesCollection = new ExpensesCollection();
-		foreach ($campaignList as $campaign)
+		foreach ($bannersList as $banner)
 		{
-			if (!isset($campaign['rows']))
+			if (!isset($banner['rows']))
 			{
 				continue;
 			}
 
 			/** @var array{date: string, base: array} $row */
-			foreach ($campaign['rows'] as $row)
+			foreach ($banner['rows'] as $row)
 			{
 				if (isset($row['base']))
 				{
-					if ((float)$row['base']['spent'] > 0)
-					{
-						$expensesCollection->addItem(
-							new Expenses([
+					$expensesCollection->addItem(
+						new Expenses([
 								'date' => new Date($row['date'], 'Y-m-d'),
 
 								'impressions' => $row['base']['shows'],
@@ -200,11 +208,19 @@ class AccountVkads extends \Bitrix\Seo\Analytics\Account
 								'spend' => $row['base']['spent'],
 								'currency' => static::CURRENCY_CODE,
 
-								'campaignName' => $campaign['name'],
-								'campaignId' => $campaign['id'],
+								'campaignId' => $banner['campaign_id'],
+								'campaignName' => $campaigns[$banner['campaign_id']]['name'] ?? '',
+								'groupId' => $banner['ad_group_id'],
+								'groupName' => $groups[$banner['ad_group_id']]['name'] ?? '',
+								'adId' => $banner['banner_id'],
+								'adName' => $banner['banner_name'],
+
+								'utmMedium' => $banner['utm_medium'] ?? '',
+								'utmSource' => $banner['utm_source'] ?? '',
+								'utmCampaign' => $banner['utm_campaign'] ?? '',
+								'utmContent' => $banner['utm_content'] ?? '',
 							])
-						);
-					}
+					);
 				}
 			}
 		}

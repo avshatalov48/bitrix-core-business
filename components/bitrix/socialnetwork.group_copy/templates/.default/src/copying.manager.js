@@ -24,7 +24,7 @@ export class CopyingManager
 			isProject: "N",
 			isExtranet: "N",
 			isExtranetGroup: "N",
-			isExtranetInstalled: "N",
+			isAllowCreateExtranetGroup: "N",
 			isIntranetInstalled: "N",
 			groupData: {},
 			imageFieldContainerId: "",
@@ -43,7 +43,7 @@ export class CopyingManager
 		this.isProject = (options.isProject === "Y");
 		this.isExtranet = (options.isExtranet === "Y");
 		this.isExtranetGroup = (options.isExtranetGroup === "Y");
-		this.isExtranetInstalled = (options.isExtranetInstalled === "Y");
+		this.isAllowCreateExtranetGroup = (options.isAllowCreateExtranetGroup === "Y");
 		this.isIntranetInstalled = (options.isIntranetInstalled === "Y");
 		this.isLandingInstalled = (options.isLandingInstalled === "Y");
 
@@ -143,7 +143,7 @@ export class CopyingManager
 			switcher: switcher,
 			isProject: this.isProject,
 			isExtranetGroup: this.isExtranetGroup,
-			isExtranetInstalled: this.isExtranetInstalled,
+			isAllowCreateExtranetGroup: this.isAllowCreateExtranetGroup,
 			isIntranetInstalled: this.isIntranetInstalled,
 			isLandingInstalled: this.isLandingInstalled
 		});

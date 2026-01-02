@@ -1,204 +1,232 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\Model;
+use Bitrix\UI\Buttons\Button;
+use Bitrix\UI\Buttons\Color;
+use Bitrix\UI\Buttons\Icon;
+use Bitrix\UI\Buttons\JsCode;
+use Bitrix\UI\Toolbar\ButtonLocation;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 /** @var CMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
 /** @var \CBitrixComponentTemplate $this */
-Extension::load(
-	[
-		'ui.feedback.form',
-	]
-);
-$isBitrix24Template = defined('SITE_TEMPLATE_ID') && SITE_TEMPLATE_ID === "bitrix24";
-if (!$isBitrix24Template)
+Extension::load(['ui.feedback.form']);
+\Bitrix\Main\Loader::includeModule('ui');
+
+if (defined('ADMIN_SECTION') && ADMIN_SECTION === true && $_REQUEST['IFRAME'] !== 'Y')
 {
-	$this->addExternalCss($this->GetFolder() . '/admin.css');
-	if (!isset($_REQUEST['IFRAME']))
-	{
-		?>
-		<div class="pagetitle-inner-container">
-			<?$APPLICATION->ShowViewContent('inside_pagetitle')?>
-		</div>
-		<?
-	}
+	$APPLICATION->IncludeComponent(
+		"bitrix:ui.toolbar",
+		'',
+		[]
+	);
+	Toolbar::hideTitle();
+	Toolbar::deleteFavoriteStar();
 }
-$this->SetViewTarget('inside_pagetitle');
-
-$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
-$bodyClass = ($bodyClass ? $bodyClass . ' ' : '') . ' pagetitle-toolbar-field-view ';
-$APPLICATION->SetPageProperty('BodyClass', $bodyClass);
 
 
-foreach ($arParams['LIST'] as $item):
-
-	if ($item['type'] === 'filter'):
-		?>
-		<div class="pagetitle-container pagetitle-flexible-space">
-			<?=$item['content']?>
-		</div>
-		<?
-	elseif ($item['type'] === 'buttons'):
-
+foreach ($arParams['LIST'] as $item)
+{
+	if($item['type'] === 'filter' && $item['params'])
+	{
+		Toolbar::addFilter($item['params']);
+	}
+	elseif($item['type'] === 'buttons')
+	{
 		Extension::load("ui.buttons");
 		Extension::load("ui.buttons.icons");
 
-		?>
-		<div class="pagetitle-container pagetitle-align-right-container">
-		<?
-
-		foreach ($item['list'] as $button):
-			if (empty($button))
+		foreach($item['list'] as $button)
+		{
+			if(empty($button))
 			{
 				continue;
 			}
 
-			if($button['type'] === 'ui-feedback')
+			$button['id'] = $button['id'] ?? '';
+			$button['href'] = $button['href'] ?? '';
+			$button['class'] = $button['class'] ?? '';
+			$button['caption'] = $button['caption'] ?? '';
+			$button['visible'] = !isset($button['visible']) || $button['visible'];
+
+			if($button['type'] === 'list')
 			{
-				$APPLICATION->IncludeComponent(
-					'bitrix:ui.feedback.form',
-					'',
-					$button['content']
-				);
+				$button['location'] = $button['location'] ?? ButtonLocation::AFTER_TITLE;
+				$listButton = new Button([
+					"color" => Color::SUCCESS,
+					"text" => $button['caption'],
+					"classList" => [$button['class']],
+				]);
+				$listButton->setDropdown();
+				$listButton->addAttribute('id', $button['id']);
+				$listButton->addAttribute('style', $button['visible'] ? '' : 'display: none;');
 
-				continue;
+				Toolbar::addButton($listButton, $button['location']);
 			}
+			elseif($button['type'] === 'settings')
+			{
+				$button['id'] = 'sender-ui-buttons-settings';
+				$button['location'] = $button['location'] ?? ButtonLocation::RIGHT;
 
-			$button['id'] = isset($button['id']) ? $button['id'] : '';
-			$button['class'] = isset($button['class']) ? $button['class'] : '';
-			$button['href'] = isset($button['href']) ? $button['href'] : '';
-			$button['caption'] = isset($button['caption']) ? $button['caption'] : '';
-			$button['visible'] = isset($button['visible']) ? (bool) $button['visible'] : true;
+				$settingsButton = new Button([
+					"color" => Color::LIGHT_BORDER,
+					"icon" => Icon::SETTING,
+					"text" => $button['caption'],
+					"link" => $button['href'],
+					"classList" => [$button['class']],
+				]);
+				$settingsButton->addAttribute('id', $button['id']);
+				$settingsButton->addAttribute('style', $button['visible'] ? '' : 'display: none;');
 
-			if ($button['type'] == 'list'):
-				$button['class'] = $button['class'] ?: 'sender-ui-btn ui-btn-success ui-btn-dropdown'
-			?>
-				<div id="<?=htmlspecialcharsbx($button['id'])?>"
-					class="ui-btn <?=htmlspecialcharsbx($button['class'])?>"
-					style="<?=($button['visible'] ? '' : 'display: none;')?>"
-				>
-					<?=htmlspecialcharsbx($button['caption'])?>
-				</div>
-			<?
-			elseif ($button['type'] == 'settings'):
-				$button['id'] = $button['id'] ?: 'sender-ui-buttons-settings';
-				$button['class'] = $button['class'] ?: 'ui-btn-light-border ui-btn-icon-setting';
-			?>
+				Toolbar::addButton($settingsButton, $button['location']);
+
+				?>
 				<script>
-					BX.ready(function () {
-						var button = BX('<?=CUtil::JSEscape(htmlspecialcharsbx($button['id']))?>');
-						var popup = BX.PopupMenu.create(
-							'<?=CUtil::JSEscape(htmlspecialcharsbx($button['id']))?>',
-							button,
-							[{
-								'id': 'export',
-								'text': '<?=CUtil::JSEscape(htmlspecialcharsbx(Loc::getMessage('SENDER_UI_BUTTON_PANEL_EXPORT')))?>',
-								'onclick': function () {
-									var s = window.location.href;
-									s += window.location.href.indexOf('?') > -1 ? '&' : '?';
-									s +='export=csv&ncc=1';
-									window.location = s;
-									popup.close();
-								}
-							}]
-						);
-						BX.bind(button, 'click', popup.show.bind(popup));
+					const button = BX('sender-ui-buttons-settings');
+					var popup = BX.PopupMenu.create(
+						'sender-ui-buttons-settings',
+						button,
+						[{
+							id: 'export',
+							text: '<?=htmlspecialcharsbx(Loc::getMessage('SENDER_UI_BUTTON_PANEL_EXPORT'))?>',
+							onclick() {
+								let s = window.location.href;
+								s += window.location.href.includes('?') ? '&' : '?';
+								s += 'export=csv&ncc=1';
+								window.location = s;
+								popup.close();
+							},
+						}],
+					);
+					BX.bind(button, 'click', popup.show.bind(popup));
+				</script>
+				<?php
+			}
+			elseif($button['type'] === 'add')
+			{
+				$button['location'] = $button['location'] ?? ButtonLocation::AFTER_TITLE;
+				$onClick = !empty($button['onclick'])
+					? htmlspecialcharsbx($button['onclick'])
+					: sprintf("BX.Sender.Page.open('%s'); return false;", CUtil::JSEscape(htmlspecialcharsbx($button['href'] ?? '')))
+				;
+				$addButton = new Button([
+					"text" => $button['caption'],
+					"link" => $button['href'],
+					"color" => Color::SUCCESS,
+					"classList" => [$button['class']],
+				]);
+				$addButton->addAttribute('id', $button['id']);
+				$addButton->addAttribute('onclick', $onClick);
+				$addButton->addAttribute('style', $button['visible'] ? '' : 'display: none;');
+
+				Toolbar::addButton($addButton, $button['location']);
+			}
+			elseif($button['type'] === 'abuses')
+			{
+				if(!Integration\Bitrix24\Service::isPortal())
+				{
+					continue;
+				}
+
+				$button['caption'] = $button['caption'] ?: Loc::getMessage('SENDER_UI_BUTTON_PANEL_ABUSES');
+				$button['counter'] = $button['counter'] ?? Model\AbuseTable::getCountOfNew();
+				$button['location'] = $button['location'] ?? ButtonLocation::RIGHT;
+				$button['id'] = $button['id'] ?? '';
+				$href = sprintf("BX.Sender.Page.open('%s'); return false;", CUtil::JSEscape(htmlspecialcharsbx($button['href'])));
+
+				$abusesButton = new Button([
+					"link" => $button['href'],
+					"icon" => Icon::INFO,
+					"color" => Color::LIGHT_BORDER,
+					"classList" => [$button['class']],
+				]);
+				$abusesButton->addAttribute('title', $button['caption']);
+				$abusesButton->addAttribute('id', $button['id']);
+				$abusesButton->addAttribute('onclick', $href);
+				$abusesButton->setCounter($button['counter']);
+
+				Toolbar::addButton($abusesButton, $button['location']);
+				?>
+				<script>
+					BX.ready(function() {
+						top.BX.addCustomEvent('onSenderAbuseCountReset', () => {
+							BX.remove(BX('sender-abuse-counter'));
+						});
 					});
 				</script>
-				<span id="<?=htmlspecialcharsbx($button['id'])?>"
-					href="<?=htmlspecialcharsbx($button['href'])?>"
-					class="ui-btn ui-btn-themes <?=htmlspecialcharsbx($button['class'])?>"
-					style="<?=($button['visible'] ? '' : 'display: none;')?>"
-				><?=htmlspecialcharsbx($button['caption'])?></span>
-			<?
-			elseif ($button['type'] == 'add'):
-				$button['class'] = $button['class'] ?: 'sender-ui-btn ui-btn-success';
-			?>
-				<a id="<?=htmlspecialcharsbx($button['id'] ?? '')?>"
-					href="<?=htmlspecialcharsbx($button['href'] ?? '')?>"
-					class="ui-btn <?=htmlspecialcharsbx($button['class'] ?? '')?>"
-					onclick="<?php if ($button['onclick'] ?? false):?><?= htmlspecialcharsbx($button['onclick'] ?? '')?><?php else:?>BX.Sender.Page.open('<?=CUtil::JSEscape(
-						htmlspecialcharsbx($button['href'] ?? '')
-					)?>'); return false;<?php endif;?>"
-					style="<?=($button['visible'] ? '' : 'display: none;')?>"
-				>
-					<?=htmlspecialcharsbx($button['caption'] ?? '')?>
-				</a>
-			<?
-			elseif ($button['type'] == 'abuses'):
-				if (!Integration\Bitrix24\Service::isPortal())
+				<?php
+			}
+			elseif($button['type'] === 'feedback')
+			{
+				if(!Integration\Bitrix24\Service::isCloud())
 				{
 					continue;
 				}
 
-				$button['class'] = $button['class'] ?: 'ui-btn-light-border ui-btn-icon-info';
-				$button['caption'] = $button['caption'] ?: Loc::getMessage('SENDER_UI_BUTTON_PANEL_ABUSES');
-				$button['counter'] = isset($button['counter']) ? $button['counter'] : Model\AbuseTable::getCountOfNew();
-				$button['id'] = isset($button['id']) ? $button['id'] : '';
-
-				\Bitrix\Main\Page\Asset::getInstance()->addString("
-					<script>
-						BX.ready(function () {
-							top.BX.addCustomEvent('onSenderAbuseCountReset', function () {
-								BX.remove(BX('sender-abuse-counter'));
-							});
-						});
-					</script>
-				");
-			?>
-				<a id="<?=htmlspecialcharsbx($button['id'])?>" title="<?=htmlspecialcharsbx($button['caption'])?>"
-					href="<?=htmlspecialcharsbx($button['href'])?>"
-					onclick="BX.Sender.Page.open('<?=CUtil::JSEscape(htmlspecialcharsbx($button['href']))?>'); return false;"
-					class="ui-btn ui-btn-themes <?=htmlspecialcharsbx($button['class'])?>"
-				><?
-					if ($button['counter']):
-						?><i id="sender-abuse-counter" class="ui-btn-counter"><?=htmlspecialcharsbx($button['counter'])?></i><?
-					endif;
-				?></a>
-			<?
-			elseif ($button['type'] == 'feedback'):
-				if (!Integration\Bitrix24\Service::isCloud())
-				{
-					continue;
-				}
-
+				$button['location'] = $button['location'] ?? ButtonLocation::RIGHT;
+				$feedbackButton = new Button([
+					"text" => Loc::getMessage('SENDER_UI_BUTTON_PANEL_FEEDBACK'),
+					"link" => $button['href'],
+					"color" => Color::LIGHT_BORDER,
+				]);
+				$feedbackButton->addAttribute('id', 'SENDER_BUTTON_FEEDBACK');
+				$feedbackButton->addAttribute('style', $button['visible'] ? '' : 'display: none;');
+				Toolbar::addButton($feedbackButton, $button['location']);
 				\CJSCore::Init('sender_b24_feedback');
-			?>
-				<span id="SENDER_BUTTON_FEEDBACK" class="ui-btn ui-btn-light-border">
-					<?=Loc::getMessage('SENDER_UI_BUTTON_PANEL_FEEDBACK')?>
-				</span>
-				<script>
-					BX.ready(function () {
-						BX.Sender.B24Feedback.init(<?=Json::encode(array(
-							'b24_plan' => \CBitrix24::getLicenseType(),
-							'b24_zone' => \CBitrix24::getPortalZone(),
-						))?>);
-					})
-				</script>
-			<?
-			else:
-				$button['class'] = $button['class'] ?: 'ui-btn-light-border'
-			?>
-				<a id="<?=htmlspecialcharsbx($button['id'])?>"
-					<?if($button['href']):?>href="<?=htmlspecialcharsbx($button['href'])?>"<?endif;?>
-					<?if($button['href'] && !empty($button['sliding'])):?>onclick="BX.Sender.Page.open('<?=CUtil::JSEscape(htmlspecialcharsbx($button['href']))?>'); return false;"<?endif;?>
-					class="ui-btn <?=htmlspecialcharsbx($button['class'])?>"
-					style="<?=($button['visible'] ? '' : 'display: none;')?>"
-				>
-					<?=htmlspecialcharsbx($button['caption'])?>
-				</a>
-			<?
-			endif;
-		endforeach;
-		?>
-		</div>
-		<?
-	endif;
 
-endforeach;
+				?>
+				<script>
+					BX.ready(function() {
+						BX.ready(function () {
+							BX.Sender.B24Feedback.init(
+								<?=Json::encode(['b24_plan' => \CBitrix24::getLicenseType(), 'b24_zone' => \CBitrix24::getPortalZone(),])?>
+							);
+						})
+					});
+				</script>
+				<?php
+			}
+			elseif($button['type'] === 'ui-feedback')
+			{
+				$feedbackParams = Json::encode($button['feedbackParams']);
+
+				Toolbar::addButton([
+					"color" => Color::LIGHT_BORDER,
+					"click" => new JsCode(
+						"BX.UI.Feedback.Form.open({$feedbackParams});"
+					),
+					"text" => Loc::getMessage('SENDER_UI_BUTTON_PANEL_FEEDBACK'),
+				]);
+			}
+			else
+			{
+				$defaultButton = new Button([
+					"text" => $button['caption'],
+					"link" => $button['href'],
+					"color" => Color::LIGHT_BORDER,
+					"classList" => [$button['class']],
+				]);
+				if($button['href'] && !empty($button['sliding']))
+				{
+					$defaultButton->addAttribute('onclick', sprintf(
+						"BX.Sender.Page.open('%s'); return false;",
+						CUtil::JSEscape(htmlspecialcharsbx($button['href']))
+					));
+				}
+				$defaultButton->addAttribute('id', $button['id']);
+				$defaultButton->addAttribute('style', $button['visible'] ? '' : 'display: none;');
+				Toolbar::addButton($defaultButton, $button['location']);
+			}
+		}
+	}
+}

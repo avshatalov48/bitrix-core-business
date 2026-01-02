@@ -1,3 +1,4 @@
+/* eslint-disable @bitrix24/bitrix24-rules/no-classlist */
 import Type from './type';
 import Event from './event';
 import encodeAttributeValue from '../internal/encode-attribute-value';
@@ -287,35 +288,30 @@ export default class Dom
 
 	/**
 	 * Toggles class name
-	 * @param element
-	 * @param className
 	 */
-	static toggleClass(element: any, className: string | Array<string>)
+	static toggleClass(element: HTMLElement, className: string | string[], force?: boolean): void
 	{
-		if (Type.isElementNode(element))
+		if (
+			!Type.isElementNode(element)
+			|| (
+				!Type.isStringFilled(className)
+				&& !Type.isArrayFilled(className)
+			)
+		)
 		{
-			if (Type.isString(className))
-			{
-				const preparedClassName = className.trim();
-
-				if (preparedClassName.length > 0)
-				{
-					if (preparedClassName.includes(' '))
-					{
-						Dom.toggleClass(element, preparedClassName.split(' '));
-						return;
-					}
-
-					element.classList.toggle(preparedClassName);
-					return;
-				}
-			}
-
-			if (Type.isArray(className))
-			{
-				className.forEach(name => Dom.toggleClass(element, name));
-			}
+			return;
 		}
+
+		[className]
+			.flat()
+			.flatMap((it: any): ?string[] => it?.trim?.().split(' '))
+			.forEach((token: ?string): void => {
+				if (Type.isStringFilled(token))
+				{
+					element.classList.toggle(token, Type.isBoolean(force) ? force : undefined);
+				}
+			})
+		;
 	}
 
 	/**
@@ -642,7 +638,7 @@ export default class Dom
 		element: ?HTMLElement,
 		attr: string | {[key: string]: any},
 		value?: any,
-	)
+	): any
 	{
 		if (Type.isElementNode(element))
 		{
@@ -650,20 +646,30 @@ export default class Dom
 			{
 				if (!Type.isNil(value))
 				{
-					return element.setAttribute(attr, encodeAttributeValue(value));
+					if (Type.isObjectLike(value))
+					{
+						element.setAttribute(attr, encodeAttributeValue(value));
+					}
+					else
+					{
+						element.setAttribute(attr, value);
+					}
 				}
-
-				if (Type.isNull(value))
+				else if (Type.isNull(value))
 				{
-					return element.removeAttribute(attr);
+					element.removeAttribute(attr);
 				}
-
-				return decodeAttributeValue(element.getAttribute(attr));
+				else
+				{
+					return decodeAttributeValue(
+						element.getAttribute(attr),
+					);
+				}
 			}
 
 			if (Type.isPlainObject(attr))
 			{
-				return Object.entries(attr).forEach(([attrKey, attrValue]) => {
+				Object.entries(attr).forEach(([attrKey, attrValue]) => {
 					Dom.attr(element, attrKey, attrValue);
 				});
 			}

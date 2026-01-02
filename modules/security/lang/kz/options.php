@@ -1,0 +1,26 @@
+<?php
+$MESS["SEC_OPTIONS_ABSOLUTE_PATH_NOTE"] = "Абсолютті (толық) жол түбірлік каталогтан басталуы керек. Мысалы: /var/log/bitrix/security.log";
+$MESS["SEC_OPTIONS_EVENTS"] = "Журналдау баптаулары";
+$MESS["SEC_OPTIONS_EVENT_DB_ACTIVE"] = "Оқиғалар журналына жазбалар енгізу";
+$MESS["SEC_OPTIONS_EVENT_FILE_ACTIVE"] = "Файлға жазбалар енгізу";
+$MESS["SEC_OPTIONS_EVENT_FILE_PATH"] = "Абсолютті файл жолы";
+$MESS["SEC_OPTIONS_EVENT_FORMAT"] = "Хабарлама пішімі";
+$MESS["SEC_OPTIONS_EVENT_MESSAGE_PLACEHOLDERS"] = "Хабарламаның қолжетімді өрістері";
+$MESS["SEC_OPTIONS_EVENT_MESSAGE_PLACEHOLDER_AUDIT_TYPE"] = "Қауіпсіздік аудиторының аты";
+$MESS["SEC_OPTIONS_EVENT_MESSAGE_PLACEHOLDER_SITE_ID"] = "Ағымдағы сайт ID-і";
+$MESS["SEC_OPTIONS_EVENT_MESSAGE_PLACEHOLDER_URL"] = "Сұралған урл";
+$MESS["SEC_OPTIONS_EVENT_MESSAGE_PLACEHOLDER_USER_INFO"] = "Пайдаланушы туралы ақпарат";
+$MESS["SEC_OPTIONS_EVENT_MESSAGE_PLACEHOLDER_VARIABLE_NAME"] = "Қауіпті деректерді қамтитын айнымалының атауы";
+$MESS["SEC_OPTIONS_EVENT_MESSAGE_PLACEHOLDER_VARIABLE_VALUE"] = "Қауіпті деректер";
+$MESS["SEC_OPTIONS_EVENT_MESSAGE_PLACEHOLDER_VARIABLE_VALUE_BASE64"] = "Қауіпті деректер (base64-кодталған)";
+$MESS["SEC_OPTIONS_EVENT_SYSLOG_ACTIVE"] = "Syslog-ке жазбалар енгізу";
+$MESS["SEC_OPTIONS_EVENT_SYSLOG_FACILITY"] = "Журналдау түрі (facility)";
+$MESS["SEC_OPTIONS_EVENT_SYSLOG_PRIORITY"] = "Ескерту деңгейі";
+$MESS["SEC_OPTIONS_EVENT_USERINFO_FORMAT"] = "Пайдаланушы туралы ақпарат пішімі";
+$MESS["SEC_OPTIONS_EVENT_USERINFO_PLACEHOLDERS"] = "Пайдаланушы туралы ақпараттың қолжетімді өрістері";
+$MESS["SEC_OPTIONS_EVENT_USERINFO_PLACEHOLDER_REMOTE_ADDR"] = "IP-мекенжай";
+$MESS["SEC_OPTIONS_EVENT_USERINFO_PLACEHOLDER_USER_AGENT"] = "User-Agent";
+$MESS["SEC_OPTIONS_EVENT_USERINFO_PLACEHOLDER_USER_ID"] = "Пайдаланушының ID-і";
+$MESS["SEC_OPTIONS_IPCHECK"] = "IP бойынша бұғаттау баптаулары";
+$MESS["SEC_OPTIONS_IPCHECK_ALLOW_SELF_BLOCK"] = "IP арқылы өзіңізді бұғаттауға рұқсат ету (ескерту көрсетілімімен)";
+$MESS["SEC_OPTIONS_IPCHECK_DISABLE_FILE"] = "IP арқылы бұғаттауға тыйым салу файл-жалаушасына жол";

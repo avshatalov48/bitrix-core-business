@@ -8,10 +8,8 @@
 
 namespace Bitrix\Iblock;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
 
 class SenderEventHandler
 {

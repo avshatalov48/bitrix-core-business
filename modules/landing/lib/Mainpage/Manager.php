@@ -3,13 +3,17 @@
 namespace Bitrix\Landing\Mainpage;
 
 use Bitrix\AI\Integration;
+use Bitrix\Bitrix24\Feature;
+use Bitrix\Intranet\MainPage\Publisher;
 use Bitrix\Landing;
 use Bitrix\Landing\Site;
 use Bitrix\Landing\Rights;
 use Bitrix\Landing\Site\Type;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\EventManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Pull;
 
 /**
  * Manage mainpage site and pages
@@ -17,20 +21,40 @@ use Bitrix\Main\Localization\Loc;
 class Manager
 {
 	private const SITE_ID_OPTION_CODE = 'mainpage_site_id';
-	private const FULLY_CREATED_OPTION_CODE = 'mainpage_created';
+	private const CREATION_OPTION_CODE = 'mainpage_creating';
+	private const CREATION_OPTION_PROCESS = 'process';
+	private const CREATION_OPTION_FULL = 'fully';
+	private const USE_DEMO_OPTION_CODE = 'use_demo_data_in_block_widgets';
+	private const FREE_MODE_OPTION_CODE = 'enable_at_free_tariff';
 
 	/**
 	 * Connected landing
 	 */
-	protected ?int $siteId = null;
-	protected ?int $landingId = null;
-	protected ?Landing\Landing $landing = null;
-	protected ?string $previewImg = null;
-	protected ?string $pageTitle = null;
+	private ?int $siteId = null;
+	private ?int $landingId = null;
+	private ?string $previewImg = null;
+	private ?string $pageTitle = null;
+	private ?string $scopeBefore = null;
+	private bool $rightsBefore;
 
+	/**
+	 * Check feature available. Not check tariff limits
+	 * @return bool
+	 */
 	public static function isAvailable(): bool
 	{
-		return Landing\Manager::isB24Cloud();
+		// not in SMN
+		return Loader::includeModule('intranet');
+	}
+
+	public static function isFeatureEnable(): bool
+	{
+		if (Loader::includeModule('bitrix24'))
+		{
+			return Feature::isFeatureEnabled('main_page');
+		}
+
+		return true;
 	}
 
 	/**
@@ -38,20 +62,12 @@ class Manager
 	 */
 	public function __construct()
 	{
-		// getList filter by TYPE don't work in wrong scope
-		$scopeBefore = Type::getCurrentScopeId();
-		Type::setScope(Type::SCOPE_CODE_MAINPAGE);
+		$this->onBeforeOperation();
 
 		$this->detectConnectedSite();
 		$this->detectConnectedPage();
 
-		if ($scopeBefore !== Type::SCOPE_CODE_MAINPAGE)
-		{
-			$scopeBefore
-				? Type::setScope($scopeBefore)
-				: Type::clearScope()
-			;
-		}
+		$this->onAfterOperation();
 	}
 
 	/**
@@ -65,69 +81,72 @@ class Manager
 			return;
 		}
 
-		$storedSiteId = Landing\Manager::getOption(self::SITE_ID_OPTION_CODE);
-		$this->siteId = $storedSiteId;
+		Rights::setGlobalOff();
 
-		if (!$storedSiteId)
+		$optionSiteId = (int)Landing\Manager::getOption(self::SITE_ID_OPTION_CODE);
+
+		// check that exists
+		if ($optionSiteId > 0)
 		{
-			Rights::setGlobalOff();
-
-			// try find
-			$exists = (Landing\Site::getList([
-				'select' => ['ID', 'TYPE', 'ACTIVE'],
+			$connectedSite = (Landing\Site::getList([
+				'select' => ['LANDING_ID_INDEX'],
 				'filter' => [
+					'=ID' => $optionSiteId,
 					'=ACTIVE' => 'Y',
 					'TYPE' => Type::SCOPE_CODE_MAINPAGE,
 					'=SPECIAL' => 'Y',
 					'CHECK_PERMISSIONS' => 'N',
 				],
+				'cache' => ['ttl' => 86400],
 			]))->fetch();
-			if ($exists && (int)$exists['ID'] && $exists['TYPE'] === Type::SCOPE_CODE_MAINPAGE)
+			if ($connectedSite)
 			{
-				$this->siteId = (int)$exists['ID'];
-			}
-			else
-			{
-				$newId = $this->createDefaultSite();
-				if ($newId)
+				$this->siteId = $optionSiteId;
+				if (!$this->landingId && $connectedSite['LANDING_ID_INDEX'] > 0)
 				{
-					$this->siteId = $newId;
+					$this->landingId = (int)$connectedSite['LANDING_ID_INDEX'];
 				}
-			}
-
-			if ($this->siteId)
-			{
-				Landing\Manager::setOption(self::SITE_ID_OPTION_CODE, $this->siteId);
 				Rights::setGlobalOn();
 
 				return;
 			}
 		}
 
-		// check that exists
-		if ($this->siteId)
+		// try find
+		$exists = (Landing\Site::getList([
+			'select' => ['ID', 'TYPE', 'ACTIVE', 'LANDING_ID_INDEX'],
+			'filter' => [
+				'=ACTIVE' => 'Y',
+				'TYPE' => Type::SCOPE_CODE_MAINPAGE,
+				'=SPECIAL' => 'Y',
+				'CHECK_PERMISSIONS' => 'N',
+			],
+		]))->fetch();
+		if ($exists && (int)$exists['ID'])
 		{
-			$new = Landing\Site::getList([
-				'select' => [
-					'ID',
-				],
-				'filter' => [
-					'=ID' => $this->siteId,
-					'=TYPE' => Type::SCOPE_CODE_MAINPAGE,
-					'=SPECIAL' => 'Y',
-					'CHECK_PERMISSIONS' => 'N',
-				],
-			]);
-
-			$site = $new->fetch();
-			if (!$site)
+			$this->siteId = (int)$exists['ID'];
+			if (!$this->landingId && $exists['LANDING_ID_INDEX'] > 0)
 			{
-				$this->siteId = null;
-				Landing\Manager::setOption(self::SITE_ID_OPTION_CODE, $this->siteId);
-
-				$this->detectConnectedSite();
+				$this->landingId = (int)$exists['LANDING_ID_INDEX'];
 			}
 		}
+		// create
+		else
+		{
+			$newId = $this->createDefaultSite();
+			if ($newId)
+			{
+				$this->siteId = $newId;
+				$this->landingId = null;
+			}
+		}
+
+		if ($this->siteId && $this->siteId !== $optionSiteId)
+		{
+			Landing\Manager::setOption(self::SITE_ID_OPTION_CODE, $this->siteId);
+		}
+
+		Rights::setGlobalOn();
 	}
 
 	private function createDefaultSite(): ?int
@@ -148,79 +167,32 @@ class Manager
 		return $defaultSiteId;
 	}
 
-	public function createDefaultSocialGroupForPublication(): void
-	{
-		if (Loader::includeModule('socialnetwork'))
-		{
-			$dbSubjects = \CSocNetGroupSubject::GetList(
-				["SORT"=>"ASC", "NAME" => "ASC"],
-				["SITE_ID" => SITE_ID],
-				false,
-				false,
-				["ID", "NAME"]
-			);
-			$firstSubject = $dbSubjects->GetNext();
-			$groupFields = array(
-				"SITE_ID" => SITE_ID,
-				"NAME" => Loc::getMessage('LANDING_MAINPAGE_SOCIAL_GROUP_FOR_PUBLICATION_NAME'),
-				"VISIBLE" => 'Y',
-				"OPENED" => 'Y',
-				"CLOSED" => 'N',
-				"LANDING" => 'Y',
-				"SUBJECT_ID" => $firstSubject['ID'],
-				"INITIATE_PERMS" => 'E',
-				"SPAM_PERMS" => 'E',
-			);
-			$idGroup = \CSocNetGroup::createGroup(Landing\Manager::getUserId(), $groupFields);
-			if ($idGroup)
-			{
-				Option::set('landing', 'mainpage_id_publication_group', $idGroup);
-			}
-		}
-	}
-
-	public function isExistDefaultSocialGroupForPublication(): bool
-	{
-		$publicationGroupId = Option::get('landing', 'mainpage_id_publication_group');
-
-		return $publicationGroupId > 0;
-	}
-
 	/**
 	 * Try to find landing for mainpage
 	 * @return void
 	 */
 	private function detectConnectedPage(): void
 	{
-		if (!$this->siteId)
+		if (!$this->getConnectedSiteId())
 		{
 			$this->landingId = null;
 
 			return;
 		}
 
-		if ($this->landingId)
-		{
-			return;
-		}
-
-		$siteRes = Site::getList([
-			'select' => ['ID', 'LANDING_ID_INDEX'],
-			'filter' => [
-				'=ID' => $this->siteId,
-			],
-		]);
-		if ($site = $siteRes->fetch())
+		// check that exists
+		if ($this->landingId > 0)
 		{
 			$exists = (Landing\Landing::getList([
 				'select' => ['ID'],
 				'filter' => [
-					'=SITE_ID' => $this->siteId,
-					'=ID' => $site['LANDING_ID_INDEX'],
+					'=SITE_ID' => $this->getConnectedSiteId(),
+					'=ID' => $this->landingId,
 				],
 				'order' => [
 					'ID' => 'asc',
 				],
+				'cache' => ['ttl' => 86400],
 			]))->fetch();
 
 			if ($exists && (int)$exists['ID'])
@@ -230,37 +202,11 @@ class Manager
 				$this->detectPreviewImg();
 				$this->detectPageTitle();
 			}
-		}
-	}
-
-	/**
-	 * @return int|null
-	 */
-	public function createDemoPage(): ?int
-	{
-		if (
-			$this->getConnectedSiteId()
-			&& !$this->getConnectedPageId()
-		)
-		{
-			$result = Landing\Landing::addByTemplate(
-				$this->siteId,
-				'empty',
-				[
-					'SITE_TYPE' => Type::SCOPE_CODE_MAINPAGE,
-				]
-			);
-
-			if ($result->isSuccess() && $result->getId())
+			else
 			{
-				$this->landingId = $result->getId();
-				$this->markEndCreation();
-
-				return $this->landingId;
+				$this->landingId = null;
 			}
 		}
-
-		return null;
 	}
 
 	/**
@@ -271,8 +217,7 @@ class Manager
 	{
 		$this->previewImg = $this->getConnectedPageId()
 			? Landing\Manager::getUrlFromFile(Site::getPreview($this->getConnectedSiteId(), true))
-			: null
-		;
+			: null;
 	}
 
 	/**
@@ -283,8 +228,144 @@ class Manager
 	{
 		$this->pageTitle = $this->getConnectedPageId()
 			? Landing\Landing::createInstance($this->getConnectedPageId())->getTitle()
-			: null
-		;
+			: null;
+	}
+
+	public function createSonetGroupForPublicationOnce(): bool
+	{
+		if (!Loader::includeModule('socialnetwork'))
+		{
+			return false;
+		}
+
+		$storedGroupId = (int)Landing\Manager::getOption('mainpage_id_publication_group', 0);
+		if ($storedGroupId > 0)
+		{
+			return true;
+		}
+
+		$firstSubject = \CSocNetGroupSubject::GetList(
+			["SORT" => "ASC", "NAME" => "ASC"],
+			["SITE_ID" => SITE_ID],
+			false,
+			false,
+			["ID", "NAME"]
+		)->Fetch();
+
+		$fields = array(
+			"SITE_ID" => SITE_ID,
+			"NAME" => Loc::getMessage('LANDING_MAINPAGE_SOCIAL_GROUP_FOR_PUBLICATION_NAME'),
+			"VISIBLE" => 'Y',
+			"OPENED" => 'Y',
+			"CLOSED" => 'N',
+			"LANDING" => 'Y',
+			"SUBJECT_ID" => $firstSubject['ID'] ?? 0,
+			"INITIATE_PERMS" => 'E',
+			"SPAM_PERMS" => 'E',
+		);
+		$newGroupId = (int)\CSocNetGroup::createGroup(Landing\Manager::getUserId(), $fields);
+		if ($newGroupId && $newGroupId > 0)
+		{
+			Option::set('landing', 'mainpage_id_publication_group', $newGroupId);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public function createPageByTemplate(?Templates $code = null, bool $publication = false): bool
+	{
+		if (!self::isAvailable())
+		{
+			return false;
+		}
+
+		$siteId = $this->getConnectedSiteId();
+		if (!$siteId)
+		{
+			return false;
+		}
+
+		$this->onBeforeOperation();
+		$this->onStartPageCreation();
+		if ($publication)
+		{
+			(new Publisher())->publish();
+		}
+
+		$installer = new Installer($siteId);
+
+		if ($code === null)
+		{
+			$newPageId = $installer->createDemoPage();
+		}
+		else
+		{
+			$newPageId = $installer->createPageByTemplate($code);
+			$this->onTemplateCreation();
+		}
+
+		if (!$newPageId)
+		{
+			return false;
+		}
+
+		$this->landingId = $newPageId;
+		$this->onFinishPageCreation();
+		$this->onAfterOperation();
+
+		return true;
+	}
+
+	/**
+	 * Create default page. Using just for demo, not for product purposes
+	 * @return bool
+	 */
+	public function createDemoPage(): bool
+	{
+		return $this->createPageByTemplate();
+	}
+
+	// todo: private
+	private function onTemplateCreation(): void
+	{
+		EventManager::getInstance()->registerEventHandler(
+			'intranet',
+			'onLicenseHasChanged',
+			'bitrix24',
+			EventHandler::class,
+			'onLicenseHasChanged'
+		);
+		self::setFreeTariffMode();
+	}
+
+	/**
+	 * If true - enable some functionality at free tariff (by default in free tariff vibe is fully disabled)
+	 * @param bool $flag
+	 * @return void
+	 */
+	public static function setFreeTariffMode(bool $flag = true): void
+	{
+		Landing\Manager::setOption(self::FREE_MODE_OPTION_CODE, $flag ? 'Y' : 'N');
+	}
+
+	/**
+	 * If true - enable some functionality at free tariff (by default in free tariff vibe is fully disabled)
+	 * @return bool
+	 */
+	public static function isFreeTariffMode(): bool
+	{
+		return Landing\Manager::getOption(self::FREE_MODE_OPTION_CODE, 'N') === 'Y';
+	}
+
+	/**
+	 * Check that the creation is processing now.
+	 * @return bool
+	 */
+	public function isProcessing(): bool
+	{
+		return Landing\Manager::getOption(self::CREATION_OPTION_CODE) === self::CREATION_OPTION_PROCESS;
 	}
 
 	/**
@@ -293,13 +374,41 @@ class Manager
 	 */
 	public function isReady(): bool
 	{
-		// todo: check option
-		return $this->getConnectedPageId() && $this->isFullCreated();
+		return $this->getConnectedPageId() && $this->isFullyCreated();
 	}
 
-	protected function isFullCreated(): bool
+	protected function isFullyCreated(): bool
 	{
-		return Landing\Manager::getOption(self::FULLY_CREATED_OPTION_CODE, 'Y') === 'Y';
+		$creating = Landing\Manager::getOption(self::CREATION_OPTION_CODE, self::CREATION_OPTION_FULL);
+
+		return $creating === self::CREATION_OPTION_FULL;
+	}
+
+
+	/**
+	 * Mark is Mainpage site start creating.
+	 * Not created or check site or pages, just mark start of creating process.
+	 * @return void
+	 */
+	public function onStartPageCreation(): void
+	{
+		Landing\Manager::setOption(self::CREATION_OPTION_CODE, self::CREATION_OPTION_PROCESS);
+	}
+
+	/**
+	 * Call this method before do some operations by DB
+	 * Don't forget onAfterOperation!
+	 * @return void
+	 */
+	private function onBeforeOperation(): void
+	{
+		// getList filter by TYPE don't work in wrong scope
+		$this->scopeBefore = Type::getCurrentScopeId();
+		Type::setScope(Type::SCOPE_CODE_MAINPAGE);
+
+		$this->rightsBefore = Rights::isOn();
+		Rights::setOff();
+		Rights::setGlobalOff();
 	}
 
 	/**
@@ -307,19 +416,59 @@ class Manager
 	 * Not created or check site or pages, just mark end of creating process.
 	 * @return void
 	 */
-	public function markEndCreation(): void
+	public function onFinishPageCreation(): void
 	{
-		Landing\Manager::setOption(self::FULLY_CREATED_OPTION_CODE, 'Y');
+		$connectedSiteId = $this->getConnectedSiteId();
+		$connectedPageId = $this->getConnectedPageId();
+		if (isset($connectedSiteId, $connectedPageId))
+		{
+			Landing\Manager::setOption(self::CREATION_OPTION_CODE, self::CREATION_OPTION_FULL);
+
+			$this->createSonetGroupForPublicationOnce();
+
+			Landing\Site::update($connectedSiteId, [
+				'LANDING_ID_INDEX' => $connectedPageId,
+			]);
+
+			if (Loader::includeModule('pull'))
+			{
+				Pull\Event::add(
+					Landing\Manager::getUserId(),
+					[
+						'module_id' => 'landing',
+						'command' => 'Vibe:onCreate',
+						'params' => [
+							// todo: add vibe entity type
+						],
+					]
+				);
+			}
+		}
 	}
 
 	/**
-	 * Mark is Mainpage site start creating.
-	 * Not created or check site or pages, just mark start of creating process.
+	 * Call this method after do some operations by DB
 	 * @return void
 	 */
-	public function markStartCreation(): void
+	private function onAfterOperation(): void
 	{
-		Landing\Manager::setOption(self::FULLY_CREATED_OPTION_CODE, 'N');
+		if ($this->scopeBefore === null)
+		{
+			Type::clearScope();
+		}
+		elseif (
+			is_string($this->scopeBefore)
+			&& $this->scopeBefore !== Type::SCOPE_CODE_MAINPAGE
+		)
+		{
+			Type::setScope($this->scopeBefore);
+		}
+
+		if ($this->rightsBefore)
+		{
+			Rights::setOn();
+			Rights::setGlobalOn();
+		}
 	}
 
 	/**
@@ -328,7 +477,7 @@ class Manager
 	 */
 	public function getConnectedSiteId(): ?int
 	{
-		return $this->siteId;
+		return (int)$this->siteId > 0 ? (int)$this->siteId : null;
 	}
 
 	/**
@@ -337,7 +486,10 @@ class Manager
 	 */
 	public function getConnectedPageId(): ?int
 	{
-		return $this->getConnectedSiteId() ? $this->landingId : null;
+		return
+			$this->getConnectedSiteId() && (int)$this->landingId > 0
+				? (int)$this->landingId
+				: null;
 	}
 
 	/**
@@ -364,6 +516,6 @@ class Manager
 	 */
 	public static function isUseDemoData(): bool
 	{
-		return Landing\Manager::getOption('use_demo_data_in_block_widgets', 'N') === 'Y';
+		return Landing\Manager::getOption(self::USE_DEMO_OPTION_CODE, 'N') === 'Y';
 	}
 }

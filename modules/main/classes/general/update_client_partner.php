@@ -8,7 +8,7 @@ use Bitrix\Main\Application;
 
 if (!defined('DEFAULT_UPDATE_SERVER'))
 {
-	define("DEFAULT_UPDATE_SERVER", "www.bitrixsoft.com");
+	define("DEFAULT_UPDATE_SERVER", "www.1c-bitrix.ru");
 }
 
 IncludeModuleLangFile(__FILE__);

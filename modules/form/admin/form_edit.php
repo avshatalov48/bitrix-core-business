@@ -692,7 +692,7 @@ var arrInputObjects = [];
 <?
 if (!empty($strError))
 {
-	echo CFormOutput::PrepareFormData($arrFS, $i);
+	CFormOutput::PrepareFormData($arrFS, $i);
 }
 else
 {

@@ -6,9 +6,11 @@
 	--im-dialog-chat__background-color_date-group: rgba(0, 0, 0, 0.2);
 	--im-dialog-chat__background-color_pinned: var(--im-color-palette-white-base);
 	--im-dialog-chat__background-color_pinned-separator: var(--im-color-palette-gray-10);
-	--im-dialog-chat__background-color_scroll-button: var(--im-color-palette-white-base);
-	--im-dialog-chat__background-color_scroll-button-counter: #00ace3;
-	--im-dialog-chat__background-color_scroll-button-counter-hover: var(--im-color-palette-blue-70);
+
+	--im-dialog-chat__icon-color_float-button: #00ace3;
+	--im-dialog-chat__icon-color-hover_float-button: var(--im-color-palette-blue-60);
+	--im-dialog-chat__background-color_float-button-counter: var(--im-dialog-chat__icon-color_float-button);
+	--im-dialog-chat__background-color-hover_float-button-counter: var(--im-color-palette-blue-60);
 
 	--im-dialog-chat__font-color_new-message: var(--im-color-palette-gray-90);
 	--im-dialog-chat__font-color_scroll-button-counter: var(--im-color-palette-white-base);
@@ -17,6 +19,8 @@
 
 	--im-dialog-chat__font-color_pinned-title: var(--im-color-palette-blue-60);
 	--im-dialog-chat__font-color_pinned-author: var(--im-color-palette-gray-60);
+	--im-dialog-chat__font-color_pinned-info: var(--im-color-palette-gray-50);
+	--im-dialog-chat__font-color_pinned-message-text: var(--im-color-palette-gray-80);
 	--im-dialog-chat__font-color_pinned-text: var(--im-color-palette-black-base);
 }
 
@@ -31,73 +35,16 @@
 	flex-grow: 1;
 	width: 100%;
 	min-width: 100%;
-	max-width: var(--im-content-chat__max-width_textarea_container);
+	max-width: var(--im-content-chat__max-width_message_container);
 	overflow: hidden;
 	overflow-y: auto;
 	overflow-anchor: none;
+	overscroll-behavior: contain;
 	margin-top: 1px;
 	position: relative;
 	scrollbar-gutter: stable;
 }
 
-/* Scroll button */
-.bx-im-dialog-chat__scroll-button {
-	position: absolute;
-	bottom: 22px;
-	right: 20px;
-	width: 48px;
-	height: 48px;
-	border-radius: 50%;
-	background-color: var(--im-dialog-chat__background-color_scroll-button);
-	background-image: url('./images/chevron-down.svg?v2');
-	background-position: center;
-	background-repeat: no-repeat;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-	cursor: pointer;
-	z-index: 100;
-}
-
-.bx-im-dialog-chat__scroll-button_counter {
-	position: absolute;
-	right: -3px;
-	top: -9px;
-	min-width: 24px;
-	height: 20px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0 2px;
-	border-radius: 30px;
-	background-color: var(--im-dialog-chat__background-color_scroll-button-counter);
-	font: var(--im-font-size-xs) var(--im-font-family-system);
-	font-weight: var(--im-font-weight-medium);
-	color: var(--im-dialog-chat__font-color_scroll-button-counter);
-	transition: background-color ease 100ms;
-}
-
-.bx-im-dialog-chat__scroll-button:hover {
-	background-image: url('./images/chevron-down-hover.svg');
-}
-
-.bx-im-dialog-chat__scroll-button:hover .bx-im-dialog-chat__scroll-button_counter {
-	background-color: var(--im-dialog-chat__background-color_scroll-button-counter-hover);
-}
-
-.float-button-transition-move,
-.float-button-transition-enter-active,
-.float-button-transition-leave-active {
-	transition: transform 0.5s, opacity 0.3s;
-}
-
-.float-button-transition-enter-from {
-	opacity: 0;
-	transform: translateY(8px);
-}
-
-.float-button-transition-leave-to {
-	opacity: 0;
-}
-
-.float-button-transition-leave-active {
-	position: absolute;
+.bx-im-dialog-chat__scroll-container:hover::-webkit-scrollbar-thumb {
+	background-color: rgba(255,255,255, .8) !important;
 }

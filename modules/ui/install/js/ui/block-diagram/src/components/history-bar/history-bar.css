@@ -1,0 +1,14 @@
+.ui-block-diagram-histoy-bar {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 12px;
+	padding: 7px 8px;
+	border-radius: 8px;
+	background: var(--ui-color-palette-white-base);
+	box-shadow: 0px 1px 2px 0px rgba(var(--ui-color-palette-black-solid-rgb), 0.13);
+}
+
+.ui-block-diagram-histoy-bar__prev-button {
+	transform: rotate(-180deg) rotateX(180deg);
+}

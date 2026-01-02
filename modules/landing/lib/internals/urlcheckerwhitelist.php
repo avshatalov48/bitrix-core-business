@@ -6,6 +6,22 @@ use Bitrix\Main\Entity;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class UrlCheckerWhitelistTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UrlCheckerWhitelist_Query query()
+ * @method static EO_UrlCheckerWhitelist_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_UrlCheckerWhitelist_Result getById($id)
+ * @method static EO_UrlCheckerWhitelist_Result getList(array $parameters = [])
+ * @method static EO_UrlCheckerWhitelist_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_UrlCheckerWhitelist createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_UrlCheckerWhitelist_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_UrlCheckerWhitelist wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_UrlCheckerWhitelist_Collection wakeUpCollection($rows)
+ */
 class UrlCheckerWhitelistTable extends Entity\DataManager
 {
 	/**

@@ -64,7 +64,7 @@
 	font-weight: var(--ui-font-weight-semi-bold, 600);
 	cursor: pointer;
 	-webkit-user-select: none;
-	user-select: none;
+	        user-select: none;
 }
 
 .main-dropdown .popup-window {
@@ -224,8 +224,6 @@
 	pointer-events: none;
 }
 
-.main-grid-border { }
-
 /* fade */
 .main-grid-fade { position: relative; }
 
@@ -321,7 +319,7 @@
 
 .main-grid-cell-head * {
 	-webkit-user-select: none;
-	user-select: none;
+	        user-select: none;
 }
 
 .main-grid-cell-head:last-child { border-right: 0; }
@@ -519,7 +517,8 @@ span.main-grid-cell-head-container { box-sizing: border-box; }
 
 .main-grid-cell-content-action {
 	position: relative;
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
 	min-height: 21px;
 	min-width: 31px;
 	cursor: pointer;
@@ -528,8 +527,6 @@ span.main-grid-cell-head-container { box-sizing: border-box; }
 }
 
 .main-grid-cell-content-action::before {
-	position: absolute;
-	display: inline-block;
 	background-position: center center;
 	background-repeat: no-repeat;
 	content: '';
@@ -537,7 +534,6 @@ span.main-grid-cell-head-container { box-sizing: border-box; }
 	height: 18px;
 	top: 50%;
 	left: 50%;
-	transform: translate3d(-50%, -50%, 0);
 	transition: 200ms all ease;
 }
 
@@ -664,23 +660,19 @@ span.main-grid-cell-head-container { box-sizing: border-box; }
 	height: 16px;
 	background: linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
 	content: '';
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ffffff', endColorstr='#ffffff', GradientType=0);
 	transition: background 300ms ease;
 }
 
 .main-grid-row:hover .main-grid-cell-text-limited:before {
 	background: linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(245, 245, 245, 1) 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ffffff', endColorstr='#f5f5f5', GradientType=0);
 }
 
 .main-grid-row-checked .main-grid-cell-text-limited:before {
 	background: linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(245, 252, 222, 1) 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ffffff', endColorstr='#f5fcde', GradientType=0);
 }
 
 .main-grid-row-checked:hover .main-grid-cell-text-limited:before {
 	background: linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(250, 255, 235, 1) 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ffffff', endColorstr='#faffeb', GradientType=0);
 }
 
 .main-grid-cell-text-limited-btn {
@@ -710,8 +702,6 @@ span.main-grid-cell-head-container { box-sizing: border-box; }
 .main-grid-content-note:hover { opacity: .7; }
 
 /* TFOOT */
-.main-grid-row-foot { }
-
 .main-grid-cell-foot {
 	overflow: hidden;
 	box-sizing: border-box;
@@ -984,10 +974,6 @@ input[type="file"].main-grid-cell-content-edit { display: none; }
 
 .main-grid-control-panel-btn { display: inline-block; }
 
-.main-grid-control-panel-btn:hover { }
-
-.main-grid-control-panel-btn:active { }
-
 /* drag */
 .main-grid-resize-button {
 	position: absolute;
@@ -1214,14 +1200,6 @@ html:not(.bx-firefox) .main-grid-resize-button:active::after {
 .main-table-more-btn:hover .main-grid-more-icon { opacity: 1; }
 
 /* ICON */
-.bx-disk-folder-icon { }
-
-.bx-disk-folder-icon.icon-shared_2 { }
-
-.bx-file-icon-container-small.bx-disk-file-icon { }
-
-.bx-file-icon-container-small.bx-disk-file-icon.icon-zip { }
-
 .main-grid-disk-icon {
 	display: inline-block;
 	background: url(images/sprite-interface.min.svg) no-repeat center;
@@ -1328,9 +1306,6 @@ label.main-grid-checkbox {
 	border-color: transparent transparent transparent #80868e;
 	content: '';
 }
-
-[id*="popup-window-content-menu-popup-main-grid-actions-menu"] .menu-popup-item-text,
-[id*="menu-popup-main_grid_submenu"] .menu-popup-item-text { padding-right: 22px; }
 
 .main-grid-hide { display: none; }
 
@@ -1626,7 +1601,7 @@ label.main-grid-checkbox {
 	opacity: .6;
 	pointer-events: none;
 	-webkit-user-select: none;
-	user-select: none;
+	        user-select: none;
 }
 
 .main-grid-buttons.icon {
@@ -2067,7 +2042,7 @@ label.main-grid-checkbox {
 	max-width: 22px;
 	width: 22px;
 	-webkit-user-select: none;
-	user-select: none;
+	        user-select: none;
 }
 
 .main-grid-minus-button,
@@ -2344,8 +2319,6 @@ label.main-grid-checkbox {
 .main-grid-message:last-child { margin-bottom: 0; }
 
 .main-grid-message-title { font-weight: var(--ui-font-weight-bold); }
-
-.main-grid-message.main-grid-message-message { }
 
 .main-grid-message.main-grid-message-error {
 	background: rgb(251, 229, 232);

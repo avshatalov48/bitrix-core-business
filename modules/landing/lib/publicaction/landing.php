@@ -1,23 +1,33 @@
 <?php
 namespace Bitrix\Landing\PublicAction;
 
-use \Bitrix\Landing\Hook;
-use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\File;
-use \Bitrix\Landing\Folder;
-use \Bitrix\Landing\Site;
-use \Bitrix\Landing\Block as BlockCore;
-use \Bitrix\Landing\TemplateRef;
-use \Bitrix\Landing\Landing as LandingCore;
-use \Bitrix\Landing\PublicActionResult;
-use \Bitrix\Landing\Internals\HookDataTable;
-use \Bitrix\Landing\History;
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\Landing\Hook;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\File;
+use Bitrix\Landing\Folder;
+use Bitrix\Landing\Metrika;
+use Bitrix\Landing\Site;
+use Bitrix\Landing\Block as BlockCore;
+use Bitrix\Landing\TemplateRef;
+use Bitrix\Landing\Landing as LandingCore;
+use Bitrix\Landing\PublicActionResult;
+use Bitrix\Landing\Internals\BlockFavouriteTable;
+use Bitrix\Landing\Internals\HookDataTable;
+use Bitrix\Landing\History;
+use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
 class Landing
 {
+	private const ACTION_ADD = 'add';
+	private const ACTION_REMOVE = 'remove';
+
+	private const STATUS_ADDED = 'added';
+	private const STATUS_ALREADY_EXISTS = 'already_exists';
+	private const STATUS_DELETED = 'deleted';
+	private const STATUS_NOT_FOUND = 'not_found';
+
 	/**
 	 * Clear disallow keys from add/update fields.
 	 * @param array $fields
@@ -144,7 +154,12 @@ class Landing
 
 		if ($landing->exist())
 		{
-			if ($landing->publication())
+			$metrikaParams = new Metrika\FieldsDto(
+				type: Metrika\Types::template,
+				subSection: 'from_editor',
+				element: 'auto',
+			);
+			if ($landing->publication(null, $metrikaParams))
 			{
 				$result->setResult(true);
 			}
@@ -209,6 +224,10 @@ class Landing
 					$bad
 				);
 			}
+			if (isset($fields['CATEGORY']))
+			{
+				$data['CATEGORY'] = $fields['CATEGORY'];
+			}
 			// sort
 			if (isset($fields['AFTER_ID']))
 			{
@@ -262,6 +281,139 @@ class Landing
 			$landing->resortBlocks();
 		}
 		$result->setError($landing->getError());
+		return $result;
+	}
+
+	/**
+	 * Add or remove a block code from the user's list of favourite blocks.
+	 *
+	 * @param string $codeBlock The code of the block to add or remove from favourites.
+	 * @param string $action The action to perform: 'add' to add to favourites, 'remove' to remove from favourites.
+	 *
+	 * @return PublicActionResult Result object with status or error information.
+	 */
+	public static function markFavouriteBlock(string $codeBlock, string $action, string $type): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		$userId = Manager::getUserId();
+
+		if ($userId <= 0 || !$codeBlock || !in_array($action, [self::ACTION_ADD, self::ACTION_REMOVE], true))
+		{
+			$error = new \Bitrix\Landing\Error;
+			$error->addError('DB_ERROR_ADD','Invalid user, codeBlock or action');
+			$result->setError($error);
+
+			return $result;
+		}
+
+		$existing = BlockFavouriteTable::getList([
+			'filter' => [
+				'=USER_ID' => $userId,
+				'=CODE' => $codeBlock,
+			],
+			'select' => ['ID'],
+		])->fetch();
+
+		switch ($action) {
+			case self::ACTION_ADD:
+				if (!$existing)
+				{
+					$addResult = BlockFavouriteTable::add([
+						'USER_ID' => $userId,
+						'CODE' => $codeBlock,
+						'DATE_CREATE' => new \Bitrix\Main\Type\DateTime(),
+					]);
+
+					if ($addResult->isSuccess())
+					{
+						$result->setResult(['status' => self::STATUS_ADDED]);
+					}
+					else
+					{
+						$error = new \Bitrix\Landing\Error;
+						$error->addError('DB_ERROR_ADD', $addResult->getErrorMessages());
+						$result->setError($error);
+					}
+				}
+				else
+				{
+					$result->setResult(['status' => self::STATUS_ALREADY_EXISTS]);
+				}
+				$metrikaEvent = Metrika\Events::addFavourite;
+
+				break;
+			case self::ACTION_REMOVE:
+				if ($existing)
+				{
+					$deleteResult = BlockFavouriteTable::delete($existing['ID']);
+					if ($deleteResult->isSuccess())
+					{
+						$result->setResult(['status' => self::STATUS_DELETED]);
+					}
+					else
+					{
+						$error = new \Bitrix\Landing\Error;
+						$error->addError('DB_ERROR_REMOVE', $deleteResult->getErrorMessages());
+						$result->setError($error);
+					}
+				}
+				else
+				{
+					$result->setResult(['status' => self::STATUS_NOT_FOUND]);
+				}
+				$metrikaEvent = Metrika\Events::deleteFavourite;
+
+				break;
+		}
+
+		if (isset($metrikaEvent))
+		{
+			$metrika = new Metrika\Metrika(Metrika\Categories::getBySiteType($type), $metrikaEvent);
+			$metrika
+				->setSection(Metrika\Sections::siteEditor)
+				->setSubSection('code_' .  $codeBlock)
+				->send()
+			;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Returns the list of block codes marked as favourite by the current user.
+	 *
+	 * @return PublicActionResult Result object containing an array of favourite block codes or error information.
+	 */
+	public static function getFavouriteBlocks(): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		$userId = Manager::getUserId();
+
+		if ($userId <= 0)
+		{
+			$error = new \Bitrix\Landing\Error;
+			$error->addError('INVALID_USER', 'Invalid user');
+			$result->setError($error);
+
+			return $result;
+		}
+
+		$codes = [];
+		$res = BlockFavouriteTable::getList([
+			'filter' => [
+				'=USER_ID' => $userId
+			],
+			'select' => ['CODE'],
+			'order' => ['DATE_CREATE' => 'DESC']
+		]);
+
+		while ($row = $res->fetch())
+		{
+			$codes[] = $row['CODE'];
+		}
+
+		$result->setResult($codes);
+
 		return $result;
 	}
 

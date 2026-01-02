@@ -12,6 +12,7 @@ this.BX.UI = this.BX.UI || {};
 	var _promise = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("promise");
 	var _closeResolver = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("closeResolver");
 	var _maxVisibleItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("maxVisibleItems");
+	var _maxWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("maxWidth");
 	var _resolveWithCancel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resolveWithCancel");
 	var _resolveWithItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resolveWithItems");
 	var _getItemById = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getItemById");
@@ -111,10 +112,15 @@ this.BX.UI = this.BX.UI || {};
 	      writable: true,
 	      value: 0
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _id)[_id] = main_core.Type.isStringFilled(parameters.id) ? parameters.id : 'settings-popup-' + Math.random().toString().substring(2);
+	    Object.defineProperty(this, _maxWidth, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _id)[_id] = main_core.Type.isStringFilled(parameters.id) ? parameters.id : `settings-popup-${Math.random().toString().slice(2)}`;
 	    babelHelpers.classPrivateFieldLooseBase(this, _items)[_items] = parameters.items;
 	    babelHelpers.classPrivateFieldLooseBase(this, _bindElement)[_bindElement] = parameters.bindElement;
 	    babelHelpers.classPrivateFieldLooseBase(this, _maxVisibleItems)[_maxVisibleItems] = Number(parameters.maxVisibleItems);
+	    babelHelpers.classPrivateFieldLooseBase(this, _maxWidth)[_maxWidth] = main_core.Type.isNumber(parameters.maxWidth) ? parameters.maxWidth : null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _createMenu)[_createMenu]();
 	    this.setEventNamespace('BX.UI.MenuConfigurable.Menu');
 	  }
@@ -144,7 +150,7 @@ this.BX.UI = this.BX.UI || {};
 	    const items = [];
 	    let isHidden = false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _menu)[_menu].itemsContainer.querySelectorAll('.menu-configurable-item').forEach(node => {
-	      if (node.classList.contains('menu-configurable-hidden-section-title')) {
+	      if (main_core.Dom.hasClass(node, 'menu-configurable-hidden-section-title')) {
 	        isHidden = true;
 	      }
 	      const itemId = node.dataset.id;
@@ -195,15 +201,15 @@ this.BX.UI = this.BX.UI || {};
 	  hiddenItems.forEach(item => {
 	    menuItems.push(babelHelpers.classPrivateFieldLooseBase(this, _getMenuItem)[_getMenuItem](item));
 	  });
-	  menuItems.push(babelHelpers.classPrivateFieldLooseBase(this, _getSaveItem)[_getSaveItem]());
-	  menuItems.push(babelHelpers.classPrivateFieldLooseBase(this, _getCancelItem)[_getCancelItem]());
+	  menuItems.push(babelHelpers.classPrivateFieldLooseBase(this, _getSaveItem)[_getSaveItem](), babelHelpers.classPrivateFieldLooseBase(this, _getCancelItem)[_getCancelItem]());
 	  babelHelpers.classPrivateFieldLooseBase(this, _menu)[_menu] = main_popup.MenuManager.create({
 	    id: babelHelpers.classPrivateFieldLooseBase(this, _id)[_id],
 	    items: menuItems,
 	    bindElement: bindElement != null ? bindElement : babelHelpers.classPrivateFieldLooseBase(this, _bindElement)[_bindElement],
 	    events: {
 	      onClose: this.close.bind(this)
-	    }
+	    },
+	    maxWidth: babelHelpers.classPrivateFieldLooseBase(this, _maxWidth)[_maxWidth]
 	  });
 	  babelHelpers.classPrivateFieldLooseBase(this, _initDraggable)[_initDraggable]();
 	  return babelHelpers.classPrivateFieldLooseBase(this, _menu)[_menu];
@@ -252,14 +258,14 @@ this.BX.UI = this.BX.UI || {};
 	function _getVisibleSectionTitleItem2() {
 	  return {
 	    delimiter: true,
-	    html: '<span>' + main_core.Loc.getMessage('UI_JS_MENU_CONFIGURABLE_VISIBLE') + '</span>',
+	    html: `<span>${main_core.Loc.getMessage('UI_JS_MENU_CONFIGURABLE_VISIBLE')}</span>`,
 	    className: 'menu-configurable-visible-section-title menu-configurable-delimiter-item'
 	  };
 	}
 	function _getHiddenSectionTitleItem2() {
 	  return {
 	    delimiter: true,
-	    html: '<span>' + main_core.Loc.getMessage('UI_JS_MENU_CONFIGURABLE_HIDDEN') + '</span>',
+	    html: `<span>${main_core.Loc.getMessage('UI_JS_MENU_CONFIGURABLE_HIDDEN')}</span>`,
 	    className: 'menu-configurable-hidden-section-title menu-configurable-delimiter-item menu-configurable-item'
 	  };
 	}
@@ -276,7 +282,7 @@ this.BX.UI = this.BX.UI || {};
 	  this.setItems(this.getItemsFromMenu());
 	}
 	function _getItemNode2(item) {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _menu)[_menu].itemsContainer.querySelector('.menu-configurable-item[data-id="' + item.id + '"]');
+	  return babelHelpers.classPrivateFieldLooseBase(this, _menu)[_menu].itemsContainer.querySelector(`.menu-configurable-item[data-id="${item.id}"]`);
 	}
 	function _getHiddenSectionTitleNode2() {
 	  return babelHelpers.classPrivateFieldLooseBase(this, _menu)[_menu].itemsContainer.querySelector('.menu-configurable-hidden-section-title');

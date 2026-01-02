@@ -37,7 +37,7 @@ class Counter
 			var _ba = _ba || []; _ba.push(["aid", "{$accountId}"]); _ba.push(["host", "{$host}"]); {$params}
 			(function() {
 				var ba = document.createElement("script"); ba.type = "text/javascript"; ba.async = true;
-				ba.src = (document.location.protocol == "https:" ? "https://" : "http://") + "bitrix.info/ba.js";
+				ba.src = (document.location.protocol == "https:" ? "https://" : "http://") + "sitespeed.bitrix24.tech/ba.js";
 				var s = document.getElementsByTagName("script")[0];
 				s.parentNode.insertBefore(ba, s);
 			})();

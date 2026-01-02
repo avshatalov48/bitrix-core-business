@@ -190,18 +190,13 @@ export class FloatingToolbarPlugin extends BasePlugin
 			return false;
 		}
 
-		const node = getSelectedNode(selection);
-		const parent = node.getParent();
-		if ($isLinkNode(parent) || $isLinkNode(node))
-		{
-			return false;
-		}
-
 		const isSomeDialogVisible = this.getEditor().dispatchCommand(DIALOG_VISIBILITY_COMMAND);
 		if (isSomeDialogVisible)
 		{
 			return false;
 		}
+
+		const node = getSelectedNode(selection);
 
 		return $isTextNode(node);
 	}

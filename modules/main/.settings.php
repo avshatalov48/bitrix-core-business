@@ -28,6 +28,7 @@ return [
 				\Bitrix\Main\Cli\Command\Update\ModulesCommand::class,
 				\Bitrix\Main\Cli\Command\Update\LanguagesCommand::class,
 				\Bitrix\Main\Cli\Command\Update\VersionsCommand::class,
+				\Bitrix\Main\Cli\Command\Messenger\ConsumeMessagesCommand::class,
 			],
 		],
 		'readonly' => true,

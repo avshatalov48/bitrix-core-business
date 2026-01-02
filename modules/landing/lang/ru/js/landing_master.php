@@ -79,7 +79,6 @@ $MESS["LANDING_CREATE_LINK"] = "Создать ссылку";
 $MESS["LANDING_EDIT_LINK"] = "Изменить ссылку";
 $MESS["LANDING_REMOVE_LINK"] = "Удалить ссылку";
 $MESS["LANDING_UNSPLASH_CREDIT_LABEL"] = "Автор";
-$MESS["BLOCK_SETTINGS"] = "Настройки";
 $MESS["LANDING_EDITOR_PIN_TOP"] = "Прикрепить сверху";
 $MESS["LANDING_EDITOR_PIN_RIGHT"] = "Прикрепить справа";
 $MESS["LANDING_DESIGN_PANEL_HEADER"] = "Дизайн и настройки";
@@ -243,8 +242,8 @@ $MESS["LANDING_CONTENT_URL_MEDIA_HELP_2"] = "<p>Укажите ссылку на
 $MESS["LANDING_CONTENT_URL_MEDIA_HELP_TITLE"] = "Медиа-ссылки";
 $MESS["LANDING_BLOCKS_LIST_PREVIEW_NEW"] = "Новый";
 $MESS["LANDING_BLOCKS_LIST_PREVIEW_EXPIRED"] = "Подписка истекла";
-$MESS["LANDING_BLOCKS_LIST_PREVIEW_MARKET"] = "Маркет";
-$MESS["LANDING_BLOCKS_LIST_PREVIEW_MARKET_HINT"] = "Блок доступен по Подписке на Маркет";
+$MESS["LANDING_BLOCKS_LIST_PREVIEW_MARKET_MSGVER_1"] = "Маркетплейс";
+$MESS["LANDING_BLOCKS_LIST_PREVIEW_MARKET_HINT_MSGVER_1"] = "Блок доступен по Подписке на Маркетплейс";
 $MESS["LANDING_BLOCKS_LIST_PREVIEW_DELETE_MSG"] = "Вы уверены, что хотите удалить этот блок?";
 $MESS["LANDING_BLOCKS_LIST_PREVIEW_MY_NEW"] = "Мой";
 $MESS["LANDING_BLOCKS_LIST_PREVIEW_FAVORITE"] = "Сохранённый блок";
@@ -526,3 +525,9 @@ $MESS["LANDING_TITLE_WIDGET_EDIT_BUTTON_DISABLE_HINT_DEMO_DATA"] = "Отключ
 $MESS["LANDING_TITLE_BLOCK_EDIT_BUTTON_DISABLE_HINT_DEMO_DATA"] = "Отключите режим показа демо-данных, чтобы отредактировать блок";
 
 $MESS["LANDING_SOURCEFIELD_LINK_TEXT"] = "Открыть группу";
+
+//section favourite empty state
+$MESS["LANDING_SECTION_FAVOURITE_EMPTY_STATE_TITLE"] = "Избранных блоков пока нет";
+$MESS["LANDING_SECTION_FAVOURITE_EMPTY_STATE_TEXT"] = "Добавьте блоки в избранное, чтобы они появились в этом разделе";
+$MESS["LANDING_SECTION_FAVOURITE_BALLOON_ADD"] = "Блок добавлен в избранное";
+$MESS["LANDING_SECTION_FAVOURITE_BALLOON_REMOVE"] = "Блок удалён из избранного";

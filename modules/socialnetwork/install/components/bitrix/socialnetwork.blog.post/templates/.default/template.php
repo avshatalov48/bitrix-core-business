@@ -63,9 +63,13 @@ UI\Extension::load([
 
 $messages = Loc::loadLanguageFile(__FILE__);
 
-$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
-$bodyClass = $bodyClass ? $bodyClass." no-all-paddings" : "no-all-paddings";
-$APPLICATION->SetPageProperty("BodyClass", $bodyClass);
+$bodyClass = $APPLICATION->GetPageProperty('BodyClass', '');
+if (!str_contains($bodyClass, 'no-all-paddings'))
+{
+	$bodyClass = $bodyClass ? $bodyClass." no-all-paddings" : "no-all-paddings";
+	$APPLICATION->SetPageProperty("BodyClass", $bodyClass);
+}
+
 $arParams['MODE'] ??= null;
 
 ?><div

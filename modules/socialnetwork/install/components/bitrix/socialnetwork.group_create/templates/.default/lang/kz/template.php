@@ -1,0 +1,21 @@
+<?php
+$MESS["SONET_C8_DESCR"] = "Топтың сипаттамасы";
+$MESS["SONET_C8_DO_CREATE"] = "Топты құру";
+$MESS["SONET_C8_DO_EDIT"] = "Параметрлерді өзгерту";
+$MESS["SONET_C8_IMAGE"] = "Топтың кескіні";
+$MESS["SONET_C8_IMAGE_DEL"] = "Кескінді жою";
+$MESS["SONET_C8_INVITE"] = "Пайдаланушыларды топқа шақыра алады";
+$MESS["SONET_C8_IS_EXTRANET_GROUP"] = "Топ экстранетте қолжетімді";
+$MESS["SONET_C8_KEYWORDS"] = "Негізгі сөздер";
+$MESS["SONET_C8_NAME"] = "Топтың атауы";
+$MESS["SONET_C8_PARAMS"] = "Топ параметрлері";
+$MESS["SONET_C8_PARAMS_CLOSED"] = "Топты мұрағатқа жіберу";
+$MESS["SONET_C8_PARAMS_OPEN"] = "Топ еркін қосылу үшін ашық";
+$MESS["SONET_C8_PARAMS_VIS"] = "Топ барлық кірушіге көрінеді";
+$MESS["SONET_C8_SPAM_PERMS"] = "Топ мүшелеріне хабарлама жібере алады";
+$MESS["SONET_C8_SUBJECT"] = "Топ тақырыбы";
+$MESS["SONET_C8_SUBTITLE"] = "Топ параметрлері";
+$MESS["SONET_C8_SUCCESS_CREATE"] = "Топ сәтті құрылды.";
+$MESS["SONET_C8_SUCCESS_EDIT"] = "Топтың параметрлері сәтті өзгертілді.";
+$MESS["SONET_C8_TO_SELECT"] = "-Таңдалмаған-";
+$MESS["SONET_C8_T_CANCEL"] = "Болдырмау";

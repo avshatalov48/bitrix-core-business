@@ -1,10 +1,10 @@
 <?php
+
 namespace Bitrix\Catalog;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
 
 /**
  * Class MeasureRatioTable
@@ -32,14 +32,14 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Catalog\EO_MeasureRatio_Collection wakeUpCollection($rows)
  */
 
-class MeasureRatioTable extends Main\Entity\DataManager
+class MeasureRatioTable extends DataManager
 {
 	/**
 	 * Returns DB table name for entity.
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_measure_ratio';
 	}
@@ -49,7 +49,7 @@ class MeasureRatioTable extends Main\Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return array(
 			'ID' => new Main\Entity\IntegerField('ID', array(

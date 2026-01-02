@@ -3,6 +3,7 @@
 class CPerfomanceTableList extends CDBResult
 {
 	protected $dbName = '';
+
 	public static function GetList($bFull = true, $connection = null)
 	{
 		$connection ??= \Bitrix\Main\Application::getConnection();
@@ -37,14 +38,11 @@ class CPerfomanceTable
 			return false;
 		}
 
-
 		return $this->connection->isTableExists($TABLE_NAME);
 	}
 
 	public function GetIndexes($TABLE_NAME = false)
 	{
-		static $cache = [];
-
 		if ($TABLE_NAME === false)
 		{
 			$TABLE_NAME = $this->TABLE_NAME;
@@ -56,18 +54,11 @@ class CPerfomanceTable
 			return [];
 		}
 
-		if (!array_key_exists($TABLE_NAME, $cache))
-		{
-			$cache[$TABLE_NAME] = $this->database->getIndexes($TABLE_NAME);
-		}
-
-		return $cache[$TABLE_NAME];
+		return $this->database->getIndexes($TABLE_NAME);
 	}
 
 	public function GetUniqueIndexes($TABLE_NAME = false)
 	{
-		static $cache = [];
-
 		if ($TABLE_NAME === false)
 		{
 			$TABLE_NAME = $this->TABLE_NAME;
@@ -79,13 +70,23 @@ class CPerfomanceTable
 			return [];
 		}
 
+		return $this->database->getUniqueIndexes($TABLE_NAME);
+	}
 
-		if (!array_key_exists($TABLE_NAME, $cache))
+	public function GetFullTextIndexes($TABLE_NAME = false)
+	{
+		if ($TABLE_NAME === false)
 		{
-			$cache[$TABLE_NAME] = $this->database->getUniqueIndexes($TABLE_NAME);
+			$TABLE_NAME = $this->TABLE_NAME;
 		}
 
-		return $cache[$TABLE_NAME];
+		$TABLE_NAME = trim($TABLE_NAME, '`');
+		if ($TABLE_NAME === '')
+		{
+			return [];
+		}
+
+		return $this->database->getFullTextIndexes($TABLE_NAME);
 	}
 
 	public function GetList($arSelect, $arFilter, $arOrder = [], $arNavParams = false)
@@ -215,7 +216,6 @@ class CPerfomanceTable
 		{
 			return false;
 		}
-
 
 		if (!array_key_exists($TABLE_NAME, $cache))
 		{

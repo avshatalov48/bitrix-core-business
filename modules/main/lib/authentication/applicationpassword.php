@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2014 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
+
 namespace Bitrix\Main\Authentication;
 
 use Bitrix\Main;
@@ -42,21 +44,21 @@ class ApplicationPasswordTable extends Data\DataManager
 
 	public static function getMap()
 	{
-		return array(
-			new Fields\IntegerField('ID', array(
+		return [
+			new Fields\IntegerField('ID', [
 				'primary' => true,
-				'autocomplete' => true
-			)),
-			new Fields\IntegerField('USER_ID', array(
+				'autocomplete' => true,
+			]),
+			new Fields\IntegerField('USER_ID', [
 				'required' => true,
 				'validation' => '\Bitrix\Main\Authentication\ApplicationPasswordTable::getUserValidators',
-			)),
-			new Fields\StringField('APPLICATION_ID', array(
+			]),
+			new Fields\StringField('APPLICATION_ID', [
 				'required' => true,
-			)),
-			new Fields\StringField('PASSWORD', array(
+			]),
+			new Fields\StringField('PASSWORD', [
 				'required' => true,
-			)),
+			]),
 			new Fields\StringField('DIGEST_PASSWORD'),
 			new Fields\DatetimeField('DATE_CREATE'),
 			new Fields\DatetimeField('DATE_LOGIN'),
@@ -67,17 +69,17 @@ class ApplicationPasswordTable extends Data\DataManager
 			new Fields\Relations\Reference(
 				'USER',
 				'Bitrix\Main\User',
-				array('=this.USER_ID' => 'ref.ID'),
-				array('join_type' => 'INNER')
+				['=this.USER_ID' => 'ref.ID'],
+				['join_type' => 'INNER']
 			),
-		);
+		];
 	}
 
 	public static function getUserValidators()
 	{
-		return array(
+		return [
 			new Fields\Validators\ForeignValidator(Main\UserTable::getEntity()->getField('ID')),
-		);
+		];
 	}
 
 	public static function onBeforeAdd(ORM\Event $event)
@@ -85,17 +87,18 @@ class ApplicationPasswordTable extends Data\DataManager
 		$result = new ORM\EventResult;
 		$data = $event->getParameter("fields");
 
-		if(isset($data["USER_ID"]) && isset($data['PASSWORD']))
+		if (isset($data["USER_ID"]) && isset($data['PASSWORD']))
 		{
 			$modified = [
 				'PASSWORD' => Main\Security\Password::hash($data['PASSWORD']),
 			];
 
-			$user = Main\UserTable::getRowById($data["USER_ID"]);
-			if($user !== null)
+			$user = Main\UserTable::getRowById($data["USER_ID"], ['select' => ['LOGIN']]);
+
+			if ($user !== null)
 			{
-				$realm = (defined('BX_HTTP_AUTH_REALM')? BX_HTTP_AUTH_REALM : "Bitrix Site Manager");
-				$digest = md5($user["LOGIN"].':'.$realm.':'.$data['PASSWORD']);
+				$realm = (defined('BX_HTTP_AUTH_REALM') ? BX_HTTP_AUTH_REALM : "Bitrix Site Manager");
+				$digest = md5($user["LOGIN"] . ':' . $realm . ':' . $data['PASSWORD']);
 				$modified['DIGEST_PASSWORD'] = $digest;
 			}
 
@@ -109,7 +112,7 @@ class ApplicationPasswordTable extends Data\DataManager
 		$id = $event->getParameter("id");
 
 		$row = static::getRowById($id);
-		if($row)
+		if ($row)
 		{
 			Main\UserAuthActionTable::addLogoutAction($row["USER_ID"], $row["APPLICATION_ID"]);
 		}
@@ -135,9 +138,9 @@ class ApplicationPasswordTable extends Data\DataManager
 		{
 			$password = str_replace(' ', '', $password);
 
-			if(strlen($password) === static::PASSWORD_LENGTH)
+			if (strlen($password) === static::PASSWORD_LENGTH)
 			{
-				return (!preg_match("/[^".static::PASSWORD_ALPHABET."]/", $password));
+				return (!preg_match("/[^" . static::PASSWORD_ALPHABET . "]/", $password));
 			}
 		}
 		return false;
@@ -153,12 +156,12 @@ class ApplicationPasswordTable extends Data\DataManager
 	 */
 	public static function findPassword($userId, $password, $passwordOriginal = true)
 	{
-		if($passwordOriginal)
+		if ($passwordOriginal)
 		{
 			$password = str_replace(' ', '', $password);
 		}
 
-		$appPasswords = static::getList(array(
+		$appPasswords = static::getList([
 			'select' => [
 				'ID',
 				'PASSWORD',
@@ -170,10 +173,10 @@ class ApplicationPasswordTable extends Data\DataManager
 			'order' => [
 				'ID' => 'desc',
 			],
-		));
-		while(($appPassword = $appPasswords->fetch()))
+		]);
+		while (($appPassword = $appPasswords->fetch()))
 		{
-			if(Main\Security\Password::equals($appPassword["PASSWORD"], $password, $passwordOriginal))
+			if (Main\Security\Password::equals($appPassword["PASSWORD"], $password, $passwordOriginal))
 			{
 				//bingo, application password
 				return $appPassword;
@@ -191,21 +194,21 @@ class ApplicationPasswordTable extends Data\DataManager
 	 */
 	public static function findDigestPassword($userId, array $digest)
 	{
-		$appPasswords = static::getList(array(
-			'select' => array('PASSWORD', 'DIGEST_PASSWORD', 'APPLICATION_ID'),
-			'filter' => array('=USER_ID' => $userId),
-		));
+		$appPasswords = static::getList([
+			'select' => ['PASSWORD', 'DIGEST_PASSWORD', 'APPLICATION_ID'],
+			'filter' => ['=USER_ID' => $userId],
+		]);
 
 		$server = Main\Context::getCurrent()->getServer();
-		$method = ($server['REDIRECT_REQUEST_METHOD'] !== null? $server['REDIRECT_REQUEST_METHOD'] : $server['REQUEST_METHOD']);
-		$HA2 = md5($method.':'.$digest['uri']);
+		$method = ($server['REDIRECT_REQUEST_METHOD'] !== null ? $server['REDIRECT_REQUEST_METHOD'] : $server['REQUEST_METHOD']);
+		$HA2 = md5($method . ':' . $digest['uri']);
 
-		while(($appPassword = $appPasswords->fetch()))
+		while (($appPassword = $appPasswords->fetch()))
 		{
 			$HA1 = $appPassword["DIGEST_PASSWORD"];
-			$valid_response = md5($HA1.':'.$digest['nonce'].':'.$HA2);
+			$valid_response = md5($HA1 . ':' . $digest['nonce'] . ':' . $HA2);
 
-			if($digest["response"] === $valid_response)
+			if ($digest["response"] === $valid_response)
 			{
 				//application password
 				return $appPassword;

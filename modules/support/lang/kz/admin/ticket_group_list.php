@@ -1,0 +1,23 @@
+<?php
+$MESS["MAIN_ADMIN_LIST_CHECKED"] = "Белгіленген:";
+$MESS["MAIN_ADMIN_LIST_DELETE"] = "жою";
+$MESS["MAIN_ADMIN_LIST_SELECTED"] = "Таңдалған:";
+$MESS["MAIN_ALL"] = "(барлығы)";
+$MESS["SUP_GL_ADD"] = "Топты қосу";
+$MESS["SUP_GL_DELETE"] = "Жою";
+$MESS["SUP_GL_DELETE_CONFIRMATION"] = "Топты жою керек пе?";
+$MESS["SUP_GL_EDIT"] = "Редакциялау";
+$MESS["SUP_GL_EXACT_MATCH"] = "Дәл сәйкестікті іздеу";
+$MESS["SUP_GL_FLT_CLIENT"] = "Техникалық қолдау клиенттері";
+$MESS["SUP_GL_FLT_IS_TEAM_GROUP"] = "Санат";
+$MESS["SUP_GL_FLT_IS_TEAM_GROUP_CN"] = "Санат:";
+$MESS["SUP_GL_FLT_NAME"] = "Атауы";
+$MESS["SUP_GL_FLT_SUPPORT"] = "Техникалық қолдау қызметкерлері";
+$MESS["SUP_GL_IS_TEAM_GROUP"] = "Техникалық қолдау қызметкерлері тобы";
+$MESS["SUP_GL_NAME"] = "Атауы";
+$MESS["SUP_GL_PAGES"] = "Топтар";
+$MESS["SUP_GL_SORT"] = "Сұрыптау";
+$MESS["SUP_GL_TITLE"] = "Пайдаланушыларды техникалық қолдау топтары";
+$MESS["SUP_GL_USERADD"] = "Пайдаланушыны топқа қосу";
+$MESS["SUP_GL_USERLIST"] = "Топ пайдаланушыларының тізімі";
+$MESS["SUP_GL_XML_ID"] = "XML_ID";

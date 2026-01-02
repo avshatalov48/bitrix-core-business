@@ -8,6 +8,7 @@ use BackedEnum;
 use Bitrix\Socialnetwork\Control\Command\AbstractCommand;
 use Bitrix\Socialnetwork\Control\Mapper\Attribute\Map;
 use Bitrix\Socialnetwork\ValueObjectInterface;
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -63,16 +64,11 @@ class Mapper
 	{
 		$result = [];
 
-		$attributes = $property->getAttributes();
+		$attributes = $property->getAttributes(Map::class, ReflectionAttribute::IS_INSTANCEOF);
 
 		foreach ($attributes as $attributeReflection)
 		{
-			$attribute = $attributeReflection->newInstance();
-
-			if ($attribute instanceof Map)
-			{
-				$result[] = $attribute;
-			}
+			$result[] = $attributeReflection->newInstance();
 		}
 
 		return $result;

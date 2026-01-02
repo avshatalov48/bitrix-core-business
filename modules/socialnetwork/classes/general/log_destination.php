@@ -3,6 +3,8 @@
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Socialnetwork\Collab\CollabFeature;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
 class CSocNetLogDestination
@@ -563,7 +565,7 @@ class CSocNetLogDestination
 					&& $bExtranetInstalled
 				)
 				{
-					$arUserIdVisible = CExtranet::GetMyGroupsUsersSimple(SITE_ID);
+					$arUserIdVisible = CExtranet::getMyGroupsUsersSimple(CExtranet::getExtranetSiteId());
 				}
 
 				$order = [ 'LAST_NAME' => 'ASC' ];
@@ -1232,6 +1234,11 @@ class CSocNetLogDestination
 			$filter["CHECK_PERMISSIONS"] = (int)CurrentUser::get()->getId();
 		}
 
+		if (!CollabFeature::isFeatureEnabledInPortalSettings())
+		{
+			$filter['!TYPE'] = Type::Collab->value;
+		}
+
 		$res = CSocnetGroup::getList(
 			array("NAME" => "ASC"),
 			$filter,
@@ -1259,10 +1266,10 @@ class CSocNetLogDestination
 				{
 					$arFileTmp = CFile::resizeImageGet(
 						$imageFile,
-						array(
-							"width" => ((int)$params["THUMBNAIL_SIZE_WIDTH"] > 0 ? $params["THUMBNAIL_SIZE_WIDTH"] : 100),
-							"height" => ((int)$params["THUMBNAIL_SIZE_HEIGHT"] > 0 ? $params["THUMBNAIL_SIZE_HEIGHT"] : 100)
-						),
+						[
+							"width" => ((int)($params["THUMBNAIL_SIZE_WIDTH"] ?? null) > 0 ? $params["THUMBNAIL_SIZE_WIDTH"] : 100),
+							"height" => ((int)($params["THUMBNAIL_SIZE_HEIGHT"] ?? null) > 0 ? $params["THUMBNAIL_SIZE_HEIGHT"] : 100),
+						],
 						BX_RESIZE_IMAGE_PROPORTIONAL,
 						false
 					);
@@ -1633,6 +1640,11 @@ class CSocNetLogDestination
 					"GROUP_ACTIVE" => "Y"
 				);
 
+				if (!CollabFeature::isFeatureEnabledInPortalSettings())
+				{
+					$filter['!GROUP_TYPE'] = Type::Collab->value;
+				}
+
 				if (
 					!empty($arParams['landing'])
 					&& $arParams['landing'] === 'Y'
@@ -1674,6 +1686,12 @@ class CSocNetLogDestination
 					"ACTIVE" => "Y",
 					"ID" => $arSelect,
 				);
+
+				if (!CollabFeature::isFeatureEnabledInPortalSettings())
+				{
+					$filter['!GROUP_TYPE'] = Type::Collab->value;
+				}
+
 				if(isset($arParams['GROUP_CLOSED']))
 				{
 					$filter['CLOSED'] = $arParams['GROUP_CLOSED'];

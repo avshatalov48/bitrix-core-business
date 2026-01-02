@@ -1,5 +1,5 @@
 <?php
-$MESS["PRODUCT_ENTITY_ID_FIELD"] = "Идентификатор";
+$MESS['PRODUCT_ENTITY_ID_FIELD'] = "Идентификатор";
 $MESS["PRODUCT_ENTITY_QUANTITY_FIELD"] = "Доступное количество";
 $MESS["PRODUCT_ENTITY_QUANTITY_TRACE_FIELD_MSGVER_1"] = "Режим количественного учета";
 $MESS["PRODUCT_ENTITY_WEIGHT_FIELD"] = "Вес";

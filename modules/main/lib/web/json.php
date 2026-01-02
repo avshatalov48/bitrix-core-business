@@ -3,6 +3,7 @@
 namespace Bitrix\Main\Web;
 
 use Bitrix\Main\ArgumentException;
+use JsonException;
 
 class Json
 {
@@ -29,7 +30,7 @@ class Json
 		{
 			$res = json_encode($data, $options | JSON_THROW_ON_ERROR);
 		}
-		catch (\JsonException $e)
+		catch (JsonException $e)
 		{
 			self::checkException($e, $options);
 		}
@@ -52,12 +53,32 @@ class Json
 		{
 			$res = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
 		}
-		catch (\JsonException $e)
+		catch (JsonException $e)
 		{
 			self::checkException($e);
 		}
 
 		return $res;
+	}
+
+	public static function validate(string $data): bool
+	{
+		// On PHP 8.3 replace to
+		// return json_validate($data);
+
+		try
+		{
+			if ($data === 'null') // consistency with json_validate
+			{
+				return true;
+			}
+
+			return json_decode(json: $data, associative: true, flags: JSON_THROW_ON_ERROR) !== null;
+		}
+		catch (JsonException)
+		{
+			return false;
+		}
 	}
 
 	/**
@@ -75,13 +96,13 @@ class Json
 	/**
 	 * Checks global error flag and raises exception if needed.
 	 *
-	 * @param \JsonException $exception
+	 * @param JsonException $exception
 	 * @param integer $options Bitmasked options. When JSON_PARTIAL_OUTPUT_ON_ERROR passed no exception is raised.
 	 *
 	 * @return void
 	 * @throws ArgumentException
 	 */
-	protected static function checkException(\JsonException $exception, $options = 0)
+	protected static function checkException(JsonException $exception, $options = 0)
 	{
 		$e = $exception->getCode();
 

@@ -9,7 +9,7 @@ use Bitrix\Main\Localization\LocalizableMessageInterface;
 use Bitrix\Main\Validation\Validator\MaxValidator;
 use Bitrix\Main\Validation\Validator\MinValidator;
 
-#[Attribute(Attribute::TARGET_PROPERTY)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 final class Range extends AbstractPropertyValidationAttribute
 {
 	public function __construct(

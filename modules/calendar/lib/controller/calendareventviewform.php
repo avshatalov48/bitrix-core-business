@@ -127,7 +127,9 @@ class CalendarEventViewForm extends Controller
 
 		$event['REMIND'] = \CCalendarReminder::GetTextReminders($event['REMIND'] ?? []);
 
-		$event['permissions'] = \CCalendarEvent::getEventPermissions($event, $userId);
+		$permissions = \CCalendarEvent::getEventPermissions($event, $userId);
+		$event['permissions'] = $permissions;
+		$params['entry']['permissions'] = $permissions;
 
 		$curUserStatus = '';
 		$userId = \CCalendar::GetCurUserId();

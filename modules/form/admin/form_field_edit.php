@@ -56,7 +56,7 @@ if (false === $arForm)
 {
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	echo "<a href='form_list.php?lang=".LANGUAGE_ID."' >".GetMessage("FORM_FORM_LIST")."</a>";
-	echo ShowError(GetMessage("FORM_NOT_FOUND"));
+	ShowError(GetMessage("FORM_NOT_FOUND"));
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
@@ -346,7 +346,7 @@ if($strError)
 	echo $message->Show();
 }
 
-//echo ShowNote($strNote);
+//ShowNote($strNote);
 
 if ($additional!="Y"):
 ?>
@@ -772,7 +772,7 @@ jsFormValidatorSettings.UpdateAll();
 	{
 ?>
 	<tr>
-		<td colspan="2"><?=ShowError(GetMessage("FORM_VAL_NO_REGISTERED_VALS"))?></td>
+		<td colspan="2"><? ShowError(GetMessage("FORM_VAL_NO_REGISTERED_VALS")) ?></td>
 	</tr>
 <?
 	}

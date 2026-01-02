@@ -13,15 +13,15 @@ class CBlogNotifySchema
 	{
 		$ar = array(
 			"post" => Array(
-				"NAME" => GetMessage('BLG_NS_POST'),
+				"NAME" => GetMessage('BLG_NS_POST_MSGVER_1'),
 				"PUSH" => 'Y'
 			),
 			"post_mail" => Array(
-				"NAME" => GetMessage('BLG_NS_POST_MAIL_MSGBER_1'),
+				"NAME" => GetMessage('BLG_NS_POST_MAIL_MSGVER_2'),
 				"PUSH" => 'Y'
 			),
 			"comment" => Array(
-				"NAME" => GetMessage('BLG_NS_COMMENT'),
+				"NAME" => GetMessage('BLG_NS_COMMENT_MSGVER_1'),
 				"PUSH" => 'N'
 			),
 			"mention" => Array(
@@ -33,11 +33,11 @@ class CBlogNotifySchema
 				"PUSH" => 'Y'
 			),
 			"share" => Array(
-				"NAME" => GetMessage('BLG_NS_SHARE'),
+				"NAME" => GetMessage('BLG_NS_SHARE_MSGVER_1'),
 				"PUSH" => 'N'
 			),
 			"share2users" => Array(
-				"NAME" => GetMessage('BLG_NS_SHARE2USERS'),
+				"NAME" => GetMessage('BLG_NS_SHARE2USERS_MSGVER_1'),
 				"PUSH" => 'Y'
 			)
 		);
@@ -45,7 +45,7 @@ class CBlogNotifySchema
 		if (IsModuleInstalled('intranet'))
 		{
 			$ar["broadcast_post"] = Array(
-				"NAME" => GetMessage('BLG_NS_BROADCAST_POST_MSGVER_1'),
+				"NAME" => GetMessage('BLG_NS_BROADCAST_POST_MSGVER_2'),
 				"SITE" => "N",
 				"MAIL" => "Y",
 				"XMPP" => "N",
@@ -53,7 +53,7 @@ class CBlogNotifySchema
 				"DISABLED" => Array(IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP)
 			);
 			$ar["grat"] = Array(
-				"NAME" => GetMessage('BLG_NS_GRAT'),
+				"NAME" => GetMessage('BLG_NS_GRAT_MSGVER_1'),
 				"PUSH" => "Y"
 			);
 		}
@@ -96,7 +96,7 @@ class CBlogNotifySchema
 
 		return array(
 			"blog" => array(
-				"NAME" => GetMessage('BLG_NS_MSGVER_1'),
+				"NAME" => GetMessage('BLG_NS_MSGVER_2'),
 				"NOTIFY" => $ar,
 			),
 		);

@@ -1,0 +1,21 @@
+<?php
+$MESS["BOT_ENTITY_APP_ID_FIELD"] = "REST қосымшасының идентификаторы";
+$MESS["BOT_ENTITY_BOT_ID_FIELD"] = "Бот пайдаланушы идентификаторы";
+$MESS["BOT_ENTITY_BOT_TYPE_FIELD"] = "Бот түрі";
+$MESS["BOT_ENTITY_COUNT_CHAT_FIELD"] = "Топтық чатқа шақыру есептегіші";
+$MESS["BOT_ENTITY_COUNT_MESSAGE_FIELD"] = "Өңделген хабарлама есептегіші";
+$MESS["BOT_ENTITY_COUNT_SLASH_FIELD"] = "Өңделген командалар есептегіші";
+$MESS["BOT_ENTITY_COUNT_USER_FIELD"] = "Жалпы чатқа шақыру есептегіші";
+$MESS["BOT_ENTITY_LANGUAGE_FIELD"] = "Бот тілі";
+$MESS["BOT_ENTITY_METHOD_BOT_DELETE_FIELD"] = "Ботты жоюды өңдеуге арналған класс әдісі";
+$MESS["BOT_ENTITY_METHOD_MESSAGE_ADD_FIELD"] = "Кіріс хабарламаларын өңдеуге арналған класс әдісі";
+$MESS["BOT_ENTITY_METHOD_MESSAGE_DELETE_FIELD"] = "Хабарламаларды жоюды өңдеуге арналған класс әдісі";
+$MESS["BOT_ENTITY_METHOD_MESSAGE_UPDATE_FIELD"] = "Хабарлама модификациясын өңдеуге арналған класс әдісі";
+$MESS["BOT_ENTITY_METHOD_WELCOME_MESSAGE_FIELD"] = "Сәлемдесу хабарламасын жариялау үшін класс әдісі";
+$MESS["BOT_ENTITY_MODULE_ID_FIELD"] = "Модуль идентификаторы";
+$MESS["BOT_ENTITY_OPENLINE_FIELD"] = "Ашық желілерді қолдау туы";
+$MESS["BOT_ENTITY_TEXT_CHAT_WELCOME_MESSAGE_FIELD"] = "Сәлемдесу хабарламасын жариялауға арналған класс әдісі (топтық чат)";
+$MESS["BOT_ENTITY_TEXT_PRIVATE_WELCOME_MESSAGE_FIELD"] = "Сәлемдесу хабарламасын жариялауға арналған мәтін (жеке/бірге-бір сөйлесу)";
+$MESS["BOT_ENTITY_TO_CLASS_FIELD"] = "Бот өңдеуші класы";
+$MESS["BOT_ENTITY_TO_METHOD_FIELD"] = "Бот өңдеуші класының әдісі";
+$MESS["BOT_ENTITY_VERIFIED_FIELD"] = "Айқындау туы";

@@ -1,23 +1,41 @@
-import { Type, Loc, Runtime, Text, Event, Tag, Dom } from 'main.core';
-import { EventEmitter } from 'main.core.events';
+import { Type, Loc, Runtime, Text, Event, Tag, Dom, Extension, ajax } from 'main.core';
+import { BaseEvent, EventEmitter } from 'main.core.events';
 import { MenuManager, PopupOptions } from 'main.popup';
 import { Context } from 'bizproc.automation';
-import { EntityCatalog, GroupData, ItemData } from 'ui.entity-catalog';
 import { Settings } from 'bizproc.local-settings';
+
+import 'main.polyfill.intersectionobserver';
 
 import './css/robot-selector.css';
 import GroupIcon from './groups/group-icon';
-import { Manager as GroupManager } from './groups/manager';
+import { EntityCatalog, GroupData, ItemData } from 'ui.entity-catalog';
 import { B24Robots as B24RobotsFilter } from './filters/b24-robots';
 import { B24Triggers as B24TriggersFilter } from './filters/b24-triggers';
-import { RecentGroup } from './groups/recent-group';
+import { Manager as GroupManager } from './groups/manager';
 
 import { EmptyGroupStub } from './stubs/empty-group-stub';
+
+type FeedbackForm = {
+	id: number;
+	zones: string[];
+	lang?: string;
+	sec: string;
+};
+
+type ExtensionSettings = {
+	portalUri: string;
+	forms: FeedbackForm[];
+	newRobotIds: string[];
+	viewedNewRobotIds: string[];
+};
 
 export class RobotSelector extends EventEmitter
 {
 	static RECENT_GROUP_ID = 'recent';
+	static NEW_ENTITY_GROUP_ID = 'new';
 	static DEFAULT_GROUP_NAME = 'other';
+	static VIEWED_NEW_ROBOT_IDS_CACHE_KEY = 'viewedNewRobotIds';
+	static PENDING_VIEWED_NEW_ROBOT_IDS_CACHE_KEY = 'pendingViewedNewRobotIds';
 
 	static MAX_SIZE_OF_RECENT_GROUP = 10;
 
@@ -25,10 +43,25 @@ export class RobotSelector extends EventEmitter
 	#stageId: string;
 	#catalog: ?EntityCatalog;
 	#cache: Settings;
+	#settings: ExtensionSettings | null = null;
 
 	#showNewGroups: boolean = false;
 
+	#visibilityObserver = null;
+	#pendingViewedNewRobotIds = new Set();
+	#viewedNewRobotIds = new Set();
+	#viewedSendTimerId = null;
+	#viewedEventTimerId = null;
+
+	#itemsById = new Map();
+
 	recentGroupIdsSort: Map<string, number>;
+	#observeItemsTimer: number;
+
+	#hasNewRobots = false;
+	#hasNewTriggers = false;
+
+	#items: Array<ItemData>;
 
 	constructor(props: {
 		context: Context,
@@ -40,10 +73,23 @@ export class RobotSelector extends EventEmitter
 		// TODO - fix namespace
 		this.setEventNamespace('BX.Bizproc.Automation.RobotSelector');
 
+		this.#settings = Extension.getSettings('bizproc.automation.robot-selector');
+
 		this.#context = props.context;
 		this.#stageId = props.stageId;
 		this.#cache = new Settings('robot-selector');
-		this.recentGroupIdsSort = new Map(this.#getRecentEntitiesIds().map((id, index) => [id, index]));
+
+		this.#mergeCacheViewedIdsWithIdsFromSettings();
+
+		this.#loadViewedIdsFromCache();
+
+		this.#loadPendingViewedIdsFromCache();
+		if (this.#pendingViewedNewRobotIds.size > 0)
+		{
+			this.#flushViewedRobotsToBackend();
+		}
+
+		this.recentGroupIdsSort = new Map(this.#getRecentEntityIds().map((id, index) => [id, index]));
 
 		this.#context.set('recentAutomationEntities', new Map());
 		this.#context.subsribeValueChanges('recentAutomationEntities', (event) => {
@@ -59,9 +105,27 @@ export class RobotSelector extends EventEmitter
 		}
 	}
 
-	#getRecentEntitiesIds(): Array<string>
+	#mergeCacheViewedIdsWithIdsFromSettings()
 	{
-		return this.#getRecentEntities().map(item => item.id);
+		const currentCachedViewed = this.#cache.remember(RobotSelector.VIEWED_NEW_ROBOT_IDS_CACHE_KEY, []);
+		const settingsViewed = Array.isArray(this.#settings?.viewedNewRobotIds) ? this.#settings.viewedNewRobotIds : [];
+		if (settingsViewed && settingsViewed.length > 0)
+		{
+			for (const id of settingsViewed)
+			{
+				if (!currentCachedViewed.includes(id))
+				{
+					currentCachedViewed.push(id);
+				}
+			}
+
+			this.#cache.set(RobotSelector.VIEWED_NEW_ROBOT_IDS_CACHE_KEY, currentCachedViewed);
+		}
+	}
+
+	#getRecentEntityIds(): Array<string>
+	{
+		return this.#getRecentEntities().map((item) => item.id);
 	}
 
 	#getRecentEntities(): Array<{entity: string, id: string}>
@@ -100,30 +164,98 @@ export class RobotSelector extends EventEmitter
 	{
 		if (Type.isNil(this.#catalog))
 		{
+			const items = this.#getItems();
+
+			const headerGroups = this.#prepareHeaderGroups(this.#getDefaultHeaderGroups());
+			const groups = [...headerGroups, ...this.#getDefaultRobotGroups()];
+
 			this.#catalog = new EntityCatalog({
-				groups: this.#getDefaultRobotGroups(),
-				items: this.#getItems(),
-				recentGroupData:
-					(new RecentGroup())
-						.setSelected(this.#getRecentEntities().length > 0)
-						.setCompare((lhsItem, rhsItem) => (
-							this.recentGroupIdsSort.get(lhsItem.id) - this.recentGroupIdsSort.get(rhsItem.id)
-						))
-						.getData()
-				,
+				groups: groups,
+				items: items,
 				canDeselectGroups: false,
 				customTitleBar: this.#getTitleBar(),
 				slots: this.#getSlots(),
 				showEmptyGroups: false,
-				showRecentGroup: true,
 				showSearch: true,
 				filterOptions: this.#getFilterOptions(),
 				popupOptions: this.#getPopupOptions(),
-				customComponents: {EmptyGroupStub},
+				customComponents: { EmptyGroupStub },
+				events: {
+					onItemsRendered: this.#observeItemsDebounced.bind(this),
+				},
 			});
+
+			const popup = this.#catalog.getPopup();
+
+			popup.subscribe('onAfterShow', this.#onPopupShow.bind(this));
+			popup.subscribe('onAfterClose', this.#onPopupClose.bind(this));
 		}
 
 		return this.#catalog;
+	}
+
+	#onPopupShow()
+	{
+		setTimeout(() => {
+			this.#initViewedTracking();
+		}, 80);
+	}
+
+	#onPopupClose()
+	{
+		this.#stopViewedTracking();
+	}
+
+	#prepareNewRobotGroupTitle(): string
+	{
+		if (this.#hasNewRobots && !this.#hasNewTriggers)
+		{
+			return Text.encode(Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_ROBOT_GROUP'));
+		}
+
+		if (this.#hasNewTriggers && !this.#hasNewRobots)
+		{
+			Text.encode(Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_TRIGGER_GROUP'));
+		}
+
+		return Text.encode(Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_ROBOT_AND_TRIGGER_GROUP'));
+	}
+
+	#prepareHeaderGroups(headerGroups: Array<Array<GroupData>>): Array<Array<GroupData>>
+	{
+		const headerList = (headerGroups && headerGroups[0]) ? headerGroups[0] : [];
+
+		const newEntitiesGroup = headerList.find(g => String(g.id) === String(RobotSelector.NEW_ENTITY_GROUP_ID));
+		const recentGroup = headerList.find(g => String(g.id) === String(RobotSelector.RECENT_GROUP_ID));
+
+		const newRobotsCount = this.getUnviewedNewRobotsCount()
+		const recentEntities = this.#getRecentEntities();
+
+		if (newEntitiesGroup)
+		{
+			const newRobotGroupTitle = this.#prepareNewRobotGroupTitle();
+			newEntitiesGroup.customData = Object.assign({}, newEntitiesGroup.customData ?? {}, {
+				counterValue: newRobotsCount,
+			});
+			newEntitiesGroup.selected = (newRobotsCount > 0);
+			newEntitiesGroup.name = newRobotGroupTitle;
+		}
+
+		if (recentGroup)
+		{
+			// compare function for recent ordering
+			recentGroup.compare = (lhsItem, rhsItem) => {
+				return (this.recentGroupIdsSort.get(lhsItem.id) ?? 0) - (this.recentGroupIdsSort.get(rhsItem.id) ?? 0);
+			};
+
+			// select recent only if newEntities wasn't selected
+			if (!(newEntitiesGroup && newEntitiesGroup.selected))
+			{
+				recentGroup.selected = (recentEntities.length > 0);
+			}
+		}
+
+		return headerGroups;
 	}
 
 	#getDefaultRobotGroups(): Array<Array<GroupData>>
@@ -135,11 +267,20 @@ export class RobotSelector extends EventEmitter
 		);
 	}
 
+	#getDefaultHeaderGroups(): Array<Array<GroupData>>
+	{
+		return [GroupManager.Instance.getAutomationHeaderGroupsData()];
+	}
+
 	#getItems(): Array<ItemData>
 	{
+		if (this.#items)
+		{
+			return this.#items;
+		}
+
 		const getButtonHandler = (robotData) => {
 			return (event) => {
-
 				if (robotData.LOCKED)
 				{
 					if (top.BX.UI && top.BX.UI.InfoHelper && robotData.LOCKED.INFO_CODE)
@@ -155,7 +296,7 @@ export class RobotSelector extends EventEmitter
 					event.getData().eventData.groupIds.push(this.constructor.RECENT_GROUP_ID);
 				}
 
-				this.#addToRecentGroup({
+				this.#addToRecentEntities({
 					entity: 'robot',
 					id: event.getData().eventData.id,
 				});
@@ -167,11 +308,12 @@ export class RobotSelector extends EventEmitter
 					item: event.getData().eventData,
 					stageId: this.#stageId,
 				});
-			}
+			};
 		};
 
 		const availableRobots = this.#context.availableRobots;
 		const recentRobotIds = this.#getRecentRobotIds();
+		const newRobotIds = this.#getAllNewRobotIds();
 		const triggers = this.#getTriggerItems();
 
 		let items = [];
@@ -199,6 +341,20 @@ export class RobotSelector extends EventEmitter
 				action: getButtonHandler(robot),
 				locked: !!robot.LOCKED,
 			};
+
+			const isNewRobot = newRobotIds.includes(String(robotItem.id).toLowerCase());
+			if (isNewRobot)
+			{
+				robotItem.customData.topText = Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_ROBOT_ITEM_TOP_TEXT');
+
+				robotItem.customData.isViewed = false;
+
+				if (!robotItem.groupIds.includes(this.constructor.NEW_ENTITY_GROUP_ID))
+				{
+					this.#hasNewRobots = true;
+					robotItem.groupIds.push(this.constructor.NEW_ENTITY_GROUP_ID);
+				}
+			}
 
 			const isRecentRobot = recentRobotIds.includes(robotItem.id);
 			if (isRecentRobot && !robotItem.groupIds.includes(this.constructor.RECENT_GROUP_ID))
@@ -250,6 +406,14 @@ export class RobotSelector extends EventEmitter
 						item.description = settings[descriptionGroupKey] ? settings[descriptionGroupKey][firstGroupId] : robot['DESCRIPTION'];
 						item.customData.contextGroup = firstGroupId;
 
+						if (isNewRobot)
+						{
+							if (!item.groupIds.includes(this.constructor.NEW_ENTITY_GROUP_ID))
+							{
+								item.groupIds.push(this.constructor.NEW_ENTITY_GROUP_ID);
+							}
+						}
+
 						if (recentRobotIds.includes(item.id))
 						{
 							if (!item.groupIds.includes(this.constructor.RECENT_GROUP_ID))
@@ -295,6 +459,8 @@ export class RobotSelector extends EventEmitter
 		{
 			items.sort(this.#oldSortItems.bind(this));
 		}
+
+		this.#items = items;
 
 		return items;
 	}
@@ -375,11 +541,30 @@ export class RobotSelector extends EventEmitter
 		);
 	}
 
+	#getAllNewRobotIds(): Array<string>
+	{
+		return this.#settings?.newRobotIds ?? [];
+	}
+
+	#getUnviewedNewRobotsCount(items: Array<ItemData>): number
+	{
+		return items.reduce((count, item) => {
+			const custom = item.customData ?? {};
+			const topText = custom.topText;
+
+			const hasTopText = typeof topText === 'string' && topText.trim().length > 0;
+
+			const idVal = String(item.id).toLowerCase();
+			const isViewed = this.#viewedNewRobotIds.has(idVal);
+
+			return count + ((hasTopText && !isViewed) ? 1 : 0);
+		}, 0);
+	}
+
 	#getTriggerItems(): Object<string, ItemData>
 	{
 		const getButtonHandler = (triggerData) => {
 			return (event) => {
-
 				if (triggerData.LOCKED)
 				{
 					if (top.BX.UI && top.BX.UI.InfoHelper && triggerData.LOCKED.INFO_CODE)
@@ -395,7 +580,7 @@ export class RobotSelector extends EventEmitter
 					event.getData().eventData.groupIds.push(this.constructor.RECENT_GROUP_ID);
 				}
 
-				this.#addToRecentGroup({
+				this.#addToRecentEntities({
 					entity: 'trigger',
 					id: triggerData.CODE,
 				});
@@ -407,7 +592,7 @@ export class RobotSelector extends EventEmitter
 					item: event.getData().eventData,
 					stageId: this.#stageId,
 				});
-			}
+			};
 		};
 
 		const availableTriggers = this.#context.availableTriggers;
@@ -508,12 +693,12 @@ export class RobotSelector extends EventEmitter
 		return (
 			this
 				.#getRecentEntities()
-				.filter(item => item.entity === 'trigger')
-				.map(item => item.id)
+				.filter((item) => item.entity === 'trigger')
+				.map((item) => item.id)
 		);
 	}
 
-	#addToRecentGroup(newItem: {entity: string, id: string}): void
+	#addToRecentEntities(newItem: {entity: string, id: string}): void
 	{
 		let recentGroupItems = this.#getRecentEntities().filter(item => item.id !== newItem.id);
 		if (recentGroupItems.length >= RobotSelector.MAX_SIZE_OF_RECENT_GROUP)
@@ -528,7 +713,15 @@ export class RobotSelector extends EventEmitter
 		this.#cache.set('recentAutomationEntities', entitiesByDocType);
 		this.#context.set('recentAutomationEntities', recentGroupItems);
 
-		this.#getCatalog().setItems(this.#getItems());
+		const newCount = this.getUnviewedNewRobotsCount()
+		this.#getCatalog().updateGroupCounter(RobotSelector.NEW_ENTITY_GROUP_ID, newCount);
+
+		const currentItems = this.#getItems();
+		const matched = currentItems.find((matchedItem) => String(matchedItem.id) === String(newItem.id));
+		if (matched)
+		{
+			this.#getCatalog().updateItemById(matched.id, { customData: matched.customData });
+		}
 	}
 
 	#getSlots(): Object
@@ -539,7 +732,7 @@ export class RobotSelector extends EventEmitter
 			[EntityCatalog.SLOT_MAIN_CONTENT_WELCOME_STUB]: this.#getItemsStub(),
 			[EntityCatalog.SLOT_GROUP_LIST_FOOTER]: this.#getGroupsFooter(),
 			[EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND]: this.#getSearchNotFoundStub(),
-			[EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB]: `<EmptyGroupStub/>`,
+			[EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB]: '<EmptyGroupStub/>',
 			[EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB_TITLE]: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_EMPTY_GROUP_STUB_TITLE'),
 		};
 	}
@@ -560,16 +753,11 @@ export class RobotSelector extends EventEmitter
 	{
 		const helpFeedbackParams = {
 			id: String(Math.random()),
-			portalUri: 'https://bitrix24.team',
-			forms: [
-				{zones: ['ru'], id: 1922, lang: 'ru', sec: 'frsxzd'},
-				{zones: ['kz'], id: 1923, lang: 'ru', sec: 'skbmjc'},
-				{zones: ['by'], id: 1931, lang: 'ru', sec: 'om1f4c'},
-				{zones: ['en'], id: 1937, lang: 'en', sec: 'yu3ljc'},
-				{zones: ['la', 'co', 'mx'], id: 1947, lang: 'es', sec: 'wuezi9'},
-				{zones: ['br'], id: 1948, lang: 'br', sec: 'j5gglp'},
-				{zones: ['de'], id: 1946, lang: 'de', sec: '6tpoy4'},
-			],
+			portalUri: this.#settings?.portalUri,
+			forms: this.#settings?.forms,
+			presets: {
+				source: 'bizproc',
+			},
 		};
 
 		return `
@@ -601,18 +789,17 @@ export class RobotSelector extends EventEmitter
 
 	#getSearchNotFoundStub(): string
 	{
-		const title = Text.encode(Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_SEARCH_NOT_FOUND_TITLE')) ?? ''
+		const title = Text.encode(Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_SEARCH_NOT_FOUND_TITLE')) ?? '';
 		let msg = Text.encode(Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_SEARCH_NOT_FOUND')) ?? '';
 
 		const feedbackParams = {
-			id: Math.random()+'',
-			portalUri: 'https://product-feedback.bitrix24.com/',
+			id: String(Math.random()),
 			forms: [
-				{zones: ['by', 'kz', 'ru'], id: 438, lang: 'ru', sec: 'odyyl1'},
-				{zones: ['com.br'], id: 436, lang: 'br', sec: '8fb4et'},
-				{zones: ['la', 'co', 'mx'], id: 434, lang: 'es', sec: 'ze9mqq'},
-				{zones: ['de'], id: 432, lang: 'de', sec: 'm8isto'},
-				{zones: ['en', 'eu', 'in', 'uk'], id: 430, lang: 'en', sec: 'etg2n4'},
+				{ zones: ['by', 'kz', 'ru'], id: 438, lang: 'ru', sec: 'odyyl1' },
+				{ zones: ['com.br'], id: 436, lang: 'br', sec: '8fb4et' },
+				{ zones: ['la', 'co', 'mx'], id: 434, lang: 'es', sec: 'ze9mqq' },
+				{ zones: ['de'], id: 432, lang: 'de', sec: 'm8isto' },
+				{ zones: ['en', 'eu', 'in', 'uk'], id: 430, lang: 'en', sec: 'etg2n4' },
 			],
 		};
 
@@ -629,7 +816,16 @@ export class RobotSelector extends EventEmitter
 
 	#getGroupsFooter(): string
 	{
-		const url = '/marketplace/category/%category%/'.replace('%category%',  this.#context.get('marketplaceRobotCategory'));
+		const marketplaceRobotCategory = this.#context.get('marketplaceRobotCategory');
+		let url;
+		if (marketplaceRobotCategory.startsWith('automation'))
+		{
+			url = '/market/collection/%category%/'.replace('%category%', marketplaceRobotCategory);
+		}
+		else
+		{
+			url = '/marketplace/category/crm_bots/';
+		}
 
 		return `
 			<a class="bizproc-creating-robot__menu-market" href="${url}">
@@ -730,7 +926,7 @@ export class RobotSelector extends EventEmitter
 					this.#onStageIdChanged();
 
 					item.getMenuWindow().close();
-				}
+				},
 			});
 		}
 
@@ -860,5 +1056,332 @@ export class RobotSelector extends EventEmitter
 		}
 
 		return '#ACF2FA';
+	}
+
+	#initViewedTracking()
+	{
+		this.#loadViewedIdsFromCache();
+
+		this.#pendingViewedNewRobotIds.clear();
+
+		this.#disconnectObservers();
+
+		const popup = this.#getCatalog().getPopup();
+		const root = popup.getContentContainer();
+
+		try
+		{
+			this.#visibilityObserver = new IntersectionObserver(this.#onIntersection.bind(this), {
+				root: root,
+				threshold: [0.3],
+			});
+		}
+		catch (e)
+		{
+			console.error(e);
+			this.#visibilityObserver = null;
+		}
+
+		this.#observeItemsDebounced();
+	}
+
+	#rebuildItemsMap()
+	{
+		const items = this.#getCatalog().getItems();
+		this.#itemsById.clear();
+		for (const it of items)
+		{
+			this.#itemsById.set(String(it.id), String(it).toLowerCase());
+		}
+	}
+
+	#observeItems()
+	{
+		if (!this.#visibilityObserver)
+		{
+			return;
+		}
+
+		this.#rebuildItemsMap();
+
+		const popup = this.#getCatalog().getPopup();
+		const root = popup.getContentContainer();
+
+		const nodes = [...root.querySelectorAll('.ui-entity-catalog__option[data-item-id]')];
+
+		const currentIds = nodes.map(n => n.dataset.itemId).join(',');
+
+		if (this.lastObservedIds === currentIds)
+		{
+			return;
+		}
+
+		this.lastObservedIds = currentIds;
+
+		for (const n of nodes)
+		{
+			this.#visibilityObserver.unobserve(n);
+		}
+
+		for (const node of nodes)
+		{
+			this.#visibilityObserver.observe(node);
+		}
+	}
+
+	#observeItemsDebounced()
+	{
+		if (this.#observeItemsTimer)
+		{
+			clearTimeout(this.#observeItemsTimer);
+		}
+		this.#observeItemsTimer = setTimeout(() => {
+			this.#observeItems();
+		}, 50);
+	}
+
+	#onIntersection(entries = [])
+	{
+		const newIdsLower = (this.#getAllNewRobotIds() || []).map(id => String(id).toLowerCase());
+
+		for (const entry of entries)
+		{
+			this.#processIntersectionEntry(entry, newIdsLower);
+		}
+	}
+
+	#processIntersectionEntry(entry, newIdsLower)
+	{
+		if (entry.intersectionRatio < 0.3 || !entry.isIntersecting)
+		{
+			return;
+		}
+
+		const node = entry.target;
+		const matchedId = node.dataset?.itemId ?? null;
+		if (!matchedId)
+		{
+			return;
+		}
+
+		const matchedIdLower = String(matchedId).toLowerCase();
+		const baseRobotId = matchedIdLower.split('@')[0];
+
+		if (this.#viewedNewRobotIds.has(matchedIdLower))
+		{
+			return;
+		}
+
+		if (!newIdsLower.includes(baseRobotId))
+		{
+			return;
+		}
+
+		requestAnimationFrame(() => {
+			node.classList.add('ui-entity-catalog__option--new-entity-animate');
+		});
+
+		this.#markNewRobotAsViewed(matchedIdLower);
+	}
+
+	#markNewRobotAsViewed(robotId: string)
+	{
+		const idLower = String(robotId).toLowerCase();
+
+		if (this.#viewedNewRobotIds.has(idLower))
+		{
+			return;
+		}
+
+		this.#addViewedIdToCache(robotId);
+		this.#pendingViewedNewRobotIds.add(robotId);
+
+		this.#savePendingViewedIdsToCache();
+
+		const unviewedNewRobotsCount = this.getUnviewedNewRobotsCount()
+
+		this.#scheduleViewedEvent(unviewedNewRobotsCount);
+
+		this.#getCatalog().updateGroupCounter(RobotSelector.NEW_ENTITY_GROUP_ID, unviewedNewRobotsCount);
+
+		this.#scheduleFlushViewedRobots();
+	}
+
+	#scheduleViewedEvent(unviewedNewRobotsCount: number)
+	{
+		if (this.#viewedEventTimerId)
+		{
+			clearTimeout(this.#viewedEventTimerId);
+		}
+
+		this.#viewedEventTimerId = setTimeout(() => {
+			this.emit('newEntityViewed', new BaseEvent({
+				data: {
+					unviewedEntitiesCount: unviewedNewRobotsCount,
+					hasNewEntities: this.hasNewEntities(),
+					context: this.#context,
+				},
+			}))
+		}, 500);
+	}
+
+	#scheduleFlushViewedRobots()
+	{
+		if (this.#viewedSendTimerId)
+		{
+			clearTimeout(this.#viewedSendTimerId);
+		}
+
+		this.#viewedSendTimerId = setTimeout(() => {
+			this.#flushViewedRobotsToBackend();
+		}, 2000);
+	}
+
+	async #flushViewedRobotsToBackend()
+	{
+		if (!this.#pendingViewedNewRobotIds || this.#pendingViewedNewRobotIds.size === 0)
+		{
+			return;
+		}
+
+		const ids = [...this.#pendingViewedNewRobotIds];
+
+		this.#pendingViewedNewRobotIds.clear();
+		if (this.#viewedSendTimerId)
+		{
+			clearTimeout(this.#viewedSendTimerId);
+			this.#viewedSendTimerId = null;
+		}
+
+		try
+		{
+			await ajax.runAction('bizproc.robot.saveViewedRobots', {
+				data: {
+					viewedRobotIds: ids,
+				},
+			});
+			this.#clearPendingViewedIdsCache();
+		}
+		catch (e)
+		{
+			console.error(e);
+
+			ids.forEach((id) => this.#pendingViewedNewRobotIds.add(id));
+			this.#savePendingViewedIdsToCache();
+		}
+	}
+
+	#stopViewedTracking()
+	{
+		if (this.#pendingViewedNewRobotIds && this.#pendingViewedNewRobotIds.size > 0)
+		{
+			this.#flushViewedRobotsToBackend();
+		}
+
+		this.#disconnectObservers();
+
+		if (this.#viewedSendTimerId)
+		{
+			clearTimeout(this.#viewedSendTimerId);
+			this.#viewedSendTimerId = null;
+		}
+
+		if (this.#viewedSendTimerId)
+		{
+			clearTimeout(this.#viewedSendTimerId);
+			this.#viewedSendTimerId = null;
+		}
+	}
+
+	#disconnectObservers()
+	{
+		if (this.#visibilityObserver)
+		{
+			this.#visibilityObserver.disconnect();
+			this.#visibilityObserver = null;
+		}
+
+		this.lastObservedIds = null;
+	}
+
+	#loadViewedIdsFromCache()
+	{
+		try
+		{
+			const arr = this.#cache.remember(RobotSelector.VIEWED_NEW_ROBOT_IDS_CACHE_KEY, []);
+			this.#viewedNewRobotIds = new Set((arr || []).map((id) => String(id).toLowerCase()));
+		}
+		catch (e)
+		{
+			console.error(e);
+			this.#viewedNewRobotIds = new Set();
+		}
+	}
+
+	#addViewedIdToCache(robotId: string)
+	{
+		if (!Type.isStringFilled(robotId))
+		{
+			return;
+		}
+
+		const idStr = String(robotId);
+		const idLower = idStr.toLowerCase();
+
+		if (this.#viewedNewRobotIds.has(idLower))
+		{
+			return;
+		}
+
+		this.#viewedNewRobotIds.add(idLower);
+
+		const arr = this.#cache.remember(RobotSelector.VIEWED_NEW_ROBOT_IDS_CACHE_KEY, []);
+		if (!arr.includes(idStr))
+		{
+			arr.push(idStr);
+			this.#cache.set(RobotSelector.VIEWED_NEW_ROBOT_IDS_CACHE_KEY, arr);
+		}
+	}
+
+	#loadPendingViewedIdsFromCache()
+	{
+		const pending = this.#cache.remember(RobotSelector.PENDING_VIEWED_NEW_ROBOT_IDS_CACHE_KEY, []);
+		pending.forEach((id) => this.#pendingViewedNewRobotIds.add(id));
+	}
+
+	#savePendingViewedIdsToCache()
+	{
+		const pending = [...this.#pendingViewedNewRobotIds];
+		this.#cache.set(RobotSelector.PENDING_VIEWED_NEW_ROBOT_IDS_CACHE_KEY, pending);
+	}
+
+	#clearPendingViewedIdsCache()
+	{
+		this.#cache.set(RobotSelector.PENDING_VIEWED_NEW_ROBOT_IDS_CACHE_KEY, []);
+	}
+
+	hasNewEntities(): boolean
+	{
+		const newRobots = this.#getAllNewRobotIds();
+		return newRobots?.length > 0;
+	}
+
+	calledFromNewEntitiesButton(value: boolean): void
+	{
+		if (!Type.isFunction(this.#getCatalog().selectGroup))
+		{
+			return;
+		}
+
+		if (Type.isBoolean(value) && value === true)
+		{
+			this.#getCatalog().selectGroup(RobotSelector.NEW_ENTITY_GROUP_ID);
+		}
+	}
+
+	getUnviewedNewRobotsCount(): ?number
+	{
+		const currentItems = this.#getItems();
+		return this.#getUnviewedNewRobotsCount(currentItems);
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -8,7 +9,7 @@
 
 namespace Bitrix\Main\Mail\Internal;
 
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data\DataManager;
 
 /**
  * Class EventMessageAttachmentTable
@@ -26,7 +27,7 @@ use Bitrix\Main\Entity;
  * @method static \Bitrix\Main\Mail\Internal\EO_EventMessageAttachment wakeUpObject($row)
  * @method static \Bitrix\Main\Mail\Internal\EO_EventMessageAttachment_Collection wakeUpCollection($rows)
  */
-class EventMessageAttachmentTable extends Entity\DataManager
+class EventMessageAttachmentTable extends DataManager
 {
 	/**
 	 * @return string
@@ -53,5 +54,4 @@ class EventMessageAttachmentTable extends Entity\DataManager
 			),
 		);
 	}
-
 }

@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_core_collections,ui_formElements_view,main_core_events,ui_section,main_core,ui_formElements_field,ui_tabs) {
+(function (exports,main_core_collections,ui_formElements_view,main_core_events,ui_section,ui_formElements_field,ui_tabs,main_core) {
 	'use strict';
 
 	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
@@ -654,11 +654,51 @@ this.BX.UI = this.BX.UI || {};
 	      var settingsField = new SettingsField({
 	        fieldView: fieldView
 	      });
-	      new SettingsRow({
+	      return new SettingsRow({
 	        row: row,
 	        child: settingsField,
 	        parent: sectionSettings
 	      });
+	    }
+	  }, {
+	    key: "addToSectionCheckerHelper",
+	    value: function addToSectionCheckerHelper(checkerField, toggleableFields, sectionSettings) {
+	      checkerField.setHideSeparator(true);
+	      var checkerRow = this.addToSectionHelper(checkerField, sectionSettings);
+	      toggleableFields.forEach(function (toggleableField) {
+	        if (toggleableField instanceof ui_formElements_view.BaseField) {
+	          toggleableField = new SettingsField({
+	            fieldView: toggleableField
+	          });
+	        }
+	        if (!(toggleableField instanceof BaseSettingsElement)) {
+	          return;
+	        }
+	        var toggleableRow = new ui_section.Row({
+	          isHidden: !checkerField.isChecked(),
+	          className: 'ui-section__subrow --no-border'
+	        });
+	        new SettingsRow({
+	          row: toggleableRow,
+	          parent: checkerRow,
+	          child: toggleableField
+	        });
+	        main_core_events.EventEmitter.subscribe(checkerField.switcher, 'toggled', function () {
+	          if (checkerField.isChecked()) {
+	            toggleableRow.show();
+	          } else {
+	            toggleableRow.hide();
+	          }
+	        });
+	      });
+	      var separatorRow = new ui_section.SeparatorRow({
+	        className: 'ui-section__subrow'
+	      });
+	      new SettingsRow({
+	        row: separatorRow,
+	        parent: checkerRow
+	      });
+	      return checkerRow;
 	    }
 	  }]);
 	  return BaseSettingsPage;
@@ -668,7 +708,7 @@ this.BX.UI = this.BX.UI || {};
 	  new Promise(function (resolve, reject) {
 	    main_core.Runtime.loadExtension(babelHelpers.classPrivateFieldGet(_this3, _subPageExtensions)).then(function (exports) {
 	      // 1. collect data by Event for old extensions
-	      main_core_events.EventEmitter.emit(main_core_events.EventEmitter.GLOBAL_TARGET, 'BX.Intranet.Settings:onPageFetched:' + _this3.getType(), event).forEach(function (subPage) {
+	      main_core_events.EventEmitter.emit(main_core_events.EventEmitter.GLOBAL_TARGET, "BX.Intranet.Settings:onPageFetched:".concat(_this3.getType()), event).forEach(function (subPage) {
 	        return babelHelpers.classPrivateFieldGet(_this3, _subPage).set(subPage.getType(), subPage);
 	      });
 	      // 2. collect data by export for new extensions
@@ -985,6 +1025,54 @@ this.BX.UI = this.BX.UI || {};
 	  return TabsField;
 	}(BaseSettingsElement);
 
+	function _classPrivateMethodInitSpec$4(obj, privateSet) { _checkPrivateRedeclaration$9(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$9(obj, privateMap, value) { _checkPrivateRedeclaration$9(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$9(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$4(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _description = /*#__PURE__*/new WeakMap();
+	var _helpdesk = /*#__PURE__*/new WeakMap();
+	var _getHelpdeskLink = /*#__PURE__*/new WeakSet();
+	var DescriptionField = /*#__PURE__*/function (_BaseSettingsElement) {
+	  babelHelpers.inherits(DescriptionField, _BaseSettingsElement);
+	  function DescriptionField(params) {
+	    var _this;
+	    babelHelpers.classCallCheck(this, DescriptionField);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DescriptionField).call(this, params));
+	    _classPrivateMethodInitSpec$4(babelHelpers.assertThisInitialized(_this), _getHelpdeskLink);
+	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _description, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _helpdesk, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _description, main_core.Type.isStringFilled(params.description) ? params.description : '');
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _helpdesk, main_core.Type.isObject(params.helpdesk) ? params.helpdesk : '');
+	    return _this;
+	  }
+	  babelHelpers.createClass(DescriptionField, [{
+	    key: "render",
+	    value: function render() {
+	      var alert = new BX.UI.Alert({
+	        text: "\n\t\t\t\t".concat(babelHelpers.classPrivateFieldGet(this, _description), "\n\t\t\t\t").concat(_classPrivateMethodGet$4(this, _getHelpdeskLink, _getHelpdeskLink2).call(this), "\n\t\t\t"),
+	        inline: true,
+	        size: BX.UI.Alert.Size.SMALL,
+	        color: BX.UI.Alert.Color.PRIMARY,
+	        animated: true
+	      });
+	      return alert.getContainer();
+	    }
+	  }]);
+	  return DescriptionField;
+	}(BaseSettingsElement);
+	function _getHelpdeskLink2() {
+	  if (babelHelpers.classPrivateFieldGet(this, _helpdesk) && main_core.Type.isStringFilled(babelHelpers.classPrivateFieldGet(this, _helpdesk).code) && main_core.Type.isStringFilled(babelHelpers.classPrivateFieldGet(this, _helpdesk).text)) {
+	    return "\n\t\t\t\t<a class=\"ui-section__link\" onclick=\"top.BX.Helper.show('redirect=detail&code=".concat(babelHelpers.classPrivateFieldGet(this, _helpdesk).code, "')\">\n\t\t\t\t\t").concat(babelHelpers.classPrivateFieldGet(this, _helpdesk).text, "\n\t\t\t\t</a>\n\t\t\t");
+	  }
+	  return '';
+	}
+
 	exports.BaseSettingsElement = BaseSettingsElement;
 	exports.BaseSettingsPage = BaseSettingsPage;
 	exports.BaseSettingsVisitor = BaseSettingsVisitor;
@@ -996,6 +1084,7 @@ this.BX.UI = this.BX.UI || {};
 	exports.SettingsSection = SettingsSection;
 	exports.TabsField = TabsField;
 	exports.TabField = TabField;
+	exports.DescriptionField = DescriptionField;
 
-}((this.BX.UI.FormElements = this.BX.UI.FormElements || {}),BX.Collections,BX.UI.FormElements,BX.Event,BX.UI,BX,BX.UI.FormElements,BX.UI));
+}((this.BX.UI.FormElements = this.BX.UI.FormElements || {}),BX.Collections,BX.UI.FormElements,BX.Event,BX.UI,BX.UI.FormElements,BX.UI,BX));
 //# sourceMappingURL=field.bundle.js.map

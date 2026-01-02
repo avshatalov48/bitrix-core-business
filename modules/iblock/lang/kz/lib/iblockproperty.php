@@ -1,0 +1,27 @@
+<?php
+$MESS["IBLOCK_PROPERTY_ENTITY_ACTIVE_FIELD"] = "Белсенділік";
+$MESS["IBLOCK_PROPERTY_ENTITY_CODE_FIELD"] = "Символдық код";
+$MESS["IBLOCK_PROPERTY_ENTITY_COL_COUNT_FIELD"] = "Бағандар саны";
+$MESS["IBLOCK_PROPERTY_ENTITY_DEFAULT_VALUE_FIELD"] = "Әдепкі бойынша мән";
+$MESS["IBLOCK_PROPERTY_ENTITY_FILE_TYPE_FIELD"] = "Рұқсат етілген файл кеңейтілімдері";
+$MESS["IBLOCK_PROPERTY_ENTITY_FILTRABLE_FIELD"] = "Элементтер тізімі бетінде осы қасиеті бойынша сүзуге арналған өрісті көрсету";
+$MESS["IBLOCK_PROPERTY_ENTITY_HINT_FIELD"] = "Ишара";
+$MESS["IBLOCK_PROPERTY_ENTITY_IBLOCK_ID_FIELD"] = "Ақпараттық блок идентификаторы";
+$MESS["IBLOCK_PROPERTY_ENTITY_ID_FIELD"] = "Қасиеттер идентификаторы";
+$MESS["IBLOCK_PROPERTY_ENTITY_IS_REQUIRED_FIELD"] = "Міндетті";
+$MESS["IBLOCK_PROPERTY_ENTITY_LINK_IBLOCK_ID_FIELD"] = "Байланысқан ақпараттық блоктың идентификаторы";
+$MESS["IBLOCK_PROPERTY_ENTITY_LIST_TYPE_FIELD"] = "Тізім көрінісі/жалаушалар";
+$MESS["IBLOCK_PROPERTY_ENTITY_MULTIPLE_CNT_FIELD"] = "Жаңа бірнеше мәндерді енгізуге арналған өрістер саны";
+$MESS["IBLOCK_PROPERTY_ENTITY_MULTIPLE_FIELD"] = "Көптік";
+$MESS["IBLOCK_PROPERTY_ENTITY_NAME_FIELD"] = "Атауы";
+$MESS["IBLOCK_PROPERTY_ENTITY_PROPERTY_TYPE_FIELD"] = "Қасиеттер түрі";
+$MESS["IBLOCK_PROPERTY_ENTITY_ROW_COUNT_FIELD"] = "Жолдар саны";
+$MESS["IBLOCK_PROPERTY_ENTITY_SEARCHABLE_FIELD"] = "Қасиеттердің мәні іздеуге енгізілген";
+$MESS["IBLOCK_PROPERTY_ENTITY_SORT_FIELD"] = "Сұрыптау";
+$MESS["IBLOCK_PROPERTY_ENTITY_TIMESTAMP_X_FIELD"] = "Өзгерту күні";
+$MESS["IBLOCK_PROPERTY_ENTITY_TMP_ID_FIELD"] = "Уақытша код";
+$MESS["IBLOCK_PROPERTY_ENTITY_USER_TYPE_FIELD"] = "Пайдаланушылық түрі";
+$MESS["IBLOCK_PROPERTY_ENTITY_USER_TYPE_SETTINGS_FIELD"] = "Пайдаланушылық түрдің баптаулары";
+$MESS["IBLOCK_PROPERTY_ENTITY_VERSION_FIELD"] = "Қасиеттердің мәнін сақтау режимі";
+$MESS["IBLOCK_PROPERTY_ENTITY_WITH_DESCRIPTION_FIELD"] = "Сипаттамасы бар";
+$MESS["IBLOCK_PROPERTY_ENTITY_XML_ID_FIELD"] = "Сыртқы код";

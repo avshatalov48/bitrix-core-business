@@ -1,10 +1,11 @@
 <?php
+
 namespace Bitrix\Main\Numerator\Model;
 
 use Bitrix\Main\DB\SqlQueryException;
-use Bitrix\Main\Entity\DataManager;
-use Bitrix\Main\Entity\IntegerField;
-use Bitrix\Main\Entity\StringField;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Main\Application;
 use Bitrix\Main\Result;
 

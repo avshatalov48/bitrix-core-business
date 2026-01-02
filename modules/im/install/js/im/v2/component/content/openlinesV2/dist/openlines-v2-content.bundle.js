@@ -27,5 +27,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.OpenlinesV2Content = OpenlinesV2Content;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.OpenLines.v2.Component.Content));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX?.OpenLines?.v2?.Component?.Content??{}));
 //# sourceMappingURL=openlines-v2-content.bundle.js.map

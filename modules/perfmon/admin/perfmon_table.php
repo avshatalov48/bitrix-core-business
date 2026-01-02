@@ -171,14 +171,36 @@ foreach ($obTable->GetIndexes() as $columns)
 	}
 }
 
+$fullTextColumns = [];
+foreach ($obTable->GetFullTextIndexes() as $columns)
+{
+	foreach ($columns as $columnName)
+	{
+		$fullTextColumns[$columnName] = $columnName;
+	}
+}
+
 $filterFields = [];
 foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
 {
 	if ($FIELD_TYPE != 'unknown')
 	{
+		if (isset($fullTextColumns[$FIELD_NAME]))
+		{
+			$suffix = ' (FT)';
+		}
+		elseif (isset($indexedColumns[$FIELD_NAME]))
+		{
+			$suffix = ' (Ind)';
+		}
+		else
+		{
+			$suffix = '';
+		}
+
 		$filterFields[] = [
 			'id' => 'f_' . $FIELD_NAME,
-			'name' => $FIELD_NAME . (isset($indexedColumns[$FIELD_NAME]) ? ' (Ind)' : ''),
+			'name' => $FIELD_NAME . $suffix,
 			'filterable' => '%=',
 		];
 	}
@@ -186,6 +208,20 @@ foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
 
 $arFilterForm = [];
 $lAdmin->AddFilter($filterFields, $arFilterForm);
+
+// format
+$format = [];
+foreach (['FULL', 'SHORT'] as $strType)
+{
+	if (($context = \Bitrix\Main\Context::getCurrent()) && ($culture = $context->getCulture()) !== null)
+	{
+		$format[$strType] = ($strType === 'FULL' ? $culture->getFormatDatetime() : $culture->getFormatDate());
+	}
+	else
+	{
+		$format[$strType] = CLang::GetDateFormat($strType, LANGUAGE_ID);
+	}
+}
 
 $where = new CSQLWhere();
 $arFilter = [];
@@ -195,6 +231,11 @@ foreach ($arFilterForm as $key => $filterValue)
 	if (!array_key_exists($FIELD_NAME, $arFields))
 	{
 		continue;
+	}
+
+	if (str_starts_with($filterValue, '*') && !isset($fullTextColumns[$FIELD_NAME]))
+	{
+		$filterValue = mb_substr($filterValue, 1);
 	}
 
 	$op = $where->MakeOperation($filterValue);
@@ -217,7 +258,26 @@ foreach ($arFilterForm as $key => $filterValue)
 		$op['FIELD'] = array_map('trim', explode(',', $op['FIELD']));
 	}
 
-	$arFilter[$op['OPERATOR'] . $FIELD_NAME] = $op['FIELD'] === 'NULL' ? false : $op['FIELD'];
+	if (
+		$arFields[$FIELD_NAME] === 'datetime'
+		&& $op['FIELD'] != ''
+		&& CDatabase::FormatDate($op['FIELD'], $format['FULL'], 'YYYY-MM-DD HH:MI:SS') == ''
+	)
+	{
+		$lAdmin->AddFilterError(GetMessage('PERFMON_TABLE_WRONG_DATETIME'));
+	}
+	elseif (
+		$arFields[$FIELD_NAME] === 'date'
+		&& $op['FIELD'] != ''
+		&& CDatabase::FormatDate($op['FIELD'], $format['SHORT'], 'YYYY-MM-DD HH:MI:SS') == ''
+	)
+	{
+		$lAdmin->AddFilterError(GetMessage('PERFMON_TABLE_WRONG_DATETIME'));
+	}
+	else
+	{
+		$arFilter[$op['OPERATOR'] . $FIELD_NAME] = $op['FIELD'] === 'NULL' ? false : $op['FIELD'];
+	}
 }
 
 $filterOption = new Bitrix\Main\UI\Filter\Options($sTableID);

@@ -1,5 +1,3 @@
-import typeof Extension from './extension';
-
-const extensionsStorage: Map<string, Extension> = new Map();
+const extensionsStorage: Map<string, Promise<string>> = new Map();
 
 export default extensionsStorage;

@@ -16,7 +16,7 @@ return [
 		'ui.hint',
 		'bizproc.workflow.faces',
 		'bizproc.workflow.faces.summary',
-		'ui.cnt',
+		'bizproc.workflow.result',
 		'main.core',
 		'ui.notification',
 		'ui.design-tokens',

@@ -1,0 +1,20 @@
+<?php
+$MESS["SEARCH_COLOR_NEW"] = "Кейінгі тегтің түсі (мысалы: \"C0C0C0\")";
+$MESS["SEARCH_COLOR_OLD"] = "Ертерек тегтің түсі (мысалы: \"FEFEFE\")";
+$MESS["SEARCH_FONT_MAX"] = "Қаріптің максималды өлшемі (px)";
+$MESS["SEARCH_FONT_MIN"] = "Қаріптің минималды өлшемі (px)";
+$MESS["SEARCH_PAGE_ELEMENTS"] = "Тегтер саны";
+$MESS["SEARCH_PERIOD_NEW_TAGS"] = "Тегті жаңа деп санау кезеңі (күндер)";
+$MESS["SEARCH_WIDTH"] = "Тегтер бұлтының ені (мысалы: \"100%\" немесе \"100px\", \"100pt\", \"100in\")";
+$MESS["TP_CBIV_AVERAGE"] = "Орташа мәні";
+$MESS["TP_CBIV_DISPLAY_AS_RATING"] = "Рейтинг ретінде көрсету";
+$MESS["TP_CBIV_RATING"] = "Рейтинг";
+$MESS["T_IBLOCK_DESC_NEWS_DATE"] = "Элементтің күнін шығару";
+$MESS["T_IBLOCK_DESC_NEWS_PICTURE"] = "Аңдатпа кескінін шығару";
+$MESS["T_IBLOCK_DESC_NEWS_SHARE_HIDE"] = "Әлеуметтік бетбелгілер панелін әдепкі бойынша ашпау";
+$MESS["T_IBLOCK_DESC_NEWS_SHARE_SHORTEN_URL_KEY"] = "bit.ly үшін кілт";
+$MESS["T_IBLOCK_DESC_NEWS_SHARE_SHORTEN_URL_LOGIN"] = "bit.ly үшін логин";
+$MESS["T_IBLOCK_DESC_NEWS_SHARE_SYSTEM"] = "Қолданылатын әлеуметтік бетбелгілер мен желілер";
+$MESS["T_IBLOCK_DESC_NEWS_SHARE_TEMPLATE"] = "Әлеуметтік бетбелгілер панелінің компонентінің қалыбы";
+$MESS["T_IBLOCK_DESC_NEWS_TEXT"] = "Аңдатпа мәтінін шығару";
+$MESS["T_IBLOCK_DESC_NEWS_USE_SHARE"] = "Әлеуметтік бетбелгілер панелін көрсету";

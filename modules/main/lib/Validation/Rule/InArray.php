@@ -8,7 +8,7 @@ use Attribute;
 use Bitrix\Main\Localization\LocalizableMessageInterface;
 use Bitrix\Main\Validation\Validator\InArrayValidator;
 
-#[Attribute(Attribute::TARGET_PROPERTY)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class InArray extends AbstractPropertyValidationAttribute
 {
 	public function __construct(

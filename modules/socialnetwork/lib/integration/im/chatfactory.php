@@ -76,7 +76,30 @@ class ChatFactory
 
 	private function getCollabChatFields(): array
 	{
-		$fields = $this->getCommonFields();
+		return array_merge($this->getCommonFields(), self::getUniqueCollabChatFields());
+	}
+
+	public static function getUniqueFieldsByType(Type $type): array
+	{
+		return match ($type) {
+			Type::Collab => self::getUniqueCollabChatFields(),
+			default => self::getUniqueGroupChatFields(),
+		};
+	}
+
+	public static function getUniqueGroupChatFields(): array
+	{
+		$fields = [];
+
+		$fields['TYPE'] = Chat::IM_TYPE_CHAT;
+		$fields['SKIP_ADD_MESSAGE'] = 'Y';
+
+		return $fields;
+	}
+
+	public static function getUniqueCollabChatFields(): array
+	{
+		$fields = [];
 
 		$fields['TYPE'] = Chat::IM_TYPE_COLLAB;
 		$fields['SKIP_ADD_MESSAGE'] = 'N';
@@ -107,7 +130,7 @@ class ChatFactory
 	private function getCommonFields(): array
 	{
 		$fields = [
-			'TITLE' => $fields['TITLE'] = static::getChatTitle($this->group->getName(), $this->group->getType()),
+			'TITLE' => static::getChatTitle($this->group->getName(), $this->group->getType()),
 			'DESCRIPTION' => $this->group->getDescription(),
 			'ENTITY_TYPE' => self::CHAT_ENTITY_TYPE,
 			'ENTITY_ID' => $this->group->getId(),

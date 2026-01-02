@@ -1,19 +1,19 @@
-import {Attach} from 'im.v2.component.elements';
-import {Utils} from 'im.v2.lib.utils';
-import {Parser} from 'im.v2.lib.parser';
-import {NotificationQuickAnswer} from '../notification-quick-answer';
-import {NotificationItemConfirmButtons} from './notification-item-confirm-buttons';
+import { Attach } from 'im.v2.component.elements.attach';
+import { Parser } from 'im.v2.lib.parser';
+import { NotificationQuickAnswer } from '../notification-quick-answer';
+import { NotificationItemConfirmButtons } from './notification-item-confirm-buttons';
+
 import '../../css/notification-item-content.css';
 
 // @vue/component
 export const NotificationItemContent = {
 	name: 'NotificationItemContent',
-	components: {NotificationQuickAnswer, Attach, NotificationItemConfirmButtons},
+	components: { NotificationQuickAnswer, Attach, NotificationItemConfirmButtons },
 	props: {
 		notification: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['confirmButtonsClick', 'sendQuickAnswer'],
 	computed:

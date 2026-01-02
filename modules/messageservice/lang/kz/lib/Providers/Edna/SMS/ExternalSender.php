@@ -1,0 +1,14 @@
+<?php
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_400"] = "Қолтаңба идентификаторы дұрыс емес";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_401"] = "Авторландыру қатесі. X-API-KEY дұрыстығын тексеріңіз";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_404"] = "Қолтаңбасы табылмады";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_ADDRESS_FORMAT"] = "Абонент нөмірінің дұрыс емес пішімі";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_ADDRESS_NOT_SPECIFIED"] = "Абоненттің нөмірі көрсетілмеген";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_ADDRESS_UNKNOWN"] = "Абоненттің нөмірі кіретін нөмірлік сыйымдылыққа жіберу клиентке рұқсат етілмейді";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_CONTENT_FORMAT"] = "SMS мазмұнының дұрыс емес пішімі";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_CONTENT_NOT_SPECIFIED"] = "SMS мазмұны көрсетілмеген";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_ID_NOT_UNIQUE"] = "SMS идентификаторы бірегей емес, қайталап көріңіз";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_INSUFFICIENT_BALANCE"] = "Шоттағы қаражат жеткіліксіз";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_SUBJECT_FORMAT"] = "Қолтаңба пішімі дұрыс емес";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_SUBJECT_UNKNOWN"] = "Көрсетілген қолтаңбаға рұқсат етілмейді";
+$MESS["MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_SYSTEM"] = "Жүйелік қате";

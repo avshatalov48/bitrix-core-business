@@ -8,7 +8,7 @@ use Attribute;
 use Bitrix\Main\Localization\LocalizableMessageInterface;
 use Bitrix\Main\Validation\Validator\LengthValidator;
 
-#[Attribute(Attribute::TARGET_PROPERTY)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Length extends AbstractPropertyValidationAttribute
 {
 	public function __construct(

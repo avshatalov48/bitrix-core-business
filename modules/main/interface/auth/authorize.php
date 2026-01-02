@@ -8,7 +8,6 @@ $authLink = false;
 if(
 	\Bitrix\Main\Loader::includeModule("socialservices")
 	&& class_exists("Bitrix\\Socialservices\\Network") // just to check if socserv update installed
-	&& method_exists("Bitrix\\Socialservices\\Network", "displayAdminPopup")
 )
 {
 	$authLink = \Bitrix\Socialservices\Network::getAuthUrl("popup", array("admin"));

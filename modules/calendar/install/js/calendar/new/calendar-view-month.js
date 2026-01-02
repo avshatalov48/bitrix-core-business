@@ -420,6 +420,12 @@
 	{
 		return new Promise((resolve) => {
 			const viewRange = this.calendar.getDisplayedViewRange();
+
+			if (!viewRange)
+			{
+				resolve([]);
+			}
+
 			this.entryController.getList({
 				showLoader: (this.entries && !this.entries.length),
 				startDate: new Date(viewRange.start.getFullYear(), viewRange.start.getMonth(), 1),
@@ -733,43 +739,49 @@
 				entry.isHiddenInPopup = true;
 			}
 
-			dotNode = BX.create('DIV', {props: {className: 'calendar-event-line-dot'}})
+			dotNode = BX.Tag.render`<div class="calendar-event-line-dot"></div>`;
+
+			let appendClassName = null;
+			if (this.shouldEntryLookLikeSharing(entry))
+			{
+				appendClassName = 'calendar-event-block-icon-sharing --month';
+			}
+			else if (this.shouldEntryLookLikeCollab(entry))
+			{
+				appendClassName = 'calendar-event-block-icon-collab --month';
+			}
+			else if (this.shouldEntryLookLineBooking(entry))
+			{
+				appendClassName = 'calendar-event-block-icon-booking --month';
+			}
+
 			if (entry.isInvited())
 			{
 				partWrap.className += ' calendar-event-animate-counter-highlight';
+
 				if (this.isFirstVisibleRecursiveEntry(entry) && params.part.partIndex === 0)
 				{
-					innerNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-invite-counter'}, text: '1'}))
+					innerNode.appendChild(BX.Tag.render`<div class="calendar-event-invite-counter">1</div>`);
 				}
 				else
 				{
-					//temporarily removed recursive entries invitation indicators
+					// temporarily removed recursive entries invitation indicators
 					// innerNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-invite-counter-dot'}}))
 					innerNode.appendChild(dotNode);
 				}
+			}
+			else if (appendClassName)
+			{
+				innerNode.appendChild(BX.Tag.render`<span class="${appendClassName}"></span>`);
 			}
 			else
 			{
 				innerNode.appendChild(dotNode);
 			}
 
-			let appendClassName = null;
-			if (this.shouldEntryLookLikeSharing(entry))
-			{
-				appendClassName = 'calendar-event-block-icon-sharing';
-			}
-			else if (this.shouldEntryLookLikeCollab(entry))
-			{
-				appendClassName = 'calendar-event-block-icon-collab';
-			}
-			if (appendClassName)
-			{
-				innerNode.appendChild(BX.Tag.render`<span class="${appendClassName}"></span>`);
-			}
-
 			if (entry.isFullDay())
 			{
-				innerNode.style.maxWidth = 'calc(200% / ' + daysCount + ' - 3px)';
+				innerNode.style.maxWidth = `calc(200% / ${daysCount} - 3px)`;
 			}
 			else if (entry.isLongWithTime())
 			{
@@ -781,25 +793,24 @@
 						&& (entry.to.getDate() === params.part.to.date.getDate())
 					)
 					{
-						let formattedDate = this.calendar.util.formatTime(entry.to.getHours(), entry.to.getMinutes());
-						if (daysCount===1)
+						const formattedDate = this.calendar.util.formatTime(entry.to.getHours(), entry.to.getMinutes());
+						if (daysCount === 1)
 						{
-							timeNode = innerNode.appendChild(
-								BX.create('SPAN', {
-									props: {className: 'calendar-event-line-time'},
-									text: BX.message('EC_JS_UNTIL_DATE').replace('#DATE#', formattedDate)
-								})
-							)
+							timeNode = innerNode.appendChild(BX.Tag.render`
+								<span class="calendar-event-line-time"
+									>${BX.Loc.getMessage('EC_JS_UNTIL_DATE', { '#DATE#': formattedDate })}
+								</span>
+							`);
 						}
 						else
 						{
-							endTimeNode = innerNode.appendChild(
-								BX.create('SPAN', {
-									props: {className: 'calendar-event-line-expired-time'},
-									text: formattedDate
-								}));
+							endTimeNode = innerNode.appendChild(BX.Tag.render`
+								<span class="calendar-event-line-expired-time"
+									>${formattedDate}
+								</span>
+							`);
 
-							innerNode.style.width = 'calc(100% - ' + this.offsetForTimelineExpiredTime + 'px)';
+							innerNode.style.width = `calc(100% - ${this.offsetForTimelineExpiredTime}px)`;
 						}
 					}
 
@@ -881,13 +892,13 @@
 			}
 
 			res = {
+				nameNode,
+				innerContainer,
+				innerNode,
+				dotNode,
 				wrapNode: partWrap,
-				nameNode: nameNode,
-				innerContainer: innerContainer,
-				innerNode: innerNode,
 				timeNode: timeNode || false,
 				endTimeNode: endTimeNode || false,
-				dotNode: dotNode
 			};
 
 			if (!params.popupMode)
@@ -899,99 +910,6 @@
 		}
 
 		return res;
-	};
-
-
-	MonthView.prototype.refreshEventsOnWeek = function(ind)
-	{
-		var
-			startDayInd = ind * 7,
-			endDayInd = (ind + 1) * 7,
-			day, i, k, arEv, j, ev, arAll, arHid,
-			slots = [],
-			maxEventCount = 5,
-			step = 0;
-
-		for(j = 0; j < maxEventCount; j++)
-			slots[j] = 0;
-
-		for (i = startDayInd; i < endDayInd; i++)
-		{
-			day = this.activeDateObjDays[i];
-
-			if (!day)
-				continue;
-
-			day.arEvents.hidden = [];
-			arEv = day.arEvents.begining;
-			arHid = [];
-
-			if (arEv.length > 0)
-			{
-				arEv.sort(function(a, b)
-				{
-					if (b.daysCount == a.daysCount && a.daysCount == 1)
-						return a.oEvent.DT_FROM_TS - b.oEvent.DT_FROM_TS;
-					return b.daysCount - a.daysCount;
-				});
-
-				eventloop:
-					for(k = 0; k < arEv.length; k++)
-					{
-						ev = arEv[k];
-						if (!ev)
-							continue;
-
-						if (!this.arEvents[ev.oEvent.ind])
-						{
-							day.arEvents.begining = arEv = BX.util.deleteFromArray(arEv, k);
-							ev = arEv[k];
-							if (!ev)
-								continue; //break ?
-						}
-
-						for(j = 0; j < this.maxEventCount; j++)
-						{
-							if (slots[j] - step <= 0)
-							{
-								slots[j] = step + ev.daysCount;
-								this.ShowEventOnLevel(ev.oEvent.oParts[ev.partInd], j, ind);
-								continue eventloop;
-							}
-						}
-						arHid[ev.oEvent.ID] = true;
-						day.arEvents.hidden.push(ev);
-					}
-			}
-
-			// For all events in the day
-			arAll = day.arEvents.all;
-			for (var x = 0; x < arAll.length; x++)
-			{
-				ev = arAll[x];
-				if (!ev || arHid[ev.oEvent.ID])
-				{
-					continue;
-				}
-
-				if (!this.arEvents[ev.oEvent.ind])
-				{
-					day.arEvents.all = arAll = BX.util.deleteFromArray(arAll, x);
-					ev = arAll[x];
-					if (!ev)
-					{
-						continue;
-					}
-				}
-
-				if (ev.oEvent.oParts && ev.partInd != undefined && ev.oEvent.oParts[ev.partInd] && ev.oEvent.oParts[ev.partInd].style.display == 'none')
-				{
-					day.arEvents.hidden.push(ev);
-				}
-			}
-			//this.ShowMoreEventsSelect(day);
-			step++;
-		}
 	};
 
 	MonthView.prototype.handleClick = function(params)

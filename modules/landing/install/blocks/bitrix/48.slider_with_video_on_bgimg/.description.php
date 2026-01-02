@@ -69,7 +69,7 @@ return array(
 			),
 			'.landing-block-node-card-button' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_48.SLIDER_WITH_VIDEO_ON_BGIMG_NODES_LANDINGBLOCKNODECARDBUTTON'),
-				'type' => array('button-color', 'border-color'),
+				'type' => array('button-color', 'background-hover', 'border-color', 'border-color-hover'),
 			),
 			'.landing-block-node-card-button-container' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_48.SLIDER_WITH_VIDEO_ON_BGIMG_NODES_LANDINGBLOCKNODECARDBUTTON'),

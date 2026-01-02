@@ -1,0 +1,15 @@
+<?php
+$MESS["SN_SPACES_FILES_ADD_FILE"] = "Файлды жүктеу";
+$MESS["SN_SPACES_FILES_ADD_SETTINGS_DOC"] = "Құжат";
+$MESS["SN_SPACES_FILES_ADD_SETTINGS_FILE"] = "Файл";
+$MESS["SN_SPACES_FILES_ADD_SETTINGS_FOLDER"] = "Бума";
+$MESS["SN_SPACES_FILES_ADD_SETTINGS_PRESENTATION"] = "Презентация";
+$MESS["SN_SPACES_FILES_ADD_SETTINGS_TABLE"] = "Кесте";
+$MESS["SN_SPACES_FILES_BIZPROC"] = "Бизнес-процесстер";
+$MESS["SN_SPACES_FILES_CLEAN_BTN"] = "Себетті босату";
+$MESS["SN_SPACES_FILES_SETTINGS_BIZPROC"] = "Бизнес-процесстерді баптау ";
+$MESS["SN_SPACES_FILES_SETTINGS_CLEAN"] = "Дискідегі орынды тазалау";
+$MESS["SN_SPACES_FILES_SETTINGS_DOC"] = "Құжаттармен жұмыс жасауды баптау";
+$MESS["SN_SPACES_FILES_SETTINGS_NETWORK"] = "Желілік диск";
+$MESS["SN_SPACES_FILES_SETTINGS_RIGHTS"] = "Құқықтарды баптау";
+$MESS["SN_SPACES_FILES_SETTINGS_TRASH"] = "Себет";

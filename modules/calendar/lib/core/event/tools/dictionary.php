@@ -32,6 +32,7 @@ class Dictionary
 		'resource_booking' => '#resourcebooking#',
 		'collab' => '#collab#',
 		'shared_collab' => '#shared_collab#',
+		'booking' => '#booking#',
 	];
 
 	public const MEETING_STATUS = [

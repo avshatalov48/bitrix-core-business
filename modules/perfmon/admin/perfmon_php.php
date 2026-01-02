@@ -148,7 +148,7 @@ foreach ($data as $i => $arTable)
 	$j = 0;
 	while ($arRes = $rsData->Fetch())
 	{
-		$row =& $lAdmin->AddRow($j++, $arRes);
+		$row = $lAdmin->AddRow($j++, $arRes);
 		$row->AddViewField('PARAMETER', $arRes['PARAMETER']);
 		if ($arRes['IS_OK'])
 		{

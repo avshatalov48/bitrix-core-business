@@ -110,11 +110,11 @@ export class EInvoiceAppButton extends EventEmitter
 		BX.UI.Feedback.Form.open({
 			id: 'b5309667',
 			forms: [
+				{ zones: ['en'], id: 674, lang: 'en', sec: '5iorws' },
 				{ zones: ['es'], id: 676, lang: 'es', sec: 'uthphh' },
 				{ zones: ['de'], id: 670, lang: 'de', sec: 'gk89kt' },
 				{ zones: ['com.br'], id: 668, lang: 'br', sec: 'kuelnm' },
 			],
-			defaultForm: { id: 674, lang: 'en', sec: '5iorws' },
 			presets: {
 				...this.#formConfiguration,
 				sender_page: document.location.href,

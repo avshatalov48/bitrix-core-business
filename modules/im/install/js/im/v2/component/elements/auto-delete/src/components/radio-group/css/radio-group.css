@@ -1,0 +1,29 @@
+.bx-im-auto-delete-popup-radio__container {
+	--im-auto-delete-popup__border-color_radio-button: var(--im-color-palette-gray-20);
+	--im-auto-delete-popup__border-color_radio-button-hover: var(--im-color-palette-white-base);
+	--im-auto-delete-popup__box-shadow_radio-button-focus: var(--im-color-accent-main-primary);
+	--im-auto-delete-popup__box-shadow_label: var(--im-color-palette-black-base);
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+	padding: 8px 0 0;
+}
+
+.bx-im-auto-delete-popup-radio__option {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	gap: 10px;
+}
+
+.bx-im-auto-delete-popup-radio__input {
+	width: 18px;
+	height: 18px;
+	cursor: pointer;
+}
+
+.bx-im-auto-delete-popup-radio__label {
+	font-size: 15px;
+	color: var(--im-auto-delete-popup__box-shadow_label);
+	cursor: pointer;
+}

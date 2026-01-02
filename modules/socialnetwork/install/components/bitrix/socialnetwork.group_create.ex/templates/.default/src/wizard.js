@@ -81,6 +81,7 @@ export class Wizard
 			Buttons.showButton(WorkgroupForm.getInstance().buttonsInstance.backButton);
 		}
 
+		this.#sendAnalytics();
 	}
 
 	setProjectType(projectType)
@@ -128,5 +129,60 @@ export class Wizard
 		}
 
 		this.showCurrentStep();
+	}
+
+	#sendAnalytics()
+	{
+		let event = '';
+		let analyticsData = {};
+
+		if (this.currentStep === 3)
+		{
+			if (WorkgroupForm.getInstance().isScrumForm)
+			{
+				event = 'scrum_create_step2';
+				analyticsData = {
+					event,
+					category: 'scrum',
+					c_section: 'scrum',
+					c_sub_section: 'scrum_grid',
+					c_element: 'continue_button',
+					tool: 'tasks',
+					status: 'success',
+					p1: `isDemo_${WorkgroupForm.getInstance().isScrumTrialEnabled ? 'Y' : 'N'}`,
+				};
+			}
+			else
+			{
+				event = 'project_create_step2';
+				analyticsData = {
+					event,
+					category: 'project',
+					c_section: 'project',
+					c_sub_section: 'project_grid',
+					c_element: 'continue_button',
+					tool: 'tasks',
+					status: 'success',
+					p1: `isDemo_${WorkgroupForm.getInstance().isProjectsTrialEnabled ? 'Y' : 'N'}`,
+				};
+			}
+		}
+
+		if (!Type.isStringFilled(event))
+		{
+			return;
+		}
+
+		if (BX.UI.Analytics)
+		{
+			BX.UI.Analytics.sendData(analyticsData);
+		}
+		else
+		{
+			// eslint-disable-next-line promise/catch-or-return
+			BX.Runtime.loadExtension('ui.analytics').then(() => {
+				BX.UI.Analytics.sendData(analyticsData);
+			});
+		}
 	}
 }

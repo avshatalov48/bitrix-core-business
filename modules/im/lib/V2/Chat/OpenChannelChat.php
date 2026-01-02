@@ -13,6 +13,11 @@ class OpenChannelChat extends ChannelChat
 {
 	public const PULL_TAG_SHARED_LIST = 'IM_SHARED_CHANNEL_LIST';
 
+	public function getRecentSectionsForGuest(): array
+	{
+		return ['openChannel'];
+	}
+
 	protected function sendMessageUsersAdd(array $usersToAdd, AddUsersConfig $config): void
 	{
 		parent::sendMessageUsersAdd($this->getExtranetUsersToAdd($usersToAdd), $config);
@@ -75,9 +80,9 @@ class OpenChannelChat extends ChannelChat
 		return $accessCodes;
 	}
 
-	protected function updateStateAfterUsersAdd(array $usersToAdd): self
+	protected function updateStateAfterRelationsAdd(array $usersToAdd): self
 	{
-		parent::updateStateAfterUsersAdd($usersToAdd);
+		parent::updateStateAfterRelationsAdd($usersToAdd);
 
 		if (Loader::includeModule('pull'))
 		{
@@ -116,10 +121,11 @@ class OpenChannelChat extends ChannelChat
 		return true;
 	}
 
-	public static function sendSharedPull(array $pull): void
+	public static function sendSharedPull(array $pull): bool
 	{
 		$pull['extra']['is_shared_event'] = true;
-		\CPullWatch::AddToStack(\Bitrix\Im\V2\Chat\OpenChannelChat::PULL_TAG_SHARED_LIST, $pull);
+
+		return \CPullWatch::AddToStack(\Bitrix\Im\V2\Chat\OpenChannelChat::PULL_TAG_SHARED_LIST, $pull);
 	}
 
 	public function isNew(): bool

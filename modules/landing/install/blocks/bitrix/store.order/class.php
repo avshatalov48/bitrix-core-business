@@ -33,7 +33,20 @@ class StoreOrderBlock extends \Bitrix\Landing\LandingBlock
 		}
 
 		$this->params['NO_PERSONAL'] = !isset($syspages['personal']) ? 'Y' : 'N';
-		$this->params['USER_CONSENT'] = ($this->params['AGREEMENT_ID'] > 0) ? 'Y' : 'N';
+
+		if (isset($this->params['AGREEMENTS']))
+		{
+			$this->params['USER_CONSENT'] =
+				is_array($this->params['AGREEMENTS'])
+				&& !empty($this->params['AGREEMENTS'])
+					? 'Y'
+					: 'N'
+			;
+		}
+		else
+		{
+			$this->params['USER_CONSENT'] = $this->params['AGREEMENT_ID'] > 0 ? 'Y' : 'N';
+		}
 		$this->params['MESS_REGION_BLOCK_NAME'] = Loc::getMessage('LANDING_BLOCK_STORE_ORDER--REGION_NAME');
 		$this->params['SITE_ID'] = $params['site_id'];
 		$this->params['LANDING_ID'] = $params['landing_id'];

@@ -39,4 +39,4 @@ $MESS["T_IBLOCK_MON_8"] = "Aug";
 $MESS["T_IBLOCK_MON_9"] = "Sep";
 $MESS["T_IBLOCK_MON_10"] = "Oct";
 $MESS["T_IBLOCK_MON_11"] = "Nov";
-$MESS["T_IBLOCK_MON_12"] = "Dec";
+$MESS['T_IBLOCK_MON_12'] = "Dec";

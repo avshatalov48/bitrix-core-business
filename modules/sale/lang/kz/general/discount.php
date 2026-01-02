@@ -1,0 +1,20 @@
+<?php
+$MESS["BT_MOD_SALE_DISC_ERR_BAD_ACTIONS_EXT"] = "Ережеге берілген әрекеттер дұрыс емес. Ережені сақтау мүмкін емес.";
+$MESS["BT_MOD_SALE_DISC_ERR_BAD_CONDITIONS"] = "Қолдану шарттары дұрыс емес";
+$MESS["BT_MOD_SALE_DISC_ERR_EMPTY_ACTIONS_EXT"] = "Ереже орындауы керек әрекеттер көрсетілмеген. Ережені сақтау мүмкін емес.";
+$MESS["BT_MOD_SALE_DISC_ERR_EMPTY_CONDITIONS"] = "Қолдану шарттары көрсетілмеген";
+$MESS["BT_MOD_SALE_DISC_ERR_USER_GROUPS_ABSENT_SHORT"] = "Пайдаланушылар топтары көрсетілмеген";
+$MESS["BT_MOD_SALE_ERR_DSC_ABSENT"] = "Жеңілдіктің ID дұрыс емес";
+$MESS["BT_MOD_SALE_ERR_DSC_CURRENCY_ABSENT"] = "Валюта көрсетілмеген";
+$MESS["BT_MOD_SALE_ERR_DSC_SITE_ID_ABSENT"] = "Сайт көрсетілмеген";
+$MESS["BT_MOD_SALE_ERR_DSC_TYPE_ABSENT"] = "Жеңілдік түрі көрсетілмеген";
+$MESS["BT_MOD_SALE_ERR_DSC_TYPE_BAD"] = "Жеңілдік түрі дұрыс емес";
+$MESS["BT_MOD_SALE_ERR_DSC_VALUE_ABSENT"] = "Жеңілдік көлемі көрсетілмеген";
+$MESS["BT_MOD_SALE_ERR_DSC_VALUE_BAD"] = "Жеңілдік көлемі дұрыс емес";
+$MESS["BX_SALE_DISCOUNT_APPLY_MODE_ADD"] = "қолданылған жеңілдіктерді толықтыру";
+$MESS["BX_SALE_DISCOUNT_APPLY_MODE_DISABLE"] = "кез-келген жеңілдіктер қолданылған болса, әрекет етпеу";
+$MESS["BX_SALE_DISCOUNT_APPLY_MODE_LAST"] = "егер \"Жеңілдіктерді одан әрі қолдануды тоқтату\" жалаушасы болса, әрекет етпеу";
+$MESS["SKGD_EMPTY_DVAL"] = "Жеңілдіктің көлемі орнатылмаған";
+$MESS["SKGD_NO_CURRENCY"] = "#ID# коды бар валюта табылмады";
+$MESS["SKGD_NO_SITE"] = "#ID# коды бар сайт табылмады";
+$MESS["SKGD_WRONG_DBOUND"] = "Жеңілдіктің дұрыс емес әрекет ету шекаралары";

@@ -94,6 +94,7 @@ class UpdateModeratorsHandler implements UpdateHandlerInterface
 			$command->getId(),
 			$command->getInitiatorId(),
 			UserToGroupTable::ROLE_MODERATOR,
+			UserToGroupTable::INITIATED_BY_GROUP,
 			...$memberIds
 		);
 

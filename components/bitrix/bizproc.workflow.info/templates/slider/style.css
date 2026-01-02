@@ -43,6 +43,7 @@
 	background: var(--ui-color-base-02);
 	border-radius: 10px;
 	padding: 12px 16px;
+	margin-bottom: 16px;
 	border: none;
 }
 
@@ -342,4 +343,9 @@
 .bizproc-file-not-found {
 	text-decoration: line-through;
 	cursor: not-allowed;
+}
+
+.bp-workflow-result {
+	margin: 2px 0;
+	font-size: var(--ui-font-size-xl);
 }

@@ -87,12 +87,12 @@
 
 			if (newView.switchNode)
 			{
-				BX.addClass(newView.switchNode, 'calendar-view-switcher-list-item-active');
+				BX.addClass(newView.switchNode, '--active');
 			}
 
 			if (currentView.switchNode)
 			{
-				BX.removeClass(currentView.switchNode, 'calendar-view-switcher-list-item-active');
+				BX.removeClass(currentView.switchNode, '--active');
 			}
 		},
 

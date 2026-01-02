@@ -15,7 +15,7 @@ import type { ImModelChat } from 'im.v2.model';
 
 export class ChatDelete
 {
-	onClick(dialogId: string)
+	onClick(dialogId: string): void
 	{
 		const chat: ImModelChat = Core.getStore().getters['chats/get'](dialogId);
 
@@ -31,7 +31,7 @@ export class ChatDelete
 		});
 	}
 
-	onCancel(dialogId: string)
+	onCancel(dialogId: string): void
 	{
 		const chat: ImModelChat = Core.getStore().getters['chats/get'](dialogId);
 
@@ -46,7 +46,7 @@ export class ChatDelete
 		});
 	}
 
-	onConfirm(dialogId: string)
+	onConfirm(dialogId: string): void
 	{
 		const chat: ImModelChat = Core.getStore().getters['chats/get'](dialogId);
 
@@ -61,7 +61,7 @@ export class ChatDelete
 		});
 	}
 
-	onChatDeletedNotification(dialogId: string)
+	onChatDeletedNotification(dialogId: string): void
 	{
 		const chat: ImModelChat = Core.getStore().getters['chats/get'](dialogId);
 		const category = getCategoryByChatType(chat);

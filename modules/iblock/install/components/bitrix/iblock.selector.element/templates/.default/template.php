@@ -1,7 +1,9 @@
 <?php
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-use Bitrix\Iblock;
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /**
  * @global CMain $APPLICATION
@@ -14,26 +16,28 @@ use Bitrix\Iblock;
  * @var string $templateFolder
  */
 
+use Bitrix\Main\Loader;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
+
+Loader::includeModule('ui');
+
 $settings = $arResult['SETTINGS'];
 if (!empty($arResult['FILTER']))
 {
-	$pageTitleFilter = ($settings['FILTER']['PAGETITLE'] === 'Y');
-	if ($pageTitleFilter)
+	if ($settings['FILTER']['PAGETITLE'] === 'Y')
 	{
-		$this->SetViewTarget('inside_pagetitle');
+		Toolbar::addFilter($arResult['FILTER']);
 	}
-	$APPLICATION->includeComponent(
-		'bitrix:main.ui.filter',
-		'',
-		$arResult['FILTER'],
-		$component,
-		['HIDE_ICONS' => true]
-	);
-	if ($pageTitleFilter)
+	else
 	{
-		$this->EndViewTarget();
+		$APPLICATION->includeComponent(
+			'bitrix:main.ui.filter',
+			'',
+			$arResult['FILTER'],
+			$component,
+			['HIDE_ICONS' => true]
+		);
 	}
-	unset($pageTitleFilter);
 }
 
 $APPLICATION->IncludeComponent(

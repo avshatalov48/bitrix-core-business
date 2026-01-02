@@ -1,0 +1,22 @@
+<?php
+$MESS["BT_CAT_DISCOUNT_TYPE_FIX"] = "Тіркелген сома";
+$MESS["BT_CAT_DISCOUNT_TYPE_PERCENT"] = "Пайызбен";
+$MESS["BT_CAT_DISCOUNT_TYPE_SALE_EXT"] = "Тауардың бағасын орнату";
+$MESS["BT_MOD_CATALOG_DISC_ERR_BAD_CONDITIONS"] = "Жеңілдіктерді қолдану шарттарының дұрыс емес пішімі";
+$MESS["BT_MOD_CATALOG_DISC_ERR_BAD_ID"] = "##ID# жеңілдік табылмады";
+$MESS["BT_MOD_CATALOG_DISC_ERR_BAD_VALUE"] = "Жеңілдік мөлшерінің дұрыс емес мәні";
+$MESS["BT_MOD_CATALOG_DISC_ERR_CONDITIONS_TOO_LONG"] = "Тым көп шарттар орнатылған. Базада сақтау мүмкін емес.";
+$MESS["BT_MOD_CATALOG_DISC_ERR_DISCOUNT_ID_ABSENT"] = "Жеңілдіктің ID-і көрсетілмеген";
+$MESS["BT_MOD_CATALOG_DISC_ERR_ELEMENT_ID_NOT_FOUND"] = "##ID# ақпараттық блок элементі табылмады";
+$MESS["BT_MOD_CATALOG_DISC_ERR_EMPTY_CONDITIONS"] = "Жеңілдіктерді қолдану шарттары жоқ";
+$MESS["BT_MOD_CATALOG_DISC_ERR_IBLOCK_ID_ABSENT"] = "Ақпараттық блок ID-і берілмеген немесе дұрыс емес";
+$MESS["BT_MOD_CATALOG_DISC_ERR_PARSE_PRICE_TYPE"] = "Баға түрлерінің шектеулеріндегі қате";
+$MESS["BT_MOD_CATALOG_DISC_ERR_PARSE_USER_GROUP"] = "Пайдаланушы топтарының шектеулеріндегі қате";
+$MESS["BT_MOD_CATALOG_DISC_ERR_PRICE_ID_ABSENT"] = "Баға ұсынысының (бағасының) ID берілмеген немесе дұрыс емес";
+$MESS["BT_MOD_CATALOG_DISC_ERR_PRICE_ID_NOT_FOUND"] = "##ID# баға ұсынысы (баға) табылмады";
+$MESS["BT_MOD_CATALOG_DISC_ERR_PRODUCT_ID_ABSENT"] = "Тауардың ID-і берілмеген немесе дұрыс емес";
+$MESS["BT_MOD_CATALOG_DISC_ERR_SUBDISCOUNT_ROWS_ABSENT"] = "Жеңілдіктерге шектеу қойылмаған";
+$MESS["CATALOG_DISCOUNT_REINDEX_MESS"] = "Назар аударыңыз! Сауда каталогы модулінде <a href=\"/bitrix/admin/settings.php?lang=#LANGUAGE_ID#&mid_menu=1&mid=catalog\">странице настроек</a> функционалдылықты жақсарту үшін өнім жеңілдіктерін индекстеңіз.";
+$MESS["KGD_EMPTY_CURRENCY"] = "Валюта көрсетілмеген";
+$MESS["KGD_EMPTY_NAME"] = "Жеңілдіктің атауы көрсетілмеген";
+$MESS["KGD_EMPTY_SITE"] = "Сайт көрсетілмеген";

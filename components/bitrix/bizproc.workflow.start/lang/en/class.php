@@ -1,4 +1,6 @@
 <?php
+$MESS["BIZPROC_CMP_WORKFLOW_START_CONSTANTS_ACCESS_DENIED"] = "Only the administrators can edit constants.";
+$MESS["BIZPROC_CMP_WORKFLOW_START_CONSTANTS_NOT_FOUND"] = "This workflow template doesn't have constants.";
 $MESS["BIZPROC_CMP_WORKFLOW_START_TEMPLATE_NOT_FOUND"] = "Workflow is not available. It may have been deleted, or manual launch is disabled.";
 $MESS["BIZPROC_CMP_WORKFLOW_START_TEMPLATE_NO_PERMISSIONS"] = "Insufficient permission to start workflow. Please contact your supervisor or Bitrix24 administrator.";
 $MESS["BPABS_EMPTY_DOC_ID"] = "No element ID specified for which the business process is to be created.";

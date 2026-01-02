@@ -221,7 +221,7 @@
 
 		changeVkGroupLink: function()
 		{
-			BX("vk_export_groupselector__link").href = 'https://vk.com/club' + BX("vk_export_groupselector").value;
+			BX("vk_export_groupselector__link").href = 'https://vk.ru/club' + BX("vk_export_groupselector").value;
 		}
 	};
 })(window);

@@ -3,6 +3,7 @@
 namespace Bitrix\Socialservices\OAuth;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\Context;
 use Bitrix\Main\Data\LocalStorage\SessionLocalStorage;
 use Bitrix\Main\Web\Json;
 
@@ -31,15 +32,22 @@ final class StateService
 		return self::$instance;
 	}
 
-	public function createState(array $payload, bool $appendTimestamp = true): string
+	public function createState(array $payload, bool $appendTimestamp = true, Context $context = null): string
 	{
+		$context ??= Context::getCurrent();
+
 		$value = Json::encode($payload);
 		if ($appendTimestamp)
 		{
 			$value .= time();
 		}
 
-		$state = hash('sha224', $value);
+		$state = join('.', [
+			$payload['site_id'] ?? $context->getSite() ?? 's1',
+			$context->getRequest()->isAdminSection() ? 1 : 0,
+			hash('sha224', $value),
+		]);
+
 		$this->saveState($state, $payload);
 
 		return $state;

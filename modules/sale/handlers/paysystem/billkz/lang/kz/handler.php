@@ -1,0 +1,4 @@
+<?php
+$MESS["SALE_HPS_BILL_KZ_BANK_ADDRESS"] = "Қазақстан";
+$MESS["SALE_HPS_BILL_KZ_BANK_CITY"] = "Нұр-Сұлтан";
+$MESS["SALE_HPS_BILL_KZ_BUYER_COMPANY_ADDRESS"] = "Нұр-Сұлтан";

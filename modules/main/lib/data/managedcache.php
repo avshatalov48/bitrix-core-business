@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2014 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Data;
@@ -12,28 +13,17 @@ use Bitrix\Main;
 
 class ManagedCache
 {
-	/**
-	 * @var Cache[]
-	 */
-	protected $cache = array();
-	protected $cache_init = array();
-	protected $cachePath = array();
-	protected $vars = array();
-	protected $ttl = array();
+	/** @var Cache[] */
+	protected $cache = [];
+	protected $cacheInit = [];
+	protected $cachePath = [];
+	protected $vars = [];
+	protected $ttl = [];
+	protected $dbType;
 
 	public function __construct()
 	{
-	}
-
-	protected static function getDbType()
-	{
-		static $type = null;
-		if ($type === null)
-		{
-			$type = Main\Application::getInstance()->getConnection()->getType();
-			$type = strtoupper($type);
-		}
-		return $type;
+		$this->dbType = strtoupper(Main\Application::getInstance()->getConnection()->getType());
 	}
 
 	// Tries to read cached variable value from the file
@@ -41,20 +31,20 @@ class ManagedCache
 	// otherwise returns false
 	public function read($ttl, $uniqueId, $tableId = false)
 	{
-		if (!isset($this->cache_init[$uniqueId]))
+		if (!isset($this->cacheInit[$uniqueId]))
 		{
 			$this->cache[$uniqueId] = Cache::createInstance();
-			$this->cachePath[$uniqueId] = static::getDbType().($tableId === false ? "" : "/".$tableId);
+			$this->cachePath[$uniqueId] = $this->dbType . ($tableId === false ? "" : "/" . $tableId);
 			$this->ttl[$uniqueId] = $ttl;
-			$this->cache_init[$uniqueId] = $this->cache[$uniqueId]->initCache($ttl, $uniqueId, $this->cachePath[$uniqueId], "managed_cache");
+			$this->cacheInit[$uniqueId] = $this->cache[$uniqueId]->initCache($ttl, $uniqueId, $this->cachePath[$uniqueId], "managed_cache");
 		}
-		return $this->cache_init[$uniqueId] || array_key_exists($uniqueId, $this->vars);
+		return $this->cacheInit[$uniqueId] || array_key_exists($uniqueId, $this->vars);
 	}
 
 	public function getImmediate($ttl, $uniqueId, $tableId = false)
 	{
 		$cache = Cache::createInstance();
-		$cachePath = static::getDbType().($tableId === false ? "" : "/".$tableId);
+		$cachePath = $this->dbType . ($tableId === false ? "" : "/" . $tableId);
 
 		if ($cache->initCache($ttl, $uniqueId, $cachePath, "managed_cache"))
 		{
@@ -76,7 +66,7 @@ class ManagedCache
 		{
 			return $this->vars[$uniqueId];
 		}
-		elseif (isset($this->cache_init[$uniqueId]) && $this->cache_init[$uniqueId])
+		elseif (isset($this->cacheInit[$uniqueId]) && $this->cacheInit[$uniqueId])
 		{
 			return $this->cache[$uniqueId]->getVars();
 		}
@@ -99,13 +89,13 @@ class ManagedCache
 	{
 		if (isset($this->cache[$uniqueId]))
 		{
-			$obCache = Cache::createInstance();
-			$obCache->noOutput();
-			$obCache->startDataCache($this->ttl[$uniqueId], $uniqueId, $this->cachePath[$uniqueId], $val, "managed_cache");
-			$obCache->endDataCache();
+			$cache = Cache::createInstance();
+			$cache->noOutput();
+			$cache->startDataCache($this->ttl[$uniqueId], $uniqueId, $this->cachePath[$uniqueId], $val, "managed_cache");
+			$cache->endDataCache();
 
 			unset($this->cache[$uniqueId]);
-			unset($this->cache_init[$uniqueId]);
+			unset($this->cacheInit[$uniqueId]);
 			unset($this->cachePath[$uniqueId]);
 			unset($this->vars[$uniqueId]);
 		}
@@ -114,16 +104,16 @@ class ManagedCache
 	// Marks cache entry as invalid
 	public function clean($uniqueId, $tableId = false)
 	{
-		$obCache = Cache::createInstance();
-		$obCache->clean(
+		$cache = Cache::createInstance();
+		$cache->clean(
 			$uniqueId,
-			static::getDbType().($tableId === false ? "" : "/".$tableId),
+			$this->dbType . ($tableId === false ? "" : "/" . $tableId),
 			"managed_cache"
 		);
 		if (isset($this->cache[$uniqueId]))
 		{
 			unset($this->cache[$uniqueId]);
-			unset($this->cache_init[$uniqueId]);
+			unset($this->cacheInit[$uniqueId]);
 			unset($this->cachePath[$uniqueId]);
 			unset($this->vars[$uniqueId]);
 		}
@@ -132,33 +122,32 @@ class ManagedCache
 	// Marks cache entries associated with the table as invalid
 	public function cleanDir($tableId)
 	{
-		$dbType = static::getDbType();
-		$strPath = $dbType."/".$tableId;
+		$strPath = $this->dbType . "/" . $tableId;
 		foreach ($this->cachePath as $uniqueId => $Path)
 		{
 			if ($Path == $strPath)
 			{
 				unset($this->cache[$uniqueId]);
-				unset($this->cache_init[$uniqueId]);
+				unset($this->cacheInit[$uniqueId]);
 				unset($this->cachePath[$uniqueId]);
 				unset($this->vars[$uniqueId]);
 			}
 		}
-		$obCache = Cache::createInstance();
-		$obCache->cleanDir($dbType."/".$tableId, "managed_cache");
+		$cache = Cache::createInstance();
+		$cache->cleanDir($this->dbType . "/" . $tableId, "managed_cache");
 	}
 
 	// Clears all managed_cache
 	public function cleanAll()
 	{
-		$this->cache = array();
-		$this->cache_init = array();
-		$this->cachePath = array();
-		$this->vars = array();
-		$this->ttl = array();
+		$this->cache = [];
+		$this->cacheInit = [];
+		$this->cachePath = [];
+		$this->vars = [];
+		$this->ttl = [];
 
-		$obCache = Cache::createInstance();
-		$obCache->cleanDir(false, "managed_cache");
+		$cache = Cache::createInstance();
+		$cache->cleanDir(false, "managed_cache");
 	}
 
 	// Use it to flush cache to the files.
@@ -188,10 +177,10 @@ class ManagedCache
 		}
 		else
 		{
-			$salt = "/".mb_substr(md5($BX_STATE), 0, 3);
+			$salt = "/" . mb_substr(md5($BX_STATE), 0, 3);
 		}
 
-		$path = "/".SITE_ID.$relativePath.$salt;
+		$path = "/" . SITE_ID . $relativePath . $salt;
 		return $path;
 	}
 }

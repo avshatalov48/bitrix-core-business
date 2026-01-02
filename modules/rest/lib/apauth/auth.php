@@ -16,7 +16,7 @@ use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UserTable;
 use Bitrix\Rest\Engine\Access;
 use Bitrix\Rest\Engine\Access\HoldEntity;
-use Bitrix\Rest\Service\PasswordService;
+use Bitrix\Rest\Preset\IntegrationTable;
 
 class Auth
 {
@@ -29,6 +29,8 @@ class Auth
 	protected static $integrationScope = array('crm', 'telephony', 'imopenlines');
 
 	protected static $scopeCache = array();
+
+	private const TEMPORARY_FORBIDDEN_INTEGRATION = ['export-email-new-contact', 'contact-add'];
 
 	public static function onRestCheckAuth(array $query, $scope, &$res)
 	{
@@ -63,7 +65,7 @@ class Auth
 					'error' => 'OVERLOAD_LIMIT',
 					'error_description' => 'REST API is blocked due to overload.'
 				];
-					$error = true;
+				$error = true;
 			}
 
 			if (
@@ -168,12 +170,31 @@ class Auth
 
 			if($passwordInfo)
 			{
-				if(static::checkPermission($passwordInfo["ID"], $scope) === true)
+				if (static::checkPermission($passwordInfo["ID"], $scope) === true)
 				{
-					$result = array(
-						'user_id' => $userInfo["ID"],
-						'password_id' => $passwordInfo["ID"],
-					);
+					$forbiddenIntegration = IntegrationTable::query()
+						->setSelect(['ID'])
+						->where('PASSWORD_ID', $passwordInfo["ID"])
+						->whereIn('ELEMENT_CODE', static::TEMPORARY_FORBIDDEN_INTEGRATION)
+						->setCacheTtl(86400)
+						->exec()
+						->fetch()
+					;
+
+					if (!empty($forbiddenIntegration))
+					{
+						$result = array(
+							'error' => 'QUERY_LIMIT_EXCEEDED',
+							'error_description' => 'Rate limit exceeded. Too many requests in a given amount of time.'
+						);
+					}
+					else
+					{
+						$result = array(
+							'user_id' => $userInfo["ID"],
+							'password_id' => $passwordInfo["ID"],
+						);
+					}
 				}
 				else
 				{

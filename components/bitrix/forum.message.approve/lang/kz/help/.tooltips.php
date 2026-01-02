@@ -1,0 +1,24 @@
+<?php
+$MESS["CACHE_TIME_TIP"] = "Кештеу уақыты (сек.)";
+$MESS["CACHE_TYPE_TIP"] = "Кештеу түрі";
+$MESS["DATE_FORMAT_TIP"] = "Күнді көрсету пішімі";
+$MESS["DATE_TIME_FORMAT_TIP"] = "Күн мен уақытты көрсету пішімі";
+$MESS["DISPLAY_PANEL_TIP"] = "Әкімшілік панельге осы компонент үшін батырмаларды қосу";
+$MESS["FID_TIP"] = "Форумның ID-і";
+$MESS["IMAGE_SIZE_TIP"] = "Тіркелген суреттің өлшемі (px)";
+$MESS["MESSAGES_PER_PAGE_TIP"] = "Парақшадағы хабарламалар саны";
+$MESS["PAGE_NAVIGATION_TEMPLATE_TIP"] = "Парақша бойынша навигацияны көрсетуге арналған қалып атауы";
+$MESS["PAGE_NAVIGATION_WINDOW_TIP"] = "Парақша бойынша навигациядағы парақша саны";
+$MESS["SET_NAVIGATION_TIP"] = "Навигацияны көрсету";
+$MESS["SET_TITLE_TIP"] = "Парақшалар тақырыпттарын орнату";
+$MESS["TID_TIP"] = "Тақырыптың ID-і";
+$MESS["URL_TEMPLATES_INDEX_TIP"] = "Форумдар тізімі парақшасы";
+$MESS["URL_TEMPLATES_LIST_TIP"] = "Тақырыптар тізімі парақшасы";
+$MESS["URL_TEMPLATES_MESSAGE_APPR_TIP"] = "Жасырын хабарламалар парақшасы";
+$MESS["URL_TEMPLATES_MESSAGE_SEND_TIP"] = "Хабарлама жіберу парақшасы";
+$MESS["URL_TEMPLATES_MESSAGE_TIP"] = "Тақырыпты оқу парақшасы (хабарлама ID-мен)";
+$MESS["URL_TEMPLATES_PM_EDIT_TIP"] = "Жеке хабарламалар парақшасы";
+$MESS["URL_TEMPLATES_PROFILE_VIEW_TIP"] = "Пайдаланушының профиль парақшасы";
+$MESS["URL_TEMPLATES_READ_TIP"] = "Тақырыпты оқу парақшасы";
+$MESS["URL_TEMPLATES_TOPIC_NEW_TIP"] = "Жаңа тақырып жасау парақшасы";
+$MESS["WORD_LENGTH_TIP"] = "Сөздің ұзындығы";

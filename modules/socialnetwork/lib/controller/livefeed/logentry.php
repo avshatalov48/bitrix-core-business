@@ -137,7 +137,7 @@ class LogEntry extends Base
 					|| (
 						in_array($destinationFields['TYPE'], ['CRMCOMPANY', 'CRMLEAD', 'CRMCONTACT', 'CRMDEAL'])
 						&& Loader::includeModule('crm')
-						&& !\Bitrix\Crm\Security\EntityAuthorization::checkReadPermission(
+						&& !\Bitrix\Crm\Service\Container::getInstance()->getUserPermissions()->item()->canRead(
 							\CCrmLiveFeedEntity::resolveEntityTypeID($destinationFields['TYPE']),
 							$destinationFields['ID']
 						)

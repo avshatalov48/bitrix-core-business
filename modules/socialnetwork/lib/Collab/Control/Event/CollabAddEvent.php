@@ -7,7 +7,6 @@ namespace Bitrix\Socialnetwork\Collab\Control\Event;
 use Bitrix\Main\Event;
 use Bitrix\Socialnetwork\Collab\Collab;
 use Bitrix\Socialnetwork\Collab\Control\Command\CollabAddCommand;
-use Bitrix\Socialnetwork\Collab\Control\Command\CollabDeleteCommand;
 
 class CollabAddEvent extends Event
 {

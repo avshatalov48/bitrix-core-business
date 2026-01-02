@@ -2,7 +2,13 @@ import Button from '../compatibility/button';
 
 import { Type, Text, Tag, Event, Dom, Browser, Reflection } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
-import { type PopupOptions, type PopupTarget, type PopupAnimationOptions } from './popup-types';
+import {
+	type PopupOptions,
+	type PopupTarget,
+	type PopupAnimationOptions,
+	type PopupOverlay,
+	type PopupDraggable,
+} from './popup-types';
 import { ZIndexManager, ZIndexComponent } from 'main.core.z-index-manager';
 import PositionEvent from './position-event';
 import CloseIconSize from './popup-close-icon-size';
@@ -160,7 +166,6 @@ export default class Popup extends EventEmitter
 		this.autoHide = params.autoHide === true;
 		this.disableScroll = params.disableScroll === true || params.isScrollBlock === true;
 		this.autoHideHandler = Type.isFunction(params.autoHideHandler) ? params.autoHideHandler : null;
-		this.handleAutoHide = this.handleAutoHide.bind(this);
 		this.handleOverlayClick = this.handleOverlayClick.bind(this);
 		this.isAutoHideBinded = false;
 		this.closeByEsc = params.closeByEsc === true;
@@ -186,7 +191,7 @@ export default class Popup extends EventEmitter
 		this.borderRadius = null;
 		this.contentBorderRadius = null;
 
-		this.targetContainer = Type.isElementNode(params.targetContainer) ? params.targetContainer : document.body;
+		this.setTargetContainer(params.targetContainer);
 
 		this.dragOptions = {
 			cursor: '',
@@ -205,7 +210,6 @@ export default class Popup extends EventEmitter
 
 		this.handleDocumentMouseMove = this.handleDocumentMouseMove.bind(this);
 		this.handleDocumentMouseUp = this.handleDocumentMouseUp.bind(this);
-		this.handleDocumentKeyUp = this.handleDocumentKeyUp.bind(this);
 		this.handleResizeWindow = this.handleResizeWindow.bind(this);
 		this.handleResize = this.handleResize.bind(this);
 		this.handleMove = this.handleMove.bind(this);
@@ -223,13 +227,16 @@ export default class Popup extends EventEmitter
 
 		if (params.className && Type.isStringFilled(params.className))
 		{
-			popupClassName += ' ' + params.className;
+			popupClassName += ` ${params.className}`;
 		}
 
 		if (params.darkMode)
 		{
 			popupClassName += ' popup-window-dark';
 		}
+
+		this.designSystemContext = params.darkMode ? '--ui-context-content-dark' : '--ui-context-content-light';
+		popupClassName += ` ${this.designSystemContext}`;
 
 		if (params.titleBar)
 		{
@@ -251,8 +258,6 @@ export default class Popup extends EventEmitter
 				<span class="${className}" onclick="${this.handleCloseIconClick.bind(this)}"></span>
 			`;
 
-
-
 			if (Type.isPlainObject(params.closeIcon))
 			{
 				Dom.style(this.closeIcon, params.closeIcon);
@@ -262,22 +267,22 @@ export default class Popup extends EventEmitter
 		/**
 		 * @private
 		 */
-		this.contentContainer = Tag.render
-			`<div id="popup-window-content-${popupId}" class="popup-window-content"></div>`
-		;
+		this.contentContainer = Tag.render`
+			<div id="popup-window-content-${popupId}" class="popup-window-content"></div>
+		`;
 
 		/**
 		 * @private
 		 */
-		this.popupContainer = Tag.render
-			`<div
+		this.popupContainer = Tag.render`
+			<div
 				class="${popupClassName}"
 				id="${popupId}"
 				style="display: none; position: absolute; left: 0; top: 0;"
-			>${[this.titleBar, this.contentContainer, this.closeIcon]}</div>`
-		;
+			>${[this.titleBar, this.contentContainer, this.closeIcon]}</div>
+		`;
 
-		this.targetContainer.appendChild(this.popupContainer);
+		this.getTargetContainer().append(this.popupContainer);
 
 		this.zIndexComponent = ZIndexManager.register(this.popupContainer, params.zIndexOptions);
 
@@ -294,7 +299,6 @@ export default class Popup extends EventEmitter
 			}
 
 			this.setContentColor(params.contentColor);
-
 		}
 
 		if (params.angle)
@@ -310,6 +314,7 @@ export default class Popup extends EventEmitter
 		this.setOffset(params);
 		this.setBindElement(bindElement);
 		this.setTitleBar(params.titleBar);
+		this.setDraggable(params.draggable);
 		this.setContent(params.content);
 		this.setButtons(params.buttons);
 		this.setWidth(params.width);
@@ -329,6 +334,7 @@ export default class Popup extends EventEmitter
 		this.setCacheable(params.cacheable);
 		this.setToFrontOnShow(params.toFrontOnShow);
 		this.setFixed(params.fixed);
+		this.setDesignSystemContext(params.designSystemContext);
 
 		// Compatibility
 		if (params.contentNoPaddings)
@@ -1023,6 +1029,47 @@ export default class Popup extends EventEmitter
 		}
 	}
 
+	getDesignSystemContext(): string
+	{
+		return this.designSystemContext;
+	}
+
+	setDesignSystemContext(context: string): void
+	{
+		if (Type.isString(context))
+		{
+			if (this.popupContainer !== null)
+			{
+				Dom.removeClass(this.popupContainer, this.designSystemContext);
+				Dom.addClass(this.popupContainer, context);
+			}
+
+			this.designSystemContext = context;
+		}
+	}
+
+	setTargetContainer(targetContainer: HTMLElement): void
+	{
+		const newTargetContainer = Type.isElementNode(targetContainer) ? targetContainer : document.body;
+		if (newTargetContainer === this.targetContainer)
+		{
+			return;
+		}
+
+		this.targetContainer = newTargetContainer;
+		if (this.getPopupContainer())
+		{
+			ZIndexManager.unregister(this.getPopupContainer());
+			this.getTargetContainer().append(this.getPopupContainer());
+			ZIndexManager.register(this.getPopupContainer());
+		}
+
+		if (this.overlay)
+		{
+			Dom.append(this.overlay.element, this.getTargetContainer());
+		}
+	}
+
 	getTargetContainer(): HTMLElement
 	{
 		return this.targetContainer;
@@ -1201,12 +1248,19 @@ export default class Popup extends EventEmitter
 				})
 			);
 		}
+	}
 
-		if (this.params.draggable)
+	setDraggable(draggable: PopupDraggable): void
+	{
+		this.params.draggable = draggable;
+		const element = draggable?.element ?? this.titleBar;
+		if (!draggable || !element)
 		{
-			this.titleBar.style.cursor = 'move';
-			Event.bind(this.titleBar, 'mousedown', this.onTitleMouseDown);
+			return;
 		}
+
+		Dom.style(element, 'cursor', 'move');
+		Event.bind(element, 'mousedown', this.onTitleMouseDown);
 	}
 
 	setClosingByEsc(enable: boolean): void
@@ -1231,7 +1285,7 @@ export default class Popup extends EventEmitter
 	{
 		if (this.closeByEsc && !this.isCloseByEscBinded)
 		{
-			Event.bind(document, 'keyup', this.handleDocumentKeyUp);
+			Event.bind(this.targetContainer.ownerDocument, 'keyup', this.handleDocumentKeyUp, true);
 			this.isCloseByEscBinded = true;
 		}
 	}
@@ -1243,7 +1297,7 @@ export default class Popup extends EventEmitter
 	{
 		if (this.isCloseByEscBinded)
 		{
-			Event.unbind(document, 'keyup', this.handleDocumentKeyUp);
+			Event.unbind(this.targetContainer.ownerDocument, 'keyup', this.handleDocumentKeyUp, true);
 			this.isCloseByEscBinded = false;
 		}
 	}
@@ -1285,11 +1339,11 @@ export default class Popup extends EventEmitter
 			{
 				if (this.isCompatibleMode())
 				{
-					Event.bind(document, 'click', this.handleAutoHide);
+					Event.bind(this.targetContainer.ownerDocument, 'click', this.handleAutoHide);
 				}
 				else
 				{
-					document.addEventListener('click', this.handleAutoHide, true);
+					this.targetContainer.ownerDocument.addEventListener('click', this.handleAutoHide, true);
 				}
 			}
 		}
@@ -1317,11 +1371,11 @@ export default class Popup extends EventEmitter
 			{
 				if (this.isCompatibleMode())
 				{
-					Event.unbind(document, 'click', this.handleAutoHide);
+					Event.unbind(this.targetContainer.ownerDocument, 'click', this.handleAutoHide);
 				}
 				else
 				{
-					document.removeEventListener('click', this.handleAutoHide, true);
+					this.targetContainer.ownerDocument.removeEventListener('click', this.handleAutoHide, true);
 				}
 			}
 		}
@@ -1330,8 +1384,7 @@ export default class Popup extends EventEmitter
 	/**
 	 * @private
 	 */
-	handleAutoHide(event): void
-	{
+	handleAutoHide = (event): void => {
 		if (this.isDestroyed())
 		{
 			return;
@@ -1348,7 +1401,7 @@ export default class Popup extends EventEmitter
 		{
 			this._tryCloseByEvent(event);
 		}
-	}
+	};
 
 	/**
 	 * @private
@@ -1387,30 +1440,35 @@ export default class Popup extends EventEmitter
 		event.stopPropagation();
 	}
 
-	setOverlay(params: { backgroundColor?: string, opacity?: number }): void
+	setOverlay(params: PopupOverlay): void
 	{
 		if (this.overlay === null)
 		{
 			this.overlay = {
 				element: Tag.render`
 					<div class="popup-window-overlay" id="popup-window-overlay-${this.getId()}"></div>
-				`
+				`,
 			};
 
 			this.resizeOverlay();
 
-			this.targetContainer.appendChild(this.overlay.element);
+			Dom.append(this.overlay.element, this.getTargetContainer());
 			this.getZIndexComponent().setOverlay(this.overlay.element);
 		}
 
-		if (params && Type.isNumber(params.opacity) && params.opacity >= 0 && params.opacity <= 100)
+		if (Type.isNumber(params?.opacity) && params.opacity >= 0 && params.opacity <= 100)
 		{
-			this.overlay.element.style.opacity = parseFloat(params.opacity / 100).toPrecision(3);
+			Dom.style(this.overlay.element, 'opacity', parseFloat(params.opacity / 100).toPrecision(3));
 		}
 
-		if (params && params.backgroundColor)
+		if (params?.backgroundColor)
 		{
-			this.overlay.element.style.backgroundColor = params.backgroundColor;
+			Dom.style(this.overlay.element, 'background-color', params.backgroundColor);
+		}
+
+		if (params?.blur)
+		{
+			Dom.style(this.overlay.element, 'backdrop-filter', params.blur);
 		}
 	}
 
@@ -1775,7 +1833,7 @@ export default class Popup extends EventEmitter
 
 	isShown(): boolean
 	{
-		return !this.isDestroyed() && this.getPopupContainer().style.display === 'block';
+		return !this.isDestroyed() && this.getPopupContainer()?.style.display === 'block';
 	}
 
 	destroy(): void
@@ -2056,15 +2114,14 @@ export default class Popup extends EventEmitter
 	/**
 	 * @private
 	 */
-	handleDocumentKeyUp(event): void
-	{
+	handleDocumentKeyUp = (event): void => {
 		if (event.keyCode === 27)
 		{
 			checkEscPressed(this.getZindex(), () => {
 				this.close();
 			});
 		}
-	}
+	};
 
 	/**
 	 * @private

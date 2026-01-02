@@ -1,19 +1,20 @@
-import { Event, ajax, Dom } from 'main.core';
+import { Event, ajax, Dom, Type } from 'main.core';
 
 export type FeedbackFormOptions = {
 	id: string;
-	forms: FeedbackFormOptionsForm[];
+	form?: FeedbackForm[];
+	forms?: FeedbackForm[];
 	presets?: Object;
-	title?: string,
-	defaultForm?: FeedbackFormOptionsForm;
+	title?: string;
+	showTitle?: boolean;
+	defaultForm?: FeedbackForm;
 	portalUri?: string;
+	button?: string;
+	node?: string;
 }
 
-type FeedbackFormOptionsForm = {
-	zones: string[];
-	id: number;
-	lang: string;
-	sec: string;
+type FeedbackForm = {
+	zones: string[]; id: number; lang: string; sec: string;
 }
 
 export class Form
@@ -51,7 +52,7 @@ export class Form
 			return;
 		}
 
-		const form = new Form({ map: formOptions });
+		const form = new Form({map: formOptions});
 
 		Form.#loadedList[formOptions.id] = form;
 
@@ -62,54 +63,67 @@ export class Form
 	id: string;
 	portal: string;
 	presets: Object;
-	form: Object;
-	forms: FeedbackFormOptionsForm[];
+	form: FeedbackForm;
 	defaultForm: Object;
 	title: ?string;
+	showTitle: boolean;
 	button: ?HTMLElement;
+	node: ?HTMLElement;
 	portalUri: ?string;
 
 	cached: boolean;
 
 	/**
 	 * @deprecated use static method open
-	 * @param formOptions
+	 * @param options
 	 */
-	constructor(formOptions)
+	constructor(options: FeedbackFormOptions)
 	{
-		this.init(formOptions);
+		this.init(options);
 		Form.#list.push(this);
 	}
 
-	init(formOptions): void
+	init(options): void
 	{
 		this.cached = false;
 
-		if (formOptions.map !== undefined)
+		if (options.map !== undefined)
 		{
-			this.map = formOptions.map;
+			this.map = options.map;
 
 			return;
 		}
 
-		this.id = formOptions.id;
-		this.portal = formOptions.portal;
-		this.presets = formOptions.presets || {};
-		this.form = formOptions.form || {};
-		this.title = formOptions.title || '';
+		this.id = options.id;
+		this.portal = options.portal;
+		this.presets = options.presets || {};
+		this.form = options.form || {};
+		this.title = options.title || '';
+		this.showTitle = Type.isBoolean(options.showTitle) ? options.showTitle : true;
 
-		if (formOptions.button)
+		if (options.button)
 		{
-			this.button = BX(formOptions.button);
+			this.button = BX(options.button);
 			Event.bind(this.button, 'click', this.openPanel.bind(this));
+		}
+		else if (options.node)
+		{
+			this.node = BX(options.node);
+			this.#loadInline();
 		}
 	}
 
-	appendPresets(presets): void
+	#loadInline()
 	{
-		Object.entries(presets).forEach(([key, value]) => {
-			this.presets[key] = value;
-		});
+		if (!this.node)
+		{
+			return;
+		}
+
+		// todo: loader
+
+		Dom.append(this.#getContainerNode(true), this.node);
+		this.loadForm();
 	}
 
 	openPanel(): void
@@ -193,6 +207,11 @@ export class Form
 			return;
 		}
 
+		Dom.append(this.#getContainerNode(), slider.layout.content);
+	}
+
+	#getContainerNode(inline: boolean = false): HTMLElement
+	{
 		this.formNode = Dom.create('div');
 		const titleNode = Dom.create('div', {
 			style: {
@@ -203,18 +222,18 @@ export class Form
 			text: this.title,
 		});
 
-		const containerNode = Dom.create('div', {
-			style: {
-				padding: '20px',
-				overflowY: 'auto',
-			},
+		const style = inline ? null : {
+			padding: '20px',
+			overflowY: 'auto',
+		};
+
+		return Dom.create('div', {
+			style,
 			children: [
-				titleNode,
+				this.showTitle ? titleNode : null,
 				this.formNode,
 			],
 		});
-
-		Dom.append(containerNode, slider.layout.content);
 	}
 
 	checkLoader(slider): void
@@ -224,7 +243,7 @@ export class Form
 		}, 100);
 	}
 
-	loadForm(callback)
+	loadForm(callback: ?function = null)
 	{
 		const form = this.form;
 		if (!form || !form.id || !form.lang || !form.sec)
@@ -234,7 +253,7 @@ export class Form
 
 		if (form.presets)
 		{
-			this.appendPresets(form.presets);
+			this.#appendPresets(form.presets);
 		}
 
 		const objectId = `b24form${this.id}`;
@@ -251,8 +270,15 @@ export class Form
 			node: this.formNode,
 			presets: this.presets,
 			handlers: {
-				load: callback,
+				load: callback || (() => {}),
 			},
+		});
+	}
+
+	#appendPresets(presets): void
+	{
+		Object.entries(presets).forEach(([key, value]) => {
+			this.presets[key] = value;
 		});
 	}
 
@@ -260,7 +286,7 @@ export class Form
 	{
 		top.Bitrix24FormObject = b;
 
-		top[b] = top[b] || function() {
+		top[b] = top[b] || function () {
 			// eslint-disable-next-line prefer-rest-params
 			arguments[0].ref = u;
 			// eslint-disable-next-line prefer-rest-params

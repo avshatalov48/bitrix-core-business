@@ -1,30 +1,35 @@
-import { EventType } from 'im.v2.const';
 import { EventEmitter } from 'main.core.events';
 import { hint } from 'ui.vue3.directives.hint';
+import { Core } from 'im.v2.application.core';
 
-import { Button as ChatButton, ButtonSize, ButtonIcon } from 'im.v2.component.elements';
+import { Analytics } from 'im.v2.lib.analytics';
+import { ActionByRole, EventType } from 'im.v2.const';
+import { PermissionManager } from 'im.v2.lib.permission';
+import { ChatButton, ButtonSize, ButtonIcon, ButtonColor } from 'im.v2.component.elements.button';
 import { ForwardPopup } from 'im.v2.component.entity-selector';
+import { showDeleteMessagesConfirm } from 'im.v2.lib.confirm';
+import { MessageService } from 'im.v2.provider.service.message';
 
-import type { CustomColorScheme } from 'im.v2.component.elements';
+import type { ImModelChat } from 'im.v2.model';
 
 import '../css/bulk-actions-panel.css';
-
-const BUTTON_COLOR_DELETE = '#f4433e';
-const BUTTON_COLOR_FORWARD = '#ffffff';
-const BUTTON_BACKGROUND_COLOR_FORWARD = '#00ace3';
-const BUTTON_BACKGROUND_COLOR_FORWARD_HOVER = '#3eddff';
 
 // @vue/component
 export const BulkActionsPanel = {
 	name: 'BulkActionsPanel',
 	components: { ChatButton, ForwardPopup },
-	directives: {
-		hint,
+	directives: { hint },
+	props:
+	{
+		dialogId: {
+			type: String,
+			default: '',
+		},
 	},
 	data(): Object
 	{
 		return {
-			isShowForwardPopup: false,
+			showForwardPopup: false,
 			messagesIds: [],
 		};
 	},
@@ -32,29 +37,35 @@ export const BulkActionsPanel = {
 	{
 		ButtonSize: () => ButtonSize,
 		ButtonIcon: () => ButtonIcon,
-		deleteButtonColorScheme(): CustomColorScheme
+		ButtonColor: () => ButtonColor,
+		dialog(): ImModelChat
 		{
-			return {
-				backgroundColor: 'transparent',
-				borderColor: 'transparent',
-				iconColor: BUTTON_COLOR_DELETE,
-				textColor: BUTTON_COLOR_DELETE,
-				hoverColor: 'transparent',
-			};
-		},
-		forwardButtonColorScheme(): CustomColorScheme
-		{
-			return {
-				backgroundColor: BUTTON_BACKGROUND_COLOR_FORWARD,
-				borderColor: 'transparent',
-				iconColor: BUTTON_COLOR_FORWARD,
-				textColor: BUTTON_COLOR_FORWARD,
-				hoverColor: BUTTON_BACKGROUND_COLOR_FORWARD_HOVER,
-			};
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		selectedMessages(): Set<number>
 		{
-			return this.$store.getters['messages/select/getCollection'];
+			return this.$store.getters['messages/select/getCollection'](this.dialogId);
+		},
+		messagesAuthorId(): number[]
+		{
+			return [...this.selectedMessages].map((messageId) => {
+				return this.$store.getters['messages/getById'](messageId).authorId;
+			});
+		},
+		hasOthersMessages(): boolean
+		{
+			const userId = Core.getUserId();
+
+			return this.messagesAuthorId.some((authorId) => authorId !== userId);
+		},
+		canDeleteMessage(): boolean
+		{
+			const permissionManager = PermissionManager.getInstance();
+
+			return permissionManager.canPerformActionByRole(
+				ActionByRole.deleteOthersMessage,
+				this.dialogId,
+			);
 		},
 		selectedMessagesSize(): number
 		{
@@ -69,6 +80,15 @@ export const BulkActionsPanel = {
 
 			return `(${this.selectedMessagesSize})`;
 		},
+		isBlockedDeletion(): boolean
+		{
+			if (this.canDeleteMessage)
+			{
+				return false;
+			}
+
+			return this.hasOthersMessages;
+		},
 		messageCounterText(): string
 		{
 			if (!this.selectedMessagesSize)
@@ -78,10 +98,14 @@ export const BulkActionsPanel = {
 
 			return this.loc('IM_CONTENT_BULK_ACTIONS_COUNT_MESSAGES');
 		},
+		confirmTitle(): string
+		{
+			return this.loc('IM_CONTENT_BULK_ACTIONS_CONFIRM_TITLE', { '#COUNT#': this.selectedMessagesSize });
+		},
 		tooltipSettings(): { text: string, popupOptions: Object<string, any> }
 		{
 			return {
-				text: this.loc('IM_CONTENT_BULK_ACTIONS_PANEL_DELETE_COMING_SOON'),
+				text: this.loc('IM_CONTENT_BULK_ACTIONS_DELETE_NOT_CAN_DELETE'),
 				popupOptions: {
 					angle: true,
 					targetContainer: document.body,
@@ -96,23 +120,49 @@ export const BulkActionsPanel = {
 	},
 	methods:
 	{
-		onShowForwardPopup()
+		onForwardButtonClick()
 		{
+			Analytics.getInstance().messageForward.onClickForward(this.dialogId);
 			this.messagesIds = [...this.selectedMessages];
-			this.isShowForwardPopup = true;
+			this.showForwardPopup = true;
 		},
-		onCloseForwardPopup()
+		closeForwardPopup()
 		{
 			this.messagesIds = [];
-			this.isShowForwardPopup = false;
+			this.showForwardPopup = false;
+		},
+		async onDeleteButtonClick(): Promise<boolean>
+		{
+			const confirmResult = await showDeleteMessagesConfirm(this.confirmTitle);
+
+			if (!confirmResult)
+			{
+				return false;
+			}
+
+			this.getMessageService().deleteMessages([...this.selectedMessages]);
+			this.closeBulkActionsMode();
+
+			return true;
 		},
 		closeBulkActionsMode()
 		{
-			EventEmitter.emit(EventType.dialog.closeBulkActionsMode);
+			EventEmitter.emit(EventType.dialog.closeBulkActionsMode, {
+				dialogId: this.dialogId,
+			});
 		},
-		loc(phraseCode: string): string
+		getMessageService(): MessageService
 		{
-			return this.$Bitrix.Loc.getMessage(phraseCode);
+			if (!this.messageService)
+			{
+				this.messageService = new MessageService({ chatId: this.dialog.chatId });
+			}
+
+			return this.messageService;
+		},
+		loc(phraseCode: string, replacements: {[string]: string} = {}): string
+		{
+			return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
 		},
 	},
 	template: `
@@ -126,31 +176,40 @@ export const BulkActionsPanel = {
 					</div>
 				</div>
 				<div class="bx-im-content-bulk-actions-panel__right-section">
-					<ChatButton
-						v-hint="tooltipSettings"
-						:size="ButtonSize.L"
-						:icon="ButtonIcon.Delete"
-						:customColorScheme="deleteButtonColorScheme"
-						:isDisabled="true"
-						:isRounded="true"
-						:isUppercase="false"
-						:text="loc('IM_CONTENT_BULK_ACTIONS_PANEL_DELETE')"
-					/>
+					<div class="bx-im-content-bulk-actions-panel__delete-button">
+						<div
+							v-if="isBlockedDeletion"
+							v-hint="tooltipSettings"
+							class="bx-im-content-bulk-actions-panel__tooltip"
+						>
+						</div>
+						<ChatButton
+							:size="ButtonSize.L"
+							:icon="ButtonIcon.Delete"
+							:color="ButtonColor.Delete"
+							:isDisabled="!selectedMessagesSize || isBlockedDeletion"
+							:isRounded="true"
+							:isUppercase="false"
+							:text="loc('IM_CONTENT_BULK_ACTIONS_PANEL_DELETE')"
+							@click="onDeleteButtonClick"
+						/>
+					</div>
 					<ChatButton
 						:size="ButtonSize.L"
 						:icon="ButtonIcon.Forward"
-						:customColorScheme="forwardButtonColorScheme"
+						:color="ButtonColor.Forward"
 						:isRounded="true"
 						:isUppercase="false"
 						:isDisabled="!selectedMessagesSize"
 						:text="loc('IM_CONTENT_BULK_ACTIONS_PANEL_FORWARD')"
-						@click="onShowForwardPopup"
+						@click="onForwardButtonClick"
 					/>
 				</div>
 				<ForwardPopup
-					v-if="isShowForwardPopup"
+					v-if="showForwardPopup"
 					:messagesIds="messagesIds"
-					@close="onCloseForwardPopup"
+					:dialogId="dialogId"
+					@close="closeForwardPopup"
 				/>
 			</div>
 		</div>

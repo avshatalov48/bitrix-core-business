@@ -4,10 +4,14 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
+
+use Bitrix\Main\Localization\Loc;
+use Bitrix\UI\Buttons\AirButtonStyle;
+
 \Bitrix\Main\Loader::includeModule('socialnetwork');
 
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
-$APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'bizpoc-automation-body');
+$APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'bizpoc-automation-body --header-overlay --toolbar-under-menu');
 
 \Bitrix\Main\UI\Extension::load([
 	'ui.design-tokens',
@@ -29,14 +33,15 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'b
 	'bizproc.debugger',
 	'sidepanel',
 	'ui.actionpanel',
+	'ui.banner-dispatcher',
 	'ui.buttons',
 	'ui.forms',
 	'ui.hint',
 	'ui.notification',
 	'ui.alerts',
+	'ui.dialogs.tooltip',
 	'ui.dialogs.messagebox',
 	'ui.entity-selector',
-	'ui.hint',
 	'ui.icon-set.main',
 ]);
 /**
@@ -77,114 +82,150 @@ $getMessage = function ($messageCode) use ($messages)
 	return isset($messages[$messageCode]) ? $messages[$messageCode] : GetMessage($messageCode);
 };
 
-if (!isset($arParams['HIDE_TOOLBAR']) || $arParams['HIDE_TOOLBAR'] !== 'Y'):
-	$this->SetViewTarget('pagetitle') ?>
-	<div class="ui-btn-container">
-		<?php
-		if (\Bitrix\Main\Loader::includeModule('intranet'))
-		{
-			$context = [];
-			$type = isset($arResult['DOCUMENT_TYPE'][2]) ? $arResult['DOCUMENT_TYPE'][2] : '';
-			if (mb_strpos($type, 'TASK_PLAN_') === 0)
-			{
-				$context = [
-					'USER_ID' => mb_substr($type, mb_strlen('TASK_PLAN_'))
-				];
-				$type = 'task';
-			}
-			else if (mb_strpos($type, 'TASK_PROJECT_') === 0)
-			{
-				$context = [
-					'GROUP_ID' => mb_substr($type, mb_strlen('TASK_PROJECT_'))
-				];
-				$type = 'task';
-			}
-
-			$APPLICATION->includeComponent(
-				'bitrix:intranet.binding.menu',
-				'',
-				array(
-					'SECTION_CODE' => 'bizproc_automation',
-					'MENU_CODE' => $type,
-					'CONTEXT' => $context
-				)
-			);
-		}
-		?>
-		<?php if ($arResult['CAN_DEBUG']): ?>
-			<button
-				class="ui-btn ui-btn-primary"
-				onclick="BX.Bizproc.Automation.Debugger.showStartPage();"
-			><?= GetMessage('BIZPROC_AUTOMATION_CMP_DEBUGGER') ?></button>
-		<?php endif ?>
-	</div>
-	<?php $this->EndViewTarget();
-
-
-$menuTabs = [];
-$menuTabs[] = [
-	'ID' => 'robots',
-	'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_AUTOMATION_CMP_ROBOT_LIST'),
-	'IS_ACTIVE' => true,
-];
-
-$menuTabs[] = [
-	'ID' => 'global_variables',
-	'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_AUTOMATION_CMP_GLOB_VAR_MENU'),
-	'ON_CLICK' => 'BX.Bizproc.Automation.showGlobals.showVariables()',
-];
-$menuTabs[] = [
-	'ID' => 'global_constants',
-	'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_AUTOMATION_CMP_GLOB_CONST_MENU'),
-	'ON_CLICK' => 'BX.Bizproc.Automation.showGlobals.showConstants()',
-];
-if ($arResult['CAN_DEBUG'])
+if (!isset($arParams['HIDE_TOOLBAR']) || $arParams['HIDE_TOOLBAR'] !== 'Y')
 {
-	$menuTabs[] = [
-		'ID' => 'debug_sessions',
-		'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_AUTOMATION_CMP_DEBUGGER_SESSION_LIST_MENU'),
-		'ON_CLICK' => 'BX.Bizproc.Automation.Debugger.showDebugSessions()',
-	];
-}
+	$this->setViewTarget('below_pagetitle');
+	if (\Bitrix\Main\Loader::includeModule('intranet'))
+	{
+		$context = [];
+		$type = $arResult['DOCUMENT_TYPE'][2] ?? '';
+		if (str_starts_with($type, 'TASK_PLAN_'))
+		{
+			$context = [
+				'USER_ID' => mb_substr($type, mb_strlen('TASK_PLAN_'))
+			];
+			$type = 'task';
+		}
+		else if (str_starts_with($type, 'TASK_PROJECT_'))
+		{
+			$context = [
+				'GROUP_ID' => mb_substr($type, mb_strlen('TASK_PROJECT_'))
+			];
+			$type = 'task';
+		}
 
-$APPLICATION->IncludeComponent(
-	"bitrix:main.interface.buttons",
-	"",
-	[
-		"ID" => 'bp_automation_menu',
-		"ITEMS" => $menuTabs,
-		"EDIT_MODE" => false,
-	]
-);
-endif;
+		$extensionButton = new \Bitrix\UI\Buttons\IntranetBindingMenu([
+			'componentParameters' => [
+				'SECTION_CODE' => 'bizproc_automation',
+				'MENU_CODE' => $type,
+				'CONTEXT' => $context
+			],
+		]);
+
+		Bitrix\UI\Toolbar\Facade\Toolbar::addButton($extensionButton);
+	}
+
+	if ($arResult['CAN_DEBUG'])
+	{
+		$debugButton = new Bitrix\UI\Buttons\Button([
+			'text' => Loc::getMessage('BIZPROC_AUTOMATION_CMP_DEBUGGER'),
+			'color' => Bitrix\UI\Buttons\Color::PRIMARY,
+			'click' => new \Bitrix\UI\Buttons\JsCode('BX.Bizproc.Automation.Debugger.showStartPage()')
+		]);
+
+		Bitrix\UI\Toolbar\Facade\Toolbar::addButton($debugButton);
+	}
+
+	$menuTabs = [];
+	$menuTabs[] = [
+		'ID' => 'robots',
+		'TEXT' => Loc::getMessage('BIZPROC_AUTOMATION_CMP_ROBOT_LIST'),
+		'IS_ACTIVE' => true,
+	];
+
+	$menuTabs[] = [
+		'ID' => 'global_variables',
+		'TEXT' => Loc::getMessage('BIZPROC_AUTOMATION_CMP_GLOB_VAR_MENU'),
+		'ON_CLICK' => 'BX.Bizproc.Automation.showGlobals.showVariables()',
+	];
+	$menuTabs[] = [
+		'ID' => 'global_constants',
+		'TEXT' => Loc::getMessage('BIZPROC_AUTOMATION_CMP_GLOB_CONST_MENU'),
+		'ON_CLICK' => 'BX.Bizproc.Automation.showGlobals.showConstants()',
+	];
+	if ($arResult['CAN_DEBUG'])
+	{
+		$menuTabs[] = [
+			'ID' => 'debug_sessions',
+			'TEXT' => Loc::getMessage('BIZPROC_AUTOMATION_CMP_DEBUGGER_SESSION_LIST_MENU'),
+			'ON_CLICK' => 'BX.Bizproc.Automation.Debugger.showDebugSessions()',
+		];
+	}
+
+	$APPLICATION->IncludeComponent(
+		'bitrix:main.interface.buttons',
+		'',
+		[
+			'ID' => 'bp_automation_menu',
+			'ITEMS' => $menuTabs,
+			'EDIT_MODE' => false,
+			'THEME' => defined('AIR_SITE_TEMPLATE') ? 'air' : null,
+		],
+	);
+	$this->endViewTarget();
+
+	$toolbarId = 'bizproc_automation_toolbar';
+	$manager = Bitrix\UI\Toolbar\Manager::getInstance();
+	$toolbar = $manager->getToolbarById($toolbarId) ?: $manager->createToolbar($toolbarId, []);
+	$toolbar->setTitle(Loc::getMessage('BIZPROC_AUTOMATION_CMP_SUBTITLE'));
+	$toolbar->deleteFavoriteStar();
+
+	$createButton = new \Bitrix\UI\Buttons\Button([
+		'color' => \Bitrix\UI\Buttons\Color::SUCCESS,
+		'dataset' => [
+			'role' => 'automation-btn-create',
+		],
+		'text' => Loc::getMessage('BIZPROC_AUTOMATION_CMP_CREATE'),
+	]);
+	$toolbar->addButton($createButton, \Bitrix\UI\Toolbar\ButtonLocation::AFTER_TITLE);
+
+	if (!empty($arParams['~CATEGORY_SELECTOR']))
+	{
+		$categoryButton = new \Bitrix\UI\Buttons\Button([
+			'color' => \Bitrix\UI\Buttons\Color::LIGHT_BORDER,
+			'text' => $arParams['~CATEGORY_SELECTOR']['TEXT'],
+			'dataset' => [
+				'role' => 'category-selector',
+			],
+		]);
+		$categoryButton->setDropdown();
+		$categoryButton->addClass('bizproc-automation-category-selector');
+		$toolbar->addButton($categoryButton, \Bitrix\UI\Toolbar\ButtonLocation::AFTER_TITLE);
+	}
+
+	$buttonStyle = $arResult['NEW_ENTITIES_BUTTON_SHOW_HINT'] ? AirButtonStyle::FILLED : AirButtonStyle::OUTLINE;
+	$newEntitiesButton = new \Bitrix\UI\Buttons\Button([
+		'air' => true,
+		'style' => $buttonStyle,
+		'dataset' => [
+			'role' => 'automation-btn-new-entities',
+		],
+		'text' => Loc::getMessage('BIZPROC_AUTOMATION_NEW_ENTITIES_BUTTON_TEXT'),
+	]);
+	$newEntitiesButtonUniqId = $newEntitiesButton->getUniqId();
+
+	$toolbarRightCustomHtml = sprintf('
+		<div class="automatic-toolbar-search-new-entities-container">
+			<div class="ui-ctl ui-ctl-inline ui-ctl-before-icon ui-ctl-after-icon automation-toolbar-search">
+				<div class="ui-ctl-before ui-ctl-icon-search"></div>
+				<a class="ui-ctl-after ui-ctl-icon-clear" data-role="automation-search-clear"></a>
+				<input type="text" data-role="automation-search" class="ui-ctl-element automation-toolbar-search-input" placeholder="%s">
+			</div>
+			%s
+		</div>
+		',
+		htmlspecialcharsbx(Loc::getMessage('BIZPROC_AUTOMATION_CMP_SEARCH_PLACEHOLDER')),
+		$newEntitiesButton ? $newEntitiesButton->render() : '',
+	);
+
+	$toolbar->addRightCustomHtml($toolbarRightCustomHtml);
+}
 ?>
 
 <div class="automation-base<?=(count($arResult['TEMPLATES']) <= 1 ?'automation-base-script-mode':'')?>" data-role="automation-base-node">
 		<?php if (!isset($arParams['HIDE_TOOLBAR']) || $arParams['HIDE_TOOLBAR'] !== 'Y'):?>
 		<div class="automation-base-node-top" data-role="automation-actionpanel">
-			<div class="automation-base-node-title">
-				<?=GetMessage('BIZPROC_AUTOMATION_CMP_SUBTITLE')?>
-			</div>
-			<div class="automation-base-button" data-role="automation-base-toolbar">
-				<button
-					class="ui-btn ui-btn-success ui-btn-themes"
-					data-role="automation-btn-create"
-					>
-					<?=$getMessage('BIZPROC_AUTOMATION_CMP_CREATE')?>
-				</button>
-
-				<?php if (!empty($arParams['~CATEGORY_SELECTOR'])):?>
-					<div class="ui-btn ui-btn-dropdown ui-btn-themes ui-btn-light-border bizproc-automation-category-selector" data-role="category-selector">
-						<?=htmlspecialcharsbx($arParams['~CATEGORY_SELECTOR']['TEXT'])?>
-					</div>
-				<?php endif ?>
-
-				<div class="ui-ctl ui-ctl-inline ui-ctl-before-icon ui-ctl-after-icon automation-toolbar-search">
-					<div class="ui-ctl-before ui-ctl-icon-search"></div>
-					<a class="ui-ctl-after ui-ctl-icon-clear" data-role="automation-search-clear"></a>
-					<input type="text" data-role="automation-search" class="ui-ctl-element automation-toolbar-search-input" placeholder="<?=GetMessage('BIZPROC_AUTOMATION_CMP_SEARCH_PLACEHOLDER')?>">
-				</div>
-			</div>
+			<?php $GLOBALS['APPLICATION']->includeComponent('bitrix:ui.toolbar', '', ['TOOLBAR_ID' => $toolbarId]); ?>
 		</div>
 		<?php endif;?>
 	<?php if ($robotsLimit):?>
@@ -334,12 +375,14 @@ endif;
 					'IS_EMBEDDED' => $arResult['IS_EMBEDDED'],
 					'SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING' => $arResult['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'],
 
-					'MARKETPLACE_ROBOT_CATEGORY' => 'crm_bots', //$arParams['MARKETPLACE_ROBOT_CATEGORY'],
+					'MARKETPLACE_ROBOT_CATEGORY' => $arParams['MARKETPLACE_ROBOT_CATEGORY'],
 					'MARKETPLACE_TRIGGER_PLACEMENT' => $arParams['MARKETPLACE_TRIGGER_PLACEMENT'] ?? '',
 					'ROBOTS_LIMIT' => $robotsLimit,
 
 					'DELAY_MIN_LIMIT_M' => $arResult['DELAY_MIN_LIMIT_M'],
 					'IS_WORKTIME_AVAILABLE' => $arResult['IS_WORKTIME_AVAILABLE'],
+					'NEW_ENTITIES_BUTTON_ID' => $newEntitiesButtonUniqId ?? '',
+					'NEW_ENTITIES_BUTTON_SHOW_HINT' => $arResult['NEW_ENTITIES_BUTTON_SHOW_HINT'] ?? '',
 				])?>, viewMode);
 		}
 	});

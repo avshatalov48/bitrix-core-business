@@ -1,0 +1,159 @@
+.bx-im-dialog-chat__float-buttons {
+	position: absolute;
+	right: 20px;
+	bottom: 22px;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	z-index: 100;
+	transition: 0.2s ease-in-out bottom;
+}
+
+.bx-im-dialog-chat__float-button {
+	position: relative;
+	width: 42px;
+	height: 42px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 50%;
+	background-color: var(--im-color-palette-white-base);
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+	cursor: pointer;
+}
+
+.bx-im-dialog-chat__scroll-button-wrapper {
+	position: absolute;
+	right: 20px;
+	bottom: 22px;
+	height: 58px;
+}
+
+.bx-im-dialog-chat__float-button.--color-accent {
+	--im-dialog-chat__icon-color_float-button: #00ace3;
+	--im-dialog-chat__icon-color-hover_float-button: var(--im-color-palette-blue-60);
+	--im-dialog-chat__background-color_float-button-counter: var(--im-dialog-chat__icon-color_float-button);
+	--im-dialog-chat__background-color-hover_float-button-counter: var(--im-dialog-chat__icon-color_float-button);
+}
+
+.bx-im-dialog-chat__float-button.--color-alert {
+	--im-dialog-chat__icon-color_float-button: var(--im-color-palette-red-50);
+	--im-dialog-chat__icon-color-hover_float-button: var(--ui-color-palette-red-60);
+	--im-dialog-chat__background-color_float-button-counter: #00ace3;
+	--im-dialog-chat__background-color-hover_float-button-counter: var(--im-color-palette-blue-60);
+}
+
+.bx-im-dialog-chat__float-button.--color-success {
+	--im-dialog-chat__icon-color_float-button: var(--im-color-palette-green-55);
+	--im-dialog-chat__icon-color-hover_float-button: var(--im-color-palette-green-70);
+	--im-dialog-chat__background-color_float-button-counter: var(--im-dialog-chat__icon-color_float-button);
+	--im-dialog-chat__background-color-hover_float-button-counter: var(--im-dialog-chat__icon-color-hover_float-button);
+}
+
+.bx-im-dialog-chat__float-button:hover {
+	--im-dialog-chat__icon-color_float-button: var(--im-dialog-chat__icon-color-hover_float-button);
+}
+
+.bx-im-dialog-chat__float-button:hover .bx-im-dialog-chat__float-button_counter {
+	--im-dialog-chat__background-color_float-button-counter: var(--im-dialog-chat__background-color-hover_float-button-counter);
+}
+
+.bx-im-dialog-chat__float-button_icon {
+	width: 32px;
+	height: 32px;
+	background-color: var(--im-dialog-chat__icon-color_float-button);
+	mask-size: contain;
+	mask-position: center;
+	mask-repeat: no-repeat;
+}
+
+.bx-im-dialog-chat__float-button.--icon-heart .bx-im-dialog-chat__float-button_icon {
+	mask-image: url('./images/heart.svg');
+}
+
+.bx-im-dialog-chat__float-button.--icon-at-symbol .bx-im-dialog-chat__float-button_icon {
+	mask-image: url('./images/at-symbol.svg');
+}
+
+.bx-im-dialog-chat__float-button.--icon-chevron-down .bx-im-dialog-chat__float-button_icon {
+	mask-image: url('./images/chevron-down.svg');
+}
+
+.bx-im-dialog-chat__float-button.--icon-comment .bx-im-dialog-chat__float-button_icon {
+	mask-image: url('./images/comments.svg');
+}
+
+.bx-im-dialog-chat__float-button_counter {
+	position: absolute;
+	right: -3px;
+	top: -9px;
+	min-width: 24px;
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 2px;
+	border-radius: 30px;
+	background-color: var(--im-dialog-chat__background-color_float-button-counter);
+	font: var(--im-font-size-xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-dialog-chat__font-color_scroll-button-counter);
+	transition: background-color ease 100ms;
+}
+
+.bx-im-dialog-chat__float-buttons_button {
+	height: 58px;
+	width: 42px;
+	transition-property: transform, opacity, height;
+	transition-duration: 0.1s, 0.1s, 0.1s;
+	transition-timing-function: ease-out;
+}
+
+.float-button-transition-move,
+.float-button-transition-enter-active,
+.float-button-transition-leave-active {
+	transition-property: transform, opacity, height, margin-top, margin-bottom;
+	transition-duration: 0.3s, 0.3s, 0.2s, 0.25s, 0.25s;
+	transition-timing-function: ease-out;
+}
+
+.float-button-transition-enter-active {
+	transition-property: transform, opacity, height, margin-top;
+	transition-timing-function: cubic-bezier(0,.58,.52,2.06), ease-out, ease-out, ease-out;
+	transition-delay: 0.3s, 0.3s, 0.2s, 0.4s;
+}
+
+/* used to smooth the case when one button is leaving from top and other is entering from bottom */
+.float-button-transition-leave-from + .float-button-transition-enter-from,
+.float-button-transition-leave-to + .float-button-transition-enter-from,
+.float-button-transition-leave-active + .float-button-transition-enter-from {
+	margin-top: 0;
+}
+
+.float-button-transition-enter-from {
+	opacity: 0;
+	height: 0;
+	transform: translateY(4px);
+	padding-bottom: 0;
+	margin-top: 8px;
+}
+
+.float-button-transition-enter-to {
+	transform: translateY(0);
+	margin-top: 0;
+}
+
+.float-button-transition-leave-active {
+	transition-property: transform, opacity, height;
+	transition-timing-function: ease-out, ease-out, ease-out;
+	transition-delay: 0.1s, 0s, 0.1s;
+	transition-duration: 0.2s, 0.25s, 0.2s;
+}
+
+.float-button-transition-leave-to {
+	height: 0;
+	opacity: 0;
+	margin-bottom: 0;
+	transform: translateY(-42px);
+}

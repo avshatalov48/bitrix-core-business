@@ -42,6 +42,7 @@ class AddModeratorsHandler implements AddHandlerInterface
 			$entity->getId(),
 			$command->getInitiatorId(),
 			UserToGroupTable::ROLE_MODERATOR,
+			UserToGroupTable::INITIATED_BY_GROUP,
 			...$add,
 		);
 

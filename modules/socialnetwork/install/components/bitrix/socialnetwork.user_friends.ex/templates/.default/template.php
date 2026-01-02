@@ -57,11 +57,11 @@ else
 			UFEErrorModuleNotInstalled: '<?=CUtil::JSEscape(GetMessage("SONET_UFE_T_MODULE_NOT_INSTALLED"))?>',
 			UFEErrorNoPerms: '<?=CUtil::JSEscape(GetMessage("SONET_UFE_T_NO_PERMS"))?>',
 			UFEErrorSessionWrong: '<?=CUtil::JSEscape(GetMessage("SONET_UFE_T_SESSION_WRONG"))?>',
-			UFEErrorActionFailedPattern: '<?=CUtil::JSEscape(GetMessage("SONET_UFE_T_ACTION_FAILED"))?>',			
+			UFEErrorActionFailedPattern: '<?=CUtil::JSEscape(GetMessage("SONET_UFE_T_ACTION_FAILED"))?>',
 			UFESiteId: '<?=CUtil::JSEscape(SITE_ID)?>',
 			UFEUserId: <?=intval($arParams["ID"])?>,
 			UFEUseBan: '<?=(IsModuleInstalled("im") ? "N" : "Y")?>',
-			UFEIsB24: '<?=(SITE_TEMPLATE_ID == "bitrix24" ? "Y" : "N")?>',
+			UFEIsB24: '<?=(SITE_TEMPLATE_ID == "bitrix24" || SITE_TEMPLATE_ID === 'air' ? "Y" : "N")?>',
 			UFEIsCurrentUser: <?=($arResult["CurrentUserPerms"]["IsCurrentUser"] ? "true" : "false")?>,
 			UFEWaitTitle: '<?=CUtil::JSEscape(GetMessage("SONET_UFE_T_WAIT"))?>',
 			UFEPathToUserSearch: '<?=CUtil::JSEscape($arResult["Urls"]["Search"])?>'
@@ -71,7 +71,7 @@ else
 		var oUFEWaitWindow = false;
 
 		BX.ready(
-			function()	
+			function()
 			{
 				var userBlockArr = BX.findChildren(document, { className: 'sonet-members-member-block' }, true);
 				if (userBlockArr)
@@ -88,7 +88,7 @@ else
 					}
 				}
 
-				
+
 				actionUsers = { 'Friends': new Array() };
 				if (BX.message("UFEUseBan") == "Y")
 					actionUsers['Banned'] = new Array();
@@ -113,7 +113,7 @@ else
 			</div><?
 		}
 		if (is_array($arResult["Friends"]) && is_array($arResult["Friends"]["List"]))
-		{			
+		{
 			?><div class="sonet-members-member-block-shift"><?
 				foreach ($arResult["Friends"]["List"] as $arFriend)
 				{
@@ -230,7 +230,6 @@ else
 			endif;
 
 		?></div><?
-	}	
-	
+	}
+
 }
-?>

@@ -82,6 +82,16 @@ class PermissionDictionary extends Permission\PermissionDictionary
 	public static function getPermission($permissionId): array
 	{
 		$permission = parent::getPermission($permissionId);
+
+		if (empty($permission['title']))
+		{
+			$name = self::getName($permissionId);
+			$permission['title'] =
+				Loc::getMessage($name . '_MSGVER_1')
+				?? ''
+			;
+		}
+
 		$storePermissions = [
 			self::CATALOG_STORE_VIEW,
 			self::CATALOG_STORE_RESERVE,
@@ -93,12 +103,14 @@ class PermissionDictionary extends Permission\PermissionDictionary
 			$permission['type'] = Permission\PermissionDictionary::TYPE_MULTIVARIABLES;
 			$permission['enableSearch'] = true;
 			$permission['variables'] = self::getStoreVariables();
+			$permission['minValue'] = [];
 			$permission['hintTitle'] = Loc::getMessage('CATALOG_STORE_VIEW_DESCRIPTION_HINT');
 		}
 		elseif ($permissionId === self::CATALOG_RESERVE_DEAL)
 		{
 			$permission['type'] = Permission\PermissionDictionary::TYPE_MULTIVARIABLES;
 			$permission['variables'] = self::getDealCategoryVariables();
+			$permission['minValue'] = [];
 			$permission['showAvatars'] = false;
 			$permission['compactView'] = true;
 			$permission['hintTitle'] = Loc::getMessage('CATALOG_RESERVE_DEAL_DESCRIPTION_HINT');
@@ -110,6 +122,7 @@ class PermissionDictionary extends Permission\PermissionDictionary
 		{
 			$permission['type'] = Permission\PermissionDictionary::TYPE_MULTIVARIABLES;
 			$permission['variables'] = self::getPriceSelectorVariables();
+			$permission['minValue'] = [];
 			$permission['showAvatars'] = false;
 			$permission['compactView'] = true;
 		}
@@ -117,13 +130,21 @@ class PermissionDictionary extends Permission\PermissionDictionary
 		{
 			$permission['type'] = Permission\PermissionDictionary::TYPE_MULTIVARIABLES;
 			$permission['variables'] = self::getStoreAnalyticVariables();
+			$permission['minValue'] = [];
 			$permission['showAvatars'] = false;
 			$permission['compactView'] = true;
 		}
 
-		if ($permission['type'] === Permission\PermissionDictionary::TYPE_MULTIVARIABLES)
+		if ($permission['type'] === Permission\PermissionDictionary::TYPE_TOGGLER)
 		{
-			$permission['allSelectedCode'] = static::VALUE_VARIATION_ALL;
+			$permission['minValue'] = '0';
+			$permission['maxValue'] = '1';
+			$permission['defaultValue'] = '0';
+		}
+		elseif ($permission['type'] === Permission\PermissionDictionary::TYPE_MULTIVARIABLES)
+		{
+			$permission['allSelectedCode'] = (string)static::VALUE_VARIATION_ALL;
+			$permission['maxValue'] = (string)static::VALUE_VARIATION_ALL;
 		}
 
 		return $permission;

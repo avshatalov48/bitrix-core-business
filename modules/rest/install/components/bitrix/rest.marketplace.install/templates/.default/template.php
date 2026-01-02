@@ -163,7 +163,7 @@ else:
 							<input type="checkbox" id="mp_tos_license" value="N">
 							<label for="mp_tos_license">
 								<?=Loc::getMessage(
-									'REST_MARKETPLACE_INSTALL_TERMS_OF_SERVICE_TEXT',
+									'REST_MARKETPLACE_INSTALL_TERMS_OF_SERVICE_TEXT_MSGVER_1',
 									[
 										'#LINK#' => $arResult['TERMS_OF_SERVICE_LINK']
 									]
@@ -201,7 +201,7 @@ else:
 	<script>
 		BX.message({
 			"REST_MARKETPLACE_INSTALL_LICENSE_ERROR" : "<?=Loc::getMessage("REST_MARKETPLACE_INSTALL_LICENSE_ERROR")?>",
-			"REST_MARKETPLACE_INSTALL_TOS_ERROR" : "<?=Loc::getMessage("REST_MARKETPLACE_INSTALL_TOS_ERROR")?>",
+			"REST_MARKETPLACE_INSTALL_TOS_ERROR_MSGVER_1" : "<?=Loc::getMessage("REST_MARKETPLACE_INSTALL_TOS_ERROR_MSGVER_1")?>",
 		});
 		BX.ready(function () {
 			BX.Rest.Marketplace.Install.init(<?=Json::encode(

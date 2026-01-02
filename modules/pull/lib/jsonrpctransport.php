@@ -12,10 +12,12 @@ class JsonRpcTransport
 	protected const METHOD_UPDATE_LAST_SEEN = 'updateUsersLastSeen';
 
 	protected string $serverUrl = '';
+	protected string $hostname = '';
 
 	function __construct(array $options = [])
 	{
 		$this->serverUrl = $options['serverUrl'] ?? Config::getJsonRpcUrl();
+		$this->hostname = $options['hostname'] ?? Config::getHostname();
 	}
 
 	/**
@@ -39,7 +41,7 @@ class JsonRpcTransport
 
 		foreach ($batchList as $batch)
 		{
-			$executeResult = static::executeBatch($this->serverUrl, $batch);
+			$executeResult = $this->executeBatch($this->serverUrl, $batch);
 			if (!$executeResult->isSuccess())
 			{
 				return $result->addErrors($executeResult->getErrors());
@@ -51,7 +53,7 @@ class JsonRpcTransport
 
 	public function getUsersLastSeen(array $userList): Main\Result
 	{
-		$rpcResult = static::executeMethod(
+		$rpcResult = $this->executeMethod(
 			$this->serverUrl,
 			static::METHOD_GET_LAST_SEEN,
 			[
@@ -79,7 +81,7 @@ class JsonRpcTransport
 	 */
 	public function updateUsersLastSeen(array $userTimestamps): Main\Result
 	{
-		return static::executeMethod(
+		return $this->executeMethod(
 			$this->serverUrl,
 			static::METHOD_UPDATE_LAST_SEEN,
 			$userTimestamps
@@ -138,7 +140,7 @@ class JsonRpcTransport
 		];
 	}
 
-	protected static function executeMethod(string $queueServerUrl, string $method, array $params): Main\Result
+	protected function executeMethod(string $queueServerUrl, string $method, array $params): Main\Result
 	{
 		$result = new Main\Result();
 		$rpcRequest = static::createJsonRpcRequest($method, $params);
@@ -151,7 +153,7 @@ class JsonRpcTransport
 		{
 			return $result->addError(new \Bitrix\Main\Error($e->getMessage(), $e->getCode()));
 		}
-		$httpResult = static::performHttpRequest($queueServerUrl, $body);
+		$httpResult = $this->performHttpRequest($queueServerUrl, $body);
 		if (!$httpResult->isSuccess())
 		{
 			return $result->addErrors($httpResult->getErrors());
@@ -169,10 +171,10 @@ class JsonRpcTransport
 		return $result->setData($response);
 	}
 
-	protected static function executeBatch(string $queueServerUrl, string $batchBody): Main\Result
+	protected function executeBatch(string $queueServerUrl, string $batchBody): Main\Result
 	{
 		$result = new Main\Result();
-		$httpResult = static::performHttpRequest($queueServerUrl, $batchBody);
+		$httpResult = $this->performHttpRequest($queueServerUrl, $batchBody);
 		if (!$httpResult->isSuccess())
 		{
 			return $result->addErrors($httpResult->getErrors());
@@ -182,14 +184,19 @@ class JsonRpcTransport
 		return $result->setData($response);
 	}
 
-	protected static function performHttpRequest(string $queueServerUrl, string $body): Main\Result
+	protected function performHttpRequest(string $queueServerUrl, string $body): Main\Result
 	{
 		$result = new Main\Result();
 		$httpClient = new Main\Web\HttpClient(["streamTimeout" => 1]);
 
 		$signature = \CPullChannel::GetSignature($body);
 		$hostId = (string)Config::getHostId();
-		$urlWithSignature = \CHTTP::urlAddParams($queueServerUrl, ["hostId" => $hostId, "signature" => $signature]);
+		$additionalParams = ["hostId" => $hostId, "signature" => $signature];
+		if ($this->hostname != '')
+		{
+			$additionalParams['hostname'] = $this->hostname;
+		}
+		$urlWithSignature = \CHTTP::urlAddParams($queueServerUrl, $additionalParams);
 
 		$sendResult = $httpClient->query(Main\Web\HttpClient::HTTP_POST, $urlWithSignature, $body);
 		if (!$sendResult)

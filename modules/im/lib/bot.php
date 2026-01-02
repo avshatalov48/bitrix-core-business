@@ -2,14 +2,23 @@
 
 namespace Bitrix\Im;
 
-use Bitrix\Imbot\Bot\CopilotChatBot;
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
+use Bitrix\Im\V2\Chat\Background\Background;
+use Bitrix\Im\V2\Chat\Background\BackgroundId;
+use Bitrix\Im\V2\Chat\PrivateChat;
+use Bitrix\Im\V2\Entity\User\Data\BotData;
+use Bitrix\Im\V2\Message;
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
 class Bot
 {
+	public const BACKGROUND_MARTA = 'martaAI'; /** @see BackgroundId::MartaAI */
+	public const BACKGROUND_COPILOT = 'copilot'; /** @see BackgroundId::Copilot */
+	public const BACKGROUND_COLLAB = 'collab'; /** @see BackgroundId::Collab */
+	public const BACKGROUND_NONE = '';
+
 	const INSTALL_TYPE_SYSTEM = 'system';
 	const INSTALL_TYPE_USER = 'user';
 	const INSTALL_TYPE_SILENT = 'silent';
@@ -28,6 +37,11 @@ class Bot
 
 	const CACHE_TTL = 31536000;
 	const CACHE_PATH = '/bx/im/bot/old_cache_v1/';
+
+	public const PLATFORM_CONTEXT_MOBILE = 'mobile';
+	public const PLATFORM_CONTEXT_WEB = 'web';
+
+	protected static ?string $platformContext = null;
 
 	/**
 	 * @param array $fields
@@ -53,10 +67,14 @@ class Bot
 		$methodMessageUpdate = isset($fields['METHOD_MESSAGE_UPDATE'])? $fields['METHOD_MESSAGE_UPDATE']: '';
 		$methodMessageDelete = isset($fields['METHOD_MESSAGE_DELETE'])? $fields['METHOD_MESSAGE_DELETE']: '';
 		$methodWelcomeMessage = isset($fields['METHOD_WELCOME_MESSAGE'])? $fields['METHOD_WELCOME_MESSAGE']: '';
+		$methodContextGet = isset($fields['METHOD_CONTEXT_GET']) ? $fields['METHOD_CONTEXT_GET'] : '';
+		$methodReactionChange = isset($fields['METHOD_REACTION_CHANGE']) ? $fields['METHOD_REACTION_CHANGE'] : '';
 		$textPrivateWelcomeMessage = isset($fields['TEXT_PRIVATE_WELCOME_MESSAGE'])? $fields['TEXT_PRIVATE_WELCOME_MESSAGE']: '';
 		$textChatWelcomeMessage = isset($fields['TEXT_CHAT_WELCOME_MESSAGE'])? $fields['TEXT_CHAT_WELCOME_MESSAGE']: '';
 		$openline = isset($fields['OPENLINE']) && $fields['OPENLINE'] == 'Y'? 'Y': 'N';
 		$isHidden = isset($fields['HIDDEN']) && $fields['HIDDEN'] === 'Y' ? 'Y' : 'N';
+		$reactionsEnabled = isset($fields['REACTIONS_ENABLED']) && $fields['REACTIONS_ENABLED'] === 'Y' ? 'Y' : 'N';
+		$backgroundId = Background::validateBackgroundId($fields['BACKGROUND_ID'] ?? null);
 
 		/* rewrite vars for openline type */
 		if ($type == self::TYPE_OPENLINE)
@@ -176,12 +194,16 @@ class Bot
 			'METHOD_MESSAGE_UPDATE' => $methodMessageUpdate,
 			'METHOD_MESSAGE_DELETE' => $methodMessageDelete,
 			'METHOD_WELCOME_MESSAGE' => $methodWelcomeMessage,
+			'METHOD_CONTEXT_GET' => $methodContextGet,
+			'METHOD_REACTION_CHANGE' => $methodReactionChange,
 			'TEXT_PRIVATE_WELCOME_MESSAGE' => $textPrivateWelcomeMessage,
 			'TEXT_CHAT_WELCOME_MESSAGE' => $textChatWelcomeMessage,
 			'APP_ID' => $appId,
 			'VERIFIED' => $verified,
 			'OPENLINE' => $openline,
 			'HIDDEN' => $isHidden,
+			'REACTIONS_ENABLED' => $reactionsEnabled,
+			'BACKGROUND_ID' => $backgroundId,
 		));
 
 		$cache = \Bitrix\Main\Data\Cache::createInstance();
@@ -271,14 +293,6 @@ class Bot
 		}
 
 		\Bitrix\Im\Model\BotTable::delete($botId);
-
-		$orm = \Bitrix\Im\Model\BotChatTable::getList(Array(
-			'filter' => Array('=BOT_ID' => $botId)
-		));
-		if ($row = $orm->fetch())
-		{
-			\Bitrix\Im\Model\BotChatTable::delete($row['ID']);
-		}
 
 		$cache = \Bitrix\Main\Data\Cache::createInstance();
 		$cache->cleanDir(self::CACHE_PATH);
@@ -371,6 +385,13 @@ class Bot
 				$update['WORK_POSITION'] = Loc::getMessage('BOT_DEFAULT_WORK_POSITION');
 			}
 
+			$color = null;
+			if (isset($update['COLOR']))
+			{
+				$color = $update['COLOR'];
+				unset($update['COLOR']);
+			}
+
 			$botAvatar = false;
 			$delBotAvatar = false;
 			$previousBotAvatar = false;
@@ -406,6 +427,11 @@ class Bot
 
 			$user = new \CUser;
 			$user->Update($botId, $update);
+
+			if ($color && \Bitrix\Main\Loader::includeModule('pull'))
+			{
+				\CIMStatus::SetColor($botId, $color);
+			}
 
 			if ($botAvatar > 0 && $botAvatar !== $previousBotAvatar)
 			{
@@ -465,6 +491,14 @@ class Bot
 		{
 			$update['METHOD_WELCOME_MESSAGE'] = $updateFields['METHOD_WELCOME_MESSAGE'];
 		}
+		if (isset($updateFields['METHOD_CONTEXT_GET']))
+		{
+			$update['METHOD_CONTEXT_GET'] = $updateFields['METHOD_CONTEXT_GET'];
+		}
+		if (isset($updateFields['METHOD_REACTION_CHANGE']))
+		{
+			$update['METHOD_REACTION_CHANGE'] = $updateFields['METHOD_REACTION_CHANGE'];
+		}
 		if (isset($updateFields['TEXT_PRIVATE_WELCOME_MESSAGE']))
 		{
 			$update['TEXT_PRIVATE_WELCOME_MESSAGE'] = $updateFields['TEXT_PRIVATE_WELCOME_MESSAGE'];
@@ -480,6 +514,14 @@ class Bot
 		if (isset($updateFields['HIDDEN']))
 		{
 			$update['HIDDEN'] = $updateFields['HIDDEN'] === 'Y' ? 'Y' : 'N';
+		}
+		if (isset($updateFields['REACTIONS_ENABLED']))
+		{
+			$update['REACTIONS_ENABLED'] = $updateFields['REACTIONS_ENABLED'] === 'Y' ? 'Y' : 'N';
+		}
+		if (isset($updateFields['BACKGROUND_ID']))
+		{
+			$update['BACKGROUND_ID'] = Background::validateBackgroundId($updateFields['BACKGROUND_ID']);
 		}
 		if (!empty($update))
 		{
@@ -596,6 +638,8 @@ class Bot
 			return true;
 		}
 
+		$messageFields = self::addAdditionalParams($messageFields);
+
 		if ($messageFields['MESSAGE_TYPE'] != IM_MESSAGE_PRIVATE)
 		{
 			$messageFields['MESSAGE_ORIGINAL'] = $messageFields['MESSAGE'];
@@ -612,6 +656,7 @@ class Bot
 
 		$messageFields['DIALOG_ID'] = self::getDialogId($messageFields);
 		$messageFields = self::removeFieldsToEvent($messageFields);
+		$messageFieldsForEvents = $messageFields;
 
 		foreach ($botExecModule as $params)
 		{
@@ -635,11 +680,11 @@ class Bot
 				call_user_func_array(array($params["CLASS"], "onMessageAdd"), Array($messageId, $messageFields));
 			}
 		}
-		unset($messageFields['BOT_ID']);
 
 		foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("im", "onImBotMessageAdd") as $event)
 		{
-			\ExecuteModuleEventEx($event, Array($botExecModule, $messageId, $messageFields));
+			$eventParams = [$botExecModule, $messageId, $messageFieldsForEvents];
+			\ExecuteModuleEventEx($event, $eventParams);
 		}
 
 		if (
@@ -663,6 +708,8 @@ class Bot
 			return true;
 		}
 
+		$messageFields = self::addAdditionalParams($messageFields);
+
 		if ($messageFields['MESSAGE_TYPE'] != IM_MESSAGE_PRIVATE)
 		{
 			$messageFields['MESSAGE_ORIGINAL'] = $messageFields['MESSAGE'];
@@ -679,6 +726,7 @@ class Bot
 
 		$messageFields['DIALOG_ID'] = self::getDialogId($messageFields);
 		$messageFields = self::removeFieldsToEvent($messageFields);
+		$messageFieldsForEvents = $messageFields;
 
 		foreach ($botExecModule as $params)
 		{
@@ -702,7 +750,9 @@ class Bot
 
 		foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("im", "onImBotMessageUpdate") as $event)
 		{
-			\ExecuteModuleEventEx($event, Array($botExecModule, $messageId, $messageFields));
+			$eventParams = [$botExecModule, $messageId, $messageFieldsForEvents];
+
+			\ExecuteModuleEventEx($event, $eventParams);
 		}
 
 		return true;
@@ -776,25 +826,6 @@ class Bot
 			$updateCounter = array("COUNT_CHAT" => new \Bitrix\Main\DB\SqlExpression("?# + 1", "COUNT_CHAT"));
 		}
 		\Bitrix\Im\Model\BotTable::update($joinFields['BOT_ID'], $updateCounter);
-
-		if (
-			$joinFields['CHAT_TYPE'] != IM_MESSAGE_PRIVATE
-			&& $bot['TYPE'] == self::TYPE_SUPERVISOR
-			&& (empty($joinFields['SILENT_JOIN']) || $joinFields['SILENT_JOIN'] !== 'Y') // suppress any system message
-			&& $bot['CODE'] !== 'copilot' /** @see \Bitrix\Imbot\Bot\CopilotChatBot::BOT_CODE */
-		)
-		{
-			\CIMMessenger::Add(Array(
-				'DIALOG_ID' => $dialogId,
-				'MESSAGE_TYPE' => $joinFields['CHAT_TYPE'],
-				'MESSAGE' => str_replace(Array('#BOT_NAME#'), Array('[USER='.$joinFields['BOT_ID'].'][/USER]'), $joinFields['ACCESS_HISTORY']? Loc::getMessage('BOT_SUPERVISOR_NOTICE_ALL_MESSAGES'): Loc::getMessage('BOT_SUPERVISOR_NOTICE_NEW_MESSAGES')),
-				'SYSTEM' => 'Y',
-				'SKIP_COMMAND' => 'Y',
-				'PARAMS' => Array(
-					"CLASS" => "bx-messenger-content-item-system",
-				),
-			));
-		}
 
 		if ($bot["METHOD_WELCOME_MESSAGE"] && class_exists($bot["CLASS"]) && method_exists($bot["CLASS"], $bot["METHOD_WELCOME_MESSAGE"]))
 		{
@@ -880,7 +911,131 @@ class Bot
 		return true;
 	}
 
-	public static function startWriting(array $bot, $dialogId, $userName = '')
+	public static function onContextGet(\Bitrix\Im\V2\Chat $chat, array $params): bool
+	{
+		$botsForEvent = [];
+		$botList = $chat->getBotInChat();
+
+		$dialogId = self::getDialogIdByChat($chat);
+		if ($dialogId === null)
+		{
+			return false;
+		}
+
+		foreach ($botList as $botId)
+		{
+			$botData = BotData::getInstance($botId)?->getBotData();
+			if (
+				empty($botData)
+				|| !\Bitrix\Main\Loader::includeModule($botData['MODULE_ID'])
+			)
+			{
+				continue;
+			}
+
+			$botsForEvent[$botId] = $botData;
+
+			if ($botData["METHOD_CONTEXT_GET"] && class_exists($botData["CLASS"]) && method_exists($botData["CLASS"], $botData["METHOD_CONTEXT_GET"]))
+			{
+				call_user_func([$botData["CLASS"], $botData["METHOD_CONTEXT_GET"]], $dialogId, $params);
+			}
+			else if (class_exists($botData["CLASS"]) && method_exists($botData["CLASS"], "onContextGet"))
+			{
+				call_user_func([$botData["CLASS"], "onContextGet"], $dialogId, $params);
+			}
+		}
+
+		if (empty($botsForEvent))
+		{
+			return false;
+		}
+
+		foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("im", "onImBotContextGet") as $event)
+		{
+			\ExecuteModuleEventEx($event, [$botsForEvent, $dialogId, $params]);
+		}
+
+		return true;
+	}
+
+	public static function onReactionChange(Message $message, array $params): bool
+	{
+		$bot = \Bitrix\Im\V2\Entity\User\User::getInstance($message->getAuthorId());
+
+		if (!$bot->isBot())
+		{
+			return false;
+		}
+
+		$dialogId = self::getDialogIdByChat($message->getChat());
+		if ($dialogId === null)
+		{
+			return false;
+		}
+
+		$params['DIALOG_ID'] = $dialogId;
+
+		$botData = BotData::getInstance($bot->getId())?->getBotData();
+		if (
+			empty($botData)
+			|| !\Bitrix\Main\Loader::includeModule($botData['MODULE_ID'])
+			|| ($botData['REACTIONS_ENABLED'] ?? 'N') === 'N'
+		)
+		{
+			return false;
+		}
+
+		if (
+			$botData["METHOD_REACTION_CHANGE"]
+			&& method_exists($botData["CLASS"], $botData["METHOD_REACTION_CHANGE"])
+		)
+		{
+			call_user_func([$botData["CLASS"], $botData["METHOD_REACTION_CHANGE"]], $message->getId(), $params);
+		}
+		else if (method_exists($botData["CLASS"], "onReactionChange"))
+		{
+			call_user_func([$botData["CLASS"], "onReactionChange"], $message->getId(), $params);
+		}
+
+		foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("im", "onImBotReactionChange") as $event)
+		{
+			\ExecuteModuleEventEx($event, [$botData, $message->getId(), $params]);
+		}
+
+		return true;
+	}
+
+	protected static function addAdditionalParams(array $params): array
+	{
+		$chatId = $params['TO_CHAT_ID'] ?? $params['CHAT_ID'] ?? null;
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+
+		if ($chat instanceof PrivateChat)
+		{
+			$params['CHAT_USER_COUNT'] = 2;
+		}
+		else
+		{
+			$params['CHAT_USER_COUNT'] = $chat->getUserCount();
+		}
+
+		$params['MENTIONED_LIST'] = (new Message())
+			->setMessage($params['MESSAGE'] ?? '')
+			->getMentionedUserIds()
+		;
+
+		$params['PLATFORM_CONTEXT'] = self::getPlatformContext();
+
+		return $params;
+	}
+
+	public static function startWriting(
+		array $bot,
+		$dialogId,
+		$userName = '',
+		?string $statusMessageCode = null,
+		?int $duration = null
+	)
 	{
 		$botId = $bot['BOT_ID'];
 		$moduleId = isset($bot['MODULE_ID'])? $bot['MODULE_ID']: '';
@@ -911,8 +1066,80 @@ class Bot
 		{
 			return false;
 		}
+		\CIMMessenger::StartWriting($dialogId, $botId, $userName, false, false, $statusMessageCode, $duration);
 
-		\CIMMessenger::StartWriting($dialogId, $botId, $userName);
+		return true;
+	}
+
+	public static function setChatBackgroundId(array $bot, $dialogId, string $backgroundId): bool
+	{
+		$botId = (int)$bot['BOT_ID'];
+
+		if (!self::checkBotValid($botId))
+		{
+			return false;
+		}
+
+		$chatId = Dialog::getChatId($dialogId, $botId);
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+		if ($chat->getRelationByUserId($botId) === null)
+		{
+			return false;
+		}
+
+		$chat->getBackground()->set($backgroundId);
+
+		return true;
+	}
+
+	public static function enableChatTextField(array $bot, $dialogId): bool
+	{
+		return self::changeChatTextFieldInternal($bot, $dialogId, true);
+	}
+
+	public static function disableChatTextField(array $bot, $dialogId): bool
+	{
+		return self::changeChatTextFieldInternal($bot, $dialogId, false);
+	}
+
+	private static function changeChatTextFieldInternal(array $bot, $dialogId, bool $textFieldEnabled): bool
+	{
+		$botId = (int)$bot['BOT_ID'];
+
+		if (!self::checkBotValid($botId))
+		{
+			return false;
+		}
+
+		$chatId = Dialog::getChatId($dialogId, $botId);
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
+		if ($chat->getRelationByUserId($botId) === null)
+		{
+			return false;
+		}
+
+		$chat->getTextFieldEnabled()->set($textFieldEnabled);
+
+		return true;
+	}
+
+	private static function checkBotValid(int $botId): bool
+	{
+		if ($botId <= 0)
+		{
+			return false;
+		}
+
+		if (!\Bitrix\Im\User::getInstance($botId)->isExists() || !\Bitrix\Im\User::getInstance($botId)->isBot())
+		{
+			return false;
+		}
+
+		$botData = BotData::getInstance($botId)?->getBotData();
+		if (!isset($botData))
+		{
+			return false;
+		}
 
 		return true;
 	}
@@ -1277,33 +1504,14 @@ class Bot
 		return $dialogId;
 	}
 
-	private static function findBots($fields)
+	public static function getDialogIdByChat(\Bitrix\Im\V2\Chat $chat): ?string
 	{
-		$result = Array();
-		if (intval($fields['BOT_ID']) <= 0)
-			return $result;
-
-		$bots = self::getListCache();
-		if ($fields['TYPE'] == IM_MESSAGE_PRIVATE)
+		if ($chat instanceof PrivateChat)
 		{
-			if (isset($bots[$fields['BOT_ID']]))
-			{
-				$result = $bots[$fields['BOT_ID']];
-			}
-		}
-		else
-		{
-			if (isset($bots[$fields['BOT_ID']]))
-			{
-				$chats = self::getChatListCache($fields['BOT_ID']);
-				if (isset($chats[$fields['CHAT_ID']]))
-				{
-					$result = $bots[$fields['BOT_ID']];
-				}
-			}
+			return (string)$chat->getContext()->getUserId();
 		}
 
-		return $result;
+		return $chat->getDialogId();
 	}
 
 	public static function getCache($botId)
@@ -1401,6 +1609,8 @@ class Bot
 				'code' => $code,
 				'type' => $type,
 				'openline' => $bot['OPENLINE'] == 'Y',
+				'backgroundId' => $bot['BACKGROUND_ID'] ?? null,
+				'reactionsEnabled' => $bot['REACTIONS_ENABLED'] ?? false,
 			);
 		}
 
@@ -1435,78 +1645,6 @@ class Bot
 		);
 
 		return $messageFields;
-	}
-
-	private static function getChatListCache($botId)
-	{
-		$botId = intval($botId);
-		if ($botId <= 0)
-			return Array();
-
-		$cache = \Bitrix\Main\Data\Cache::createInstance();
-		if($cache->initCache(self::CACHE_TTL, 'chat'.$botId, self::CACHE_PATH))
-		{
-			$result = $cache->getVars();
-		}
-		else
-		{
-			$result = Array();
-			$orm = \Bitrix\Im\Model\BotChatTable::getList(Array(
-				'filter' => Array('=BOT_ID' => $botId)
-			));
-			while ($row = $orm->fetch())
-			{
-				$result[$row['CHAT_ID']] = $row;
-			}
-
-			$cache->startDataCache();
-			$cache->endDataCache($result);
-		}
-
-		return $result;
-	}
-
-	public static function changeChatMembers($chatId, $botId, $append = true)
-	{
-		$chatId = intval($chatId);
-		$botId = intval($botId);
-
-		if ($chatId <= 0 || $botId <= 0)
-			return false;
-
-		$chats = self::getChatListCache($botId);
-
-		if ($append)
-		{
-			if (isset($chats[$chatId]))
-			{
-				return true;
-			}
-			\Bitrix\Im\Model\BotChatTable::add(Array(
-				'BOT_ID' => $botId,
-				'CHAT_ID' => $chatId
-			));
-		}
-		else
-		{
-			if (!isset($chats[$chatId]))
-			{
-				return true;
-			}
-
-			$orm = \Bitrix\Im\Model\BotChatTable::getList(Array(
-				'filter' => Array('=BOT_ID' => $botId, '=CHAT_ID' => $chatId)
-			));
-			if ($row = $orm->fetch())
-			{
-				\Bitrix\Im\Model\BotChatTable::delete($row['ID']);
-			}
-		}
-
-		$cache = \Bitrix\Main\Data\Cache::createInstance();
-		$cache->clean('chat'.$botId, self::CACHE_PATH);
-
-		return true;
 	}
 
 	public static function getDefaultLanguage()
@@ -1658,5 +1796,32 @@ class Bot
 		}
 
 		return $botExecModule;
+	}
+
+	public static function setPlatformContext(string $context): void
+	{
+		self::$platformContext = self::resolvePlatformContext($context);
+	}
+
+	protected static function resolvePlatformContext(string $context): string
+	{
+		return match ($context)
+		{
+			'Bitrix24.Mobile', self::PLATFORM_CONTEXT_MOBILE => self::PLATFORM_CONTEXT_MOBILE,
+			default => self::PLATFORM_CONTEXT_WEB,
+		};
+	}
+
+	protected static function getPlatformContext(): string
+	{
+		if (self::$platformContext !== null)
+		{
+			return self::$platformContext;
+		}
+
+		$context = Main\Web\UserAgent\Browser::detect()->getName() ?? '';
+		self::$platformContext = self::resolvePlatformContext($context);
+
+		return self::$platformContext;
 	}
 }

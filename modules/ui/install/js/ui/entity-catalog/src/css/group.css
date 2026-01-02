@@ -91,3 +91,8 @@
 .ui-entity-catalog__menu_item.--disabled .ui-entity-catalog__svg-icon-blue {
 	fill: var(--ui-color-base-40, #bdc1c6);
 }
+
+.ui-entity-catalog__menu_item-entity-count {
+	position: absolute;
+	right: calc(5px + 16px + 4px);
+}

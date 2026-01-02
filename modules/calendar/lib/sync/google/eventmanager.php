@@ -141,7 +141,7 @@ class EventManager extends Manager implements EventManagerInterface
 			if ($this->isRequestSuccess())
 			{
 				$requestResult = $this->prepareResult($this->httpClient->getResult(), $event);
-				// TODO: move it to core
+				// TODO: move it to core. childList newer setted?
 				if ($childList = ($context->sync['childList'] ?? null))
 				{
 					/**
@@ -565,29 +565,10 @@ class EventManager extends Manager implements EventManagerInterface
 			->setEventConnection(
 				(new EventConnection())
 					->setVendorEventId(
-						$this->getInstanceId($masterVendorEventId, $event)
+						$event->buildInstanceId($masterVendorEventId)
 					)
 					->setRecurrenceId($masterVendorEventId)
 			);
-	}
-
-	/**
-	 * @param string $masterId Vendor ID of master event
-	 * @param Event $event exception event
-	 *
-	 * @return string
-	 */
-	private function getInstanceId(string $masterId, Event $event): string
-	{
-		$base = $masterId . '_';
-		if ($event->isFullDayEvent())
-		{
-			return $base . $event->getOriginalDateFrom()->setTimezone(Util::prepareTimezone())->format('Ymd');
-		}
-		else
-		{
-			return $base . $event->getOriginalDateFrom()->setTimezone(Util::prepareTimezone())->format('Ymd\THis\Z');
-		}
 	}
 
 	/**

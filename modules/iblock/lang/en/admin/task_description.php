@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TASK_NAME_IBLOCK_DENY"] = "Access denied";
 $MESS["TASK_DESC_IBLOCK_DENY"] = "Access to this information block is denied";
 $MESS["TASK_NAME_IBLOCK_READ"] = "Read";
@@ -16,4 +16,3 @@ $MESS["TASK_DESC_IBLOCK_FULL_EDIT"] = "Edit elements; cannot modify access permi
 $MESS["TASK_NAME_IBLOCK_FULL"] = "Full access";
 $MESS["TASK_DESC_IBLOCK_FULL"] = "Edit information blocks, elements and sections; no restrictions";
 $MESS["TASK_BINDING_IBLOCK"] = "Infoblock";
-?>

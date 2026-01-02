@@ -1,4 +1,4 @@
-import { ajax as Ajax } from "main.core";
+import { ajax as Ajax, Runtime } from "main.core";
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import { Picker } from 'ai.picker';
 import 'calendar.sliderloader';
@@ -10,6 +10,17 @@ import { EventType, RestMethod } from 'im.v2.const';
 import type { RestClient } from 'rest.client';
 
 const CALENDAR_ON_ENTRY_SAVE_EVENT = 'BX.Calendar:onEntrySave';
+
+export type TaskV2Params = {
+	groupId?: number,
+	entityId?: number,
+	subEntityId?: number,
+	ta_sec: string,
+	ta_el: string,
+	description?: string,
+	auditors?: string,
+	UF_TASK_WEBDAV_FILES: string[],
+};
 
 export class EntityCreator
 {
@@ -97,10 +108,13 @@ export class EntityCreator
 			config.data.messageId = messageId;
 		}
 
-		return runAction(RestMethod.imV2ChatTaskPrepare, config).then((sliderParams) => {
-			const { link, params } = sliderParams;
+		return runAction(RestMethod.imV2ChatTaskPrepare, config).then((taskParams) => {
+			const { link, params } = taskParams;
 
-			return this.#openTaskSlider(link, params);
+			return params.is_tasks_v2
+				? this.#openTaskV2Card(params)
+				: this.#openTaskSlider(link, params)
+			;
 		});
 	}
 
@@ -119,6 +133,29 @@ export class EntityCreator
 			requestMethod: 'post',
 			requestParams: sliderParams,
 			cacheable: false,
+		});
+	}
+
+	async #openTaskV2Card(params: TaskV2Params)
+	{
+		const { TaskCard } = await Runtime.loadExtension('tasks.v2.application.task-card');
+		const entityId = params.entityId ?? null;
+		const subEntityId = params.subEntityId ?? null;
+		const auditors = params.auditors
+			? params.auditors.split(',').map((auditorId) => parseInt(auditorId.trim(), 10))
+			: []
+		;
+
+		TaskCard.showCompactCard({
+			groupId: params.groupId ?? null,
+			description: params.description ?? null,
+			auditorsIds: auditors,
+			fileIds: params.UF_TASK_WEBDAV_FILES,
+			analytics: {
+				context: params.ta_sec,
+				element: params.ta_el,
+			},
+			source: { type: 'chat', entityId, subEntityId },
 		});
 	}
 

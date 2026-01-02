@@ -1,0 +1,4 @@
+<?php
+$MESS["LANDING_TABLE_UCS_FIELD_HASH"] = "Сілтеменің хеші";
+$MESS["LANDING_TABLE_UCS_FIELD_STATUS"] = "Мәртебе";
+$MESS["LANDING_TABLE_UCS_FIELD_URL"] = "Сілтеме";

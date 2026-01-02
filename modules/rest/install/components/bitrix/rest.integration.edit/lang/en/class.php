@@ -1,6 +1,5 @@
 <?php
-$MESS["REST_INTEGRATION_EDIT_ATTENTION_USES_WEBHOOK"] = "<strong>Attention!</strong> This link allows a person who is in possession of it to perform actions according to permissions assigned to the link. Please keep this link secret. Learn more #URL#.";
-$MESS["REST_INTEGRATION_EDIT_ATTENTION_USES_WEBHOOK_URL_MESSAGE"] = "here";
+$MESS["REST_INTEGRATION_EDIT_ATTENTION_USES_WEBHOOK_MSGVER_1"] = "[strong]Attention![/strong] This link allows anyone to perform actions according to permissions assigned to the link. Please keep this link secret. [article_link]Learn more[/article_link]";
 $MESS["REST_INTEGRATION_EDIT_ERROR_ACCESS_DENIED"] = "Access denied.";
 $MESS["REST_INTEGRATION_EDIT_ERROR_CREAT"] = "Error creating an integration: #ERROR_TEXT#";
 $MESS["REST_INTEGRATION_EDIT_ERROR_NOT_FOUND"] = "Integration was not found";

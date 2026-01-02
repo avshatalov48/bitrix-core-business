@@ -167,7 +167,7 @@ $lAdmin->NavText($rsData->GetNavPrint(GetMessage('PERFMON_HIT_PAGE2')));
 $max_display_url = COption::GetOptionInt('perfmon', 'max_display_url');
 while ($arRes = $rsData->GetNext())
 {
-	$row =& $lAdmin->AddRow($arRes['NAME'], $arRes);
+	$row = $lAdmin->AddRow($arRes['NAME'], $arRes);
 
 	$row->AddViewField('SCRIPT_NAME', '<a href="perfmon_hit_list.php?lang=' . LANGUAGE_ID . '&amp;set_filter=Y&amp;find_script_name=' . $arRes['SCRIPT_NAME'] . '">' . $arRes['SCRIPT_NAME'] . '</a>');
 

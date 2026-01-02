@@ -9,3 +9,10 @@ export const showDeleteChannelPostConfirm = (): Promise<boolean> => {
 		firstButtonCaption: Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_POST_TEXT_CONFIRM'),
 	});
 };
+
+export const showDeleteMessagesConfirm = (title: string): Promise<boolean> => {
+	return showTwoButtonConfirm({
+		title,
+		firstButtonCaption: Loc.getMessage('IM_LIB_CONFIRM_DELETE_MESSAGES_TITLE'),
+	});
+};

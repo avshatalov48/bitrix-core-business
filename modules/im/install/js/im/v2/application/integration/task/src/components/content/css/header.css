@@ -1,0 +1,36 @@
+.bx-im-task-chat-header__left_container {
+	--im-task-chat-header__background-color_avatar: #edf7ff;
+	--im-task-chat-header__font-color_title: var(--im-color-palette-black-base);
+	--im-task-chat-header__font-color_user-counter: var(--im-color-palette-gray-50);
+
+	display: flex;
+}
+
+.bx-im-task-chat-header__avatar {
+	width: 42px;
+	height: 42px;
+	margin-right: 10px;
+	border-radius: var(--im-border-radius-circle);
+	background-color: var(--im-task-chat-header__background-color_avatar);
+	background-image: url('./images/task-icon.svg');
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.bx-im-task-chat-header__info {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.bx-im-task-chat-header__title {
+	margin-bottom: 3px;
+	font: var(--im-font-size-lg)/18px var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-task-chat-header__font-color_title);
+}
+
+.bx-im-task-chat-header__user-counter {
+	font: var(--im-font-size-sm)/16px var(--im-font-family-system);
+	color: var(--im-task-chat-header__font-color_user-counter);
+}

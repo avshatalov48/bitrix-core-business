@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
-(function (exports,ui_vue3) {
+(function (exports,main_core,ui_vue3) {
 	'use strict';
 
 	const Application = {
@@ -39,7 +39,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  constructor(options = {}) {
 	    this.link = options.link;
 	    this.rootNode = BX('calendar-sharing-alert');
-	    this.buildView();
+	    if (main_core.Type.isDomNode(this.rootNode)) {
+	      this.buildView();
+	    }
 	  }
 	  buildView() {
 	    this.application = ui_vue3.BitrixVue.createApp(Application, {
@@ -50,5 +52,5 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	exports.Alert = Alert;
 
-}((this.BX.Calendar.Sharing = this.BX.Calendar.Sharing || {}),BX.Vue3));
+}((this.BX.Calendar.Sharing = this.BX.Calendar.Sharing || {}),BX,BX.Vue3));
 //# sourceMappingURL=alert.bundle.js.map

@@ -1,0 +1,22 @@
+<?php
+$MESS["SALE_ESDE_ERROR_DELETE"] = "Қосымша қызметті жою қатесі";
+$MESS["SALE_ESDE_ERROR_ID"] = "Қосымша қызметтің идентификаторы дұрыс емес";
+$MESS["SALE_ESDL_ACCESS_DENIED"] = "Қолжетімділікке тыйым салынған";
+$MESS["SALE_ESDL_BUTTON_ADD_NEW"] = "Қосымша қызметті қосу";
+$MESS["SALE_ESDL_BUTTON_ADD_NEW_TITLE"] = "Қосымша қызметті қосу.";
+$MESS["SALE_ESDL_COL_ACTIVE"] = "Белсенділік";
+$MESS["SALE_ESDL_COL_CLASS_NAME"] = "Түрі";
+$MESS["SALE_ESDL_COL_CODE"] = "Код";
+$MESS["SALE_ESDL_COL_DESCRIPTION"] = "Сипаттама";
+$MESS["SALE_ESDL_COL_ID"] = "Идентификатор";
+$MESS["SALE_ESDL_COL_NAME"] = "Атауы";
+$MESS["SALE_ESDL_COL_RIGHTS"] = "Құқықтар";
+$MESS["SALE_ESDL_COL_SORT"] = "Сұрыптау";
+$MESS["SALE_ESDL_CONFIRM_DEL_MESSAGE"] = "Бұл қосымша қызметті жойғыңыз келетініне сенімдісіз бе?";
+$MESS["SALE_ESDL_DELETE"] = "Жою";
+$MESS["SALE_ESDL_DELETE_DESCR"] = "Жою";
+$MESS["SALE_ESDL_EDIT_DESCR"] = "Редакциялау";
+$MESS["SALE_ESDL_LIST"] = "Қосымша сервистер тізімі";
+$MESS["SALE_ESDL_NEW_SERVICE"] = "Жаңа қызмет";
+$MESS["SALE_ESDL_NO"] = "Жоқ";
+$MESS["SALE_ESDL_YES"] = "Иә";

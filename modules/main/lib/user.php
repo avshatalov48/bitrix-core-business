@@ -175,6 +175,15 @@ class UserTable extends DataManager
 				['values' => ['N', 'Y']]
 			))->configureValueType(BooleanField::class),
 
+			(new ExpressionField(
+				'REAL_USER',
+				"(
+        	    	%s NOT IN ('" . join("', '", static::getExternalUserTypes()) . "')
+            		OR %s IS NULL
+		        )",
+				['EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID'],
+			))->configureValueType(BooleanField::class),
+
 			(new Reference(
 				'INDEX',
 				UserIndexTable::class,

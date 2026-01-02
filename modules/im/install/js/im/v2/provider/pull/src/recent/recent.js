@@ -6,11 +6,12 @@ import { ImModelMessage } from 'im.v2.model';
 import { NewMessageManager } from './classes/new-message-manager';
 import { RecentUpdateManager } from './classes/recent-update-manager';
 
-import type { PullExtraParams } from '../types/common';
+import type { PullExtraParams, RawMessage } from '../types/common';
 import type {
 	MessageAddParams,
 	AddReactionParams,
 	MessageDeleteCompleteParams,
+	MultipleMessageDeleteParams,
 } from '../types/message';
 import type { ChatUnreadParams } from '../types/chat';
 import type { UserInviteParams } from '../types/user';
@@ -60,17 +61,23 @@ export class RecentPullHandler
 
 		const addActions = manager.getAddActions();
 		addActions.forEach((actionName) => {
+			if (!actionName)
+			{
+				return;
+			}
+
 			Core.getStore().dispatch(actionName, newRecentItem);
 		});
 	}
 
+	handleMessageDeleteV2(params: MultipleMessageDeleteParams)
+	{
+		this.#deleteLastMessage(params.dialogId, params.newLastMessage);
+	}
+
 	handleMessageDeleteComplete(params: MessageDeleteCompleteParams)
 	{
-		const lastMessageWasDeleted = Boolean(params.newLastMessage);
-		if (lastMessageWasDeleted)
-		{
-			this.#updateRecentForMessageDelete(params.dialogId, params.newLastMessage.id);
-		}
+		this.#deleteLastMessage(params.dialogId, params.newLastMessage);
 	}
 
 	handleChatUnread(params: ChatUnreadParams)
@@ -205,6 +212,15 @@ export class RecentPullHandler
 		};
 
 		Core.getStore().dispatch('recent/setRecent', newRecentItem);
+	}
+
+	#deleteLastMessage(dialogId: number, newLastMessage: RawMessage) {
+		const lastMessageWasDeleted = Boolean(newLastMessage);
+
+		if (lastMessageWasDeleted)
+		{
+			this.#updateRecentForMessageDelete(dialogId, newLastMessage.id);
+		}
 	}
 
 	#updateRecentForMessageDelete(dialogId: string, newLastMessageId: number): void

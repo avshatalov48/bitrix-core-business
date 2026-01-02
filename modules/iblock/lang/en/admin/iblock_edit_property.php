@@ -58,4 +58,4 @@ $MESS["BT_ADM_IEP_PROP_USER_TYPE_SETTINGS"] = "Additional Settings";
 $MESS["BT_ADM_IEP_PROP_WITH_DESC"] = "Display value description field:";
 $MESS["BT_ADM_IEP_SECTION_TITLE_PROPERTY_FEATURES"] = "Property parameters";
 $MESS["BT_ADM_IEP_TAB"] = "Property";
-$MESS["BT_ADM_IEP_TAB_TITLE"] = "Property parameters";
+$MESS['BT_ADM_IEP_TAB_TITLE'] = "Property parameters";

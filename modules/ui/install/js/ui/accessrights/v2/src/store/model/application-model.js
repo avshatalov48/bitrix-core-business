@@ -3,7 +3,7 @@ import { BuilderModel, type GetterTree, type MutationTree } from 'ui.vue3.vuex';
 export type ApplicationState = {
 	options: Readonly<Options>,
 	guid: string,
-	isSaving: boolean,
+	isProgress: boolean,
 }
 
 export type Options = {
@@ -15,7 +15,19 @@ export type Options = {
 	isSaveOnlyChangedRights: boolean,
 	maxVisibleUserGroups: ?number,
 	searchContainerSelector: ?string,
+	additionalMembersParams: AdditionalMembersParams,
+	userSortConfigName: string,
+	isSaveAccessRightsList: boolean,
+	moduleId: string,
 }
+
+export type AdditionalMembersParams = {
+	addUserGroupsProviderTab?: boolean,
+	addProjectsProviderTab?: boolean,
+	addStructureTeamsProviderTab?: boolean,
+	addStructureRolesProviderTab?: boolean,
+	useStructureDepartmentsProviderTab?: boolean,
+};
 
 export const ACTION_SAVE = 'save';
 export const MODE = 'ajax';
@@ -50,7 +62,7 @@ export class ApplicationModel extends BuilderModel
 		return {
 			options: this.#options,
 			guid: this.#guid,
-			isSaving: false,
+			isProgress: false,
 		};
 	}
 
@@ -60,15 +72,24 @@ export class ApplicationModel extends BuilderModel
 			isMaxVisibleUserGroupsSet: (state): boolean => {
 				return state.options.maxVisibleUserGroups > 0;
 			},
+			isModified: (state, getters, rootState, rootGetters): boolean => {
+				return rootGetters['userGroups/isModified'] || rootGetters['accessRights/isModified'];
+			},
+			guid: (state): string => {
+				return state.guid;
+			},
+			additionalMembersParams: (state): AdditionalMembersParams => {
+				return state.options.additionalMembersParams;
+			},
 		};
 	}
 
 	getMutations(): MutationTree<ApplicationState>
 	{
 		return {
-			setSaving: (state, isSaving: boolean): void => {
+			setProgress: (state, isProgress: boolean): void => {
 				// eslint-disable-next-line no-param-reassign
-				state.isSaving = Boolean(isSaving);
+				state.isProgress = Boolean(isProgress);
 			},
 		};
 	}

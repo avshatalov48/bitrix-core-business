@@ -148,9 +148,6 @@ export class NotificationsModel extends BuilderModel
 				if (itemsToAdd.length > 0)
 				{
 					store.commit('add', itemsToAdd);
-					itemsToAdd.forEach(() => {
-						store.commit('increaseCounter');
-					});
 				}
 				if (itemsToUpdate.length > 0)
 				{

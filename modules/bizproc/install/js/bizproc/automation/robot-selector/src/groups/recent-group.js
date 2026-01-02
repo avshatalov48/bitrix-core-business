@@ -1,5 +1,6 @@
+import { Loc } from 'main.core';
 import { Group } from './group';
-import type { GroupData } from 'ui.entity-catalog';
+import GroupIcon from './group-icon';
 
 export class RecentGroup extends Group
 {
@@ -10,14 +11,16 @@ export class RecentGroup extends Group
 
 	getName(): string
 	{
-		return '';
+		return Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_RECENT_ROBOT_GROUP');
 	}
 
-	getData(): GroupData
+	getIcon(): string
 	{
-		return {
-			selected: this.getSelected(),
-			compare: this.getCompare(),
-		};
+		return GroupIcon.RECENT_ENTITY;
+	}
+
+	isHeaderGroup(): boolean
+	{
+		return true;
 	}
 }

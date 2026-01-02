@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Bitrix\Socialnetwork\Collab\Integration\IM\Message;
 
 use Bitrix\Main\Loader;
-use Bitrix\Socialnetwork\Collab\Integration\IM\ActionType;
+use Bitrix\Main\Localization\Loc;
 
 class ExcludeUserActionMessage implements ActionMessageInterface
 {
-	use GetMessageSenderTrait;
+	use MessageTrait;
 
 	protected int $collabId;
 	protected int $senderId;
@@ -20,21 +20,37 @@ class ExcludeUserActionMessage implements ActionMessageInterface
 		$this->senderId = $senderId;
 	}
 
-	public function runAction(array $recipientIds = [], array $parameters = []): int
+	public function send(array $recipientIds = [], array $parameters = []): int
 	{
 		if (!Loader::includeModule('im'))
 		{
 			return 0;
 		}
 
-		$sender = $this->getMessageSender($this->collabId, $this->senderId);
-		if ($sender === null)
+		if (empty($recipientIds))
 		{
 			return 0;
 		}
 
-		$parameters['recipients'] = $recipientIds;
+		$recipientNames = [];
+		foreach ($recipientIds as $recipientId)
+		{
+			$recipientNames[] = $this->getName($this->senderId, $recipientId, $this->collabId);
+		}
 
-		return $sender->sendActionMessage(ActionType::ExcludeUser, $parameters);
+		$this->deleteUsersFromChat($this->collabId, ...$recipientIds);
+
+		$userNames = implode(', ', $recipientNames);
+		$senderName = $this->getName($this->senderId, $this->senderId, $this->collabId);
+
+		$message = (string)Loc::getMessage(
+			'SOCIALNETWORK_COLLAB_CHAT_USER_EXCLUDE' . $this->getGenderSuffix($this->senderId),
+			[
+				'#SENDER_NAME#' => $senderName,
+				'#RECIPIENT#' => $userNames,
+			],
+		);
+
+		return $this->sendMessage($message, $this->senderId, $this->collabId);
 	}
 }

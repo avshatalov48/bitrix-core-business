@@ -164,6 +164,10 @@ class StringField extends ScalarField
 		{
 			return $this->getConnection()->getSqlHelper()->convertToDbBinary($value);
 		}
+		elseif ($this->is_fulltext)
+		{
+			return $this->getConnection()->getSqlHelper()->convertToFullText($value);
+		}
 		else
 		{
 			return $this->getConnection()->getSqlHelper()->convertToDbString($value, $this->size);

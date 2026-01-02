@@ -12,7 +12,8 @@ abstract class Service
 	protected EventLink $eventLink;
 	protected ?CrmDealLink $crmDealLink;
 	protected ?Event $oldEvent = null;
-	private ?array $owner = null;
+	protected ?int $initiatorId = null;
+	private array $users = [];
 
 	/**
 	 * @return Event
@@ -74,6 +75,13 @@ abstract class Service
 		return $this;
 	}
 
+	public function setInitiatorId(?int $id): self
+	{
+		$this->initiatorId = $id;
+
+		return $this;
+	}
+
 	/**
 	 * @return string
 	 */
@@ -90,31 +98,19 @@ abstract class Service
 	 */
 	protected function getOwner(): array
 	{
-		if (is_array($this->owner))
+		$ownerId = (int)$this->eventLink->getOwnerId();
+
+		return $this->getUser($ownerId);
+	}
+
+	protected function getInitiator(): array
+	{
+		if ($this->initiatorId === null)
 		{
-			return $this->owner;
+			return $this->getOwner();
 		}
 
-		$ownerId = $this->eventLink->getOwnerId();
-		$info = Sharing\Helper::getOwnerInfo($ownerId);
-		$ownerAttendee = current(array_filter($this->getAttendeesList(), static function($att) use ($ownerId) {
-			return $att['id'] === $ownerId;
-		}));
-
-		if (isset($ownerAttendee['status']) && !in_array($ownerAttendee['status'], ['Q', 'Y', 'N'], true))
-		{
-			$ownerAttendee['status'] = 'Q';
-		}
-
-		$this->owner = [
-			'ID' => $ownerId,
-			'NAME' => "{$info['name']} {$info['lastName']}",
-			'PHOTO' => $info['photo'],
-			'GENDER' => $info['gender'],
-			'STATUS' => $ownerAttendee['status'] ?? 'Q',
-		];
-
-		return $this->owner;
+		return $this->getUser($this->initiatorId);
 	}
 
 	/**
@@ -139,12 +135,45 @@ abstract class Service
 	 */
 	protected function getAttendeesList(): array
 	{
-		return \CCalendarEvent::getAttendeeList($this->event->getId())['attendeeList'][$this->event->getId()];
+		$attendeeListResult = \CCalendarEvent::getAttendeeList([$this->event->getId()]);
+
+		return $attendeeListResult['attendeeList'][$this->event->getId()];
+	}
+
+	private function getUser(int $id): array
+	{
+		if (in_array($id, $this->users, true))
+		{
+			return $this->users[$id];
+		}
+
+		$userInfo = Sharing\Helper::getUserInfo($id);
+
+		$eventAttendees = $this->getAttendeesList();
+		$userAttendeeInfo = current(array_filter($eventAttendees, static function(array $attendee) use ($id): bool {
+			$attendeeId = $attendee['id'] ?? null;
+
+			return $attendeeId === $id;
+		}));
+
+		if (isset($userAttendeeInfo['status']) && !in_array($userAttendeeInfo['status'], ['Q', 'Y', 'N'], true))
+		{
+			$userAttendeeInfo['status'] = 'Q';
+		}
+
+		$this->users[$id] = [
+			'ID' => $id,
+			'NAME' => "{$userInfo['name']} {$userInfo['lastName']}",
+			'PHOTO' => $userInfo['photo'],
+			'GENDER' => $userInfo['gender'],
+			'STATUS' => $userAttendeeInfo['status'] ?? 'Q',
+		];
+
+		return $this->users[$id];
 	}
 
 	/**
 	 * @param string $to
-	 * @param int $guestId
 	 * @return bool
 	 */
 	abstract public function notifyAboutMeetingStatus(string $to): bool;

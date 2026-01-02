@@ -1,7 +1,7 @@
 import { Type } from 'main.core';
 
 import { BaseMessage } from 'im.v2.component.message.base';
-import { DefaultMessageContent } from 'im.v2.component.message.elements';
+import { DefaultMessageContent, MessageKeyboard } from 'im.v2.component.message.elements';
 
 import './system.css';
 
@@ -13,6 +13,7 @@ export const SystemMessage = {
 	components: {
 		BaseMessage,
 		DefaultMessageContent,
+		MessageKeyboard,
 	},
 	props: {
 		item: {
@@ -38,6 +39,10 @@ export const SystemMessage = {
 		{
 			return Type.isNumber(this.message.id);
 		},
+		hasKeyboard(): boolean
+		{
+			return this.message.keyboard.length > 0;
+		},
 	},
 	template: `
 		<BaseMessage
@@ -50,6 +55,9 @@ export const SystemMessage = {
 			<div class="bx-im-message-system__container">
 				<DefaultMessageContent :item="item" :dialogId="dialogId" />
 			</div>
+			<template #after-message v-if="hasKeyboard">
+				<MessageKeyboard :item="item" :dialogId="dialogId" />
+			</template>
 		</BaseMessage>
 	`,
 };

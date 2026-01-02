@@ -1,10 +1,5 @@
 <?php
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2007 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+
 require_once(__DIR__."/../include/prolog_admin_before.php");
 
 /**

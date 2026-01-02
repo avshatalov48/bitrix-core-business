@@ -35,6 +35,7 @@
 	background-color: var(--im-messagee-list-author-group__background-color);
 	width: 100%;
 	height: 100%;
+	transition: background-color 0.2s ease;
 }
 
 .bx-im-message-list-select-button__checkbox-circle:hover::before {

@@ -1,13 +1,13 @@
-import { RestMethod } from 'im.v2.const';
+import { RestMethod, ErrorCode } from 'im.v2.const';
 import { runAction, type RunActionError } from 'im.v2.lib.rest';
 
-export const AccessErrorCode = {
-	accessDenied: 'ACCESS_DENIED',
-	chatNotFound: 'CHAT_NOT_FOUND',
-	messageNotFound: 'MESSAGE_NOT_FOUND',
-	messageAccessDenied: 'MESSAGE_ACCESS_DENIED',
-	messageAccessDeniedByTariff: 'MESSAGE_ACCESS_DENIED_BY_TARIFF',
-};
+const ACCESS_ERROR_CODES = new Set([
+	ErrorCode.chat.accessDenied,
+	ErrorCode.chat.notFound,
+	ErrorCode.message.notFound,
+	ErrorCode.message.accessDenied,
+	ErrorCode.message.accessDeniedByTariff,
+]);
 
 export type AccessCheckResult = { hasAccess: boolean, errorCode?: string };
 
@@ -31,15 +31,14 @@ export const AccessService = {
 
 const handleAccessError = (errors: RunActionError[]): AccessCheckResult => {
 	const [error] = errors;
-	const availableCodes = Object.values(AccessErrorCode);
-	if (!availableCodes.includes(error.code))
+	if (ACCESS_ERROR_CODES.has(error.code))
 	{
-		console.error('AccessService: error checking access', error.code);
-
-		// we need to handle all types of errors on this stage
-		// but for now we let user through in case of unknown error
-		return { hasAccess: true };
+		return { hasAccess: false, errorCode: error.code };
 	}
 
-	return { hasAccess: false, errorCode: error.code };
+	console.error('AccessService: error checking access', error.code);
+
+	// we need to handle all types of errors on this stage
+	// but for now we let user through in case of unknown error
+	return { hasAccess: true };
 };

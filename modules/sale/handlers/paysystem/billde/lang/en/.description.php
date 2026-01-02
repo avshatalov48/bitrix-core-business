@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SALE_HPS_BILL_DE_TITLE"] = "Invoice (German)";
 $MESS["SALE_HPS_BILL_DE_DATE"] = "Order date";
 $MESS["SALE_HPS_BILL_DE_DATE_DESC"] = "Date when the order was created";
@@ -86,4 +86,3 @@ $MESS["SALE_HPS_BILL_DE_TOTAL_SHOW"] = "Show summary";
 $MESS["SALE_HPS_BILL_DE_COLUMN_TITLE"] = "Column title ";
 $MESS["SALE_HPS_BILL_DE_COLUMN_SHOW"] = "Active";
 $MESS["SALE_HPS_BILL_DE_COLUMN_SORT"] = "Sort";
-?>

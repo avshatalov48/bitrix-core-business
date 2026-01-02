@@ -16,7 +16,7 @@
 .landing-widget-active-employees {
 	display: flex;
 	flex-direction: column;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	cursor: default;
 }
 
@@ -31,7 +31,7 @@
 	margin-bottom: 20px;
 	padding-bottom: 16px;
 	border-bottom: 1px solid var(--widget-color-border-line);
-	font: var(--ui-font-weight-medium) 28px var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) 28px var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--widget-color-h);
 }
 
@@ -149,7 +149,7 @@ a[href].landing-widget-active-employees-content-item-text-name:hover {
 .landing-widget-active-employees-content-item-img-default {
 	margin-bottom: 9px;
 	min-width: 60px;
-	height: 60px;
+	min-height: 60px;
 	border-radius: var(--ui-border-radius-circle);
 	background-size: cover;
 }
@@ -195,7 +195,7 @@ a[href].landing-widget-active-employees-content-item-text-name:hover {
 .landing-widget-active-employees-content-item:nth-child(6) .landing-widget-active-employees-content-item-img-default {
 	margin-bottom: 20px;
 	min-width: 52px;
-	height: 52px;
+	min-height: 52px;
 }
 
 .landing-widget-active-employees-content-item-circle-box {
@@ -318,6 +318,21 @@ a[href].landing-widget-active-employees-content-item-text-name:hover {
 	color: var(--widget-color-subtitle);
 }
 
+.landing-widget-view-main .landing-widget-active-employees-content-item-text-name {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-height: calc(2 * 1.5em);
+}
+
+.landing-widget-view-main .landing-widget-active-employees-content-item-text-work-position {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 .landing-widget-active-employees-content-item-text-work-position {
 	font-size: 17px;
 	line-height: 20px;
@@ -378,7 +393,13 @@ a[href].landing-widget-active-employees-content-item-text-name:hover {
 
 /* endregion */
 
-@container (max-width: 1306px) {
+@container (max-width: 1346px) {
+	.landing-widget-view-main .landing-widget-active-employees-content-item:nth-child(6) {
+		display: none;
+	}
+}
+
+@container (max-width: 1446px) {
 	.landing-widget-active-employees .landing-widget-view-main {
 		padding: 18px 42px 30px 42px;
 	}
@@ -393,10 +414,6 @@ a[href].landing-widget-active-employees-content-item-text-name:hover {
 
 	.landing-widget-view-main .landing-widget-active-employees-content-item:nth-child(4) {
 		margin-left: -8px;
-	}
-
-	.landing-widget-view-main .landing-widget-active-employees-content-item:nth-child(6) {
-		display: none;
 	}
 }
 
@@ -551,6 +568,7 @@ a[href].landing-widget-active-employees-content-item-text-name:hover {
 	left: 7px;
 	margin-bottom: 0;
 	min-width: 40px;
+	min-height: 40px;
 	height: 40px;
 	width: 40px;
 }

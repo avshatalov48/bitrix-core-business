@@ -14,7 +14,7 @@ use Bitrix\Main\Text\Encoding;
  *
  * Maximum length of BankName is increased up to 120, standard states it should not be more than 45.
  */
-final class FinancialTransactionsRu
+class FinancialTransactionsRu
 {
 	public const FORMAT_IDENTIFIER = 'ST';
 	public const FORMAT_VERSION = '0001';
@@ -237,6 +237,7 @@ final class FinancialTransactionsRu
 			self::FIELD_BANK_NAME => 120,
 			self::FIELD_BIC => 9,
 			self::FIELD_CORRESPONDENT_ACCOUNT => 20,
+			self::FIELD_PURPOSE => 210,
 		];
 
 		return $maximumFieldLengths[$fieldName] ?? null;

@@ -11,7 +11,6 @@ use Bitrix\Calendar\Util;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM\Query\Result;
-use Bitrix\Main\Security\Random;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Type\DateTime;
@@ -217,7 +216,7 @@ class Section extends Mapper implements BaseMapperInterface
 	 */
 	private function saveXmlId(int $id, string $type): string
 	{
-		$xmlId = md5($type. '_'. $id. '_'. Random::getString(8));
+		$xmlId = Core\Section\Section::generateXmlId($id, $type);
 
 		SectionTable::update($id, [
 			'XML_ID' => $xmlId

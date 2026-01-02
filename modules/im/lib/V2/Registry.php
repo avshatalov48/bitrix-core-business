@@ -20,7 +20,7 @@ class Registry extends \ArrayObject
 	 * @param Registry<T> $registry
 	 * @return static
 	 */
-	public function merge(Registry $registry): self
+	public function mergeRegistry(Registry $registry): self
 	{
 		foreach ($registry as $item)
 		{
@@ -66,5 +66,10 @@ class Registry extends \ArrayObject
 		}
 
 		return null;
+	}
+
+	public function isEmpty(): bool
+	{
+		return $this->count() === 0;
 	}
 }

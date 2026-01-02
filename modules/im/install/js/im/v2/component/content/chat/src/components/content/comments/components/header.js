@@ -1,7 +1,7 @@
 import { EventEmitter } from 'main.core.events';
 
 import { EventType, ActionByRole } from 'im.v2.const';
-import { AvatarSize, ChatAvatar } from 'im.v2.component.elements';
+import { AvatarSize, ChatAvatar } from 'im.v2.component.elements.avatar';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { ChatHeader } from 'im.v2.component.content.elements';
 

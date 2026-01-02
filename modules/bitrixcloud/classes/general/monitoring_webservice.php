@@ -17,7 +17,11 @@ class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
 	 */
 	protected function getActionURL($arParams = /*.(array[string]string).*/ [])
 	{
+		$license = \Bitrix\Main\Application::getInstance()->getLicense();
+
 		$arParams['license'] = md5(LICENSE_KEY);
+		$arParams['lang'] = LANGUAGE_ID;
+		$arParams['region'] = $license->getRegion();
 		$arParams['spd'] = CUpdateClient::getSpd();
 		$arParams['CHHB'] = $_SERVER['HTTP_HOST'];
 		$arParams['CSAB'] = $_SERVER['SERVER_ADDR'];
@@ -26,7 +30,7 @@ class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
 			$arParams[$key] = $value;
 		}
 
-		$url = COption::GetOptionString('bitrixcloud', 'monitoring_policy_url');
+		$url = COption::GetOptionString('bitrixcloud', 'monitoring_policy_url') ?: $license->getDomainStoreLicense() . '/monitoring.php';
 		$url = (new \Bitrix\Main\Web\Uri($url))->addParams($arParams)->getUri() . $this->addStr;
 
 		return $url;

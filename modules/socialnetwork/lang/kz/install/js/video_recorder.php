@@ -1,0 +1,20 @@
+<?php
+$MESS["BLOG_VIDEO_RECORD_AGREE"] = "Рұқсат ету";
+$MESS["BLOG_VIDEO_RECORD_ASK_PERMISSIONS"] = "Бейне хабарламаны жазу үшін камера мен микрофонға қолжетімділікке рұқсат беру керек.";
+$MESS["BLOG_VIDEO_RECORD_BUTTON"] = "Видеоны жазу";
+$MESS["BLOG_VIDEO_RECORD_CANCEL_BUTTON"] = "Болдырмау";
+$MESS["BLOG_VIDEO_RECORD_CLOSE"] = "Жабу";
+$MESS["BLOG_VIDEO_RECORD_DEFAULT_CAMERA_NAME"] = "Камера";
+$MESS["BLOG_VIDEO_RECORD_ERROR_CHROME_HTTPS"] = "Өкінішті, сіздің браузеріңізде http хаттамаға қолдау көрсетілмейді.<br /><br />Firefox сияқты басқа браузерді қолданып көріңіз";
+$MESS["BLOG_VIDEO_RECORD_IN_PROGRESS_LABEL"] = "Жазба жүріп жатыр";
+$MESS["BLOG_VIDEO_RECORD_LOGO"] = "<span class=\"logo\"><span class=\"logo-text\">Битрикс</span><span class=\"logo-color\">24</span></span>";
+$MESS["BLOG_VIDEO_RECORD_PERMISSIONS_ERROR"] = "Камера мен микрофон қолжетімсіз";
+$MESS["BLOG_VIDEO_RECORD_PERMISSIONS_ERROR_TITLE"] = "Қате";
+$MESS["BLOG_VIDEO_RECORD_PERMISSIONS_TITLE"] = "Құрылғыларға қол жеткізу";
+$MESS["BLOG_VIDEO_RECORD_REQUIREMENTS"] = "Өкінішті, сіздің браузеріңіз бейне жазбаларды жазуды қолдамайды. Соңғы нұсқадағы Chrome немесе Firefox сияқты басқа браузерді қолданып көріңіз.";
+$MESS["BLOG_VIDEO_RECORD_REQUIREMENTS_TITLE"] = "Назар аударыңыз";
+$MESS["BLOG_VIDEO_RECORD_RESTART_BUTTON"] = "Қайтадан жазу";
+$MESS["BLOG_VIDEO_RECORD_SPOTLIGHT_MESSAGE"] = "<b>Бейне хабарламаларды жазып, әріптестеріңізбен бөлісіңіз.</b>";
+$MESS["BLOG_VIDEO_RECORD_STOP_BUTTON"] = "Тоқта";
+$MESS["BLOG_VIDEO_RECORD_TRANFORM_LIMIT_TEXT"] = "Бейнені тікелей Битрикс24-те қосу үшін, <span class=\"bx-videomessage-transform-time-tip\">60 секунд</span> ішінде жазуды аяқтаңыз. Егер ол ұзаққа созылса, біз оны міндетті түрде сақтаймыз, бірақ файл барлық браузерлерде ойнатылмауы мүмкін.";
+$MESS["BLOG_VIDEO_RECORD_USE_BUTTON"] = "Бейнені пайдалану";

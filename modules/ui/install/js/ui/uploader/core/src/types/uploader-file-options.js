@@ -25,5 +25,6 @@ export type UploaderFileOptions = {
 	loadController?: AbstractLoadController,
 	removeController?: AbstractRemoveController,
 	customData?: { [key: string]: any },
+	viewerAttrs?: { [key: string]: string },
 	events?: { [eventName: $Values<FileEvent>]: (event: BaseEvent) => void },
 };

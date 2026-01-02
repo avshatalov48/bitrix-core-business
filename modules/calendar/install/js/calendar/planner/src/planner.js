@@ -1529,6 +1529,7 @@ export class Planner extends EventEmitter
 						<span
 							class="calendar-planner-entry-name${entry.isCollabUser ? ' calendar-collab-user' : ''}"
 							bx-tooltip-user-id="${entry.id}"
+							bx-tooltip-context="b24"
 							bx-tooltip-classname="calendar-planner-user-tooltip"
 						>
 							${Text.encode(entry.name)}
@@ -1664,11 +1665,30 @@ export class Planner extends EventEmitter
 			{
 				defaultAvatarClass += ' ui-icon-common-user-sharing';
 			}
-			imageNode = Tag.render`<div bx-tooltip-user-id="${entry.id}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${Text.encode(entry.name)}" class="ui-icon calendar-planner-user-image-icon ${defaultAvatarClass}"><i></i></div>`;
+			imageNode = Tag.render`
+				<div 
+					bx-tooltip-user-id="${entry.id}"
+					bx-tooltip-context="b24"
+					bx-tooltip-classname="calendar-planner-user-tooltip" 
+					title="${Text.encode(entry.name)}" class="ui-icon calendar-planner-user-image-icon ${defaultAvatarClass}"
+				>
+					<i></i>
+				</div>
+			`;
 		}
 		else
 		{
-			imageNode = Tag.render`<div bx-tooltip-user-id="${entry.id}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${Text.encode(entry.name)}" class="ui-icon calendar-planner-user-image-icon"><i style="background-image: url('${encodeURI(entry.avatar)}')"></i></div>`;
+			imageNode = Tag.render`
+				<div 
+					bx-tooltip-user-id="${entry.id}" 
+					bx-tooltip-context="b24"
+					bx-tooltip-classname="calendar-planner-user-tooltip" 
+					title="${Text.encode(entry.name)}" 
+					class="ui-icon calendar-planner-user-image-icon"
+				>
+					<i style="background-image: url('${encodeURI(entry.avatar)}')"></i>
+				</div>
+			`;
 		}
 
 		return imageNode;

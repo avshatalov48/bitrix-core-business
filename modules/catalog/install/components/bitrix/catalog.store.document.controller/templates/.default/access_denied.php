@@ -33,7 +33,7 @@ if ($component->isIframeMode())
 			'POPUP_COMPONENT_PARAMS' => $componentParams,
 			'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
 			'USE_PADDING' => false,
-			'USE_UI_TOOLBAR' => 'N',
+			'USE_UI_TOOLBAR' => 'Y',
 		]
 	);
 }

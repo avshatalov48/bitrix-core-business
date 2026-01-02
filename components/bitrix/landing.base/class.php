@@ -30,6 +30,9 @@ class LandingBaseComponent extends \CBitrixComponent
 	const B24_SERVICE_DETECT_IP = 'https://ip.bitrix24.site/getipforzone/?bx24_zone=';
 	const B24_DEFAULT_DNS_IP = '52.59.124.117';
 
+	protected const MODULE_ID = 'landing';
+	private const FEEDBACK_KEY_PREFIX = 'landing-feedback-';
+
 	/**
 	 * Http status OK.
 	 */
@@ -190,17 +193,38 @@ class LandingBaseComponent extends \CBitrixComponent
 	 * Returns feedback parameters.
 	 * @param string $id Feedback code.
 	 * @param array $presets Additional params.
+	 *
 	 * @return array|null
 	 */
 	public function getFeedbackParameters(string $id, array $presets = []): ?array
 	{
-		$id = 'landing-feedback-' . $id;
-		$tariffTtl = \Bitrix\Main\Config\Option::get('main', '~controller_group_till');
-		$tariffDate = $tariffTtl ? (string)\Bitrix\Main\Type\Date::createFromTimestamp((int)$tariffTtl) : null;
-		$partnerId = \Bitrix\Main\Config\Option::get('bitrix24', 'partner_id', 0);
-		$b24 = Loader::includeModule('bitrix24');
+		$key = self::FEEDBACK_KEY_PREFIX . $id;
 
-		$data = [
+		$data = $this->getPresetFeedbackData();
+		$feedbackParameters = $data[$key] ?? null;
+
+		if (!$feedbackParameters)
+		{
+			$data = $this->getPartnerFeedbackData();
+			$feedbackParameters = $data[$key] ?? null;
+		}
+
+		if ($presets && $feedbackParameters)
+		{
+			$feedbackParameters['PRESETS'] += $presets;
+		}
+
+		return $feedbackParameters;
+	}
+
+	/**
+	 * Returns preset feedback data array.
+	 *
+	 * @return array
+	 */
+	private function getPresetFeedbackData(): array
+	{
+		return [
 			'landing-feedback-designblock' => [
 				'ID' => 'landing-feedback-designblock',
 				'VIEW_TARGET' => null,
@@ -209,7 +233,7 @@ class LandingBaseComponent extends \CBitrixComponent
 					['zones' => ['es', 'la'], 'id' => '315','lang' => 'la', 'sec' => 'd3jam4'],
 					['zones' => ['de'], 'id' => '319','lang' => 'de', 'sec' => 'pr1z8q'],
 					['zones' => ['ua'], 'id' => '321','lang' => 'ua', 'sec' => 'm6etjp'],
-					['zones' => ['ru', 'by', 'kz'], 'id' => '311','lang' => 'ru', 'sec' => 'b8sbcz'],
+					['zones' => ['ru', 'by', 'kz', 'uz'], 'id' => '311','lang' => 'ru', 'sec' => 'b8sbcz'],
 					['zones' => ['en'], 'id' => '313','lang' => 'en', 'sec' => '9hdvqb']
 				],
 				'PRESETS' => [
@@ -224,132 +248,39 @@ class LandingBaseComponent extends \CBitrixComponent
 					['zones' => ['es', 'la'], 'id' => '277','lang' => 'la', 'sec' => 'eytrfo'],
 					['zones' => ['de'], 'id' => '281','lang' => 'de', 'sec' => '167ch0'],
 					['zones' => ['ua'], 'id' => '283','lang' => 'ua', 'sec' => 'ggoa61'],
-					['zones' => ['ru', 'by', 'kz'], 'id' => '273','lang' => 'ru', 'sec' => 'z71z93'],
+					['zones' => ['ru', 'by', 'kz', 'uz'], 'id' => '273','lang' => 'ru', 'sec' => 'z71z93'],
 					['zones' => ['en'], 'id' => '275','lang' => 'en', 'sec' => '5cs6v2']
 				],
 				'PRESETS' => [
 					'from_domain' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME']
 				]
 			],
-			'landing-feedback-developer' => [
-				'ID' => 'landing-feedback-developer',
-				'VIEW_TARGET' => null,
-				'FORMS' => [
-					['zones' => ['en'], 'id' => '946','lang' => 'en', 'sec' => 'b3isk2'],
-					['zones' => ['de'], 'id' => '951','lang' => 'de', 'sec' => '34dwna'],
-					['zones' => ['es', 'la'], 'id' => '952','lang' => 'la', 'sec' => 'pkalm2'],
-					['zones' => ['br'], 'id' => '953','lang' => 'br', 'sec' => 'p9ty5r'],
-					['zones' => ['fr'], 'id' => '954','lang' => 'fr', 'sec' => 'udxiup'],
-					['zones' => ['pl'], 'id' => '955','lang' => 'pl', 'sec' => 'isnnbz'],
-					['zones' => ['it'], 'id' => '956','lang' => 'it', 'sec' => 'wnelcr'],
-					['zones' => ['tr'], 'id' => '957','lang' => 'tr', 'sec' => '6utlw2'],
-					['zones' => ['sc'], 'id' => '958','lang' => 'sc', 'sec' => '3bbec2'],
-					['zones' => ['tc'], 'id' => '959','lang' => 'tc', 'sec' => '4fo52q'],
-					['zones' => ['id'], 'id' => '960','lang' => 'id', 'sec' => 'jy3w82'],
-					['zones' => ['ms'], 'id' => '961','lang' => 'ms', 'sec' => 'pbmmy8'],
-					['zones' => ['th'], 'id' => '962','lang' => 'th', 'sec' => 'e587lw'],
-					['zones' => ['ja'], 'id' => '963','lang' => 'ja', 'sec' => 'hh20c2'],
-					['zones' => ['vn'], 'id' => '964','lang' => 'vn', 'sec' => '01bk91'],
-					['zones' => ['hi'], 'id' => '965','lang' => 'hi', 'sec' => 'io8koq'],
-					['zones' => ['ua'], 'id' => '969','lang' => 'ua', 'sec' => 'e5se9x'],
-					['zones' => ['ru'], 'id' => '891','lang' => 'ru', 'sec' => 'h208n3'],
-					['zones' => ['kz'], 'id' => '968','lang' => 'ru', 'sec' => '1312ws'],
-					['zones' => ['by'], 'id' => '971','lang' => 'ru', 'sec' => '023nxk']
-				],
-				'PRESETS' => [
-					'url' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME'],
-					'tarif' => $b24 ? \CBitrix24::getLicenseType() : '',
-					'city' => $b24 ? implode(' / ', $this->getUserGeoData()) : '',
-					'partner_id' => $partnerId,
-					'date_to' => $tariffDate ?: null
-				],
-				'PORTAL_URI' => 'https://bitrix24.team'
-			],
-			'landing-feedback-knowledge' => [
-				'ID' => 'landing-feedback-knowledge',
-				'VIEW_TARGET' => null,
-				'FORMS' => [
-					['zones' => ['en'], 'id' => '1399','lang' => 'en', 'sec' => 'fkonbt'],
-					['zones' => ['de'], 'id' => '1398','lang' => 'de', 'sec' => 'zvchw9'],
-					['zones' => ['es', 'la'], 'id' => '1396','lang' => 'la', 'sec' => 'vb62o3'],
-					['zones' => ['fr'], 'id' => '1401','lang' => 'fr', 'sec' => 'ungyc0'],
-					['zones' => ['pl'], 'id' => '1392','lang' => 'pl', 'sec' => 'ib6p6u'],
-					['zones' => ['pt'], 'id' => '1394','lang' => 'pt', 'sec' => 'sfzq02'],
-					['zones' => ['ua'], 'id' => '1373','lang' => 'ua', 'sec' => 'p4xpwb'],
-					['zones' => ['ru'], 'id' => '1368','lang' => 'ru', 'sec' => '0rb92n'],
-					['zones' => ['kz'], 'id' => '1372','lang' => 'ru', 'sec' => 'o32l7z'],
-					['zones' => ['by'], 'id' => '1378','lang' => 'ru', 'sec' => 'naegic']
-				],
-				'PRESETS' => [
-					'url' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME'],
-					'tarif' => $b24 ? \CBitrix24::getLicenseType() : '',
-					'city' => $b24 ? implode(' / ', $this->getUserGeoData()) : '',
-					'partner_id' => $partnerId,
-					'date_to' => $tariffDate ?: null
-				],
-				'PORTAL_URI' => 'https://bitrix24.team'
-			],
-			'landing-feedback-store' => [
-				'ID' => 'landing-feedback-store',
-				'VIEW_TARGET' => null,
-				'FORMS' => [
-					['zones' => ['en'], 'id' => '1930','lang' => 'en', 'sec' => 'lg4wsd'],
-					['zones' => ['de'], 'id' => '1965','lang' => 'de', 'sec' => 'i95dp6'],
-					['zones' => ['es', 'la'], 'id' => '1966','lang' => 'la', 'sec' => 'zlemun'],
-					['zones' => ['fr'], 'id' => '1968','lang' => 'fr', 'sec' => '8rao53'],
-					['zones' => ['pl'], 'id' => '1967','lang' => 'pl', 'sec' => 'hg6mms'],
-					['zones' => ['pt'], 'id' => '1964','lang' => 'pt', 'sec' => 'n4evxs'],
-					['zones' => ['ru'], 'id' => '1291','lang' => 'ru', 'sec' => 'a9byq4'],
-					['zones' => ['kz'], 'id' => '1298','lang' => 'ru', 'sec' => '6xe72g'],
-					['zones' => ['by'], 'id' => '1297','lang' => 'ru', 'sec' => 'b9rrf5'],
-					['zones' => ['it'], 'id' => '1969','lang' => 'it', 'sec' => 'o13tam'],
-					['zones' => ['vn'], 'id' => '1970','lang' => 'vn', 'sec' => '7w04lu'],
-					['zones' => ['tr'], 'id' => '1971','lang' => 'tr', 'sec' => 'm0i3bs'],
-				],
-				'PRESETS' => [
-					'url' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME'],
-					'tarif' => $b24 ? \CBitrix24::getLicenseType() : '',
-					'city' => $b24 ? implode(' / ', $this->getUserGeoData()) : '',
-					'partner_id' => $partnerId,
-					'date_to' => $tariffDate ?: null
-				],
-				'PORTAL_URI' => 'https://bitrix24.team'
-			],
-			'landing-feedback-mainpage' => [
-				'ID' => 'landing-feedback-mainpage',
-				'VIEW_TARGET' => null,
-				'FORMS' => [
-					['zones' => ['ru'], 'id' => 2767, 'lang' => 'ru', 'sec' => '8ybuip'],
-					['zones' => ['kz'], 'id' => 2768, 'lang' => 'ru', 'sec' => 'ga494z'],
-					['zones' => ['by'], 'id' => 2769, 'lang' => 'ru', 'sec' => 'gs4uy1'],
-					['zones' => ['en'], 'id' => 2770, 'lang' => 'en', 'sec' => 'af0ljd'],
-					['zones' => ['de'], 'id' => 2771, 'lang' => 'de', 'sec' => '0wz58m'],
-					['zones' => ['la', 'co', 'mx'], 'id' => 2772, 'lang' => 'es', 'sec' => 'g50y3x'],
-					['zones' => ['pl'], 'id' => 2773, 'lang' => 'pl', 'sec' => 'q0vn83'],
-					['zones' => ['br'], 'id' => 2774, 'lang' => 'br', 'sec' => 'bglwot'],
-					['zones' => ['it'], 'id' => 2775, 'lang' => 'it', 'sec' => 'ct7o1m'],
-					['zones' => ['fr'], 'id' => 2776, 'lang' => 'fr', 'sec' => 'fxqhd2'],
-					['zones' => ['tr'], 'id' => 2777, 'lang' => 'tr', 'sec' => '7mn6x4'],
-					['zones' => ['vn'], 'id' => 2778, 'lang' => 'vn', 'sec' => '5grn3a'],
-				],
-				'PRESETS' => [
-					'url' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME'],
-					'tarif' => $b24 ? \CBitrix24::getLicenseType() : '',
-					'city' => $b24 ? implode(' / ', $this->getUserGeoData()) : '',
-					'partner_id' => $partnerId,
-					'date_to' => $tariffDate ?: null,
-				],
-				'PORTAL_URI' => 'https://bitrix24.team'
-			]
 		];
+	}
 
-		$data = array_key_exists($id, $data) ? $data[$id] : null;
-		if ($presets)
+	/**
+	 * Returns general feedback data array.
+	 *
+	 * @return array
+	 */
+	private function getPartnerFeedbackData(): array
+	{
+		if (!Loader::includeModule('ui'))
 		{
-			$data['PRESETS'] += $presets;
+			return [];
 		}
 
-		return $data;
+		return [
+			'landing-feedback-partner' => [
+				'ID' => 'landing-feedback-partner',
+				'VIEW_TARGET' => null,
+				'FORMS' => (new Bitrix\UI\Form\FormProvider)->getPartnerFormList(),
+				'PRESETS' => [
+					'source' => self::MODULE_ID,
+				],
+				'PORTAL_URI' => (new Bitrix\UI\Form\UrlProvider)->getPartnerPortalUrl(),
+			],
+		];
 	}
 
 	/**

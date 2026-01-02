@@ -1,7 +1,11 @@
 <?php
+$MESS["MAIN_USER_CONSENT_SELECTOR_BTN_ADD"] = "Қосымша келісім қосу";
 $MESS["MAIN_USER_CONSENT_SELECTOR_BTN_CONSENT"] = "Алынған келісімдер тізімі";
 $MESS["MAIN_USER_CONSENT_SELECTOR_BTN_CREATE"] = "Келісім жасау";
 $MESS["MAIN_USER_CONSENT_SELECTOR_BTN_CREATE_1"] = "Келісім жасау";
+$MESS["MAIN_USER_CONSENT_SELECTOR_BTN_DELETE"] = "Жою";
 $MESS["MAIN_USER_CONSENT_SELECTOR_BTN_EDIT"] = "Баптау";
 $MESS["MAIN_USER_CONSENT_SELECTOR_CHOOSE"] = "Келісімді таңдаңыз";
+$MESS["MAIN_USER_CONSENT_SELECTOR_DEFAULT"] = "Нысандағы келісімге әдепкі құсбелгіні қосу";
 $MESS["MAIN_USER_CONSENT_SELECTOR_DEF_NOT_SELECTED"] = "(таңдалмаған)";
+$MESS["MAIN_USER_CONSENT_SELECTOR_REQUIRED"] = "Міндетті келісім";

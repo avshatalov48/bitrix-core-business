@@ -303,37 +303,6 @@ td.bx-popup-menu div.bx-popup-item div.icon {width:22px; height:20px; background
 /*menu icons*/
 td.bx-popup-menu div.bx-popup-item .checked {background-image:url(../images/menu/checkbox.gif);}
 
-/*
-td.bx-popup-menu div.bx-popup-item .favorites {background-image:url(start_menu/main/favorite.gif);}
-td.bx-popup-menu div.bx-popup-item-over .favorites {background-image:url(start_menu/main/favorite_over.gif);}
-td.bx-popup-menu div.bx-popup-item .loading {background-image:url(start_menu/main/loading.gif);}
-td.bx-popup-menu div.bx-popup-item-over .loading {background-image:url(start_menu/main/loading_over.gif);}
-
-td.bx-popup-menu div.bx-popup-item .button_content {background-image:url(start_menu/main/content.gif);}
-td.bx-popup-menu div.bx-popup-item-over .button_content {background-image:url(start_menu/main/content_over.gif);}
-td.bx-popup-menu div.bx-popup-item .button_services {background-image:url(start_menu/main/services.gif);}
-td.bx-popup-menu div.bx-popup-item-over .button_services {background-image:url(start_menu/main/services_over.gif);}
-td.bx-popup-menu div.bx-popup-item .button_store {background-image:url(start_menu/main/store.gif);}
-td.bx-popup-menu div.bx-popup-item-over .button_store {background-image:url(start_menu/main/store_over.gif);}
-td.bx-popup-menu div.bx-popup-item .button_statistics {background-image:url(start_menu/main/statistics.gif);}
-td.bx-popup-menu div.bx-popup-item-over .button_statistics {background-image:url(start_menu/main/statistics_over.gif);}
-td.bx-popup-menu div.bx-popup-item .button_settings {background-image:url(start_menu/main/settings.gif);}
-td.bx-popup-menu div.bx-popup-item-over .button_settings {background-image:url(start_menu/main/settings_over.gif);}
-
-td.bx-popup-menu div.bx-popup-item .user_menu_icon {background-image:url(start_menu/main/user.gif);}
-td.bx-popup-menu div.bx-popup-item-over .user_menu_icon {background-image:url(start_menu/main/user_over.gif);}
-td.bx-popup-menu div.bx-popup-item .sys_menu_icon {background-image:url(start_menu/main/sys.gif);}
-td.bx-popup-menu div.bx-popup-item-over .sys_menu_icon {background-image:url(start_menu/main/sys_over.gif);}
-td.bx-popup-menu div.bx-popup-item .util_menu_icon {background-image:url(start_menu/main/tools.gif);}
-td.bx-popup-menu div.bx-popup-item-over .util_menu_icon {background-image:url(start_menu/main/tools_over.gif);}
-td.bx-popup-menu div.bx-popup-item .update_menu_icon {background-image:url(start_menu/main/update.gif);}
-td.bx-popup-menu div.bx-popup-item .update_menu_icon_partner {background-image:url(start_menu/main/update_partner.gif);}
-td.bx-popup-menu div.bx-popup-item-over .update_menu_icon {background-image:url(start_menu/main/update_over.gif);}
-td.bx-popup-menu div.bx-popup-item-over .update_menu_icon_partner {background-image:url(start_menu/main/update_over_partner.gif);}
-td.bx-popup-menu div.bx-popup-item .fav_menu_icon {background-image:url(start_menu/main/favorite.gif);}
-td.bx-popup-menu div.bx-popup-item-over .fav_menu_icon {background-image:url(start_menu/main/favorite_over.gif);}
-*/
-
 /*component menu icons */
 td.bx-popup-menu div.bx-popup-item .parameters {background-image:url(/bitrix/themes/.default/public/components/buttons/parameters.gif);}
 td.bx-popup-menu div.bx-popup-item .edit {background-image:url(/bitrix/themes/.default/public/components/buttons/edit.gif);}

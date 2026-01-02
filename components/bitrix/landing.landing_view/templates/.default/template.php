@@ -9,12 +9,14 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arResult */
 /** @var array $arParams */
 
-use Bitrix\Bitrix24\Feature;
 use Bitrix\Landing\Assets;
 use Bitrix\Landing\Config;
+use Bitrix\Landing\Copilot;
 use Bitrix\Landing\Manager;
 use Bitrix\Landing\Site;
-use Bitrix\Main\Loader;
+use Bitrix\Landing\Mainpage;
+use Bitrix\Landing\Metrika;
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\UI\Extension;
@@ -23,17 +25,17 @@ Loc::loadMessages(__FILE__);
 Loc::loadMessages(Manager::getDocRoot() . '/bitrix/modules/landing/lib/mutator.php');
 
 $isKnowledge = $arParams['TYPE'] === 'KNOWLEDGE' || $arParams['TYPE'] === 'GROUP';
-$isFormEditor = $arResult['SPECIAL_TYPE'] == Site\Type::PSEUDO_SCOPE_CODE_FORMS;
+$isFormEditor = $arResult['SPECIAL_TYPE'] === Site\Type::PSEUDO_SCOPE_CODE_FORMS;
 $isMainpageEditor = $arParams['TYPE'] === Site\Type::SCOPE_CODE_MAINPAGE;
-$isMainpageFeatureAvailable = false;
-if (Loader::includeModule('bitrix24'))
-{
-	$isMainpageFeatureAvailable = Feature::isFeatureEnabled('main_page');
-}
+$isMainpageFeatureAvailable = Mainpage\Manager::isFeatureEnable();
+$context = Application::getInstance()->getContext();
+$request = $context->getRequest();
+$generationId = $request->get('site_generated') ? (int)$request->get('site_generated') : null;
+$isNewLanding = $request->get('newLanding') === 'Y';
 
 if (
 	$isMainpageEditor
-	&& !\Bitrix\Landing\Mainpage\Manager::isAvailable()
+	&& !Mainpage\Manager::isAvailable()
 )
 {
 	?>
@@ -65,10 +67,12 @@ Extension::load([
 	'applayout',
 	'landing_master',
 	'helper',
-	'landing.metrika',
 	'main.qrcode',
 	'ui.hint',
 	'bitrix24.phoneverify',
+	'main.core',
+	'landing.ui.copilot.skeleton',
+	'intranet.sidepanel.bindings',
 ]);
 
 if (
@@ -106,6 +110,71 @@ if (!$isKnowledge)
         'enable-external-controls'
     );
 }
+
+// region analytic
+if ($request->get('landing_mode') === 'edit')
+{
+	$category = $isFormEditor
+		? Metrika\Categories::CrmForms
+		:  Metrika\Categories::getBySiteType($arParams['TYPE'])
+	;
+	$metrika = new Metrika\Metrika($category, Metrika\Events::openEditor);
+	if ($generationId)
+	{
+		$metrika
+			->setType(Metrika\Types::ai)
+			->setSubSection('from_ai_generator')
+		;
+	}
+	elseif ($isNewLanding)
+	{
+		$metrika
+			->setType(Metrika\Types::template)
+			->setSubSection('from_template_previewer')
+		;
+	}
+	elseif ($isMainpageEditor)
+	{
+		// todo: do nothing
+	}
+	else
+	{
+		$metrika
+			->setType(Metrika\Types::template)
+			->setSubSection('from_page_list')
+		;
+	}
+
+	$metrika->setParam(3, 'siteId', $arResult['LANDING']->getSiteId());
+
+	if ($arResult['FATAL'])
+	{
+		$metrika->setError('fatal');
+	}
+	elseif ($arResult['ERRORS'])
+	{
+		if (isset($arResult['ERRORS']['LICENSE_EXPIRED']))
+		{
+			$metrika->setError('license_expired', Metrika\Statuses::ErrorB24);
+		}
+		elseif (isset($arResult['ERRORS']['LICENSE_NOT_FOUND']))
+		{
+			$metrika->setError('license_not_found', Metrika\Statuses::ErrorB24);
+		}
+		else
+		{
+			$errorFull = '';
+			foreach ($arResult['ERRORS'] as $code => $message)
+			{
+				$errorFull .= $code . ':' . $message . "-";
+			}
+			$metrika->setError($errorFull);
+		}
+	}
+
+	$metrika->send();
+}
+// endregion
 
 // errors output
 if ($arResult['ERRORS'])
@@ -215,8 +284,6 @@ if ($arResult['FATAL'])
 $site = $arResult['SITE'];
 $siteId = $arResult['LANDING']->getSiteId();
 $folderId = $arResult['LANDING']->getFolderId();
-$context = \Bitrix\Main\Application::getInstance()->getContext();
-$request = $context->getRequest();
 $successSave = $arResult['SUCCESS_SAVE'];
 $curUrl = $arResult['CUR_URI'];
 $urls = $arResult['TOP_PANEL_CONFIG']['urls'];
@@ -276,7 +343,7 @@ if (!$request->offsetExists('landing_mode')):
 	$formCode = '';
 	if (!isset($arResult['LICENSE']) || $arResult['LICENSE'] != 'nfr')
 	{
-		$formCode = $isKnowledge ? 'knowledge' : 'developer';
+		$formCode = 'partner';
 		?>
 		<div style="display: none">
 			<?$APPLICATION->includeComponent(
@@ -318,40 +385,47 @@ if (!$request->offsetExists('landing_mode')):
 				{
 					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_LOGO").'</span>'
 						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>'
-						.'<span class="landing-ui-panel-top-logo-text">.'.Loc::getMessage('LANDING_TPL_START_PAGE_FORM_LOGO_SMN').'</span>';
+						.'<span class="landing-ui-panel-top-logo-icon fa fa-clock-three"></span>'
+						.'<span class="landing-ui-panel-top-logo-text left-spaced">'.Loc::getMessage('LANDING_TPL_START_PAGE_FORM_LOGO_SMN').'</span>';
 				}
 				else if (Manager::isB24() && $isMainpageEditor)
 				{
 					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_LOGO").'</span>'
 						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>'
-						.'<span class="landing-ui-panel-top-logo-text-mainpage">'.Loc::getMessage('LANDING_TPL_START_PAGE_MAINPAGE').'</span>';
+						.'<span class="landing-ui-panel-top-logo-icon fa fa-clock-three"></span>'
+						.'<span class="landing-ui-panel-top-logo-text left-spaced">'.Loc::getMessage('LANDING_TPL_START_PAGE_MAINPAGE').'</span>';
 				}
 				else if (!Manager::isB24() && $isFormEditor)
 				{
 					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_FORM_LOGO_SMN").'</span>'
-						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>';
+						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>'
+						.'<span class="landing-ui-panel-top-logo-icon fa fa-clock-three"></span>';
 				}
 				else if(Manager::isB24() && $arParams['PANEL_LIGHT_MODE'] == 'Y')
 				{
 					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_LOGO").'</span>'
 						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>'
-						.'<span class="landing-ui-panel-top-logo-text">.'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_KB').'</span>';
+						.'<span class="landing-ui-panel-top-logo-icon fa fa-clock-three"></span>'
+						.'<span class="landing-ui-panel-top-logo-text left-spaced">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_KB').'</span>';
 				}
 				else if (Manager::isB24())
 				{
 					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_LOGO").'</span>'
-					.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>'
-					.'<span class="landing-ui-panel-top-logo-text">.'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_SMN').'</span>';
+						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>'
+						.'<span class="landing-ui-panel-top-logo-icon fa fa-clock-three"></span>'
+						.'<span class="landing-ui-panel-top-logo-text left-spaced">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_SMN').'</span>';
 				}
 				else if (!Manager::isB24() && $arParams['PANEL_LIGHT_MODE'] == 'Y')
 				{
 					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_LOGO_KB").'</span>'
-						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>';
+						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>'
+						.'<span class="landing-ui-panel-top-logo-icon fa fa-clock-three"></span>';
 				}
 				else if (!Manager::isB24())
 				{
 					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_LOGO_SMN").'</span>'
-						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>';
+						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>'
+						.'<span class="landing-ui-panel-top-logo-icon fa fa-clock-three"></span>';
 				}
 				?>
 			</a>
@@ -492,34 +566,34 @@ if (!$request->offsetExists('landing_mode')):
 
 		<?php if ($isMainpageEditor && isset($arResult['MAINPAGE_IS_PUBLIC'])): ?>
 			<?php if ($isMainpageFeatureAvailable): ?>
-			<div class="landing-ui-panel-top-mainpage-public">
-				<?php $hide = ' style="display: none;"'; ?>
+				<div class="landing-ui-panel-top-mainpage-public">
+					<?php $hide = ' style="display: none;"'; ?>
 
-				<div
-					id="landing-mainpage-unpublication"
-					class="ui-btn ui-btn-light-border"
-					<?= $arResult['MAINPAGE_IS_PUBLIC'] ? '' : $hide ?>
-				>
-					<?= Loc::getMessage('LANDING_MAINPAGE_UNPUBLIC') ?>
-				</div>
-				<div
-					id="landing-mainpage-publication"
-					class="ui-btn ui-btn-primary"
-					<?= $arResult['MAINPAGE_IS_PUBLIC'] ? $hide : '' ?>
-				>
-					<?= Loc::getMessage('LANDING_MAINPAGE_PUBLIC') ?>
-				</div>
+					<div
+						id="landing-mainpage-unpublication"
+						class="ui-btn ui-btn-light-border"
+						<?= $arResult['MAINPAGE_IS_PUBLIC'] ? '' : $hide ?>
+					>
+						<?= Loc::getMessage('LANDING_MAINPAGE_UNPUBLIC') ?>
+					</div>
+					<div
+						id="landing-mainpage-publication"
+						class="ui-btn ui-btn-primary"
+						<?= $arResult['MAINPAGE_IS_PUBLIC'] ? $hide : '' ?>
+					>
+						<?= Loc::getMessage('LANDING_MAINPAGE_PUBLIC') ?>
+					</div>
 
-				<script>
-					BX.ready(() => {
-						new BX.Landing.Component.View.MainpagePublication({
-							buttonPublic: BX('landing-mainpage-publication'),
-							buttonUnpublic: BX('landing-mainpage-unpublication'),
-							isPublic: <?= $arParams['MAINPAGE_IS_PUBLIC'] ? 'true' : 'false' ?>,
+					<script>
+						BX.ready(() => {
+							new BX.Landing.Component.View.MainpagePublication({
+								buttonPublic: BX('landing-mainpage-publication'),
+								buttonUnpublic: BX('landing-mainpage-unpublication'),
+								isPublic: <?= $arParams['MAINPAGE_IS_PUBLIC'] ? 'true' : 'false' ?>,
+							});
 						});
-					});
-				</script>
-			</div>
+					</script>
+				</div>
 			<?php else: ?>
 				<div class="landing-ui-panel-top-mainpage-public" onclick="BX.UI.InfoHelper.show('limit_office_vibe');">
 					<div
@@ -598,6 +672,7 @@ else
 			LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_DESCRIPTION: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_DESCRIPTION'));?>',
 			LANDING_PUBLICATION_SHOP_ERROR_1C_BUTTON: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_SHOP_ERROR_1C_BUTTON'));?>',
 			LANDING_PUBLICATION_SHOP_ERROR_1C_BUTTON_LINK: '<?= isset($arResult['PUBLICATION_ERROR_LINK']) ? \CUtil::jsEscape($arResult['PUBLICATION_ERROR_LINK']) : '';?>',
+			PAGE_URL_LANDING_SETTINGS: '<?= \CUtil::jsEscape($arParams['PAGE_URL_LANDING_SETTINGS']);?>',
 		});
 	});
 </script>
@@ -606,6 +681,15 @@ else
 <?= $component->getFontProxyUrlScript() ?>
 
 <?php
+// check accepted
+if (
+	$arParams['AGREEMENT_ACCEPTED'] === false
+	&& in_array($arParams['TYPE'], ['PAGE', 'STORE'])
+)
+{
+	return;
+}
+
 // editor frame
 if ($request->offsetExists('landing_mode'))
 {
@@ -664,6 +748,61 @@ if ($request->offsetExists('landing_mode'))
 		</script>
 	<?php endif;?>
 
+	<?php if (isset($generationId)):?>
+	<?php
+		$blocksData = '';
+		$generation = new Copilot\Generation();
+		if ($generation->initById($generationId))
+		{
+			$blocksData = $generation->getBlocksData($arResult['LANDING']->getBlocks());
+			$blocksData = \CUtil::jsEscape($blocksData);
+
+			Extension::load(['landing.animation.copilot']);
+			Extension::load(['landing.copilot.generation-observer']);
+
+			?>
+			<script>
+				BX.ready(() => {
+					const iframe = BX.Landing.PageObject.getEditorWindow();
+					BX.bindOnce(iframe, 'load', () => {
+						const blocksData = JSON.parse('<?= $blocksData ?>');
+						const animationCopilot = new BX.Landing.Animation.Copilot();
+						const generationId = <?= $generationId ?>;
+						animationCopilot
+							.setBlocksData(blocksData)
+							.setGenerationId(generationId)
+							.init()
+						;
+
+						const observer = new BX.Landing.Copilot.GenerationObserver(generationId);
+						observer.observe();
+
+						setTimeout(() => {
+							animationCopilot.animateSite();
+						}, 2000);
+					});
+				});
+			</script>
+			<?php
+		}
+		else
+		{
+			unset($generationId);
+		}
+	?>
+	<?php endif?>
+
+	<?php if (isset($generationId) || $isNewLanding): ?>
+		<script>
+			BX.ready(() => {
+				const currentUrlString = window.parent.location.href;
+				const currentUrl = new URL(currentUrlString);
+				currentUrl.search = '';
+				window.parent.history.replaceState({}, '', currentUrl.toString());
+			});
+		</script>
+	<?php endif; ?>
+
 	<?php if ($request->get('IS_AJAX') != 'Y'):?>
 	<script>
 		top.BX.addCustomEvent(
@@ -673,7 +812,7 @@ if ($request->offsetExists('landing_mode'))
 				if (!!event.data.elementList && event.data.elementList.length > 0)
 				{
 					let gotoSiteButton = null;
-					for (var i = 0; i < event.data.elementList.length; i++)
+					for (let i = 0; i < event.data.elementList.length; i++)
 					{
 						gotoSiteButton = event.data.elementList[i];
 						if (
@@ -683,7 +822,7 @@ if ($request->offsetExists('landing_mode'))
 						{
 							continue;
 						}
-						
+
 						const replaces = [];
 						let landingPath = '<?= CUtil::jsEscape($arParams['PARAMS']['sef_url']['landing_view']) ?>';
 
@@ -706,9 +845,10 @@ if ($request->offsetExists('landing_mode'))
 								landingPath = landingPath.replace(replace[0], replace[1]);
 							});
 
+							landingPath += '?newLanding=Y';
 							if (replaceLid)
 							{
-								landingPath += '?replacedLanding=Y';
+								landingPath += '&replacedLanding=Y';
 							}
 							gotoSiteButton.setAttribute('href', landingPath);
 							setTimeout(() => {top.window.location.href = landingPath}, 10000);
@@ -757,6 +897,7 @@ if ($request->offsetExists('landing_mode'))
 else
 {
 	Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.landing_view/templates/.default/es6/script.js');
+	Extension::load(['ai.copilot-chat.core']);
 
 	// exec theme-hooks for design panel
 	$hooksLanding = \Bitrix\Landing\Hook::getForLanding($arResult['LANDING']->getId());
@@ -818,7 +959,71 @@ else
 				true
 			);
 			<?php if (!$isKnowledge && !$isMainpageEditor):?>
+				<?php
+					$siteGenerationId = null;
+					$generation = new Copilot\Generation();
+					if ($generation->initBySiteId($siteId, (new Copilot\Generation\Scenario\CreateSite())))
+					{
+						$siteGenerationId = $generation->getId();
+					}
+				?>
+				const slidePanel = new BX.Landing.View.SlidePanel({
+					siteGenerationId: <?= $siteGenerationId ?? 'null'?>,
+					copilotChatOptions: {
+						entityId: '<?= Copilot\Connector\Chat\Chat::createChatEntityId() ?>',
+						chatId: <?= $arResult['AI_CHAT_ID'] ?? 'null' ?>,
+						isSiteEditChat: true,
+						isCopilotFeatureAvailable: <?= Copilot\Manager::isAvailable() ? 'true' : 'false' ?>,
+						isCopilotFeatureEnabled: <?= Copilot\Manager::isFeatureEnabled() ? 'true' : 'false' ?>,
+						isCopilotActive: <?= Copilot\Manager::isActive() ? 'true' : 'false' ?>,
+						copilotFeatureEnabledSlider: '<?= Copilot\Manager::getLimitSliderCode() ?>',
+						copilotUnactiveSlider: '<?= Copilot\Manager::getUnactiveSliderCode() ?>',
+						onChatCreate: data => {
+							BX.ajax.runAction('landing.api.copilot.addChatToSite', {
+								data: {
+									siteId: <?= $siteId ?>,
+									chatId: data.chatId,
+								},
+							});
+						}
+					},
+				});
+
+				<?php if (isset($generationId)): ?>
+					const generationId = <?=$generationId?>;
+					let isGenerationError = false;
+
+					BX.PULL.subscribe({
+						type: 'server',
+						moduleId: 'landing',
+						callback: (eventData) => {
+							if (
+								eventData.params.generationId !== undefined
+								&& generationId !== null
+								&& eventData.params.generationId !== generationId
+							)
+							{
+								return;
+							}
+
+							if (command === 'LandingCopilotGeneration:onGenerationError')
+							{
+								isGenerationError = true;
+							}
+						},
+					});
+
+					BX.Event.EventEmitter.subscribe('BX.Landing.Animation.Copilot:onSiteFinish', (event) => {
+						if (isGenerationError)
+						{
+							slidePanel.showChat();
+						}
+					});
+				<?php endif; ?>
+
+
 				new BX.Landing.View.Device({
+					target: slidePanel.getPreviewContainer(),
 					editorFrameWrapper: document.querySelector('.landing-ui-view-iframe-wrapper'),
 					frameUrl: '<?= \CUtil::JSEscape($urls['preview_device']->getUri())?>',
 					messages: {
@@ -827,6 +1032,7 @@ else
 						LANDING_TPL_PREVIEW_LOADING: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_PREVIEW_LOADING'));?>',
 					}
 				});
+
 				new BX.Landing.View.ExternalControls({
 					container: document.querySelector('.landing-ui-view-wrapper'),
 					iframeWrapper: document.querySelector('.landing-ui-view-iframe-wrapper'),

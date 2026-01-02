@@ -48,6 +48,7 @@ class Settings extends \Bitrix\Landing\Hook\Page
 		'BRAND_PROPERTY' => 'BRAND_REF',
 		'CART_POSITION' => 'BL',
 		'AGREEMENT_ID' => 0,
+		'AGREEMENTS' => null,
 	);
 
 	/**
@@ -156,9 +157,8 @@ class Settings extends \Bitrix\Landing\Hook\Page
 			default:
 				{
 					$field = new Field\Text($code, array(
-						'title' => isset($params['NAME'])
-							? $params['NAME']
-							: ''
+						'title' => $params['NAME'] ?? '',
+						'fetch_data_modification' => $params['FETCH_DATA_MODIFICATION'] ?? null,
 					));
 					break;
 				}
@@ -322,6 +322,40 @@ class Settings extends \Bitrix\Landing\Hook\Page
 		$fields['AGREEMENT_ID'] = self::getFieldByType(
 			null, 'AGREEMENT_ID'
 		);
+		$fields['AGREEMENTS'] = self::getFieldByType(
+			null,
+			'AGREEMENTS',
+			[
+				'FETCH_DATA_MODIFICATION' => function ($agreements) {
+					if (!is_array($agreements))
+					{
+						return null;
+					}
+
+					$resultAgreements = [];
+					$existAgreementIds = [];
+					foreach ($agreements as $agreement)
+					{
+						$agreement['ID'] = (int)$agreement['ID'];
+						if (
+							empty($agreement['ID'])
+							|| isset($existAgreementIds[$agreement['ID']])
+						)
+						{
+							continue;
+						}
+						$existAgreementIds[$agreement['ID']] = true;
+						$resultAgreements[] = [
+							'ID' => $agreement['ID'],
+							'CHECKED' => $agreement['CHECKED'] === 'Y' ? 'Y' : 'N',
+							'REQUIRED' => $agreement['REQUIRED'] === 'Y' ? 'Y' : 'N',
+						];
+					}
+
+					return $resultAgreements;
+				}
+			],
+		);
 
 		// cart position
 		$positions = array_fill_keys(
@@ -423,11 +457,19 @@ class Settings extends \Bitrix\Landing\Hook\Page
 			if($hooks['SETTINGS']['AGREEMENT_USE'] === 'N')
 			{
 				$settings[$id]['AGREEMENT_ID'] = 0;
+				$settings[$id]['AGREEMENTS'] = [];
 			}
 		}
 		else
 		{
-			$settings[$id]['AGREEMENT_USE'] = $settings[$id]['AGREEMENT_ID'] ? 'Y' : 'N';
+			if ($settings[$id]['AGREEMENTS'] === null)
+			{
+				$settings[$id]['AGREEMENT_USE'] = $settings[$id]['AGREEMENT_ID'] ? 'Y' : 'N';
+			}
+			else
+			{
+				$settings[$id]['AGREEMENT_USE'] = $settings[$id]['AGREEMENTS'] ? 'Y' : 'N';
+			}
 		}
 
 		if (isset($hooks['SETTINGS']['CART_POSITION']))

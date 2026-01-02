@@ -33,6 +33,7 @@ class MainUserConsentRequestComponent extends CBitrixComponent
 	{
 		$this->arParams['AUTO_SAVE'] = isset($this->arParams['AUTO_SAVE']) ? $this->arParams['AUTO_SAVE'] === 'Y' : true;
 		$this->arParams['IS_CHECKED'] = isset($this->arParams['IS_CHECKED']) ? $this->arParams['IS_CHECKED'] === 'Y' : true;
+		$this->arParams['REQUIRED'] = isset($this->arParams['REQUIRED']) ? $this->arParams['REQUIRED'] === 'Y' : false;
 		$this->arParams['IS_LOADED'] = isset($this->arParams['IS_LOADED']) ? $this->arParams['IS_LOADED'] === 'Y' : false;
 
 		$this->arParams['ID'] = isset($this->arParams['ID']) ? intval($this->arParams['ID']) : null;
@@ -72,6 +73,7 @@ class MainUserConsentRequestComponent extends CBitrixComponent
 			'actionUrl' => $this->getPath() . '/ajax.php',
 			'replace' => $this->arParams['REPLACE'],
 			'url' => $this->arResult['URL'],
+			'required' => $this->arResult['REQUIRED'],
 		);
 
 		if ($this->arParams['IS_LOADED'])

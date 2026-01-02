@@ -9,7 +9,6 @@ use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Component\ImageInput;
 use Bitrix\Catalog\Product\SystemField\ProductMapping;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
-use Bitrix\Crm\Order\Import\Instagram;
 use Bitrix\Crm;
 use Bitrix\Currency;
 use Bitrix\Iblock;
@@ -4331,6 +4330,7 @@ foreach (array_keys($rawRows) as $rowId)
 					continue;
 
 				$arStr1[$vv["TEMPLATE_ID"]] = $vv["TEMPLATE_NAME"];
+				$arStr[$vv['TEMPLATE_ID']] ??= '';
 				$arStr[$vv["TEMPLATE_ID"]] .= "<a href=\"".$selfFolderUrl."bizproc_log.php?ID=".$kk.'&back_url='.urlencode($APPLICATION->GetCurPageParam("", array("mode", "table_id", "internal", "grid_id", "grid_action", "bxajaxid", "sessid")))/*todo replace to $lAdmin->getCurPageParam()*/."\">".($vv["STATE_TITLE"] <> '' ? $vv["STATE_TITLE"] : $vv["STATE_NAME"])."</a><br />";
 
 				if ($vv["ID"] <> '')

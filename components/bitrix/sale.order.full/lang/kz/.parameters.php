@@ -1,0 +1,24 @@
+<?php
+$MESS["SALE_SOF_PARAM_CITY_OUT_LOCATION"] = "Орналасқан қаланы таңдау міндетті емес.";
+$MESS["SOA_DELIVERY_NO_SESSION"] = "Тапсырысты рәсімдеу кезінде сессияны тексеру.";
+$MESS["SOA_SEND_NEW_USER_NOTIFY"] = "Пайдаланушыға сайтқа тіркелгені туралы хат жіберу.";
+$MESS["SOF_ALLOW_PAY_FROM_ACCOUNT"] = "Ішкі шоттан төлеуге рұқсат беру";
+$MESS["SOF_COUNT_DELIVERY_TAX"] = "Жеткізу үшін салықты есептеу";
+$MESS["SOF_COUNT_DISCOUNT_4_ALL_QUANTITY"] = "Әрбір позиция үшін жеңілдікті есептеу (тауардың барлық санына).";
+$MESS["SOF_DESC_NO"] = "Жоқ";
+$MESS["SOF_DESC_YES"] = "Иә";
+$MESS["SOF_ONLY_FULL_PAY_FROM_ACCOUNT"] = "Ішкі шоттан төлеуге тек толық көлемде рұқсат беру.";
+$MESS["SOF_PATH_TO_AUTH"] = "Авторлану парақшасы";
+$MESS["SOF_PATH_TO_BASKET"] = "Себет парақшасы";
+$MESS["SOF_PATH_TO_PAYMENT"] = "Төлем жүйесін қосу парақшасы";
+$MESS["SOF_PATH_TO_PERSONAL"] = "Жеке бөлім парақшасы";
+$MESS["SOF_PROPS_NOT_SHOW"] = "Төлеуші түрі үшін қасиеттерді көрсетпеу";
+$MESS["SOF_SHOW_AJAX_DELIVERY_LINK"] = "Жеткізу құнын есептеуді іске қосу керек пе?";
+$MESS["SOF_SHOW_AJAX_DELIVERY_LINK_N"] = "бірден есептеу";
+$MESS["SOF_SHOW_AJAX_DELIVERY_LINK_S"] = "серверде есептеу";
+$MESS["SOF_SHOW_AJAX_DELIVERY_LINK_Y"] = "сілтемелерді шығару";
+$MESS["SOF_SHOW_ALL"] = "(барлығын көрсету)";
+$MESS["SOF_SHOW_MENU"] = "Тапсырысты рәсімдеу процедурасы бойынша навигациялық мәзірді көрсету";
+$MESS["SOF_USE_AJAX_LOCATIONS"] = "Кеңейтілген орналасу нысанын пайдалану";
+$MESS["SOF_VAT_INCLUDE"] = "ҚҚС-ты бағаға қосу";
+$MESS["SOF_VAT_SHOW_VALUE"] = "ҚҚС мәнін көрсету";

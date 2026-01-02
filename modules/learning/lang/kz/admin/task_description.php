@@ -1,0 +1,22 @@
+<?php
+$MESS["TASK_BINDING_LESSON"] = "Сабақ";
+$MESS["TASK_DESC_LEARNING_LESSON_ACCESS_DENIED"] = "Қолжетімділік жабық";
+$MESS["TASK_DESC_LEARNING_LESSON_ACCESS_LINKAGE_ANY"] = "Ата-ана ретінде де, ұрпақ ретінде де сабақтар мен курстарды байланыстыру/ажырату";
+$MESS["TASK_DESC_LEARNING_LESSON_ACCESS_LINKAGE_AS_CHILD"] = "Ұрпақ ретінде сабақтар мен курстарды байланыстыру/ажырату";
+$MESS["TASK_DESC_LEARNING_LESSON_ACCESS_LINKAGE_AS_PARENT"] = "Ата-ана ретінде сабақтар мен курстарды байланыстыру/ажырату";
+$MESS["TASK_DESC_LEARNING_LESSON_ACCESS_MANAGE_AS_CHILD"] = "Сабақтар мен курстарды өңдеу / жою / құру; ұрпақ ретінде сабақтар мен курстарды байланыстыру/ажырату";
+$MESS["TASK_DESC_LEARNING_LESSON_ACCESS_MANAGE_AS_PARENT"] = "Сабақтар мен курстарды өңдеу / жою / құру; ата-ана ретінде сабақтар мен курстарды байланыстыру/ажырату";
+$MESS["TASK_DESC_LEARNING_LESSON_ACCESS_MANAGE_BASIC"] = "Сабақтар мен курстарды өңдеу / жою / құру";
+$MESS["TASK_DESC_LEARNING_LESSON_ACCESS_MANAGE_DUAL"] = "Ата-ана ретінде де, ұрпақ ретінде де сабақтар мен курстарды өңдеу / жою / құру / байланыстыру / ажырату";
+$MESS["TASK_DESC_LEARNING_LESSON_ACCESS_MANAGE_FULL"] = "Құқықтарды басқару; ата-ана ретінде де, ұрпақ ретінде де сабақтар мен курстарды өңдеу / жою / құру / байланыстыру / ажырату";
+$MESS["TASK_DESC_LEARNING_LESSON_ACCESS_READ"] = "Сабақ немесе курс деректерін қарау (оның тесттерін қоса)";
+$MESS["TASK_NAME_LEARNING_LESSON_ACCESS_DENIED"] = "Қолжетімділік жабық";
+$MESS["TASK_NAME_LEARNING_LESSON_ACCESS_LINKAGE_ANY"] = "Байланыстыру/ажырату";
+$MESS["TASK_NAME_LEARNING_LESSON_ACCESS_LINKAGE_AS_CHILD"] = "Ұрпақ ретінде байланыстыру/ажырату";
+$MESS["TASK_NAME_LEARNING_LESSON_ACCESS_LINKAGE_AS_PARENT"] = "Ата-ана ретінде байланыстыру/ажырату";
+$MESS["TASK_NAME_LEARNING_LESSON_ACCESS_MANAGE_AS_CHILD"] = "Өңдеу / жою / құру; ұрпақ ретінде байланыстыру/ажырату";
+$MESS["TASK_NAME_LEARNING_LESSON_ACCESS_MANAGE_AS_PARENT"] = "Өңдеу / жою / құру; ата-ана ретінде байланыстыру/ажырату";
+$MESS["TASK_NAME_LEARNING_LESSON_ACCESS_MANAGE_BASIC"] = "Өңдеу / жою / құру";
+$MESS["TASK_NAME_LEARNING_LESSON_ACCESS_MANAGE_DUAL"] = "Өңдеу / жою / құру / байланыстыру / ажырату";
+$MESS["TASK_NAME_LEARNING_LESSON_ACCESS_MANAGE_FULL"] = "Құқықтарды басқару; өңдеу / жою / құру / байланыстыру / ажырату";
+$MESS["TASK_NAME_LEARNING_LESSON_ACCESS_READ"] = "Қарау";

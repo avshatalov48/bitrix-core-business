@@ -39,7 +39,7 @@ return array(
 	),
 	'style' => [
 		'block' => [
-			'type' => ['block-default-background-overlay'],
+			'type' => ['display', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top', 'background'],
 			'additional' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_44_3_FOUR_COLUMNS_TEXT_WITH_IMG_NODES_SLIDER'),
 				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show-extended', 'arrows', 'dots'],

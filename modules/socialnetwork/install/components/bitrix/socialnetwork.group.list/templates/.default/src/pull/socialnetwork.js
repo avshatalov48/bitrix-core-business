@@ -1,4 +1,10 @@
-import {Type, Loc} from 'main.core';
+import { Type, Loc } from 'main.core';
+
+type WorkgroupConvertedData = {
+	groupId: number,
+	typeBefore: string,
+	typeAfter: string,
+};
 
 export class PullControllerSocialnetwork
 {
@@ -13,13 +19,12 @@ export class PullControllerSocialnetwork
 			userDelete: 'userDelete',
 			favoritesChanged: 'favoritesChanged',
 			pinChanged: 'pinChanged',
+			convert: 'convert',
 		};
 	}
 
 	static getInstance()
-	{
-
-	}
+	{}
 
 	constructor(options)
 	{
@@ -41,14 +46,15 @@ export class PullControllerSocialnetwork
 	getMap()
 	{
 		return {
-			[ Loc.getMessage('PUSH_EVENT_WORKGROUP_ADD') ]: this.onWorkgroupAdd.bind(this),
-			[ Loc.getMessage('PUSH_EVENT_WORKGROUP_UPDATE') ]: this.onWorkgroupUpdate.bind(this),
-			[ Loc.getMessage('PUSH_EVENT_WORKGROUP_DELETE') ]: this.onWorkgroupDelete.bind(this),
-			[ Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_ADD') ]: this.onWorkgroupUserAdd.bind(this),
-			[ Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_UPDATE') ]: this.onWorkgroupUserUpdate.bind(this),
-			[ Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_DELETE') ]: this.onWorkgroupUserDelete.bind(this),
-			[ Loc.getMessage('PUSH_EVENT_WORKGROUP_FAVORITES_CHANGED') ]: this.onWorkgroupFavoritesChanged.bind(this),
-			[ Loc.getMessage('PUSH_EVENT_WORKGROUP_PIN_CHANGED') ]: this.onWorkgroupPinChanged.bind(this),
+			[Loc.getMessage('PUSH_EVENT_WORKGROUP_ADD')]: this.onWorkgroupAdd.bind(this),
+			[Loc.getMessage('PUSH_EVENT_WORKGROUP_UPDATE')]: this.onWorkgroupUpdate.bind(this),
+			[Loc.getMessage('PUSH_EVENT_WORKGROUP_DELETE')]: this.onWorkgroupDelete.bind(this),
+			[Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_ADD')]: this.onWorkgroupUserAdd.bind(this),
+			[Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_UPDATE')]: this.onWorkgroupUserUpdate.bind(this),
+			[Loc.getMessage('PUSH_EVENT_WORKGROUP_USER_DELETE')]: this.onWorkgroupUserDelete.bind(this),
+			[Loc.getMessage('PUSH_EVENT_WORKGROUP_FAVORITES_CHANGED')]: this.onWorkgroupFavoritesChanged.bind(this),
+			[Loc.getMessage('PUSH_EVENT_WORKGROUP_PIN_CHANGED')]: this.onWorkgroupPinChanged.bind(this),
+			workgroup_convert: this.onWorkgroupConverted.bind(this),
 		};
 	}
 
@@ -63,8 +69,8 @@ export class PullControllerSocialnetwork
 		};
 
 		this.pullController.checkExistence(data.params.GROUP_ID).then(
-			response => this.pullController.onCheckExistenceSuccess(response, data.params.GROUP_ID, params),
-			response => console.error(response)
+			(response) => this.pullController.onCheckExistenceSuccess(response, data.params.GROUP_ID, params),
+			(response) => console.error(response),
 		);
 	}
 
@@ -75,9 +81,18 @@ export class PullControllerSocialnetwork
 		};
 
 		this.pullController.checkExistence(data.params.GROUP_ID).then(
-			response => this.pullController.onCheckExistenceSuccess(response, data.params.GROUP_ID, params),
-			response => console.error(response)
+			(response) => this.pullController.onCheckExistenceSuccess(response, data.params.GROUP_ID, params),
+			(response) => console.error(response),
 		);
+	}
+
+	onWorkgroupConverted(data: WorkgroupConvertedData): void
+	{
+		const params = {
+			event: PullControllerSocialnetwork.events.convert,
+		};
+
+		this.pullController.moveToDirectPlace(data.params.GROUP_ID, null, params);
 	}
 
 	onWorkgroupDelete(data)
@@ -92,8 +107,8 @@ export class PullControllerSocialnetwork
 		};
 
 		this.pullController.checkExistence(data.params.GROUP_ID).then(
-			response => this.pullController.onCheckExistenceSuccess(response, data.params.GROUP_ID, params),
-			response => console.error(response)
+			(response) => this.pullController.onCheckExistenceSuccess(response, data.params.GROUP_ID, params),
+			(response) => console.error(response),
 		);
 	}
 
@@ -104,8 +119,8 @@ export class PullControllerSocialnetwork
 		};
 
 		this.pullController.checkExistence(data.params.GROUP_ID).then(
-			response => this.pullController.onCheckExistenceSuccess(response, data.params.GROUP_ID, params),
-			response => console.error(response)
+			(response) => this.pullController.onCheckExistenceSuccess(response, data.params.GROUP_ID, params),
+			(response) => console.error(response),
 		);
 	}
 
@@ -116,8 +131,8 @@ export class PullControllerSocialnetwork
 		};
 
 		this.pullController.checkExistence(data.params.GROUP_ID).then(
-			response => this.pullController.onCheckExistenceSuccess(response, data.params.GROUP_ID, params),
-			response => console.error(response)
+			(response) => this.pullController.onCheckExistenceSuccess(response, data.params.GROUP_ID, params),
+			(response) => console.error(response),
 		);
 	}
 

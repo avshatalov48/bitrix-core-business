@@ -24,20 +24,6 @@ class ComponentParams extends Param
 		return '';
 	}
 
-	public function loadValueFilter($value)
-	{
-		if (!empty($value))
-		{
-			$value = Text::decodeEmoji($value);
-		}
-		else
-		{
-			$value = null;
-		}
-
-		return $value;
-	}
-
 	public function saveJsonFilter($value)
 	{
 		return $this->jsonValue;

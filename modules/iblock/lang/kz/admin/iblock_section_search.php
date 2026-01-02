@@ -1,0 +1,24 @@
+<?php
+$MESS["IBLOCK_SECSEARCH_ACTIVE"] = "Белсенділік";
+$MESS["IBLOCK_SECSEARCH_ALL_PARENTS"] = "(кез келген)";
+$MESS["IBLOCK_SECSEARCH_CHOOSE_IBLOCK"] = "Ақпараттық блокты таңдаңыз";
+$MESS["IBLOCK_SECSEARCH_CODE"] = "Символдық код";
+$MESS["IBLOCK_SECSEARCH_CREATED_BY"] = "Кім жасады";
+$MESS["IBLOCK_SECSEARCH_DATE_CREATE"] = "Жасалған күні";
+$MESS["IBLOCK_SECSEARCH_ELEMENT_CNT"] = "Элементтер";
+$MESS["IBLOCK_SECSEARCH_IBLOCK"] = "Ақпараттық блок:";
+$MESS["IBLOCK_SECSEARCH_ID"] = "Бөлім ID-і";
+$MESS["IBLOCK_SECSEARCH_LIST"] = "Кіші бөлімдер тізіміне өту";
+$MESS["IBLOCK_SECSEARCH_MODIFIED_BY"] = "Кім өзгертті";
+$MESS["IBLOCK_SECSEARCH_NAME"] = "Атауы";
+$MESS["IBLOCK_SECSEARCH_PARENT"] = "Аталық бөлім";
+$MESS["IBLOCK_SECSEARCH_PARENT_ID"] = "Аталық бөлім";
+$MESS["IBLOCK_SECSEARCH_ROOT_PARENT_ID"] = "Жоғарғы деңгей";
+$MESS["IBLOCK_SECSEARCH_SECTIONS"] = "Бөлімдер";
+$MESS["IBLOCK_SECSEARCH_SECTION_CNT"] = "Кіші бөлімдер";
+$MESS["IBLOCK_SECSEARCH_SELECT"] = "Таңдау";
+$MESS["IBLOCK_SECSEARCH_SORT"] = "Сұрыптау";
+$MESS["IBLOCK_SECSEARCH_TIMESTAMP"] = "Өзгерту күні";
+$MESS["IBLOCK_SECSEARCH_TITLE"] = "Бөлімді іздеу";
+$MESS["IBLOCK_SECSEARCH_USERINFO"] = "Пайдаланушы параметрлерін көру";
+$MESS['IBLOCK_SECSEARCH_XML_ID_MSGVER_1'] = "Сыртқы код";

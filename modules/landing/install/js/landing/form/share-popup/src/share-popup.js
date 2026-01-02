@@ -130,31 +130,17 @@ export class SharePopup extends EventEmitter
 							},
 							link: {
 								label: Loc.getMessage('LANDING_FORM_SHARE__HELP_LINK_LABEL_MSGVER_1'),
-								onClick: () => {
-									const Feedback = Reflection.getClass('BX.UI.Feedback');
-									if (!Type.isNil(Feedback))
-									{
-										Feedback.Form.open({
-											id: 'form-editor-feedback-form',
-											portalUri: 'https://bitrix24.team',
-											forms: [
-												{id: 1847, lang: 'ru', sec: 'bbih83', zones: ['ru']},
-												{id: 1852, lang: 'kz', sec: 'dtw568', zones: ['kz']},
-												{id: 1851, lang: 'by', sec: 'nnz05i', zones: ['by']},
-												{id: 1855, lang: 'en', sec: '6lxt2y', zones: ['en', 'eu', 'in', 'uk']},
-												{id: 1856, lang: 'de', sec: '574psk', zones: ['de']},
-												{id: 1857, lang: 'la', sec: '9tlqqk', zones: ['es', 'mx', 'co']},
-												{id: 1858, lang: 'br', sec: '9ptdnu', zones: ['com.br']},
-												{id: 1859, lang: 'pl', sec: 'aynrqw', zones: ['pl']},
-												{id: 1860, lang: 'fr', sec: 'ld3bh8', zones: ['fr']},
-												{id: 1861, lang: 'it', sec: '1rlv2j', zones: ['it']},
-												{id: 1862, lang: 'vn', sec: '5m169k', zones: ['vn']},
-												{id: 1863, lang: 'tr', sec: '2mc2tg', zones: ['com.tr']},
-											],
-											defaultForm: {id: 1855, lang: 'en', sec: '6lxt2y'}
-										});
-									}
-								},
+								onClick: () => {},
+							},
+							onClick: () => {
+								BX.UI.Feedback.Form.open({
+									id: 'form-editor-feedback-form',
+									portalUri: this.getOptions().portalUri,
+									forms: this.getOptions().forms,
+									presets: {
+										source: 'landing',
+									},
+								});
 							},
 						},
 						{

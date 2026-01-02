@@ -28,4 +28,16 @@ enum Action: string
 	case UpdateInviteLink = 'UPDATE_INVITE_LINK';
 	case CreateDocumentSign = 'CREATE_DOCUMENT_SIGN';
 	case CreateCalendarSlots = 'CREATE_CALENDAR_SLOTS';
+	case ChangeMessagesAutoDeleteDelay = 'CHANGE_MESSAGES_AUTO_DELETE_DELAY';
+	case PinChat = 'PIN_CHAT';
+	case HideChat = 'HIDE_CHAT';
+
+	public function getRelatedGlobalAction(): ?GlobalAction
+	{
+		return match ($this)
+		{
+			self::ChangeMessagesAutoDeleteDelay => GlobalAction::ChangeMessagesAutoDeleteDelay,
+			default => null
+		};
+	}
 }

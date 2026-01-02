@@ -23,9 +23,9 @@ class Vk extends Platform
 	private $api = array();
 	private $executer = array();
 
-	const OAUTH_URL = "https://oauth.vk.com/authorize";
-	const TOKEN_URL = "https://oauth.vk.com/access_token";
-	const VK_URL = 'https://vk.com/';
+	const OAUTH_URL = "https://oauth.vk.ru/authorize";
+	const TOKEN_URL = "https://oauth.vk.ru/access_token";
+	const VK_URL = 'https://vk.ru/';
 	const VK_URL__MARKET_PREFIX = 'market-';
 	const VK_URL__ALBUM_PREFIX = '?section=album_';
 

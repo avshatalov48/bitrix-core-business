@@ -3,7 +3,7 @@ import { DateTimeFormat } from 'main.date';
 import 'im.v2.test';
 import { Core } from 'im.v2.application.core';
 import { Utils } from 'im.v2.lib.utils';
-import { RecentService } from 'im.v2.provider.service';
+import { LegacyRecentService } from 'im.v2.provider.service.recent';
 import { UsersModel, type ImModelUser } from 'im.v2.model';
 
 import { UserStatusManager } from '../src/user-status';
@@ -19,7 +19,7 @@ describe('user status', () => {
 	});
 
 	beforeEach(() => {
-		sandbox.stub(RecentService, 'getInstance').returns({
+		sandbox.stub(LegacyRecentService, 'getInstance').returns({
 			loadFirstPage: sandbox.stub(),
 			lol: 'kek',
 		});
@@ -66,7 +66,7 @@ describe('user status', () => {
 			const timeToMidnight = Utils.date.getTimeToNextMidnight() + 100;
 			clock.tick(timeToMidnight);
 
-			assert.equal(RecentService.getInstance().loadFirstPage.calledOnce, true);
+			assert.equal(LegacyRecentService.getInstance().loadFirstPage.calledOnce, true);
 		});
 	});
 

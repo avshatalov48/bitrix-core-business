@@ -16,6 +16,7 @@ return [
 		'calendar.planner',
 		'calendar.roomsmanager',
 		'calendar.sectionmanager',
+		'main.date',
 		'main.core.events',
 		'ui.entity-selector',
 		'main.core',

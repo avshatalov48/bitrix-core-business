@@ -3,4 +3,5 @@ module.exports = {
 	output: './dist/md5.bundle.js',
 	namespace: 'BX',
 	adjustConfigPhp: false,
+	browserslist: true,
 };

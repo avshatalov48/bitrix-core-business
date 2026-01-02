@@ -8,7 +8,6 @@ use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Component\ImageInput;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
-use Bitrix\Crm\Order\Import\Instagram;
 use Bitrix\Crm;
 use Bitrix\Currency;
 use Bitrix\Iblock;
@@ -3531,6 +3530,7 @@ foreach (array_keys($rawRows) as $rowId)
 				continue;
 
 			$arStr1[$vv["TEMPLATE_ID"]] = $vv["TEMPLATE_NAME"];
+			$arStr[$vv['TEMPLATE_ID']] ??= '';
 			$arStr[$vv["TEMPLATE_ID"]] .= "<a href=\"".$selfFolderUrl."bizproc_log.php?ID=".$kk."\">".($vv["STATE_TITLE"] <> '' ? $vv["STATE_TITLE"] : $vv["STATE_NAME"])."</a><br />";
 
 			if ($vv["ID"] <> '')

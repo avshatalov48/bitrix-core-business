@@ -9,3 +9,5 @@ $MESS['HIGHLOADBLOCK_HIGHLOAD_BLOCK_ENTITY_NAME_FIELD_LENGTH_INVALID'] = 'Мак
 $MESS['HIGHLOADBLOCK_HIGHLOAD_BLOCK_ENTITY_TABLE_NAME_FIELD_LENGTH_INVALID'] = 'Максимальная длина Названия таблицы 64 символа';
 $MESS['HIGHLOADBLOCK_HIGHLOAD_BLOCK_ENTITY_TABLE_NAME_ALREADY_EXISTS'] = 'Таблица с названием #TABLE_NAME# уже есть в базе данных';
 $MESS['HIGHLOADBLOCK_HIGHLOAD_BLOCK_ENTITY_FIELD_NAME_REF_RESERVED'] = 'Имена с окончанием _REF зарезервированы для полей ReferenceField.';
+$MESS['HIGHLOADBLOCK_HIGHLOAD_BLOCK_ENTITY_TABLE_CREATE_ERROR'] = "При создании таблицы произошла ошибка: #ERROR#";
+$MESS['HIGHLOADBLOCK_HIGHLOAD_BLOCK_ENTITY_NAME_FIELD_VALUE_IS_COLLECTION'] = "Название сущности '#VALUE#' зарезервировано. Выберите другое название";

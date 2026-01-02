@@ -16,6 +16,7 @@ use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Main\ORM\Fields\TextField;
 use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\Text\Emoji;
 
 Loc::loadMessages(__FILE__);
 
@@ -39,9 +40,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Answer_Query query()
- * @method static EO_Answer_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Answer_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Answer_Result getById($id)
- * @method static EO_Answer_Result getList(array $parameters = array())
+ * @method static EO_Answer_Result getList(array $parameters = [])
  * @method static EO_Answer_Entity getEntity()
  * @method static \Bitrix\Vote\EO_Answer createObject($setDefaultValues = true)
  * @method static \Bitrix\Vote\EO_Answer_Collection createCollection()
@@ -50,6 +51,8 @@ Loc::loadMessages(__FILE__);
  */
 class AnswerTable extends Entity\DataManager
 {
+	public const REACTION_MAX_LENGTH = 50;
+
 	/**
 	 * Returns DB table name for entity
 	 *
@@ -82,7 +85,10 @@ class AnswerTable extends Entity\DataManager
 				\Bitrix\Main\FileTable::class,
 				Join::on('this.IMAGE_ID', 'ref.ID')
 			)),
-			(new TextField('MESSAGE')),
+			(new TextField('MESSAGE'))
+				->addSaveDataModifier(fn($value) => Emoji::encode($value))
+				->addFetchDataModifier(fn($value) => Emoji::decode($value))
+			,
 			(new EnumField('MESSAGE_TYPE', ['values' => ['text', 'html']]))
 				->configureDefaultValue('text'),
 			(new IntegerField('COUNTER')),
@@ -92,7 +98,13 @@ class AnswerTable extends Entity\DataManager
 			(new StringField('FIELD_PARAM'))
 				->configureSize(255),
 			(new StringField('COLOR'))
-				->configureSize(6)
+				->configureSize(6),
+			(new StringField('REACTION'))
+				->configureSize(self::REACTION_MAX_LENGTH)
+				->configureNullable()
+				->addSaveDataModifier(fn($value) => Emoji::encode($value))
+				->addFetchDataModifier(fn($value) => Emoji::decode($value))
+			,
 		];
 	}
 	/**

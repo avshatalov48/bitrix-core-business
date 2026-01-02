@@ -54,11 +54,14 @@ class PageNavigation
 
 		if(($value = $request->getQuery($this->id)) !== null)
 		{
-			//parameters are in the QUERY_STRING
-			$params = explode("-", $value);
-			for($i = 0, $n = count($params); $i < $n; $i += 2)
+			if (is_string($value))
 			{
-				$navParams[$params[$i]] = $params[$i+1];
+				//parameters are in the QUERY_STRING
+				$params = explode("-", $value);
+				for($i = 0, $n = count($params); $i < $n; $i += 2)
+				{
+					$navParams[$params[$i]] = $params[$i+1];
+				}
 			}
 		}
 		else

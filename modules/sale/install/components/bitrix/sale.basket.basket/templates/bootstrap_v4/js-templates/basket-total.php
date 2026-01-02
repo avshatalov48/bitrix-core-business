@@ -15,7 +15,7 @@ use Bitrix\Main\Localization\Loc;
 			<div class="basket-coupon-section">
 				<div class="basket-coupon-block-field">
 					<div class="basket-coupon-block-field-description">
-						<?=Loc::getMessage('SBB_COUPON_ENTER')?>:
+						<?= Loc::getMessage('SBB_COUPON_ENTER_MSGVER_1') ?>
 					</div>
 					<div class="form">
 						<div class="form-group" style="position: relative;">
@@ -33,14 +33,14 @@ use Bitrix\Main\Localization\Loc;
 			<div class="basket-checkout-section-inner<?=(($arParams['HIDE_COUPON'] == 'Y') ? ' justify-content-between' : '')?>">
 				<div class="basket-checkout-block basket-checkout-block-total">
 					<div class="basket-checkout-block-total-inner">
-						<div class="basket-checkout-block-total-title"><?=Loc::getMessage('SBB_TOTAL')?>:</div>
+						<div class="basket-checkout-block-total-title"><?= Loc::getMessage('SBB_TOTAL_MSGVER_1') ?></div>
 						<div class="basket-checkout-block-total-description">
 							{{#WEIGHT_FORMATED}}
-								<?=Loc::getMessage('SBB_WEIGHT')?>: {{{WEIGHT_FORMATED}}}
+								<?= Loc::getMessage('SBB_WEIGHT_MSGVER_1', ['#WEIGHT_FORMATED#' => '{{{WEIGHT_FORMATED}}}']) ?>
 								{{#SHOW_VAT}}<br>{{/SHOW_VAT}}
 							{{/WEIGHT_FORMATED}}
 							{{#SHOW_VAT}}
-								<?=Loc::getMessage('SBB_VAT')?>: {{{VAT_SUM_FORMATED}}}
+								<?= Loc::getMessage('SBB_VAT_MSGVER_1', ['#VAT_SUM_FORMATED#' => '{{{VAT_SUM_FORMATED}}}']) ?>
 							{{/SHOW_VAT}}
 						</div>
 					</div>
@@ -60,8 +60,12 @@ use Bitrix\Main\Localization\Loc;
 
 						{{#DISCOUNT_PRICE_FORMATED}}
 							<div class="basket-coupon-block-total-price-difference">
-								<?=Loc::getMessage('SBB_BASKET_ITEM_ECONOMY')?>
-								<span style="white-space: nowrap;">{{{DISCOUNT_PRICE_FORMATED}}}</span>
+								<?= Loc::getMessage(
+									'SBB_BASKET_ITEM_ECONOMY_MSGVER_1',
+									[
+										'#DISCOUNT_PRICE_FORMATED#' => '<span style="white-space: nowrap;">{{{DISCOUNT_PRICE_FORMATED}}}</span>',
+									],
+								) ?>
 							</div>
 						{{/DISCOUNT_PRICE_FORMATED}}
 					</div>

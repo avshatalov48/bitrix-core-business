@@ -803,21 +803,21 @@ do{ //one iteration loop
 
 		$arIBlock["EDIT_FILE_BEFORE"] = (string)$arIBlock["EDIT_FILE_BEFORE"];
 		$arIBTYPE["EDIT_FILE_BEFORE"] = (string)$arIBTYPE["EDIT_FILE_BEFORE"];
-		if(
-			$arIBlock["EDIT_FILE_BEFORE"] != ''
-			&& (mb_substr($arIBlock["EDIT_FILE_BEFORE"], -4) == '.php')
-			&& is_file($_SERVER["DOCUMENT_ROOT"].$arIBlock["EDIT_FILE_BEFORE"])
+		if (
+			$arIBlock['EDIT_FILE_BEFORE'] !== ''
+			&& (Main\IO\Path::getExtension($arIBlock['EDIT_FILE_BEFORE']) === 'php')
+			&& is_file($_SERVER['DOCUMENT_ROOT'] . $arIBlock['EDIT_FILE_BEFORE'])
 		)
 		{
-			include($_SERVER["DOCUMENT_ROOT"].$arIBlock["EDIT_FILE_BEFORE"]);
+			include($_SERVER['DOCUMENT_ROOT'] . $arIBlock['EDIT_FILE_BEFORE']);
 		}
-		elseif(
-			$arIBTYPE["EDIT_FILE_BEFORE"] != ''
-			&& (mb_substr($arIBTYPE["EDIT_FILE_BEFORE"], -4) == '.php')
-			&& is_file($_SERVER["DOCUMENT_ROOT"].$arIBTYPE["EDIT_FILE_BEFORE"])
+		elseif (
+			$arIBTYPE['EDIT_FILE_BEFORE'] !== ''
+			&& (Main\IO\Path::getExtension($arIBTYPE['EDIT_FILE_BEFORE']) === 'php')
+			&& is_file($_SERVER['DOCUMENT_ROOT'] . $arIBTYPE['EDIT_FILE_BEFORE'])
 		)
 		{
-			include($_SERVER["DOCUMENT_ROOT"].$arIBTYPE["EDIT_FILE_BEFORE"]);
+			include($_SERVER['DOCUMENT_ROOT'] . $arIBTYPE['EDIT_FILE_BEFORE']);
 		}
 
 		if (
@@ -1330,9 +1330,9 @@ do{ //one iteration loop
 						{
 							for ($i = 1; $i <= $bizprocIndex; $i++)
 							{
-								$bpId = trim($_REQUEST["bizproc_id_".$i]);
-								$bpTemplateId = intval($_REQUEST["bizproc_template_id_".$i]);
-								$bpEvent = trim($_REQUEST["bizproc_event_".$i]);
+								$bpId = trim((string)($_REQUEST['bizproc_id_' . $i] ?? ''));
+								$bpTemplateId = (int)($_REQUEST['bizproc_template_id_' . $i] ?? 0);
+								$bpEvent = trim((string)($_REQUEST['bizproc_event_' . $i] ?? ''));
 
 								if ($bpEvent <> '')
 								{
@@ -3587,7 +3587,7 @@ if($arShowTabs['workflow']):?>
 			<?endif?>
 		</td>
 	</tr>
-	<?
+	<?php
 	if($ID > 0 && !$bCopy)
 		$hidden = '<input type="hidden" name="WF_STATUS_ID" value="'.$str_WF_STATUS_ID.'">';
 	else
@@ -3606,18 +3606,24 @@ if($arShowTabs['workflow']):?>
 	$str_WF_COMMENTS ??= '';
 	?>
 	<tr class="heading" id="tr_WF_COMMENTS_LABEL">
-		<td colspan="2"><b><?echo $tabControl->GetCustomLabelHTML()?></b></td>
+		<td colspan="2"><b><?= $tabControl->GetCustomLabelHTML() ?></b></td>
 	</tr>
 	<tr id="tr_WF_COMMENTS">
 		<td colspan="2">
-			<?if($ID > 0 && !$bCopy):?>
-				<textarea name="WF_COMMENTS" style="width:100%" rows="10"><?echo $str_WF_COMMENTS?></textarea>
-			<?else:?>
-				<textarea name="WF_COMMENTS" style="width:100%" rows="10"><?echo ""?></textarea>
-			<?endif?>
+			<?php
+			if($ID > 0 && !$bCopy):
+				?>
+				<textarea name="WF_COMMENTS" style="width:100%" rows="10"><?= $str_WF_COMMENTS ?></textarea>
+				<?php
+			else:
+					?>
+				<textarea name="WF_COMMENTS" style="width:100%" rows="10"></textarea>
+				<?php
+			endif;
+			?>
 		</td>
 	</tr>
-	<?
+	<?php
 	$tabControl->EndCustomField("WF_COMMENTS", '<input type="hidden" name="WF_COMMENTS" value="'.$str_WF_COMMENTS.'">');
 endif;
 
@@ -3631,7 +3637,7 @@ if ($arShowTabs['bizproc']):
 		<td style="width:40%;"><?=GetMessage("IBEL_E_PUBLISHED")?>:</td>
 		<td style="width:60%;"><?=($str_BP_PUBLISHED=="Y"?GetMessage("MAIN_YES"):GetMessage("MAIN_NO"))?></td>
 	</tr>
-	<?
+	<?php
 	$tabControl->EndCustomField("BIZPROC_WF_STATUS", '');
 
 	ob_start();
@@ -3673,38 +3679,48 @@ if ($arShowTabs['bizproc']):
 		<tr class="heading">
 			<td colspan="2">
 				<?= htmlspecialcharsbx($arDocumentState["TEMPLATE_NAME"]) ?>
-				<?if ($arDocumentState["ID"] <> '' && $arDocumentState["WORKFLOW_STATUS"] <> ''):?>
-					(<a href="<?echo htmlspecialcharsbx($selfFolderUrl.CIBlock::GetAdminElementEditLink($IBLOCK_ID, $ID, array(
+				<?php
+				if ($arDocumentState["ID"] <> '' && $arDocumentState["WORKFLOW_STATUS"] <> ''):
+					?>
+					(<a href="<?= htmlspecialcharsbx($selfFolderUrl.CIBlock::GetAdminElementEditLink($IBLOCK_ID, $ID, array(
 						"WF"=>$WF,
 						"find_section_section" => $find_section_section,
 						"stop_bizproc" => $arDocumentState["ID"],
-					),  "&".bitrix_sessid_get()))?>"><?echo GetMessage("IBEL_BIZPROC_STOP")?></a>)
-				<?endif;?>
+					),  "&".bitrix_sessid_get()))?>"><?= GetMessage("IBEL_BIZPROC_STOP") ?></a>)
+				<?php
+				endif;
+				?>
 			</td>
 		</tr>
 		<tr>
-			<td width="40%"><?echo GetMessage("IBEL_BIZPROC_NAME")?></td>
+			<td width="40%"><?= GetMessage("IBEL_BIZPROC_NAME") ?></td>
 			<td width="60%"><?= htmlspecialcharsbx($arDocumentState["TEMPLATE_NAME"]) ?></td>
 		</tr>
-		<?if($arDocumentState["TEMPLATE_DESCRIPTION"]!=''):?>
+		<?php
+		if($arDocumentState["TEMPLATE_DESCRIPTION"]!=''):
+			?>
 		<tr>
-			<td width="40%"><?echo GetMessage("IBEL_BIZPROC_DESC")?></td>
+			<td width="40%"><?= GetMessage("IBEL_BIZPROC_DESC") ?></td>
 			<td width="60%"><?= htmlspecialcharsbx($arDocumentState["TEMPLATE_DESCRIPTION"]) ?></td>
 		</tr>
-		<?endif?>
-		<?if ($arDocumentState["STATE_MODIFIED"] <> ''):?>
+		<?php
+		endif;
+		if ((string)($arDocumentState['STATE_MODIFIED'] ?? '') !== ''):
+			?>
 		<tr>
-			<td width="40%"><?echo GetMessage("IBEL_BIZPROC_DATE")?></td>
+			<td width="40%"><?= GetMessage("IBEL_BIZPROC_DATE") ?></td>
 			<td width="60%"><?= $arDocumentState["STATE_MODIFIED"] ?></td>
 		</tr>
-		<?endif;?>
-		<?if ($arDocumentState["STATE_NAME"] <> ''):?>
+		<?php
+		endif;
+		if ($arDocumentState["STATE_NAME"] <> ''):?>
 		<tr>
-			<td width="40%"><?echo GetMessage("IBEL_BIZPROC_STATE")?></td>
+			<td width="40%"><?= GetMessage("IBEL_BIZPROC_STATE") ?></td>
 			<td width="60%"><?if ($arDocumentState["ID"] <> ''):?><a href="<?=$selfFolderUrl?>bizproc_log.php?ID=<?= $arDocumentState["ID"] ?>&back_url=<?= urlencode($APPLICATION->GetCurPageParam("", array())) ?>"><?endif;?><?= $arDocumentState["STATE_TITLE"] <> '' ? $arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"] ?><?if ($arDocumentState["ID"] <> ''):?></a><?endif;?></td>
 		</tr>
-		<?endif;?>
-		<?
+		<?php
+		endif;
+
 		if ($arDocumentState["ID"] == '')
 		{
 			CBPDocument::StartWorkflowParametersShow(
@@ -3728,22 +3744,22 @@ if ($arShowTabs['bizproc']):
 		{
 			?>
 			<tr>
-				<td width="40%"><?echo GetMessage("IBEL_BIZPROC_RUN_CMD")?></td>
+				<td width="40%"><?= GetMessage("IBEL_BIZPROC_RUN_CMD") ?></td>
 				<td width="60%">
 					<input type="hidden" name="bizproc_id_<?= $bizProcIndex ?>" value="<?= $arDocumentState["ID"] ?>">
 					<input type="hidden" name="bizproc_template_id_<?= $bizProcIndex ?>" value="<?= $arDocumentState["TEMPLATE_ID"] ?>">
 					<select name="bizproc_event_<?= $bizProcIndex ?>">
-						<option value=""><?echo GetMessage("IBEL_BIZPROC_RUN_CMD_NO")?></option>
-						<?
+						<option value=""><?= GetMessage("IBEL_BIZPROC_RUN_CMD_NO") ?></option>
+						<?php
 						foreach ($arEvents as $e)
 						{
-							?><option value="<?= htmlspecialcharsbx($e["NAME"]) ?>"<?= ($_REQUEST["bizproc_event_".$bizProcIndex] == $e["NAME"]) ? " selected" : ""?>><?= htmlspecialcharsbx($e["TITLE"]) ?></option><?
+							?><option value="<?= htmlspecialcharsbx($e["NAME"]) ?>"<?= ($_REQUEST["bizproc_event_".$bizProcIndex] == $e["NAME"]) ? " selected" : ""?>><?= htmlspecialcharsbx($e["TITLE"]) ?></option><?php
 						}
 						?>
 					</select>
 				</td>
 			</tr>
-			<?
+			<?php
 		}
 
 		if ($arDocumentState["ID"] <> '')
@@ -3753,17 +3769,17 @@ if ($arShowTabs['bizproc']):
 			{
 				?>
 				<tr>
-					<td width="40%"><?echo GetMessage("IBEL_BIZPROC_TASKS")?></td>
+					<td width="40%"><?= GetMessage("IBEL_BIZPROC_TASKS") ?></td>
 					<td width="60%">
-						<?
+						<?php
 						foreach ($arTasks as $arTask)
 						{
-							?><a href="<?=$selfFolderUrl?>bizproc_task.php?id=<?= $arTask["ID"] ?>&back_url=<?= urlencode($APPLICATION->GetCurPageParam("", array())) ?>" title="<?= strip_tags($arTask["DESCRIPTION"]) ?>"><?= $arTask["NAME"] ?></a><br /><?
+							?><a href="<?=$selfFolderUrl?>bizproc_task.php?id=<?= $arTask["ID"] ?>&back_url=<?= urlencode($APPLICATION->GetCurPageParam("", array())) ?>" title="<?= strip_tags($arTask["DESCRIPTION"]) ?>"><?= $arTask["NAME"] ?></a><br /><?php
 						}
 						?>
 					</td>
 				</tr>
-				<?
+				<?php
 			}
 		}
 	}
@@ -3774,11 +3790,11 @@ if ($arShowTabs['bizproc']):
 			<td><br /></td>
 			<td><?=GetMessage("IBEL_BIZPROC_NA")?></td>
 		</tr>
-		<?
+		<?php
 	}
 	?>
 	<input type="hidden" name="bizproc_index" value="<?= $bizProcIndex ?>">
-	<?
+	<?php
 	if ($ID > 0):
 		$bStartWorkflowPermission = CBPDocument::CanUserOperateDocument(
 			CBPCanUserOperateOperation::StartWorkflow,
@@ -3797,14 +3813,14 @@ if ($arShowTabs['bizproc']):
 		if ($bStartWorkflowPermission):
 			?>
 			<tr class="heading">
-				<td colspan="2"><?echo GetMessage("IBEL_BIZPROC_NEW")?></td>
+				<td colspan="2"><?= GetMessage("IBEL_BIZPROC_NEW") ?></td>
 			</tr>
 			<tr>
 				<td colspan="2" align="center">
-					<a href="<?=$selfFolderUrl.MODULE_ID?>_start_bizproc.php?document_id=<?= $ID ?>&document_type=<?= DOCUMENT_TYPE ?>&back_url=<?= urlencode($APPLICATION->GetCurPageParam("", array('bxpublic'))) ?>"><?echo GetMessage("IBEL_BIZPROC_START")?></a>
+					<a href="<?=$selfFolderUrl.MODULE_ID?>_start_bizproc.php?document_id=<?= $ID ?>&document_type=<?= DOCUMENT_TYPE ?>&back_url=<?= urlencode($APPLICATION->GetCurPageParam("", array('bxpublic'))) ?>"><?= GetMessage("IBEL_BIZPROC_START") ?></a>
 				</td>
 			</tr>
-			<?
+			<?php
 		endif;
 	endif;
 	$html = ob_get_contents();
@@ -3889,16 +3905,18 @@ elseif(!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1):
 		: ''
 	;
 	?>
-	<input<?= $disableHtml; ?> type="submit" class="adm-btn-save" name="save" id="save" value="<?echo GetMessage("IBLOCK_EL_SAVE")?>">
-	<? if (!$bAutocomplete)
+	<input<?= $disableHtml; ?> type="submit" class="adm-btn-save" name="save" id="save" value="<?= GetMessage("IBLOCK_EL_SAVE")?>">
+	<?php
+	if (!$bAutocomplete)
 	{
-		?><input<?= $disableHtml; ?> type="submit" class="button" name="apply" id="apply" value="<?echo GetMessage('IBLOCK_APPLY')?>"><?
+		?><input<?= $disableHtml; ?> type="submit" class="button" name="apply" id="apply" value="<?= GetMessage('IBLOCK_APPLY')?>"><?php
 	}
 	?>
-	<input<?= $disableHtml; ?> type="submit" class="button" name="dontsave" id="dontsave" value="<?echo GetMessage("IBLOCK_EL_CANC")?>">
-	<? if (!$bAutocomplete)
+	<input<?= $disableHtml; ?> type="submit" class="button" name="dontsave" id="dontsave" value="<?= GetMessage("IBLOCK_EL_CANC") ?>">
+	<?php
+	if (!$bAutocomplete)
 	{
-		?><input<?= $disableHtml; ?> type="submit" class="adm-btn-add" name="save_and_add" id="save_and_add" value="<?echo GetMessage("IBLOCK_EL_SAVE_AND_ADD")?>"><?
+		?><input<?= $disableHtml; ?> type="submit" class="adm-btn-add" name="save_and_add" id="save_and_add" value="<?= GetMessage("IBLOCK_EL_SAVE_AND_ADD") ?>"><?php
 	}
 	$buttons_add_html = ob_get_contents();
 	ob_end_clean();

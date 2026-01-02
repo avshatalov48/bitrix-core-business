@@ -5,7 +5,6 @@ namespace Bitrix\Main\UserField\Internal;
 use Bitrix\Main\Application;
 use Bitrix\Main\DB\MssqlConnection;
 use Bitrix\Main\DB\SqlQueryException;
-use Bitrix\Main\Entity\Validator\RegExp;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Entity;
@@ -18,6 +17,7 @@ use Bitrix\Main\ORM\Fields\Field;
 use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Main\ORM\Fields\Validators\RegExpValidator;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Text\StringHelper;
@@ -42,7 +42,7 @@ abstract class TypeDataManager extends DataManager
 				->configureUnique()
 				->configureSize(100)
 				->configureFormat('/^[A-Z][A-Za-z0-9]*$/')
-				->addValidator(new RegExp(
+				->addValidator(new RegExpValidator(
 					'/(?<!Table)$/i'
 				)),
 			(new StringField('TABLE_NAME'))

@@ -693,8 +693,14 @@
 		 */
 		sendMessage(users, moduleId, command, params, expiry)
 		{
+			if (!Utils.isArray(users))
+			{
+				throw new TypeError('users must be an array');
+			}
+
+			const userList = users.map(userId => Number(userId));
 			const message = {
-				userList: users,
+				userList,
 				body: {
 					module_id: moduleId,
 					command: command,
@@ -2277,6 +2283,10 @@
 					throw new Error("Push-server is in shared mode, but clientId is not set");
 				}
 				params.clientId = this.config.clientId;
+			}
+			if (this.config.server && this.config.server.hostname)
+			{
+				params.hostname = this.config.server.hostname;
 			}
 			if (this.session.mid)
 			{

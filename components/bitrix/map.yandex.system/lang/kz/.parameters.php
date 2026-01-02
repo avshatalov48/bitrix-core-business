@@ -1,0 +1,26 @@
+<?php
+$MESS["MYMS_PARAM_API_KEY"] = "API кілті";
+$MESS["MYMS_PARAM_CONTROLS"] = "Басқару элементтері";
+$MESS["MYMS_PARAM_CONTROLS_MINIMAP"] = "Мини-карта";
+$MESS["MYMS_PARAM_CONTROLS_SCALELINE"] = "Масштаб шкаласы";
+$MESS["MYMS_PARAM_CONTROLS_SEARCH"] = "Карта бойынша іздеу";
+$MESS["MYMS_PARAM_CONTROLS_SMALLZOOM"] = "Масштабтау батырмалары";
+$MESS["MYMS_PARAM_CONTROLS_TOOLBAR"] = "Құралдар тақтасы";
+$MESS["MYMS_PARAM_CONTROLS_TYPECONTROL"] = "Карта түрі";
+$MESS["MYMS_PARAM_CONTROLS_ZOOM"] = "Масштабтау жүгірткісі";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE"] = "Бастапқы карта түрі";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_HYBRID"] = "гибридті";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_MAP"] = "схема";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_PUBLIC"] = "халықтық";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_PUBLIC_HYBRID"] = "халық гибриді";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_SATELLITE"] = "серік";
+$MESS["MYMS_PARAM_MAP_HEIGHT"] = "Карта биіктігі";
+$MESS["MYMS_PARAM_MAP_ID"] = "Карта идентификаторы";
+$MESS["MYMS_PARAM_MAP_WIDTH"] = "Карта ені";
+$MESS["MYMS_PARAM_OPTIONS"] = "Баптаулар";
+$MESS["MYMS_PARAM_OPTIONS_ENABLE_DBLCLICK_ZOOM"] = "масштабты екі рет тінтуірмен шерту арқылы өзгерту";
+$MESS["MYMS_PARAM_OPTIONS_ENABLE_DRAGGING"] = "картаны сүйреу";
+$MESS["MYMS_PARAM_OPTIONS_ENABLE_HOTKEYS"] = "ыстық пернелер";
+$MESS["MYMS_PARAM_OPTIONS_ENABLE_RIGHT_MAGNIFIER"] = "оң жақ тінтуір батырмасымен масштабты өзгерту";
+$MESS["MYMS_PARAM_OPTIONS_ENABLE_RULER"] = "\"сызғыш\" құралы";
+$MESS["MYMS_PARAM_OPTIONS_ENABLE_SCROLL_ZOOM"] = "тінтуір дөңгелегімен масштабтау";

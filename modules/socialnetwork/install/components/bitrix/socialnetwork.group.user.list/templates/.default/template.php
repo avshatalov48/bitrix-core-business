@@ -37,7 +37,7 @@ if ($arParams['INCLUDE_TOOLBAR'])
 	require_once __DIR__ . '/toolbar.php';
 }
 
-if (SITE_TEMPLATE_ID === 'bitrix24' && $arParams['INCLUDE_COUNTERS_BELOW_TITLE'])
+if ((SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air') && $arParams['INCLUDE_COUNTERS_BELOW_TITLE'])
 {
 	$this->SetViewTarget('below_pagetitle');
 }
@@ -70,12 +70,12 @@ if ($arResult['GROUP_PERMS']['UserCanModifyGroup'])
 	?>
 </div><?php
 
-if (SITE_TEMPLATE_ID === 'bitrix24' && $arParams['INCLUDE_COUNTERS_BELOW_TITLE'])
+if ((SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air') && $arParams['INCLUDE_COUNTERS_BELOW_TITLE'])
 {
 	$this->EndViewTarget();
 }
 
-if (SITE_TEMPLATE_ID === 'bitrix24')
+if (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 {
 	echo \Bitrix\Main\Update\Stepper::getHtml(
 		[ 'socialnetwork' => [ WorkgroupDeptSync::class ] ],
@@ -150,7 +150,8 @@ $gridContainerId = 'bx-sgul-' . $arResult['GRID_ID'] . '-container';
 			componentName: '<?= $component->getName() ?>',
 			signedParameters: '<?= $component->getSignedParameters() ?>',
 			useSlider: <?= (
-				\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') && SITE_TEMPLATE_ID === 'bitrix24'
+				\Bitrix\Main\ModuleManager::isModuleInstalled('intranet')
+				&& (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 					? 'true'
 					: 'false'
 			) ?>,

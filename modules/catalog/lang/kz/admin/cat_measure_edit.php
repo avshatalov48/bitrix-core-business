@@ -1,0 +1,26 @@
+<?php
+$MESS["CAT_MEASURE_ADD"] = "Қосу";
+$MESS["CAT_MEASURE_CLASSIFIER_MAIN"] = "Жіктеуіш бөлімін таңдаңыз";
+$MESS["CAT_MEASURE_CLASSIFIER_SUB"] = "Жіктеуіштің бөлімшесін таңдаңыз";
+$MESS["CAT_MEASURE_CODE"] = "Код";
+$MESS["CAT_MEASURE_CODE_EMPTY"] = "Өлшем бірлік кодын енгізіңіз.";
+$MESS["CAT_MEASURE_CODE_MSGVER_1"] = "Код";
+$MESS["CAT_MEASURE_DEFAULT"] = "Әдепкі бойынша";
+$MESS["CAT_MEASURE_DELETE"] = "Жою";
+$MESS["CAT_MEASURE_DELETE_CONFIRM"] = "Осы өлшем бірлігін жойғыңыз келетініне сенімдісіз бе?";
+$MESS["CAT_MEASURE_IS_DEFAULT"] = "Әдепкі бойынша";
+$MESS["CAT_MEASURE_LIST"] = "Өлшем бірліктерінің тізімі";
+$MESS["CAT_MEASURE_MEASURE_TITLE"] = "Өлшем бірлігінің атауы";
+$MESS["CAT_MEASURE_NOTHING_SELECT"] = "Бірде бір өлшем бірлігі таңдалмаған";
+$MESS["CAT_MEASURE_SUCCESS_ADD"] = "Сәтті қосылды";
+$MESS["CAT_MEASURE_SYMBOL_INTL"] = "Шартты белгілеу (халықаралық)";
+$MESS["CAT_MEASURE_SYMBOL_LETTER_INTL"] = "Кодтық әріптік белгілеу (халықаралық)";
+$MESS["CAT_MEASURE_SYMBOL_RUS"] = "Шартты белгілеу";
+$MESS["CAT_MEASURE_TITLE"] = "Өлшем бірліктері";
+$MESS["CAT_MEASURE_TITLE_ADD"] = "Өлшем бірлігін қосу";
+$MESS["CAT_MEASURE_TITLE_EDIT"] = "#ID# өлшем бірлігін редакциялау";
+$MESS["CAT_MEASURE_TITLE_EMPTY"] = "Өлшем бірлігінің атауын енгізіңіз.";
+$MESS["CAT_MEASURE_TITLE_NEW"] = "Өлшем бірлігін құру";
+$MESS["CAT_MEASURE_TITLE_OKEI"] = "Жіктеуіштен өлшем бірлігін қосу";
+$MESS["CAT_MEASURE_TITLE_ONE"] = "Өлшем бірлігі";
+$MESS["CVAT_SORT"] = "Сұрыптау";

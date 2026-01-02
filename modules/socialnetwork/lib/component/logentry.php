@@ -90,7 +90,7 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 		{
 			$folderUsers = Option::get('socialnetwork', 'user_page', false, SITE_ID);
 			$params['PATH_TO_LOG_TAG'] = $folderUsers . 'log/?TAG=#tag#';
-			if (SITE_TEMPLATE_ID === 'bitrix24')
+			if (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 			{
 				$params['PATH_TO_LOG_TAG'] .= '&apply_filter=Y';
 			}

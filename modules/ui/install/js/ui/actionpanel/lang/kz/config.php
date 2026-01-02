@@ -1,0 +1,3 @@
+<?php
+$MESS["JS_UI_ACTIONPANEL_IS_SELECTED"] = "Таңдалды:";
+$MESS["JS_UI_ACTIONPANEL_MORE_BLOCK"] = "Тағы";

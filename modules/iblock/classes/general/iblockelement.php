@@ -3,13 +3,13 @@
 use Bitrix\Iblock\FullIndex\FullText;
 use Bitrix\Main;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Iblock;
 use Bitrix\Iblock\ElementTable;
+use Bitrix\Iblock\IblockTable;
 use Bitrix\Catalog;
 use Bitrix\Main\ORM\Query\Filter\Helper;
-
-IncludeModuleLangFile(__FILE__);
 
 global $IBLOCK_ACTIVE_DATE_FORMAT;
 $IBLOCK_ACTIVE_DATE_FORMAT = Array();
@@ -238,7 +238,7 @@ class CAllIBlockElement
 	///////////////////////////////////////////////////////////////////
 	public static function WF_CleanUpHistory()
 	{
-		if (CModule::IncludeModule("workflow"))
+		if (Loader::includeModule('workflow'))
 		{
 			global $DB;
 
@@ -281,7 +281,7 @@ class CAllIBlockElement
 	///////////////////////////////////////////////////////////////////
 	public function WF_SetMove($NEW_ID, $OLD_ID = 0)
 	{
-		if(CModule::IncludeModule("workflow"))
+		if (Loader::includeModule('workflow'))
 		{
 			global $DB, $USER;
 
@@ -504,7 +504,7 @@ class CAllIBlockElement
 	///////////////////////////////////////////////////////////////////
 	public static function WF_CleanUpHistoryCopies($ELEMENT_ID=false, $HISTORY_COPIES=false)
 	{
-		if(CModule::IncludeModule("workflow"))
+		if (Loader::includeModule('workflow'))
 		{
 			global $DB;
 			if($HISTORY_COPIES===false)
@@ -548,7 +548,7 @@ class CAllIBlockElement
 
 	public static function WF_GetSqlLimit($PS="BE.", $SHOW_NEW="N")
 	{
-		if(CModule::IncludeModule("workflow"))
+		if (Loader::includeModule('workflow'))
 		{
 			$limit = " and ((".$PS."WF_STATUS_ID=1 and ".$PS."WF_PARENT_ELEMENT_ID is null)";
 			if($SHOW_NEW=="Y") $limit .= " or ".$PS."WF_NEW='Y' ";
@@ -628,7 +628,7 @@ class CAllIBlockElement
 		$zr = array(
 			'TITLE' => null
 		);
-		if(CModule::IncludeModule("workflow"))
+		if (Loader::includeModule('workflow'))
 		{
 			$STATUS_ID = (int)$STATUS_ID;
 			if($STATUS_ID>0)
@@ -646,7 +646,7 @@ class CAllIBlockElement
 		global $DB;
 		$STATUS_ID = 0;
 
-		if(CModule::IncludeModule("workflow"))
+		if (Loader::includeModule('workflow'))
 		{
 			$ELEMENT_ID = (int)$ELEMENT_ID;
 
@@ -677,7 +677,7 @@ class CAllIBlockElement
 	{
 		global $DB, $USER;
 		$result = false;
-		if(CModule::IncludeModule("workflow"))
+		if (Loader::includeModule('workflow'))
 		{
 			if(CWorkflow::IsAdmin())
 				return 2;
@@ -3458,7 +3458,7 @@ class CAllIBlockElement
 				elseif($by == "SHOW_COUNTER") $arSqlOrder[$by] = CIBlock::_Order("BE.SHOW_COUNTER", $order, "desc");
 				elseif($by == "SHOW_COUNTER_START") $arSqlOrder[$by] = CIBlock::_Order("BE.SHOW_COUNTER_START", $order, "desc");
 				elseif($by == "RAND") $arSqlOrder[$by] = CIBlockElement::GetRandFunction();
-				elseif($by == "SHOWS") $arSqlOrder[$by] = CIBlock::_Order(CIBlockElement::GetShowedFunction(), $order, "desc", false);
+				elseif($by == "SHOWS") $arSqlOrder[$by] = CIBlock::_Order('SHOWS', $order, "desc", false);
 				elseif($by == "HAS_PREVIEW_PICTURE") $arSqlOrder[$by] = CIBlock::_Order(CIBlock::_NotEmpty("BE.PREVIEW_PICTURE"), $order, "desc", false);
 				elseif($by == "HAS_DETAIL_PICTURE") $arSqlOrder[$by] = CIBlock::_Order(CIBlock::_NotEmpty("BE.DETAIL_PICTURE"), $order, "desc", false);
 				elseif($by == "RATING_TOTAL_VALUE")
@@ -3582,6 +3582,7 @@ class CAllIBlockElement
 				}
 				elseif ($by == "SHOWS")
 				{
+					$arSelectFields[] = 'SHOWS';
 					$arSelectFields[] = "SHOW_COUNTER";
 					$arSelectFields[] = "SHOW_COUNTER_START_X";
 				}
@@ -3807,6 +3808,11 @@ class CAllIBlockElement
 						$sSelect.=",0 as ".$val;
 					}
 				}
+				elseif ($val === 'SHOWS')
+				{
+					$arSelectFields[$key] = $val;
+					$sSelect .= ',' . CIBlockElement::GetShowedFunction() . ' as ' . $val;
+				}
 			}
 
 			if($bStar)
@@ -3981,7 +3987,7 @@ class CAllIBlockElement
 				elseif($arDef["IGNORE_ERRORS"] !== "Y")
 				{
 					unset($arFields["PREVIEW_PICTURE"]);
-					$strWarning .= GetMessage("IBLOCK_FIELD_PREVIEW_PICTURE").": ".$arNewPicture."<br>";
+					$strWarning .= Loc::getMessage("IBLOCK_FIELD_PREVIEW_PICTURE").": ".$arNewPicture."<br>";
 				}
 			}
 
@@ -4067,7 +4073,7 @@ class CAllIBlockElement
 				elseif($arDef["IGNORE_ERRORS"] !== "Y")
 				{
 					unset($arFields["DETAIL_PICTURE"]);
-					$strWarning .= GetMessage("IBLOCK_FIELD_DETAIL_PICTURE").": ".$arNewPicture."<br>";
+					$strWarning .= Loc::getMessage("IBLOCK_FIELD_DETAIL_PICTURE").": ".$arNewPicture."<br>";
 				}
 			}
 
@@ -4352,22 +4358,44 @@ class CAllIBlockElement
 			}
 			unset($updateFields);
 
-			if(is_set($arFields, "IBLOCK_SECTION"))
-				CIBlockElement::SetElementSection($ID, $arFields["IBLOCK_SECTION"], true, $arIBlock["RIGHTS_MODE"] === "E"? $arIBlock["ID"]: 0, $IBLOCK_SECTION_ID);
+			if (isset($arFields["IBLOCK_SECTION"]))
+			{
+				CIBlockElement::setNewElementSection(
+					(int)$ID,
+					$arFields["IBLOCK_SECTION"],
+					(int)$IBLOCK_SECTION_ID
+				);
+			}
 
 			if ($arIBlock["RIGHTS_MODE"] === Iblock\IblockTable::RIGHTS_EXTENDED)
 			{
 				$obElementRights = new CIBlockElementRights($arIBlock["ID"], $ID);
-				if(!is_set($arFields, "IBLOCK_SECTION") || empty($arFields["IBLOCK_SECTION"]))
-					$obElementRights->ChangeParents(array(), array(0));
-				if(array_key_exists("RIGHTS", $arFields) && is_array($arFields["RIGHTS"]))
-					$obElementRights->SetRights($arFields["RIGHTS"]);
+
+				$arFields['RIGHTS'] = isset($arFields['RIGHTS']) && is_array($arFields['RIGHTS']) ? $arFields['RIGHTS'] : [];
+
+				if (empty($arFields["IBLOCK_SECTION"]))
+				{
+					$obElementRights->addRightsByRootSection($arFields['RIGHTS']);
+				}
+				else
+				{
+					if (is_array($arFields["IBLOCK_SECTION"]))
+					{
+						$newParents = $arFields["IBLOCK_SECTION"];
+					}
+					else
+					{
+						$newParents = [(int)$arFields["IBLOCK_SECTION"]];
+					}
+
+					$obElementRights->addRightsBySection($newParents, $arFields['RIGHTS']);
+				}
 			}
 
-			if (array_key_exists("IPROPERTY_TEMPLATES", $arFields))
+			if (isset($arFields['IPROPERTY_TEMPLATES']))
 			{
-				$ipropTemplates = new \Bitrix\Iblock\InheritedProperty\ElementTemplates($arIBlock["ID"], $ID);
-				$ipropTemplates->set($arFields["IPROPERTY_TEMPLATES"]);
+				$ipropTemplates = new Iblock\InheritedProperty\ElementTemplates($arIBlock['ID'], $ID);
+				$ipropTemplates->set($arFields['IPROPERTY_TEMPLATES']);
 			}
 
 			if ($bUpdateSearch && $this->searchIncluded)
@@ -4495,56 +4523,76 @@ class CAllIBlockElement
 		global $DB;
 
 		$FILE_ID = (int)$FILE_ID;
-		if($FILE_ID <= 0)
-			return;
+		if ($FILE_ID <= 0)
+		{
+			return null;
+		}
 
-		if($ELEMENT_ID !== false)
+		if ($ELEMENT_ID !== false)
 		{//ELEMENT_ID may be false when we are going to check for a valid file from CheckFields
 			$ELEMENT_ID = (int)$ELEMENT_ID;
-			if($ELEMENT_ID <= 0)
-				return;
+			if ($ELEMENT_ID <= 0)
+			{
+				return null;
+			}
 		}
 
 		$IBLOCK_ID = (int)$IBLOCK_ID;
-		if($IBLOCK_ID <= 0 || $PARENT_ID===-1)
+		if ($IBLOCK_ID <= 0 || $PARENT_ID === -1)
 		{
-			if($ELEMENT_ID===false)
-				return; //This is an error in API call
+			if($ELEMENT_ID === false)
+			{
+				return null; //This is an error in API call
+			}
 			$rsElement = $DB->Query("SELECT IBLOCK_ID, WF_PARENT_ELEMENT_ID from b_iblock_element WHERE ID = ".$ELEMENT_ID);
 			$arElement = $rsElement->Fetch();
+			unset($rsElement);
 			if(!$arElement)
-				return;
-			$IBLOCK_ID = $arElement["IBLOCK_ID"];
+			{
+				return null;
+			}
+			$IBLOCK_ID = (int)$arElement["IBLOCK_ID"];
 			$PARENT_ID = $arElement["WF_PARENT_ELEMENT_ID"];
 		}
 
-		if($TYPE === false)
+		if ($TYPE === false)
 		{
 			$CNT = CIBlockElement::DeleteFile($FILE_ID, $ELEMENT_ID, "PREVIEW", $PARENT_ID, $IBLOCK_ID);
 			$CNT += CIBlockElement::DeleteFile($FILE_ID, $ELEMENT_ID, "DETAIL", $PARENT_ID, $IBLOCK_ID);
 			$CNT += CIBlockElement::DeleteFile($FILE_ID, $ELEMENT_ID, "PROPERTY", $PARENT_ID, $IBLOCK_ID);
+
 			return $CNT;
 		}
 
 		$VERSION = CIBlockElement::GetIBVersion($IBLOCK_ID);
 
-		$arProps = array();
-		if($TYPE === "PROPERTY" && $VERSION==2)
+		$arProps = [];
+		if ($TYPE === 'PROPERTY' && $VERSION === Iblock\IblockTable::PROPERTY_STORAGE_SEPARATE)
 		{
-			$strSQL = "
-				SELECT P.ID
-				FROM
-				b_iblock_property P
-				WHERE P.IBLOCK_ID = ".$IBLOCK_ID."
-				AND P.PROPERTY_TYPE = 'F'
-				AND P.MULTIPLE = 'N'
-			";
-			$rs = $DB->Query($strSQL);
-			while($ar = $rs->Fetch())
-				$arProps[] = " V.PROPERTY_".(int)$ar["ID"]." = ".$FILE_ID;
+			$iterator = Iblock\PropertyTable::getList([
+				'select' => [
+					'ID',
+				],
+				'filter' => [
+					'=IBLOCK_ID' => $IBLOCK_ID,
+					'=PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_FILE,
+					'=MULTIPLE' => 'N',
+				],
+				'cache' => [
+					'ttl' => 86400,
+				],
+			]);
+			while ($ar = $iterator->fetch())
+			{
+				$arProps[] = " V.PROPERTY_" . (int)$ar["ID"] . " = " . $FILE_ID;
+			}
+			unset(
+				$ar,
+				$iterator,
+			);
 		}
 
-		if($ELEMENT_ID === false)
+		if ($ELEMENT_ID === false)
 		{
 			//It is new historical record so we'' check original
 			//and all over history already there
@@ -4553,7 +4601,7 @@ class CAllIBlockElement
 				"E.WF_PARENT_ELEMENT_ID=".(int)$PARENT_ID
 			);
 		}
-		elseif((int)$PARENT_ID)
+		elseif ((int)$PARENT_ID)
 		{
 			//It's an historical record so we will check original
 			// and all history except deleted one
@@ -4572,9 +4620,9 @@ class CAllIBlockElement
 		}
 
 		$CNT = 0;
-		foreach($arWhere as $strWhere)
+		foreach ($arWhere as $strWhere)
 		{
-			if($TYPE === "PREVIEW")
+			if ($TYPE === "PREVIEW")
 			{
 				$strSQL = "
 					SELECT COUNT(1) CNT
@@ -4584,7 +4632,7 @@ class CAllIBlockElement
 				";
 
 			}
-			elseif($TYPE === "DETAIL")
+			elseif ($TYPE === "DETAIL")
 			{
 				$strSQL = "
 					SELECT COUNT(1) CNT
@@ -4593,9 +4641,9 @@ class CAllIBlockElement
 					AND DETAIL_PICTURE = ".$FILE_ID."
 				";
 			}
-			elseif($TYPE === "PROPERTY")
+			elseif ($TYPE === "PROPERTY")
 			{
-				if($VERSION==2)
+				if ($VERSION === Iblock\IblockTable::PROPERTY_STORAGE_SEPARATE)
 				{
 					$strSQL = "
 						SELECT COUNT(1) CNT
@@ -4633,13 +4681,16 @@ class CAllIBlockElement
 
 			$rs = $DB->Query($strSQL);
 			$ar = $rs->Fetch();
+			unset($rs);
 
 			$CNT += (int)$ar["CNT"];
-			if($CNT > 0)
+			if ($CNT > 0)
+			{
 				return $CNT;
+			}
 
 			//Check VERSION 2 SINGLE PROPERTIES
-			if(!empty($arProps))
+			if (!empty($arProps))
 			{
 				//This SQL potentially wrong
 				//in case when file may be saved in
@@ -4659,16 +4710,23 @@ class CAllIBlockElement
 				";
 				$rs = $DB->Query($strSQL);
 				$ar = $rs->Fetch();
+				unset($rs);
 				$CNT += (int)$ar["CNT"];
-				if($CNT > 0)
+				if ($CNT > 0)
+				{
 					return $CNT;
+				}
 			}
 		}
 
-		if($bCheckOnly)
+		if ($bCheckOnly)
+		{
 			return $CNT;
+		}
 		elseif($CNT === 0)
+		{
 			CFile::Delete($FILE_ID);
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////
@@ -4677,7 +4735,11 @@ class CAllIBlockElement
 	public static function Delete($ID)
 	{
 		global $DB, $APPLICATION, $USER;
-		$USER_ID = is_object($USER)? (int)$USER->GetID() : 0;
+		$USER_ID = 0;
+		if (isset($USER) && $USER instanceof CUser)
+		{
+			$USER_ID = (int)$USER->GetID();
+		}
 		$ID = (int)$ID;
 		if ($ID <= 0)
 		{
@@ -4766,8 +4828,14 @@ class CAllIBlockElement
 				foreach (GetModuleEvents("iblock", "OnIBlockElementDelete", true) as $arEvent)
 					ExecuteModuleEventEx($arEvent, array($elementId, $zr));
 
-				while($res = $db_res->Fetch())
+				while ($res = $db_res->Fetch())
+				{
 					CIBlockElement::DeleteFile($res["VALUE"], $zr["ID"], "PROPERTY", $zr["WF_PARENT_ELEMENT_ID"], $zr["IBLOCK_ID"]);
+				}
+				unset(
+					$res,
+					$db_res,
+				);
 
 				if($VERSION==2)
 				{
@@ -4783,7 +4851,7 @@ class CAllIBlockElement
 				}
 
 				static $arDelCache = array();
-				if(!is_set($arDelCache, $zr["IBLOCK_ID"]))
+				if (!isset($arDelCache[$zr["IBLOCK_ID"]]))
 				{
 					$arDelCache[$zr["IBLOCK_ID"]] = [];
 					$db_ps = $DB->Query("SELECT ID,IBLOCK_ID,VERSION,MULTIPLE FROM b_iblock_property WHERE PROPERTY_TYPE='E' AND (LINK_IBLOCK_ID=".$zr["IBLOCK_ID"]." OR LINK_IBLOCK_ID=0 OR LINK_IBLOCK_ID IS NULL)");
@@ -4802,9 +4870,13 @@ class CAllIBlockElement
 						}
 						$arDelCache[$zr["IBLOCK_ID"]][$strTable][] = $ar_ps["ID"];
 					}
+					unset(
+						$ar_ps,
+						$db_ps,
+					);
 				}
 
-				if($arDelCache[$zr["IBLOCK_ID"]])
+				if ($arDelCache[$zr["IBLOCK_ID"]])
 				{
 					foreach($arDelCache[$zr["IBLOCK_ID"]] as $strTable=>$arProps)
 					{
@@ -4855,11 +4927,13 @@ class CAllIBlockElement
 
 				$obIBlockElementRights = new CIBlockElementRights($zr["IBLOCK_ID"], $zr["ID"]);
 				$obIBlockElementRights->DeleteAllRights();
+				unset($obIBlockElementRights);
 
 				$ipropTemplates = new \Bitrix\Iblock\InheritedProperty\ElementTemplates($zr["IBLOCK_ID"], $zr["ID"]);
 				$ipropTemplates->delete();
+				unset($ipropTemplates);
 
-				if((int)$zr["WF_PARENT_ELEMENT_ID"]<=0 && $zr["WF_STATUS_ID"]==1 && CModule::IncludeModule("search"))
+				if((int)$zr["WF_PARENT_ELEMENT_ID"]<=0 && $zr["WF_STATUS_ID"]==1 && Loader::includeModule('search'))
 				{
 					CSearch::DeleteIndex("iblock", $elementId);
 				}
@@ -4867,7 +4941,7 @@ class CAllIBlockElement
 				CIBlockElement::DeleteFile($zr["PREVIEW_PICTURE"], $zr["ID"], "PREVIEW", $zr["WF_PARENT_ELEMENT_ID"], $zr["IBLOCK_ID"]);
 				CIBlockElement::DeleteFile($zr["DETAIL_PICTURE"], $zr["ID"], "DETAIL", $zr["WF_PARENT_ELEMENT_ID"], $zr["IBLOCK_ID"]);
 
-				if(CModule::IncludeModule("workflow"))
+				if (Loader::includeModule('workflow'))
 					$DB->Query("DELETE FROM b_workflow_move WHERE IBLOCK_ELEMENT_ID=".$elementId);
 
 				$DB->Query("DELETE FROM b_iblock_element_lock WHERE IBLOCK_ELEMENT_ID=".$elementId);
@@ -4887,7 +4961,7 @@ class CAllIBlockElement
 
 				\Bitrix\Iblock\PropertyIndex\Manager::deleteElementIndex($zr["IBLOCK_ID"], $piId);
 
-				if(CModule::IncludeModule("bizproc"))
+				if (Loader::includeModule('bizproc'))
 				{
 					$arErrorsTmp = [];
 					CBPDocument::OnDocumentDelete(["iblock", "CIBlockDocument", $zr["ID"]], $arErrorsTmp);
@@ -4902,6 +4976,10 @@ class CAllIBlockElement
 
 				unset($elementId);
 			}
+			unset(
+				$zr,
+				$z,
+			);
 		}
 		/************* QUOTA *************/
 		CDiskQuota::recalculateDb();
@@ -5005,21 +5083,21 @@ class CAllIBlockElement
 		}
 
 		if(($ID===false || array_key_exists("NAME", $arFields)) && (string)$arFields["NAME"] === '')
-			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_ELEMENT_NAME")."<br>";
+			$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_ELEMENT_NAME")."<br>";
 
 		if(
 			isset($arFields["ACTIVE_FROM"])
 			&& $arFields["ACTIVE_FROM"] != ''
 			&& !$DB->IsDate($arFields["ACTIVE_FROM"], false, LANG, "FULL")
 		)
-			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_ACTIVE_FROM")."<br>";
+			$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_ACTIVE_FROM")."<br>";
 
 		if(
 			isset($arFields["ACTIVE_TO"])
 			&& $arFields["ACTIVE_TO"] != ''
 			&& !$DB->IsDate($arFields["ACTIVE_TO"], false, LANG, "FULL")
 		)
-			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_ACTIVE_TO")."<br>";
+			$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_ACTIVE_TO")."<br>";
 
 		if(is_set($arFields, "PREVIEW_PICTURE"))
 		{
@@ -5037,7 +5115,7 @@ class CAllIBlockElement
 				if($error <> '')
 					$this->LAST_ERROR .= $error."<br>";
 				elseif(($error = CFile::checkForDb($arFields, "PREVIEW_PICTURE")) !== "")
-					$this->LAST_ERROR .= GetMessage("IBLOCK_ERR_PREVIEW_PICTURE")."<br>".$error."<br>";
+					$this->LAST_ERROR .= Loc::getMessage("IBLOCK_ERR_PREVIEW_PICTURE")."<br>".$error."<br>";
 			}
 			elseif((int)$arFields["PREVIEW_PICTURE"] > 0)
 			{
@@ -5053,7 +5131,7 @@ class CAllIBlockElement
 					) <= 0
 				)
 				{
-					$this->LAST_ERROR .= GetMessage("IBLOCK_ERR_PREVIEW_PICTURE")."<br>";
+					$this->LAST_ERROR .= Loc::getMessage("IBLOCK_ERR_PREVIEW_PICTURE")."<br>";
 				}
 			}
 		}
@@ -5074,7 +5152,7 @@ class CAllIBlockElement
 				if($error <> '')
 					$this->LAST_ERROR .= $error."<br>";
 				elseif(($error = CFile::checkForDb($arFields, "DETAIL_PICTURE")) !== "")
-					$this->LAST_ERROR .= GetMessage("IBLOCK_ERR_DETAIL_PICTURE")."<br>".$error."<br>";
+					$this->LAST_ERROR .= Loc::getMessage("IBLOCK_ERR_DETAIL_PICTURE")."<br>".$error."<br>";
 			}
 			elseif((int)$arFields["DETAIL_PICTURE"] > 0)
 			{
@@ -5090,18 +5168,18 @@ class CAllIBlockElement
 					) <= 0
 				)
 				{
-					$this->LAST_ERROR .= GetMessage("IBLOCK_ERR_DETAIL_PICTURE")."<br>";
+					$this->LAST_ERROR .= Loc::getMessage("IBLOCK_ERR_DETAIL_PICTURE")."<br>";
 				}
 			}
 		}
 
-		if(array_key_exists("TAGS", $arFields) && CModule::IncludeModule('search'))
+		if(array_key_exists("TAGS", $arFields) && Loader::includeModule('search'))
 		{
 			$arFields["TAGS"] = implode(", ", tags_prepare($arFields["TAGS"]));
 		}
 
 		if($ID===false && !is_set($arFields, "IBLOCK_ID"))
-			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_BLOCK_ID")."<br>";
+			$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_BLOCK_ID")."<br>";
 
 		//Find out IBLOCK_ID from fields or from element
 		$IBLOCK_ID = (int)($arFields["IBLOCK_ID"] ?? 0);
@@ -5126,7 +5204,7 @@ class CAllIBlockElement
 		if($IBLOCK_CACHE[$IBLOCK_ID])
 			$arFields["IBLOCK_ID"] = $IBLOCK_ID;
 		else
-			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_BLOCK_ID")."<br>";
+			$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_BLOCK_ID")."<br>";
 
 		if (is_set($arFields,'IBLOCK_SECTION') && !empty($arFields['IBLOCK_SECTION']))
 		{
@@ -5161,7 +5239,7 @@ class CAllIBlockElement
 						AND ID <> ".(int)$ID
 					);
 					if($res->Fetch())
-						$this->LAST_ERROR .= GetMessage("IBLOCK_DUP_ELEMENT_CODE")."<br>";
+						$this->LAST_ERROR .= Loc::getMessage("IBLOCK_DUP_ELEMENT_CODE")."<br>";
 				}
 
 
@@ -5197,7 +5275,7 @@ class CAllIBlockElement
 									$sum = intval($arFields[$FIELD_ID]);
 								}
 								if($sum <= 0)
-									$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
+									$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
 							}
 							break;
 						case "PREVIEW_PICTURE":
@@ -5214,13 +5292,13 @@ class CAllIBlockElement
 									&& is_array($arFields[$FIELD_ID])
 									&& $arFields[$FIELD_ID]["del"] === "Y"
 								)
-									$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
+									$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
 							}
 							else
 							{//There was NO picture so it MUST be present
 								if(!array_key_exists($FIELD_ID, $arFields))
 								{
-									$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
+									$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
 								}
 								elseif(is_array($arFields[$FIELD_ID]))
 								{
@@ -5229,12 +5307,12 @@ class CAllIBlockElement
 										|| (array_key_exists("error", $arFields[$FIELD_ID]) && $arFields[$FIELD_ID]["error"] !== 0)
 										|| $arFields[$FIELD_ID]["size"] <= 0
 									)
-										$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
+										$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
 								}
 								else
 								{
 									if(intval($arFields[$FIELD_ID]) <= 0)
-										$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
+										$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
 								}
 							}
 							break;
@@ -5243,7 +5321,7 @@ class CAllIBlockElement
 							{
 								$val = $arFields[$FIELD_ID];
 								if($val == '')
-									$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
+									$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
 							}
 							break;
 						default:
@@ -5254,7 +5332,7 @@ class CAllIBlockElement
 								else
 									$val = $arFields[$FIELD_ID];
 								if($val == '')
-									$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
+									$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_FIELD", array("#FIELD_NAME#" => $field["NAME"]))."<br>";
 							}
 							break;
 						}
@@ -5459,7 +5537,7 @@ class CAllIBlockElement
 				if ($bError)
 				{
 					$this->LAST_ERROR .=
-						GetMessage(
+						Loc::getMessage(
 							'IBLOCK_BAD_PROPERTY',
 							array('#PROPERTY#' => $arProperty['NAME'])
 						)
@@ -5469,7 +5547,7 @@ class CAllIBlockElement
 				if (!$correctValue)
 				{
 					$this->LAST_ERROR .=
-						GetMessage(
+						Loc::getMessage(
 							'IBLOCK_BAD_REQUIRED_PROPERTY_VALUE',
 							array('#PROPERTY#' => $arProperty['NAME'])
 						)
@@ -5508,7 +5586,7 @@ class CAllIBlockElement
 							if (CIBlockElement::DeleteFile($property_value, $ID, "PROPERTY",
 									(int)$arFields["WF_PARENT_ELEMENT_ID"], $arFields["IBLOCK_ID"], true) <= 0)
 							{
-								$this->LAST_ERROR .= GetMessage("IBLOCK_ERR_FILE_PROPERTY")."<br>";
+								$this->LAST_ERROR .= Loc::getMessage("IBLOCK_ERR_FILE_PROPERTY")."<br>";
 							}
 						}
 						elseif(is_array($property_value))
@@ -5535,7 +5613,7 @@ class CAllIBlockElement
 							{
 								if(HasScriptExtension($property_value["name"]))
 								{
-									$error = GetMessage("FILE_BAD_TYPE")." (".$property_value["name"].").";
+									$error = Loc::getMessage("FILE_BAD_TYPE")." (".$property_value["name"].").";
 								}
 							}
 
@@ -5955,6 +6033,56 @@ class CAllIBlockElement
 		}
 
 		return !empty($arToDelete) || !empty($arToInsert);
+	}
+
+	protected static function setNewElementSection(
+		int $ID,
+		array|string|int|bool $sections,
+		int $iblockSectionId
+	): bool
+	{
+		$listToInsert = [];
+
+		if (is_array($sections))
+		{
+			foreach ($sections as $sectionId)
+			{
+				$sectionId = (int)$sectionId;
+				if ($sectionId > 0)
+				{
+					$listToInsert[$sectionId] = $sectionId;
+				}
+			}
+		}
+		else
+		{
+			$singleValue = (int)$sections;
+			if ($singleValue > 0)
+			{
+				$listToInsert[$singleValue] = $singleValue;
+			}
+		}
+
+		if (!empty($listToInsert))
+		{
+			$conn = Main\Application::getConnection();
+
+			$conn->queryExecute("
+				INSERT INTO b_iblock_section_element(IBLOCK_SECTION_ID, IBLOCK_ELEMENT_ID)
+				SELECT S.ID, E.ID
+				FROM b_iblock_section S, b_iblock_element E
+				WHERE S.IBLOCK_ID = E.IBLOCK_ID
+				AND S.ID IN (" . implode(", ", $listToInsert) . ")
+				AND E.ID = " . $ID . "
+			");
+		}
+
+		if ($iblockSectionId > 0 || !empty($listToInsert))
+		{
+			CIBlockElement::RecalcSections($ID, $iblockSectionId);
+		}
+
+		return !empty($listToInsert);
 	}
 
 	function __InitFile($old_id, &$arFields, $fname)
@@ -7173,28 +7301,31 @@ class CAllIBlockElement
 
 	public static function DeletePropertySQL($property, $iblock_element_id)
 	{
-		global $DB;
-
-		if($property["VERSION"]==2)
+		$propertyId = (int)$property['ID'];
+		$elementId = (int)$iblock_element_id;
+		if ((int)$property['VERSION'] === IblockTable::PROPERTY_STORAGE_SEPARATE)
 		{
-			if($property["MULTIPLE"]=="Y")
+			$iblockId = (int)$property['IBLOCK_ID'];
+			if ($property['MULTIPLE'] === 'Y')
+			{
 				return "
 					DELETE
-					FROM b_iblock_element_prop_m".intval($property["IBLOCK_ID"])."
+					FROM b_iblock_element_prop_m" . $iblockId . "
 					WHERE
-						IBLOCK_ELEMENT_ID=".intval($iblock_element_id)."
-						AND IBLOCK_PROPERTY_ID=".intval($property["ID"])."
+						IBLOCK_ELEMENT_ID=" . $elementId . "
+						AND IBLOCK_PROPERTY_ID=" . $propertyId . "
 				";
+			}
 			else
 			{
 				return "
 					UPDATE
-						b_iblock_element_prop_s".intval($property["IBLOCK_ID"])."
+						b_iblock_element_prop_s" . $iblockId . "
 					SET
-						PROPERTY_".intval($property["ID"])."=null
-						".self::__GetDescriptionUpdateSql($property["IBLOCK_ID"], $property["ID"])."
+						PROPERTY_" . $propertyId . "=null
+						" . self::__GetDescriptionUpdateSql($iblockId, $propertyId) . "
 					WHERE
-						IBLOCK_ELEMENT_ID=".intval($iblock_element_id)."
+						IBLOCK_ELEMENT_ID=" . $elementId . "
 				";
 			}
 		}
@@ -7204,8 +7335,8 @@ class CAllIBlockElement
 				DELETE FROM
 					b_iblock_element_property
 				WHERE
-					IBLOCK_ELEMENT_ID=".intval($iblock_element_id)."
-					AND IBLOCK_PROPERTY_ID=".intval($property["ID"])."
+					IBLOCK_ELEMENT_ID=" . $elementId . "
+					AND IBLOCK_PROPERTY_ID=" . $propertyId . "
 			";
 		}
 	}

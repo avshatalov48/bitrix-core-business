@@ -4,7 +4,7 @@ import { AnalyticsCategory, AnalyticsEvent, AnalyticsSection, AnalyticsTool } fr
 
 export class CheckIn
 {
-	onOpenCheckInPopup()
+	onOpenCheckInPopup(): void
 	{
 		sendData({
 			event: AnalyticsEvent.popupOpen,

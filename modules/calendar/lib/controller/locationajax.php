@@ -82,6 +82,15 @@ class LocationAjax extends Controller
 		}
 
 		$sectionId = (int)$this->getRequest()->getPost('id');
+		$locationId = (int)$this->getRequest()->getPost('location_id');
+
+		if (!$this->isCorrectRoom($sectionId, $locationId))
+		{
+			$this->addError(new Error(Loc::getMessage('EC_CAL_INCORRECT_ERROR')));
+
+			return [];
+		}
+
 		$section = \CCalendarSect::GetById($sectionId);
 
 		if (empty($section))
@@ -137,6 +146,15 @@ class LocationAjax extends Controller
 		}
 
 		$sectionId = (int)$this->getRequest()->getPost('id');
+		$locationId = (int)$this->getRequest()->getPost('location_id');
+
+		if (!$this->isCorrectRoom($sectionId, $locationId))
+		{
+			$this->addError(new Error(Loc::getMessage('EC_CAL_INCORRECT_ERROR')));
+
+			return [];
+		}
+
 		$section = \CCalendarSect::GetById($sectionId);
 
 		if (empty($section))
@@ -468,5 +486,13 @@ class LocationAjax extends Controller
 		$categoryManagerData['categories'] = Rooms\Categories\Manager::getCategoryList() ?? [];
 
 		return $categoryManagerData;
+	}
+
+	private function isCorrectRoom(int $sectionId, int $locationId): bool
+	{
+		$room = Rooms\Manager::getRoomById($sectionId)[0] ?? null;
+		$roomLocationId = (int)($room['LOCATION_ID'] ?? null);
+
+		return $roomLocationId > 0 && $roomLocationId === $locationId;
 	}
 }

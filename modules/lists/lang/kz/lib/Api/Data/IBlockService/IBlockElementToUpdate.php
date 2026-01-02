@@ -1,0 +1,2 @@
+<?php
+$MESS["LISTS_LIB_API_DATA_IBLOCK_SERVICE_VALIDATE_FIELD_ERROR"] = "#FIELD_NAME# өрісінің дұрыс емес мәні";

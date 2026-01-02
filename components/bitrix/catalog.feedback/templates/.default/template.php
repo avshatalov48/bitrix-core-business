@@ -1,24 +1,29 @@
 <?php
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Web\Json;
-
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
-/** @var array $arParams */
-/** @var array $arResult */
+use Bitrix\Main\Application;
+use Bitrix\Main\Context;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
+use Bitrix\Main\Web\Json;
+use Bitrix\Main\Web\Uri;
 
-\Bitrix\Main\UI\Extension::load([
+/**
+ * @global \CMain $APPLICATION
+ * @var array $arParams
+ * @var array $arResult
+ */
+
+Extension::load([
 	'ui.design-tokens',
 	'ui.fonts.opensans',
 	'popup',
 	'sidepanel',
 ]);
-
-Loc::loadLanguageFile(__FILE__);
 
 $pageTitle = '';
 if ($arParams['FEEDBACK_TYPE'] === 'integration_request')
@@ -26,8 +31,9 @@ if ($arParams['FEEDBACK_TYPE'] === 'integration_request')
 	$pageTitle = Loc::getMessage('CATALOG_FEEDBACK_INTEGRATION_REQUEST_TITLE');
 }
 
-if(isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y")
+if (isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y")
 {
+	$request = Context::getCurrent()->getRequest();
 	$APPLICATION->RestartBuffer();
 	?>
 	<!DOCTYPE html>
@@ -37,7 +43,7 @@ if(isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y")
 				// Prevent loading page without header and footer
 				if (window === window.top)
 				{
-					window.location = "<?=CUtil::JSEscape((new \Bitrix\Main\Web\Uri(\Bitrix\Main\Application::getInstance()->getContext()->getRequest()->getRequestUri()))->deleteParams(['IFRAME', 'IFRAME_TYPE']));?>" + window.location.hash;
+					window.location = "<?=CUtil::JSEscape((new Uri($request->getRequestUri()))->deleteParams(['IFRAME', 'IFRAME_TYPE']));?>" + window.location.hash;
 				}
 			</script>
 			<script id="bx24_form_inline" data-skip-moving="true">
@@ -48,7 +54,9 @@ if(isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y")
 					var h=d.getElementsByTagName('script')[0];h.parentNode.insertBefore(s,h);
 				})(window,document,'<?= $arResult['domain'] ?>/bitrix/js/crm/form_loader.js','CatalogFeedback');
 			</script>
-			<?$APPLICATION->ShowHead(); ?>
+			<?php
+			$APPLICATION->ShowHead();
+			?>
 		</head>
 		<body class="document-limit-slider">
 			<div class="pagetitle-wrap">
@@ -59,8 +67,8 @@ if(isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y")
 				</div>
 			</div>
 			<div class="document-limit-container">
-<?}
-
+<?php
+}
 
 unset($arResult['domain']);
 ?>
@@ -75,9 +83,11 @@ unset($arResult['domain']);
 				</script>
 			</div>
 		</div>
-<?if(isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y")
-{?>
+<?php
+if (isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y")
+{
+	?>
 		</body>
-	</html><?
-	\Bitrix\Main\Application::getInstance()->terminate();
+	</html><?php
+	Application::getInstance()->terminate();
 }

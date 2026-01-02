@@ -26,7 +26,7 @@
 		this.crmActionBtnRole = 'crm-action';
 		this.hideClassName = 'main-ui-hide';
 		this.mailboxMenuToggle = document.querySelector('[data-role="mailbox-current-title"]');
-		this.settingsToggle = document.querySelector('[data-role="mail-list-settings-menu-popup-toggle"]');
+		this.settingsToggle = document.getElementsByClassName('mail-list-settings-menu-popup-toggle')[0];
 		this.mailboxPopupMenuId = 'mail-msg-list-mailbox-menu';
 		this.isCurrentFolderSpam = false;
 		this.isCurrentFolderTrash = false;

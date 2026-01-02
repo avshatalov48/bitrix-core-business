@@ -33,3 +33,4 @@ $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SINARA'] = 'Настройки п�
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_BEPAID'] = 'Настройки подключения BePaid';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_WOOPPAY'] = 'Настройки подключения Wooppay';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_PLATON'] = 'Настройки подключения Platon';
+$MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_TBB'] = "Настройки подключения Т-Бизнес";

@@ -9,37 +9,12 @@ use Bitrix\Main\Localization\Loc;
 global $APPLICATION;
 \Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/components/bitrix/main.ui.grid/templates/.default/style.css');
 
-if ($arResult['IS_SLIDER'])
-{
-	\CJSCore::init("sidepanel");
-	$APPLICATION->RestartBuffer();
-	?>
-	<!DOCTYPE html>
-	<html>
-	<head>
-		<? $APPLICATION->ShowHead(); ?>
-	</head>
-	<body>
-	<div class="main-num-edit-seq">
-	<div class="pagetitle-wrap">
-	<div class="pagetitle-inner-container">
-		<div class="pagetitle">
-			<span class="pagetitle-item "><?= Loc::getMessage('MAIN_NUMERATOR_EDIT_SEQUENCE_PAGE_TITLE'); ?></span>
-		</div>
-	</div>
-	</div><?
-}
-else
-{
-	$this->SetViewTarget('inside_pagetitle');
-
-	$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
-	$APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : '') . 'pagetitle-toolbar-field-view');
-
-	$this->EndViewTarget();
-	$APPLICATION->SetTitle(Loc::getMessage('MAIN_NUMERATOR_EDIT_SEQUENCE_PAGE_TITLE', ['#NUMERATOR_NAME#' => $arResult['NUMERATOR_NAME']]));
-}
-?><?
+$APPLICATION->SetTitle(
+	Loc::getMessage(
+		'MAIN_NUMERATOR_EDIT_SEQUENCE_PAGE_TITLE',
+		['#NUMERATOR_NAME#' => $arResult['NUMERATOR_NAME'] ?? '']
+	)
+);
 
 $arResult['GRID_DATA'] = [];
 
@@ -65,7 +40,7 @@ $APPLICATION->IncludeComponent(
 	'',
 	[
 		'GRID_ID'             => $arResult['GRID_ID'],
-		'MESSAGES'            => $arResult['MESSAGES'],
+		'MESSAGES'            => $arResult['MESSAGES'] ?? [],
 		'AJAX_MODE'           => 'Y',
 		'AJAX_OPTION_JUMP'    => 'N',
 		'AJAX_OPTION_HISTORY' => 'N',
@@ -94,11 +69,3 @@ $APPLICATION->IncludeComponent(
 	],
 	$component
 );
-?>
-<? if ($arResult['IS_SLIDER'])
-{
-	?>
-	</div>
-	</body>
-	</html>
-<? } ?>

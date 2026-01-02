@@ -1,5 +1,5 @@
 import { Utils } from 'im.v2.lib.utils';
-import { ChatTitle } from 'im.v2.component.elements';
+import { ChatTitle } from 'im.v2.component.elements.chat-title';
 
 import type { JsonObject } from 'main.core';
 
@@ -64,7 +64,7 @@ export const UserTitle = {
 		<div class="bx-im-chat-header__info">
 			<div class="bx-im-chat-header__title --user">
 				<a :href="userLink" target="_blank" class="bx-im-chat-header__title_container">
-					<ChatTitle :dialogId="dialogId" />
+					<ChatTitle :dialogId="dialogId" :withAutoDelete="true" :withMute="true" />
 				</a>
 				<span class="bx-im-chat-header__user-status">{{ userLastOnlineText }}</span>
 			</div>

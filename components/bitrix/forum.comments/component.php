@@ -168,6 +168,29 @@ $arResult["PANELS"] = array(
 	"DELETE" => $arResult["USER"]["RIGHTS"]["EDIT"]
 );
 
+if (isset($arParams['PUBLIC_MODE']) && $arParams['PUBLIC_MODE'])
+{
+	$arResult['EDIT_RIGHT'] = 'N';
+}
+else
+{
+	if (isset($arResult['PANELS']['EDIT']) && $arResult['PANELS']['EDIT'] === 'N')
+	{
+		if ($arParams['ALLOW_EDIT_OWN_MESSAGE'] === 'ALL')
+		{
+			$arResult['EDIT_RIGHT'] = 'OWN';
+		}
+		else
+		{
+			$arResult['EDIT_RIGHT'] = $arParams['ALLOW_EDIT_OWN_MESSAGE'] === 'LAST' ? 'OWNLAST' : 'N';
+		}
+	}
+	else
+	{
+		$arResult['EDIT_RIGHT'] = 'Y';
+	}
+}
+
 /************** Show post form **********************************/
 $arResult["SHOW_POST_FORM"] = array_key_exists("SHOW_POST_FORM", $arParams) && $arParams["SHOW_POST_FORM"] === "N" ?
 	"N" : $arResult["USER"]["RIGHTS"]["ADD_MESSAGE"];
@@ -454,7 +477,7 @@ if ($arResult["DO_NOT_CACHE"] || $this->StartResultCache($arParams["CACHE_TIME"]
 		];
 		//endregion
 
-		$dbMessageIterator = new CDBResult(Forum\MessageTable::getList($getListParams)->fetchAll());
+		$dbMessageIterator = new _CMessageDBResult(Forum\MessageTable::getList($getListParams)->fetchAll());
 
 		$dbMessageIterator->NavRecordCount = $totalCount;
 		$dbMessageIterator->NavStart(

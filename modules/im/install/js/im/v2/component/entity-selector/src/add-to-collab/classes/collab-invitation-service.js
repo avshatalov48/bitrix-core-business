@@ -9,7 +9,7 @@ type AddEmployeesToCollabRequest = {
 
 export class CollabInvitationService
 {
-	addEmployees({ dialogId, members }: AddEmployeesToCollabRequest): Promise
+	addEmployees({ dialogId, members }: AddEmployeesToCollabRequest): void
 	{
 		const payload = {
 			data: {
@@ -18,22 +18,22 @@ export class CollabInvitationService
 			},
 		};
 
-		return runAction(RestMethod.socialnetworkMemberAdd, payload)
-			.catch((error) => {
+		runAction(RestMethod.socialnetworkMemberAdd, payload)
+			.catch(([error]) => {
 				console.error('CollabInvitationService: add employee error', error);
 			});
 	}
 
-	copyLink(collabId: number): Promise<string>
+	copyLink(collabId: number, userLang: string): Promise<string>
 	{
 		const payload = {
-			data: { collabId },
+			data: { collabId, userLang },
 		};
 
 		return runAction(RestMethod.intranetInviteGetLinkByCollabId, payload)
-			.catch((errors) => {
-				console.error('CollabInvitationService: getting invite link error', errors);
-				throw errors;
+			.catch(([error]) => {
+				console.error('CollabInvitationService: getting invite link error', error);
+				throw error;
 			});
 	}
 
@@ -44,9 +44,9 @@ export class CollabInvitationService
 		};
 
 		return runAction(RestMethod.intranetInviteRegenerateLinkByCollabId, payload)
-			.catch((errors) => {
-				console.error('CollabInvitationService: updating invite link error', errors);
-				throw errors;
+			.catch(([error]) => {
+				console.error('CollabInvitationService: updating invite link error', error);
+				throw error;
 			});
 	}
 }

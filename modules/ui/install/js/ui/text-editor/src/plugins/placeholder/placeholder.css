@@ -1,6 +1,6 @@
 .ui-text-editor-placeholder {
 	display: none;
-	color: var(--ui-color-text-subtle);
+	color: #34343466;
 	font-family: var(--ui-text-editor-font-family);
 	line-height: var(--ui-text-editor-line-height);
 	font-size: var(--ui-text-editor-font-size);

@@ -1,0 +1,25 @@
+<?php
+$MESS["SALE_ALLOW_DELIVERY"] = "Рұқсат етілген жеткізулер саны";
+$MESS["SALE_ALLOW_DELIVERY_PROC"] = "Жеткізуге рұқсат етілген (%)";
+$MESS["SALE_CANCELED"] = "Бас тартылғандар саны";
+$MESS["SALE_CANCELED_PROC"] = "Бас тартылғандар (%)";
+$MESS["SALE_COUNT"] = "Жалпы саны";
+$MESS["SALE_DATE"] = "Күні";
+$MESS["SALE_DISCOUNT_VALUE"] = "Жеңілдік мөлшері (#CURRENCY#)";
+$MESS["SALE_PAYED"] = "Төленгендер саны";
+$MESS["SALE_PAYED_PROC"] = "Төленгендер (%)";
+$MESS["SALE_PRICE"] = "Құны (#CURRENCY#)";
+$MESS["SALE_PRICE_ALLOW_DELIVERY"] = "Жеткізуі рұқсат етілгенмен құны (#CURRENCY#)";
+$MESS["SALE_PRICE_CANCELED"] = "Бас тартылғандар құны (#CURRENCY#)";
+$MESS["SALE_PRICE_DELIVERY"] = "Жеткізу құны (#CURRENCY#)";
+$MESS["SALE_PRICE_PAYED"] = "Төленгендер құны (#CURRENCY#)";
+$MESS["SALE_QUANTITY"] = "(саны)";
+$MESS["SALE_SECTION_TITLE"] = "Тапсырыстар бойынша статистика";
+$MESS["SALE_S_BY"] = "Келесідей топтастыру";
+$MESS["SALE_S_DATE"] = "Тапсырыс күні";
+$MESS["SALE_S_DAY"] = "күндер бойынша";
+$MESS["SALE_S_MONTH"] = "айлар бойынша";
+$MESS["SALE_S_SITE"] = "Сайт";
+$MESS["SALE_S_WEEK"] = "апталар бойынша";
+$MESS["SALE_S_YEAR"] = "жылдар бойынша";
+$MESS["SALE_TAX_VALUE"] = "Салықтар құны (#CURRENCY#)";

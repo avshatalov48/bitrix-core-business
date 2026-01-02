@@ -34,7 +34,11 @@
 }
 
 .report-widget-configuration-form-action-buttons-container {
-	flex: 1
+	flex: 1;
+	display: flex;
+	flex-direction: row;
+	justify-content: start;
+	gap: 5px;
 }
 
 .report-configuration-footer-right-container {
@@ -237,4 +241,3 @@
 	color: #fff;
 	transition: width .4s;
 }
-

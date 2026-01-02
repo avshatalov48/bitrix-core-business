@@ -1019,6 +1019,20 @@ body > a[style*="background: highlight"] {
 	margin-bottom: 10px;
 }
 
+.landing-item-market-disable {
+	background-color: #cfd4d8;
+	display: flex;
+	text-align: center;
+	align-items: center;
+	color: #525c69;
+}
+
+.landing-item-market-disable-title {
+	font: 16px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
+	margin: 15px;
+}
+
 .landing-item-dev {
 	background-color: rgba(255,255,255, .15);
 	box-shadow: none;

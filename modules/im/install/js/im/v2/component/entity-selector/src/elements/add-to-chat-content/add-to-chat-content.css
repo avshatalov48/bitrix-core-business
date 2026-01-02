@@ -26,7 +26,7 @@
 }
 
 .bx-im-entity-selector-add-to-chat__input {
-	padding: 0 16px 16px;
+	padding: 0 16px;
 }
 
 .bx-im-entity-selector-add-to-chat__search-result-container {
@@ -50,11 +50,16 @@
 .bx-im-entity-selector-add-to-chat__show-history {
 	font: var(--im-font-size-xl)/18px var(--im-font-family-system);
 	color: var(--im-entity-selector-add-to-chat__color_show-history);
-	padding: 0 0 16px 17px;
+	padding: 0 0 0 16px;
+	margin-top: 16px;
 }
 
 .bx-im-entity-selector-add-to-chat__show-history label {
 	padding-left: 4px;
+}
+
+.bx-im-entity-selector-add-to-chat__show-history input {
+	margin-left: 0;
 }
 
 .bx-im-entity-selector-add-to-chat__title {

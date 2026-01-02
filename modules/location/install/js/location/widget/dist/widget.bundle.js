@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Location = this.BX.Location || {};
-(function (exports,ui_vue,ui_designTokens,location_google,main_popup,location_source,ui_forms,location_core,location_widget,main_core_events,main_core) {
+(function (exports,ui_designTokens,location_google,main_popup,location_source,ui_forms,location_core,location_widget,main_core_events,main_core) {
 	'use strict';
 
 	/**
@@ -108,55 +108,6 @@ this.BX.Location = this.BX.Location || {};
 	  return result;
 	}
 
-	var AddressApplier = ui_vue.Vue.extend({
-	  props: {
-	    address: {
-	      required: true
-	    },
-	    addressFormat: {
-	      required: true
-	    },
-	    isHidden: {
-	      required: true
-	    }
-	  },
-	  methods: {
-	    handleApplyClick: function handleApplyClick() {
-	      this.$emit('apply', {
-	        address: this.address
-	      });
-	    },
-	    convertAddressToString: function convertAddressToString(address) {
-	      if (!address) {
-	        return '';
-	      }
-	      return address.toString(this.addressFormat, location_core.AddressStringConverter.STRATEGY_TYPE_TEMPLATE_COMMA);
-	    }
-	  },
-	  computed: {
-	    addressString: function addressString() {
-	      if (!this.address) {
-	        return '';
-	      }
-	      return this.address.toString(this.addressFormat, location_core.AddressStringConverter.STRATEGY_TYPE_TEMPLATE_COMMA, location_core.AddressStringConverter.CONTENT_TYPE_TEXT);
-	    },
-	    containerStyles: function containerStyles() {
-	      return {
-	        display: this.isHidden ? 'none' : 'flex'
-	      };
-	    },
-	    containerClasses: function containerClasses() {
-	      return this.isHidden ? {
-	        hidden: true
-	      } : {};
-	    },
-	    localize: function localize() {
-	      return ui_vue.Vue.getFilteredPhrases('LOCATION_WIDGET_');
-	    }
-	  },
-	  template: "\n\t\t<div\n\t\t\t:class=\"containerClasses\"\n\t\t\t:style=\"containerStyles\"\n\t\t\tclass=\"location-map-address-changed\"\n\t\t>\n\t\t\t<div class=\"location-map-address-changed-inner\">\n\t\t\t<div class=\"location-map-address-changed-title\">\n\t\t\t\t{{localize.LOCATION_WIDGET_AUI_ADDRESS_CHANGED_NEW_ADDRESS}}\n\t\t\t</div>\n\t\t\t<div class=\"location-map-address-changed-text\">{{addressString}}</div>\n\t\t\t</div>\n\t\t\t<button @click=\"handleApplyClick\" type=\"button\" class=\"location-map-address-apply-btn\">\n\t\t\t\t{{localize.LOCATION_WIDGET_AUI_ADDRESS_APPLY}}\n\t\t\t</button>\n\t\t</div>\t\n\t"
-	});
-
 	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
 	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
@@ -237,7 +188,7 @@ this.BX.Location = this.BX.Location || {};
 	  return true;
 	}
 
-	var _templateObject$1, _templateObject2$1, _templateObject3;
+	var _templateObject$1, _templateObject2$1, _templateObject3, _templateObject4, _templateObject5, _templateObject6;
 	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
@@ -249,37 +200,46 @@ this.BX.Location = this.BX.Location || {};
 	var _map = /*#__PURE__*/new WeakMap();
 	var _mode = /*#__PURE__*/new WeakMap();
 	var _address$1 = /*#__PURE__*/new WeakMap();
+	var _prevAddress = /*#__PURE__*/new WeakMap();
 	var _popup = /*#__PURE__*/new WeakMap();
 	var _addressString = /*#__PURE__*/new WeakMap();
-	var _addressApplier = /*#__PURE__*/new WeakMap();
 	var _addressFormat$1 = /*#__PURE__*/new WeakMap();
 	var _gallery = /*#__PURE__*/new WeakMap();
-	var _locationRepository = /*#__PURE__*/new WeakMap();
 	var _isMapRendered = /*#__PURE__*/new WeakMap();
 	var _mapInnerContainer = /*#__PURE__*/new WeakMap();
-	var _geocodingService = /*#__PURE__*/new WeakMap();
 	var _contentWrapper = /*#__PURE__*/new WeakMap();
+	var _applyAddressElement = /*#__PURE__*/new WeakMap();
+	var _applyAddressButtonElement = /*#__PURE__*/new WeakMap();
+	var _addressApplyTextElement = /*#__PURE__*/new WeakMap();
 	var _userLocationPoint = /*#__PURE__*/new WeakMap();
-	var _createAddressApplier = /*#__PURE__*/new WeakSet();
 	var _onLocationChanged = /*#__PURE__*/new WeakSet();
 	var _renderPopup = /*#__PURE__*/new WeakSet();
+	var _createApplyAddressElement = /*#__PURE__*/new WeakSet();
+	var _onApplyAddressClick = /*#__PURE__*/new WeakSet();
 	var _extractLatLon = /*#__PURE__*/new WeakSet();
 	var _convertAddressToLocation = /*#__PURE__*/new WeakSet();
 	var _setLocationInternal = /*#__PURE__*/new WeakSet();
 	var _renderMap = /*#__PURE__*/new WeakSet();
+	var _hideApplyAddress = /*#__PURE__*/new WeakSet();
+	var _showApplyAddress = /*#__PURE__*/new WeakSet();
+	var _getAddressAsText = /*#__PURE__*/new WeakSet();
 	var MapPopup = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(MapPopup, _EventEmitter);
 	  function MapPopup(props) {
 	    var _this;
 	    babelHelpers.classCallCheck(this, MapPopup);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(MapPopup).call(this, props));
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _getAddressAsText);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _showApplyAddress);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _hideApplyAddress);
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderMap);
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _setLocationInternal);
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _convertAddressToLocation);
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _extractLatLon);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onApplyAddressClick);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _createApplyAddressElement);
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderPopup);
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onLocationChanged);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _createAddressApplier);
 	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _map, {
 	      writable: true,
 	      value: void 0
@@ -292,15 +252,15 @@ this.BX.Location = this.BX.Location || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _prevAddress, {
+	      writable: true,
+	      value: void 0
+	    });
 	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _popup, {
 	      writable: true,
 	      value: void 0
 	    });
 	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _addressString, {
-	      writable: true,
-	      value: void 0
-	    });
-	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _addressApplier, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -312,10 +272,6 @@ this.BX.Location = this.BX.Location || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _locationRepository, {
-	      writable: true,
-	      value: void 0
-	    });
 	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _isMapRendered, {
 	      writable: true,
 	      value: false
@@ -324,11 +280,19 @@ this.BX.Location = this.BX.Location || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _geocodingService, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _contentWrapper, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _contentWrapper, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _applyAddressElement, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _applyAddressButtonElement, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _addressApplyTextElement, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -341,9 +305,6 @@ this.BX.Location = this.BX.Location || {};
 	      BX.debug('map must be instance of Map');
 	    }
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _map, props.map);
-	    if (props.geocodingService instanceof location_core.GeocodingServiceBase) {
-	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _geocodingService, props.geocodingService);
-	    }
 	    babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _map).onLocationChangedEventSubscribe(_classPrivateMethodGet$2(babelHelpers.assertThisInitialized(_this), _onLocationChanged, _onLocationChanged2).bind(babelHelpers.assertThisInitialized(_this)));
 	    if (!(props.popup instanceof Popup)) {
 	      BX.debug('popup must be instance of Popup');
@@ -356,11 +317,9 @@ this.BX.Location = this.BX.Location || {};
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _addressString, new AddressString({
 	      addressFormat: babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _addressFormat$1)
 	    }));
-	    _classPrivateMethodGet$2(babelHelpers.assertThisInitialized(_this), _createAddressApplier, _createAddressApplier2).call(babelHelpers.assertThisInitialized(_this));
 	    if (props.gallery) {
 	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _gallery, props.gallery);
 	    }
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _locationRepository, props.locationRepository);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _userLocationPoint, props.userLocationPoint);
 	    return _this;
 	  }
@@ -371,6 +330,7 @@ this.BX.Location = this.BX.Location || {};
 	      babelHelpers.classPrivateFieldSet(this, _mode, props.mode);
 	      babelHelpers.classPrivateFieldSet(this, _isMapRendered, false);
 	      babelHelpers.classPrivateFieldSet(this, _mapInnerContainer, main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"location-map-inner\"></div>"]))));
+	      _classPrivateMethodGet$2(this, _createApplyAddressElement, _createApplyAddressElement2).call(this);
 	      _classPrivateMethodGet$2(this, _renderPopup, _renderPopup2).call(this, props.bindElement, babelHelpers.classPrivateFieldGet(this, _mapInnerContainer));
 	    }
 	  }, {
@@ -383,7 +343,14 @@ this.BX.Location = this.BX.Location || {};
 	          return;
 	        }
 	        babelHelpers.classPrivateFieldGet(_this2, _popup).show();
-	        if (!babelHelpers.classPrivateFieldGet(_this2, _isMapRendered)) {
+	        if (babelHelpers.classPrivateFieldGet(_this2, _isMapRendered)) {
+	          babelHelpers.classPrivateFieldGet(_this2, _map).location = location;
+	          if (babelHelpers.classPrivateFieldGet(_this2, _gallery)) {
+	            babelHelpers.classPrivateFieldGet(_this2, _gallery).location = location;
+	          }
+	          _this2.emit(_classStaticPrivateFieldSpecGet(MapPopup, MapPopup, _onShowedEvent));
+	          babelHelpers.classPrivateFieldGet(_this2, _map).onMapShow();
+	        } else {
 	          _classPrivateMethodGet$2(_this2, _renderMap, _renderMap2).call(_this2, {
 	            location: location
 	          }).then(function () {
@@ -394,13 +361,6 @@ this.BX.Location = this.BX.Location || {};
 	            babelHelpers.classPrivateFieldGet(_this2, _map).onMapShow();
 	          });
 	          babelHelpers.classPrivateFieldSet(_this2, _isMapRendered, true);
-	        } else {
-	          babelHelpers.classPrivateFieldGet(_this2, _map).location = location;
-	          if (babelHelpers.classPrivateFieldGet(_this2, _gallery)) {
-	            babelHelpers.classPrivateFieldGet(_this2, _gallery).location = location;
-	          }
-	          _this2.emit(_classStaticPrivateFieldSpecGet(MapPopup, MapPopup, _onShowedEvent));
-	          babelHelpers.classPrivateFieldGet(_this2, _map).onMapShow();
 	        }
 	      });
 	    }
@@ -413,7 +373,7 @@ this.BX.Location = this.BX.Location || {};
 	    key: "close",
 	    value: function close() {
 	      babelHelpers.classPrivateFieldGet(this, _popup).close();
-	      babelHelpers.classPrivateFieldGet(this, _addressApplier).$props.isHidden = true;
+	      _classPrivateMethodGet$2(this, _hideApplyAddress, _hideApplyAddress2).call(this);
 	      this.emit(_classStaticPrivateFieldSpecGet(MapPopup, MapPopup, _onClosedEvent));
 	    }
 	  }, {
@@ -447,7 +407,6 @@ this.BX.Location = this.BX.Location || {};
 	      babelHelpers.classPrivateFieldSet(this, _map, null);
 	      babelHelpers.classPrivateFieldSet(this, _gallery, null);
 	      babelHelpers.classPrivateFieldSet(this, _addressString, null);
-	      babelHelpers.classPrivateFieldSet(this, _addressApplier, null);
 	      babelHelpers.classPrivateFieldGet(this, _popup).destroy();
 	      babelHelpers.classPrivateFieldSet(this, _popup, null);
 	      main_core.Dom.remove(babelHelpers.classPrivateFieldGet(this, _contentWrapper));
@@ -485,26 +444,6 @@ this.BX.Location = this.BX.Location || {};
 	  }]);
 	  return MapPopup;
 	}(main_core_events.EventEmitter);
-	function _createAddressApplier2() {
-	  var _this4 = this;
-	  babelHelpers.classPrivateFieldSet(this, _addressApplier, new AddressApplier({
-	    propsData: {
-	      address: babelHelpers.classPrivateFieldGet(this, _address$1),
-	      addressFormat: babelHelpers.classPrivateFieldGet(this, _addressFormat$1),
-	      isHidden: true
-	    }
-	  }));
-	  babelHelpers.classPrivateFieldGet(this, _addressApplier).$mount();
-	  babelHelpers.classPrivateFieldGet(this, _addressApplier).$on('apply', function (event) {
-	    var prevAddress = event.address;
-	    babelHelpers.classPrivateFieldSet(_this4, _address$1, prevAddress);
-	    babelHelpers.classPrivateFieldGet(_this4, _addressString).address = prevAddress;
-	    babelHelpers.classPrivateFieldGet(_this4, _addressApplier).$props.isHidden = true;
-	    _this4.emit(_classStaticPrivateFieldSpecGet(MapPopup, MapPopup, _onChangedEvent), {
-	      address: prevAddress
-	    });
-	  });
-	}
 	function _onLocationChanged2(event) {
 	  var data = event.getData();
 	  var location = data.location;
@@ -525,37 +464,55 @@ this.BX.Location = this.BX.Location || {};
 	    this.emit(_classStaticPrivateFieldSpecGet(MapPopup, MapPopup, _onChangedEvent), {
 	      address: babelHelpers.classPrivateFieldGet(this, _address$1)
 	    });
-	    babelHelpers.classPrivateFieldGet(this, _addressApplier).$props.isHidden = true;
+	    _classPrivateMethodGet$2(this, _hideApplyAddress, _hideApplyAddress2).call(this);
 	  } else {
 	    babelHelpers.classPrivateFieldGet(this, _addressString).address = address;
-	    babelHelpers.classPrivateFieldGet(this, _addressApplier).$props.address = address;
-	    babelHelpers.classPrivateFieldGet(this, _addressApplier).$props.isHidden = false;
+	    babelHelpers.classPrivateFieldSet(this, _prevAddress, address);
+	    main_core.Dom.adjust(babelHelpers.classPrivateFieldGet(this, _addressApplyTextElement), {
+	      text: _classPrivateMethodGet$2(this, _getAddressAsText, _getAddressAsText2).call(this, babelHelpers.classPrivateFieldGet(this, _prevAddress))
+	    });
+	    _classPrivateMethodGet$2(this, _showApplyAddress, _showApplyAddress2).call(this);
 	  }
 	  if (babelHelpers.classPrivateFieldGet(this, _gallery)) {
 	    babelHelpers.classPrivateFieldGet(this, _gallery).location = location;
 	  }
 	}
 	function _renderPopup2(bindElement, mapInnerContainer) {
-	  var _this5 = this;
+	  var _this4 = this;
 	  var gallery = '';
 	  if (babelHelpers.classPrivateFieldGet(this, _gallery)) {
 	    gallery = babelHelpers.classPrivateFieldGet(this, _gallery).render();
 	  }
 	  var thirdPartyWarningNode = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"location-map-address-third-party-warning\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('LOCATION_WIDGET_THIRD_PARTY_WARNING'));
-	  babelHelpers.classPrivateFieldSet(this, _contentWrapper, main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"location-map-wrapper\">\n\t\t\t\t<div class=\"location-map-container\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>"])), mapInnerContainer, gallery, babelHelpers.classPrivateFieldGet(this, _mode) === location_core.ControlMode.edit ? babelHelpers.classPrivateFieldGet(this, _addressString).render({
+	  babelHelpers.classPrivateFieldSet(this, _contentWrapper, main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"location-map-wrapper\">\n\t\t\t\t<div class=\"location-map-container\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), mapInnerContainer, gallery, babelHelpers.classPrivateFieldGet(this, _mode) === location_core.ControlMode.edit ? babelHelpers.classPrivateFieldGet(this, _addressString).render({
 	    address: babelHelpers.classPrivateFieldGet(this, _address$1)
-	  }) : '', thirdPartyWarningNode, babelHelpers.classPrivateFieldGet(this, _mode) === location_core.ControlMode.edit ? babelHelpers.classPrivateFieldGet(this, _addressApplier).$el : ''));
+	  }) : '', thirdPartyWarningNode, babelHelpers.classPrivateFieldGet(this, _mode) === location_core.ControlMode.edit ? babelHelpers.classPrivateFieldGet(this, _applyAddressElement) : ''));
 	  main_core.Event.bind(babelHelpers.classPrivateFieldGet(this, _contentWrapper), 'click', function (e) {
 	    return e.stopPropagation();
 	  });
 	  main_core.Event.bind(babelHelpers.classPrivateFieldGet(this, _contentWrapper), 'mouseover', function (e) {
-	    return _this5.emit(_classStaticPrivateFieldSpecGet(MapPopup, MapPopup, _onMouseOverEvent), e);
+	    return _this4.emit(_classStaticPrivateFieldSpecGet(MapPopup, MapPopup, _onMouseOverEvent), e);
 	  });
 	  main_core.Event.bind(babelHelpers.classPrivateFieldGet(this, _contentWrapper), 'mouseout', function (e) {
-	    return _this5.emit(_classStaticPrivateFieldSpecGet(MapPopup, MapPopup, _onMouseOutEvent), e);
+	    return _this4.emit(_classStaticPrivateFieldSpecGet(MapPopup, MapPopup, _onMouseOutEvent), e);
 	  });
 	  this.bindElement = bindElement;
 	  babelHelpers.classPrivateFieldGet(this, _popup).setContent(babelHelpers.classPrivateFieldGet(this, _contentWrapper));
+	  _classPrivateMethodGet$2(this, _hideApplyAddress, _hideApplyAddress2).call(this);
+	}
+	function _createApplyAddressElement2() {
+	  babelHelpers.classPrivateFieldSet(this, _applyAddressButtonElement, main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<button @click=\"handleApplyClick\" type=\"button\" class=\"location-map-address-apply-btn\">\n\t\t\t\t", "\n\t\t\t</button>\n\t\t"])), main_core.Loc.getMessage('LOCATION_WIDGET_AUI_ADDRESS_APPLY')));
+	  main_core.Event.bind(babelHelpers.classPrivateFieldGet(this, _applyAddressButtonElement), 'click', _classPrivateMethodGet$2(this, _onApplyAddressClick, _onApplyAddressClick2).bind(this));
+	  babelHelpers.classPrivateFieldSet(this, _addressApplyTextElement, main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"location-map-address-changed-text\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), _classPrivateMethodGet$2(this, _getAddressAsText, _getAddressAsText2).call(this, babelHelpers.classPrivateFieldGet(this, _address$1))));
+	  babelHelpers.classPrivateFieldSet(this, _applyAddressElement, main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"location-map-address-changed\">\n\t\t\t\t<div class=\"location-map-address-changed-inner\">\n\t\t\t\t<div class=\"location-map-address-changed-title\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\t\n\t\t"])), main_core.Loc.getMessage('LOCATION_WIDGET_AUI_ADDRESS_CHANGED_NEW_ADDRESS'), babelHelpers.classPrivateFieldGet(this, _addressApplyTextElement), babelHelpers.classPrivateFieldGet(this, _applyAddressButtonElement)));
+	}
+	function _onApplyAddressClick2() {
+	  babelHelpers.classPrivateFieldSet(this, _address$1, babelHelpers.classPrivateFieldGet(this, _prevAddress));
+	  babelHelpers.classPrivateFieldGet(this, _addressString).address = babelHelpers.classPrivateFieldGet(this, _prevAddress);
+	  _classPrivateMethodGet$2(this, _hideApplyAddress, _hideApplyAddress2).call(this);
+	  this.emit(_classStaticPrivateFieldSpecGet(MapPopup, MapPopup, _onChangedEvent), {
+	    address: babelHelpers.classPrivateFieldGet(this, _prevAddress)
+	  });
 	}
 	function _extractLatLon2(address) {
 	  var result = null;
@@ -574,18 +531,18 @@ this.BX.Location = this.BX.Location || {};
 	  return result;
 	}
 	function _convertAddressToLocation2(address) {
-	  var _this6 = this;
+	  var _this5 = this;
 	  var useUserLocation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	  return new Promise(function (resolve) {
 	    if (useUserLocation) {
-	      resolve(babelHelpers.classPrivateFieldGet(_this6, _userLocationPoint) && babelHelpers.classPrivateFieldGet(_this6, _mode) !== location_core.ControlMode.view ? new location_core.Location({
-	        latitude: babelHelpers.classPrivateFieldGet(_this6, _userLocationPoint).latitude,
-	        longitude: babelHelpers.classPrivateFieldGet(_this6, _userLocationPoint).longitude
+	      resolve(babelHelpers.classPrivateFieldGet(_this5, _userLocationPoint) && babelHelpers.classPrivateFieldGet(_this5, _mode) !== location_core.ControlMode.view ? new location_core.Location({
+	        latitude: babelHelpers.classPrivateFieldGet(_this5, _userLocationPoint).latitude,
+	        longitude: babelHelpers.classPrivateFieldGet(_this5, _userLocationPoint).longitude
 	      }) : null);
 	      return;
 	    }
 	    if (address) {
-	      var latLon = _classPrivateMethodGet$2(_this6, _extractLatLon, _extractLatLon2).call(_this6, address);
+	      var latLon = _classPrivateMethodGet$2(_this5, _extractLatLon, _extractLatLon2).call(_this5, address);
 	      if (latLon) {
 	        resolve(new location_core.Location({
 	          latitude: latLon[0],
@@ -613,6 +570,22 @@ this.BX.Location = this.BX.Location || {};
 	    location: location,
 	    mode: babelHelpers.classPrivateFieldGet(this, _mode)
 	  });
+	}
+	function _hideApplyAddress2() {
+	  main_core.Dom.style(babelHelpers.classPrivateFieldGet(this, _applyAddressElement), {
+	    display: 'none'
+	  });
+	}
+	function _showApplyAddress2() {
+	  main_core.Dom.style(babelHelpers.classPrivateFieldGet(this, _applyAddressElement), {
+	    display: 'flex'
+	  });
+	}
+	function _getAddressAsText2(address) {
+	  if (!address) {
+	    return '';
+	  }
+	  return address.toString(babelHelpers.classPrivateFieldGet(this, _addressFormat$1), location_core.AddressStringConverter.STRATEGY_TYPE_TEMPLATE_COMMA, location_core.AddressStringConverter.CONTENT_TYPE_TEXT);
 	}
 	var _onChangedEvent = {
 	  writable: true,
@@ -695,7 +668,7 @@ this.BX.Location = this.BX.Location || {};
 	var _isAddressChangedByFeature = /*#__PURE__*/new WeakMap();
 	var _isInputNodeValueUpdated = /*#__PURE__*/new WeakMap();
 	var _needWarmBackendAfterAddressChanged = /*#__PURE__*/new WeakMap();
-	var _locationRepository$1 = /*#__PURE__*/new WeakMap();
+	var _locationRepository = /*#__PURE__*/new WeakMap();
 	var _addFeature = /*#__PURE__*/new WeakSet();
 	var _executeFeatureMethod = /*#__PURE__*/new WeakSet();
 	var _emitOnAddressChanged = /*#__PURE__*/new WeakSet();
@@ -783,7 +756,7 @@ this.BX.Location = this.BX.Location || {};
 	      writable: true,
 	      value: true
 	    });
-	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _locationRepository$1, {
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _locationRepository, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -816,9 +789,9 @@ this.BX.Location = this.BX.Location || {};
 	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _needWarmBackendAfterAddressChanged, props.needWarmBackendAfterAddressChanged);
 	    }
 	    if (props.locationRepository instanceof location_core.LocationRepository) {
-	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _locationRepository$1, props.locationRepository);
+	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _locationRepository, props.locationRepository);
 	    } else if (babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _needWarmBackendAfterAddressChanged)) {
-	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _locationRepository$1, new location_core.LocationRepository());
+	      babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _locationRepository, new location_core.LocationRepository());
 	    }
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _state, State.INITIAL);
 	    return _this;
@@ -1072,7 +1045,7 @@ this.BX.Location = this.BX.Location || {};
 	}
 	function _warmBackendAfterAddressChanged2(address) {
 	  if (address.location !== null && address.location.id <= 0) {
-	    babelHelpers.classPrivateFieldGet(this, _locationRepository$1).findParents(address.location);
+	    babelHelpers.classPrivateFieldGet(this, _locationRepository).findParents(address.location);
 	  }
 	}
 	function _onInputFocus2(e) {
@@ -1752,7 +1725,7 @@ this.BX.Location = this.BX.Location || {};
 	var _languageId$1 = /*#__PURE__*/new WeakMap();
 	var _addressFormat$4 = /*#__PURE__*/new WeakMap();
 	var _sourceCode = /*#__PURE__*/new WeakMap();
-	var _locationRepository$2 = /*#__PURE__*/new WeakMap();
+	var _locationRepository$1 = /*#__PURE__*/new WeakMap();
 	var _userLocationPoint$1 = /*#__PURE__*/new WeakMap();
 	var _presetLocationsProvider = /*#__PURE__*/new WeakMap();
 	var _prompt = /*#__PURE__*/new WeakMap();
@@ -1864,7 +1837,7 @@ this.BX.Location = this.BX.Location || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$7(babelHelpers.assertThisInitialized(_this), _locationRepository$2, {
+	    _classPrivateFieldInitSpec$7(babelHelpers.assertThisInitialized(_this), _locationRepository$1, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -1940,7 +1913,7 @@ this.BX.Location = this.BX.Location || {};
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _sourceCode, props.sourceCode);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _address$3, props.address);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _presetLocationsProvider, props.presetLocationsProvider);
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _locationRepository$2, props.locationRepository || new location_core.LocationRepository());
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _locationRepository$1, props.locationRepository || new location_core.LocationRepository());
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _userLocationPoint$1, props.userLocationPoint);
 	    _classPrivateMethodGet$6(babelHelpers.assertThisInitialized(_this), _setState, _setState2).call(babelHelpers.assertThisInitialized(_this), State.INITIAL);
 	    return _this;
@@ -2312,7 +2285,7 @@ this.BX.Location = this.BX.Location || {};
 	function _getLocationDetails2(location) {
 	  var _this6 = this;
 	  _classPrivateMethodGet$6(this, _setState, _setState2).call(this, State.DATA_LOADING);
-	  return babelHelpers.classPrivateFieldGet(this, _locationRepository$2).findByExternalId(location.externalId, location.sourceCode, location.languageId).then(function (detailedLocation) {
+	  return babelHelpers.classPrivateFieldGet(this, _locationRepository$1).findByExternalId(location.externalId, location.sourceCode, location.languageId).then(function (detailedLocation) {
 	    _classPrivateMethodGet$6(_this6, _setState, _setState2).call(_this6, State.DATA_LOADED);
 	    var result;
 	    /*
@@ -2717,7 +2690,7 @@ this.BX.Location = this.BX.Location || {};
 	  return result;
 	}
 
-	var _templateObject$6, _templateObject2$6, _templateObject3$2, _templateObject4;
+	var _templateObject$6, _templateObject2$6, _templateObject3$2, _templateObject4$1;
 	function _classPrivateMethodInitSpec$8(obj, privateSet) { _checkPrivateRedeclaration$b(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$a(obj, privateMap, value) { _checkPrivateRedeclaration$b(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$b(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
@@ -2889,7 +2862,7 @@ this.BX.Location = this.BX.Location || {};
 	}
 	function _renderViewMode2(container) {
 	  babelHelpers.classPrivateFieldSet(this, _input$1, null);
-	  babelHelpers.classPrivateFieldSet(this, _viewContainer, main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-title-6\">\n\t\t\t\t", "\n\t\t\t</div>"])), main_core.Text.encode(babelHelpers.classPrivateFieldGet(this, _value$1))));
+	  babelHelpers.classPrivateFieldSet(this, _viewContainer, main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-title-6\">\n\t\t\t\t", "\n\t\t\t</div>"])), main_core.Text.encode(babelHelpers.classPrivateFieldGet(this, _value$1))));
 	  container.appendChild(babelHelpers.classPrivateFieldGet(this, _viewContainer));
 	}
 	function _refreshLayout2() {
@@ -3905,7 +3878,7 @@ this.BX.Location = this.BX.Location || {};
 	babelHelpers.defineProperty(Icon, "TYPE_SEARCH", 'search');
 	babelHelpers.defineProperty(Icon, "TYPE_LOADER", 'loader');
 
-	var _templateObject$9, _templateObject2$7, _templateObject3$3, _templateObject4$1, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9;
+	var _templateObject$9, _templateObject2$7, _templateObject3$3, _templateObject4$2, _templateObject5$1, _templateObject6$1, _templateObject7, _templateObject8, _templateObject9;
 	function _classPrivateMethodInitSpec$d(obj, privateSet) { _checkPrivateRedeclaration$j(obj, privateSet); privateSet.add(obj); }
 	function _checkPrivateRedeclaration$j(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classStaticPrivateMethodGet$1(receiver, classConstructor, method) { _classCheckPrivateStaticAccess$7(receiver, classConstructor); return method; }
@@ -4091,11 +4064,11 @@ this.BX.Location = this.BX.Location || {};
 	          type: _classStaticPrivateMethodGet$1(UIAddress, UIAddress, _chooseInputIconTypeByAddress).call(UIAddress, _classPrivateMethodGet$d(this, _getAddress, _getAddress2).call(this))
 	        });
 	        this._inputContainer = main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-ctl ui-ctl-w100 ui-ctl-after-icon\">", "", "", "</div>"])), inputIconNode, this._input, this._hiddenInput);
-	        this._titleWrapper.appendChild(main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["", ""])), this._fieldsSwitch.render(this._mode)));
-	        this._innerWrapper = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\t\t\t\t\t\t    \n\t\t\t\t<div class=\"location-search-control-block\">\t\t\t\t\t\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), this._inputContainer);
+	        this._titleWrapper.appendChild(main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["", ""])), this._fieldsSwitch.render(this._mode)));
+	        this._innerWrapper = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\t\t\t\t\t\t    \n\t\t\t\t<div class=\"location-search-control-block\">\t\t\t\t\t\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), this._inputContainer);
 	        addressWidgetParams.inputNode = this._input;
 	        addressWidgetParams.mapBindElement = inputIconNode;
-	        this._addressFieldsContainer = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<div class=\"location-fields-control-block\"></div>"])));
+	        this._addressFieldsContainer = main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"location-fields-control-block\"></div>"])));
 	        if (this._fieldsSwitch.state === Switch.STATE_ON) {
 	          this._addressFieldsContainer.classList.add('visible');
 	        }
@@ -4277,5 +4250,5 @@ this.BX.Location = this.BX.Location || {};
 	exports.State = State;
 	exports.UIAddress = UIAddress;
 
-}((this.BX.Location.Widget = this.BX.Location.Widget || {}),BX,BX,BX.Location.Google,BX.Main,BX.Location.Source,BX,BX.Location.Core,BX.Location.Widget,BX.Event,BX));
+}((this.BX.Location.Widget = this.BX.Location.Widget || {}),BX,BX.Location.Google,BX.Main,BX.Location.Source,BX,BX.Location.Core,BX.Location.Widget,BX.Event,BX));
 //# sourceMappingURL=widget.bundle.js.map

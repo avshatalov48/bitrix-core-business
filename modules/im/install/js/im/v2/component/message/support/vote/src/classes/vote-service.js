@@ -19,33 +19,31 @@ export class VoteService
 
 	like(): void
 	{
-		this.#updateModel({
-			vote: VoteType.like,
-		});
-		Core.getRestClient().callMethod(RestMethod.imBotDialogVote, {
+		this.#updateModel({ vote: VoteType.like });
+		const payload = {
 			MESSAGE_ID: this.#messageId,
 			DIALOG_ID: this.#dialogId,
 			RATING: VoteType.like,
-		})
-			.catch((error) => {
-				// eslint-disable-next-line no-console
-				console.error('VoteService: error in dialog vote', error);
+		};
+
+		Core.getRestClient().callMethod(RestMethod.imBotDialogVote, payload)
+			.catch((result: RestResult) => {
+				console.error('VoteService: error in dialog vote', result.error());
 			});
 	}
 
 	dislike(): void
 	{
-		this.#updateModel({
-			vote: VoteType.dislike,
-		});
-		Core.getRestClient().callMethod(RestMethod.imBotDialogVote, {
+		this.#updateModel({ vote: VoteType.dislike });
+		const payload = {
 			MESSAGE_ID: this.#messageId,
 			DIALOG_ID: this.#dialogId,
 			RATING: VoteType.dislike,
-		})
-			.catch((error) => {
-				// eslint-disable-next-line no-console
-				console.error('VoteService: error in dialog vote', error);
+		};
+
+		Core.getRestClient().callMethod(RestMethod.imBotDialogVote, payload)
+			.catch((result: RestResult) => {
+				console.error('VoteService: error in dialog vote', result.error());
 			});
 	}
 
@@ -57,7 +55,7 @@ export class VoteService
 			...currentMessage.componentParams,
 			[VoteParamKey.currentVote]: vote,
 		};
-		Core.getStore().dispatch('messages/update', {
+		void Core.getStore().dispatch('messages/update', {
 			id: this.#messageId,
 			fields: { componentParams: newComponentParams },
 		});

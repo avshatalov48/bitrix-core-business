@@ -1,6 +1,7 @@
 import 'ui.forms';
 
-import { Dropdown, Toggle, ToggleSize } from 'im.v2.component.elements';
+import { Toggle, ToggleSize } from 'im.v2.component.elements.toggle';
+import { Dropdown } from 'im.v2.component.elements.dropdown';
 
 import { CreateChatSection } from '../section/section';
 import { CreateChatHeading } from '../../elements/heading';

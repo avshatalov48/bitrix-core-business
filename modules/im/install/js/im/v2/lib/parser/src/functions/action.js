@@ -95,28 +95,6 @@ export const ParserAction = {
 		return text;
 	},
 
-	decodeDate(text): string
-	{
-		text = text.replace(RegExp('\\[DATE=('+atomRegExpPart+')](.+?)\\[\\/DATE]', 'ig'), (whole, date, text) => {
-			text = text.replace(/<(\w+)[^>]*>(.*?)<\\1>/i, "$2", text);
-			text = text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/i, "$2", text);
-
-			return this._getHtmlForAction('date', text, date);
-		});
-
-		return text;
-	},
-
-	purifyDate(text): string
-	{
-		const atomRegexp = getUtils().date.atomRegexpString;
-		text = text.replace(RegExp('\[DATE=('+atomRegexp+')](.+?)\[\/DATE]', 'ig'), (whole, date, text) => {
-			return text;
-		});
-
-		return text;
-	},
-
 	_getHtmlForAction(method, text, data)
 	{
 		return Dom.create({

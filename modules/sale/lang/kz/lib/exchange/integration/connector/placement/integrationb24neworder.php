@@ -1,0 +1,3 @@
+<?php
+$MESS["SALE_INTEGRATIONB24_NEWORDER_GROUPNAME"] = "БСБ-мен интеграция";
+$MESS["SALE_INTEGRATIONB24_NEWORDER_TITLE"] = "Жаңа тапсырыс";

@@ -23,11 +23,6 @@ class CounterOverflowService
 
 	public function insertOverflowed(array $counters): void
 	{
-		if (!$this->shouldInsert())
-		{
-			return;
-		}
-
 		$overflowedCounters = $this->filterOverflowedCounters($counters);
 		$userIds = array_keys($overflowedCounters);
 		$this->insert($userIds);
@@ -194,11 +189,6 @@ class CounterOverflowService
 	protected function getRowToInsert(int $userId): array
 	{
 		return ['CHAT_ID' => $this->chatId, 'USER_ID' => $userId];
-	}
-
-	protected function shouldInsert(): bool
-	{
-		return Chat::getInstance($this->chatId)->getType() !== Chat::IM_TYPE_SYSTEM;
 	}
 
 	protected static function cleanCacheByChatId(int $chatId, ?int $userId = null, bool $hasOverflowNow = false): void

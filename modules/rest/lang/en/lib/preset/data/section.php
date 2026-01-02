@@ -1,5 +1,6 @@
 <?php
 $MESS["REST_INTEGRATION_OPTION_SECTION_DESCRIPTION_AUTOMATE_CONTROL"] = "Auto create tasks and assign them to the employees; submit reports to the management; publish reports to the Activity Stream.";
+$MESS["REST_INTEGRATION_OPTION_SECTION_DESCRIPTION_AUTOMATE_CONTROL_MSGVER_1"] = "Auto create tasks and assign them to the employees; submit reports to the management; publish reports to Feed.";
 $MESS["REST_INTEGRATION_OPTION_SECTION_DESCRIPTION_AUTOMATE_SALES"] = "Automate lead and deal progress along the sales funnel and validate CRM data.";
 $MESS["REST_INTEGRATION_OPTION_SECTION_DESCRIPTION_CHAT_BOT"] = "Create chat bots to send notifications and reports directly to the employee messengers.";
 $MESS["REST_INTEGRATION_OPTION_SECTION_DESCRIPTION_CUSTOM"] = "Implement your own data acquisition and processing scenarios in Bitrix24";

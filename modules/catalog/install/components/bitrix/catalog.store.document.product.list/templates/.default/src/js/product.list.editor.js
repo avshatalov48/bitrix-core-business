@@ -688,8 +688,13 @@ export class Editor
 				this.products.forEach((product) => {
 					product.getModel().setOption('currency', currencyId);
 					products.push({
-						fields: product.getFields(),
-						id: product.getId()
+						fields: product.getFieldsWithHashed([
+							'BASE_PRICE',
+							'PURCHASING_PRICE',
+							'STORE_FROM',
+							'STORE_TO',
+						]),
+						id: product.getId(),
 					});
 				});
 
@@ -733,8 +738,30 @@ export class Editor
 		this.products.forEach((product) => {
 			if (Type.isObject(products[product.getId()]))
 			{
-				product.updateField('BASE_PRICE', products[product.getId()]['BASE_PRICE']);
-				product.updateField('PURCHASING_PRICE', products[product.getId()]['PURCHASING_PRICE']);
+				const rawRealValues = products[product.getId()].REAL_VALUES || {};
+
+				let realValues = {};
+
+				if (Object.keys(rawRealValues).length > 0)
+				{
+					realValues = product.parseRealValues(products[product.getId()].REAL_VALUES);
+					product.updateRealValues(realValues);
+				}
+
+				let basePrice = products[product.getId()].BASE_PRICE;
+				if ('BASE_PRICE' in realValues)
+				{
+					basePrice = realValues.BASE_PRICE;
+				}
+				product.updateField('BASE_PRICE', basePrice);
+
+				let purchasingPrice = products[product.getId()].PURCHASING_PRICE;
+				if ('PURCHASING_PRICE' in realValues)
+				{
+					purchasingPrice = realValues.PURCHASING_PRICE;
+				}
+				product.updateField('PURCHASING_PRICE', purchasingPrice);
+
 				product.updateUiCurrencyFields();
 			}
 		});

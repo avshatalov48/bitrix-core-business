@@ -19,9 +19,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Landing_Query query()
- * @method static EO_Landing_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Landing_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Landing_Result getById($id)
- * @method static EO_Landing_Result getList(array $parameters = array())
+ * @method static EO_Landing_Result getList(array $parameters = [])
  * @method static EO_Landing_Entity getEntity()
  * @method static \Bitrix\Landing\Internals\EO_Landing createObject($setDefaultValues = true)
  * @method static \Bitrix\Landing\Internals\EO_Landing_Collection createCollection()

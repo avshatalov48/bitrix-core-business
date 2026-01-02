@@ -544,14 +544,11 @@ class IblockCatalogPermissionsSaver
 
 	private static function getShopGroupIdByType(string $type): ?int
 	{
-		$group = GroupTable::getRow([
-			'filter' => ['=STRING_ID' => $type],
-			'select' => ['ID']
-		]);
+		$groupId = \CGroup::GetIDByCode($type);
 
-		if ($group)
+		if ($groupId)
 		{
-			return (int)$group['ID'];
+			return (int)$groupId;
 		}
 
 		return null;

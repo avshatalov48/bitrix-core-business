@@ -2,7 +2,7 @@ import { Loc } from 'main.core';
 
 import { UserRole } from 'im.v2.const';
 
-import type { DropdownItem } from 'im.v2.component.elements';
+import type { DropdownItem } from 'im.v2.component.elements.dropdown';
 
 export const rightsDropdownItems: DropdownItem[] = [
 	{

@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2024 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Web\Http\Socket;
@@ -92,7 +92,10 @@ class Stream extends Http\Stream
 				$this->lastTime = time();
 			}
 
-			$this->setBlocking(false);
+			if ($this->async)
+			{
+				$this->setBlocking(false);
+			}
 		}
 		else
 		{

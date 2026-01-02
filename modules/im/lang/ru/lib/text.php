@@ -7,3 +7,4 @@ $MESS["IM_MESSAGE_RATING"] = "Рейтинг";
 $MESS["IM_MESSAGE_FILE"] = "Файл";
 $MESS["IM_QUOTE"] = "Цитата";
 $MESS["IM_MESSAGE_DELETE"] = "Это сообщение было удалено.";
+$MESS["IM_MESSAGE_MENTION_ALL"] = "Все участники";

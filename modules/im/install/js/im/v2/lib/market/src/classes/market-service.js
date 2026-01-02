@@ -20,8 +20,8 @@ export class MarketService
 			};
 
 			fetch(this.#loadLink, requestPrams)
-				.then(response => response.text())
-				.then(textResponse => resolve(textResponse))
+				.then((response) => response.text())
+				.then((textResponse) => resolve(textResponse))
 				.catch((error) => reject(error));
 		});
 	}

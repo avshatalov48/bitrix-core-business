@@ -12,26 +12,35 @@
 	line-height: var(--im-font-line-height-lg);
 
 	position: relative;
-}
-
-.bx-im-upload-preview-file-item__image-container {
 	display: flex;
-	justify-content: center;
-	width: 360px;
-	height: 176px;
-	background-color: var(--im-upload-preview-file-item__background-color_container);
-	border-radius: 6px;
-	flex-shrink: 0;
-	position: relative;
+
+	transition: 200ms ease border;
+	border-top: 1px transparent solid;
+	border-bottom: 1px transparent solid;
+	box-sizing: border-box;
 }
 
-.bx-im-upload-preview-file-item__scope.--single .bx-im-upload-preview-file-item__image-container{
-	height: 360px;
+.bx-im-upload-preview-file-item__scope.--dropzone-before {
+	border-top: 1px red solid;
 }
 
-.bx-im-upload-preview-file-item__item-image {
-	object-fit: contain;
-	width: 100%;
+.bx-im-upload-preview-file-item__scope.--dropzone-after {
+	border-bottom: 1px red solid;
+}
+
+
+.bx-im-upload-preview-file-item__drag {
+	display: flex;
+	align-items: center;
+	cursor: move;
+	user-select: none;
+	margin-right: 3px;
+}
+
+.bx-im-upload-preview-file-item__drag-icon {
+	background-image: url("../images/upload-preview/drag-icon.svg");
+	width: 24px;
+	height: 24px;
 }
 
 .bx-im-upload-preview-file-item__item-error {
@@ -61,14 +70,16 @@
 	display: flex;
 	gap: 8px;
 	height: 56px;
+	padding-top: 6px;
+	cursor: pointer;
 }
 
 .bx-im-upload-preview-file-item__icon {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	width: 44px;
-	height: 44px;
+	width: 40px;
+	height: 40px;
 	flex-shrink: 0;
 }
 
@@ -94,25 +105,6 @@
 	font-size: var(--ui-font-size-xs);
 	line-height: var(--ui-font-line-height-2xs);
 	color: rgba(var(--im-color-palette-gray-90-rgb), 0.5);
-}
-
-.bx-im-upload-preview-file-item__play-icon-container {
-	position: absolute;
-	top: calc(50% - 27px);
-	left: calc(50% - 27px);
-	width: 54px;
-	height: 54px;
-	border-radius: 50%;
-	background-color: var(--im-upload-preview-file-item__background-color_play-icon);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.bx-im-upload-preview-file-item__play-icon {
-	width: 27px;
-	height: 27px;
-	background: url("../images/play-icon.svg") no-repeat center;
 }
 
 .bx-im-upload-preview-file-item__remove {
@@ -154,5 +146,5 @@
 	background-size: cover;
 	width: 100%;
 	height: 100%;
-	border-radius: 6px;
+	border-radius: 8px;
 }

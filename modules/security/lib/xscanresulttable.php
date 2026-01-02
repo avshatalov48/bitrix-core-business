@@ -2,6 +2,7 @@
 
 namespace Bitrix\Security;
 
+use Bitrix\Main\ORM\Data\DeleteResult;
 use Bitrix\Main\ORM\Query\Query;
 
 /**
@@ -22,6 +23,18 @@ use Bitrix\Main\ORM\Query\Query;
  */
 class XScanResultTable extends \Bitrix\Main\Entity\DataManager
 {
+	private const trace = [
+		'/bitrix/modules/security/lib/controller/xscan.php',
+		'',
+		'/bitrix/modules/main/lib/engine/autowire/binder.php',
+		'/bitrix/modules/main/lib/engine/action.php',
+		'/bitrix/modules/main/lib/engine/controller.php',
+		'/bitrix/modules/main/lib/httpapplication.php',
+		'/bitrix/modules/main/lib/httpapplication.php',
+		'/bitrix/modules/main/services/ajax.php',
+		'/bitrix/services/main/ajax.php',
+	];
+
 	public static function getTableName()
 	{
 		return 'b_sec_xscan_results';
@@ -29,19 +42,19 @@ class XScanResultTable extends \Bitrix\Main\Entity\DataManager
 
 	public static function getMap()
 	{
-		return array(
-			new \Bitrix\Main\Entity\IntegerField('ID', array('primary' => true, 'autocomplete' => true)),
-			new \Bitrix\Main\Entity\EnumField('TYPE', array(
-				'values' => array('file', 'agent', 'event'),
-				'default_value' => 'file'
-			)),
+		return [
+			new \Bitrix\Main\Entity\IntegerField('ID', ['primary' => true, 'autocomplete' => true]),
+			new \Bitrix\Main\Entity\EnumField('TYPE', [
+				'values' => ['file', 'agent', 'event', 'tmpl', 'trigg'],
+				'default_value' => 'file',
+			]),
 			new \Bitrix\Main\Entity\StringField('SRC'),
 			new \Bitrix\Main\Entity\StringField('MESSAGE'),
 			new \Bitrix\Main\Entity\FloatField('SCORE'),
 			new \Bitrix\Main\Entity\DatetimeField('CTIME'),
 			new \Bitrix\Main\Entity\DatetimeField('MTIME'),
-			new \Bitrix\Main\Entity\StringField('TAGS')
-		);
+			new \Bitrix\Main\Entity\StringField('TAGS'),
+		];
 	}
 
 	public static function getCollectionClass()
@@ -54,8 +67,45 @@ class XScanResultTable extends \Bitrix\Main\Entity\DataManager
 		return XScanResult::class;
 	}
 
+	public static function delete($primary)
+	{
+		$e = new \Exception();
+		$t = $e->getTrace();
+
+		if (count($t) !== count(XScanResultTable::trace))
+		{
+			return new DeleteResult();
+		}
+
+		foreach(XScanResultTable::trace as $key => $val)
+		{
+			if ($val && (!isset($t[$key]['file']) || !str_ends_with($t[$key]['file'], $val)))
+			{
+				return new DeleteResult();
+			}
+		}
+
+		return parent::delete($primary);
+	}
+
 	public static function deleteList(array $filter)
 	{
+		$e = new \Exception();
+		$t = $e->getTrace();
+
+		if (count($t) !== count(XScanResultTable::trace))
+		{
+			return new DeleteResult();
+		}
+
+		foreach(XScanResultTable::trace as $key => $val)
+		{
+			if ($val && (!isset($t[$key]['file']) || !str_ends_with($t[$key]['file'], $val)))
+			{
+				return new DeleteResult();
+			}
+		}
+
 		$entity = static::getEntity();
 		$connection = $entity->getConnection();
 

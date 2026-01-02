@@ -1,0 +1,151 @@
+import { ChatType, UserRole } from 'im.v2.const';
+
+import type { JsonObject } from 'main.core';
+
+import type {
+	RawChat,
+	RawCollabInfo,
+	RawCommentInfo,
+	RawCopilot,
+	RawFile,
+	RawMessage,
+	RawMessagesAutoDeleteConfig,
+	RawPin,
+	RawReaction,
+	RawShortUser,
+	RawTariffRestrictions,
+	RawUser,
+} from 'im.v2.provider.service.types';
+import type { RawSession } from 'imopenlines.v2.provider.service';
+
+export type ChatLoadRestResult = {
+	additionalMessages: RawMessage[],
+	chat: RawChat,
+	commentInfo: RawCommentInfo[],
+	collabInfo?: RawCollabInfo,
+	files: RawFile[],
+	session?: RawSession,
+	hasNextPage: boolean,
+	hasPrevPage: boolean,
+	messages: RawMessage[],
+	pins: RawPin[],
+	reactions: RawReaction[],
+	users: RawUser[],
+	usersShort: RawShortUser[],
+	copilot: RawCopilot,
+	tariffRestrictions: RawTariffRestrictions,
+	messagesAutoDeleteConfigs: RawMessagesAutoDeleteConfig[]
+};
+
+export type CommentInfoRestResult = {
+	commentInfo: RawCommentInfo[],
+	usersShort: RawShortUser[],
+};
+
+export type RoleItem = $Keys<typeof UserRole>;
+export type MemberEntity = [string, number | string];
+export type ChatConfig = {
+	title: string,
+	avatar: File,
+	members: number[],
+	memberEntities: [string, number | string][],
+	ownerId: number,
+	managers: number[],
+	manageUsersAdd: RoleItem,
+	manageUsersDelete: RoleItem,
+	manageUi: RoleItem,
+	manageSettings: RoleItem,
+	manageMessages: RoleItem,
+	isAvailableInSearch: boolean,
+	description: string,
+	entityType?: string,
+	type?: string,
+	conferencePassword: string,
+	copilotMainRole: string,
+	autoDeleteDelay?: number,
+};
+
+export type UpdateChatConfig = {
+	addedMemberEntities?: MemberEntity[],
+	deletedMemberEntities?: MemberEntity[],
+	addedManagers?: number[],
+	deletedManagers?: number[],
+} & ChatConfig;
+
+type ChatTypeItem = $Keys<typeof ChatType>
+export type RestChatConfig = {
+	users: number[],
+	memberEntities?: MemberEntity[],
+	type?: ChatTypeItem,
+	entityType?: ChatTypeItem,
+	title?: string,
+	avatar?: string,
+	description?: string,
+	managers?: number[],
+	ownerId?: number,
+	searchable?: 'Y' | 'N',
+	manageUsersAdd?: RoleItem,
+	manageUsersDelete?: RoleItem,
+	manageUi?: RoleItem,
+	manageSettings?: RoleItem,
+	manageMessages?: RoleItem,
+	conferencePassword?: string,
+	messagesAutoDeleteDelay?: number,
+};
+
+export type RestUpdateChatConfig = {
+	avatar?: string,
+	title?: string,
+	description?: string,
+	ownerId?: number,
+	searchable?: 'Y' | 'N',
+	manageUi?: RoleItem,
+	manageUsersAdd?: RoleItem,
+	manageUsersDelete?: RoleItem,
+	manageMessages?: RoleItem,
+	addedMemberEntities?: MemberEntity[],
+	deletedMemberEntities?: MemberEntity[],
+	addedManagers?: number[],
+	deletedManagers?: number[],
+};
+
+export type RestCreateCollabConfig = {
+	title: string,
+	description?: string,
+	avatar?: File,
+	ownerId: number,
+	moderatorMembers: number[],
+	permissions: JsonObject,
+	options: JsonObject,
+	autoDeleteDelay: number,
+};
+
+export type UpdateCollabConfig = {
+	title: string,
+	description?: string,
+	avatar?: File,
+	groupSettings: {
+		ownerId: number,
+		addModeratorMembers: number[],
+		deleteModeratorMembers: number[],
+		permissions: JsonObject,
+		options: JsonObject
+	},
+};
+
+export type RestUpdateCollabConfig = {
+	title: string,
+	description?: string,
+	avatar?: File,
+	ownerId: number,
+	addModeratorMembers: number[],
+	deleteModeratorMembers: number[],
+	permissions: JsonObject,
+	options: JsonObject
+};
+
+export type GetMemberEntitiesConfig = {
+	memberEntities: Array<[string, number]>,
+	userCount: number,
+	areUsersCollapsed: boolean,
+};

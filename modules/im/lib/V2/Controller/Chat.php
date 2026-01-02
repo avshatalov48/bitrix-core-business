@@ -7,13 +7,18 @@ use Bitrix\Im\Recent;
 use Bitrix\Im\V2\Chat\ChannelChat;
 use Bitrix\Im\V2\Chat\ChatError;
 use Bitrix\Im\V2\Chat\ChatFactory;
+use Bitrix\Im\V2\Chat\CollabChat;
 use Bitrix\Im\V2\Chat\CommentChat;
+use Bitrix\Im\V2\Chat\ExternalChat;
 use Bitrix\Im\V2\Chat\GeneralChat;
 use Bitrix\Im\V2\Chat\GroupChat;
+use Bitrix\Im\V2\Chat\MessagesAutoDelete\MessagesAutoDeleteConfigs;
 use Bitrix\Im\V2\Chat\OpenChannelChat;
 use Bitrix\Im\V2\Chat\OpenChat;
 use Bitrix\Im\V2\Chat\OpenLineChat;
 use Bitrix\Im\V2\Chat\Param\Params;
+use Bitrix\Im\V2\Chat\ExtendedType;
+use Bitrix\Im\V2\Controller\Filter\DiskQuickAccessGrantor;
 use Bitrix\Im\V2\Permission;
 use Bitrix\Im\V2\Chat\Update\UpdateFields;
 use Bitrix\Im\V2\Controller\Chat\Pin;
@@ -29,6 +34,7 @@ use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Relation\AddUsersConfig;
 use Bitrix\Im\V2\Rest\RestAdapter;
 use Bitrix\Im\V2\Chat\Update\UpdateService;
+use Bitrix\Im\V2\Result;
 use Bitrix\Intranet\ActionFilter\IntranetUser;
 use Bitrix\Main\Engine\ActionFilter\Base;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
@@ -45,8 +51,12 @@ class Chat extends BaseController
 					new CheckActionAccess(
 						Permission\GlobalAction::CreateChat,
 						fn (Base $filter) => [
-							'TYPE' => $this->getValidatedType($filter->getAction()->getArguments()['fields']['type'] ?? ''),
-							'ENTITY_TYPE' => $filter->getAction()->getArguments()['entityType'] ?? null,
+							'TYPE' => $this->getValidatedType(
+								$filter->getAction()->getArguments()['fields']['type'] ?? ''
+							),
+							'ENTITY_TYPE' => $this->getValidatedEntityType(
+								$filter->getAction()->getArguments()['fields']['entityType'] ?? null
+							),
 						]
 					),
 					new CheckFileAccess(['fields', 'avatar']),
@@ -166,10 +176,10 @@ class Chat extends BaseController
 					new CheckActionAccess(Permission\Action::ChangeRight),
 				]
 			],
-			'setDisappearingDuration' => [
+			'setMessagesAutoDeleteDelay' => [
 				'+prefilters' => [
 					new CheckChatAccess(),
-					new CheckActionAccess(Permission\Action::ChangeRight),
+					new CheckActionAccess(Permission\Action::ChangeMessagesAutoDeleteDelay),
 				]
 			],
 			'setManageMessages' => [
@@ -181,6 +191,7 @@ class Chat extends BaseController
 			'load' => [
 				'+prefilters' => [
 					new ExtendPullWatchPrefilter(),
+					new DiskQuickAccessGrantor(),
 				],
 			],
 			'loadInContext' => [
@@ -190,12 +201,29 @@ class Chat extends BaseController
 			],
 			'join' => [
 				'+prefilters' => [
-					new ChatTypeFilter([OpenChat::class, OpenLineChat::class, GeneralChat::class, OpenChannelChat::class, CommentChat::class]),
+					new ChatTypeFilter([
+						OpenChat::class,
+						OpenLineChat::class,
+						GeneralChat::class,
+						OpenChannelChat::class,
+						CommentChat::class,
+						ExternalChat::class,
+					]),
 				],
 			],
 			'extendPullWatch' => [
 				'+prefilters' => [
 					new ChatTypeFilter([OpenChat::class, OpenLineChat::class, ChannelChat::class]),
+				],
+			],
+			'pin' => [
+				'+prefilters' => [
+					new CheckActionAccess(Permission\Action::PinChat),
+				],
+			],
+			'sortPin' => [
+				'+prefilters' => [
+					new CheckActionAccess(Permission\Action::PinChat),
 				],
 			],
 		];
@@ -355,6 +383,7 @@ class Chat extends BaseController
 	public function addAction(array $fields): ?array
 	{
 		$fields['type'] = $this->getValidatedType($fields['type'] ?? null);
+		$fields['entityType'] = $this->getValidatedEntityType($fields['entityType'] ?? null);
 
 		if (
 			!isset($fields['entityType'])
@@ -374,6 +403,11 @@ class Chat extends BaseController
 		}
 
 		$data = self::recursiveWhiteList($fields, \Bitrix\Im\V2\Chat::AVAILABLE_PARAMS);
+		if (isset($data['OWNER_ID']))
+		{
+			$data['AUTHOR_ID'] = $data['OWNER_ID'];
+		}
+
 		$result = ChatFactory::getInstance()->addChat($data);
 		if (!$result->isSuccess())
 		{
@@ -431,7 +465,7 @@ class Chat extends BaseController
 	public function addUsersAction(\Bitrix\Im\V2\Chat $chat, array $userIds, ?string $hideHistory = null): ?array
 	{
 		$hideHistoryBool = $hideHistory === null ? null : $this->convertCharToBool($hideHistory, true);
-		$chat->addUsers($userIds, new AddUsersConfig(hideHistory: $hideHistoryBool));
+		$chat->addUsers($userIds, new AddUsersConfig(hideHistory: $hideHistoryBool, skipAnalytics: false));
 
 		return ['result' => true];
 	}
@@ -580,17 +614,29 @@ class Chat extends BaseController
 
 	//region Manage Settings
 	/**
-	 * @restMethod im.v2.Chat.setDisappearingDuration
+	 * @restMethod im.v2.Chat.setMessagesAutoDeleteDelay
 	 */
-	public function setDisappearingDurationAction(\Bitrix\Im\V2\Chat $chat, int $hours)
+	public function setMessagesAutoDeleteDelayAction(\Bitrix\Im\V2\Chat $chat, int $hours)
 	{
-		$result = Message\Delete\DisappearService::disappearChat($chat, $hours);
+		$result = match (true)
+		{
+			$chat instanceof CollabChat => Message\Delete\DisappearService::disappearCollab($chat, $hours),
+			default => Message\Delete\DisappearService::disappearChat($chat, $hours),
+		};
+
+		/**
+		 * @var Result<MessagesAutoDeleteConfigs> $result
+		 */
 		if (!$result->isSuccess())
 		{
-			return $this->convertKeysToCamelCase($result->getErrors());
+			$this->addErrors($result->getErrors());
+
+			return null;
 		}
 
-		return $result->isSuccess();
+		return [
+			'messagesAutoDeleteConfigs' => $result->getResult()?->showDefaultValues()?->toRestFormat() ?? [],
+		];
 	}
 
 	/**
@@ -772,6 +818,14 @@ class Chat extends BaseController
 			'COLLAB' => \Bitrix\Im\V2\Chat::IM_TYPE_COLLAB,
 			default => \Bitrix\Im\V2\Chat::IM_TYPE_CHAT,
 		};
+	}
+
+	private function getValidatedEntityType(?string $entityType): ?string
+	{
+		$convertedEntityType = (string)(new Converter(Converter::TO_UPPER))->process($entityType);
+		$extendedType = ExtendedType::tryFrom($convertedEntityType);
+
+		return $extendedType?->isInternal() ? null : $convertedEntityType;
 	}
 	//endregion
 	//endregion

@@ -42,7 +42,9 @@ export class EmailLimitationDialog extends EventEmitter
 			zIndex: this.Z_INDEX,
 			offsetLeft: 0,
 			offsetTop: 0,
-			draggable: true,
+			draggable: {
+				restrict: true,
+			},
 			bindOnResize: false,
 			titleBar: Loc.getMessage('EC_EMAIL_LIMIT_TITLE'),
 			closeIcon: { right: '12px', top: '10px' },

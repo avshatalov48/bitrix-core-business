@@ -1,12 +1,12 @@
-<?
-/*
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2002-2006 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
-*/
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage fileman
+ * @copyright 2001-2025 Bitrix
+ */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/prolog.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/classes/general/sticker.php");
@@ -144,11 +144,17 @@ elseif ($action == 'show_list')
 {
 	if (isset($_REQUEST['list_action']) && in_array($_REQUEST['list_action'], array('del', 'restore', 'hide')))
 	{
-		$arIds = array();
-		for ($i = 0; $i < count($_REQUEST['list_ids']); $i++)
+		$arIds = [];
+
+		if (!empty($_REQUEST['list_ids']))
 		{
-			if (intval($_REQUEST['list_ids'][$i]) > 0)
-				$arIds[] = intval($_REQUEST['list_ids'][$i]);
+			foreach ($_REQUEST['list_ids'] as $listId)
+			{
+				if (intval($listId) > 0)
+				{
+					$arIds[] = intval($listId);
+				}
+			}
 		}
 
 		if ($_REQUEST['list_action'] == 'del')

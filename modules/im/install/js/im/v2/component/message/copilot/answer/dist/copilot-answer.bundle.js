@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,ui_notification,main_core,im_v2_lib_utils,im_v2_lib_parser,im_v2_component_message_base,im_v2_component_message_elements,im_v2_lib_helpdesk) {
+(function (exports,main_core,im_v2_lib_utils,im_v2_lib_parser,im_v2_component_message_base,im_v2_component_message_elements,im_v2_lib_helpdesk,im_v2_lib_notifier) {
 	'use strict';
 
 	// @vue/component
@@ -56,9 +56,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  methods: {
 	    async onCopyClick() {
 	      await im_v2_lib_utils.Utils.text.copyToClipboard(this.message.text);
-	      BX.UI.Notification.Center.notify({
-	        content: main_core.Loc.getMessage('IM_MESSAGE_COPILOT_ANSWER_ACTION_COPY_SUCCESS')
-	      });
+	      im_v2_lib_notifier.Notifier.onCopyTextComplete();
 	    },
 	    onWarningDetailsClick(event) {
 	      if (!main_core.Dom.hasClass(event.target, 'bx-im-message-copilot-answer__warning_more')) {
@@ -113,5 +111,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.CopilotMessage = CopilotMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=copilot-answer.bundle.js.map

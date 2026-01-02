@@ -151,10 +151,6 @@ body {
 	word-wrap: break-word;
 }
 
-.main-color-picker-preview {
-	background: #f25a8f;
-}
-
 .template-landing24  {
 	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
@@ -168,10 +164,6 @@ body {
 
 input {
 	outline: none;
-}
-.main-color-picker-custom-input {
-	height: 100%;
-	margin-top: 0 !important;
 }
 
 /* new-preview-mod */
@@ -269,17 +261,24 @@ input {
 	display: inline;
 	overflow: hidden;
 	max-width: 240px;
-	color: #535c69;
+	color: var(--ui-color-primary);
 	vertical-align: top;
 }
 
-.landing-ui-panel-top-logo-text-mainpage {
+.landing-ui-panel-top-logo-text.left-spaced {
 	margin-left: 5px;
+	color: #005893;
 }
 
 .landing-ui-panel-top-logo-color {
 	display: inline;
-	color: #2fc6f7;
+	color: #005893;
+}
+
+.landing-ui-panel-top-logo-icon {
+	font-size: 14px;
+	margin-bottom: 5px;
+	color: #005893;
 }
 
 .landing-template-demo-preview-header-logo {

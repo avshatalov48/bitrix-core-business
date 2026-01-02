@@ -210,33 +210,19 @@ class CAllSocNetUser
 
 		$result = $USER->isAdmin();
 
+		if (!$result && $bUseSession && !CSocNetUser::IsEnabledModuleAdmin())
+		{
+			return false;
+		}
+
 		if (!$result)
 		{
-			if ($bUseSession && !CSocNetUser::IsEnabledModuleAdmin())
-			{
-				return false;
-			}
+			$cacheKey = is_array($site_id) ? serialize($site_id) : ($site_id ?: 'false');
 
-			$cacheKey = 'false';
-			if (is_array($site_id))
+			if (!isset($cache[$cacheKey]))
 			{
-				$cacheKey = serialize($cacheKey);
-			}
-			elseif ($site_id)
-			{
-				$cacheKey = $site_id;
-			}
-			else
-			{
-				$cacheKey = 'false';
-			}
+				$result = false;
 
-			if (isset($cache[$cacheKey]))
-			{
-				$result = $cache[$cacheKey];
-			}
-			else
-			{
 				if (is_array($site_id))
 				{
 					foreach ($site_id as $site_id_tmp)
@@ -257,17 +243,13 @@ class CAllSocNetUser
 
 				$cache[$cacheKey] = $result;
 			}
+			else
+			{
+				$result = $cache[$cacheKey];
+			}
 		}
 
-		$result = (
-			$result
-			&& (
-				!$bUseSession
-				|| CSocNetUser::IsEnabledModuleAdmin()
-			)
-		);
-
-		return $result;
+		return $result && (!$bUseSession || CSocNetUser::IsEnabledModuleAdmin());
 	}
 
 	public static function IsUserModuleAdmin($userID, $site_id = SITE_ID)

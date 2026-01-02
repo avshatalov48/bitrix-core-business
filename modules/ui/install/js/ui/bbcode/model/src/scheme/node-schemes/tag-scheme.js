@@ -10,6 +10,8 @@ import {
 import { typeof BBCodeElementNode } from '../../nodes/element-node';
 import { BBCodeNode, type BBCodeContentNode } from '../../nodes/node';
 
+export type BBCodeNodeOnParse = (node: BBCodeContentNode, scheme: BBCodeScheme) => void;
+
 export type NotAllowedChildrenCallbackOptions = {
 	node: BBCodeContentNode,
 	scheme: BBCodeScheme,
@@ -22,6 +24,7 @@ export type BBCodeTagSchemeOptions = BBCodeNodeSchemeOptions & {
 	convertChild?: BBCodeNodeConverter,
 	allowedChildren?: Array<BBCodeNodeName>,
 	onNotAllowedChildren?: () => void,
+	onParse?: BBCodeNodeOnParse,
 };
 
 const canBeEmptySymbol = Symbol('@canBeEmpty');
@@ -34,6 +37,7 @@ export class BBCodeTagScheme extends BBCodeNodeScheme
 	childConverter: BBCodeNodeConverter | null = null;
 	allowedChildren: Array<BBCodeNodeName> = [];
 	notAllowedChildrenCallback: (NotAllowedChildrenCallbackOptions) => void = null;
+	onParseHandler: () => void = null;
 
 	constructor(options: BBCodeTagSchemeOptions)
 	{
@@ -44,6 +48,7 @@ export class BBCodeTagScheme extends BBCodeNodeScheme
 		this.setAllowedChildren(options.allowedChildren);
 		this.setOnChangeHandler(options.onChange);
 		this.setNotAllowedChildrenCallback(options.onNotAllowedChildren);
+		this.setOnParseHandler(options.onParse);
 	}
 
 	static defaultBlockStringifier(
@@ -85,6 +90,14 @@ export class BBCodeTagScheme extends BBCodeNodeScheme
 			closingTag,
 			isAllowNewlineAfterClosingTag ? '\n' : '',
 		].join('');
+	}
+
+	static defaultOnBlockParseHandler(node: BBCodeElementNode)
+	{
+		if (node)
+		{
+			node.trimLinebreaksOnce();
+		}
 	}
 
 	setVoid(value: boolean)
@@ -170,6 +183,25 @@ export class BBCodeTagScheme extends BBCodeNodeScheme
 		if (Type.isFunction(this.notAllowedChildrenCallback))
 		{
 			this.notAllowedChildrenCallback(options);
+		}
+	}
+
+	setOnParseHandler(handler: () => void)
+	{
+		this.onParseHandler = handler;
+	}
+
+	getOnParseHandler(): (() => void) | null
+	{
+		return this.onParseHandler;
+	}
+
+	runOnParseHandler(node: BBCodeNode)
+	{
+		const handler = this.getOnParseHandler();
+		if (Type.isFunction(handler))
+		{
+			handler(node);
 		}
 	}
 }

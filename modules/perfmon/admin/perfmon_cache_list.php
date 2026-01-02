@@ -485,7 +485,7 @@ $i = 0;
 $max_display_url = COption::GetOptionInt('perfmon', 'max_display_url');
 while ($arRes = $rsData->GetNext())
 {
-	$row =& $lAdmin->AddRow(++$i, $arRes);
+	$row = $lAdmin->AddRow(++$i, $arRes);
 	$numbers = [];
 	foreach ($arNumCols as $column_name => $precision)
 	{

@@ -24,9 +24,9 @@ class ChannelChat extends GroupChat
 		\CPullWatch::Add($this->getContext()->getUserId(), "IM_PUBLIC_COMMENT_{$this->getId()}", true);
 	}
 
-	protected function updateStateAfterUsersAdd(array $usersToAdd): Chat
+	protected function updateStateAfterRelationsAdd(array $usersToAdd): Chat
 	{
-		$result = parent::updateStateAfterUsersAdd($usersToAdd);
+		$result = parent::updateStateAfterRelationsAdd($usersToAdd);
 		Recent::raiseChat($this, $this->getRelationsByUserIds($usersToAdd), new DateTime());
 
 		return $result;
@@ -100,5 +100,20 @@ class ChannelChat extends GroupChat
 			],
 			'SKIP_COUNTER_INCREMENTS' => 'Y',
 		]);
+	}
+
+	protected function needToSendMessageUserDelete(): bool
+	{
+		return false;
+	}
+
+	public function needToSendTaskCreationMessage(): bool
+	{
+		return false;
+	}
+
+	public function needToSendCalendarCreationMessage(): bool
+	{
+		return false;
 	}
 }

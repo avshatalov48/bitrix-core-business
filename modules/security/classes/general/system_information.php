@@ -192,7 +192,6 @@ class CSecuritySystemInformation
 						!isset($modules[$dir])
 						&& is_dir($_SERVER["DOCUMENT_ROOT"] . $folder . "/" . $dir)
 						&& !in_array($dir, ['.', '..', 'main'], true)
-						&& strpos($dir, ".") === false
 					)
 					{
 						if ($info = CModule::CreateModuleObject($dir))

@@ -1,0 +1,22 @@
+<?php
+$MESS["DOWN_TEXT"] = "Жаңарту үшін жіберіңіз...";
+$MESS["LOAD_TEXT"] = "Тізімді жаңарту...";
+$MESS["PULL_TEXT"] = "Жаңарту үшін тартыңыз...";
+$MESS["SMOL_ALL_ORDERS"] = "Барлық тапсырыстар";
+$MESS["SMOL_CHOOSE_FIELDS"] = "Өрістерді таңдау";
+$MESS["SMOL_FILTER_DELIVERY"] = "Жеткізу бойынша";
+$MESS["SMOL_FILTER_PAY"] = "Төлем бойынша";
+$MESS["SMOL_FILTER_SETT"] = "Сүзгі баптаулары";
+$MESS["SMOL_FILTER_TUNE"] = "Сүзгіні баптау";
+$MESS["SMOL_FILTER_USER"] = "Пайдаланушы сүзгісі";
+$MESS["SMOL_FROM"] = "күні";
+$MESS["SMOL_MOBILEAPP_NOT_INSTALLED"] = "mobileapp модулі орнатылмаған";
+$MESS["SMOL_N"] = "№";
+$MESS["SMOL_NO_ORDERS"] = "Қазіргі уақытта тапсырыстар жоқ";
+$MESS["SMOL_NO_ORDERS2"] = "Тапсырыстар жоқ";
+$MESS["SMOL_ORDERS"] = "Тапсырыстар";
+$MESS["SMOL_PRODUCTS_COUNT"] = "Тауар атаулары";
+$MESS["SMOL_SUMM"] = "Сомасы";
+$MESS["SMOL_VISIBLE_FIELDS"] = "Көрінетін өрістер";
+$MESS["SMOL_WAITING_FOR_DELIVERY"] = "Жеткізуді күтуде";
+$MESS["SMOL_WAITING_FOR_PAY"] = "Төлемді күтуде";

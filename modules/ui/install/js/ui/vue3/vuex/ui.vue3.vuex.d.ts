@@ -23,6 +23,18 @@ declare module 'ui.vue3.vuex'
 		getNestedModules(): NestedModuleTree<S, R>;
 	}
 
+	class BuilderEntityModel<S, R> {
+		static defaultModel: { getState: Function, getGetters: Function, getActions: Function, getMutations: Function };
+		static create();
+		getName(): string;
+		getState(): S;
+		getElementState(): any;
+		getGetters(): GetterTree<S, R>;
+		getActions(): ActionTree<S, R>;
+		getMutations(): MutationTree<S>;
+		getNestedModules(): NestedModuleTree<S, R>;
+	}
+
 	export interface GetterTree<S, R> {
 		[key: string]: Getter<S, R>;
 	}

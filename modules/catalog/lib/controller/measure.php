@@ -4,6 +4,9 @@ namespace Bitrix\Catalog\Controller;
 
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\MeasureTable;
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\DuplicateEntryException;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Error;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\Result;
@@ -34,29 +37,53 @@ final class Measure extends Controller implements EventBindInterface
 	 */
 	public function addAction(array $fields): ?array
 	{
-		$r = $this->existsByFilter([
+		$result = $this->existsByFilter([
 			'=CODE' => $fields['CODE'],
 		]);
-		if ($r->isSuccess() === false)
+		if ($result->isSuccess())
 		{
-			$r = $this->checkDefaultValue($fields);
-			if ($r->isSuccess())
-			{
-				$r = parent::add($fields);
-				if ($r->isSuccess())
-				{
-					return [$this->getServiceItemName() => $this->get($r->getPrimary())];
-				}
-			}
-		}
-		else
-		{
-			$r->addError($this->getErrorDublicateFieldCode());
+			$this->addError($this->getErrorDublicateFieldCode());
+
+			return null;
 		}
 
-		$this->addErrors($r->getErrors());
+		$result = $this->checkDefaultValue($fields);
+		if (!$result->isSuccess())
+		{
+			$this->addErrors($result->getErrors());
 
-		return null;
+			return null;
+		}
+
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		try
+		{
+			$result = parent::add($fields);
+		}
+		catch (DuplicateEntryException)
+		{
+			$result = new Result();
+			$result->addError(new Error('A measure with code \'' . $fields['CODE'] . '\' already exists.'));
+		}
+		catch (SqlQueryException)
+		{
+			$result = new Result();
+			$result->addError(new Error('Internal error adding measure. Try adding again.'));
+		}
+
+		if (!$result->isSuccess())
+		{
+			$conn->rollbackTransaction();
+			$this->addErrors($result->getErrors());
+
+			return null;
+		}
+		$conn->commitTransaction();
+
+		return [
+			$this->getServiceItemName() => $this->get($result->getPrimary())
+		];
 	}
 
 	/**
@@ -78,17 +105,21 @@ final class Measure extends Controller implements EventBindInterface
 			return null;
 		}
 
-		$r = $this->checkMeasureBeforeUpdate($id, $fields);
-		if ($r->isSuccess())
+		$result = $this->checkMeasureBeforeUpdate($id, $fields);
+		if (!$result->isSuccess())
 		{
-			$r = parent::update($id, $fields);
-			if ($r->isSuccess())
-			{
-				return [$this->getServiceItemName() => $this->get($id)];
-			}
+			$this->addErrors($result->getErrors());
+
+			return null;
 		}
 
-		$this->addErrors($r->getErrors());
+		$result = parent::update($id, $fields);
+		if ($result->isSuccess())
+		{
+			return [$this->getServiceItemName() => $this->get($id)];
+		}
+
+		$this->addErrors($result->getErrors());
 
 		return null;
 	}

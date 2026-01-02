@@ -1,0 +1,20 @@
+<?php
+$MESS["CT_BLF_DELETE_POPUP_ACCEPT_BUTTON"] = "Жою";
+$MESS["CT_BLF_DELETE_POPUP_CANCEL_BUTTON"] = "Болдырмау";
+$MESS["CT_BLF_DELETE_POPUP_TITLE"] = "Жоюды растау";
+$MESS["CT_BLF_LIST_CODE"] = "Код";
+$MESS["CT_BLF_LIST_DEFAULT_VALUE"] = "Әдепкі бойынша мән";
+$MESS["CT_BLF_LIST_IS_REQUIRED"] = "Міндетті";
+$MESS["CT_BLF_LIST_MULTIPLE"] = "Көптік";
+$MESS["CT_BLF_LIST_NAME"] = "Атауы";
+$MESS["CT_BLF_LIST_SORT"] = "Сұрыптау";
+$MESS["CT_BLF_LIST_TYPE"] = "Түрі";
+$MESS["CT_BLF_TOOLBAR_ADD"] = "Өрісті қосу";
+$MESS["CT_BLF_TOOLBAR_ADD_TITLE"] = "Жаңа өрісті қосу";
+$MESS["CT_BLF_TOOLBAR_ELEMENTS_TITLE"] = "Тізім элементтерін қарау және түзету";
+$MESS["CT_BLF_TOOLBAR_ELEMENT_DELETE_WARNING"] = "Өрісті жойғыңыз келетініне сенімдісіз бе?";
+$MESS["CT_BLF_TOOLBAR_LIST_EDIT"] = "Тізімнің баптаулары";
+$MESS["CT_BLF_TOOLBAR_LIST_EDIT_PROCESS"] = "Процесті баптау";
+$MESS["CT_BLF_TOOLBAR_LIST_TITLE"] = "Тізім баптауларына оралу";
+$MESS["CT_BLF_TOOLBAR_LIST_TITLE_PROCESS"] = "Процесті баптауға оралу";
+$MESS["CT_BLF_TOOLBAR_RETURN_LIST_ELEMENT_MSGVER_1"] = "Тізімге";

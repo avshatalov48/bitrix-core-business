@@ -78,6 +78,8 @@ $id = 'widget-' . htmlspecialcharsbx(bin2hex(random_bytes(5)));
 						$r = USER_CIRCLES_PARAM[$count]['r'] ?? USER_CIRCLE_PARAM_DEFAULT['r'];
 						$count++;
 						$userLinkHrefAttr = '';
+						$nameTitleAttr = 'title="' . $name . '"';
+						$workPositionTitleAttr = 'title="' . $position . '"';
 						if ($user['ID'] > 0)
 						{
 							$userLink = '/company/personal/user/' . $user['ID'] . '/';
@@ -99,8 +101,8 @@ $id = 'widget-' . htmlspecialcharsbx(bin2hex(random_bytes(5)));
 								<div class="landing-widget-active-employees-content-item-img-default"></div>
 							<?php endif; ?>
 							<div class="landing-widget-active-employees-content-item-text-box">
-								<a <?= $userLinkHrefAttr ?> class="landing-widget-active-employees-content-item-text-name"><?= $name ?></a>
-								<div class="landing-widget-active-employees-content-item-text-work-position"><?= $position ?></div>
+								<a <?= $userLinkHrefAttr ?> <?= $nameTitleAttr ?> class="landing-widget-active-employees-content-item-text-name"><?= $name ?></a>
+								<div <?= $workPositionTitleAttr ?> class="landing-widget-active-employees-content-item-text-work-position"><?= $position ?></div>
 							</div>
 						</div>
 						<?php

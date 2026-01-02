@@ -1,13 +1,13 @@
 <?php
+
 namespace Bitrix\Iblock;
 
 use Bitrix\Iblock\ORM\CommonElementTable;
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
-
-Loc::loadMessages(__FILE__);
 
 /**
  * Class SectionElementTable
@@ -25,14 +25,14 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Iblock\EO_SectionElement wakeUpObject($row)
  * @method static \Bitrix\Iblock\EO_SectionElement_Collection wakeUpCollection($rows)
  */
-class SectionElementTable extends Main\Entity\DataManager
+class SectionElementTable extends DataManager
 {
 	/**
 	 * Returns DB table name for entity
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_iblock_section_element';
 	}
@@ -42,7 +42,7 @@ class SectionElementTable extends Main\Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return array(
 			'IBLOCK_SECTION_ID' => new Main\Entity\IntegerField('IBLOCK_SECTION_ID', array(

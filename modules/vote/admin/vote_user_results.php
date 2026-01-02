@@ -1,10 +1,12 @@
-<?
-##############################################
-# Bitrix Site Manager Forum					#
-# Copyright (c) 2002-2009 Bitrix			#
-# https://www.bitrixsoft.com					#
-# mailto:admin@bitrixsoft.com				#
-##############################################
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/prolog.php");
 $VOTE_RIGHT = $APPLICATION->GetGroupRight("vote");
@@ -12,14 +14,13 @@ if($VOTE_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/include.php");
 ClearVars();
 IncludeModuleLangFile(__FILE__);
-$err_mess = "File: ".__FILE__."<br>Line: ";
 
 /********************************************************************
 				Actions 
 ********************************************************************/
 $EVENT_ID = intval($EVENT_ID);
 
-if ($REQUEST_METHOD=="GET" && ($save <> '' || $apply)&& $VOTE_RIGHT=="W" && $EVENT_ID>0 && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD']=="GET" && ($save <> '' || $apply)&& $VOTE_RIGHT=="W" && $EVENT_ID>0 && check_bitrix_sessid())
 {
 	CVoteEvent::SetValid($EVENT_ID, $valid);
 	if ($save <> '')
@@ -30,19 +31,19 @@ if (!($event=CVoteEvent::GetByID($EVENT_ID)))
 {
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	?><a href="vote_user_list.php?lang=<?=LANGUAGE_ID?>" class="navchain"><?=GetMessage("VOTE_USER_LIST")?></a><font class="navchain">&nbsp;&raquo&nbsp;</font><a href="vote_user_votes.php?lang=<?=LANGUAGE_ID?>" class="navchain"><?=GetMessage("VOTE_RESULTS_LIST")?></a><?
-	echo ShowError(GetMessage("VOTE_RESULT_NOT_FOUND"));
+	ShowError(GetMessage("VOTE_RESULT_NOT_FOUND"));
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
 $event->ExtractFields();
 
 $VOTE_ID = intval($str_VOTE_ID);
-$z = $DB->Query("SELECT ID FROM b_vote WHERE ID='$VOTE_ID'", false, $err_mess.__LINE__);
+$z = $DB->Query("SELECT ID FROM b_vote WHERE ID='$VOTE_ID'");
 if (!($zr=$z->Fetch())) 
 {
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	?><a href="vote_user_list.php?lang=<?=LANGUAGE_ID?>" class="navchain"><?=GetMessage("VOTE_USER_LIST")?></a><font class="navchain">&nbsp;&raquo&nbsp;</font><a href="vote_user_votes.php?lang=<?=LANGUAGE_ID?>" class="navchain"><?=GetMessage("VOTE_RESULTS_LIST")?></a><?
-	echo ShowError(GetMessage("VOTE_NOT_FOUND"));
+	ShowError(GetMessage("VOTE_NOT_FOUND"));
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
@@ -68,7 +69,7 @@ $aMenu = array(
 
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
-echo ShowError($strError);
+ShowError($strError);
 
 
 $tabControl->Begin();

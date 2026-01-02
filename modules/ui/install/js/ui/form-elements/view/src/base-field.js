@@ -1,6 +1,7 @@
 import { Dom, Loc, Tag, Text, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { HelpMessage } from 'ui.section';
+import { Badge } from './component/badge';
 
 export class BaseField extends EventEmitter
 {
@@ -15,6 +16,7 @@ export class BaseField extends EventEmitter
 	#helpMessage: ?HelpMessage = null;
 	#errorContainer: HTMLElement;
 	#isFieldDisabled: boolean = false;
+	#badge: ?Badge = null;
 
 	constructor(params)
 	{
@@ -44,6 +46,16 @@ export class BaseField extends EventEmitter
 		this.#helpDeskCode = Type.isStringFilled(params.helpDesk) ? params.helpDesk : null;
 		this.#helpMessageProvider = params.helpMessageProvider;
 		this.#isFieldDisabled = Type.isBoolean(params.isFieldDisabled) ? params.isFieldDisabled : false;
+
+		this.#badge = Type.isStringFilled(params.badge) ? new Badge({ text: params.badge }) : null;
+
+		EventEmitter.subscribe(
+			EventEmitter.GLOBAL_TARGET,
+			'BX.Intranet.Settings:onBeforeSave',
+			() => {
+				this.cleanError();
+			}
+		);
 	}
 
 	getHelpMessage(): ?HelpMessage
@@ -68,16 +80,19 @@ export class BaseField extends EventEmitter
 	setErrors(errorMessages): void
 	{
 		this.cleanError();
-		Dom.addClass(this.getErrorBox(), '--error');
-		for (let message of errorMessages)
+		if (Type.isArray(errorMessages) && errorMessages.length > 0)
 		{
-			let error = Tag.render`
+			Dom.addClass(this.getErrorBox(), '--error');
+			for (const message of errorMessages)
+			{
+				const error = Tag.render`
 				<div class="ui-section__error-message">
 					<span class="ui-icon-set --warning"></span>
 					<span>${message}</span>
 				</div>
 			`;
-			Dom.append(error, this.renderErrors());
+				Dom.append(error, this.renderErrors());
+			}
 		}
 	}
 
@@ -184,6 +199,11 @@ export class BaseField extends EventEmitter
 
 	renderLockElement(): HTMLElement
 	{
+		if (!this.getBannerCode())
+		{
+			return '';
+		}
+
 		const lockElement = Tag.render`<span class="ui-icon-set --lock field-has-lock"></span>`;
 
 		lockElement.addEventListener('click', () => {
@@ -212,5 +232,10 @@ export class BaseField extends EventEmitter
 	isFieldDisabled(): boolean
 	{
 		return this.#isFieldDisabled;
+	}
+
+	getBadge(): Badge
+	{
+		return this.#badge;
 	}
 }

@@ -1,21 +1,31 @@
-import { Extension } from 'main.core';
+import { Extension, Type } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
+import { BitrixVue } from 'ui.vue3';
 
 import { Core } from 'im.v2.application.core';
 import { DesktopBxLink, Settings } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { DesktopApi, DesktopFeature } from 'im.v2.lib.desktop-api';
+import { DesktopUpdateBanner } from 'im.v2.component.desktop.update-banner';
+import { LayoutManager } from 'im.v2.lib.layout';
+import { Analytics } from 'im.v2.lib.analytics';
+import { Feature, FeatureManager } from 'im.v2.lib.feature';
 
 import { CheckUtils } from './classes/check-utils';
 import { Conference } from './classes/conference';
-import { Desktop } from './classes/desktop';
-import { Browser } from './classes/browser';
+import { DesktopChatWindow } from './classes/chat-window';
+import { DesktopBrowserWindow } from './classes/browser-window';
 import { Encoder } from './classes/encoder';
+import { DesktopBroadcastManager } from './classes/broadcast-manager';
 
 import type { CreatableChatType } from 'im.v2.component.content.chat-forms.forms';
 
+export { DesktopBroadcastManager } from './classes/broadcast-manager';
+
 const DESKTOP_PROTOCOL_VERSION = 2;
 const LOCATION_RESET_TIMEOUT = 1000;
+const DESKTOP_VERSION_WITH_AIR_DESIGN_SUPPORT = 17;
+const BANNER_COMPONENT_NAME = 'update-banner';
 
 export class DesktopManager
 {
@@ -55,16 +65,30 @@ export class DesktopManager
 	{
 		this.#initDesktopStatus();
 
-		if (DesktopManager.isDesktop())
+		if (!DesktopManager.isDesktop())
 		{
-			if (DesktopApi.isChatWindow())
-			{
-				Desktop.init();
-			}
-			else
-			{
-				Browser.init();
-			}
+			return;
+		}
+
+		if (this.#shouldShowDesktopUpdateBanner())
+		{
+			this.#showDesktopUpdateBanner();
+
+			return;
+		}
+
+		if (DesktopApi.isAirDesignEnabledInDesktop())
+		{
+			DesktopBroadcastManager.init();
+		}
+
+		if (DesktopApi.isChatWindow())
+		{
+			DesktopChatWindow.init();
+		}
+		else
+		{
+			DesktopBrowserWindow.init();
 		}
 	}
 
@@ -98,6 +122,11 @@ export class DesktopManager
 		return this.#locationChangedToBx;
 	}
 
+	canReloadWindow(): boolean
+	{
+		return !DesktopApi.isAirDesignEnabledInDesktop() || LayoutManager.getInstance().isEmbeddedMode();
+	}
+
 	redirectToChat(dialogId: string = '', messageId: number = 0): Promise
 	{
 		Logger.warn('Desktop: redirectToChat', dialogId);
@@ -106,6 +135,23 @@ export class DesktopManager
 		{
 			link += `/messageId/${messageId}`;
 		}
+		this.openBxLink(link);
+
+		return Promise.resolve();
+	}
+
+	redirectToChatWithBotContext(dialogId: string = '', context: Object = {}): Promise
+	{
+		Logger.warn('Desktop: redirectToChatWithBotContext', dialogId);
+		let link = `bx://${DesktopBxLink.botContext}/dialogId/${dialogId}`;
+		if (!Type.isPlainObject(context))
+		{
+			return Promise.reject();
+		}
+
+		const preparedContext = Encoder.encodeParamsJson(context);
+		link += `/context/${preparedContext}`;
+
 		this.openBxLink(link);
 
 		return Promise.resolve();
@@ -131,6 +177,27 @@ export class DesktopManager
 	{
 		Logger.warn('Desktop: redirectToCollab', dialogId);
 		this.openBxLink(`bx://${DesktopBxLink.collab}/dialogId/${dialogId}`);
+
+		return Promise.resolve();
+	}
+
+	redirectToChannel(dialogId: string = ''): Promise
+	{
+		Logger.warn('Desktop: redirectToChannel', dialogId);
+		this.openBxLink(`bx://${DesktopBxLink.channel}/dialogId/${dialogId}`);
+
+		return Promise.resolve();
+	}
+
+	redirectToTaskComments(dialogId: string = '', messageId: number = 0): Promise
+	{
+		Logger.warn('Desktop: redirectToTaskComments', dialogId);
+		let link = `bx://${DesktopBxLink.taskComments}/dialogId/${dialogId}`;
+		if (messageId > 0)
+		{
+			link += `/messageId/${messageId}`;
+		}
+		this.openBxLink(link);
 
 		return Promise.resolve();
 	}
@@ -236,33 +303,43 @@ export class DesktopManager
 		this.openBxLink(`bx://${DesktopBxLink.openPage}/options/${encodedParams}`);
 	}
 
-	checkStatusInDifferentContext(): Promise
+	redirectToLayout({ id, entityId }): Promise
+	{
+		Logger.warn('Desktop: redirectToLayout', id, entityId);
+		const preparedEntityId = entityId ?? '';
+		this.openBxLink(`bx://${DesktopBxLink.openLayout}/id/${id}/entityId/${preparedEntityId}`);
+
+		return Promise.resolve();
+	}
+
+	async checkStatusInDifferentContext(): Promise<boolean>
 	{
 		if (!this.isDesktopActive())
 		{
-			return Promise.resolve(false);
+			return false;
 		}
 
 		if (DesktopApi.isChatWindow())
 		{
+			return false;
+		}
+
+		if (DesktopApi.isDesktop() && !DesktopApi.isChatWindow())
+		{
+			return true;
+		}
+
+		return CheckUtils.testImageLoad();
+	}
+
+	checkForRedirect(): Promise<boolean>
+	{
+		if (!this.isRedirectEnabled() || !this.isRedirectOptionEnabled())
+		{
 			return Promise.resolve(false);
 		}
 
-		return new Promise((resolve) => {
-			CheckUtils.testImageLoad(
-				() => {
-					resolve(true);
-				},
-				() => {
-					resolve(false);
-				},
-			);
-		});
-	}
-
-	checkForRedirect(): Promise
-	{
-		if (!this.isRedirectEnabled() || !this.isRedirectOptionEnabled())
+		if (DesktopApi.isAirDesignEnabledInDesktop())
 		{
 			return Promise.resolve(false);
 		}
@@ -270,38 +347,22 @@ export class DesktopManager
 		return this.checkStatusInDifferentContext();
 	}
 
-	checkForOpenBrowserPage(): Promise
+	async checkForOpenBrowserPage(): Promise<boolean>
 	{
+		await Core.ready();
+
 		if (!this.isDesktopActive() || !this.isRedirectOptionEnabled())
 		{
-			return Promise.resolve(false);
+			return false;
 		}
 
 		const desktopVersion = this.getDesktopVersion();
 		if (!DesktopApi.isFeatureSupportedInVersion(desktopVersion, DesktopFeature.openPage.id))
 		{
-			return Promise.resolve(false);
+			return false;
 		}
 
-		return new Promise((resolve) => {
-			CheckUtils.testImageLoad(
-				() => {
-					CheckUtils.testImageLoad(
-						() => {
-							resolve(true);
-						},
-						() => {
-							resolve(false);
-						},
-						CheckUtils.IMAGE_DESKTOP_TWO_WINDOW_MODE,
-					);
-				},
-				() => {
-					resolve(false);
-				},
-				CheckUtils.IMAGE_DESKTOP_RUN,
-			);
-		});
+		return CheckUtils.testImageLoad(CheckUtils.IMAGE_DESKTOP_TWO_WINDOW_MODE);
 	}
 
 	isRedirectEnabled(): boolean
@@ -321,6 +382,11 @@ export class DesktopManager
 
 	isRedirectOptionEnabled(): boolean
 	{
+		if (!FeatureManager.isFeatureAvailable(Feature.isDesktopRedirectAvailable))
+		{
+			return false;
+		}
+
 		if (DesktopApi.isDesktop() && !DesktopApi.isChatWindow())
 		{
 			return true;
@@ -351,6 +417,26 @@ export class DesktopManager
 		}
 
 		return url.replace('bx://', `bx://v${DESKTOP_PROTOCOL_VERSION}/${location.hostname}/`);
+	}
+
+	#shouldShowDesktopUpdateBanner(): boolean
+	{
+		const isOldDesktopVersion = DesktopApi.getMajorVersion() < DESKTOP_VERSION_WITH_AIR_DESIGN_SUPPORT;
+
+		return isOldDesktopVersion && DesktopApi.isAirDesignEnabledInDesktop();
+	}
+
+	#showDesktopUpdateBanner()
+	{
+		const desktopUpdateBanner = BitrixVue.createApp({
+			name: BANNER_COMPONENT_NAME,
+			components: { DesktopUpdateBanner },
+			template: '<DesktopUpdateBanner />',
+		});
+
+		desktopUpdateBanner.mount(document.body);
+
+		Analytics.getInstance().desktopUpdateBanner.onShow();
 	}
 
 	#initDesktopStatus()

@@ -18,8 +18,8 @@
 }
 
 .bitrix-footer-link,
-a.bitrix-footer-link,
-a.bitrix-footer-link:visited,
+.bitrix-footer-link a,
+.bitrix-footer-link a:visited,
 .bitrix-footer-text {
 	color: #919191;
 	font: 12px/14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
@@ -27,14 +27,14 @@ a.bitrix-footer-link:visited,
 	text-align: center;
 }
 
-a.bitrix-footer-link,
-a.bitrix-footer-link:visited{
+.bitrix-footer-link a,
+.bitrix-footer-link a:visited{
 	transition: 180ms all ease;
 	border-bottom: 1px solid #919191;
 	text-decoration: none;
 }
 
-a.bitrix-footer-link:hover{
+.bitrix-footer-link a:hover{
 	color:#fff;
 	border-bottom-color:#fff;
 	text-decoration: none;

@@ -28,9 +28,10 @@ class CBPFieldCondition extends CBPActivityCondition
 		$rootActivity = $ownerActivity->getRootActivity();
 		$documentId = $rootActivity->GetDocumentId();
 		$documentType = $rootActivity->getDocumentType();
+		$usedDocumentFields = $rootActivity->{CBPDocument::PARAM_USED_DOCUMENT_FIELDS} ?? [];
 
 		$documentService = $ownerActivity->workflow->getRuntime()->getDocumentService();
-		$document = $documentService->getDocument($documentId, $documentType);
+		$document = $documentService->getDocument($documentId, $documentType, $usedDocumentFields);
 		$documentFields = $documentService->getDocumentFields($documentType);
 		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
 

@@ -12,7 +12,7 @@ import type { ImModelChat } from 'im.v2.model';
 
 export class ChatEdit
 {
-	onOpenForm(dialogId: string)
+	onOpenForm(dialogId: string): void
 	{
 		const chat: ImModelChat = Core.getStore().getters['chats/get'](dialogId);
 
@@ -34,7 +34,7 @@ export class ChatEdit
 		sendData(params);
 	}
 
-	onSubmitForm(dialogId: string)
+	onSubmitForm(dialogId: string): void
 	{
 		const chat: ImModelChat = Core.getStore().getters['chats/get'](dialogId);
 

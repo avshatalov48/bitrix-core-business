@@ -65,6 +65,10 @@
 	padding: 0 0 0 20px;
 }
 
+.main-user-consent-selector-footer .main-user-consent-selector-block-link:not(:first-child) {
+	margin-left: 10px;
+}
+
 .main-user-consent-selector-alert {
 	margin: 0 0 16px 0;
 	padding: 14px 20px;
@@ -72,4 +76,22 @@
 	background: #FFFDE1;
 	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #8B7B60;
+}
+
+.main-user-consent-selector-block-checkbox {
+	margin-bottom: 10px;
+}
+
+.main-user-consent-selector-block-link {
+	cursor: pointer;
+}
+
+.main-user-consent-selector-block-delete {
+	margin-bottom: 10px;
+}
+
+.main-user-consent-selector-block-delete-button {
+	cursor: pointer;
+	font: var(--ui-font-weight-bold) 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #d0011b;
 }

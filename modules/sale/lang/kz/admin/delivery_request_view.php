@@ -1,0 +1,20 @@
+<?php
+$MESS["SALE_DELIVERY_REQ_VIEW_ACTIONS"] = "Әрекеттер";
+$MESS["SALE_DELIVERY_REQ_VIEW_CONTENT"] = "Мазмұны";
+$MESS["SALE_DELIVERY_REQ_VIEW_CONTENT_T"] = "Өтінім мазмұны";
+$MESS["SALE_DELIVERY_REQ_VIEW_DELETE"] = "Өтінімді жою";
+$MESS["SALE_DELIVERY_REQ_VIEW_DEL_CONFIRM"] = "Көлік өтінімін жойғыңыз келетініне сенімдісіз бе?";
+$MESS["SALE_DELIVERY_REQ_VIEW_F_DATE_INSERT"] = "Жасау күні мен уақыты";
+$MESS["SALE_DELIVERY_REQ_VIEW_F_DELIVERY_IDT"] = "Жеткізу қызметі";
+$MESS["SALE_DELIVERY_REQ_VIEW_F_EXTERNAL_ID"] = "Сыртқы идентификатор";
+$MESS["SALE_DELIVERY_REQ_VIEW_F_ID"] = "Идентификатор";
+$MESS["SALE_DELIVERY_REQ_VIEW_F_STATUS"] = "Мәртебе";
+$MESS["SALE_DELIVERY_REQ_VIEW_F_STATUS_P"] = "Өңделді (аяқталды)";
+$MESS["SALE_DELIVERY_REQ_VIEW_F_STATUS_R"] = "Дайындалды";
+$MESS["SALE_DELIVERY_REQ_VIEW_F_STATUS_S"] = "Жіберілді";
+$MESS["SALE_DELIVERY_REQ_VIEW_MAIN"] = "Негізгі";
+$MESS["SALE_DELIVERY_REQ_VIEW_MAIN_T"] = "Өтінім туралы негізгі ақпарат";
+$MESS["SALE_DELIVERY_REQ_VIEW_SHP_LIST"] = "Жөнелтулер тізімі";
+$MESS["SALE_DELIVERY_REQ_VIEW_SHP_LIST_T"] = "Жеткізуге кіретін жөнелтулер тізімі";
+$MESS["SALE_DELIVERY_REQ_VIEW_TITLE"] = "Көлік өтінімін қарау";
+$MESS["SALE_DELIVERY_REQ_VIEW_TO_LIST"] = "Тізімге";

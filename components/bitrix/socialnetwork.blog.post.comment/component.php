@@ -11,6 +11,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Blog\Item\Permissions;
+use Bitrix\Socialnetwork\Helper\Analytics\FeedAnalytics;
 use Bitrix\Socialnetwork\Helper\Mention;
 use Bitrix\Main\Text;
 use Bitrix\Socialnetwork\CommentAux;
@@ -942,7 +943,7 @@ if (
 									arFilter: ['MODULE_ID' => 'blog', 'SOURCE_ID' => $arPost['ID']],
 									arSelectFields: ['EVENT_ID'],
 								)->Fetch()['EVENT_ID'] ?? '';
-								$analytics = \Bitrix\Socialnetwork\Helper\Analytics::getInstance();
+								$analytics = FeedAnalytics::getInstance();
 
 								$typeMap = [
 									'blog_post_vote' => $analytics::TYPE_POLL,
@@ -1404,7 +1405,12 @@ if (
 								$arResult["BlogUser"] = CBlogTools::htmlspecialcharsExArray($arResult["BlogUser"]);
 								$dbUser = CUser::GetByID($currentUserId);
 								$arResult["arUser"] = $dbUser->GetNext();
-								$arResult["User"]["NAME"] = CBlogUser::GetUserName($arResult["BlogUser"]["ALIAS"], $arResult["arUser"]["NAME"], $arResult["arUser"]["LAST_NAME"], $arResult["arUser"]["LOGIN"]);
+								$arResult["User"]["NAME"] = CBlogUser::GetUserName(
+									$arResult["BlogUser"]["ALIAS"] ?? '',
+									$arResult["arUser"]["NAME"],
+									$arResult["arUser"]["LAST_NAME"],
+									$arResult["arUser"]["LOGIN"]
+								);
 							}
 
 							CBlogComment::UpdateLog($commentID, $arResult["BlogUser"], $arResult["User"], $arFields, $arPost, $arParamsUpdateLog);

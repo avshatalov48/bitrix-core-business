@@ -1,0 +1,19 @@
+<?php
+$MESS["BPAA_DESCR_AC"] = "Бекіткендер саны";
+$MESS["BPAA_DESCR_AP"] = "Бекіткендер пайызы";
+$MESS["BPAA_DESCR_APPROVERS"] = "Бекіткен пайдаланушылар";
+$MESS["BPAA_DESCR_APPROVERS_STRING"] = "Бекіткен пайдаланушылар (мәтін)";
+$MESS["BPAA_DESCR_CM_1"] = "Түсініктемелер";
+$MESS["BPAA_DESCR_DESCR"] = "Құжатты бекіту";
+$MESS["BPAA_DESCR_LA"] = "Соңғы дауыс берген";
+$MESS["BPAA_DESCR_LA_COMMENT_1"] = "Соңғы дауыс берушінің түсініктемесі";
+$MESS["BPAA_DESCR_NAC"] = "Қабылдамағандар саны";
+$MESS["BPAA_DESCR_NAME"] = "Құжатты бекіту";
+$MESS["BPAA_DESCR_NAP"] = "Қабылдамағандар пайызы";
+$MESS["BPAA_DESCR_REJECTERS"] = "Қабылдамаған пайдаланушылар";
+$MESS["BPAA_DESCR_REJECTERS_STRING"] = "Қабылдамаған пайдаланушылар (мәтін)";
+$MESS["BPAA_DESCR_TA1"] = "Автоматты түрде бас тарту";
+$MESS["BPAA_DESCR_TASKS"] = "Тапсырмалар";
+$MESS["BPAA_DESCR_TC"] = "Қаншасы дауыс беру керек";
+$MESS["BPAA_DESCR_VC"] = "Қаншасы дауыс берді";
+$MESS["BPAA_DESCR_VP"] = "Дауыс бергендер пайызы";

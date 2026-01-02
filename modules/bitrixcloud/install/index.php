@@ -82,7 +82,7 @@ class bitrixcloud extends CModule
 		UnRegisterModuleDependences('main', 'OnAdminInformerInsertItems', 'bitrixcloud', 'CBitrixCloudBackup', 'OnAdminInformerInsertItems');
 		UnRegisterModuleDependences('mobileapp', 'OnBeforeAdminMobileMenuBuild', 'bitrixcloud', 'CBitrixCloudMobile', 'OnBeforeAdminMobileMenuBuild');
 
-		if (!array_key_exists('savedata', $arParams) || $arParams['savedata'] != 'Y')
+		if (!array_key_exists('save_tables', $arParams) || $arParams['save_tables'] != 'Y')
 		{
 			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/db/' . $connection->getType() . '/uninstall.sql');
 		}

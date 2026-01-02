@@ -8,3 +8,4 @@ $MESS["IM_MESSAGE_CODE"] = "Фрагмент кода";
 $MESS["IM_MESSAGE_AUDIO"] = "Аудио";
 $MESS["IM_MESSAGE_VIDEO"] = "Видео";
 $MESS["IM_MESSAGE_IMAGE"] = "Фото";
+$MESS["IM_MESSAGE_SYSTEM"] = "Системное сообщение";

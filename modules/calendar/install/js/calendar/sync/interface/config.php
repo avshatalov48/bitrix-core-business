@@ -18,6 +18,7 @@ return [
 		'ui.tilegrid',
 		'ui.forms',
 		'main.core.events',
+		'ui.alerts',
 		'ui.dialogs.messagebox',
 		'main.core',
 		'calendar.util',

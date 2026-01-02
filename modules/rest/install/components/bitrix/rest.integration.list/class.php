@@ -71,7 +71,7 @@ class RestIntegratorsListComponent extends CBitrixComponent
 		$isAdmin = \CRestUtil::isAdmin();
 		if ($this->arParams['TYPE'] === 'LIST')
 		{
-			if (!$isAdmin && isset($items[$code]) && $items[$code]['ADMIN_ONLY'] === 'Y')
+			if (!$isAdmin && isset($items[$code]['ADMIN_ONLY']) && $items[$code]['ADMIN_ONLY'] === 'Y')
 			{
 				$this->errors->setError(new Error(Loc::getMessage('REST_INTEGRATION_LIST_ERROR_ACCESS_DENIED')));
 
@@ -89,7 +89,7 @@ class RestIntegratorsListComponent extends CBitrixComponent
 					!$isAdmin
 					&&
 					(
-						$item['ADMIN_ONLY'] === 'Y'
+					($item['ADMIN_ONLY'] ?? 'N') === 'Y'
 						||
 						(
 							!empty($item['OPTIONS'])

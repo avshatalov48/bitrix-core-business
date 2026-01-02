@@ -1,12 +1,13 @@
 <?php
-namespace Bitrix\Main\Session\Handlers\Table;
 
+namespace Bitrix\Main\Session\Handlers\Table;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\DB\MysqlCommonConnection;
 use Bitrix\Main\DB\PgsqlConnection;
-use Bitrix\Main\Entity;
 use Bitrix\Main\Type;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields;
 
 /**
  * Class UserSessionTable
@@ -24,7 +25,7 @@ use Bitrix\Main\Type;
  * @method static \Bitrix\Main\Session\Handlers\Table\EO_UserSession wakeUpObject($row)
  * @method static \Bitrix\Main\Session\Handlers\Table\EO_UserSession_Collection wakeUpCollection($rows)
  */
-class UserSessionTable extends Entity\DataManager
+class UserSessionTable extends DataManager
 {
 	/** @var string Connection name used for SQL queries */
 	public const CONNECTION_NAME = 'user_session';
@@ -41,7 +42,7 @@ class UserSessionTable extends Entity\DataManager
 
 	/**
 	 * Returns connection name for entity
-	 * Have side affect, keep it in mind!
+	 * Has side effect, keep it in mind!
 	 * Clone default database connection if connection {@link SessionTable::CONNECTION_NAME} doesn't exists
 	 *
 	 * @return string
@@ -69,14 +70,14 @@ class UserSessionTable extends Entity\DataManager
 	public static function getMap()
 	{
 		return [
-			new Entity\StringField('SESSION_ID', [
+			new Fields\StringField('SESSION_ID', [
 				'primary' => true,
 				'format' => '#^[0-9a-z\-,]{6,250}$#iD'
 			]),
-			new Entity\DatetimeField('TIMESTAMP_X', [
+			new Fields\DatetimeField('TIMESTAMP_X', [
 				'default_value' => new Type\DateTime
 			]),
-			new Entity\TextField('SESSION_DATA', [
+			new Fields\TextField('SESSION_DATA', [
 				'default_value' => '',
 				'save_data_modification' => function() {
 					return [

@@ -1,0 +1,20 @@
+<?php
+$MESS["CATALOG_SET_ADDED2BASKET"] = "Жинақ себетке қосылды";
+$MESS["CATALOG_SET_BUTTON_ADD"] = "Қосу";
+$MESS["CATALOG_SET_BUTTON_BUY"] = "Себетке өту";
+$MESS["CATALOG_SET_BUY"] = "Сатып алу";
+$MESS["CATALOG_SET_BUY_SET"] = "Жинақты сатып алу";
+$MESS["CATALOG_SET_CONSTRUCT"] = "Өз жинағыңызды жасау";
+$MESS["CATALOG_SET_DISCOUNT"] = "Жеңілдік";
+$MESS["CATALOG_SET_DISCOUNT_DIFF"] = "(#PRICE# үнемдеу)";
+$MESS["CATALOG_SET_ECONOMY_PRICE"] = "Үнемдеу";
+$MESS["CATALOG_SET_MESS_NOT_AVAILABLE"] = "Қолда жоқ";
+$MESS["CATALOG_SET_POPUP_DESC"] = "Тінтуірдің көмегімен кез келген тауарды бос өріске сүйреңіз немесе оған жай ғана басыңыз";
+$MESS["CATALOG_SET_POPUP_LOADER"] = "Жүктеу...";
+$MESS["CATALOG_SET_POPUP_TITLE"] = "Аксессуарды жинаққа қосыңыз";
+$MESS["CATALOG_SET_POPUP_TITLE_BAR"] = "Өз жинағыңызды жасаңыз";
+$MESS["CATALOG_SET_PRODUCTS_PRICE"] = "Жеке тауарлардың құны";
+$MESS["CATALOG_SET_SET_PRICE"] = "Жинақ құны";
+$MESS["CATALOG_SET_SUM"] = "Барлығы";
+$MESS["CATALOG_SET_WITHOUT_DISCOUNT"] = "Жеңілдіксіз баға";
+$MESS["CT_BCE_CATALOG_MESS_EMPTY_SET"] = "Жинақта тауарлар жоқ, ұсынылған тізімнен таңдаңыз";

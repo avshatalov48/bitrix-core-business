@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Socialnetwork = this.BX.Socialnetwork || {};
-(function (exports,ui_formElements_view,ui_forms,ui_hint,main_core,main_core_events) {
+(function (exports,main_core_events,ui_formElements_view,ui_forms,ui_hint,main_core) {
 	'use strict';
 
 	var _templateObject, _templateObject2;
@@ -19,10 +19,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	var _prepareFields = /*#__PURE__*/new WeakSet();
 	var _prepareBaseFields = /*#__PURE__*/new WeakSet();
 	var _prepareTasksFields = /*#__PURE__*/new WeakSet();
+	var _prepareParams = /*#__PURE__*/new WeakSet();
 	var _getOwnerField = /*#__PURE__*/new WeakSet();
 	var _getModeratorsField = /*#__PURE__*/new WeakSet();
 	var _getShowHistoryField = /*#__PURE__*/new WeakSet();
 	var _getWhoCanInviteField = /*#__PURE__*/new WeakSet();
+	var _getAllowGuestsInvitationField = /*#__PURE__*/new WeakSet();
 	var _getManageMessagesField = /*#__PURE__*/new WeakSet();
 	var _getTasksViewUsersField = /*#__PURE__*/new WeakSet();
 	var _getTasksSortTasksField = /*#__PURE__*/new WeakSet();
@@ -45,10 +47,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getTasksSortTasksField);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getTasksViewUsersField);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getManageMessagesField);
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getAllowGuestsInvitationField);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getWhoCanInviteField);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getShowHistoryField);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getModeratorsField);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getOwnerField);
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _prepareParams);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _prepareTasksFields);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _prepareBaseFields);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _prepareFields);
@@ -91,7 +95,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        options: main_core.Type.isPlainObject(data.options) ? data.options : {},
 	        permissionsLabels: main_core.Type.isPlainObject(data.permissionsLabels) ? data.permissionsLabels : {},
 	        rightsPermissionsLabels: main_core.Type.isPlainObject(data.rightsPermissionsLabels) ? data.rightsPermissionsLabels : {},
-	        optionsLabels: main_core.Type.isPlainObject(data.optionsLabels) ? data.optionsLabels : {}
+	        optionsLabels: main_core.Type.isPlainObject(data.optionsLabels) ? data.optionsLabels : {},
+	        isAllowedInviteCollabers: main_core.Type.isBoolean(data.isAllowedInviteCollabers) ? data.isAllowedInviteCollabers : false
 	      };
 	    }
 	  }, {
@@ -100,7 +105,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      var _this2 = this;
 	      var uiStyles = 'ui-sidepanel-layout-content ui-sidepanel-layout-content-margin';
 	      _classPrivateMethodGet(this, _prepareFields, _prepareFields2).call(this, formData);
-	      var _ref = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div ref=\"content\" class=\"sn-collab__access-right-side-panel ui-sidepanel-layout\">\n\t\t\t\t<div class=\"ui-sidepanel-layout-header\">\n\t\t\t\t\t<div class=\"ui-sidepanel-layout-title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<form ref=\"form\" class=\"", " sn-collab__access-right-form\">\n\t\t\t\t\t<div class=\"sn-collab__access-right-form-box\">\n\t\t\t\t\t\t<div class=\"sn-collab__access-right-form-box-label\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"sn-collab__access-right-form-box --selectors\">\n\t\t\t\t\t\t<div class=\"sn-collab__access-right-form-box-label\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</form>\n\t\t\t\t<div class=\"ui-sidepanel-layout-footer-anchor\"></div>\n\t\t\t\t<div class=\"ui-sidepanel-layout-footer\">\n\t\t\t\t<div class=\"ui-sidepanel-layout-buttons\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS'), uiStyles, main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_MANAGEMENT_LABEL'), babelHelpers.classPrivateFieldGet(this, _layout).ownerField.render(), babelHelpers.classPrivateFieldGet(this, _layout).moderatorsField.render(), babelHelpers.classPrivateFieldGet(this, _layout).showHistory.render(), babelHelpers.classPrivateFieldGet(this, _layout).whoCanInvite.render(), babelHelpers.classPrivateFieldGet(this, _layout).manageMessages.render(), main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_TASKS_LABEL'), babelHelpers.classPrivateFieldGet(this, _layout).tasksViewUsersField.render(), babelHelpers.classPrivateFieldGet(this, _layout).tasksSortTasksField.render(), babelHelpers.classPrivateFieldGet(this, _layout).tasksCreateTasksField.render(), babelHelpers.classPrivateFieldGet(this, _layout).tasksEditTasksField.render(), babelHelpers.classPrivateFieldGet(this, _layout).tasksDeleteTasksField.render(), _classPrivateMethodGet(this, _renderButtons, _renderButtons2).call(this, formData)),
+	      var _ref = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div ref=\"content\" class=\"sn-collab__access-right-side-panel ui-sidepanel-layout\">\n\t\t\t\t<div class=\"ui-sidepanel-layout-header\">\n\t\t\t\t\t<div class=\"ui-sidepanel-layout-title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<form ref=\"form\" class=\"", " sn-collab__access-right-form\">\n\t\t\t\t\t<div class=\"sn-collab__access-right-form-box\">\n\t\t\t\t\t\t<div class=\"sn-collab__access-right-form-box-label\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"sn-collab__access-right-form-box --selectors\">\n\t\t\t\t\t\t<div class=\"sn-collab__access-right-form-box-label\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</form>\n\t\t\t\t<div class=\"ui-sidepanel-layout-footer-anchor\"></div>\n\t\t\t\t<div class=\"ui-sidepanel-layout-footer\">\n\t\t\t\t<div class=\"ui-sidepanel-layout-buttons\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS'), uiStyles, main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_MANAGEMENT_LABEL_MSGVER_1'), babelHelpers.classPrivateFieldGet(this, _layout).ownerField.render(), babelHelpers.classPrivateFieldGet(this, _layout).moderatorsField.render(), babelHelpers.classPrivateFieldGet(this, _layout).showHistory.render(), babelHelpers.classPrivateFieldGet(this, _layout).whoCanInvite.render(), babelHelpers.classPrivateFieldGet(this, _layout).allowGuestsInvitation.render(), babelHelpers.classPrivateFieldGet(this, _layout).manageMessages.render(), main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_TASKS_LABEL'), babelHelpers.classPrivateFieldGet(this, _layout).tasksViewUsersField.render(), babelHelpers.classPrivateFieldGet(this, _layout).tasksSortTasksField.render(), babelHelpers.classPrivateFieldGet(this, _layout).tasksCreateTasksField.render(), babelHelpers.classPrivateFieldGet(this, _layout).tasksEditTasksField.render(), babelHelpers.classPrivateFieldGet(this, _layout).tasksDeleteTasksField.render(), _classPrivateMethodGet(this, _renderButtons, _renderButtons2).call(this, formData)),
 	        content = _ref.content,
 	        form = _ref.form;
 	      main_core.Event.bind(form, 'change', function () {
@@ -191,7 +196,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    options: {
 	      showHistory: babelHelpers.classPrivateFieldGet(this, _layout).showHistory.getValue(),
 	      manageMessages: babelHelpers.classPrivateFieldGet(this, _layout).manageMessages.getValue(),
-	      whoCanInvite: babelHelpers.classPrivateFieldGet(this, _layout).whoCanInvite.getValue()
+	      whoCanInvite: babelHelpers.classPrivateFieldGet(this, _layout).whoCanInvite.getValue(),
+	      allowGuestsInvitation: babelHelpers.classPrivateFieldGet(this, _layout).allowGuestsInvitation.getValue()
 	    },
 	    permissions: {
 	      tasks: {
@@ -205,16 +211,18 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  };
 	}
 	function _prepareFields2(formData) {
+	  _classPrivateMethodGet(this, _prepareParams, _prepareParams2).call(this, formData);
 	  _classPrivateMethodGet(this, _prepareBaseFields, _prepareBaseFields2).call(this, formData);
 	  _classPrivateMethodGet(this, _prepareTasksFields, _prepareTasksFields2).call(this, formData);
 	}
 	function _prepareBaseFields2(formData) {
-	  var _formData$options, _formData$options2, _formData$options3;
+	  var _formData$options, _formData$options2, _formData$options3, _formData$options4;
 	  babelHelpers.classPrivateFieldGet(this, _layout).ownerField = _classPrivateMethodGet(this, _getOwnerField, _getOwnerField2).call(this, formData.ownerId);
 	  babelHelpers.classPrivateFieldGet(this, _layout).moderatorsField = _classPrivateMethodGet(this, _getModeratorsField, _getModeratorsField2).call(this, formData.moderators);
 	  babelHelpers.classPrivateFieldGet(this, _layout).showHistory = _classPrivateMethodGet(this, _getShowHistoryField, _getShowHistoryField2).call(this, formData.optionsLabels, (_formData$options = formData.options) === null || _formData$options === void 0 ? void 0 : _formData$options.showHistory);
 	  babelHelpers.classPrivateFieldGet(this, _layout).whoCanInvite = _classPrivateMethodGet(this, _getWhoCanInviteField, _getWhoCanInviteField2).call(this, formData.permissionsLabels, (_formData$options2 = formData.options) === null || _formData$options2 === void 0 ? void 0 : _formData$options2.whoCanInvite);
-	  babelHelpers.classPrivateFieldGet(this, _layout).manageMessages = _classPrivateMethodGet(this, _getManageMessagesField, _getManageMessagesField2).call(this, formData.permissionsLabels, (_formData$options3 = formData.options) === null || _formData$options3 === void 0 ? void 0 : _formData$options3.manageMessages);
+	  babelHelpers.classPrivateFieldGet(this, _layout).allowGuestsInvitation = _classPrivateMethodGet(this, _getAllowGuestsInvitationField, _getAllowGuestsInvitationField2).call(this, formData.optionsLabels, (_formData$options3 = formData.options) === null || _formData$options3 === void 0 ? void 0 : _formData$options3.allowGuestsInvitation);
+	  babelHelpers.classPrivateFieldGet(this, _layout).manageMessages = _classPrivateMethodGet(this, _getManageMessagesField, _getManageMessagesField2).call(this, formData.permissionsLabels, (_formData$options4 = formData.options) === null || _formData$options4 === void 0 ? void 0 : _formData$options4.manageMessages);
 	}
 	function _prepareTasksFields2(formData) {
 	  var _formData$permissions;
@@ -224,6 +232,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  babelHelpers.classPrivateFieldGet(this, _layout).tasksCreateTasksField = _classPrivateMethodGet(this, _getTasksCreateTasksField, _getTasksCreateTasksField2).call(this, formData.rightsPermissionsLabels, tasks === null || tasks === void 0 ? void 0 : tasks.create_tasks);
 	  babelHelpers.classPrivateFieldGet(this, _layout).tasksEditTasksField = _classPrivateMethodGet(this, _getTasksEditTasksField, _getTasksEditTasksField2).call(this, formData.rightsPermissionsLabels, tasks === null || tasks === void 0 ? void 0 : tasks.edit_tasks);
 	  babelHelpers.classPrivateFieldGet(this, _layout).tasksDeleteTasksField = _classPrivateMethodGet(this, _getTasksDeleteTasksField, _getTasksDeleteTasksField2).call(this, formData.rightsPermissionsLabels, tasks === null || tasks === void 0 ? void 0 : tasks.delete_tasks);
+	}
+	function _prepareParams2(formData) {
+	  babelHelpers.classPrivateFieldGet(this, _params).isAllowedInviteCollabers = formData.isAllowedInviteCollabers;
 	}
 	function _getOwnerField2(ownerId) {
 	  var label = _classPrivateMethodGet(this, _getFieldLabel, _getFieldLabel2).call(this, 'OwnerHint', main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_OWNER_LABEL'), main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_OWNER_LABEL_HINT'));
@@ -256,6 +267,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	function _getWhoCanInviteField2(options, selectedValue) {
 	  var label = _classPrivateMethodGet(this, _getFieldLabel, _getFieldLabel2).call(this, 'InitiateHint', main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_INITIATE_LABEL'), main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_INITIATE_LABEL_HINT'));
 	  return _classPrivateMethodGet(this, _getSelector, _getSelector2).call(this, 'whoCanInvite', label, options, selectedValue);
+	}
+	function _getAllowGuestsInvitationField2(options, selectedValue) {
+	  // is collabers invitation enabled at the portal level
+	  var isFieldDisabled = !babelHelpers.classPrivateFieldGet(this, _params).isAllowedInviteCollabers;
+	  var label = _classPrivateMethodGet(this, _getFieldLabel, _getFieldLabel2).call(this, 'AllowGuestsInvitationHint', main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_ALLOW_GUESTS_INVITATION_LABEL'));
+	  return _classPrivateMethodGet(this, _getSelector, _getSelector2).call(this, 'allowGuestsInvitation', label, options, selectedValue, isFieldDisabled);
 	}
 	function _getManageMessagesField2(options, selectedValue) {
 	  var label = _classPrivateMethodGet(this, _getFieldLabel, _getFieldLabel2).call(this, 'ChatHint', main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_CHAT_LABEL'), main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS_CHAT_LABEL_HINT'));
@@ -290,6 +307,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	}
 	function _getSelector2(id, label, options) {
 	  var selectedValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'K';
+	  var isFieldDisabled = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 	  var items = [];
 	  Object.entries(options).forEach(function (_ref3) {
 	    var _ref4 = babelHelpers.slicedToArray(_ref3, 2),
@@ -305,21 +323,34 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    id: "sn-collab-form-field-".concat(id),
 	    label: label,
 	    items: items,
+	    isFieldDisabled: isFieldDisabled,
 	    current: selectedValue
 	  });
 	}
 
 	function _regeneratorRuntime() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == babelHelpers["typeof"](value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _params$1 = /*#__PURE__*/new WeakMap();
 	var AddForm = /*#__PURE__*/function (_Form) {
 	  babelHelpers.inherits(AddForm, _Form);
-	  function AddForm() {
+	  function AddForm(params) {
+	    var _this;
 	    babelHelpers.classCallCheck(this, AddForm);
-	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(AddForm).apply(this, arguments));
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(AddForm).call(this, params));
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _params$1, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _params$1, params);
+	    return _this;
 	  }
 	  babelHelpers.createClass(AddForm, [{
 	    key: "open",
 	    value: function open() {
-	      var _this = this;
+	      var _this2 = this;
 	      var slider = BX.SidePanel.Instance.getSlider(this.sidePanelId);
 	      if (slider !== null && slider !== void 0 && slider.isOpen()) {
 	        return;
@@ -329,7 +360,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        title: main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS'),
 	        contentCallback: function () {
 	          var _contentCallback = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(sidePanel) {
-	            var _yield$ajax$runAction, data;
+	            var _babelHelpers$classPr, _babelHelpers$classPr2, _yield$ajax$runAction, data, formData;
 	            return _regeneratorRuntime().wrap(function _callee$(_context) {
 	              while (1) switch (_context.prev = _context.next) {
 	                case 0:
@@ -341,17 +372,18 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	                case 3:
 	                  _yield$ajax$runAction = _context.sent;
 	                  data = _yield$ajax$runAction.data;
-	                  return _context.abrupt("return", _this.render(_this.prepareFormData(data)));
-	                case 8:
-	                  _context.prev = 8;
+	                  formData = (_babelHelpers$classPr = (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldGet(_this2, _params$1)) === null || _babelHelpers$classPr2 === void 0 ? void 0 : _babelHelpers$classPr2.formData) !== null && _babelHelpers$classPr !== void 0 ? _babelHelpers$classPr : {};
+	                  return _context.abrupt("return", _this2.render(_objectSpread(_objectSpread({}, _this2.prepareFormData(data)), formData)));
+	                case 9:
+	                  _context.prev = 9;
 	                  _context.t0 = _context["catch"](0);
 	                  console.error(_context.t0);
 	                  return _context.abrupt("return", Promise.reject());
-	                case 12:
+	                case 13:
 	                case "end":
 	                  return _context.stop();
 	              }
-	            }, _callee, null, [[0, 8]]);
+	            }, _callee, null, [[0, 9]]);
 	          }));
 	          function contentCallback(_x) {
 	            return _contentCallback.apply(this, arguments);
@@ -370,21 +402,23 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	}(Form);
 
 	function _regeneratorRuntime$1() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime$1 = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == babelHelpers["typeof"](value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
-	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	var _params$1 = /*#__PURE__*/new WeakMap();
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function _classPrivateFieldInitSpec$2(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _params$2 = /*#__PURE__*/new WeakMap();
 	var EditForm = /*#__PURE__*/function (_Form) {
 	  babelHelpers.inherits(EditForm, _Form);
 	  function EditForm(params) {
 	    var _this;
 	    babelHelpers.classCallCheck(this, EditForm);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(EditForm).call(this, params));
-	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _params$1, {
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _params$2, {
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _params$1, params);
-	    if (!main_core.Type.isNumber(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _params$1).collabId)) {
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _params$2, params);
+	    if (!main_core.Type.isNumber(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _params$2).collabId)) {
 	      throw new TypeError('Collab id is required');
 	    }
 	    return _this;
@@ -393,7 +427,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "open",
 	    value: function open() {
 	      var _this2 = this;
-	      var sidePanelId = "sn-collab-access-rights-".concat(babelHelpers.classPrivateFieldGet(this, _params$1).collabId);
+	      var sidePanelId = "sn-collab-access-rights-".concat(babelHelpers.classPrivateFieldGet(this, _params$2).collabId);
 	      var slider = BX.SidePanel.Instance.getSlider(sidePanelId);
 	      if (slider !== null && slider !== void 0 && slider.isOpen()) {
 	        return;
@@ -403,7 +437,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        title: main_core.Loc.getMessage('SN_COLLAB_ACCESS_RIGHTS'),
 	        contentCallback: function () {
 	          var _contentCallback = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime$1().mark(function _callee(sidePanel) {
-	            var _yield$ajax$runAction, data;
+	            var _babelHelpers$classPr, _babelHelpers$classPr2, _yield$ajax$runAction, data, formData;
 	            return _regeneratorRuntime$1().wrap(function _callee$(_context) {
 	              while (1) switch (_context.prev = _context.next) {
 	                case 0:
@@ -411,23 +445,24 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	                  _context.next = 3;
 	                  return main_core.ajax.runAction('socialnetwork.collab.AccessRights.getEditForm', {
 	                    data: {
-	                      collabId: babelHelpers.classPrivateFieldGet(_this2, _params$1).collabId
+	                      collabId: babelHelpers.classPrivateFieldGet(_this2, _params$2).collabId
 	                    }
 	                  });
 	                case 3:
 	                  _yield$ajax$runAction = _context.sent;
 	                  data = _yield$ajax$runAction.data;
-	                  return _context.abrupt("return", _this2.render(_this2.prepareFormData(data)));
-	                case 8:
-	                  _context.prev = 8;
+	                  formData = (_babelHelpers$classPr = (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldGet(_this2, _params$2)) === null || _babelHelpers$classPr2 === void 0 ? void 0 : _babelHelpers$classPr2.formData) !== null && _babelHelpers$classPr !== void 0 ? _babelHelpers$classPr : {};
+	                  return _context.abrupt("return", _this2.render(_objectSpread$1(_objectSpread$1({}, _this2.prepareFormData(data)), formData)));
+	                case 9:
+	                  _context.prev = 9;
 	                  _context.t0 = _context["catch"](0);
 	                  console.error(_context.t0);
 	                  return _context.abrupt("return", Promise.reject());
-	                case 12:
+	                case 13:
 	                case "end":
 	                  return _context.stop();
 	              }
-	            }, _callee, null, [[0, 8]]);
+	            }, _callee, null, [[0, 9]]);
 	          }));
 	          function contentCallback(_x) {
 	            return _contentCallback.apply(this, arguments);
@@ -490,5 +525,5 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 
 	exports.AccessRights = AccessRights;
 
-}((this.BX.Socialnetwork.Collab = this.BX.Socialnetwork.Collab || {}),BX.UI.FormElements,BX,BX,BX,BX.Event));
+}((this.BX.Socialnetwork.Collab = this.BX.Socialnetwork.Collab || {}),BX.Event,BX.UI.FormElements,BX,BX,BX));
 //# sourceMappingURL=access-rights.bundle.js.map

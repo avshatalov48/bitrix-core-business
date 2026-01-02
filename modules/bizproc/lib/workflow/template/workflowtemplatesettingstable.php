@@ -9,6 +9,19 @@ use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
 
 /**
  * Class WorkflowTemplateSettingsTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_WorkflowTemplateSettings_Query query()
+ * @method static EO_WorkflowTemplateSettings_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_WorkflowTemplateSettings_Result getById($id)
+ * @method static EO_WorkflowTemplateSettings_Result getList(array $parameters = [])
+ * @method static EO_WorkflowTemplateSettings_Entity getEntity()
+ * @method static \Bitrix\Bizproc\Workflow\Template\EO_WorkflowTemplateSettings createObject($setDefaultValues = true)
+ * @method static \Bitrix\Bizproc\Workflow\Template\EO_WorkflowTemplateSettings_Collection createCollection()
+ * @method static \Bitrix\Bizproc\Workflow\Template\EO_WorkflowTemplateSettings wakeUpObject($row)
+ * @method static \Bitrix\Bizproc\Workflow\Template\EO_WorkflowTemplateSettings_Collection wakeUpCollection($rows)
  */
 class WorkflowTemplateSettingsTable extends DataManager
 {

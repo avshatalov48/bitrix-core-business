@@ -1,8 +1,11 @@
-import { Event, Dom, ajax, Loc, Runtime, Tag, Text } from 'main.core';
+import { Event, Dom, ajax, Loc, Runtime, Tag, Text, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { Button, ButtonSize, ButtonColor } from 'ui.buttons';
 import { UserStatus } from 'bizproc.task';
 import { MessageBox } from 'ui.dialogs.messagebox';
+import { TaskField, TaskFieldError } from './types';
+import { ValidateHelper } from './validate-helper';
+import { doTaskAction } from './actions';
 
 import './style.css';
 import 'sidepanel';
@@ -22,12 +25,16 @@ export class WorkflowInfo
 	taskUserId: number;
 	taskButtons: ?Array<TaskButton>;
 	taskForm: ?HTMLFormElement;
+	taskFields: ?Array<TaskField>;
+	taskName: string;
 	buttonsPanel: ?HTMLElement;
 	workflowContent: HTMLElement;
 	canDelegateTask: boolean;
 	#isChanged: boolean = false;
 	#messageBox: MessageBox;
 	#canClose: boolean = false;
+	#workflowResult: ?{} = null;
+	#canUseHumanResources: boolean;
 
 	constructor(options: {
 		currentUserId: number,
@@ -36,9 +43,15 @@ export class WorkflowInfo
 		taskUserId: number,
 		taskButtons?: Array<TaskButton>,
 		taskForm?: HTMLFormElement,
+		taskFields: ?Array<TaskField>;
+		taskName: string;
 		buttonsPanel: HTMLElement,
 		workflowContent: HTMLElement,
 		canDelegateTask: boolean,
+		workflowResult: ?{},
+		fastClose: boolean,
+		saveVariables: boolean,
+		canUseHumanResources: boolean,
 	})
 	{
 		this.currentUserId = options.currentUserId;
@@ -47,11 +60,17 @@ export class WorkflowInfo
 		this.taskUserId = options.taskUserId;
 		this.taskButtons = options.taskButtons;
 		this.taskForm = options.taskForm;
+		this.taskFields = options.taskFields;
+		this.taskName = options.taskName;
 		this.buttonsPanel = options.buttonsPanel;
 		this.workflowContent = options.workflowContent;
 		this.canDelegateTask = options.canDelegateTask;
+		this.fastClose = options.fastClose;
+		this.saveVariables = options.saveVariables;
+		this.#canUseHumanResources = Text.toBoolean(options.canUseHumanResources);
 
 		this.handleMarkAsRead = Runtime.debounce(this.#sendMarkAsRead, 100, this);
+		this.#workflowResult = Type.isNil(options.workflowResult) ? null : options.workflowResult;
 	}
 
 	init(): void
@@ -162,6 +181,20 @@ export class WorkflowInfo
 		{
 			BX.UI.Hint.init(desc);
 		}
+
+		const resultNode = this.workflowContent.querySelector('[data-role="bp-workflow-result"]');
+		if (resultNode && this.#workflowResult)
+		{
+			Runtime.loadExtension('bizproc.workflow.result')
+				.then((exports) => {
+					if (exports?.WorkflowResult)
+					{
+						new exports.WorkflowResult(this.#workflowResult).renderTo(resultNode);
+					}
+				})
+				.catch(() => {})
+			;
+		}
 	}
 
 	#renderButtons(): void
@@ -209,61 +242,92 @@ export class WorkflowInfo
 	#handleTaskButtonClick(taskButton: TaskButton, uiButton: Button): void
 	{
 		const formData = new FormData(this.taskForm);
+		const errors =
+			this.#isNeedValidate(taskButton.NAME)
+				? ValidateHelper.checkRequiredFieldsFilled(formData, this.#getRequiredFields())
+				: []
+		;
+		if (Type.isArrayFilled(errors))
+		{
+			this.#showErrors(errors);
+
+			return;
+		}
+
 		formData.append('taskId', this.taskId);
 		formData.append('workflowId', this.workflowId);
+		formData.append('taskName', this.taskName);
 		formData.append(taskButton.NAME, taskButton.VALUE);
+		const slider = BX.SidePanel.Instance.getSliderByWindow(window);
 
 		uiButton.setDisabled(true);
+		if (this.fastClose)
+		{
+			this.#canClose = true;
+			slider?.close();
+			slider.setCacheable(true);
+		}
 
-		ajax.runAction('bizproc.task.do', {
+		doTaskAction(formData, slider, this.fastClose)
+			.then(() => {
+				slider?.setCacheable(false);
+				Dom.addClass(this.workflowContent, 'fade-out');
+				this.#getNextTaskOrClose(formData);
+			})
+			.catch((response) => {
+				this.#showErrors(this.#prepareErrors(response.errors));
+			})
+			.finally(() => uiButton.setDisabled(false))
+		;
+	}
+
+	#isNeedValidate(buttonName: string): boolean
+	{
+		return !(buttonName === 'cancel' && !this.saveVariables);
+	}
+
+	#getRequiredFields(): Array<TaskField>
+	{
+		if (Type.isNil(this.taskFields))
+		{
+			return [];
+		}
+
+		return this.taskFields.filter((field) => field.Required);
+	}
+
+	#getNextTaskOrClose(formData: FormData): void
+	{
+		ajax.runAction('bizproc.task.getUserTaskByWorkflowId', {
 			data: formData,
-		}).then(() => {
-			uiButton.setDisabled(false);
-			Dom.addClass(this.workflowContent, 'fade-out');
-			ajax.runAction('bizproc.task.getUserTaskByWorkflowId', {
-				data: formData,
-			}).then((res) => {
-				if (BX.type.isArray(res.data.additionalParams) && res.data.additionalParams.length === 0)
-				{
-					this.#canClose = true;
-					BX.SidePanel.Instance.getSliderByWindow(window)?.close();
-				}
-				else
-				{
-					this.#renderNextTask(res.data);
-				}
-			}).catch((response) => {
-				Dom.toggleClass(this.workflowContent, 'fade-out fade-in');
-				MessageBox.alert(response.errors.pop().message);
-			});
-		}).catch((response) => {
-			if (BX.type.isArray(response.errors))
+		}).then((res) => {
+			if (BX.type.isArray(res.data.additionalParams) && res.data.additionalParams.length === 0)
 			{
-				const popupErrors = [];
-				response.errors.forEach((error) => {
-					const fieldName = error.customData;
-					if (this.taskForm && fieldName)
-					{
-						const field = this.taskForm.querySelector(`[data-cid="${fieldName}"]`);
-						if (field)
-						{
-							this.#showError(error, field);
-						}
-					}
-					else
-					{
-						popupErrors.push(error.message);
-					}
-				});
-
-				if (popupErrors.length > 0)
-				{
-					MessageBox.alert(popupErrors.join(', '));
-				}
+				this.#canClose = true;
+				BX.SidePanel.Instance.getSliderByWindow(window)?.close();
 			}
-
-			uiButton.setDisabled(false);
+			else
+			{
+				this.#renderNextTask(res.data);
+			}
+		}).catch((response) => {
+			Dom.toggleClass(this.workflowContent, 'fade-out fade-in');
+			MessageBox.alert(response.errors.pop().message);
 		});
+	}
+
+	#prepareErrors(responseErrors: Array): Array<TaskFieldError>
+	{
+		const errors = [];
+		for (const error of responseErrors)
+		{
+			errors.push({
+				fieldId: error.customData ?? null,
+				message: error.message,
+			});
+		}
+
+		return errors;
 	}
 
 	#handleDelegateButtonClick(uiButton: Button): void
@@ -288,7 +352,7 @@ export class WorkflowInfo
 						},
 					},
 					{
-						id: 'department',
+						id: this.#canUseHumanResources ? 'structure-node' : 'department',
 						options: {
 							selectMode: 'usersOnly',
 						},
@@ -357,8 +421,38 @@ export class WorkflowInfo
 		}
 	}
 
-	#showError(error: string, field: HTMLElement): void
+	#showErrors(errors: Array<TaskFieldError>)
 	{
+		if (BX.type.isArray(errors))
+		{
+			const popupErrors = [];
+			errors.forEach((error) => {
+				const fieldName = error.fieldId;
+				if (this.taskForm && fieldName)
+				{
+					this.#showError(error.message, fieldName);
+				}
+				else
+				{
+					popupErrors.push(error.message);
+				}
+			});
+
+			if (popupErrors.length > 0)
+			{
+				MessageBox.alert(popupErrors.join(', '));
+			}
+		}
+	}
+
+	#showError(message: string, id: string): void
+	{
+		const field = this.taskForm.querySelector(`[data-cid="${id}"]`);
+		if (!field)
+		{
+			return;
+		}
+
 		const parentContainer = field.querySelector('.ui-form-content');
 		let errorContainer = field.querySelector('.ui-form-notice');
 		if (!errorContainer)
@@ -368,7 +462,7 @@ export class WorkflowInfo
 				{ attrs: { className: 'ui-form-notice' } },
 			);
 
-			errorContainer.innerText = error.message;
+			errorContainer.innerText = message;
 			if (parentContainer)
 			{
 				BX.Dom.append(errorContainer, parentContainer);
@@ -384,6 +478,9 @@ export class WorkflowInfo
 		if (data.additionalParams)
 		{
 			this.taskId = data.additionalParams.ID;
+			this.fastClose = data.additionalParams.IS_LAST_TASK_FOR_USER;
+			this.saveVariables = data.additionalParams.saveVariables;
+			this.taskFields = data.additionalParams.FIELDS;
 			const subject = this.workflowContent.querySelector('.bp-workflow-info__subject');
 			if (subject)
 			{

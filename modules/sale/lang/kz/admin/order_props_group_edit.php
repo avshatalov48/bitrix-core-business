@@ -1,0 +1,22 @@
+<?php
+$MESS["SOPGEN_2FLIST"] = "Қасиеттер тобының тізімі";
+$MESS["SOPGEN_ADDING"] = "Жаңа қасиеттер тобын қосу";
+$MESS["SOPGEN_APPLY"] = "Қолдану";
+$MESS["SOPGEN_CANCEL"] = "Қалпына келтіру";
+$MESS["SOPGEN_DELETE_PROPS_GRP"] = "Топты жою";
+$MESS["SOPGEN_DELETE_PROPS_GRP_CONFIRM"] = "Осы қасиеттер тобын жойғыңыз келетініне сенімдісіз бе?";
+$MESS["SOPGEN_ERROR_SAVING_PROPS_GRP"] = "Қасиеттер тобын сақтау қатесі";
+$MESS["SOPGEN_NAME"] = "Атауы";
+$MESS["SOPGEN_NEW_PROPS_GRP"] = "Жаңа топ құру";
+$MESS["SOPGEN_NO_PERMS2ADD"] = "Сізде жаңа қасиеттер тобын қосу үшін құқықтар жеткіліксіз";
+$MESS["SOPGEN_NO_PROPS_GRP"] = "Қасиеттер тобы ##ID# табылмады";
+$MESS["SOPGEN_PERSON_TYPE"] = "Төлеушінің түрі";
+$MESS["SOPGEN_SAVE"] = "Сақтау";
+$MESS["SOPGEN_SAVE_ADD"] = "Қосу";
+$MESS["SOPGEN_SITE"] = "Сайт";
+$MESS["SOPGEN_SORT"] = "Сұрыптау индексі";
+$MESS["SOPGEN_TAB_PROPS_GRP"] = "Қасиеттер тобы";
+$MESS["SOPGEN_TAB_PROPS_GRP_DESCR"] = "Қасиеттер тобының қасиеттері";
+$MESS["SOPGEN_TIMESTAMP"] = "Соңғы өзгерту күні:";
+$MESS["SOPGEN_TO_LIST"] = "Қасиеттер тобының тізімі";
+$MESS["SOPGEN_UPDATING"] = "Қасиеттер тобының параметрлерін өзгерту";

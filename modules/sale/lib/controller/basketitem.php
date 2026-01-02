@@ -11,6 +11,7 @@ use Bitrix\Main\Result;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Sale;
 use Bitrix\Sale\Helpers\Order\Builder\SettingsContainer;
+use Bitrix\Crm\Service\Container;
 
 class BasketItem extends Controller
 {
@@ -169,6 +170,18 @@ class BasketItem extends Controller
 
 		$idx = 0;
 		$order = $builder->getOrder();
+
+		if (Loader::includeModule('crm'))
+		{
+			$checkCatalogRightsResult = Container::getInstance()->getProductRowChecker()->checkOrderCatalogRights($order);
+			if (!$checkCatalogRightsResult->isSuccess())
+			{
+				$this->addError($checkCatalogRightsResult->getError());
+
+				return null;
+			}
+		}
+
 		$collection = $order->getBasket();
 		/** @var Sale\BasketItem $basketItem */
 		foreach ($collection as $basketItem)
@@ -248,6 +261,17 @@ class BasketItem extends Controller
 		}
 
 		$order = $builder->getOrder();
+
+		if (Loader::includeModule('crm'))
+		{
+			$checkCatalogRightsResult = Container::getInstance()->getProductRowChecker()->checkOrderCatalogRights($order);
+			if (!$checkCatalogRightsResult->isSuccess())
+			{
+				$this->addError($checkCatalogRightsResult->getError());
+
+				return null;
+			}
+		}
 
 		$result = $order->save();
 		if (!$result->isSuccess())

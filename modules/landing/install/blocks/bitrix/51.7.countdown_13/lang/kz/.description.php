@@ -1,0 +1,6 @@
+<?php
+$MESS["LANDING_BLOCK_51_7_COUNTDOWN_13--DATE"] = "Аяқталу күні";
+$MESS["LANDING_BLOCK_51_7_COUNTDOWN_13--NAME"] = "Ашық фонда дөңгелек жақтаулы таймер";
+$MESS["LANDING_BLOCK_51_7_COUNTDOWN_13--NUMBER_NUMBER"] = "Сан";
+$MESS["LANDING_BLOCK_51_7_COUNTDOWN_13--NUMBER_TEXT"] = "Қолтаңба";
+$MESS["LANDING_BLOCK_51_7_COUNTDOWN_13--TITLE"] = "Тақырыпаты";

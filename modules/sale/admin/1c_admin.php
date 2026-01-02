@@ -1,10 +1,4 @@
 <?php
-##############################################
-# Bitrix Site Manager 6                      #
-# Copyright (c) 2002-2007 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# admin@bitrixsoft.com                       #
-##############################################
 
 /** @global CMain $APPLICATION */
 

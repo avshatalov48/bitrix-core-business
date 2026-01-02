@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2024 Bitrix
+ * @copyright 2001-2025 Bitrix
  *
  * Bitrix vars
  * @global CMain $APPLICATION
@@ -175,6 +175,11 @@ class CTopPanel
 		{
 			$currentDirPath = $APPLICATION->GetCurDir();
 			$currentFilePath = $APPLICATION->GetCurPage(true);
+		}
+
+		if (self::isProtectedPath($currentFilePath))
+		{
+			return;
 		}
 
 		$encCurrentDirPath = urlencode($currentDirPath);
@@ -944,7 +949,7 @@ class CTopPanel
 					[
 						"TEXT" => Loc::getMessage("MTP_SHORT_URI_LIST"),
 						"TITLE" => Loc::getMessage("MTP_SHORT_URI_LIST_ALT"),
-						"ACTION"=>"jsUtils.Redirect([], '".CUtil::addslashes("/bitrix/admin/short_uri_admin.php?lang=".LANGUAGE_ID."")."');",
+						"ACTION"=>"jsUtils.Redirect([], '".CUtil::addslashes("/bitrix/admin/short_uri_admin.php?lang=".LANGUAGE_ID)."');",
 						"HK_ID"=>"MTP_SHORT_URI_LIST",
 					]
 				],
@@ -1015,44 +1020,40 @@ class CTopPanel
 		return null;
 	}
 
-	public static function IsShownForUser($bShowPanel)
+	protected static function IsShownForUser()
 	{
 		global $USER;
+
 		$userCodes = null;
 
-		//we have settings in the main module options
-		if ($bShowPanel == false)
+		//hiding the panel has the higher priority
+		$codes = unserialize(COption::GetOptionString("main", "hide_panel_for_users"), ['allowed_classes' => false]);
+		if (!empty($codes))
 		{
-			$arCodes = unserialize(COption::GetOptionString("main", "show_panel_for_users"), ['allowed_classes' => false]);
-			if (!empty($arCodes))
+			$userCodes = $USER->GetAccessCodes();
+			$diff = array_intersect($codes, $userCodes);
+			if (!empty($diff))
 			{
-				$userCodes = $USER->GetAccessCodes();
-				$diff = array_intersect($arCodes, $userCodes);
-				if (!empty($diff))
-				{
-					$bShowPanel = true;
-				}
+				return false;
 			}
 		}
 
-		//hiding the panel has the higher priority
-		if ($bShowPanel == true)
+		//we have settings in the main module options
+		$codes = unserialize(COption::GetOptionString("main", "show_panel_for_users"), ['allowed_classes' => false]);
+		if (!empty($codes))
 		{
-			$arCodes = unserialize(COption::GetOptionString("main", "hide_panel_for_users"), ['allowed_classes' => false]);
-			if (!empty($arCodes))
+			if ($userCodes === null)
 			{
-				if ($userCodes == null)
-				{
-					$userCodes = $USER->GetAccessCodes();
-				}
-				$diff = array_intersect($arCodes, $userCodes);
-				if (!empty($diff))
-				{
-					$bShowPanel = false;
-				}
+				$userCodes = $USER->GetAccessCodes();
+			}
+			$diff = array_intersect($codes, $userCodes);
+			if (!empty($diff))
+			{
+				return true;
 			}
 		}
-		return $bShowPanel;
+
+		return null;
 	}
 
 	/**
@@ -1061,10 +1062,11 @@ class CTopPanel
 	 */
 	public static function shouldShowPanel()
 	{
-		static $bShowPanel = null;
-		if ($bShowPanel !== null)
+		static $showPanel = null;
+
+		if ($showPanel !== null)
 		{
-			return $bShowPanel;
+			return $showPanel;
 		}
 
 		global $USER, $APPLICATION;
@@ -1079,19 +1081,34 @@ class CTopPanel
 			return false;
 		}
 
-		$bShowPanel = false;
-		CTopPanel::InitPanelIcons();
-		foreach ($APPLICATION->arPanelButtons as $arValue)
+		$showPanel = false;
+
+		// if the panel is always hidden there is no reason to init it
+		$showForUser = self::IsShownForUser();
+		if ($showForUser === false)
 		{
-			if (trim($arValue["HREF"]) <> "" || is_array($arValue["MENU"]) && !empty($arValue["MENU"]))
+			return false;
+		}
+
+		CTopPanel::InitPanelIcons();
+
+		if ($showForUser)
+		{
+			$showPanel = true;
+		}
+		else
+		{
+			foreach ($APPLICATION->arPanelButtons as $arValue)
 			{
-				$bShowPanel = true;
-				break;
+				if (trim($arValue["HREF"]) <> "" || is_array($arValue["MENU"]) && !empty($arValue["MENU"]))
+				{
+					$showPanel = true;
+					break;
+				}
 			}
 		}
 
-		$bShowPanel = self::IsShownForUser($bShowPanel);
-		return $bShowPanel;
+		return $showPanel;
 	}
 
 	public static function InitPanel()
@@ -1128,7 +1145,7 @@ class CTopPanel
 		}
 
 		$bShowPanel = self::shouldShowPanel();
-		if ($bShowPanel == false && $APPLICATION->ShowPanel !== true)
+		if (!$bShowPanel && $APPLICATION->ShowPanel !== true)
 		{
 			return "";
 		}
@@ -1312,8 +1329,8 @@ class CTopPanel
 				"SECOND_NAME" => $USER->GetSecondName(),
 				"LOGIN" => $USER->GetLogin()
 			],
-			$bUseLogin = true,
-			$bHTMLSpec = true
+			true,
+			true
 		);
 
 		if ($bCanProfile)
@@ -1663,5 +1680,17 @@ class CTopPanel
 		);
 
 		return $result;
+	}
+
+	private static function isProtectedPath(string $pathOnDocumentRoot): bool
+	{
+		return
+			in_array($pathOnDocumentRoot, [
+				'/bitrix',
+				'/local/modules',
+			])
+			|| str_starts_with($pathOnDocumentRoot, '/bitrix/')
+			|| str_starts_with($pathOnDocumentRoot, '/local/modules/')
+		;
 	}
 }

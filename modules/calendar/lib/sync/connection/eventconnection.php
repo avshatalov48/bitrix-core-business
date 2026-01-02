@@ -7,6 +7,9 @@ use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Internals\EventConnectionTable;
 use Bitrix\Main\ArgumentException;
 
+/**
+ * @deprecated Use \Bitrix\Calendar\Synchronization\Data\Entity\EventConnection
+ */
 class EventConnection implements EntityInterface
 {
 	/** @var int */

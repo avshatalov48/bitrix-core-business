@@ -1387,6 +1387,10 @@
 			{
 				titleNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-mail'}}));
 			}
+			else if (this.shouldEntryLookLineBooking(entry))
+			{
+				titleNode.appendChild(BX.create('SPAN', { props: { className: 'calendar-event-block-icon-booking' } }));
+			}
 
 			if (this.shouldEntryLookLikeCollab(entry) && entry.getCurrentStatus() !== 'N')
 			{

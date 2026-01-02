@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ADDITIONAL_PROPS"] = "Extra product properties buttons";
 $MESS["ADDITIONAL_PROPS_DEFAULT"] = "Additional properties";
 $MESS["ALLOW_NEW_PROFILE"] = "Allow multiple customer profiles";
@@ -82,6 +82,8 @@ $MESS["REGION_BLOCK_NAME"] = "Delivery area block name";
 $MESS["REGION_BLOCK_NAME_DEFAULT"] = "Delivery area";
 $MESS["REGION_REFERENCE"] = "Hint for \"Area\" block";
 $MESS["REGION_REFERENCE_DEFAULT"] = "Select your city from the list. If you cannot find your city, select \"other location\" and enter your city in the \"City\" field.";
+$MESS["REGION_REFERENCE_NAME"] = "Location hint";
+$MESS["REGION_REFERENCE_PLACEHOLDER"] = "Select your location from the list. If you cannot find your location, select \"Other location\" and enter your city in the corresponding field.";
 $MESS["REGISTRATION_REFERENCE"] = "Open registration page text";
 $MESS["REGISTRATION_REFERENCE_DEFAULT"] = "Please register for better shopping experience and to keep your order history.";
 $MESS["REG_BLOCK_NAME"] = "Registration block name";
@@ -147,4 +149,3 @@ $MESS["YM_GOALS_NEXT_PICKUP"] = "Goal ID for transfer from pick-up locations to 
 $MESS["YM_GOALS_NEXT_PROPERTIES"] = "Goal ID for transfer from product properties to 'Next' button";
 $MESS["YM_GOALS_NEXT_REGION"] = "Goal ID for transfer from delivery area to 'Next' button";
 $MESS["YM_GOALS_SAVE_ORDER"] = "Goal ID for order processing";
-?>

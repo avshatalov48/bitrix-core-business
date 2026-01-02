@@ -1096,7 +1096,8 @@ CalendarPlanner.prototype =
 							},
 							attrs: {
 								'bx-tooltip-user-id': entry.id,
-								'bx-tooltip-classname': 'calendar-planner-user-tooltip'
+								'bx-tooltip-context': 'b24',
+								'bx-tooltip-classname': 'calendar-planner-user-tooltip',
 							},
 							style: {
 								width: (this.entriesListWidth - 42) + 'px'
@@ -1239,6 +1240,7 @@ CalendarPlanner.prototype =
 				},
 				attrs: {
 					'bx-tooltip-user-id': entry.id,
+					'bx-tooltip-context': 'b24',
 					'bx-tooltip-classname': 'calendar-planner-user-tooltip',
 					'title': BX.Text.encode(entry.name)
 				},
@@ -1253,6 +1255,7 @@ CalendarPlanner.prototype =
 				},
 				attrs: {
 					'bx-tooltip-user-id': entry.id,
+					'bx-tooltip-context': 'b24',
 					'bx-tooltip-classname': 'calendar-planner-user-tooltip',
 					'title': BX.Text.encode(entry.name)
 				},

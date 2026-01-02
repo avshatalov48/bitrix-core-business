@@ -463,11 +463,11 @@ if (BX.Type.isUndefined(BX.UI.EntityEditorEntitySelector))
 				case 'user':
 					id = `U${item.id}`;
 					break;
-				case 'department':
+				case 'department': // deprecated
 					id = `DR${item.id}`;
 					break;
-				case 'project':
-					id = `SG${item.id}`;
+				case 'structure-node':
+					id = `SNDR${item.id}`;
 					break;
 				default:
 					id = null;
@@ -488,27 +488,40 @@ if (BX.Type.isUndefined(BX.UI.EntityEditorEntitySelector))
 
 		_createDialog(anchor)
 		{
+			const entities = [{
+				id: 'user',
+				options: {
+					intranetUsersOnly: true,
+					emailUsers: false,
+					inviteEmployeeLink: false,
+					inviteGuestLink: false,
+				},
+			}];
+
+			if (this._settings.useHumanResourcesModule === false)
+			{
+				entities.push({
+					id: 'department',
+					options: {
+						selectMode: 'usersAndDepartments',
+					},
+				});
+			}
+			else
+			{
+				entities.push({
+					id: 'structure-node',
+					options: {
+						selectMode: 'usersAndDepartments',
+					},
+				});
+			}
+
 			return new BX.UI.EntitySelector.Dialog({
 				targetNode: anchor,
 				id: `crm-ee-user_selector-${BX.Text.getRandom()}`,
 				context: 'crm-ee-user_selector',
-				entities: [
-					{
-						id: 'user',
-						options: {
-							intranetUsersOnly: true,
-							emailUsers: false,
-							inviteEmployeeLink: false,
-							inviteGuestLink: false,
-						},
-					},
-					{
-						id: 'department',
-						options: {
-							selectMode: 'usersAndDepartments',
-						},
-					},
-				],
+				entities,
 				popupOptions: {
 					bindOptions: { forceBindPosition: true },
 				},

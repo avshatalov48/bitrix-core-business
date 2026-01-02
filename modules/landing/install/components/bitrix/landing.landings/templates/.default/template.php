@@ -9,9 +9,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var \CMain $APPLICATION */
 /** @var \LandingLandingsComponent $component */
 
-use \Bitrix\Main\Page\Asset;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\Web\Uri;
+use Bitrix\Landing\Metrika;
+use Bitrix\Main\Page\Asset;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
 
 Loc::loadMessages(__FILE__);
 
@@ -55,14 +56,18 @@ Asset::getInstance()->addCSS(
 );
 
 // prepare urls
-$arParams['PAGE_URL_LANDING_ADD_PLUS_BUTTON'] = $component->getUrlAdd(false, [
-	'context_section' => 'pages_list',
-	'context_element' => 'plus_button',
-]);
-$arParams['PAGE_URL_LANDING_ADD_FOLDER_MENU'] = $component->getUrlAdd(false, [
-	'context_section' => 'pages_list',
-	'context_element' => 'folder_menu_link',
-]);
+$metrika = new Metrika\Metrika(
+	Metrika\Categories::getBySiteType($arParams['TYPE']),
+	Metrika\Events::openMarket,
+);
+$metrika
+	->setSection(Metrika\Sections::page)
+	->setSubSection('from_page_list')
+;
+$arParams['PAGE_URL_LANDING_ADD_PLUS_BUTTON'] =
+	$metrika->parametrizeUri($component->getUrlAdd(false));
+$arParams['PAGE_URL_LANDING_ADD_FOLDER_MENU'] =
+	$metrika->parametrizeUri($component->getUrlAdd(false));
 $arParams['PAGE_URL_LANDING_ADD_SIDEPANEL_CONDITION'] = $component->getUrlAddSidepanelCondition(false);
 
 $sliderConditions = [
@@ -944,23 +949,33 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 			{
 				if (!!event.data.elementList && event.data.elementList.length > 0)
 				{
-					var gotoSiteButton = null;
-					for (var i = 0; i < event.data.elementList.length; i++)
+					let gotoSiteButton = null;
+					for (let i = 0; i < event.data.elementList.length; i++)
 					{
 						gotoSiteButton = event.data.elementList[i];
-						var replaces = [];
-
-						if (gotoSiteButton.dataset.isLanding === 'Y')
+						if (gotoSiteButton.tagName !== 'A')
 						{
-							var sitePath = '<?= CUtil::jsEscape($arParams['PAGE_URL_LANDING_VIEW']);?>';
+							continue;
+						}
+
+						const replaces = [];
+						let sitePath = '<?= CUtil::jsEscape($arParams['PAGE_URL_LANDING_VIEW']) ?>';
+
+						if (
+							gotoSiteButton.dataset.isLanding
+							&& gotoSiteButton.dataset.isLanding === 'Y'
+						)
+						{
 							replaces.push([/#landing_edit#/, gotoSiteButton.dataset.landingId]);
 						}
 
-						if (gotoSiteButton.getAttribute('href').substr(0, 1) === '#')
+						const href = gotoSiteButton.getAttribute('href');
+						if (href && href.substr(0, 1) === '#')
 						{
 							replaces.forEach(function(replace) {
 								sitePath = sitePath.replace(replace[0], replace[1]);
 							});
+							sitePath += '?newLanding=Y';
 
 							gotoSiteButton.setAttribute('href', sitePath);
 							setTimeout(() => {window.location.href = sitePath}, 3000);

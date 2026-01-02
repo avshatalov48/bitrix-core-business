@@ -33,7 +33,7 @@
 	display: flex;
 	align-items: center;
 	margin-bottom: 5px;
-	font: var(--ui-typography-heading-h4-font-size)/var(--ui-typography-heading-h4-line-height) var(--ui-font-family-system);
+	font: var(--ui-typography-heading-h4-font-size)/var(--ui-typography-heading-h4-line-height) var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--ui-color-base-solid);
 	font-weight: var(--ui-font-weight-medium);
 }
@@ -63,7 +63,7 @@
 }
 
 .calendar-sharing__dialog-info {
-	font: var(--ui-typography-text-md-font-size)/var(--ui-typography-text-md-line-height) var(--ui-font-family-system);
+	font: var(--ui-typography-text-md-font-size)/var(--ui-typography-text-md-line-height) var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--ui-color-base-90);
 }
 
@@ -129,7 +129,7 @@
 }
 
 .calendar-sharing__dialog-notify {
-	font: var(--ui-typography-text-md-font-size)/18px var(--ui-font-family-system);
+	font: var(--ui-typography-text-md-font-size)/18px var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--ui-color-base-default);
 	cursor: pointer;
 }
@@ -195,7 +195,7 @@
 
 .calendar-sharing__qr-title {
 	margin-bottom: 10px;
-	font: var(--ui-typography-text-md-font-size)/var(--ui-typography-text-md-line-height) var(--ui-font-family-system);
+	font: var(--ui-typography-text-md-font-size)/var(--ui-typography-text-md-line-height) var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-weight: var(--ui-font-weight-medium);
 	color: var(--ui-color-base-90);
 }
@@ -206,7 +206,7 @@
 
 .calendar-sharing__qr-info {
 	margin-bottom: 7px;
-	font: var(--ui-typography-text-sm-font-size)/var(--ui-typography-text-sm-line-height) var(--ui-font-family-system);
+	font: var(--ui-typography-text-sm-font-size)/var(--ui-typography-text-sm-line-height) var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--ui-color-base-50);
 }
 

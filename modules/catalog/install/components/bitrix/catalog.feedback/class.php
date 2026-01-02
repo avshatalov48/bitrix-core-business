@@ -1,22 +1,36 @@
 <?php
 
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
-use \Bitrix\Main\Service\GeoIp;
+use Bitrix\Main\Service\GeoIp;
+use Bitrix\UI\Form\UrlProvider;
+use Bitrix\Main\Engine\Contract\Controllerable;
+use Bitrix\Main\Errorable;
+use Bitrix\Main\ErrorableImplementation;
+use Bitrix\Main\Error;
+use Bitrix\UI\Form\FormsProvider;
 
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
-
-Loc::loadLanguageFile(__FILE__);
-
-class CatalogFeedbackComponent extends CBitrixComponent
+class CatalogFeedbackComponent extends CBitrixComponent implements Controllerable, Errorable
 {
+	use ErrorableImplementation;
+
 	private const FEEDBACK_TYPE_FEEDBACK = 'feedback';
 	private const FEEDBACK_TYPE_INTEGRATION_REQUEST = 'integration_request';
 
-	public function onPrepareComponentParams($arParams)
+	public function configureActions(): array
+	{
+		return [];
+	}
+
+	public function onPrepareComponentParams($arParams): array
 	{
 		if (empty($arParams['FEEDBACK_TYPE']))
 		{
@@ -26,7 +40,12 @@ class CatalogFeedbackComponent extends CBitrixComponent
 		return parent::onPrepareComponentParams($arParams);
 	}
 
-	public function executeComponent()
+	/**
+	 * @deprecated
+	 * @see \CatalogFeedbackComponent::getFormParamsAction
+	 * @return void
+	 */
+	public function executeComponent(): void
 	{
 		if ($this->arParams['FEEDBACK_TYPE'] === self::FEEDBACK_TYPE_INTEGRATION_REQUEST)
 		{
@@ -41,7 +60,7 @@ class CatalogFeedbackComponent extends CBitrixComponent
 		$this->arResult['fields']['values']['CONTACT_EMAIL'] = CurrentUser::get()->getEmail();
 		if ($this->arParams['FEEDBACK_TYPE'] === self::FEEDBACK_TYPE_INTEGRATION_REQUEST)
 		{
-			$this->arResult['domain'] = 'https://bitrix24.team';
+			$this->arResult['domain'] = $this->getPartnerPortalUrl();
 			$this->arResult['presets'] = [
 				'url' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME'],
 				'tarif' => $this->getLicenseType(),
@@ -51,19 +70,46 @@ class CatalogFeedbackComponent extends CBitrixComponent
 				'sender_page' => $this->arParams['SENDER_PAGE'] ?? '',
 			];
 		}
-		else
-		{
-			$this->arResult['domain'] = 'https://product-feedback.bitrix24.com';
-			$this->arResult['presets'] = [
-				'from_domain' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : Option::get('main', 'server_name', ''),
-				'b24_plan' => $this->getLicenseType(),
-				'b24_zone' => $this->getPortalZone(),
-				'c_name' => CurrentUser::get()->getFullName(),
-				'user_status' => CurrentUser::get()->isAdmin() ? 'yes' : 'no',
-			];
-		}
 
 		$this->includeComponentTemplate();
+	}
+
+	public function getFormParamsAction(): ?array
+	{
+		if (!Loader::includeModule('catalog'))
+		{
+			$this->addErrorMessage('Module "catalog" is not installed.');
+
+			return null;
+		}
+
+		if (!Loader::includeModule('bitrix24'))
+		{
+			$this->addErrorMessage('Module "bitrix24" is not installed.');
+
+			return null;
+		}
+
+		return [
+			'id' => 'B24CatalogFeedback',
+			'forms' => FormsProvider::getForms(),
+			'type' => 'slider_inline',
+			'fields' => [
+				'values' => [
+					'CONTACT_EMAIL' => CurrentUser::get()->getEmail(),
+				],
+			],
+			'portalUri' => $this->getPartnerPortalUrl(),
+			'presets' => [
+				'city' => implode(' / ', $this->getUserGeoData()),
+				'source' => 'catalog',
+			],
+		];
+	}
+
+	protected function addErrorMessage(string $message): void
+	{
+		$this->errorCollection->setError(new Error($message));
 	}
 
 	private function getUserGeoData(): array
@@ -82,7 +128,7 @@ class CatalogFeedbackComponent extends CBitrixComponent
 
 		return [
 			'country' => $countryName,
-			'city' => $cityName
+			'city' => $cityName,
 		];
 	}
 
@@ -137,7 +183,7 @@ class CatalogFeedbackComponent extends CBitrixComponent
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
 	private function getPortalZone(): ?string
 	{
@@ -150,7 +196,7 @@ class CatalogFeedbackComponent extends CBitrixComponent
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
 	private function getLicenseType(): ?string
 	{
@@ -172,13 +218,7 @@ class CatalogFeedbackComponent extends CBitrixComponent
 	 */
 	public function isIntegrationRequestPossible(): bool
 	{
-		$isPortalValidForIntegration = in_array(
-			$this->getPortalZone(),
-			['ru', 'ua', 'by', 'kz']
-		);
-		$doesFormHavePortalLanguage = in_array(LANGUAGE_ID, ['ru', 'ua']);
-
-		return $isPortalValidForIntegration && $doesFormHavePortalLanguage;
+		return true;
 	}
 
 	public function renderIntegrationRequestButton(): void
@@ -188,5 +228,12 @@ class CatalogFeedbackComponent extends CBitrixComponent
 			Extension::load(['catalog.document-card']);
 			echo '<button class="ui-btn ui-btn-light-border ui-btn-themes" onclick="BX.Catalog.DocumentCard.Slider.openIntegrationRequestForm(); return false;">'.Loc::getMessage('CATALOG_FEEDBACK_INTEGRATION_REQUEST_TITLE').'</button>';
 		}
+	}
+
+	protected function getPartnerPortalUrl(): string
+	{
+		Loader::includeModule('ui');
+
+		return (new UrlProvider())->getPartnerPortalUrl();
 	}
 }

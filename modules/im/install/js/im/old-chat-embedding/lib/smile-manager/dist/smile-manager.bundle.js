@@ -215,5 +215,5 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 
 	exports.SmileManager = SmileManager;
 
-}((this.BX.Messenger.Embedding.Lib = this.BX.Messenger.Embedding.Lib || {}),BX,BX.Dexie3,BX,BX.Messenger.Embedding.Application,BX.Messenger.Embedding.Const,BX.Messenger.Embedding.Lib));
+}((this.BX.Messenger.Embedding.Lib = this.BX.Messenger.Embedding.Lib || {}),BX,BX.DexieExport,BX,BX.Messenger.Embedding.Application,BX.Messenger.Embedding.Const,BX.Messenger.Embedding.Lib));
 //# sourceMappingURL=smile-manager.bundle.js.map

@@ -23,5 +23,17 @@ if (!CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arResult["VARIABLES"][
 }
 elseif (\CModule::IncludeModule('tasks'))
 {
-	$APPLICATION->IncludeComponent('bitrix:tasks.import', '', $arResult, $component);
+	$APPLICATION->IncludeComponent(
+		'bitrix:ui.sidepanel.wrapper',
+		'',
+		[
+			'POPUP_COMPONENT_NAME' => 'bitrix:tasks.import',
+			'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+			'POPUP_COMPONENT_PARAMS' => $arResult,
+			'USE_UI_TOOLBAR' => 'Y',
+			'USE_PADDING' => false,
+		],
+		$component,
+		["HIDE_ICONS" => "Y"]
+	);
 }

@@ -2,6 +2,7 @@
 namespace Bitrix\Im\Call;
 
 use Bitrix\Im\Common;
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 
 class Background
@@ -134,6 +135,33 @@ class Background
 			],
 		];
 
+		if (Application::getInstance()->getLicense()->getRegion() === 'ru')
+		{
+			$result = array_merge(
+				[
+					[
+						'id' => 'responsible-colleague',
+						'title' => Loc::getMessage('IM_CALL_BG_IMAGE_RESPONSIBLE_COLLEAGUE'),
+					],
+					/*
+					[
+						'id' => 'business-lunch',
+						'title' => Loc::getMessage('IM_CALL_BG_IMAGE_BUSINESS_LUNCH'),
+					],
+					*/
+					[
+						'id' => 'under-control',
+						'title' => Loc::getMessage('IM_CALL_BG_IMAGE_UNDER_CONTROL'),
+					],
+					[
+						'id' => 'lets-solve-problem',
+						'title' => Loc::getMessage('IM_CALL_BG_IMAGE_LETS_SOLVE_PROBLEM'),
+					],
+				],
+				$result
+			);
+		}
+
 		foreach ($result as &$value)
 		{
 			$value['preview'] = static::$path."/{$value['id']}-preview.jpg";
@@ -200,8 +228,8 @@ class Background
 
 		foreach ($result as &$value)
 		{
-			$value['preview'] = "/bitrix/js/im/images/background/video/{$value['id']}-preview.jpg";
-			$value['background'] = "/bitrix/js/im/images/background/video/{$value['id']}.mp4";
+			$value['preview'] = static::$path."/video/{$value['id']}-preview.jpg";
+			$value['background'] = static::$path."/video/{$value['id']}.mp4";
 			$value['isVideo'] = true;
 			$value['isSupported'] = true;
 			$value['id'] .= ':video';

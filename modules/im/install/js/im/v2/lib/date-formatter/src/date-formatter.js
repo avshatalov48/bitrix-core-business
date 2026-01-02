@@ -1,10 +1,10 @@
-import {DateTimeFormat} from 'main.date';
+import { DateTimeFormat } from 'main.date';
 
-import {Interval} from './date-template';
+import { Interval } from './const/const';
 
-import type {DateTemplateType} from './types/date-template-type';
+import type { DateTemplateType } from './types/date-template-type';
 
-export {DateTemplate, DateCode} from './date-template';
+export { DateFormat, DateCode, DateTemplate } from './const/const';
 
 export class DateFormatter
 {
@@ -30,8 +30,8 @@ export class DateFormatter
 	{
 		const intervals = Object.keys(Interval);
 
-		const matchingInterval = intervals.find(interval => {
-			const templateHasInterval = !!template[interval];
+		const matchingInterval = intervals.find((interval) => {
+			const templateHasInterval = Boolean(template[interval]);
 			if (!templateHasInterval)
 			{
 				return false;
@@ -52,7 +52,8 @@ export class DateFormatter
 		if (!matchingInterval)
 		{
 			console.error('DateFormatter: no matching intervals were found for', template);
-			return;
+
+			return '';
 		}
 
 		const matchingCode = template[matchingInterval];
@@ -69,7 +70,7 @@ export class DateFormatter
 			[Interval.yesterday]: () => this.#isYesterday(),
 			[Interval.week]: () => this.#isCurrentWeek(),
 			[Interval.year]: () => this.#isCurrentYear(),
-			[Interval.olderThanYear]: () => !this.#isCurrentYear()
+			[Interval.olderThanYear]: () => !this.#isCurrentYear(),
 		};
 	}
 
@@ -95,8 +96,8 @@ export class DateFormatter
 	#isCurrentWeek(): boolean
 	{
 		const date = new Date();
-		const currentWeekNumber = +DateTimeFormat.format('W', date);
-		const setWeekNumber = +DateTimeFormat.format('W', this.#date);
+		const currentWeekNumber = Number(DateTimeFormat.format('W', date));
+		const setWeekNumber = Number(DateTimeFormat.format('W', this.#date));
 		const sameYear = this.#isCurrentYear();
 
 		return currentWeekNumber === setWeekNumber && sameYear;

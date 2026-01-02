@@ -24,3 +24,12 @@
 .document-limit-desc-number {
 	font-weight: var(--ui-font-weight-bold);
 }
+
+.pagetitle {
+	font: 26px / 26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
+	margin: 0;
+	padding: 21px 0 21px 0;
+	display: block;
+	word-wrap: break-word;
+}

@@ -1,0 +1,79 @@
+.socialnetwork-collab-converter-error-popup-content {
+	background-color: var(--ui-color-bg-content-primary-layer, #FFF);
+}
+
+.socialnetwork-collab-converter-error-popup-header {
+	margin-bottom: var(--ui-space-stack-sm, 12px);
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.socialnetwork-collab-converter-error-popup-close-icon {
+	cursor: pointer;
+	--ui-icon-set__icon-size: 24px;
+	--ui-icon-set__icon-color: var(--ui-color-base-4, #A8ADB4);
+	position: absolute;
+	right: 24px;
+}
+
+.socialnetwork-collab-converter-error-popup-header-text {
+	width: 319px;
+	color: var(--ui-color-base-1, #333);
+	font-size: 19px;
+	font-style: normal;
+	font-weight: var(--ui-font-weight-medium);
+	line-height: 26px;
+	letter-spacing: -0.2px;
+}
+
+.socialnetwork-collab-converter-error-popup-description {
+	display: flex;
+	width: 310px;
+	flex-direction: column;
+	gap: var(--ui-space-stack-xs2, 10px);
+	margin-bottom: var(--ui-space-stack-xs2, 10px);
+}
+
+.socialnetwork-collab-converter-error-popup-description-paragraph {
+	color: var(--ui-color-base-1, #333);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: var(--ui-font-weight-normal);
+	line-height: 19px;
+	letter-spacing: -0.05px;
+}
+
+.socialnetwork-collab-converter-error-popup-description-paragraph-accent {
+	font-weight: var(--ui-font-weight-medium);
+}
+
+.socialnetwork-collab-converter-error-popup-link-more {
+	display: flex;
+	flex-direction: row;
+	gap: var(--ui-space-stack-2xs2, 6px);
+	align-items: center;
+	width: fit-content;
+	cursor: pointer;
+	margin-bottom: var(--ui-space-stack-3xl);
+}
+
+.socialnetwork-collab-converter-error-popup-link-more-icon {
+	--ui-icon-set__icon-size: 20px;
+	--ui-icon-set__icon-color: var(--ui-color-accent-main-primary, #0075FF);
+}
+
+.socialnetwork-collab-converter-error-popup-link-more-text {
+	color: var(--ui-color-accent-main-primary, #0075FF);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: var(--ui-font-weight-medium);
+	line-height: 19px;
+	letter-spacing: -0.05px;
+}
+
+.socialnetwork-collab-converter-error-popup-buttons {
+	display: flex;
+	flex-direction: row;
+	gap: var(--ui-space-stack-sm);
+}

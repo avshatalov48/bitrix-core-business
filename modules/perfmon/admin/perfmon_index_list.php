@@ -277,7 +277,7 @@ $lAdmin->NavText($rsData->GetNavPrint(GetMessage('PERFMON_INDEX_PAGE')));
 while ($arRes = $rsData->GetNext())
 {
 	$arRes['SQL_TEXT'] = CPerfomanceSQL::Format($arRes['SQL_TEXT']);
-	$row =& $lAdmin->AddRow($arRes['TABLE_NAME'], $arRes);
+	$row = $lAdmin->AddRow($arRes['TABLE_NAME'], $arRes);
 
 	$row->AddViewField('SQL_TIME', perfmon_NumberFormat($arRes['SQL_TIME'], 6));
 

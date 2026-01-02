@@ -1,4 +1,5 @@
-import { Dropdown, ChatHint } from 'im.v2.component.elements';
+import { ChatHint } from 'im.v2.component.elements.hint';
+import { Dropdown } from 'im.v2.component.elements.dropdown';
 
 import '../css/role-selector.css';
 

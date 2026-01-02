@@ -75,6 +75,7 @@ class Form
 		{
 			$content = self::replaceFormMarkers($content);
 		}
+
 		return $content;
 	}
 
@@ -96,7 +97,7 @@ class Form
 					return $matches[0];
 				}
 
-				$form = self::getFormById($id);
+				$form = self::getFormById($id, true);
 				if (!$form || !$form['URL'])
 				{
 					return $matches[0];
@@ -135,7 +136,7 @@ class Form
 			{
 				if (
 					!(int)$matches['id']
-					|| !($form = self::getFormById((int)$matches['id']))
+					|| !($form = self::getFormById((int)$matches['id'], true))
 				)
 				{
 					return $matches[0];
@@ -152,9 +153,10 @@ class Form
 
 					//add class g-cursor-pointer
 					preg_match_all('/(class="[^"]*)/i', $matches['pre'], $matchesPre);
-					$matches['pre'] = str_replace($matchesPre[1][0], $matchesPre[1][0]. ' g-cursor-pointer', $matches['pre']);
+					$matches['pre'] =
+						str_replace($matchesPre[1][0], $matchesPre[1][0] . ' g-cursor-pointer', $matches['pre']);
 
-					return $script . $matches['pre'] . ' '. $matches['pre2'];
+					return $script . $matches['pre'] . ' ' . $matches['pre2'];
 				}
 
 				return $matches[0];
@@ -200,7 +202,7 @@ class Form
 		foreach ($sites as $site)
 		{
 			Site::update($site, [
-				'DATE_MODIFY' => false
+				'DATE_MODIFY' => false,
 			]);
 		}
 	}
@@ -250,6 +252,7 @@ class Form
 				'order' => [
 					'ID' => 'ASC',
 				],
+				'cache' => ['ttl' => 86400],
 			]
 		);
 
@@ -257,13 +260,6 @@ class Form
 		while ($form = $res->fetch())
 		{
 			$form['ID'] = (int)$form['ID'];
-			$webpack = Webpack\Form::instance($form['ID']);
-			if (!$webpack->isBuilt())
-			{
-				$webpack->build();
-				$webpack = Webpack\Form::instance($form['ID']);
-			}
-			$form['URL'] = $webpack->getEmbeddedFileUrl();
 			$forms[$form['ID']] = $form;
 		}
 
@@ -285,7 +281,7 @@ class Form
 					$forms[$form['ID']] = $form;
 				}
 			}
-			else if (isset($res['error']))
+			elseif (isset($res['error']))
 			{
 				self::$errors[] = [
 					'code' => $res['error'],
@@ -301,11 +297,30 @@ class Form
 	 * Find just one form by ID. Return array of form fields, or empty array if not found
 	 * @return array
 	 */
-	public static function getFormById(int $id): array
+	public static function getFormById(int $id, bool $full = false): array
 	{
-		$forms = self::getFormsByFilter(['ID' => $id]);
+		$forms = self::getFormsByFilter(['=ID' => $id]);
+		$form = !empty($forms) ? array_shift($forms) : null;
+		if (!$form)
+		{
+			return [];
+		}
 
-		return !empty($forms) ? array_shift($forms) : [];
+		if ($full)
+		{
+			if (self::isCrm())
+			{
+				$webpack = Webpack\Form::instance($form['ID']);
+				if (!$webpack->isBuilt())
+				{
+					$webpack->build();
+					$webpack = Webpack\Form::instance($form['ID']);
+				}
+				$form['URL'] = $webpack->getEmbeddedFileUrl();
+			}
+		}
+
+		return $form;
 	}
 
 	/**
@@ -314,16 +329,25 @@ class Form
 	 */
 	public static function getCallbackForms(): array
 	{
-		return self::getFormsByFilter(['IS_CALLBACK_FORM' => 'Y', 'ACTIVE' => 'Y']);
+		return self::getFormsByFilter(['=IS_CALLBACK_FORM' => 'Y', '=ACTIVE' => 'Y']);
 	}
 
-	protected static function getFormsByFilter(array $filter): array
+	protected static function getFormsByFilter(array $filter, bool $force = false): array
 	{
+		static $cache = [];
+		$cacheKey = serialize($filter);
+		if (array_key_exists($cacheKey, $cache) && !$force)
+		{
+			return $cache[$cacheKey];
+		}
+
 		$filter = array_filter(
 			$filter,
 			static function ($key)
 			{
-				return in_array($key, self::AVAILABLE_FORM_FIELDS, true);
+				$clearKey = preg_replace('/^[^A-Z]*/', '', $key);
+
+				return in_array($clearKey, self::AVAILABLE_FORM_FIELDS, true);
 			},
 			ARRAY_FILTER_USE_KEY
 		);
@@ -340,7 +364,8 @@ class Form
 				$filtred = true;
 				foreach ($filter as $key => $value)
 				{
-					if (!$form[$key] || $form[$key] !== $value)
+					$clearKey = preg_replace('/[^a-zA-Z0-9]/', '', $key);
+					if (!$form[$clearKey] || $form[$clearKey] !== $value)
 					{
 						$filtred = false;
 						break;
@@ -352,6 +377,8 @@ class Form
 				}
 			}
 		}
+
+		$cache[$cacheKey] = $forms;
 
 		return $forms;
 	}
@@ -404,7 +431,7 @@ class Form
 		{
 			$link = '/crm/webform/';
 		}
-		else if (Manager::isB24Connector())
+		elseif (Manager::isB24Connector())
 		{
 			$link = '/bitrix/admin/b24connector_crm_forms.php?lang=' . LANGUAGE_ID;
 		}
@@ -448,8 +475,8 @@ class Form
 				{
 					// try to get 1) default callback form 2) last added form 3) create new form
 					$forms = self::getFormsByFilter([
-						'XML_ID' => 'crm_preset_fb'
-					]);
+						'=XML_ID' => 'crm_preset_fb',
+					], true);
 					$forms = self::prepareFormsToAttrs($forms);
 					if (empty($forms))
 					{
@@ -577,11 +604,13 @@ class Form
 				'attribute' => self::ATTR_FORM_PARAMS,
 				'type' => 'list',
 				'items' => !empty(self::$errors)
-					? array_map(fn ($item) => ['name' => $item['message'], 'value' => false], self::$errors)
-					: [[
-						'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_NO_FORM'),
-						'value' => false,
-					]],
+					? array_map(fn($item) => ['name' => $item['message'], 'value' => false], self::$errors)
+					: [
+						[
+							'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_NO_FORM'),
+							'value' => false,
+						],
+					],
 			];
 		}
 
@@ -595,7 +624,8 @@ class Form
 	 */
 	protected static function prepareFormsToAttrs(array $forms): array
 	{
-		$sorted = [];
+		$callback = [];
+		$other = [];
 		foreach ($forms as $form)
 		{
 			if (array_key_exists('ACTIVE', $form) && $form['ACTIVE'] !== 'Y')
@@ -610,15 +640,15 @@ class Form
 
 			if ($form['IS_CALLBACK_FORM'] === 'Y')
 			{
-				$sorted[] = $item;
+				$callback[] = $item;
 			}
 			else
 			{
-				array_unshift($sorted, $item);
+				$other[] = $item;
 			}
 		}
 
-		return $sorted;
+		return $callback + $other;
 	}
 	// endregion
 
@@ -651,8 +681,7 @@ class Form
 					'CONTENT' => '%data-b24form=%',
 				],
 			]
-		)->fetchAll()
-			;
+		)->fetchAll();
 	}
 
 	/**
@@ -667,6 +696,7 @@ class Form
 		{
 			return (int)$matches[1];
 		}
+
 		return null;
 	}
 
@@ -709,9 +739,9 @@ class Form
 	 */
 	protected static function createDefaultForm(): array
 	{
-		if ($formId = self::createForm([]))
+		if ($formId = self::createForm(['XML_ID' => 'crm_preset_fb']))
 		{
-			return self::getFormsByFilter(['ID' => $formId]);
+			return self::getFormsByFilter(['=ID' => $formId]);
 		}
 
 		return [];
@@ -727,9 +757,11 @@ class Form
 		{
 			$form = new WebForm\Form;
 
-			$defaultData = WebForm\Preset::getById('crm_preset_cd');
+			$xmlId = $formData['XML_ID'] ?? 'crm_preset_cd';
 
-			$defaultData['XML_ID'] = '';
+			$defaultData = WebForm\Preset::getById($xmlId) ?? [];
+
+			$defaultData['XML_ID'] = $xmlId;
 			$defaultData['ACTIVE'] = 'Y';
 			$defaultData['IS_SYSTEM'] = 'N';
 			$defaultData['IS_CALLBACK_FORM'] = 'N';
@@ -743,7 +775,7 @@ class Form
 				$defaultData['AGREEMENT_ID'] = $agreementId;
 			}
 
-			$isLeadEnabled = LeadSettings::getCurrent()->isEnabled();
+			$isLeadEnabled = LeadSettings::getCurrent()?->isEnabled();
 			$defaultData['ENTITY_SCHEME'] = (string)(
 			$isLeadEnabled
 				? WebForm\Entity::ENUM_ENTITY_SCHEME_LEAD

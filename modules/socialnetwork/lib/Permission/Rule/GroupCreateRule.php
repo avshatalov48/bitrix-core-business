@@ -7,6 +7,8 @@ namespace Bitrix\Socialnetwork\Permission\Rule;
 use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Main\Access\Rule\AbstractRule;
 use Bitrix\Main\Authentication\Internal\ModuleGroupTable;
+use Bitrix\Main\Config\Option;
+use Bitrix\Socialnetwork\Collab\Integration\Extranet\Extranet;
 use Bitrix\Socialnetwork\Permission\GroupAccessController;
 use Bitrix\Socialnetwork\Permission\Model\GroupModel;
 use Bitrix\Socialnetwork\Permission\User\UserModel;
@@ -30,6 +32,13 @@ class GroupCreateRule extends AbstractRule
 		if (!$item instanceof GroupModel)
 		{
 			$this->controller->addError(static::class, 'Wrong instance');
+
+			return false;
+		}
+
+		if (!$this->isAllowCreateByExtranetRule($item))
+		{
+			$this->controller->addError(static::class, 'Creating an extranet group is not possible');
 
 			return false;
 		}
@@ -59,6 +68,23 @@ class GroupCreateRule extends AbstractRule
 		$this->controller->addError(static::class, 'Access denied by permissions');
 
 		return false;
+	}
+
+	private function isAllowCreateByExtranetRule(GroupModel $item): bool
+	{
+		$isExtranetForGroupsEnabled = (bool)Option::get('socialnetwork', 'enable_extranet_for_groups', 0);
+		if ($isExtranetForGroupsEnabled)
+		{
+			return true;
+		}
+
+		$existExtranetSiteId = in_array(Extranet::getSiteId(), $item->getSiteIds(), true);
+		if ($existExtranetSiteId)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

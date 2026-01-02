@@ -1472,9 +1472,14 @@ class CAllIBlock
 
 		Iblock\FullIndex\FullText::drop($ID);
 
-		$DB->DDL("DROP TABLE IF EXISTS b_iblock_element_prop_s".$ID, true);
-		$DB->DDL("DROP TABLE IF EXISTS b_iblock_element_prop_m".$ID, true);
-		$DB->DDL("DROP SEQUENCE IF EXISTS sq_b_iblock_element_prop_m".$ID, true);
+		if ($DB->TableExists('b_iblock_element_prop_s' . $ID))
+		{
+			$DB->DDL('DROP TABLE b_iblock_element_prop_s' . $ID, true);
+		}
+		if ($DB->TableExists('b_iblock_element_prop_m' . $ID))
+		{
+			$DB->DDL('DROP TABLE b_iblock_element_prop_m' . $ID, true);
+		}
 
 		CIBlock::CleanCache($ID);
 
@@ -4254,16 +4259,96 @@ REQ
 
 	public static function roundDB($value)
 	{
-		$len = 18;
-		$dec = 4;
-		$eps = 1.00 / pow(10, $len + 4);
-		$rounded = round((float)$value + $eps, $len);
-		if (is_nan($rounded) || is_infinite($rounded))
-			$rounded = 0;
+		$commonLength = 18;
+		$decimals = 4;
+		$wholePartLength = 14;
+		$emptyFraction = '.0000'; // $decimals
 
-		$result = sprintf("%01.".$dec."f", $rounded);
-		if (mb_strlen($result) > ($len - $dec))
-			$result = trim(mb_substr($result, 0, $len - $dec), ".");
+		$borderInt = 100000000000000; // 10 ^ $wholePartLength
+
+		if (is_int($value))
+		{
+			$sign = '';
+			if ($value < 0)
+			{
+				$sign = '-';
+				$value = -$value;
+			}
+			if ($value >= $borderInt)
+			{
+				$value = intdiv($value, $borderInt);
+			}
+
+			return $sign . $value . $emptyFraction;
+		}
+		elseif (is_string($value))
+		{
+			$value = trim($value);
+			if ($value === '')
+			{
+				return '0';
+			}
+
+			$parsedValue = [];
+			if (preg_match('/^([+-]?)([0-9]*)(\.[0-9]*)?$/', $value, $parsedValue))
+			{
+				$sign = $parsedValue[1] === '-' ? '-' : '';
+				$wholePart = $parsedValue[2] === '' ? '0' : $parsedValue[2];
+				if (strlen($wholePart) > $wholePartLength)
+				{
+					return $sign . substr($wholePart, 0, $wholePartLength) . $emptyFraction;
+				}
+
+				$result = $sign . $wholePart;
+				$fraction = $parsedValue[3] ?? $emptyFraction;
+				if ($fraction === '' || $fraction === '.' || $fraction === $emptyFraction)
+				{
+					$result .= $emptyFraction;
+				}
+				else
+				{
+					$len = strlen($fraction) - 1;
+					if ($len > $decimals)
+					{
+						$result .= substr($fraction, 0, $decimals + 1);
+					}
+					else
+					{
+						$result .= $fraction;
+						if ($len !== $decimals)
+						{
+							$result .=  str_repeat('0', $decimals - $len);
+						}
+					}
+				}
+
+				return $result;
+			}
+		}
+
+		//$eps = 1.00 / pow(10, $commonLength + 4);
+		$eps = 1.0E-22; // 1/(10 ^ ($commonLength + $decimals))
+		$rounded = round((float)$value + $eps, $commonLength);
+		if (is_nan($rounded) || is_infinite($rounded))
+		{
+			return '0' . $emptyFraction;
+		}
+
+		$sign = $rounded < 0 ? 1 : 0;
+		$result = sprintf('%01.' . $decimals . 'f', $rounded);
+		$decimalPos = strpos($result, '.');
+		$limit = $wholePartLength + $sign;
+		if ($decimalPos === false)
+		{
+			if (strlen($result) > $limit)
+			{
+				$result = substr($result, 0, $limit) . $emptyFraction;
+			}
+		}
+		elseif ($decimalPos > $limit)
+		{
+			$result = substr($result, 0, $limit) . $emptyFraction;
+		}
 
 		return $result;
 	}

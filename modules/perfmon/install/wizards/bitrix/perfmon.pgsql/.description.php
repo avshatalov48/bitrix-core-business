@@ -1,5 +1,8 @@
 <?php
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 $arWizardDescription = [
 	'NAME' => GetMessage('PGWIZ_DESCR_NAME'),

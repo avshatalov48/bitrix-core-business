@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TASK_NAME_IBLOCK_DENY"] = "Нет доступа";
 $MESS["TASK_DESC_IBLOCK_DENY"] = "Доступ к инфоблоку запрещен";
 $MESS["TASK_NAME_IBLOCK_READ"] = "Чтение";
@@ -16,4 +16,3 @@ $MESS["TASK_DESC_IBLOCK_FULL_EDIT"] = "Редактирование элемен
 $MESS["TASK_NAME_IBLOCK_FULL"] = "Полный доступ";
 $MESS["TASK_DESC_IBLOCK_FULL"] = "Редактирование инфоблоков, элементов и разделов без ограничений";
 $MESS["TASK_BINDING_IBLOCK"] = "Инфоблок";
-?>

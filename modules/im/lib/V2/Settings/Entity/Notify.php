@@ -75,14 +75,26 @@ class Notify extends BaseSettings
 	 */
 	public function updateSetting(array $settingConfiguration)
 	{
+		$moduleId = $settingConfiguration['moduleId'];
+		$name = $settingConfiguration['name'];
+		$type = $settingConfiguration['type'];
+		$value = $settingConfiguration['value'];
+
 		$updatingSetting = [
-			$settingConfiguration['moduleId'] => [[
-				$settingConfiguration['name'] => [
-					$settingConfiguration['type'] => $settingConfiguration['value'],
+			$moduleId => [[
+				$name => [
+					$type => $value,
 				],
 			]],
 		];
 
+		$defaultSettings = Notification::getDefaultSettings();
+		if ($defaultSettings[$moduleId]['NOTIFY'][$name]['DISABLED'][mb_strtoupper($type)] ?? true)
+		{
+			return;
+		}
+
+		$this->settings[$moduleId]['NOTIFY'][$name][mb_strtoupper($type)] = $settingConfiguration['value'];
 		Notification::updateGroupSettings($this->groupId, $updatingSetting);
 	}
 
@@ -127,12 +139,8 @@ class Notify extends BaseSettings
 
 		if (is_array($source) && !empty($source))
 		{
-			$this->settings =
-				array_replace_recursive(Notification::getDefaultSettings(), $source)
-			;
+			$this->settings = Notification::filterGroupSettingsByDefault($source);
 			$this->isLoad = true;
-
-			return $this;
 		}
 
 		return $this;

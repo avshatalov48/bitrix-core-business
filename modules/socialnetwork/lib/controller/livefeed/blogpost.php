@@ -453,7 +453,8 @@ class BlogPost extends Base
 				$params['DEST'] = $this->convertDestData(['DEST_DATA' => $params['DEST_DATA']]);
 			}
 
-			$postId = Helper::addBlogPost($params, $this->getScope(), $resultFields);
+			$post = Helper::addBlogPost($params, $this->getScope(), $resultFields);
+			$postId = is_array($post) && isset($post['id']) ? (int)$post['id'] : 0;
 			if ($postId <= 0)
 			{
 				if (
@@ -488,7 +489,8 @@ class BlogPost extends Base
 
 		return [
 			'id' => $postId,
-			'warnings' => $warnings
+			'warnings' => $warnings,
+			'postFields' => $post['postFields'],
 		];
 	}
 
@@ -504,7 +506,8 @@ class BlogPost extends Base
 			}
 
 			$params['POST_ID'] = $id;
-			$postId = Helper::updateBlogPost($params, $this->getScope(), $resultFields);
+			$post = Helper::updateBlogPost($params, $this->getScope(), $resultFields);
+			$postId = is_array($post) && isset($post['id']) ? (int)$post['id'] : 0;
 			if ($postId <= 0)
 			{
 				if (
@@ -530,7 +533,8 @@ class BlogPost extends Base
 		}
 
 		return [
-			'id' => $postId
+			'id' => $postId,
+			'updatedFields' => $post['updatedFields'],
 		];
 	}
 

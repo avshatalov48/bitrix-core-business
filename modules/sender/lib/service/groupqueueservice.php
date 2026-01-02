@@ -37,12 +37,14 @@ class GroupQueueService implements GroupQueueServiceInterface
 			Locker::unlock(self::LOCK_KEY, $entityId);
 			return;
 		}
-		
+
 		GroupQueueTable::add([
 			'TYPE' => $type,
 			'ENTITY_ID' => $entityId,
 			'GROUP_ID' => $groupId,
+			'DATE_INSERT' => (new DateTime())->disableUserTime(),
 		]);
+
 		Locker::unlock(self::LOCK_KEY, $entityId);
 	}
 	
@@ -76,39 +78,50 @@ class GroupQueueService implements GroupQueueServiceInterface
 	 */
 	public function isReleased(int $groupId): bool
 	{
-		$entities = GroupQueueTable::query()
-			->setSelect([
-				'ID',
-				'DATE_INSERT',
-			])
+		$dateTime = (new DateTime())
+			->disableUserTime()
+			->getTimestamp();
+
+		$entitiesToDelete = GroupQueueTable::getList([
+			'select' => ['ID', 'DATE_INSERT'],
+			'filter' => [
+				'GROUP_ID' => $groupId,
+				[
+					'LOGIC' => 'OR',
+					['DATE_INSERT' => false],
+					['<DATE_INSERT' => DateTime::createFromTimestamp($dateTime - self::LIFETIME)],
+				],
+			],
+		])->fetchAll();
+
+		foreach ($entitiesToDelete as $entity)
+		{
+			try
+			{
+				GroupQueueTable::delete($entity['ID']);
+			}
+			catch (\Exception $e)
+			{}
+		}
+
+		$remainingRecords = GroupQueueTable::query()
+			->setSelect(['ID'])
 			->where('GROUP_ID', $groupId)
 			->exec()
-			->fetchAll();
-		
-		foreach ($entities as $key =>$entity)
+			->fetch()
+		;
+
+		if (!$remainingRecords)
 		{
-			$dateTime = DateTime::createFromPhp(new \DateTime());
-			
-			if (!$entity['DATE_INSERT'] || abs($dateTime->getTimestamp() - $entity['DATE_INSERT']->getTimestamp()) > self::LIFETIME)
-			{
-				try
-				{
-					GroupQueueTable::delete($entity['ID']);
-				} catch (\Exception $e)
-				{
-				}
-				unset($entities[$key]);
-			}
+			GroupTable::update(
+				$groupId,
+				[
+					'fields' => ['STATUS' => GroupTable::STATUS_DONE],
+				],
+			);
 		}
-		
-		if (empty($entities))
-		{
-			GroupTable::update($groupId, [
-				'fields' => ['STATUS' => GroupTable::STATUS_DONE]
-			]);
-		}
-		
-		return empty($entities);
+
+		return !$remainingRecords;
 	}
 	
 	private function getCurrentRow(int $type, int $entityId, int $groupId): array

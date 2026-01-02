@@ -19,7 +19,6 @@ class CSecurityCloudMonitorRequest
 	const TIMEOUT = 10;
 
 	private static $validActions = array("check", "get_results");
-	protected static $trustedHosts = array("www.1c-bitrix.ru", "www.bitrixsoft.com", "www.bitrix.de");
 	protected $response = array();
 	protected $checkingToken = "";
 	protected $protocolVersion = 2;
@@ -178,42 +177,20 @@ class CSecurityCloudMonitorRequest
 	}
 
 	/**
-	 * Return Bitrix Cloud Security web service url
-	 *
-	 * @param string $host Bitrix security scanner host.
-	 * @return string
-	 */
-	protected static function buildCheckerUrl($host)
-	{
-		return sprintf('https://%s%s', $host, self::BITRIX_CHECKER_URL_PATH);
-	}
-
-	/**
-	 * Return Bitrix Cloud Security host
-	 *
-	 * @return string
-	 */
-	protected static function getServiceHost()
-	{
-		return COption::GetOptionString("main", "update_site", "www.bitrixsoft.com");
-	}
-
-	/**
 	 * Send request to Bitrix (check o receive)
 	 * @param array $payload
 	 * @return array|bool
 	 */
 	protected static function sendRequest(array $payload)
 	{
-		$targetHost = static::getServiceHost();
-		// Trusted host *must* have a valid SSL certificate
-		$skipSslValidation = !in_array($targetHost, static::$trustedHosts, true);
+		$license = \Bitrix\Main\Application::getInstance()->getLicense();
+		$targetHost = $license->getDomainStoreLicense() . self::BITRIX_CHECKER_URL_PATH;
+
 		$httpClient = new \Bitrix\Main\Web\HttpClient(array(
-			'disableSslVerification' => $skipSslValidation,
 			'streamTimeout' => static::TIMEOUT
 		));
 
-		$response = $httpClient->post(self::buildCheckerUrl($targetHost), $payload);
+		$response = $httpClient->post($targetHost, $payload);
 		if ($response && $httpClient->getStatus() == 200)
 		{
 			return self::decodeResponse($response);

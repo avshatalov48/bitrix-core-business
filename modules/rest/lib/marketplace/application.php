@@ -341,7 +341,7 @@ class Application
 					&& Client::isSubscriptionDemo()
 				)
 				{
-					$result = ['error' => Loc::getMessage('RMP_TRIAL_HOLD_INSTALL')];
+					$result = ['error' => Loc::getMessage('RMP_TRIAL_HOLD_INSTALL_MSGVER_1')];
 				}
 				else
 				{
@@ -371,7 +371,7 @@ class Application
 		{
 			if ($result['error'] === 'SUBSCRIPTION_REQUIRED')
 			{
-				$result['errorDescription'] = Loc::getMessage('RMP_ERROR_SUBSCRIPTION_REQUIRED');
+				$result['errorDescription'] = Loc::getMessage('RMP_ERROR_SUBSCRIPTION_REQUIRED_MSGVER_1');
 			}
 			elseif ($result['error'] === 'verification_needed')
 			{

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SOD_HIST_NULL"] = "По данному заказу изменений нет";
 $MESS["SOD_HIST_H_DATE"] = "Дата изменения";
 $MESS["SOD_HIST_H_USER"] = "Пользователь";
@@ -53,4 +53,3 @@ $MESS["SOD_HIST_ENTITY_ID"] = "Элемент сущности";
 $MESS["SOD_HIST_ENTITY_SHIPMENT"] = "Отгрузка";
 $MESS["SOD_HIST_ENTITY_PAYMENT"] = "Оплата";
 $MESS["SOD_HIST_ALL"] = "(Все)";
-?>

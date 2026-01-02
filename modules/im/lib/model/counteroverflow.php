@@ -17,7 +17,20 @@ use Bitrix\Main\ORM\Fields\IntegerField;
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CounterOverflow_Query query()
+ * @method static EO_CounterOverflow_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_CounterOverflow_Result getById($id)
+ * @method static EO_CounterOverflow_Result getList(array $parameters = [])
+ * @method static EO_CounterOverflow_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_CounterOverflow createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_CounterOverflow_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_CounterOverflow wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_CounterOverflow_Collection wakeUpCollection($rows)
+ */
 
 class CounterOverflowTable extends DataManager
 {

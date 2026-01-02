@@ -22,6 +22,7 @@ global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 use Bitrix\Blog\Item\Permissions;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Socialnetwork\Collab\Provider\CollabProvider;
+use Bitrix\Socialnetwork\Collab\Url\UrlManager;
 use Bitrix\Socialnetwork\Item\Helper;
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\ModuleManager;
@@ -67,7 +68,7 @@ $folderUsers = COption::GetOptionString("socialnetwork", "user_page", false, SIT
 $arParams["PATH_TO_LOG_TAG"] = $folderUsers."log/?TAG=#tag#";
 if (
 	defined('SITE_TEMPLATE_ID')
-	&& SITE_TEMPLATE_ID === 'bitrix24'
+	&& (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 )
 {
 	$arParams["PATH_TO_LOG_TAG"] .= "&apply_filter=Y";
@@ -108,7 +109,7 @@ $arResult["bPublicPage"] = (isset($arParams["PUB"]) && $arParams["PUB"] === "Y")
 
 if ($arResult["bExtranetUser"] && !$arResult["bPublicPage"])
 {
-	$arUserIdVisible = CExtranet::GetMyGroupsUsersSimple(SITE_ID);
+	$arUserIdVisible = CExtranet::getMyGroupsUsersSimple(CExtranet::getExtranetSiteId());
 }
 
 $arParams['FORM_ID'] = ($arParams['FORM_ID'] ?? '');
@@ -1425,12 +1426,6 @@ if(
 										}
 									}
 
-									if ($groupSiteID)
-									{
-										$arTmp = CSocNetLogTools::ProcessPath(array("GROUP_URL" => $link), $user_id, $groupSiteID); // user_id is not important parameter
-										$link = ($arTmp["URLS"]["GROUP_URL"] <> '' ? $arTmp["SERVER_NAME"].$arTmp["URLS"]["GROUP_URL"] : $link);
-									}
-
 									$isExtranet = (
 										is_array($GLOBALS["arExtranetGroupID"] ?? null)
 										&& in_array($vv["ENTITY_ID"], $GLOBALS["arExtranetGroupID"])
@@ -1439,6 +1434,17 @@ if(
 										$isExtranet
 										&& CollabProvider::getInstance()->isCollab((int)$vv["ENTITY_ID"])
 									;
+
+									if ($groupSiteID && !$isCollabEntity)
+									{
+										$arTmp = CSocNetLogTools::ProcessPath(array("GROUP_URL" => $link), $user_id, $groupSiteID); // user_id is not important parameter
+										$link = ($arTmp["URLS"]["GROUP_URL"] <> '' ? $arTmp["SERVER_NAME"].$arTmp["URLS"]["GROUP_URL"] : $link);
+									}
+									elseif ($isCollabEntity)
+									{
+										$link = UrlManager::getCollabUrlById((int)$vv["ENTITY_ID"]);
+									}
+
 									if (defined("BX_COMP_MANAGED_CACHE"))
 									{
 										$CACHE_MANAGER->RegisterTag("sonet_group_".(int)$vv["ENTITY_ID"]);

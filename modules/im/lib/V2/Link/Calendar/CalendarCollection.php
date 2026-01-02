@@ -6,7 +6,9 @@ use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Im\Model\LinkCalendarTable;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Common\SidebarFilterProcessorTrait;
+use Bitrix\Im\V2\Entity\EntityCollection;
 use Bitrix\Im\V2\Link\BaseLinkCollection;
+use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Service\Locator;
@@ -23,6 +25,8 @@ class CalendarCollection extends BaseLinkCollection
 {
 	use SidebarFilterProcessorTrait;
 	use ContextCustomer;
+
+	protected ?EntityCollection $entities = null;
 
 	public static function find(
 		array $filter,
@@ -59,21 +63,34 @@ class CalendarCollection extends BaseLinkCollection
 		$links = new static($query->fetchCollection());
 		$links->setContext($context);
 
-		return $links->fillCalendarData();
+		return $links->fillEntities();
 	}
 
-	public function fillCalendarData(): self
+	public function getEntities(): EntityCollection
 	{
-		$calendarIds = $this->getEntityIds();
+		if (isset($this->entities))
+		{
+			return $this->entities;
+		}
+		$this->entities = \Bitrix\Im\V2\Entity\Calendar\CalendarCollection::getByIds($this->getEntityIds(), $this->getContext());
 
-		$entities = \Bitrix\Im\V2\Entity\Calendar\CalendarCollection::initByIds($calendarIds, $this->getContext());
+		return $this->entities;
+	}
+
+	public function fillEntities(): self
+	{
+		$entities = $this->getEntities();
 
 		foreach ($this as $link)
 		{
-			if ($entities->getById($link->getEntityId()) !== null)
+			$id = $link->getEntityId();
+
+			if (!isset($id) || ($entities->getById($id) === null))
 			{
-				$link->setEntity($entities->getById($link->getEntityId()));
+				continue;
 			}
+
+			$link->setEntity($entities->getById($id));
 		}
 
 		return $this;
@@ -117,5 +134,16 @@ class CalendarCollection extends BaseLinkCollection
 	public static function getCollectionElementClass(): string
 	{
 		return CalendarItem::class;
+	}
+
+	public static function getByMessages(MessageCollection $messages): self
+	{
+		$calendarCollection = LinkCalendarTable::query()
+			->setSelect(['*'])
+			->whereIn('MESSAGE_ID', $messages->getIds())
+			->fetchCollection()
+		;
+
+		return new static($calendarCollection);
 	}
 }

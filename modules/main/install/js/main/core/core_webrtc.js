@@ -11,8 +11,10 @@
 	var BX = window.BX;
 
 	// this is constructor, you must inherit
-	BX.webrtc = function ()
+	BX.webrtc = function(params)
 	{
+		params = params || {};
+
 		this.debug = false;
 		this.audioMuted = false;
 		this.videoMuted = false;
@@ -64,7 +66,7 @@
 		this.pcConnectTimeout = {};
 
 		this.init();
-		this.setTurnServer();
+		this.setTurnServer(params);
 	};
 
 	// this function needed to execute, after constructor
@@ -111,8 +113,8 @@
 
 		params = params || {};
 
-		this.turnServer = params.turnServer || 'turn.calls.bitrix24.com';
-		this.turnServerFirefox = params.turnServerFirefox || '54.217.240.163';
+		this.turnServer = params.turnServer || '';
+		this.turnServerFirefox = params.turnServerFirefox || '';
 		this.turnServerLogin = params.turnServerLogin || 'bitrix';
 		this.turnServerPassword = params.turnServerPassword || 'bitrix';
 

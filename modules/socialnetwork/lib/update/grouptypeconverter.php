@@ -19,7 +19,7 @@ final class GroupTypeConverter extends Stepper
 	private GroupEntityCollection $groups;
 
 	/** @var GroupEntityCollection[] */
-	private array $storage;
+	private array $storage = [];
 
 	private array $option;
 
@@ -44,8 +44,8 @@ final class GroupTypeConverter extends Stepper
 	private function fetchGroups(): void
 	{
 		$query = WorkgroupTable::query()
-			->setSelect(['ID', 'PROJECT', 'SCRUM_MASTER_ID'])
-			->whereNull('TYPE')
+			->setSelect(['ID', 'PROJECT', 'SCRUM_MASTER_ID', 'TYPE'])
+			// ->whereNull('TYPE') // recalc for all
 			->where('ID', '>', $this->getLastId())
 			->setOrder(['ID' => 'ASC'])
 			->setLimit(self::LIMIT);
@@ -71,6 +71,13 @@ final class GroupTypeConverter extends Stepper
 
 	private function setType(GroupEntity $group): void
 	{
+		$typeBefore = $group->getType();
+
+		if ($typeBefore === Type::Collab->value)
+		{
+			return;
+		}
+
 		if ($group->getScrumMasterId() > 0 && $group->getProject())
 		{
 			$group->setType(Type::Scrum->value);
@@ -84,7 +91,10 @@ final class GroupTypeConverter extends Stepper
 			$group->setType(Type::getDefault()->value);
 		}
 
-		$this->store($group);
+		if ($typeBefore !== $group->getType())
+		{
+			$this->store($group);
+		}
 	}
 
 	private function store(GroupEntity $group): void

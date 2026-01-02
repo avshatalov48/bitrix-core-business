@@ -1,0 +1,22 @@
+<?php
+$MESS["FM_ML_ACCESS"] = "Қолжетімділік";
+$MESS["FM_ML_ACCESS_TITLE"] = "Әртүрлі жинақтамаларға қол жеткізу құқығын баптау";
+$MESS["FM_ML_HIDE"] = "Жасыру";
+$MESS["FM_ML_HIDE_TITLE"] = "Іздеу нәтижелерін жасыру";
+$MESS["FM_ML_MANAGE_TYPES"] = "Түрлерін баптау";
+$MESS["FM_ML_MANAGE_TYPES_TITLE"] = "Модуль баптауларында медиадерекхана мазмұнының түрлерін баптау";
+$MESS["FM_ML_MASS_UPLOAD"] = "Көптілік жүктеу";
+$MESS["FM_ML_MASS_UPLOAD_TITLE"] = "Жинақтамаға бірден екі немесе одан да көп суреттерді жүктеу";
+$MESS["FM_ML_NEW_ADD"] = "Қосу";
+$MESS["FM_ML_NEW_COLLECTION"] = "Жаңа жинақтама";
+$MESS["FM_ML_NEW_COLLECTION_TITLE"] = "Медиадерекханада жаңа жинақ жасау";
+$MESS["FM_ML_NEW_ITEM"] = "Жаңа элемент";
+$MESS["FM_ML_NEW_ITEM_TITLE"] = "Медиадерекханада жаңа элемент жасау";
+$MESS["FM_ML_SEARCH"] = "Іздеу";
+$MESS["FM_ML_SEARCH_BUT"] = "Іздеу";
+$MESS["FM_ML_SEARCH_BUT_TITLE"] = "Медиадерекхана элементтерін іздеу";
+$MESS["FM_ML_SEARCH_TEXT"] = "Іздеу...";
+$MESS["FM_ML_SETTINGS"] = "Баптаулар";
+$MESS["FM_ML_TAGS_CLOUD"] = "Тегтер бұлты";
+$MESS["FM_ML_TAGS_CLOUD_TITLE"] = "Тегтер бұлтын көрсету";
+$MESS["ML_MEDIALIB"] = "Медиадерекхана";

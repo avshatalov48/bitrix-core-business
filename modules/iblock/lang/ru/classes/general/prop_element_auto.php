@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BT_UT_EAUTOCOMPLETE_DESCR"] = "Привязка к элементам с автозаполнением";
 $MESS["BT_UT_EAUTOCOMPLETE_SETTING_TITLE"] = "Настройки привязки к элементам с автозаполнением";
 $MESS["BT_UT_EAUTOCOMPLETE_SETTING_SHOW_ADD"] = "Показывать кнопку добавления элементов";
@@ -32,4 +32,3 @@ $MESS["BT_UT_EAUTOCOMPLETE_MESS_SEARCH_ELEMENT_MULTI_DESCR"] = "Выбор не�
 $MESS["BT_UT_EAUTOCOMPLETE_MESS_NEW_ELEMENT"] = "Добавить элемент";
 $MESS["BT_UT_EAUTOCOMPLETE_MESS_NEW_ELEMENT_DESCR"] = "Добавить новый элемент и выбрать его";
 $MESS["BT_UT_EAUTOCOMPLETE_MESS_ELEMENT_EDIT"] = "Перейти на страницу редактирования элемента";
-?>

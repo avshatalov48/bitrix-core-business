@@ -184,7 +184,7 @@ export class RecommendationStep extends Step
 					</defs>
 				</svg>
 				<span class="bizproc__ws_single-start__text-empty">
-					${Text.encode(Loc.getMessage('BIZPROC_CMP_WORKFLOW_START_TMP_SINGLE_START_EMPTY_RECOMMENDATION'))}
+					${Text.encode(Loc.getMessage('BIZPROC_CMP_WORKFLOW_START_TMP_SINGLE_START_EMPTY_RECOMMENDATION_1'))}
 				</span>
 			</div>
 		`;

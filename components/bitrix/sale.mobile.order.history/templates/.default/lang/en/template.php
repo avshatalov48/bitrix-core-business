@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SMOH_ORDER_N"] = "Order #";
 $MESS["SMOH_ORDER_FROM"] = "from";
 $MESS["SMOH_ORDER"] = "Order";
@@ -47,4 +47,3 @@ $MESS["SMOH_FN_DEDUCTED"] = "Fulfillment";
 $MESS["SMOH_FN_REASON_MARKED"] = "Problem description";
 $MESS["SMOH_OPERATION"] = "Operation";
 $MESS["SMOH_DESCRIPTION"] = "Details";
-?>

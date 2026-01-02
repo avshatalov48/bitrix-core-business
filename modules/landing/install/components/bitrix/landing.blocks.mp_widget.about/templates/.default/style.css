@@ -6,7 +6,6 @@
 .landing-widget-about {
 	position: relative;
 	display: block;
-	font-family: var(--ui-font-family-system);
 	cursor: default;
 }
 

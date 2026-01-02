@@ -1,0 +1,20 @@
+<?php
+$MESS['FDATE_LAST_MESSAGE'] = "date of last message";
+$MESS['FMESSAGE_TOPIC'] = "message topic";
+$MESS['FNUM_ANSWERS'] = "number of answers";
+$MESS['FNUM_VIEWS'] = "number of views";
+$MESS['FSTART_DATE'] = "date of topic creation";
+$MESS['FAUTHOR_TOPIC'] = "topic author";
+$MESS['FASC'] = "ascending";
+$MESS['FDESC'] = "descending";
+$MESS['FNO_ACCESS'] = "no access";
+$MESS['FREAD_ACCESS'] = "read";
+$MESS['FANSWER_ACCESS'] = "reply";
+$MESS['FNEW_MESSAGE_ACCESS'] = "create new topic";
+$MESS['FMODERATE_ACCESS'] = "moderate";
+$MESS['FEDIT_ACCESS'] = "edit";
+$MESS['FFULL_ACCESS'] = "full";
+$MESS['FSUBSC_NO_SPERMS'] = "You do not have enough permissions to delete this subscription";
+$MESS['FORUM_NO_MODULE'] = "Forum module is not installed";
+$MESS['FR_VIDEO'] = "Insert Video";
+$MESS['FR_VIDEO_P'] = "Video Path";

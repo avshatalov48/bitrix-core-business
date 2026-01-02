@@ -276,6 +276,14 @@
 		vine: new RegExp("vine.co\\/v\\/([a-zA-Z0-9\\?\\=\\-]+)"),
 		instagram: new RegExp("(instagr\\.am|instagram\\.com)\\/p\\/([a-zA-Z0-9_\\-]+)\\/?"),
 		rutube: new RegExp("rutube\\.ru\\/video\\/(private\\/)?([a-zA-Z0-9]+)\\/?"),
+
+		// Examples:
+		// https://vkvideo.ru/video-123456789_123456789
+		// https://vk.com/video-123456789_123456789
+		// https://vk.ru/video-123456789_123456789
+		// https://vkvideo.ru/clip-123456789_123456789
+		// https://vk.com/clip-123456789_123456789
+		// https://vk.ru/clip-123456789_123456789
 		vk: new RegExp("(vk\\.com|vk\\.ru|vkvideo\\.ru)\\/.*(video|clip)(-?\\d+_\\d+)\\/?"),
 
 		// Examples:

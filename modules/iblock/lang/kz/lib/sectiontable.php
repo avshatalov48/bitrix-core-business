@@ -1,0 +1,27 @@
+<?php
+$MESS["IBLOCK_SECTION_ENTITY_ACTIVE_FIELD"] = "Белсенділік";
+$MESS["IBLOCK_SECTION_ENTITY_CODE_FIELD"] = "Символдық код";
+$MESS["IBLOCK_SECTION_ENTITY_CREATED_BY_FIELD"] = "Кім жасаған";
+$MESS["IBLOCK_SECTION_ENTITY_DATE_CREATE_FIELD"] = "Құрылған күні";
+$MESS["IBLOCK_SECTION_ENTITY_DEPTH_LEVEL_FIELD"] = "Иерархиядағы тереңдік";
+$MESS["IBLOCK_SECTION_ENTITY_DESCRIPTION_FIELD"] = "Сипаттама";
+$MESS["IBLOCK_SECTION_ENTITY_DESCRIPTION_TYPE_FIELD"] = "Сипаттама түрі";
+$MESS["IBLOCK_SECTION_ENTITY_DETAIL_PICTURE_FIELD"] = "Егжей-тегжейлі кескін";
+$MESS["IBLOCK_SECTION_ENTITY_GLOBAL_ACTIVE_FIELD"] = "Иерархияны ескере отырып белсенділік белгісі";
+$MESS["IBLOCK_SECTION_ENTITY_IBLOCK_ID_FIELD"] = "Ақпараттық блок идентификаторы";
+$MESS["IBLOCK_SECTION_ENTITY_IBLOCK_SECTION_ID_FIELD"] = "Аталық бөлімі";
+$MESS["IBLOCK_SECTION_ENTITY_ID_FIELD"] = "Бөлім индентификаторы";
+$MESS["IBLOCK_SECTION_ENTITY_LEFT_MARGIN_FIELD"] = "Иерархиядағы позицияның сол жақ шекарасы";
+$MESS["IBLOCK_SECTION_ENTITY_MESS_ADD_BLOCKED"] = "Ақпараттық блок бөлімдерін қосу үшін CIBlockSection::Add() шақыруын пайдаланыңыз";
+$MESS["IBLOCK_SECTION_ENTITY_MESS_DELETE_BLOCKED"] = "Ақпараттық блок бөлімдерін жою үшін CIBlockSection::Delete() шақыруын пайдаланыңыз";
+$MESS["IBLOCK_SECTION_ENTITY_MESS_UPDATE_BLOCKED"] = "Ақпараттық блок бөлімдерін өзгерту үшін CIBlockSection::Update() қоңырауын пайдаланыңыз";
+$MESS["IBLOCK_SECTION_ENTITY_MODIFIED_BY_FIELD"] = "Кім өзгерткен";
+$MESS["IBLOCK_SECTION_ENTITY_NAME_FIELD"] = "Атауы";
+$MESS["IBLOCK_SECTION_ENTITY_PICTURE_FIELD"] = "Кескін";
+$MESS["IBLOCK_SECTION_ENTITY_RIGHT_MARGIN_FIELD"] = "Иерархиядағы позицияның оң жақ шекарасы";
+$MESS["IBLOCK_SECTION_ENTITY_SEARCHABLE_CONTENT_FIELD"] = "Іздеу үшін мәтін";
+$MESS["IBLOCK_SECTION_ENTITY_SOCNET_GROUP_ID_FIELD"] = "Әлеуметтік желі тобы";
+$MESS["IBLOCK_SECTION_ENTITY_SORT_FIELD"] = "Сұрыптау";
+$MESS["IBLOCK_SECTION_ENTITY_TIMESTAMP_X_FIELD"] = "Өзгерту күні";
+$MESS["IBLOCK_SECTION_ENTITY_TMP_ID_FIELD"] = "Уақытша код";
+$MESS["IBLOCK_SECTION_ENTITY_XML_ID_FIELD"] = "Сыртқы код";

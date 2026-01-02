@@ -61,23 +61,19 @@ class Event
 		return $this->dateDelete;
 	}
 
-	/**
-	 * @param EO_Log_Collection $logCollection
-	 * @return self[]
-	 */
-	public static function initByOrmEntities(EO_Log_Collection $logCollection): array
+	public static function initByArray(array $logEntities): array
 	{
 		$events = [];
 
-		foreach ($logCollection as $logItem)
+		foreach ($logEntities as $entity)
 		{
 			$events[] = new self(
-				$logItem->getEvent(),
-				$logItem->getEntityType(),
-				$logItem->getEntityId(),
-				$logItem->getDateCreate(),
-				$logItem->getDateDelete(),
-				$logItem->getId()
+				$entity['EVENT'] ?? '',
+				$entity['ENTITY_TYPE'] ?? '',
+				$entity['ENTITY_ID'] ?? 0,
+				$entity['DATE_CREATE'] ?? null,
+				$entity['DATE_DELETE'] ?? null,
+				$entity['ID'] ?? null
 			);
 		}
 

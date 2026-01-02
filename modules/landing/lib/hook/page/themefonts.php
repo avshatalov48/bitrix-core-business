@@ -277,10 +277,10 @@ class ThemeFonts extends Hook\Page
 		$assets = Assets\Manager::getInstance();
 		$assets->addString(
 			'<style>
-			html {font-size: ' . self::BASE_HTML_SIZE . ';}
-			body {font-size: ' . $size . 'rem;}
-			.g-font-size-default {font-size: ' . $size . 'rem;}
-		</style>'
+				html {font-size: ' . self::BASE_HTML_SIZE . ';}
+				body {font-size: ' . $size . 'rem;}
+				.g-font-size-default {font-size: ' . $size . 'rem;}
+			</style>'
 		);
 	}
 

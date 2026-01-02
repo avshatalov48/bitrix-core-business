@@ -25,6 +25,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 	private const NEGATIVE_ANSWER = 'N';
 	private const POSITIVE_ANSWER = 'Y';
 	private const DEFAULT_SEND_LIMIT = 250;
+	private const ACCESS_CODE_USER_PREFIX = 'U';
 
 	public function configureActions()
 	{
@@ -312,7 +313,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		}
 
 		$this->arParams['CRM_AVAILABLE'] = false;
-		if (Main\Loader::includeModule('crm') && \CCrmPerms::isAccessEnabled())
+		if (\Bitrix\Mail\Integration\Crm\Permissions::getInstance()->hasAccessToCrm())
 		{
 			$this->arParams['CRM_AVAILABLE'] = $USER->isAdmin() || $USER->canDoOperation('bitrix24_config')
 				|| \COption::getOptionString('intranet', 'allow_external_mail_crm', 'Y', SITE_ID) == 'Y';
@@ -414,7 +415,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		{
 			$mailboxSyncManager = new Mail\Helper\Mailbox\MailboxSyncManager($mailbox['USER_ID']);
 			$this->arResult['LAST_MAIL_CHECK_DATE'] = $mailboxSyncManager->getLastMailboxSyncTime($mailbox['ID']);
-			$this->arResult['LAST_MAIL_CHECK_STATUS'] = $mailboxSyncManager->getLastMailboxSyncIsSuccessStatus($mailbox['ID']);
+			$this->arResult['LAST_MAIL_CHECK_STATUS'] = $mailboxSyncManager->getCachedConnectionStatus($mailbox['ID']);
 		}
 
 		$this->arResult['MICROSOFT_SERVICE_NAMES'] = $this->getMicrosoftServiceNames();
@@ -425,7 +426,13 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		$this->arParams['DEFAULT_SEND_LIMIT'] = self::DEFAULT_SEND_LIMIT;
 
 		$this->arParams['SERVICE']['IS_SMTP_SWITCHER_CHECKED'] = $this->arResult['LOCK_SMTP'] === true || $this->isSmtpSwitcherChecked();
-		$this->arParams['SENDER_NAME'] =  $this->getSenderName($mailbox['USERNAME'] ?? '', $mailbox['USER_ID'] ?? null);
+		$this->arParams['SENDER_NAME'] = $this->getSenderName($mailbox['USERNAME'] ?? '', $mailbox['USER_ID'] ?? null);
+
+		$this->arParams['OWNER_ACCESS_CODE'] =
+			!empty($mailbox['USER_ID'])
+				? self::ACCESS_CODE_USER_PREFIX . (int)$mailbox['USER_ID']
+				: ''
+		;
 
 		$this->includeComponentTemplate('edit');
 	}
@@ -475,6 +482,17 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 	{
 		global $USER;
 
+		$newOwnerId = null;
+		if (
+			!empty($fields['owner_id'])
+			&& is_string($fields['owner_id'])
+			&& $USER->IsAdmin()
+			&& str_starts_with($fields['owner_id'], 'U')
+		)
+		{
+			$newOwnerId = (int) ltrim($fields['owner_id'], 'U');
+		}
+
 		$this->setIsSmtpAvailable();
 
 		if (!empty($fields['site_id']))
@@ -504,6 +522,8 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			return;
 		}
 
+		$originalOwnerId = null;
+
 		if ($fields['mailbox_id'] > 0)
 		{
 			$mailbox = Mail\MailboxTable::getList(array(
@@ -513,6 +533,11 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 					'=SERVER_TYPE' => 'imap',
 				),
 			))->fetch();
+
+			if (!empty($mailbox))
+			{
+				$originalOwnerId = (int)$mailbox['USER_ID'];
+			}
 
 			if ($USER->getId() != $mailbox['USER_ID'] && !$USER->isAdmin() && !$USER->canDoOperation('bitrix24_config'))
 			{
@@ -538,6 +563,11 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 					}
 				}
 			}
+		}
+
+		if ($newOwnerId > 0)
+		{
+			$mailboxData['USER_ID'] = $newOwnerId;
 		}
 
 		if (empty($mailbox))
@@ -618,6 +648,11 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 					$mailboxData['OPTIONS']['flags'][] = 'deny_upload';
 				}
 			}
+		}
+
+		if ($newOwnerId > 0)
+		{
+			$mailboxData['USER_ID'] = $newOwnerId;
 		}
 
 		$mailboxData['OPTIONS']['name'] = $mailboxData['USERNAME'];
@@ -936,7 +971,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		if ($fields['use_crm'] == 'Y')
 		{
 			$crmAvailable = false;
-			if (Main\Loader::includeModule('crm') && \CCrmPerms::isAccessEnabled())
+			if (\Bitrix\Mail\Integration\Crm\Permissions::getInstance()->hasAccessToCrm())
 			{
 				$crmAvailable = $USER->isAdmin() || $USER->canDoOperation('bitrix24_config')
 					|| \COption::getOptionString('intranet', 'allow_external_mail_crm', 'Y', SITE_ID) == 'Y';
@@ -1064,6 +1099,15 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		else
 		{
 			$result = \CMailbox::update($mailboxId = $mailbox['ID'], $mailboxData);
+
+			if ($result > 0 && $newOwnerId > 0 && $newOwnerId !== $originalOwnerId)
+			{
+				Mail\MailboxTable::cleanOwnerCacheByUserId($originalOwnerId);
+				Mail\MailboxTable::cleanOwnerCacheByUserId($newOwnerId);
+				Mail\MailboxTable::cleanAllSharedCache();
+
+				Mail\Helper\MailboxSettingsGridHelper::rebindSenders($mailboxId, $newOwnerId);
+			}
 		}
 
 		if (!($result > 0))
@@ -1109,19 +1153,12 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			}
 		}
 
-		$entity = Mail\Internals\MailboxAccessTable::getEntity();
-		$entity->getConnection()->query(sprintf(
-			'DELETE FROM %s WHERE %s',
-			$entity->getConnection()->getSqlHelper()->quote($entity->getDbTableName()),
-			Main\Entity\Query::buildFilterSql(
-				$entity,
-				array(
-					'=MAILBOX_ID' => $mailboxId,
-				)
-			)
-		));
+		Mail\Internals\MailboxAccessTable::deleteByFilter(['=MAILBOX_ID' => $mailboxId,]);
 
-		$ownerAccessCode = 'U' . (empty($mailbox) ? $USER->getId() : $mailbox['USER_ID']);
+		$finalOwnerId = $mailboxData['USER_ID'];
+
+		$ownerAccessCode = 'U' . $finalOwnerId;
+
 		$access = array($ownerAccessCode);
 
 		if (!empty($fields['access_dest']) && is_array($fields['access_dest']))

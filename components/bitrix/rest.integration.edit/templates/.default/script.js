@@ -851,7 +851,7 @@
 						paramsString += paramsWebHook[key]['items'][i]['title'] + '=';
 						if (typeof paramsWebHook[key]['items'][i]['layout']['input']['value'] === 'string')
 						{
-							paramsString += paramsWebHook[key]['items'][i]['layout']['input']['value'];
+							paramsString += encodeURIComponent(paramsWebHook[key]['items'][i]['layout']['input']['value']);
 						}
 					}
 				}
@@ -861,7 +861,7 @@
 				{
 					if (paramsString !== '')
 					{
-						paramsString = '?' + paramsString;
+						paramsString = '?' + encodeURIComponent(paramsString);
 					}
 					inputUri.value = webhookUrl.value + selectMethod.value + '.json' + paramsString;
 				}
@@ -1025,6 +1025,16 @@
 				this
 			)
 		);
+
+		BX.UI.ToolbarManager?.getDefaultToolbar().subscribe(BX.UI.ToolbarEvents.finishEditing, (event) => {
+			let updatedTitle = event.getData()?.updatedTitle
+			if (typeof updatedTitle === 'string')
+			{
+				BX('rest-integration-form')
+					.querySelector('#rest-integration-form input[name="TITLE"]')
+					.value = event.getData().updatedTitle;
+			}
+		});
 
 		BX.addCustomEvent(
 			'SidePanel.Slider:onClose',

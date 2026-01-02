@@ -16,13 +16,8 @@ class MessageDisappearing
 			FROM b_im_message_disappearing
 			WHERE DATE_REMOVE < '" . (new DateTime())->format('Y-m-d H:i:s') . "'
 		");
+
 		$messages = $messagesQuery->fetchAll();
-
-
-		if (empty($messages))
-		{
-			return __METHOD__ . '();';
-		}
 
 		foreach ($messages as $message)
 		{

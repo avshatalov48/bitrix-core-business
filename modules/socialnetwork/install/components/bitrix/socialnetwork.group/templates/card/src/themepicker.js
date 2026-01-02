@@ -27,23 +27,10 @@ class WorkgroupCardThemePicker
 			});
 		}
 
-		EventEmitter.subscribe('Intranet.ThemePicker:onSave', (event: BaseEvent) => {
-			const [ data ] = event.getData();
-
-			if (
-				!Type.isPlainObject(data.theme)
-				|| window === top.window
-			)
-			{
-				return;
-			}
-
-			themePickerInstance.applyTheme(data.theme.id);
-			themePickerInstance.saveTheme(data.theme.id);
-
-			this.draw(data.theme);
+		EventEmitter.subscribe('Intranet.ThemePicker:onSaveTheme', (event: BaseEvent) => {
+			const { theme } = event.getData();
+			this.draw(theme);
 		});
-
 	}
 
 	draw(theme)
@@ -54,11 +41,11 @@ class WorkgroupCardThemePicker
 			return;
 		}
 
-		themeBoxNode.style.backgroundImage = (Type.isStringFilled(theme.previewImage) ? `url('${theme.previewImage}')` : 'none');
+		themeBoxNode.style.backgroundImage = (Type.isStringFilled(theme.previewImage) ? `url('${encodeURI(theme.previewImage)}')` : 'none');
 		themeBoxNode.style.backgroundColor = (Type.isStringFilled(theme.previewColor) ? theme.previewColor : 'transparent');
 	}
 }
 
 export {
 	WorkgroupCardThemePicker,
-}
+};

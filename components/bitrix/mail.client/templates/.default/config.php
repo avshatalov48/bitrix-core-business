@@ -14,6 +14,5 @@ $APPLICATION->IncludeComponent(
 		'PLAIN_VIEW' => false,
 		'PAGE_MODE' => false,
 		'PAGE_MODE_OFF_BACK_URL' => "/mail/",
-
 	]
 );

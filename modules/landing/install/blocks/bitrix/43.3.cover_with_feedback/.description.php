@@ -19,6 +19,14 @@ return [
 		],
 	],
 	'nodes' => [
+		'.landing-block-node-bgimg' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODEBGIMG'),
+			'type' => 'img',
+			'editInStyle' => true,
+			'allowInlineEdit' => false,
+			'dimensions' => ['width' => 1920, 'height' => 1080],
+			'create2xByDefault' => false,
+		],
 		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODETITLE'),
 			'type' => 'text',
@@ -41,20 +49,16 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDNAME'),
 			'type' => 'text',
 		],
-		'.landing-block-node-bgimg' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODEBGIMG'),
-			'type' => 'img',
-			'editInStyle' => true,
-			'allowInlineEdit' => false,
-			'dimensions' => ['width' => 1920, 'height' => 1080],
-			'create2xByDefault' => false,
-		],
 	],
 	'style' => [
 		'block' => [
 			'type' => ['block-default-wo-background'],
 		],
 		'nodes' => [
+			'.landing-block-node-bgimg' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODEBGIMG'),
+				'type' => ['background'],
+			],
 			'.landing-block-node-title' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODETITLE'),
 				'type' => ['typo', 'heading'],
@@ -70,10 +74,6 @@ return [
 			'.landing-block-node-card-name' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDNAME'),
 				'type' => 'typo',
-			],
-			'.landing-block-node-bgimg' => [
-				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODEBGIMG'),
-				'type' => ['background'],
 			],
 			'.landing-block-node-header' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODEHEADER'),

@@ -1,0 +1,25 @@
+<?php
+$MESS["CPD_ACCESS_DENIED_ERROR_TITLE"] = "Тауарды қарау үшін құқықтар жеткіліксіз.";
+$MESS["CPD_ADD_PRODUCT_DENIED_ERROR_TITLE"] = "Тауарды жасау үшін құқықтар жеткіліксіз.";
+$MESS["CPD_CREATE_DOCUMENT_BUTTON"] = "Құжатты қосу";
+$MESS["CPD_CREATE_DOCUMENT_BUTTON_POPUP_ADJUSTMENT"] = "Кіріс";
+$MESS["CPD_CREATE_DOCUMENT_BUTTON_POPUP_DEDUCT"] = "Есептен шығару";
+$MESS["CPD_CREATE_DOCUMENT_BUTTON_POPUP_MOVING"] = "Орын ауыстыру";
+$MESS["CPD_CREATE_DOCUMENT_BUTTON_POPUP_SHIPMENT"] = "Сату";
+$MESS["CPD_EDIT_PRODUCT_DENIED_ERROR_TITLE"] = "Тауарды редакциялау үшін құқықтар жеткіліксіз.";
+$MESS["CPD_ENABLE_INVENTORY_MANAGEMENT_DENIED_ERROR_TITLE"] = "Қойма есебін қосу үшін құқықтар жеткіліксіз";
+$MESS["CPD_ERROR_ADD_HIGHLOAD_BLOCK"] = "Мұндай атаумен каталог жасау мүмкін болмады";
+$MESS["CPD_ERROR_CATALOG_SERVICES_LIMIT_EDITION"] = "Қызметтік мүмкіндіктер сіздің өнім редакцияңызға кірмейді.";
+$MESS["CPD_ERROR_CATALOG_SERVICES_LIMIT_TARIFF"] = "Қызметтердің мүмкіндігі <a onclick=\"#LINK#\" style=\"cursor: pointer\">ағымдағы Битрикс24 тарифінде</a>  қолжетімсіз";
+$MESS["CPD_ERROR_EMPTY_DIRECTORY_ITEMS"] = "Анықтамалық тізімге элементтер қосыңыз";
+$MESS["CPD_ERROR_EMPTY_LIST_ITEMS"] = "Тізімге элементтер қосыңыз";
+$MESS["CPD_ERROR_NOT_SUPPORTED_PRODUCT_TYPE"] = "Сіз жаңа карточкада көрсетілмейтін #TYPE# тауар түрін таңдадыңыз. Мұндай тауарды Дүкен бөлімінен көруге және редакциялауға болады.<br>#LINK#";
+$MESS["CPD_ERROR_NOT_SUPPORTED_PRODUCT_TYPE_BUS"] = "Сіз жаңа карточкада көрсетілмейтін #TYPE# тауар түрін таңдадыңыз. Сіз бұл тауарды Сауда каталогы модулінің баптауларында ескі карточкаға ауысқаннан кейін көре және редакциялай аласыз.<br>#LINK#";
+$MESS["CPD_ERROR_SAVE"] = "Өзгерістерді сақтау мүмкін болмады, қайталап көріңіз";
+$MESS["CPD_ERROR_UNKNOWN_PRODUCT_TYPE"] = "Тауардың белгісіз түрі";
+$MESS["CPD_NEW_LIST_ELEMENT_EMPTY_NAME"] = "Жаңа элемент";
+$MESS["CPD_NEW_PRODUCT_TITLE"] = "Жаңа тауар";
+$MESS["CPD_NEW_SERVICE_TITLE"] = "Жаңа қызмет";
+$MESS["CPD_NOT_FOUND_ERROR_TITLE"] = "Тауар табылмады немесе өшірілген";
+$MESS["CPD_SETS_ENABLE_PRODUCT_SLIDER_LINK"] = "Баптауларға өту";
+$MESS["CPD_SETS_NOT_SUPPORTED_LINK"] = "Өту";

@@ -51,7 +51,11 @@ class SectionAccessRule extends \Bitrix\Main\Access\Rule\AbstractRule
 		$type = TypeModel::createFromSectionModel($item);
 		$typeCheck = true;
 
-		if ($item->getType() !== \Bitrix\Calendar\Core\Event\Tools\Dictionary::CALENDAR_TYPE['resource'])
+		if ($item->getType() === Dictionary::CALENDAR_TYPE['group'])
+		{
+			$typeCheck = $this->controller->check(ActionDictionary::ACTION_TYPE_EDIT, $type);
+		}
+		else if ($item->getType() !== \Bitrix\Calendar\Core\Event\Tools\Dictionary::CALENDAR_TYPE['resource'])
 		{
 			$typeCheck = $this->controller->check(ActionDictionary::ACTION_TYPE_ACCESS, $type);
 		}

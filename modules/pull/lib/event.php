@@ -10,6 +10,7 @@ use Bitrix\Pull\DTO\Message;
 class Event
 {
 	const SHARED_CHANNEL = 0;
+	private static bool $isSendingScheduled = false;
 
 	private static bool $backgroundContext = false;
 
@@ -117,12 +118,13 @@ class Event
 			self::addMessage(self::$messages, $entities['channels'], $entities['users'], $parameters);
 		}
 
-		if (
-			self::$backgroundContext
-			|| defined('BX_CHECK_AGENT_START') && !defined('BX_WITH_ON_AFTER_EPILOG')
-		)
+		if (defined('BX_CHECK_AGENT_START') && !defined('BX_WITH_ON_AFTER_EPILOG'))
 		{
 			self::send();
+		}
+		else
+		{
+			self::scheduleSending();
 		}
 
 		if ($pushParameters || $pushParametersCallback)
@@ -283,12 +285,13 @@ class Event
 			self::$push[$pushCode]['users'] = array_unique(array_values($users));
 		}
 
-		if (
-			self::$backgroundContext
-			|| defined('BX_CHECK_AGENT_START') && !defined('BX_WITH_ON_AFTER_EPILOG')
-		)
+		if (defined('BX_CHECK_AGENT_START') && !defined('BX_WITH_ON_AFTER_EPILOG'))
 		{
 			self::send();
+		}
+		else
+		{
+			self::scheduleSending();
 		}
 
 		return true;
@@ -528,14 +531,26 @@ class Event
 
 	public static function onAfterEpilog()
 	{
-		Main\Application::getInstance()->addBackgroundJob([__CLASS__, "sendInBackground"]);
+		self::scheduleSending();
 		return true;
+	}
+
+	protected static function scheduleSending(): void
+	{
+		if (self::$isSendingScheduled)
+		{
+			return;
+		}
+
+		self::$isSendingScheduled = true;
+		Main\Application::getInstance()->addBackgroundJob([__CLASS__, "sendInBackground"], [], Main\Application::JOB_PRIORITY_LOW);
 	}
 
 	public static function sendInBackground()
 	{
 		self::$backgroundContext = true;
 		self::send();
+		self::$isSendingScheduled = false;
 	}
 
 	public static function fillChannels(array &$messages)

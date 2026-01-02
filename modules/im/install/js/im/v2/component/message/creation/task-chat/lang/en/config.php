@@ -1,0 +1,6 @@
+<?php
+$MESS["IM_MESSAGE_TASK_CHAT_CREATION_LIST_CAMERA"] = "Call chat members";
+$MESS["IM_MESSAGE_TASK_CHAT_CREATION_LIST_FILE"] = "Share documents and files";
+$MESS["IM_MESSAGE_TASK_CHAT_CREATION_LIST_FORWARD"] = "Track task updates";
+$MESS["IM_MESSAGE_TASK_CHAT_CREATION_LIST_RESULT"] = "Discuss progress and results";
+$MESS["IM_MESSAGE_TASK_CHAT_CREATION_TITLE"] = "Task chat";

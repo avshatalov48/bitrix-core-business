@@ -67,25 +67,6 @@ class Keyboard extends Param
 	 * @param mixed $value
 	 * @return mixed
 	 */
-	public function loadValueFilter($value)
-	{
-		if (!empty($value))
-		{
-			$value = Im\Text::decodeEmoji($value);
-		}
-		else
-		{
-			$value = null;
-		}
-
-		return $value;
-	}
-
-
-	/**
-	 * @param mixed $value
-	 * @return mixed
-	 */
 	public function saveJsonFilter($value)
 	{
 		return $this->jsonValue;

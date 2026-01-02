@@ -2,13 +2,12 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core,main_core_events,im_v2_application_core,im_v2_const,im_v2_lib_logger,im_v2_application_launch,im_v2_lib_desktop,im_v2_lib_layout) {
+(function (exports,main_core,main_sidepanel,main_core_events,im_v2_application_core,im_v2_const,im_v2_lib_logger,im_v2_application_launch,im_v2_lib_desktop,im_v2_lib_layout,im_v2_lib_call,im_v2_lib_confirm) {
 	'use strict';
 
 	const SLIDER_PREFIX = 'im:slider';
 	const BASE_STACK_INDEX = 1200;
 	const SLIDER_CONTAINER_CLASS = 'bx-im-messenger__slider';
-	const LOADER_CHATS_PATH = '/bitrix/js/im/v2/lib/slider/src/images/loader-chats.svg?v3';
 	class MessengerSlider {
 	  static init() {
 	    if (this.instance) {
@@ -22,7 +21,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  constructor() {
 	    this.instances = {};
-	    this.sidePanelManager = BX.SidePanel.Instance;
+	    this.sidePanelManager = main_sidepanel.SidePanel.Instance;
 	    im_v2_lib_logger.Logger.warn('Slider: class created');
 	    this.bindEvents();
 	    this.store = im_v2_application_core.Core.getStore();
@@ -35,6 +34,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return true;
 	  }
 	  openSlider() {
+	    if (this.isChatEmbeddedOnPage()) {
+	      return Promise.resolve();
+	    }
 	    if (im_v2_lib_desktop.DesktopManager.isChatWindow()) {
 	      this.sidePanelManager.closeAll(true);
 	      return Promise.resolve();
@@ -59,15 +61,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        hideControls: true,
 	        customLeftBoundary: 0,
 	        customRightBoundary: 0,
-	        loader: LOADER_CHATS_PATH,
+	        loader: this.getLoaderPath(),
 	        contentCallback: () => {
 	          return `<div class="${SLIDER_CONTAINER_CLASS}"></div>`;
 	        },
 	        events: {
-	          onLoad: event => {
-	            event.slider.showLoader();
-	          },
 	          onOpenComplete: async event => {
+	            event.slider.showLoader();
 	            await this.initMessengerComponent();
 	            event.slider.closeLoader();
 	            return resolve();
@@ -96,7 +96,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  onDialogOpen(event) {
 	    im_v2_lib_logger.Logger.warn('Slider: onDialogOpen', event.data.dialogId);
 	  }
-	  onClose({
+	  async onClose({
 	    data: event
 	  }) {
 	    [event] = event;
@@ -108,14 +108,24 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      event.denyAction();
 	      return;
 	    }
+	    const hasCall = im_v2_lib_call.CallManager.getInstance().hasCurrentCall();
+	    if (hasCall) {
+	      event.denyAction();
+	      const result = await im_v2_lib_confirm.showCloseWithActiveCallConfirm();
+	      if (result) {
+	        im_v2_lib_call.CallManager.getInstance().leaveCurrentCall();
+	        event.slider.close();
+	      }
+	      return;
+	    }
 
 	    // TODO: emit event to close all popups
 
 	    const id = this.getIdFromSliderId(sliderId);
 	    delete this.instances[id];
 	    main_core_events.EventEmitter.emit(im_v2_const.EventType.slider.onClose);
-	    im_v2_lib_layout.LayoutManager.getInstance().setLayout({
-	      name: im_v2_const.Layout.chat.name
+	    void im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	      name: im_v2_const.Layout.chat
 	    });
 	  }
 	  onCloseByEsc({
@@ -126,9 +136,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!sliderId.startsWith(SLIDER_PREFIX)) {
 	      return;
 	    }
-	    if (!this.canCloseByEsc()) {
-	      event.denyAction();
-	    }
+
+	    // we handle close by esc in the im.v2.lib.esc-manager
+	    event.denyAction();
 	  }
 	  onDestroy({
 	    data: event
@@ -168,9 +178,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  canClose() {
 	    return true;
 	  }
-	  canCloseByEsc() {
-	    return false;
-	  }
 	  getCurrent() {
 	    return this.instances[this.getCurrentId()];
 	  }
@@ -183,10 +190,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getIdFromSliderId(sliderId) {
 	    return Number.parseInt(sliderId.slice(SLIDER_PREFIX.length + 1), 10);
 	  }
+	  getLoaderPath() {
+	    return '/bitrix/js/im/v2/lib/slider/src/images/loader-chats-without-navigation.svg';
+	  }
+	  isChatEmbeddedOnPage() {
+	    return im_v2_lib_layout.LayoutManager.getInstance().isQuickAccessHidden();
+	  }
 	}
 	MessengerSlider.instance = null;
 
 	exports.MessengerSlider = MessengerSlider;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.SidePanel,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=slider.bundle.js.map

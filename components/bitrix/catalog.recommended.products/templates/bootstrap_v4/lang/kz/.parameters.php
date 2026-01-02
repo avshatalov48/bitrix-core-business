@@ -1,0 +1,20 @@
+<?php
+$MESS["BX_CRP_IBLOCK_ELEMENT_SORT_FIELD"] = "Элементтерді қай өріс бойынша сұрыптаймыз";
+$MESS["BX_CRP_IBLOCK_ELEMENT_SORT_FIELD2"] = "Элементтерді екінші рет сұрыптау үшін өріс";
+$MESS["BX_CRP_IBLOCK_ELEMENT_SORT_ORDER"] = "Элементтерді сұрыптау тәртібі";
+$MESS["BX_CRP_IBLOCK_ELEMENT_SORT_ORDER2"] = "Элементтерді екінші сұрыптау тәртібі";
+$MESS["BX_CRP_SORT_ORDER_ASC"] = "өсу бойынша";
+$MESS["BX_CRP_SORT_ORDER_DESC"] = "кему бойынша";
+$MESS["BX_CRP_TPL_DML_EXT"] = "кеңейтілген";
+$MESS["BX_CRP_TPL_DML_SIMPLE"] = "қарапайым режим";
+$MESS["BX_CRP_TPL_PRODUCT_DISPLAY_MODE"] = "Көрсету схемасы";
+$MESS["CATALOG_RECOMMENDED_PRODUCTS_LINE_ELEMENT_COUNT"] = "Жолға шығарылатын элементтердің саны";
+$MESS["CATALOG_RECOMMENDED_PRODUCTS_TPL_TEMPLATE_THEME"] = "Түс тақырыбы";
+$MESS["CATALOG_RECOMMENDED_PRODUCTS_TPL_THEME_BLACK"] = "қараңғы";
+$MESS["CATALOG_RECOMMENDED_PRODUCTS_TPL_THEME_BLUE"] = "көк (әдепкі тақырып)";
+$MESS["CATALOG_RECOMMENDED_PRODUCTS_TPL_THEME_GREEN"] = "жасыл";
+$MESS["CATALOG_RECOMMENDED_PRODUCTS_TPL_THEME_RED"] = "қызыл";
+$MESS["CATALOG_RECOMMENDED_PRODUCTS_TPL_THEME_SITE"] = "Тақырыпты сайт баптауларынан алу (bitrix.eshop шешімі үшін)";
+$MESS["CATALOG_RECOMMENDED_PRODUCTS_TPL_THEME_WOOD"] = "ағаш";
+$MESS["CATALOG_RECOMMENDED_PRODUCTS_TPL_THEME_YELLOW"] = "сары";
+$MESS["LINE_ELEMENT_COUNT_TIP"] = "Жолда шығарылатын элементтердің саны 1-ден 5-ке дейін болуы мүмкін";

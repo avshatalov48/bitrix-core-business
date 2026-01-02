@@ -235,17 +235,9 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 'Y')
 		if($normPath <> "")
 			$strWarning = CFileMan::DeleteEx(array($_GET["site"], $normPath));
 
-		$module_id = "fileman";
-		if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
+		if(COption::GetOptionString("fileman", "log_page", "Y")=="Y")
 		{
-			$res_log['path'] = mb_substr($_GET["path"], 1);
-			CEventLog::Log(
-				"content",
-				"SECTION_DELETE",
-				"main",
-				"",
-				serialize($res_log)
-			);
+			CEventLog::Log("content", "SECTION_DELETE", "fileman", $normPath);
 		}
 	}
 	elseif(!empty($_GET['action']) && ($_GET['action'] == 'copy' || $_GET['action'] == 'move') && check_bitrix_sessid() && $bFileman)

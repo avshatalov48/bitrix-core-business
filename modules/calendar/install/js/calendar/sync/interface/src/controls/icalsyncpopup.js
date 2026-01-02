@@ -59,7 +59,9 @@ export default class IcalSyncPopup
 			zIndexOptions: 4000,
 			autoHide: false,
 			closeByEsc: true,
-			draggable: true,
+			draggable: {
+				restrict: true,
+			},
 			closeIcon: {right: "12px", top: "10px"},
 			className: "bxc-popup-window",
 			content: this.getContent(),

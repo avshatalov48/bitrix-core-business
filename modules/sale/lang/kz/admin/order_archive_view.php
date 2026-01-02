@@ -1,0 +1,27 @@
+<?php
+$MESS["SALE_OVIEW_BLOCK_TITLE_ADDITIONAL"] = "Қосымша ақпарат";
+$MESS["SALE_OVIEW_BLOCK_TITLE_BASKET"] = "Тапсырыс құрамы";
+$MESS["SALE_OVIEW_BLOCK_TITLE_BUYER"] = "Сатып алушы";
+$MESS["SALE_OVIEW_BLOCK_TITLE_DELIVERY"] = "Жөнелту";
+$MESS["SALE_OVIEW_BLOCK_TITLE_FINANCEINFO"] = "Төлемдер бойынша ақпарат";
+$MESS["SALE_OVIEW_BLOCK_TITLE_PAYMENT"] = "Төлем";
+$MESS["SALE_OVIEW_BLOCK_TITLE_STATUSORDER"] = "Тапсырыс параметрлері";
+$MESS["SALE_OVIEW_DELETE"] = "Тапсырысты жою";
+$MESS["SALE_OVIEW_DELETE_TITLE"] = "Тапсырысты жою";
+$MESS["SALE_OVIEW_DEL_MESSAGE"] = "Бұл тапсырысты жойғыңыз келетініне сенімдісіз бе? Бұл операция қайтарымсыз.";
+$MESS["SALE_OVIEW_ERROR"] = "Қате";
+$MESS["SALE_OVIEW_ORDER_COPY"] = "Тапсырысты көшіріп алу";
+$MESS["SALE_OVIEW_ORDER_COPY_TITLE"] = "Тапсырысты көшіріп алу";
+$MESS["SALE_OVIEW_TAB_ANALYSIS"] = "Тапсырысты талдау";
+$MESS["SALE_OVIEW_TAB_HISTORY"] = "Өзгертулер тарихы";
+$MESS["SALE_OVIEW_TAB_ORDER"] = "Тапсырыс";
+$MESS["SALE_OVIEW_TITLE"] = "Тапсырысты ID (#ID#) қарау, № #NUM#, #DATE# жасалды";
+$MESS["SALE_OVIEW_TO_ARCHIVE_LIST"] = "Тапсырыстар мұрағаты";
+$MESS["SALE_OVIEW_TO_ARCHIVE_LIST_TITLE"] = "Тапсырыстар мұрағатына өту";
+$MESS["SALE_OVIEW_TO_EDIT"] = "Тапсырысты өзгерту";
+$MESS["SALE_OVIEW_TO_EDIT_TITLE"] = "Тапсырысты өзгертуге өту";
+$MESS["SALE_OVIEW_TO_PRINT"] = "Тапсырысты басып шығару";
+$MESS["SALE_OVIEW_TO_PRINT_TITLE"] = "Тапсырысты басып шығаруға өту";
+$MESS["SALE_OVIEW_TO_RESTORE"] = "Тапсырысты қалпына келтіру";
+$MESS["SALE_OVIEW_TO_RESTORE_TITLE"] = "Тапсырысты қалпына келтіруге өту";
+$MESS["SALE_OVIEW_UNLOCK"] = "Тапсырысты бұғаттан босату";

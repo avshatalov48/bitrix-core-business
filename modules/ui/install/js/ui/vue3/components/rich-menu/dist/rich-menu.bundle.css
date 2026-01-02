@@ -94,7 +94,7 @@
 }
 
 .ui-rich-menu-item__title_text {
-	font: var(--ui-font-size-sm)/var(--ui-font-line-height-md) var(--ui-font-family-system);
+	font: var(--ui-font-size-sm)/var(--ui-font-line-height-md) var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-weight: var(--ui-font-weight-semi-bold);
 	color: var(--ui-rich-menu-item__font-color_title);
 	text-overflow: ellipsis;
@@ -112,7 +112,7 @@
 	padding: 0 5px;
 	border-radius: 30px;
 
-	font: var(--ui-font-size-xs)/14px var(--ui-font-family-system);
+	font: var(--ui-font-size-xs)/14px var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-weight: var(--ui-font-weight-medium);
 	color: var(--ui-rich-menu-item__font-color_counter);
 	background-color: var(--ui-rich-menu-item__background-color_counter);

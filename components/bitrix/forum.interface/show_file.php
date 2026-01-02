@@ -88,32 +88,18 @@ elseif (intval($arResult["FILE"]["MESSAGE_ID"]) > 0)
 	{
 		$tasksIsTasksJurisdiction = false;
 
-		// Insurance for cross-modules version compatibility
-		if (method_exists('CTasksTools','ListTasksForumsAsArray'))
+		try
 		{
-			try
-			{
-				$arTasksForums = CTasksTools::ListTasksForumsAsArray();
+			$arTasksForums = CTasksTools::ListTasksForumsAsArray();
 
-				if (in_array((int) $arResult['FORUM']['ID'], $arTasksForums, true))
-					$tasksIsTasksJurisdiction = true;
-			}
-			catch (TasksException $e)
-			{
-				// do nothing
-			}
-		}
-		else
-		{
-			// TODO: this old code section to be removed in next versions.
-			$forumId = COption::GetOptionString('tasks', 'task_forum_id', -1);
-			if (
-				($forumId !== (-1)) 
-				&& ((int) $arResult['FORUM']['ID'] === (int) $forumId)
-			)
+			if (in_array((int) $arResult['FORUM']['ID'], $arTasksForums, true))
 			{
 				$tasksIsTasksJurisdiction = true;
 			}
+		}
+		catch (TasksException $e)
+		{
+			// do nothing
 		}
 
 		if ($tasksIsTasksJurisdiction)

@@ -11,6 +11,9 @@ use Bitrix\Calendar\Sync\Connection\EventConnection;
 use Bitrix\Calendar\Sync\Entities\InstanceMap;
 use Bitrix\Calendar\Sync\Entities\SyncEvent;
 use Bitrix\Calendar\Sync\Util\EventDescription;
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\ObjectPropertyException;
+use Bitrix\Main\SystemException;
 
 class EventConverter
 {
@@ -47,7 +50,9 @@ class EventConverter
 
 	/**
 	 * @return array
-	 * @throws \Bitrix\Main\ObjectException
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
 	 */
 	public function convertForCreate(): array
 	{

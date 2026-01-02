@@ -1,5 +1,13 @@
 <?php
 return [
+	'rest' => [
+		'value' => [
+			'defaultNamespace' => '\\Bitrix\\Rest\\V3\\Realisation\\Controllers',
+			'routes' => [
+				'documentation' => 'rest.documentation.openApi',
+			],
+		]
+	],
 	'controllers' => [
 		'value' => [
 			'defaultNamespace' => '\\Bitrix\\Rest\\Controller',

@@ -17,4 +17,4 @@ $MESS["IBLOCK_MENU_REINDEX"] = "Faceted indexes";
 $MESS["IBLOCK_MENU_REINDEX_TITLE"] = "Create faceted indexes for property values";
 $MESS["IBLOCK_MENU_SEC_EL"] = "Elements of this section";
 $MESS["IBLOCK_MENU_SEPARATOR"] = "Information blocks";
-$MESS["IBLOCK_MENU_SETTINGS_TITLE"] = "Information Block Settings";
+$MESS['IBLOCK_MENU_SETTINGS_TITLE'] = "Information Block Settings";

@@ -92,7 +92,7 @@
 }
 
 .ui-bottomsheet__panel-control--item-text {
-	font: var(--ui-font-size-xl)/21px var(--ui-font-family-system);
+	font: var(--ui-font-size-xl)/21px var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: rgba(var(--ui-color-palette-white-base-rgb), .6);
 }
 

@@ -1,0 +1,23 @@
+<?php
+$MESS["CAL_REST_ACCESS_DENIED"] = "Қолжетімділікке тыйым салынған";
+$MESS["CAL_REST_CRM_FIELDS_ERROR"] = "Іс-шараның CRM-мен байланыстарының тізімі массив болуы керек";
+$MESS["CAL_REST_EVENT_DELETE_ERROR"] = "Оқиғаны жойған кезде қате пайда болды";
+$MESS["CAL_REST_EVENT_ID_EXCEPTION"] = "Оқиғаның id-і орнатылмады";
+$MESS["CAL_REST_EVENT_NEW_ERROR"] = "Оқиғаны құру кезінде қате пайда болды";
+$MESS["CAL_REST_EVENT_UPDATE_ERROR"] = "Оқиғаны өзгерту кезінде қате пайда болды";
+$MESS["CAL_REST_GET_DATA_ERROR"] = "Деректерді іріктеу кезінде қате пайда болды";
+$MESS["CAL_REST_GET_STATUS_ERROR"] = "Мәртебені таңдаған кезде қате пайда болды";
+$MESS["CAL_REST_PARAM_ERROR"] = "Жарамсыз параметр мәні \"#PARAM_NAME#\"";
+$MESS["CAL_REST_PARAM_EXCEPTION"] = "\"#REST_METHOD#\" әдісі үшін міндетті параметр \"#PARAM_NAME#\" берілмеген";
+$MESS["CAL_REST_REC_MODE_ERROR"] = "Көрсетілген қайталанатын оқиғаны редакциялау түрі жоқ.";
+$MESS["CAL_REST_RESOURCE_BOOKING_ADD_ERROR"] = "Ресурсты брондау кезінде қате пайда болды";
+$MESS["CAL_REST_RESOURCE_NEW_ERROR"] = "Ресурсты құру кезінде қате пайда болды";
+$MESS["CAL_REST_RESOURCE_UPDATE_ERROR"] = "Ресурсты өзгерткен кезде қате пайда болды";
+$MESS["CAL_REST_RES_BOOKING_DEFAULT_VALUE"] = "Брондау";
+$MESS["CAL_REST_RES_BOOKING_SERVICE_LABEL"] = "Қызмет";
+$MESS["CAL_REST_RES_TYPE_ERROR"] = "Ресурс түрі, қолжетімді мәндер дұрыс берілмеген: #ALLOWED_TYPES#";
+$MESS["CAL_REST_SECTION_DELETE_ERROR"] = "Секцияны жойған кезде қате пайда болды";
+$MESS["CAL_REST_SECTION_ERROR"] = "Сіз күнтізбе бөлімінің дұрыс емес ID-ін белгіледіңіз немесе берілген пайдаланушыға ол қолжетімсіз";
+$MESS["CAL_REST_SECTION_NEW_ERROR"] = "Секцияны құру кезінде қате пайда болды";
+$MESS["CAL_REST_SECTION_SAVE_ERROR"] = "Секцияны өзгерткен кезде қате пайда болды";
+$MESS["CAL_REST_SECT_ID_EXCEPTION"] = "Секцияның id-і орнатылмады";

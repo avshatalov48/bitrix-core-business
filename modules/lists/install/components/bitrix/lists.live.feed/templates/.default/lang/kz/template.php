@@ -1,0 +1,23 @@
+<?php
+$MESS["LISTS_ADD_STAFF"] = "Қызметкерлерді қосу";
+$MESS["LISTS_ADD_STAFF_MORE"] = "Тағы қосу";
+$MESS["LISTS_CANCEL_BUTTON_CLOSE"] = "Жабу";
+$MESS["LISTS_CANCEL_BUTTON_INSTALL"] = "Орнату";
+$MESS["LISTS_CANCEL_BUTTON_SET_RIGHT"] = "Болдырмау";
+$MESS["LISTS_DESIGNER_POPUP_DESCRIPTION"] = "Сізде бірнеше қалып бар, Бизнес-процестің қай дизайнеріне өту керектігін таңдаңыз.";
+$MESS["LISTS_DESIGNER_POPUP_TITLE"] = "Қалыптар тізімі";
+$MESS["LISTS_JS_STATUS_ACTION_ERROR"] = "Қате орын алды";
+$MESS["LISTS_JS_STATUS_ACTION_SUCCESS"] = "Сәтті";
+$MESS["LISTS_MARKETPLACE_TITLE_SYSTEM_PROCESSES"] = "Жүйелік процестер";
+$MESS["LISTS_MARKETPLACE_TITLE_USER_PROCESSES"] = "Пайдаланушы процестері";
+$MESS["LISTS_NOTIFY_ADMIN_MESSAGE"] = "Мәлімдеу:";
+$MESS["LISTS_NOTIFY_ADMIN_MESSAGE_BUTTON"] = "Мәлімдеме жіберу";
+$MESS["LISTS_NOTIFY_ADMIN_TEXT_ONE"] = "\"#NAME_PROCESSES#\" процесі әлі бапталмаған";
+$MESS["LISTS_NOTIFY_ADMIN_TEXT_TWO"] = "\"#NAME_PROCESSES#\" процесін баптай алатын немесе баптауларды басқару құқығын сізге бере алатын пайдаланушылардың біріне мәлімдеме жіберіңіз.";
+$MESS["LISTS_NOTIFY_ADMIN_TITLE_WHY"] = "Неліктен #NAME_PROCESSES# рәсімдей алмаймын";
+$MESS["LISTS_SAVE_BUTTON_SET_RIGHT"] = "Сақтау";
+$MESS["LISTS_SELECT_STAFF_SET_RESPONSIBLE"] = "Жауаптыларды баптау";
+$MESS["LISTS_SELECT_STAFF_SET_RESPONSIBLE_NEW"] = "Бизнес-процес параметрлерін баптау";
+$MESS["LISTS_SELECT_STAFF_SET_RIGHT"] = "Құқықтарды тағайындау қажет пайдаланушыларды таңдаңыз";
+$MESS["LISTS_TITLE_POPUP_MARKETPLACE"] = "Бизнес процестер каталогы";
+$MESS["LISTS_TITLE_SET_RIGHT"] = "Құқықтарды кімге тағайындаймыз:";

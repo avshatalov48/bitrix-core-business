@@ -1,4 +1,4 @@
-import { LaunchPriority, type LaunchItemOptions, type LaunchItemCallback } from 'ui.auto-launch';
+import { LaunchPriority, type LaunchItemOptions, type LaunchItemCallback, AutoLauncher } from 'ui.auto-launch';
 import { Queue } from './queue';
 
 const criticalQueue = new Queue(LaunchPriority.CRITICAL, 0);
@@ -62,5 +62,10 @@ export const BannerDispatcher = {
 				}
 			}
 		});
+	},
+
+	isEnabled(): boolean
+	{
+		return AutoLauncher.isEnabled();
 	},
 };

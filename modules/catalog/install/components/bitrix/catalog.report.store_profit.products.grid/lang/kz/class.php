@@ -1,0 +1,20 @@
+<?php
+$MESS["STORE_SALE_PRODUCTS_FILTER_STORES_TITLE"] = "Қоймалар";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_AMOUNT_SOLD_COLUMN"] = "Сатылды (саны)";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_AMOUNT_SOLD_COLUMN_HINT"] = "Өткізілген сату құжаттары бойынша кезеңдегі сатудың жалпы саны";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_COST_PRICE_COLUMN"] = "Тауар бірлігінің өзіндік құны";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_COST_PRICE_COLUMN_HINT"] = "Өткізілген өткізу құжаттары бойынша кезеңдегі тауар бірлігінің орташа өзіндік құны";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_NO_PRODUCTS"] = "Көрсетілген кезеңде тауармен операциялар болған жоқ";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_PRODUCT_COLUMN_MSGVER_1"] = "Тауар";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_PROFITABILITY_COLUMN"] = "Табыстылық";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_PROFITABILITY_COLUMN_HINT"] = "Табыстылық-бұл жалпы құнға бөлінген және 100-ге көбейтілген есептелген жалпы пайда";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_PROFIT_COLUMN"] = "Жалпы пайда";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_PROFIT_COLUMN_HINT"] = "Өткізілген өткізу құжаттары бойынша кезең үшін есептелген жалпы пайда";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_RECEIVED_QUANTITY_COLUMN"] = "Келіп түсті";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_RECEIVED_QUANTITY_COLUMN_HINT"] = "Кіріс, Кіріске алу, Орын ауыстыру арқылы кезең ішінде қоймаға қанша тауар түсті";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_STARTING_QUANTITY_COLUMN"] = "Бастапқы қалдық";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_STARTING_QUANTITY_COLUMN_HINT"] = "Таңдалған кезеңнің басындағы қалдық";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_TOTAL_COST_PRICE_COLUMN"] = "Өзіндік құн сомасы";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_TOTAL_COST_PRICE_COLUMN_HINT"] = "Өткізілген өткізу құжаттары бойынша кезеңдегі тауарлардың өзіндік құнының сомасы";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_TOTAL_SOLD_COLUMN"] = "Сатылды (ақша)";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_TOTAL_SOLD_COLUMN_HINT"] = "Өткізілген өткізу құжаттары бойынша кезең үшін сату бойынша жалпы сома";

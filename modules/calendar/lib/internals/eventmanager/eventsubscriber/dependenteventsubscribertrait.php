@@ -29,7 +29,7 @@ trait DependentEventSubscriberTrait
 		{
 			if (
 				$subscriberResult->getHandler() !== $subscriberClass
-				|| $subscriberResult->getType() !== EventResult::SUCCESS
+				|| (int)$subscriberResult->getType() !== EventResult::SUCCESS
 			)
 			{
 				continue;

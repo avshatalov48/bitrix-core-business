@@ -1,10 +1,13 @@
-<?
+<?php
+
+use Bitrix\Main\Loader;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
-if (!\Bitrix\Main\Loader::includeModule('im'))
+if (!Loader::includeModule('im'))
 {
 	return [];
 }
@@ -16,9 +19,9 @@ return [
 	'rel' => [
 		'im.v2.lib.utils',
 		'im.v2.lib.logger',
-		'main.core',
 		'im.v2.const',
 		'main.core.events',
+		'main.core',
 	],
 	'skip_core' => false,
 	'settings' => [

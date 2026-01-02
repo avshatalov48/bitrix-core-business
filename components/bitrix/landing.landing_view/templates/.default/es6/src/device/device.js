@@ -38,8 +38,9 @@ export class Device
 		'Landing\\Block::removeCard',
 		'Landing\\Block::updateNodes',
 		'Landing\\Block::updateStyles',
-		'Landing\\Block::saveForm',// fake-action
+		'Landing\\Block::saveForm', // fake-action
 	];
+	target: HTMLElement;
 
 	/**
 	 * Device constructor.
@@ -48,6 +49,7 @@ export class Device
 	 */
 	constructor(options: Options)
 	{
+		this.target = options.target || document.body;
 		this.#frameUrl = options.frameUrl;
 		this.#editorFrameWrapper = options.editorFrameWrapper;
 		this.#options = options;
@@ -312,19 +314,19 @@ export class Device
 				messages: options.messages,
 			});
 			Dom.hide(this.#previewElement);
-			document.body.appendChild(this.#previewElement);
+			this.target.appendChild(this.#previewElement);
 
-			//#170065
-			//this.#previewElement.querySelector('iframe').contentWindow.addEventListener('load', () => {
-				if (!this.#previewWindow)
-				{
-					this.#previewWindow = this.#previewElement.querySelector('iframe').contentWindow;
-					const previewDocument = this.#previewElement.querySelector('iframe').contentWindow.document
-					Dom.removeClass(previewDocument.querySelector('html'), 'bx-no-touch');
-					Dom.addClass(previewDocument.querySelector('html'), 'bx-touch');
-				}
-				this.#adjustPreviewScroll();
-			//});
+			// #170065
+			// this.#previewElement.querySelector('iframe').contentWindow.addEventListener('load', () => {
+			if (!this.#previewWindow)
+			{
+				this.#previewWindow = this.#previewElement.querySelector('iframe').contentWindow;
+				const previewDocument = this.#previewElement.querySelector('iframe').contentWindow.document
+				Dom.removeClass(previewDocument.querySelector('html'), 'bx-no-touch');
+				Dom.addClass(previewDocument.querySelector('html'), 'bx-touch');
+			}
+			this.#adjustPreviewScroll();
+			// });
 		}
 	}
 
@@ -336,7 +338,7 @@ export class Device
 		DeviceUI.openDeviceMenu(
 			this.#previewElement.querySelector('[data-role="device-name"]'),
 			Object.values(Devices.devices),
-			this.#setDevice.bind(this)
+			this.#setDevice.bind(this),
 		);
 	}
 

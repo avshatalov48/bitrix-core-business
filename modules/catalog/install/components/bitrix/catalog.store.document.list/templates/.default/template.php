@@ -1,13 +1,15 @@
 <?php
 
-use Bitrix\Main\Localization\Loc;
-
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
-\Bitrix\Main\UI\Extension::load([
+use Bitrix\Catalog\Store\EnableWizard\Manager;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
+
+Extension::load([
 	'ui.alerts',
 	'ui.tooltip',
 	'ui.icons',
@@ -137,9 +139,9 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 
 	function openInventoryMarketplaceSlider()
 	{
-		var url = '/marketplace/?tag[0]=migrator&tag[1]=inventory'
-		var rule = BX.SidePanel.Instance.getUrlRule(url);
-		var options = (rule && BX.type.isPlainObject(rule.options)) ? rule.options : {};
+		const url = '/market/collection/migration_inventory/';
+		const rule = BX.SidePanel.Instance.getUrlRule(url);
+		const options = (rule && BX.type.isPlainObject(rule.options)) ? rule.options : {};
 		options["cacheable"] = false;
 		options["allowChangeHistory"] = false;
 		options["requestMethod"] = "post";
@@ -319,6 +321,4 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 </script>
 
 <?php
-\Bitrix\Catalog\Store\EnableWizard\Manager::showEnabledJsNotificationIfNeeded();
-?>
-
+Manager::showEnabledJsNotificationIfNeeded();

@@ -1,0 +1,21 @@
+<?php
+$MESS["LEARNING_ACTION_DESELF"] = "өзін-өзі тексеру үшін емес";
+$MESS["LEARNING_ACTION_SELF"] = "өзін-өзі тексеру үшін";
+$MESS["LEARNING_ADD"] = "Сұрақты қосу";
+$MESS["LEARNING_ADD_ALT"] = "Жаңа сұрақты қосу";
+$MESS["LEARNING_ADMIN_TITLE"] = "Сұрақтар тізімі";
+$MESS["LEARNING_CHAPTER"] = "Тарау";
+$MESS["LEARNING_ERROR"] = "Сұрақты сақтау кезіндегі қате";
+$MESS["LEARNING_F_CORRECT_REQUIRED"] = "Дұрыс жауап міндетті";
+$MESS["LEARNING_LESSON"] = "Сабақ";
+$MESS["LEARNING_QUESTION_ADM_POINT"] = "Балл";
+$MESS["LEARNING_QUESTION_ADM_REQUIRED"] = "&nbsp;дұрыс жауап міндетті.";
+$MESS["LEARNING_QUESTION_ADM_STATS"] = "Жауаптар саны (дұрыс/барлығы)";
+$MESS["LEARNING_QUESTION_OF_TEXT_TYPE_IGNORED"] = "Мәтін түріндегі сұрақ өзін-өзі тексеруге арналмаған, сондықтан еленбеді.";
+$MESS["LEARNING_QUESTION_TYPE_M"] = "Көптік таңдау";
+$MESS["LEARNING_QUESTION_TYPE_R"] = "Сұрыптау";
+$MESS["LEARNING_QUESTION_TYPE_S"] = "Дара таңдау";
+$MESS["LEARNING_QUESTION_TYPE_T"] = "Мәтіндік жауап";
+$MESS["MAIN_ADMIN_LIST_NOT_REQUIRED"] = "дұрыс жауап міндетті емес";
+$MESS["MAIN_ADMIN_LIST_REQUIRED"] = "дұрыс жауап міндетті";
+$MESS["SAVE_ERROR"] = "Сұрақты өзгерту кезіндегі қате #";

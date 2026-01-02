@@ -8,7 +8,6 @@ use Bitrix\Main\Result;
 use Bitrix\Seo\Analytics\Internals\Expenses;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Type\Date;
-use Bitrix\Seo\Analytics\Internals\ExpensesCollection;
 use Bitrix\Seo\Retargeting\Response;
 use Bitrix\Seo\Retargeting\Services\ResponseYandex;
 use Bitrix\Seo\Retargeting\IRequestDirectly;
@@ -17,7 +16,6 @@ use Bitrix\Seo\Analytics\Account;
 class AccountYandex extends Account implements IRequestDirectly
 {
 	const TYPE_CODE = 'yandex';
-	const ERROR_CODE_REPORT_OFFLINE = 100201;
 
 	protected ?string $currency = null;
 
@@ -143,7 +141,7 @@ class AccountYandex extends Account implements IRequestDirectly
 
 		if ($client->getStatus() != 200)
 		{
-			return $result->addError($this->getReportErrorByHttpStatus($client->getStatus()));
+			return $result->addError(Helpers\Yandex\Sender::getErrorByHttpStatus($client->getStatus()));
 		}
 		if ($response)
 		{
@@ -177,95 +175,35 @@ class AccountYandex extends Account implements IRequestDirectly
 	public function getDailyExpensesReport(?string $accountId, ?Date $dateFrom, ?Date $dateTo): Result
 	{
 		$result = new Result();
-		$this->getCurrency();
 
-		$dateTo = $dateTo ?: new Date();
-		if (empty($dateFrom))
+		$reportBuilder = new Helpers\Yandex\ReportBuilder(new Helpers\Yandex\Sender($this));
+		$reportBuilder->setPeriod($dateFrom, $dateTo);
+
+		$buildResult = $reportBuilder->buildDailyExpensesReport();
+		if (!$buildResult->isSuccess())
 		{
-			$dateFrom = clone($dateTo);
-			$dateFrom->add('-1 week');
+			$errorsMsg = [];
+			foreach ($buildResult->getErrors() as $key => $value)
+			{
+				if (is_string($key))
+				{
+					$errorsMsg[] = "[{$key}] {$value}";
+				}
+				else
+				{
+					$errorsMsg[] = $value;
+				}
+			}
+
+			$errorsMessage = implode(',', $errorsMsg);
+			$errorMessage = $this->buildErrorMessage("Error occurred while load daily expenses: {$errorsMessage}");
+
+			return $result->addError(new Error($errorMessage));
 		}
 
-		$options = [
-			'params' => [
-				'SelectionCriteria' => [
-					'DateFrom' => $dateFrom->format('Y-m-d'),
-					'DateTo' => $dateTo->format('Y-m-d'),
-				],
-				'FieldNames' => [
-					'Date',
-					'CampaignId',
-					'CampaignName',
-					'Impressions',
-					'Clicks',
-					'Cost',
-					'Conversions',
-					'AvgCpc',
-				],
-				'ReportName' => 'CampaignsReport',
-				'ReportType' => 'CAMPAIGN_PERFORMANCE_REPORT',
-				'DateRangeType' => 'CUSTOM_DATE',
-				'Format' => 'TSV',
-				'IncludeVAT' => 'YES',
-				'IncludeDiscount' => 'NO'
-			]
-		];
-
-		$profile = $this->getProfile();
-		if (empty($profile['NAME']))
-		{
-			return $result->addError(new Error("Can not find user name."));
-		}
-
-		$client = $this->getClient();
-		$client->setHeader('Client-Login', $profile['NAME']);
-		$client->setHeader('returnMoneyInMicros', 'false');
-		$client->setHeader('skipReportHeader', 'true');
-		$response = $client->post(
-			$this->getYandexServerAdress() . 'reports',
-			Json::encode($options)
-		);
-
-		if ($client->getStatus() !== 200)
-		{
-			return $result->addError($this->getReportErrorByHttpStatus($client->getStatus()));
-		}
-
-		if (!$response)
-		{
-			return $result->addError(new Error('Empty report data'));
-		}
-
-		$result->setData(['expenses' => $this->parseMultipleReportData($response)]);
+		$result->setData(['expenses' => $buildResult->getData()['expenses']]);
 
 		return $result;
-	}
-
-	private function parseMultipleReportData($data): ExpensesCollection
-	{
-		$resultCollection = new ExpensesCollection();
-		if (!is_string($data) || empty($data))
-		{
-			return $resultCollection;
-		}
-
-		$titles = [];
-		$strings = explode("\n", $data);
-		foreach ($strings as $number => $string)
-		{
-			if ($number === 0)
-			{
-				$titles = explode("\t", $string);
-			}
-			elseif (!empty($string) && !str_starts_with($string, 'Total'))
-			{
-				$row = array_combine($titles, explode("\t", $string));
-				$expenses = new Expenses($this->formatReportData($row));
-				$resultCollection->addItem($expenses);
-			}
-		}
-
-		return $resultCollection;
 	}
 
 	/**
@@ -291,104 +229,10 @@ class AccountYandex extends Account implements IRequestDirectly
 			return $this->currency;
 		}
 
-		// currency is global for an account, so we get it from the first campaign.
-		$cacheString = 'analytics_yandex_currency';
-		$cachePath = '/seo/analytics/yandex/';
-		$cacheTime = 3600;
-		$cache = Cache::createInstance();
-		$currency = null;
-		if ($cache->initCache($cacheTime, $cacheString, $cachePath))
-		{
-			$currency = $cache->getVars()['currency'];
-		}
+		$sender = new Helpers\Yandex\Sender($this);
+		$this->currency = $sender->getCurrency();
 
-		if (!empty($currency))
-		{
-			$this->currency = $currency;
-
-			return $currency;
-		}
-
-		$cache->clean($cacheString, $cachePath);
-		$campaignsRequestParams =  Json::encode([
-			'method' => 'get',
-			'params' => [
-				'SelectionCriteria' => new \stdClass(),
-				'FieldNames' => ['Currency'],
-				'Page' => [
-					'Limit' => 1,
-				],
-			],
-		]);
-
-		$response =
-			$this
-				->getClient()
-				->post(
-					$this->getYandexServerAdress() . 'campaigns',
-					$campaignsRequestParams
-				)
-		;
-
-		if (empty($response))
-		{
-			return null;
-		}
-
-		$response = Json::decode($response);
-		if (
-			!isset($response['error'])
-			&& isset($response['result']['Campaigns'])
-			&& is_array($response['result']['Campaigns'])
-		)
-		{
-			$firstCampaign = current($response['result']['Campaigns']);
-			$currency = $firstCampaign['Currency'] ?? null;
-		}
-
-		if (!$currency)
-		{
-			return null;
-		}
-
-		if ($cache->startDataCache($cacheTime))
-		{
-			$cache->endDataCache(['currency' => $currency]);
-		}
-		$this->currency = (string)$currency;
-
-		return $currency;
-	}
-
-	/**
-	 * @param $status
-	 * @return Error
-	 */
-	protected function getReportErrorByHttpStatus($status)
-	{
-		// https://tech.yandex.ru/direct/doc/examples-v5/php5-curl-stat1-docpage/
-		$message = 'Unknown error';
-		$code = 0;
-
-		if ($status == 400)
-		{
-			$message = 'Wrong parameters or too many reports';
-		}
-		elseif ($status == 201 || $status == 202)
-		{
-			$message = 'Please try later';
-			$code = static::ERROR_CODE_REPORT_OFFLINE;
-		}
-		elseif ($status == 500)
-		{
-			$message = 'Some server error. Please try later';
-		}
-		elseif ($status == 502)
-		{
-			$message = 'Server could not process your request in limited time. Please change your request';
-		}
-
-		return new Error($message, $code);
+		return $this->currency;
 	}
 
 	/**

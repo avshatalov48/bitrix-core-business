@@ -27,9 +27,23 @@
 
 .ui-access-rights-v2-dv-popup--line .ui-access-rights-v2-text-ellipsis {
 	max-width: 300px;
-	height: 20px; /* we need it for vertical alignment of text */
 }
 
 .ui-access-rights-v2-dv-popup--line.--secondary .ui-access-rights-v2-text-ellipsis {
 	max-width: 200px;
+}
+
+.ui-access-rights-v2-dv-popup--line-title {
+	display: flex;
+	align-items: center;
+	height: 20px; /* we need it for vertical alignment of text */
+	gap: 2px;
+}
+
+.ui-access-rights-v2-dv-popup--hint {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 20px;
+	color: var(--ui-color-palette-gray-50);
 }

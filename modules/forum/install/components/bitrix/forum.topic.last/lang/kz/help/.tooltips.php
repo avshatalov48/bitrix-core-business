@@ -1,0 +1,22 @@
+<?php
+$MESS["CACHE_TIME_TIP"] = "Кештеу уақыты (сек.)";
+$MESS["CACHE_TYPE_TIP"] = "Кештеу түрі";
+$MESS["DATE_TIME_FORMAT_TIP"] = "Күн мен уақытты көрсету пішімі";
+$MESS["DISPLAY_PANEL_TIP"] = "Әкімшілік панельге осы компонент үшін батырмаларды қосу";
+$MESS["FID_TIP"] = "Форумның ID-і";
+$MESS["PAGER_DESC_NUMBERING_TIP"] = "Кері навигацияны пайдалану";
+$MESS["PAGER_SHOW_ALWAYS_TIP"] = "Әрқашан шығару";
+$MESS["PAGER_TEMPLATE_TIP"] = "Қалып атауы";
+$MESS["PAGER_TITLE_TIP"] = "Санаттар атауы";
+$MESS["SET_NAVIGATION_TIP"] = "Навигацияны көрсету";
+$MESS["SET_TITLE_TIP"] = "Парақшалар тақырыпттарын орнату";
+$MESS["SHOW_FORUM_ANOTHER_SITE_TIP"] = "Басқа сайттардың форумдарын көрсету";
+$MESS["SORT_BY_SORT_FIRST_TIP"] = "Жоғарыда бекітілген тақырыптарды көрсету";
+$MESS["SORT_BY_TIP"] = "Сұрыптау өрісі";
+$MESS["SORT_ORDER_TIP"] = "Сұрыптау бағыты";
+$MESS["TOPICS_PER_PAGE_TIP"] = "Бір парақшадағы тақырыптар саны";
+$MESS["URL_TEMPLATES_INDEX_TIP"] = "Форумдар тізімі парақшасы";
+$MESS["URL_TEMPLATES_LIST_TIP"] = "Тақырыптар тізімі парақшасы";
+$MESS["URL_TEMPLATES_MESSAGE_TIP"] = "Хабарламаны оқу парақшасы";
+$MESS["URL_TEMPLATES_PROFILE_VIEW_TIP"] = "Пайдаланушының профиль парақшасы";
+$MESS["URL_TEMPLATES_READ_TIP"] = "Тақырыпты оқу парақшасы";

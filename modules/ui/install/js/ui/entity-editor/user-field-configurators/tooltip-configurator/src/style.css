@@ -1,0 +1,10 @@
+textarea.ui-ctl-element {
+	width: 100%;
+	height: auto;
+	min-height: 40px;
+	padding-top: 12px;
+	padding-bottom: 12px;
+	resize: vertical;
+	flex: auto;
+	text-wrap: auto;
+}

@@ -561,7 +561,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    return ['date', 'datetime'];
 	  }
 	  if (['date', 'int', 'user'].includes(baseType)) {
-	    return baseType;
+	    return [baseType];
 	  }
 	  return ['string', 'text', 'select', 'bool', 'int', 'double', 'date', 'datetime', 'user'];
 	}

@@ -6,7 +6,32 @@ type PreparedNotificationSettings = {
 };
 
 const SortWeight = {
-	im: 10,
+	tasks: 2600,
+	calendar: 2500,
+	im: 2400,
+	blog: 2300,
+	vote: 2200,
+	main: 2100,
+	socialnetwork: 2000,
+	bizproc: 1900,
+	rpa: 1800,
+	lists: 1700,
+	mail: 1600,
+	crm: 1500,
+	sender: 1400,
+	booking: 1300,
+	voximplant: 1200,
+	imopenlines: 1100,
+	timeman: 1000,
+	disk: 900,
+	bitrix24: 800,
+	sign: 700,
+	biconnector: 600,
+	rest: 500,
+	intranet: 400,
+	photogallery: 300,
+	wiki: 200,
+	forum: 100,
 };
 
 export const prepareNotificationSettings = (target: RawNotificationSettingsBlock[]): PreparedNotificationSettings => {

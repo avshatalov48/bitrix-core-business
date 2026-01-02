@@ -1,0 +1,3 @@
+<?php
+$MESS["LD_BLOCK_STORE_CATALOG_LIST_NAME"] = "Тауарлар тізімі";
+$MESS["LD_BLOCK_STORE_CATALOG_SECTION_ID"] = "Санат ID-і";

@@ -89,6 +89,7 @@ return [
 		$pathJS . '/ui/field/embed_bg_field.js',
 		$pathJS . '/ui/field/date_field.js',
 		$pathJS . '/ui/field/block_source_field.js',
+		$pathJS . '/ui/field/aha_guides.js',
 		$pathJS . '/ui/field/dynamic_image_field.js',
 		$pathJS . '/ui/field/dynamic_dropdown_field.js',
 		$pathJS . '/ui/field/pages_field.js',

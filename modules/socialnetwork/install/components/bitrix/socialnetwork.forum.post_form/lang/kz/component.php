@@ -1,0 +1,23 @@
+<?php
+$MESS["FORUM_SONET_MODULE_NOT_AVAIBLE"] = "Форум осы пайдаланушы үшін қолжетімсіз.";
+$MESS["FPF_CREATE"] = "Жаңа тақырып";
+$MESS["FPF_EDIT"] = "Өзгерту";
+$MESS["FPF_GUEST"] = "Қонақ";
+$MESS["FPF_REPLY"] = "Жауап беру";
+$MESS["FPF_SEND"] = "Жіберу";
+$MESS["F_FID_IS_EMPTY"] = "Әлеум. желі үшін форум көрсетілмеген.";
+$MESS["F_FID_IS_LOST"] = "Әлеум. желі үшін форум табылмады.";
+$MESS["F_GROUPS"] = "топтар";
+$MESS["F_MID_IS_LOST"] = "Хабарлама табылмады.";
+$MESS["F_MID_IS_LOST_IN_FORUM"] = "Хабарлама көрсетілген форумда табылған жоқ.";
+$MESS["F_MID_IS_LOST_IN_OBJECT"] = "#SOCNET_OBJECT# хабарламасы табылмады.";
+$MESS["F_NO_EPERMS"] = "Бұл хабарламаны редакциялау үшін құқықтарыңыз жеткіліксіз.";
+$MESS["F_NO_MODULE"] = "Форум модулі орнатылмаған.";
+$MESS["F_NO_NPERMS"] = "Бұл форумда жаңа тақырып құру үшін құқықтарыңыз жеткіліксіз.";
+$MESS["F_TID_IS_LINK"] = "Тақырып - сілтемені тек жоюға болады.";
+$MESS["F_TID_IS_LOST"] = "Тақырып табылмады.";
+$MESS["F_TID_IS_LOST_IN_FORUM"] = "Тақырып аталған форумда табылған жоқ.";
+$MESS["F_TID_IS_LOST_IN_OBJECT"] = "#SOCNET_OBJECT# тақырыбы табылған жоқ.";
+$MESS["F_TID_IS_NOT_APPROVED"] = "Тақырып модератор мақұлдағаннан кейін қолжетімді болады.";
+$MESS["F_USERS"] = "пайдаланушы";
+$MESS["SONET_MODULE_NOT_INSTALL"] = "Әлеуметтік желілер модулі орнатылмаған.";

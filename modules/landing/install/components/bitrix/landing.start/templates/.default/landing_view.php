@@ -93,6 +93,7 @@ else
 			'DRAFT_MODE' => $arParams['DRAFT_MODE'],
 			'PARAMS' => $params,
 			'SEF' => $params['sef_url'],
+			'AGREEMENT_ACCEPTED' => $arResult['AGREEMENT_ACCEPTED'],
 			'AGREEMENT' => $arResult['AGREEMENT']
 		),
 		$component

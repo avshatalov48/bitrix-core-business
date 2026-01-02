@@ -2,8 +2,9 @@
 
 namespace Bitrix\Main\Service\GeoIp;
 
-use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
 
 /**
  * Class HandlerTable
@@ -33,7 +34,7 @@ use Bitrix\Main\Localization\Loc;
  * @method static \Bitrix\Main\Service\GeoIp\EO_Handler_Collection wakeUpCollection($rows)
  */
 
-class HandlerTable extends Entity\DataManager
+class HandlerTable extends DataManager
 {
 	/**
 	 * Returns DB table name for entity.
@@ -90,7 +91,7 @@ class HandlerTable extends Entity\DataManager
 	public static function validateClassName()
 	{
 		return array(
-			new Entity\Validator\Length(null, 255),
+			new LengthValidator(null, 255),
 		);
 	}
 

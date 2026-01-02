@@ -107,7 +107,10 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 		static::$authAdapterPool[$key] =  static::$authAdapterPool[$key = get_called_class()] ?? [];
 		if (!array_key_exists($type,static::$authAdapterPool[$key]))
 		{
-			static::$authAdapterPool[$key][$type] = BusinessAuthAdapter::create($type)->setService(static::getInstance());
+			static::$authAdapterPool[$key][$type] = BusinessAuthAdapter::create(
+				type: $type,
+				ignoreType: true,
+			)->setService(static::getInstance());
 		}
 
 		return static::$authAdapterPool[$key][$type];

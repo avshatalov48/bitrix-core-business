@@ -325,8 +325,6 @@ while($info = $rsData->Fetch())
 
 	if(LANGUAGE_ID == "ru")
 		$name = "<b><a href=\"https://marketplace.1c-bitrix.ru/".htmlspecialcharsbx($info["id"])."\" target=\"_blank\">".htmlspecialcharsbx($info["name"])."</a></b> (".htmlspecialcharsbx($info["id"]).")";
-	elseif(LANGUAGE_ID == "ua")
-		$name = "<b><a href=\"https://marketplace.bitrix.ua/".htmlspecialcharsbx($info["id"])."\" target=\"_blank\">".htmlspecialcharsbx($info["name"])."</a></b> (".htmlspecialcharsbx($info["id"]).")";
 	else
 		$name = "<b>".htmlspecialcharsbx($info["name"])."</b> (".htmlspecialcharsbx($info["id"]).")";
 

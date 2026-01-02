@@ -25,6 +25,11 @@ class OpenChat extends GroupChat
 		return new Result();
 	}
 
+	public function getRecentSectionsForGuest(): array
+	{
+		return [];
+	}
+
 	public function filterUsersToMention(array $userIds): array
 	{
 		$result = [];
@@ -77,9 +82,9 @@ class OpenChat extends GroupChat
 		return true;
 	}
 
-	protected function updateStateAfterUsersAdd(array $usersToAdd): self
+	protected function updateStateAfterRelationsAdd(array $usersToAdd): self
 	{
-		parent::updateStateAfterUsersAdd($usersToAdd);
+		parent::updateStateAfterRelationsAdd($usersToAdd);
 
 		if (Loader::includeModule('pull'))
 		{
@@ -110,5 +115,10 @@ class OpenChat extends GroupChat
 	protected function clearAllLegacyCache()
 	{
 		CIMContactList::CleanAllChatCache();
+	}
+
+	protected function needToSendMessageUserDelete(): bool
+	{
+		return false;
 	}
 }

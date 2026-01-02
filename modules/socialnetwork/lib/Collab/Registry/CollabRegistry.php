@@ -35,9 +35,9 @@ class CollabRegistry extends GroupRegistry
 		return null;
 	}
 
-	protected function loadData(int $groupId): array
+	protected function loadData(int $groupId, array $baseFields): array
 	{
-		$fields = parent::loadData($groupId);
+		$fields = parent::loadData($groupId, $baseFields);
 
 		if (empty($fields))
 		{

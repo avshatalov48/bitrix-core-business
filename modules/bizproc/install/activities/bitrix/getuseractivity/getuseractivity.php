@@ -20,8 +20,8 @@ class CBPGetUserActivity extends CBPActivity
 {
 	private const USER_TYPE_RANDOM = 'random';
 	private const USER_TYPE_BOSS = 'boss';
+	private const USER_TYPE_LEAD = 'lead';
 	private const USER_TYPE_SEQUENT = 'sequent';
-
 	public function __construct($name)
 	{
 		parent::__construct($name);
@@ -41,7 +41,7 @@ class CBPGetUserActivity extends CBPActivity
 		$this->setPropertiesTypes([
 			'GetUser' => [
 				'Type' => 'user',
-				'Multiple' => true
+				'Multiple' => true,
 			],
 		]);
 	}
@@ -126,12 +126,15 @@ class CBPGetUserActivity extends CBPActivity
 		$skipAbsent = ($this->SkipAbsent != 'N');
 		$skipTimeman = ($this->SkipTimeman == 'Y');
 
-		$this->GetUser = null;
 		$user = false;
 
 		if ($this->UserType === self::USER_TYPE_BOSS)
 		{
 			$user = $this->getBossUser($skipAbsent, $skipTimeman);
+		}
+		elseif ($this->UserType === self::USER_TYPE_LEAD)
+		{
+			$user = $this->getLeadUser($skipAbsent, $skipTimeman);
 		}
 		elseif ($this->UserType === self::USER_TYPE_RANDOM)
 		{
@@ -142,6 +145,7 @@ class CBPGetUserActivity extends CBPActivity
 			$user = $this->getNextUser($skipAbsent, $skipTimeman);
 		}
 
+		$this->GetUser = null;
 		if ($user !== false)
 		{
 			$this->GetUser = $user;
@@ -177,8 +181,8 @@ class CBPGetUserActivity extends CBPActivity
 			return null;
 		}
 
-		$userService = $this->workflow->getRuntime()->getUserService();
 		$userId = (int)$arUsers[0];
+		$userService = $this->workflow->getRuntime()->getUserService();
 		$userDepartments = $userService->getUserDepartmentChains($userId);
 
 		$heads = [];
@@ -227,6 +231,107 @@ class CBPGetUserActivity extends CBPActivity
 		}
 
 		return $ar ?: false;
+	}
+
+	/**
+	 * @param bool $skipAbsent
+	 * @param bool $skipTimeman
+	 * @return array|false|null
+	 * 		not empty array – positive result
+	 * 		null – action not allowed
+	 * 		false – an empty result (should apply Reserved users)
+	 * @throws \Bitrix\Main\LoaderException
+	 */
+	private function getLeadUser(bool $skipAbsent, bool $skipTimeman): array | null | false
+	{
+		/*
+		 * not empty array – positive result
+		 * null – action not allowed
+		 * false – empty result (should apply Reserved users)
+		 */
+		if (!static::useLeadType())
+		{
+			return null;
+		}
+
+		$users = $this->getActiveUsers($this->getUsersList($this->UserParameter, false));
+		if (count($users) <= 0)
+		{
+			return null;
+		}
+		$userId = (int)$users[0];
+		$result = $this->getUserTeamHeads($userId, $skipAbsent, $skipTimeman);
+
+		if (!$result)
+		{
+			return false;
+		}
+
+		return array_map(static fn($teamHead) => "user_{$teamHead}",  $result);
+	}
+
+	private static function useLeadType(): bool
+	{
+		if (!Bitrix\Main\Loader::includeModule('humanresources'))
+		{
+			return false;
+		}
+
+		return (
+			method_exists(\Bitrix\HumanResources\Config\Feature::class, 'isCrossFunctionalTeamsAvailable')
+			&& method_exists(\Bitrix\HumanResources\Public\Service\Container::class, 'getUserTeamService')
+			&& \Bitrix\HumanResources\Config\Feature::instance()->isCrossFunctionalTeamsAvailable()
+		);
+	}
+
+	private function getUserTeamHeads(int $userId, bool $skipAbsent, bool $skipTimeman): ?array
+	{
+		$service = \Bitrix\HumanResources\Public\Service\Container::getUserTeamService();
+		$chains = $service->getTeamChainsByUserId($userId);
+		$heads = [];
+
+		foreach ($chains as $collection)
+		{
+			foreach ($collection as $node)
+			{
+				$nodeSettings = \Bitrix\HumanResources\Service\Container::getNodeSettingsService()
+					->getBusinessProcAuthoritySettings($node->id)
+				;
+				if (!$nodeSettings->has(\Bitrix\HumanResources\Type\NodeSettingsAuthorityType::TeamHead))
+				{
+					break; // stop this chain, go to departments
+				}
+
+				$allTeamHeads = array_column(\Bitrix\HumanResources\Util\StructureHelper::getNodeHeads($node), 'id');
+				if (in_array($userId, $allTeamHeads, true))
+				{
+					continue; // user is a team lead, go to the next team
+				}
+
+				$teamHeads = [];
+				foreach ($allTeamHeads as $headId)
+				{
+					if (
+						($skipAbsent && CIntranetUtils::isUserAbsent($headId))
+						|| ($skipTimeman && !$this->isUserWorking($skipTimeman))
+					)
+					{
+						continue;
+					}
+					$teamHeads[] = $headId;
+				}
+
+				if ($teamHeads)
+				{
+					$heads = [...$heads, ...$teamHeads];
+					break; // we've found the heads, should stop this chain
+				}
+			}
+		}
+
+		$heads = array_values(array_unique($heads));
+
+		return $heads ?: null;
 	}
 
 	private function getRandomUser(bool $skipAbsent, bool $skipTimeman)
@@ -348,14 +453,14 @@ class CBPGetUserActivity extends CBPActivity
 				'skip_absent' => 'Y',
 				'skip_absent_reserve' => 'Y',
 				'skip_timeman' => 'N',
-				'skip_timeman_reserve' => 'N'
+				'skip_timeman_reserve' => 'N',
 			];
 
 			$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
 			if (is_array($arCurrentActivity['Properties']))
 			{
 				$userType = $arCurrentActivity['Properties']['UserType'] ?? null;
-				$skipAbsent = ($userType == self::USER_TYPE_BOSS) ? 'N' : 'Y';
+				$skipAbsent = ($userType == self::USER_TYPE_BOSS || $userType === self::USER_TYPE_LEAD) ? 'N' : 'Y';
 
 				$arCurrentValues['user_type'] = $userType;
 				$arCurrentValues['max_level'] = $arCurrentActivity['Properties']['MaxLevel'] ?? null;
@@ -397,6 +502,7 @@ class CBPGetUserActivity extends CBPActivity
 			'properties_dialog.php',
 			[
 				'arCurrentValues' => $arCurrentValues,
+				'showLeadType' => static::useLeadType(),
 				'formName' => $formName,
 			]
 		);
@@ -419,7 +525,7 @@ class CBPGetUserActivity extends CBPActivity
 			!isset($arCurrentValues['user_type'])
 			|| !in_array(
 				$arCurrentValues['user_type'],
-				[self::USER_TYPE_BOSS, self::USER_TYPE_RANDOM, self::USER_TYPE_SEQUENT]
+				[self::USER_TYPE_BOSS, self::USER_TYPE_RANDOM, self::USER_TYPE_SEQUENT, self::USER_TYPE_LEAD],
 			)
 		)
 		{

@@ -3,6 +3,7 @@
 namespace Bitrix\Sale\Services\Base;
 
 use Bitrix\Main\Error;
+use Bitrix\Main\License\UrlProvider;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Sale\Result;
@@ -35,7 +36,7 @@ class RestClient
 	protected $httpTimeout = 5;
 	protected $streamTimeout = 10;
 	protected $accessSettings = null;
-	protected $serviceHost = 'https://saleservices.bitrix.info';
+	protected $serviceHost = 'https://saleservices.';
 
 	protected $version = 5;
 
@@ -76,7 +77,12 @@ class RestClient
 
 		if (!$this->accessSettings)
 		{
-			$result->addError(new Error(Loc::getMessage('SALE_SRV_BASE_REST_ACCESS_SETTINGS_ERROR')));
+			$urlProvider = new UrlProvider();
+			$result->addError(new Error(Loc::getMessage(
+				'SALE_SRV_BASE_REST_ACCESS_SETTINGS_ERROR_MSGVER_1',
+				['#TECH_DOMAIN#' => $urlProvider->getTechDomain()],
+			)));
+
 			return $result;
 		}
 
@@ -161,10 +167,15 @@ class RestClient
 	 */
 	public function getServiceHost()
 	{
+		$urlProvider = new UrlProvider();
 		if(!defined('SALE_SRVS_RESTCLIENT_SRV_HOST'))
-			$result = $this->serviceHost;
+		{
+			$result = $this->serviceHost . $urlProvider->getTechDomain();
+		}
 		else
+		{
 			$result = SALE_SRVS_RESTCLIENT_SRV_HOST;
+		}
 
 		return $result;
 	}

@@ -1,0 +1,19 @@
+<?php
+$MESS["COMMAND_BOT_ANSWER"] = "#BOT_NAME# чат-боты";
+$MESS["COMMAND_DEF_CATEGORY_CHAT"] = "Чаттар";
+$MESS["COMMAND_DEF_CATEGORY_DEBUG"] = "Ретке келтіру";
+$MESS["COMMAND_DEF_CATEGORY_DIALOG"] = "Диалог";
+$MESS["COMMAND_DEF_DIALOGID_TITLE"] = "Сыртқы интеграциялар үшін чат идентификаторын алыңыз (dialogId)";
+$MESS["COMMAND_DEF_LOUD_PARAMS"] = "мәтін";
+$MESS["COMMAND_DEF_LOUD_TITLE"] = "Мәтін қалың жазумен ерекшеленеді";
+$MESS["COMMAND_DEF_ME_PARAMS"] = "мәтін";
+$MESS["COMMAND_DEF_ME_TITLE"] = "Мәтін көлбеу қаріппен жазылады";
+$MESS["COMMAND_DEF_QUOTE_PARAMS"] = "мәтін";
+$MESS["COMMAND_DEF_QUOTE_TITLE"] = "Мәтін чатта дәйексөз ретінде көрсетіледі";
+$MESS["COMMAND_DEF_RENAME_PARAMS"] = "жаңа тақырып";
+$MESS["COMMAND_DEF_RENAME_TITLE"] = "Чат тақырыпатын өзгерту";
+$MESS["COMMAND_DEF_SPTS_TITLE"] = "\"Онлайн\" мәртебесін бақылау режимін өшіру ";
+$MESS["COMMAND_DEF_STTS_TITLE"] = "\"Онлайн\" мәртебесін бақылау режимін қосу ";
+$MESS["COMMAND_DEF_WD_TITLE"] = "Бейне қоңырауларды ретке келтіру режимін қосу";
+$MESS["COMMAND_IM_CATEGORY"] = "Чат және қоңыраулар";
+$MESS["COMMAND_SYSTEM_ANSWER"] = "#COMMAND# командасына жауап";

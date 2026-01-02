@@ -26,10 +26,6 @@ export const SmileMessage = {
 			type: String,
 			required: true,
 		},
-		menuIsActiveForId: {
-			type: [String, Number],
-			default: 0,
-		},
 	},
 	computed:
 	{

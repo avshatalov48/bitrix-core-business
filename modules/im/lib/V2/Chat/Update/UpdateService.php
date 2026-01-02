@@ -7,6 +7,8 @@ use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Chat\Converter;
 use Bitrix\Im\V2\Entity\File\ChatAvatar;
 use Bitrix\Im\V2\Integration\HumanResources\Structure;
+use Bitrix\Im\V2\Integration\Socialnetwork\Collab\Collab;
+use Bitrix\Im\V2\Integration\Socialnetwork\Group;
 use Bitrix\Im\V2\Relation\AddUsersConfig;
 use Bitrix\Im\V2\Relation\DeleteUserConfig;
 use Bitrix\Im\V2\Result;
@@ -27,10 +29,14 @@ class UpdateService
 	{
 		$prevAnalyticsData = $this->getAnalyticsData();
 
-		$this
-			->convertChat()
-			->updateAvatarBeforeSave()
-		;
+		$convertResult = $this->convertChat();
+
+		if (!$convertResult->isSuccess())
+		{
+			return $convertResult;
+		}
+
+		$this->updateAvatarBeforeSave();
 
 		$this->chat->fill($this->getArrayToSave());
 		$result = $this->chat->save();
@@ -63,35 +69,47 @@ class UpdateService
 		return $result->setResult($this->chat);
 	}
 
-	protected function convertChat(): self
+	protected function convertChat(): Result
 	{
-		$chat = $this->chat;
+		$result = new Result();
+
+		$newType = $this->getConvertType();
+
+		if (!isset($newType) || $this->chat->getType() === $newType)
+		{
+			return $result;
+		}
+
+		$convertResult = (new Converter($this->chat->getId(), $newType))->convert();
+
+		if (!$convertResult->isSuccess())
+		{
+			return $result->addErrors($convertResult->getErrors());
+		}
+
+		$this->newChatType = $newType;
+
+		// replace object after conversion
+		$this->chat = Chat\GroupChat::getInstance($this->chat->getChatId());
+
+		return $result;
+	}
+
+	protected function getConvertType(): ?string
+	{
 		$searchable = $this->updateFields->getSearchable();
+		$currentType = $this->chat->getType();
+		$newType = $this->updateFields->getType();
 
-		if (!isset($searchable) || $chat instanceof Chat\VideoConfChat)
+		return match (true)
 		{
-			return $this;
-		}
+			$currentType === Chat::IM_TYPE_CHAT && $searchable === 'Y' => \Bitrix\Im\V2\Chat::IM_TYPE_OPEN,
+			$currentType === Chat::IM_TYPE_OPEN && $searchable === 'N' => \Bitrix\Im\V2\Chat::IM_TYPE_CHAT,
+			$currentType === Chat::IM_TYPE_CHANNEL && $searchable === 'Y' => \Bitrix\Im\V2\Chat::IM_TYPE_OPEN_CHANNEL,
+			$currentType === Chat::IM_TYPE_OPEN_CHANNEL && $searchable === 'N' => \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL,
+			default => $newType,
+		};
 
-		$conversionMap = [
-			Chat::IM_TYPE_CHAT . '_Y' => \Bitrix\Im\V2\Chat::IM_TYPE_OPEN,
-			Chat::IM_TYPE_OPEN . '_N' => \Bitrix\Im\V2\Chat::IM_TYPE_CHAT,
-			Chat::IM_TYPE_CHANNEL . '_Y' => \Bitrix\Im\V2\Chat::IM_TYPE_OPEN_CHANNEL,
-			Chat::IM_TYPE_OPEN_CHANNEL . '_N' => \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL,
-		];
-
-		$key = $chat->getType() . '_' . $searchable;
-		if (isset($conversionMap[$key]))
-		{
-			$newType = $conversionMap[$key];
-			(new Converter($chat->getId(), $newType))->convert();
-			$this->newChatType = $newType;
-
-			// replace object after conversion
-			$this->chat = Chat\GroupChat::getInstance($this->chat->getChatId());
-		}
-
-		return $this;
 	}
 
 	protected function addUsers(): self
@@ -104,7 +122,12 @@ class UpdateService
 			[$updateFields->getOwnerId()]
 		));
 
-		$this->chat->addUsers($addedUsers, new AddUsersConfig($updateFields->getAddedManagers(), $updateFields->shouldHideHistory()));
+		$config = new AddUsersConfig(
+			managerIds: $updateFields->getAddedManagers(),
+			hideHistory: $updateFields->shouldHideHistory(),
+			skipAnalytics: false
+		);
+		$this->chat->addUsers($addedUsers, $config);
 
 		return $this;
 	}
@@ -177,7 +200,7 @@ class UpdateService
 			return $this;
 		}
 
-		$currentNodes = (new Structure($this->chat))->getChatDepartments();
+		$currentNodes = (new Structure($this->chat))->getNodesAccessCodes();
 
 		foreach ($deleteNodes as $key => $node)
 		{

@@ -1,25 +1,21 @@
-<?
-#############################################
-# Bitrix Site Manager Forum					#
-# Copyright (c) 2002-2009 Bitrix			#
-# https://www.bitrixsoft.com					#
-# mailto:admin@bitrixsoft.com				#
-#############################################
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/classes/general/vote.php");
 
 class CVote extends CAllVote
 {
-	public static function err_mess()
-	{
-		$module_id = "vote";
-		return "<br>Module: ".$module_id."<br>Class: CVote<br>File: ".__FILE__;
-	}
-
 	public static function GetDropDownList()
 	{
 		global $DB;
+
 		$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
-		$err_mess = (CVote::err_mess())."<br>Function: GetDropDownList<br>Line: ";
 		$strSql = "
 			SELECT
 				ID as REFERENCE_ID,
@@ -27,7 +23,7 @@ class CVote extends CAllVote
 			FROM b_vote
 			ORDER BY C_SORT, ID
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
@@ -53,7 +49,7 @@ class CVote extends CAllVote
 	public static function CheckVotingIP($VOTE_ID, $REMOTE_ADDR, $KEEP_IP_SEC, $params = array())
 	{
 		global $DB;
-		$err_mess = (CVote::err_mess())."<br>Function: CheckVotingIP<br>Line: ";
+
 		$VOTE_ID = intval($VOTE_ID);
 		$KEEP_IP_SEC = intval($KEEP_IP_SEC);
 		$params = (is_array($params) ? $params : array($params));
@@ -72,7 +68,7 @@ class CVote extends CAllVote
 			return array("search" => implode(" AND ", $arSqlSearch), "select" => implode(",", $arSqlSelect));
 		endif;
 		$strSql = "SELECT VE.ID FROM b_vote_event VE WHERE ".implode(" AND ", $arSqlSearch);
-		$db_res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$db_res = $DB->Query($strSql);
 		if ($db_res && $res = $db_res->Fetch()):
 			return false;
 		endif;
@@ -82,8 +78,8 @@ class CVote extends CAllVote
 	public static function GetNextStartDate($CHANNEL_ID)
 	{
 		global $DB;
+
 		$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
-		$err_mess = (CVote::err_mess())."<br>Function: GetNextStartDate<br>Line: ";
 		$CHANNEL_ID = intval($CHANNEL_ID);
 		$strSql = "
 			SELECT
@@ -93,7 +89,7 @@ class CVote extends CAllVote
 			WHERE
 				CHANNEL_ID = '$CHANNEL_ID'
 			";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		$zr = $z->Fetch();
 		if ($zr["MIN_DATE_START"] == '')
 			return GetTime(time()+CTimeZone::GetOffset(), "FULL");
@@ -104,7 +100,7 @@ class CVote extends CAllVote
 	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [])
 	{
 		global $DB;
-		$err_mess = (CVote::err_mess())."<br>Function: GetList<br>Line: ";
+
 		$arSqlSearch = array();
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
 		foreach ($arFilter as $key => $val)
@@ -207,7 +203,7 @@ class CVote extends CAllVote
 			INNER JOIN b_vote V ON (V.ID = VV.ID)
 			INNER JOIN b_vote_channel C ON (C.ID = V.CHANNEL_ID) ".
 			$strSqlOrder;
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		$res = new _CVoteDBResult($res);
 
 		return $res;
@@ -310,13 +306,13 @@ class CVote extends CAllVote
 			INNER JOIN b_vote_channel C ON (V.CHANNEL_ID = C.ID)
 			LEFT JOIN b_user U ON (V.AUTHOR_ID = U.ID)
 			WHERE 1=1 ".$strSqlSearch." ".$strSqlOrder;
-		return new _CVoteDBResult($DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__));
+		return new _CVoteDBResult($DB->Query($strSql));
 	}
 
 	public static function GetPublicList($arFilter=Array(), $strSqlOrder="ORDER BY C.C_SORT, C.ID, V.DATE_START desc", $params = array())
 	{
 		global $DB, $USER;
-		$err_mess = (CVote::err_mess())."<br>Function: GetPublicList<br>Line: ";
+
 		$arSqlSearch = array();
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
 		$params = (is_array($params) ? $params : array());
@@ -378,10 +374,9 @@ class CVote extends CAllVote
 						$strSqlSearch
 						AND V.ACTIVE = 'Y' AND V.DATE_START <= NOW()
 					GROUP BY V.CHANNEL_ID, V.ID
-					".($is_admin ? "" : "
-					HAVING MAX_PERMISSION > 0")."
+					".($is_admin ? "" : "HAVING max(G.PERMISSION) > 0")."
 				) V1";
-			$db_res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$db_res = $DB->Query($strSql);
 			if ($db_res && ($res = $db_res->Fetch()))
 				$iCnt = intval($res["CNT"]);
 			if ($params["bCount"] === true)
@@ -412,8 +407,7 @@ class CVote extends CAllVote
 					$strSqlSearch
 					AND V.ACTIVE = 'Y' AND V.DATE_START <= NOW()
 				GROUP BY V.CHANNEL_ID, V.ID, C.VOTE_SINGLE, VV.ACTIVE_VOTE_ID
-				".($is_admin ? "" : "
-				HAVING MAX_PERMISSION > 0")."
+				".($is_admin ? "" : "HAVING max(G.PERMISSION) > 0")."
 			) V4
 			INNER JOIN b_vote V ON (V4.ID = V.ID)
 			INNER JOIN b_vote_channel C ON (V4.CHANNEL_ID = C.ID) 
@@ -428,7 +422,7 @@ class CVote extends CAllVote
 		{
 			if ($params["nTopCount"] > 0)
 				$strSql .= " LIMIT 0,".intval($params["nTopCount"]);
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 		}
 		return $db_res;
 	}
@@ -439,7 +433,7 @@ class CVote extends CAllVote
 		static $result = array();
 		$ResultType = (in_array($ResultType, array("timestamp", "time")) ? $ResultType : "timestamp");
 		if (empty($result)):
-			$db_res = $DB->Query("SELECT ".$DB->DateToCharFunction($DB->GetNowFunction(), "FULL")." FORUM_DATE", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query("SELECT ".$DB->DateToCharFunction($DB->GetNowFunction(), "FULL")." FORUM_DATE");
 			$res = $db_res->Fetch();
 			$result["time"] = $res["FORUM_DATE"];
 			$result["timestamp"] = MakeTimeStamp($res["FORUM_DATE"]);

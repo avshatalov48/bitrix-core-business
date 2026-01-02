@@ -1,6 +1,7 @@
 import { Type } from 'main.core';
 import { BuilderModel } from 'ui.vue3.vuex';
 
+import type { JsonObject } from 'main.core';
 import type { ActionTree, MutationTree, GetterTree } from 'ui.vue3.vuex';
 
 type MembersState = {
@@ -11,8 +12,21 @@ type ChatState = {
 	users: Set<number>,
 	inited: boolean,
 	hasNextPage: boolean,
-	lastId: number
+	nextCursor: MembersPaginationCursor | null,
 };
+
+type SetMembersPayload = {
+	chatId: number,
+	users: number[],
+	hasNextPage?: boolean,
+};
+
+type SetCursorPayload = {
+	chatId: number,
+	nextCursor: MembersPaginationCursor,
+};
+
+type MembersPaginationCursor = JsonObject;
 
 /* eslint-disable no-param-reassign */
 export class MembersModel extends BuilderModel
@@ -29,7 +43,7 @@ export class MembersModel extends BuilderModel
 		return {
 			users: new Set(),
 			hasNextPage: true,
-			lastId: 0,
+			nextCursor: null,
 			inited: false,
 		};
 	}
@@ -38,7 +52,7 @@ export class MembersModel extends BuilderModel
 	{
 		return {
 			/** @function sidebar/members/get */
-			get: (state) => (chatId: number): number[] => {
+			get: (state: MembersState) => (chatId: number): number[] => {
 				if (!state.collection[chatId])
 				{
 					return [];
@@ -47,7 +61,7 @@ export class MembersModel extends BuilderModel
 				return [...state.collection[chatId].users];
 			},
 			/** @function sidebar/members/getSize */
-			getSize: (state) => (chatId: number): number => {
+			getSize: (state: MembersState) => (chatId: number): number => {
 				if (!state.collection[chatId])
 				{
 					return 0;
@@ -56,7 +70,7 @@ export class MembersModel extends BuilderModel
 				return state.collection[chatId].users.size;
 			},
 			/** @function sidebar/members/hasNextPage */
-			hasNextPage: (state) => (chatId: number): boolean => {
+			hasNextPage: (state: MembersState) => (chatId: number): boolean => {
 				if (!state.collection[chatId])
 				{
 					return false;
@@ -64,17 +78,17 @@ export class MembersModel extends BuilderModel
 
 				return state.collection[chatId].hasNextPage;
 			},
-			/** @function sidebar/members/getLastId */
-			getLastId: (state) => (chatId: number): boolean => {
+			/** @function sidebar/members/getNextCursor */
+			getNextCursor: (state: MembersState) => (chatId: number): boolean => {
 				if (!state.collection[chatId])
 				{
 					return false;
 				}
 
-				return state.collection[chatId].lastId;
+				return state.collection[chatId].nextCursor;
 			},
 			/** @function sidebar/members/getInited */
-			getInited: (state) => (chatId: number): boolean => {
+			getInited: (state: MembersState) => (chatId: number): boolean => {
 				if (!state.collection[chatId])
 				{
 					return false;
@@ -89,17 +103,12 @@ export class MembersModel extends BuilderModel
 	{
 		return {
 			/** @function sidebar/members/set */
-			set: (store, payload) => {
-				const { chatId, users, hasNextPage, lastId } = payload;
+			set: (store, payload: SetMembersPayload) => {
+				const { chatId, users, hasNextPage, nextCursor } = payload;
 
 				if (!Type.isNil(hasNextPage))
 				{
 					store.commit('setHasNextPage', { chatId, hasNextPage });
-				}
-
-				if (!Type.isNil(lastId))
-				{
-					store.commit('setLastId', { chatId, lastId });
 				}
 
 				store.commit('setInited', { chatId, inited: true });
@@ -108,6 +117,10 @@ export class MembersModel extends BuilderModel
 				{
 					store.commit('set', { chatId, users });
 				}
+			},
+			/** @function sidebar/members/setNextCursor */
+			setNextCursor: (store, payload: SetCursorPayload) => {
+				store.commit('setNextCursor', payload);
 			},
 			/** @function sidebar/members/delete */
 			delete: (store, payload) => {
@@ -130,7 +143,7 @@ export class MembersModel extends BuilderModel
 	getMutations(): MutationTree
 	{
 		return {
-			set: (state, payload) => {
+			set: (state: MembersState, payload) => {
 				const { chatId, users } = payload;
 				const hasCollection = !Type.isNil(state.collection[chatId]);
 				if (!hasCollection)
@@ -142,7 +155,7 @@ export class MembersModel extends BuilderModel
 					state.collection[chatId].users.add(id);
 				});
 			},
-			setHasNextPage: (state, payload) => {
+			setHasNextPage: (state: MembersState, payload) => {
 				const { chatId, hasNextPage } = payload;
 
 				const hasCollection = !Type.isNil(state.collection[chatId]);
@@ -153,8 +166,8 @@ export class MembersModel extends BuilderModel
 
 				state.collection[chatId].hasNextPage = hasNextPage;
 			},
-			setLastId: (state, payload) => {
-				const { chatId, lastId } = payload;
+			setNextCursor: (state: MembersState, payload: { chatId: number, nextCursor: MembersPaginationCursor }) => {
+				const { chatId, nextCursor } = payload;
 
 				const hasCollection = !Type.isNil(state.collection[chatId]);
 				if (!hasCollection)
@@ -162,9 +175,9 @@ export class MembersModel extends BuilderModel
 					state.collection[chatId] = this.getChatState();
 				}
 
-				state.collection[chatId].lastId = lastId;
+				state.collection[chatId].nextCursor = nextCursor;
 			},
-			setInited: (state, payload) => {
+			setInited: (state: MembersState, payload) => {
 				const { chatId, inited } = payload;
 
 				const hasCollection = !Type.isNil(state.collection[chatId]);
@@ -175,7 +188,7 @@ export class MembersModel extends BuilderModel
 
 				state.collection[chatId].inited = inited;
 			},
-			delete: (state, payload: {chatId: number, userId: number}) => {
+			delete: (state: MembersState, payload: {chatId: number, userId: number}) => {
 				const { chatId, userId } = payload;
 				state.collection[chatId].users.delete(userId);
 			},

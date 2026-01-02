@@ -3,15 +3,16 @@ namespace Bitrix\Landing\PublicAction;
 
 use Bitrix\Landing\Block\BlockRepo;
 use Bitrix\Landing\History;
-use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\File;
-use \Bitrix\Landing\Landing;
-use \Bitrix\Landing\Hook;
-use \Bitrix\Landing\Assets;
-use \Bitrix\Landing\Restriction;
-use \Bitrix\Landing\Block as BlockCore;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Landing\PublicActionResult;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\File;
+use Bitrix\Landing\Landing;
+use Bitrix\Landing\Hook;
+use Bitrix\Landing\Assets;
+use Bitrix\Landing\Restriction;
+use Bitrix\Landing\Block as BlockCore;
+use Bitrix\Landing\Metrika;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Landing\PublicActionResult;
 
 Loc::loadMessages(__FILE__);
 
@@ -802,7 +803,12 @@ class Block
 			$landing = Landing::createInstance($lid);
 			if ($landing->exist())
 			{
-				$result->setResult($landing->publication($block));
+				$metrikaParams = new Metrika\FieldsDto(
+					type: Metrika\Types::template,
+					subSection: 'from_editor',
+					element: 'auto',
+				);
+				$result->setResult($landing->publication($block, $metrikaParams));
 			}
 			$result->setError($landing->getError());
 		}
@@ -1105,35 +1111,6 @@ class Block
 				'NAME' => $file['NAME']
 			]);
 		}
-
-		return $result;
-	}
-
-	/**
-	 * Get extensions configs, load relations, load lang phrases
-	 *
-	 * @param array $extCodes - array of extensions codes
-	 * @param array $tplCodes - array of site templates
-	 * @return PublicActionResult - array of assets by type
-	 */
-	public static function getAssetsConfig(array $extCodes, array $tplCodes = []): PublicActionResult
-	{
-		$result = new PublicActionResult();
-
-		$assetsManager = (new Assets\Manager())
-			->enableSandbox()
-			->addAsset($extCodes)
-		;
-
-		foreach ($tplCodes as $tpl)
-		{
-			$siteTemplatePath =
-				(defined('SITE_TEMPLATE_PATH') ? SITE_TEMPLATE_PATH : '/bitrix/templates/.default');
-			$style = $siteTemplatePath . "/template_styles.css";
-			$assetsManager->addAsset($style);
-		}
-
-		$result->setResult($assetsManager->getOutput());
 
 		return $result;
 	}

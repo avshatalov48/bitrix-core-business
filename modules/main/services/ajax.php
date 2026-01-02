@@ -24,6 +24,12 @@ if (isset($_REQUEST['admin_section']) && $_REQUEST['admin_section'] === 'Y')
 	define('ADMIN_SECTION', true);
 }
 
+$fastDownloadAction = ['disk.api.file.showImage', 'disk.api.file.download', 'disk.api.file.showPreview'];
+if (isset($_GET['action']) && in_array($_GET['action'], $fastDownloadAction, true))
+{
+	require __DIR__ . '/quickway.php';
+}
+
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
 \Bitrix\Main\Application::getInstance()->run();

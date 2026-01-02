@@ -312,6 +312,11 @@ class Smtp
 			), $error);
 		}
 
+		if ($mech === 'oauth' && $response && count($response) === 1 && str_starts_with($response[0], '334'))
+		{
+			$response = $this->executeCommand("\r\n", $error);
+		}
+
 		if ($error)
 		{
 			$error = $error == Smtp::ERR_COMMAND_REJECTED ? null : $error;

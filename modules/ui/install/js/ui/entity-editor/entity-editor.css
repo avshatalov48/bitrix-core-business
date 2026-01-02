@@ -329,12 +329,35 @@ input.ui-entity-editor-header-title-text {
 	cursor: pointer;
 }
 
+.ui-entity-editor-new-field-visibility-wrapper {
+	padding: 10px 0;
+}
+
+.ui-entity-editor-user-field-setting-error-text {
+	color: #d0011b;
+}
+
 /* addiction step*/
 .ui-entity-new-field-addiction-label { white-space: nowrap; }
 
 .ui-entity-new-field-addiction-flex-row {
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
+}
+
+.ui-entity-editor-userfield-file-default-view {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.ui-entity-editor-userfield-file-default-view .ui-btn:not(.--air):after,
+.ui-entity-editor-userfield-file-default-view .ui-btn-split:not(.--air) .ui-btn-main:after {
+	width: 20px;
+	height: 20px;
+	left: 8px;
+	background-size: cover;
 }
 
 /* remove btn*/
@@ -405,7 +428,7 @@ input.ui-entity-editor-header-title-text {
 	transition: opacity 150ms ease, border-color 150ms ease;
 }
 
-.ui-entity-editor-section-edit .ui-entity-editor-content-block-field-readonly .ui-entity-editor-block-context-menu { top: -4px; !important;}
+.ui-entity-editor-section-edit .ui-entity-editor-content-block-field-readonly .ui-entity-editor-block-context-menu { top: -4px !important;}
 
 .ui-entity-editor-section-edit .ui-entity-editor-block-context-menu,
 .ui-entity-editor-content-block-edit .ui-entity-editor-block-context-menu { top: 28px; }
@@ -2034,4 +2057,29 @@ input.ui-entity-editor-header-title-text {
 .ui-page-slider-wrapper.--edit__title-input .ui-toolbar-title-inner,
 .ui-page-slider-wrapper.--edit__title-input .ui-toolbar .crm-pagetitle.ui-toolbar-title-item-box {
 	width: 100%;
+}
+
+.ui-entity-editor-block-title-text {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ui-entity-editor-block-title-text .ui-hint {
+	display: inline-flex;
+	margin-left: 4px;
+	width: fit-content;
+	height: fit-content;
+}
+
+.ui-entity-editor-block-title-text .ui-hint-icon {
+	margin: 0;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.ui-entity-editor-block-title-text-right-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }

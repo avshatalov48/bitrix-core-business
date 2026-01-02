@@ -22,7 +22,7 @@ return [
 		'main.core.events',
 		'im.v2.lib.logger',
 		'im.lib.uploader',
-		'ui.notification',
+		'im.v2.lib.notifier',
 	],
 	'skip_core' => false,
 ];

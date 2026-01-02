@@ -7,6 +7,22 @@ use Bitrix\Main\Entity;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class FolderTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Folder_Query query()
+ * @method static EO_Folder_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_Folder_Result getById($id)
+ * @method static EO_Folder_Result getList(array $parameters = [])
+ * @method static EO_Folder_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_Folder createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_Folder_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_Folder wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_Folder_Collection wakeUpCollection($rows)
+ */
 class FolderTable extends Entity\DataManager
 {
 	/**

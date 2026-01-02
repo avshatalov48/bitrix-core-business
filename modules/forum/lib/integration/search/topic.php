@@ -140,7 +140,7 @@ class Topic extends Main\Update\Stepper
 
 	public static function reindex(int $topicId, bool $reindexOnlyFirstMessage = false)
 	{
-		if (!Main\Loader::includeModule('search'))
+		if (!IsModuleInstalled('search'))
 		{
 			return self::FINISH_EXECUTION;
 		}

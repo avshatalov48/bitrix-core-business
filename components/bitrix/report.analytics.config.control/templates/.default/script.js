@@ -9,9 +9,8 @@
 		this.boardId = options.boardId;
 		this.boardOptions = BX.prop.getArray(options, "boardOptions", []);
 
-		this.pageTitle = document.querySelector(".ui-side-panel-wrap-title-name");
-		this.pageTitleWrap = document.querySelector(".ui-side-panel-wrap-title-wrap");
-		this.pageControlsContainer = document.querySelector(".pagetitle-container.pagetitle-align-right-container");
+		this.toolbar = new BX.Report.Integration.Toolbar();
+		this.pageControlsContainer = this.toolbar.getRightButtonsContainer();
 
 		this.init();
 	};
@@ -107,7 +106,6 @@
 					BX.html(this.contentContainer, response.data);
 				}, this)
 			});
-			this.confirmationPopup.close();
 		},
 
 		toggleBoardOption: function (optionName)
@@ -133,8 +131,7 @@
 
 		cleanPageContent: function ()
 		{
-			this.pageTitle.innerText = "";
-			this.pageControlsContainer.innerText = "";
+			this.toolbar.cleanContent();
 			BX.cleanNode(this.contentContainer);
 			if (BX.Report.Dashboard)
 			{
@@ -156,25 +153,16 @@
 		},
 		changePageTitle: function (title)
 		{
-			this.pageTitle.innerText = title;
+			this.toolbar.setTitle(title);
 		},
 		showLoader: function ()
 		{
-			this.pageTitleWrap.style.display = "none";
-
-			var preview = BX.create("img", {
-				attrs: {
-					"src": "/bitrix/images/report/visualconstructor/preview/view-without-menu.svg",
-					height: "1200px",
-					width: "100%"
-				}
-			});
+			var preview = this.toolbar.createSkeleton();
 
 			this.contentContainer.appendChild(preview);
 		},
 		hideLoader: function ()
 		{
-			this.pageTitleWrap.style.display = "block";
 			this.loader.hide();
 		}
 	};

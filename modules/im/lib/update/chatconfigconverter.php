@@ -116,7 +116,7 @@ class ChatConfigConverter extends Stepper
 						['join_type' => Join::TYPE_LEFT]
 					)
 				)
-				->where('IS_REAL_USER', 'Y')
+				->where('REAL_USER', 'expr', true)
 				->where('OPTION_USER.USER_ID', null)
 				->where('ID', '>', $params['lastId'])
 				->setOrder(['ID' => 'ASC'])

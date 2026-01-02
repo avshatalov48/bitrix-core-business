@@ -5,6 +5,7 @@ import { Header } from './section/header';
 import { TitleColumn } from './section/title-column';
 import { SyncHorizontalScroll } from './util/sync-horizontal-scroll';
 
+// @vue/component
 export const Section = {
 	name: 'Section',
 	components: { Column, SyncHorizontalScroll, TitleColumn, Header, ColumnList },
@@ -39,6 +40,10 @@ export const Section = {
 			/** @type AccessRightSectionIcon */
 			type: Object,
 		},
+		action: {
+			/** @type AccessRightSectionAction */
+			type: Object,
+		},
 	},
 	provide(): Object {
 		return {
@@ -51,6 +56,7 @@ export const Section = {
 					sectionHint: this.hint,
 					isExpanded: this.isExpanded,
 					rights: this.rights,
+					action: this.action,
 				};
 			}),
 		};

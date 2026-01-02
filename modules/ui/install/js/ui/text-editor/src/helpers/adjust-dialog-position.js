@@ -1,12 +1,12 @@
 import { Dom, Type } from 'main.core';
 import { $getSelection, $isRangeSelection } from 'ui.lexical.core';
+import { getEditorPaddings } from './get-editor-paddings';
 import { $getSelectionPosition } from './get-selection-position';
 
 import { type Popup } from 'main.popup';
 import { type TextEditor } from '../text-editor';
 
 const lastPositionMap: WeakMap<Popup, 'top' | 'bottom'> = new WeakMap();
-const editorPadding = 16;
 
 export function $adjustDialogPosition(
 	popup: Popup,
@@ -34,17 +34,19 @@ export function $adjustDialogPosition(
 	const popupWidth: number = popupRect.width;
 	let offsetLeft: number = popupWidth / 2;
 
+	const editorPaddings = getEditorPaddings(editor);
+
 	// Try to fit a popup within a scroll area
 	if (left - offsetLeft < scrollerRect.left)
 	{
 		// Left boundary
 		const overflow = scrollerRect.left - (left - offsetLeft);
-		offsetLeft -= overflow + editorPadding;
+		offsetLeft -= overflow + editorPaddings.left;
 	}
 	else if (scrollerRect.right < (left + popupWidth - offsetLeft))
 	{
 		// Right boundary
-		offsetLeft += (left + popupWidth - offsetLeft) - scrollerRect.right + editorPadding;
+		offsetLeft += (left + popupWidth - offsetLeft) - scrollerRect.right + editorPaddings.right;
 	}
 
 	popup.setOffset({ offsetLeft: -offsetLeft });

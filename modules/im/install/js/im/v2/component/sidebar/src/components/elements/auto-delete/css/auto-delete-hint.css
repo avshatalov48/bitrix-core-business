@@ -1,0 +1,17 @@
+.bx-im-sidebar-auto-delete-hint__container {
+	--im-sidebar-auto-delete__color_hint: var(--im-color-palette-blue-50);
+	--im-sidebar-auto-delete__color_text: var(--im-color-palette-white-base);
+	font: var(--im-font-size-lg)/20px var(--im-font-family-system);
+	margin: 0 10px;
+}
+
+.bx-im-auto-delete-hint__text {
+	display: inline;
+	color: var(--im-sidebar-auto-delete__color_text);
+}
+
+.bx-im-auto-delete-hint__hide,  .bx-im-auto-delete-hint__hide:hover {
+	color: var(--im-sidebar-auto-delete__color_hint);
+	padding: 0;
+	cursor: pointer;
+}

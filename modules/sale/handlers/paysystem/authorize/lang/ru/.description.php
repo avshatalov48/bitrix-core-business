@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS['SALE_HPS_AUTHORIZE_TITLE'] = 'Authorize.net';
 $MESS['SALE_HPS_AUTHORIZE_LOGIN'] = 'API Login ID';
 $MESS['SALE_HPS_AUTHORIZE_LOGIN_DESC'] = 'Merchant’s unique API Login ID. The merchant API Login ID is provided in the Merchant Interface and must be stored securely.';

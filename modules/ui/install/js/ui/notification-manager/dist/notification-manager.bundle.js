@@ -327,7 +327,6 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  onNotificationClick(event) {
 	    const [id] = event.detail;
-	    BXDesktopSystem.SetActiveTab();
 	    this.notificationClick(id);
 	  }
 	  onNotificationAction(event) {

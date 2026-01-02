@@ -3,14 +3,14 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,main_date,im_v2_component_elements,im_v2_lib_utils,im_v2_lib_parser,im_v2_lib_dateFormatter,im_v2_lib_logger,im_v2_lib_user,im_v2_application_core,im_v2_lib_rest,main_core,im_v2_const,im_v2_lib_layout,im_v2_lib_menu) {
+(function (exports,im_v2_component_elements_listLoadingState,main_date,im_v2_component_elements_chatTitle,im_v2_component_elements_avatar,im_v2_lib_utils,im_v2_lib_parser,im_v2_lib_dateFormatter,im_v2_provider_service_recent,im_v2_application_core,im_v2_lib_rest,main_core,im_v2_const,im_v2_lib_layout,im_v2_lib_menu) {
 	'use strict';
 
 	// @vue/component
 	const MessageText = {
 	  name: 'MessageText',
 	  components: {
-	    MessageAvatar: im_v2_component_elements.MessageAvatar
+	    MessageAvatar: im_v2_component_elements_avatar.MessageAvatar
 	  },
 	  props: {
 	    item: {
@@ -19,7 +19,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  computed: {
-	    AvatarSize: () => im_v2_component_elements.AvatarSize,
+	    AvatarSize: () => im_v2_component_elements_avatar.AvatarSize,
 	    recentItem() {
 	      return this.item;
 	    },
@@ -91,8 +91,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const ChannelItem = {
 	  name: 'ChannelItem',
 	  components: {
-	    ChatAvatar: im_v2_component_elements.ChatAvatar,
-	    ChatTitle: im_v2_component_elements.ChatTitle,
+	    ChatAvatar: im_v2_component_elements_avatar.ChatAvatar,
+	    ChatTitle: im_v2_component_elements_chatTitle.ChatTitle,
 	    MessageText
 	  },
 	  props: {
@@ -105,7 +105,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    return {};
 	  },
 	  computed: {
-	    AvatarSize: () => im_v2_component_elements.AvatarSize,
+	    AvatarSize: () => im_v2_component_elements_avatar.AvatarSize,
 	    recentItem() {
 	      return this.item;
 	    },
@@ -134,7 +134,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return !this.isUser;
 	    },
 	    isChatSelected() {
-	      if (this.layout.name !== im_v2_const.Layout.channel.name) {
+	      if (this.layout.name !== im_v2_const.Layout.channel) {
 	        return false;
 	      }
 	      return this.layout.entityId === this.recentItem.dialogId;
@@ -147,9 +147,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return element === im_v2_application_core.Core.getUserId();
 	      });
 	      return Boolean(isMuted);
-	    },
-	    isSomeoneTyping() {
-	      return this.dialog.writingList.length > 0;
 	    },
 	    needsBirthdayPlaceholder() {
 	      return this.$store.getters['recent/needsBirthdayPlaceholder'](this.recentItem.dialogId);
@@ -221,111 +218,42 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	var _itemsPerPage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("itemsPerPage");
-	var _isLoading = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isLoading");
-	var _pagesLoaded = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pagesLoaded");
-	var _hasMoreItemsToLoad = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasMoreItemsToLoad");
 	var _lastMessageId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("lastMessageId");
-	var _requestItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("requestItems");
-	var _updateModels = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateModels");
 	var _getMinMessageId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMinMessageId");
-	class ChannelService {
-	  constructor() {
+	class ChannelService extends im_v2_provider_service_recent.BaseRecentService {
+	  constructor(...args) {
+	    super(...args);
 	    Object.defineProperty(this, _getMinMessageId, {
 	      value: _getMinMessageId2
-	    });
-	    Object.defineProperty(this, _updateModels, {
-	      value: _updateModels2
-	    });
-	    Object.defineProperty(this, _requestItems, {
-	      value: _requestItems2
-	    });
-	    this.firstPageIsLoaded = false;
-	    Object.defineProperty(this, _itemsPerPage, {
-	      writable: true,
-	      value: 50
-	    });
-	    Object.defineProperty(this, _isLoading, {
-	      writable: true,
-	      value: false
-	    });
-	    Object.defineProperty(this, _pagesLoaded, {
-	      writable: true,
-	      value: 0
-	    });
-	    Object.defineProperty(this, _hasMoreItemsToLoad, {
-	      writable: true,
-	      value: true
 	    });
 	    Object.defineProperty(this, _lastMessageId, {
 	      writable: true,
 	      value: 0
 	    });
 	  }
-	  async loadFirstPage() {
-	    babelHelpers.classPrivateFieldLooseBase(this, _isLoading)[_isLoading] = true;
-	    const result = await babelHelpers.classPrivateFieldLooseBase(this, _requestItems)[_requestItems]({
-	      firstPage: true
-	    });
-	    this.firstPageIsLoaded = true;
-	    return result;
+	  getRestMethodName() {
+	    return im_v2_const.RestMethod.imV2RecentChannelTail;
 	  }
-	  loadNextPage() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isLoading)[_isLoading] || !babelHelpers.classPrivateFieldLooseBase(this, _hasMoreItemsToLoad)[_hasMoreItemsToLoad]) {
-	      return Promise.resolve();
+	  getRecentSaveActionName() {
+	    return 'recent/setChannel';
+	  }
+	  getRequestFilter(firstPage = false) {
+	    return {
+	      lastMessageId: firstPage ? null : babelHelpers.classPrivateFieldLooseBase(this, _lastMessageId)[_lastMessageId]
+	    };
+	  }
+	  onAfterRequest(firstPage) {
+	    if (!firstPage) {
+	      return;
 	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _isLoading)[_isLoading] = true;
-	    return babelHelpers.classPrivateFieldLooseBase(this, _requestItems)[_requestItems]();
-	  }
-	  hasMoreItemsToLoad() {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _hasMoreItemsToLoad)[_hasMoreItemsToLoad];
-	  }
-	}
-	async function _requestItems2({
-	  firstPage = false
-	} = {}) {
-	  const queryParams = {
-	    data: {
-	      limit: babelHelpers.classPrivateFieldLooseBase(this, _itemsPerPage)[_itemsPerPage],
-	      filter: {
-	        lastMessageId: firstPage ? null : babelHelpers.classPrivateFieldLooseBase(this, _lastMessageId)[_lastMessageId]
-	      }
-	    }
-	  };
-	  const result = await im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2RecentChannelTail, queryParams).catch(error => {
-	    // eslint-disable-next-line no-console
-	    console.error('Im.ChannelList: page request error', error);
-	  });
-	  babelHelpers.classPrivateFieldLooseBase(this, _pagesLoaded)[_pagesLoaded]++;
-	  im_v2_lib_logger.Logger.warn(`Im.ChannelList: ${firstPage ? 'First' : babelHelpers.classPrivateFieldLooseBase(this, _pagesLoaded)[_pagesLoaded]} page request result`, result);
-	  const {
-	    messages,
-	    hasNextPage
-	  } = result;
-	  babelHelpers.classPrivateFieldLooseBase(this, _lastMessageId)[_lastMessageId] = babelHelpers.classPrivateFieldLooseBase(this, _getMinMessageId)[_getMinMessageId](messages);
-	  if (!hasNextPage) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _hasMoreItemsToLoad)[_hasMoreItemsToLoad] = false;
-	  }
-	  babelHelpers.classPrivateFieldLooseBase(this, _isLoading)[_isLoading] = false;
-	  if (firstPage) {
 	    void im_v2_application_core.Core.getStore().dispatch('recent/clearChannelCollection');
 	  }
-	  return babelHelpers.classPrivateFieldLooseBase(this, _updateModels)[_updateModels](result);
-	}
-	function _updateModels2(restResult) {
-	  const {
-	    users,
-	    chats,
-	    messages,
-	    files,
-	    recentItems
-	  } = restResult;
-	  const usersPromise = new im_v2_lib_user.UserManager().setUsersToModel(users);
-	  const dialoguesPromise = im_v2_application_core.Core.getStore().dispatch('chats/set', chats);
-	  const messagesPromise = im_v2_application_core.Core.getStore().dispatch('messages/store', messages);
-	  const filesPromise = im_v2_application_core.Core.getStore().dispatch('files/set', files);
-	  const recentPromise = im_v2_application_core.Core.getStore().dispatch('recent/setChannel', recentItems);
-	  return Promise.all([usersPromise, dialoguesPromise, messagesPromise, filesPromise, recentPromise]);
+	  handlePaginationField(result) {
+	    const {
+	      messages
+	    } = result;
+	    babelHelpers.classPrivateFieldLooseBase(this, _lastMessageId)[_lastMessageId] = babelHelpers.classPrivateFieldLooseBase(this, _getMinMessageId)[_getMinMessageId](messages);
+	  }
 	}
 	function _getMinMessageId2(messages) {
 	  if (messages.length === 0) {
@@ -369,10 +297,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  }
 	  getOpenItem() {
 	    return {
-	      text: main_core.Loc.getMessage('IM_LIB_MENU_OPEN'),
-	      onclick: () => {
-	        im_v2_lib_layout.LayoutManager.getInstance().setLayout({
-	          name: im_v2_const.Layout.channel.name,
+	      title: main_core.Loc.getMessage('IM_LIB_MENU_OPEN'),
+	      onClick: () => {
+	        void im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	          name: im_v2_const.Layout.channel,
 	          entityId: this.context.dialogId
 	        });
 	        this.menuInstance.close();
@@ -386,7 +314,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  name: 'ChannelList',
 	  components: {
 	    EmptyState,
-	    LoadingState: im_v2_component_elements.ListLoadingState,
+	    LoadingState: im_v2_component_elements_listLoadingState.ListLoadingState,
 	    ChannelItem
 	  },
 	  emits: ['chatClick'],
@@ -431,7 +359,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  methods: {
 	    async onScroll(event) {
 	      this.contextMenuManager.close();
-	      if (!im_v2_lib_utils.Utils.dom.isOneScreenRemaining(event.target) || !this.getRecentService().hasMoreItemsToLoad) {
+	      if (!im_v2_lib_utils.Utils.dom.isOneScreenRemaining(event.target) || !this.getRecentService().hasMoreItemsToLoad()) {
 	        return;
 	      }
 	      this.isLoadingNextPage = true;
@@ -443,7 +371,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    onRightClick(item, event) {
 	      event.preventDefault();
-	      this.contextMenuManager.openMenu(item, event.currentTarget);
+	      const context = {
+	        dialogId: item.dialogId,
+	        recentItem: item
+	      };
+	      this.contextMenuManager.openMenu(context, event.currentTarget);
 	    },
 	    getRecentService() {
 	      if (!this.service) {
@@ -483,5 +415,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.ChannelList = ChannelList;
 
-}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Main,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Component.Elements,BX.Main,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=channel-list.bundle.js.map

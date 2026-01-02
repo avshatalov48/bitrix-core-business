@@ -1,0 +1,8 @@
+<?php
+$MESS["LANDING_BLOCK_WIDGET_70_10_NAME"] = "Шағын кескіні мен тақырыпаты бар карточкалар";
+$MESS["LANDING_BLOCK_WIDGET_70_10_NODE_CARD"] = "Карточка";
+$MESS["LANDING_BLOCK_WIDGET_70_10_NODE_CARD_TITLE"] = "Карточка тақырыпаты";
+$MESS["LANDING_BLOCK_WIDGET_70_10_NODE_CONTAINER"] = "Контейнер";
+$MESS["LANDING_BLOCK_WIDGET_70_10_NODE_IMG"] = "Сурет";
+$MESS["LANDING_BLOCK_WIDGET_70_10_NODE_LINK"] = "Сілтеме";
+$MESS["LANDING_BLOCK_WIDGET_70_10_NODE_TITLE"] = "Тақырыпаты";

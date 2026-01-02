@@ -79,7 +79,14 @@ class CBPGetListsDocumentActivity extends CBPActivity
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		$document = $documentService->GetDocument($documentId, $documentType);
+		if (defined('\CBPDocument::PARAM_USED_DOCUMENT_FIELDS'))
+		{
+			$document = $documentService->GetDocument($documentId, $documentType, array_keys($map));
+		}
+		else
+		{
+			$document = $documentService->GetDocument($documentId, $documentType);
+		}
 
 		if (!$document || !is_array($map))
 		{

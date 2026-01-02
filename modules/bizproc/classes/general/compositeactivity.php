@@ -92,13 +92,17 @@ abstract class CBPCompositeActivity extends CBPActivity
 	public function initialize()
 	{
 		foreach ($this->arActivities as $activity)
-			$this->workflow->InitializeActivity($activity);
+		{
+			$this->workflow->initializeActivity($activity);
+		}
 	}
 
 	public function finalize()
 	{
 		foreach ($this->arActivities as $activity)
-			$this->workflow->FinalizeActivity($activity);
+		{
+			$this->workflow->finalizeActivity($activity);
+		}
 	}
 
 	public static function validateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)

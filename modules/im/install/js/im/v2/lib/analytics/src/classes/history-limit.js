@@ -8,7 +8,7 @@ import { getChatType } from '../helpers/get-chat-type';
 
 export class HistoryLimit
 {
-	onDialogLimitExceeded({ dialogId, noMessages }: { dialogId: string, noMessages: boolean })
+	onDialogLimitExceeded({ dialogId, noMessages }: { dialogId: string, noMessages: boolean }): void
 	{
 		const sectionValue = noMessages ? AnalyticsSection.chatStart : AnalyticsSection.chatHistory;
 		const dialog = Core.getStore().getters['chats/get'](dialogId);
@@ -26,7 +26,7 @@ export class HistoryLimit
 		sendData(params);
 	}
 
-	onSidebarLimitExceeded({ dialogId, panel }: { dialogId: string, panel: $Values<typeof SidebarDetailBlock> })
+	onSidebarLimitExceeded({ dialogId, panel }: { dialogId: string, panel: $Values<typeof SidebarDetailBlock> }): void
 	{
 		const dialog = Core.getStore().getters['chats/get'](dialogId);
 		const chatType = getChatType(dialog);
@@ -44,26 +44,26 @@ export class HistoryLimit
 		sendData(params);
 	}
 
-	onDialogBannerClick({ dialogId }: {dialogId: string})
+	onDialogBannerClick({ dialogId }: {dialogId: string}): void
 	{
 		const section = AnalyticsSection.chatWindow;
 		this.#onBannerClick({ dialogId, section });
 	}
 
-	onSidebarBannerClick({ dialogId, panel }: { dialogId: string, panel: $Values<typeof SidebarDetailBlock> })
+	onSidebarBannerClick({ dialogId, panel }: { dialogId: string, panel: $Values<typeof SidebarDetailBlock> }): void
 	{
 		const section = AnalyticsSection.sidebar;
 		const element = this.#getSidebarPanelNameForAnalytics(panel);
 		this.#onBannerClick({ dialogId, section, element });
 	}
 
-	onGoToContextLimitExceeded({ dialogId }: { dialogId: string })
+	onGoToContextLimitExceeded({ dialogId }: { dialogId: string }): void
 	{
 		const section = AnalyticsSection.messageLink;
 		this.#onBannerClick({ dialogId, section });
 	}
 
-	#onBannerClick({ dialogId, section, element }: { dialogId: string, section: string, element?: string })
+	#onBannerClick({ dialogId, section, element }: { dialogId: string, section: string, element?: string }): void
 	{
 		const dialog = Core.getStore().getters['chats/get'](dialogId);
 		const chatType = getChatType(dialog);
@@ -97,7 +97,6 @@ export class HistoryLimit
 			case SidebarDetailBlock.brief:
 			case SidebarDetailBlock.document:
 			case SidebarDetailBlock.media:
-			case SidebarDetailBlock.other:
 				return 'docs';
 			case SidebarDetailBlock.messageSearch:
 				return 'message_search';

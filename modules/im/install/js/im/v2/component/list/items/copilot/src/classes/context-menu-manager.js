@@ -1,37 +1,28 @@
 import { Loc } from 'main.core';
 
-import { Messenger } from 'im.public';
-import { RecentMenu, type MenuItem } from 'im.v2.lib.menu';
+import { RecentMenu } from 'im.v2.lib.menu';
 
 import { CopilotRecentService } from './copilot-service';
+import type { MenuItemOptions } from 'ui.system.menu';
 
 export class CopilotRecentMenu extends RecentMenu
 {
-	getMenuItems(): MenuItem[]
+	getMenuItems(): MenuItemOptions[]
 	{
 		return [
+			this.getUnreadMessageItem(),
 			this.getPinMessageItem(),
+			this.getMuteItem(),
 			this.getHideItem(),
 			this.getLeaveItem(),
 		];
 	}
 
-	getOpenItem(): MenuItem
+	getHideItem(): MenuItemOptions
 	{
 		return {
-			text: Loc.getMessage('IM_LIB_MENU_OPEN'),
-			onclick: () => {
-				Messenger.openCopilot(this.context.dialogId);
-				this.menuInstance.close();
-			},
-		};
-	}
-
-	getHideItem(): MenuItem
-	{
-		return {
-			text: Loc.getMessage('IM_LIB_MENU_HIDE_MSGVER_1'),
-			onclick: () => {
+			title: Loc.getMessage('IM_LIB_MENU_HIDE_MSGVER_1'),
+			onClick: () => {
 				this.getRecentService().hideChat(this.context.dialogId);
 				this.menuInstance.close();
 			},

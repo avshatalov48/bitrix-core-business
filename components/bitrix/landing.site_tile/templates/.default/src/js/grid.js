@@ -1,9 +1,11 @@
-import { Tag } from 'main.core';
+import { Tag, Runtime } from 'main.core';
 import 'ui.design-tokens';
 import Item from './item';
 import ItemMarketing from './itemMarketing';
 import Scroller from './scroller';
+import PopupCopilot from './popupCopilot';
 import '../css/landing.site.tile.css';
+import { Metrika } from 'landing.metrika';
 
 export class SiteTile
 {
@@ -16,6 +18,36 @@ export class SiteTile
 		this.siteTileItems = [];
 		this.$container = null;
 		this.scroller = null;
+		let videoSrc = '/bitrix/components/bitrix/landing.site_tile/templates/.default/video/en/siteWithCopilot.webm';
+		if (options.lang === 'ru')
+		{
+			videoSrc = '/bitrix/components/bitrix/landing.site_tile/templates/.default/video/ru/siteWithCopilot.webm';
+		}
+
+		if (options.isNeedCreateCopilotPopup)
+		{
+			Runtime.loadExtension(['ui.banner-dispatcher'])
+				.then((exports) => {
+					const { BannerDispatcher } = exports;
+					BannerDispatcher.critical.toQueue((onDone) => {
+						const metrika = new Metrika(true);
+						metrika.sendData({
+							category: 'site',
+							event: 'creating_scenario_hint_show',
+							type: 'preset',
+						});
+
+						this.popupCopilot = new PopupCopilot({
+							id: 'popupCopilot',
+							videoSrc,
+						});
+						this.popupCopilot.showPopup(1000);
+						this.popupCopilot.getPopup().subscribe('onAfterClose', () => {
+							onDone();
+						});
+					});
+				}).catch(() => {});
+		}
 		this.setData(this.items);
 		this.init();
 	}
@@ -65,6 +97,7 @@ export class SiteTile
 				error: item.error || {},
 				articles: item.articles || null,
 				grid: this,
+				copilotProcess: item.copilotProcess,
 			});
 		});
 

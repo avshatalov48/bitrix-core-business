@@ -27,11 +27,11 @@ class UserFactory
 		'WORK_POSITION',
 		'PERSONAL_GENDER',
 		'EXTERNAL_AUTH_ID',
-		'TIME_ZONE_OFFSET',
 		'PERSONAL_WWW',
 		'ACTIVE',
 		'LANGUAGE_ID',
 		'WORK_PHONE',
+		'TIME_ZONE',
 		'PERSONAL_MOBILE',
 		'PERSONAL_PHONE',
 		'COLOR' => 'ST.COLOR',
@@ -273,7 +273,7 @@ class UserFactory
 		$cacheSubDir = $id % 100;
 		$cacheSubSubDir = ($id % 10000) / 100;
 
-		return "/bx/imc/userdata_v7/{$cacheSubDir}/{$cacheSubSubDir}/{$id}";
+		return "/bx/imc/userdata_v8/{$cacheSubDir}/{$cacheSubSubDir}/{$id}";
 	}
 
 	public function clearCache(int $id): void

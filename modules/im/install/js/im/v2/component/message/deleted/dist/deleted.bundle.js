@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,main_core,im_v2_component_message_base,im_v2_component_message_elements) {
+(function (exports,im_v2_component_message_base,im_v2_component_message_elements) {
 	'use strict';
 
 	// @vue/component
@@ -31,9 +31,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  computed: {
 	    message() {
 	      return this.item;
-	    },
-	    canSetReactions() {
-	      return main_core.Type.isNumber(this.message.id);
 	    }
 	  },
 	  methods: {
@@ -57,5 +54,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.DeletedMessage = DeletedMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message));
 //# sourceMappingURL=deleted.bundle.js.map

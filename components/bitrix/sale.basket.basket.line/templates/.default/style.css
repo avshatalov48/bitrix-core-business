@@ -44,11 +44,13 @@
 
 	.bx-basket-fixed.bx-max-height { top: 10px; bottom: 10px; }
 
-	.block-store-catalog-list .bx-basket-fixed.bottom { bottom: 70px }
+	.block-store-catalog-list .bx-basket-fixed.bottom { bottom: 140px }
+	.block-store-catalog-list .bx-basket-fixed.left { left: 30px }
 }
 
 @media (min-width: 768px) and (width <= 992px) {
-	.block-store-catalog-list .bx-basket-fixed.bottom { bottom: 90px }
+	.block-store-catalog-list .bx-basket-fixed.bottom { bottom: 140px }
+	.block-store-catalog-list .bx-basket-fixed.left { left: 30px }
 }
 
 @media (max-width: 767px) {

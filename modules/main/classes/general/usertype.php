@@ -4,9 +4,10 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2024 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
+use Bitrix\Main\Application;
 use Bitrix\Main\UserFieldTable;
 use Bitrix\Main\UserFieldLangTable;
 
@@ -86,9 +87,11 @@ IncludeModuleLangFile(__FILE__);
  */
 class CAllUserTypeEntity extends CDBResult
 {
+	protected static $cache = [];
+
 	function CreatePropertyTables($entity_id)
 	{
-		$connection = \Bitrix\Main\Application::getConnection();
+		$connection = Application::getConnection();
 
 		if (!$connection->isTableExists("b_utm_" . strtolower($entity_id)))
 		{
@@ -127,10 +130,10 @@ class CAllUserTypeEntity extends CDBResult
 	public static function GetByID($ID)
 	{
 		global $DB;
-		static $arLabels = ["EDIT_FORM_LABEL", "LIST_COLUMN_LABEL", "LIST_FILTER_LABEL", "ERROR_MESSAGE", "HELP_MESSAGE"];
-		static $cache = [];
 
-		if (!array_key_exists($ID, $cache))
+		static $arLabels = ["EDIT_FORM_LABEL", "LIST_COLUMN_LABEL", "LIST_FILTER_LABEL", "ERROR_MESSAGE", "HELP_MESSAGE"];
+
+		if (!array_key_exists($ID, static::$cache))
 		{
 			$rsUserField = CUserTypeEntity::GetList([], ["ID" => intval($ID)]);
 			if ($arUserField = $rsUserField->Fetch())
@@ -143,14 +146,14 @@ class CAllUserTypeEntity extends CDBResult
 						$arUserField[$label][$ar["LANGUAGE_ID"]] = $ar[$label];
 					}
 				}
-				$cache[$ID] = $arUserField;
+				static::$cache[$ID] = $arUserField;
 			}
 			else
 			{
-				$cache[$ID] = false;
+				static::$cache[$ID] = false;
 			}
 		}
-		return $cache[$ID];
+		return static::$cache[$ID];
 	}
 
 	/**
@@ -793,7 +796,6 @@ class CAllUserTypeEntity extends CDBResult
 	 * <p>First, the property metadata is deleted.</p>
 	 * <p>Then, all values of multiple properties are deleted from the table of the form <b>b_utm_[ENTITY_ID]</b>.</p>
 	 * <p>After that, the column is dropped from the table of the form <b>b_uts_[ENTITY_ID]</b>.</p>
-	 * <p>And if this was the "last" property for the entity, the tables storing the values are dropped themselves.</p>
 	 * @param integer $ID Property identifier
 	 * @return CDBResult | false - result of the last query executed by the function.
 	 */
@@ -878,27 +880,18 @@ class CAllUserTypeEntity extends CDBResult
 				$rs = $DB->Query("DELETE FROM b_user_field WHERE ID = " . $ID);
 			}
 
-			if ($rs && $commonEventResult['PROVIDE_STORAGE'])
-			{
-				// only if we store values
-				$rs = $this->GetList([], ["ENTITY_ID" => $arField["ENTITY_ID"]]);
-				if ($rs->Fetch()) // more than one
-				{
-					$DB->Query("ALTER TABLE b_uts_" . $entityId . " DROP " . $arField["FIELD_NAME"], true);
-					$rs = $DB->Query("DELETE FROM b_utm_" . $entityId . " WHERE FIELD_ID = '" . $ID . "'");
-				}
-				else
-				{
-					$DB->Query("DROP TABLE IF EXISTS b_uts_" . $entityId);
-					$rs = $DB->Query("DROP TABLE IF EXISTS b_utm_" . $entityId);
-				}
-			}
-
 			static::cleanCache();
 
 			foreach (GetModuleEvents("main", "OnAfterUserTypeDelete", true) as $arEvent)
 			{
 				ExecuteModuleEventEx($arEvent, [$arField, $ID]);
+			}
+
+			if ($rs && $commonEventResult['PROVIDE_STORAGE'])
+			{
+				// only if we store values
+				$DB->Query("DELETE FROM b_utm_" . $entityId . " WHERE FIELD_ID = '" . $ID . "'");
+				$DB->Query("ALTER TABLE b_uts_" . $entityId . " DROP " . $arField["FIELD_NAME"]);
 			}
 		}
 		return $rs;
@@ -945,13 +938,14 @@ class CAllUserTypeEntity extends CDBResult
 			}
 		}
 
+		static::cleanCache();
+
 		if ($bDropTable)
 		{
-			$DB->Query("DROP TABLE IF EXISTS b_uts_" . strtolower($entity_id), true);
-			$rs = $DB->Query("DROP TABLE IF EXISTS b_utm_" . strtolower($entity_id), true);
+			$entityId = strtolower($entity_id);
+			$DB->Query("DROP TABLE IF EXISTS b_uts_" . $entityId);
+			$DB->Query("DROP TABLE IF EXISTS b_utm_" . $entityId);
 		}
-
-		static::cleanCache();
 
 		return $rs;
 	}
@@ -967,6 +961,7 @@ class CAllUserTypeEntity extends CDBResult
 		UserFieldTable::cleanCache();
 		UserFieldLangTable::cleanCache();
 		$USER_FIELD_MANAGER->CleanCache();
+		static::$cache = [];
 	}
 
 	/**

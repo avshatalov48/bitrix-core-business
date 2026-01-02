@@ -1,0 +1,5 @@
+<?php
+$MESS["SALE_HANDLERS_DISCOUNTPRESET_ERROR_PRODUCT_NON_ARRAY"] = "Өнімдерді таңдау кезіндегі қате мән";
+$MESS["SALE_HANDLERS_DISCOUNTPRESET_ERROR_SECTION_NON_ARRAY"] = "Секцияларды таңдау кезіндегі қате мән";
+$MESS["SALE_HANDLERS_DISCOUNTPRESET_SIMPLEPRODUCT_DISCOUNT_VALUE"] = "Жеңілдік";
+$MESS["SALE_HANDLERS_DISCOUNTPRESET_SIMPLEPRODUCT_NAME"] = "Тауарларға, тауарлар топтарына жеңілдік";

@@ -1,0 +1,2 @@
+<?php
+$MESS["IM_ELEMENTS_COPILOT_ROLES_DIALOG_DEFAULT_TITLE"] = "Выбрать роль";

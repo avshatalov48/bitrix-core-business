@@ -3,13 +3,15 @@
 namespace Bitrix\Calendar\Sync\Google;
 
 use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Integration\Socialservices\Auth\GoogleAuthHelper;
 use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Managers\ServiceBase;
 use Bitrix\Calendar\Util;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
-use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
+use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Web\HttpClient;
 
@@ -28,6 +30,7 @@ abstract class Manager extends ServiceBase
 	 * @param int $userId
 	 *
 	 * @throws SystemException
+	 * @throws LoaderException
 	 */
 	public function __construct(Connection $connection, int $userId)
 	{
@@ -54,19 +57,15 @@ abstract class Manager extends ServiceBase
 		$userId = $this->userId;
 		if (!isset(self::$httpClients[$userId]) || $force)
 		{
-			if (!Loader::includeModule('socialservices'))
-			{
-				throw new SystemException('Module Socialservices not found');
-			}
-
 			$httpClient = new HttpClient();
-			$oAuthEntity = $this->prepareAuthEntity($userId);
+			$oAuthEntity = GoogleAuthHelper::getUserAuthEntity($userId);
 
 			if ($oAuthEntity->getToken())
 			{
 				$httpClient->setHeader('Authorization', 'Bearer ' . $oAuthEntity->getToken());
 				$httpClient->setHeader('Content-Type', 'application/json');
 				$httpClient->setHeader('Referer', \Bitrix\Calendar\Sync\Util\Helper::getDomain());
+
 				unset($oAuthEntity);
 			}
 			else
@@ -80,51 +79,6 @@ abstract class Manager extends ServiceBase
 		$this->httpClient = self::$httpClients[$userId];
 
 		return $success;
-	}
-
-	/**
-	 * @param int $userId
-	 * @return \CGoogleOAuthInterface|\CGoogleProxyOAuthInterface
-	 * @throws \Bitrix\Main\LoaderException
-	 */
-	private function prepareAuthEntity(int $userId): \CGoogleOAuthInterface|\CGoogleProxyOAuthInterface
-	{
-		if (\CSocServGoogleProxyOAuth::isProxyAuth())
-		{
-			$oAuth = new \CSocServGoogleProxyOAuth($userId);
-		}
-		else
-		{
-			$oAuth = new \CSocServGoogleOAuth($userId);
-		}
-
-		$oAuthEntity = $oAuth->getEntityOAuth();
-		$oAuthEntity->addScope([
-			'https://www.googleapis.com/auth/calendar',
-			'https://www.googleapis.com/auth/calendar.readonly'
-		]);
-		$oAuthEntity->removeScope('https://www.googleapis.com/auth/drive');
-
-		$oAuthEntity->setUser($userId);
-
-		$tokens = $this->getStorageToken($userId);
-		if ($tokens)
-		{
-			$oAuthEntity->setToken($tokens['OATOKEN']);
-			$oAuthEntity->setAccessTokenExpires($tokens['OATOKEN_EXPIRES']);
-			$oAuthEntity->setRefreshToken($tokens['REFRESH_TOKEN']);
-		}
-
-		if (!$oAuthEntity->checkAccessToken())
-		{
-			$oAuthEntity->getNewAccessToken(
-				$oAuthEntity->getRefreshToken(),
-				$userId,
-				true,
-			);
-		}
-
-		return $oAuthEntity;
 	}
 
 	private function deactivateConnection()
@@ -159,16 +113,6 @@ abstract class Manager extends ServiceBase
 		}
 	}
 
-	protected function getStorageToken($userId)
-	{
-		return \Bitrix\Socialservices\UserTable::query()
-			->setSelect(['USER_ID', 'EXTERNAL_AUTH_ID', 'OATOKEN', 'OATOKEN_EXPIRES', 'REFRESH_TOKEN'])
-			->where('USER_ID', $userId)
-			->where('EXTERNAL_AUTH_ID', 'GoogleOAuth')
-			->exec()->fetch()
-		;
-	}
-
 	/**
 	 * @return bool
 	 */
@@ -187,13 +131,17 @@ abstract class Manager extends ServiceBase
 	/**
 	 * @param Connection $connection
 	 * @return void
+	 *
 	 * @throws LoaderException
+	 * @throws SystemException
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
 	 */
 	protected function handleUnauthorize(Connection $connection)
 	{
 		$userId = $connection->getOwner()->getId();
-		$oAuth = $this->prepareAuthEntity($userId);
-		$userTokenInfo = $this->getStorageToken($userId);
+		$oAuth = GoogleAuthHelper::getUserAuthEntity($userId);
+		$userTokenInfo = GoogleAuthHelper::getStoredTokens($userId);
 		$refreshResult = false;
 
 		if ($userTokenInfo['REFRESH_TOKEN'])

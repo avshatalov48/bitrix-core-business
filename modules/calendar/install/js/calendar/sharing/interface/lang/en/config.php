@@ -65,7 +65,6 @@ $MESS["SHARING_WARNING_POPUP_CONTENT"] = "A new guest link will be created if yo
 $MESS["SHARING_WARNING_POPUP_CONTENT_1"] = "Closing the access will deactivate your current link. <br>
 You will have to open access to the slots again to receive a new valid link.";
 $MESS["SHARING_WARNING_POPUP_CONTENT_2"] = "A new link will be created when you open access to the slots again. The old link will become invalid.<br />You will also have to create the shared slots again.";
-$MESS["SHARING_WARNING_POPUP_DELETE"] = "Yes";
 $MESS["SHARING_WARNING_POPUP_SUBMIT_BUTTON"] = "Close access";
 $MESS["SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW"] = "Yes, close the access";
 $MESS["SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW_MSGVER_1"] = "Yes, close the access";

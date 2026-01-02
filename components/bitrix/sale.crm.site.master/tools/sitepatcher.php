@@ -1240,13 +1240,10 @@ class SitePatcher
 	{
 		$groupIdList = [];
 
-		$groupIterator = Main\GroupTable::getList([
-			"select" => ["ID"],
-			"filter" => ["=STRING_ID" => "CRM_SHOP_".$type],
-		]);
-		while ($group = $groupIterator->fetch())
+		$groupId = CGroup::GetIDByCode("CRM_SHOP_" . $type);
+		if ($groupId)
 		{
-			$groupIdList[] = $group["ID"];
+			$groupIdList[] = $groupId;
 		}
 
 		return $groupIdList;

@@ -5,12 +5,13 @@ import { SmileManager } from 'im.v2.lib.smile-manager';
 import { UserManager } from 'im.v2.lib.user';
 import { CounterManager } from 'im.v2.lib.counter';
 import { Logger } from 'im.v2.lib.logger';
-import { NotifierManager } from 'im.v2.lib.notifier';
+import { MessageNotifierManager } from 'im.v2.lib.message-notifier';
 import { MarketManager } from 'im.v2.lib.market';
 import { DesktopManager } from 'im.v2.lib.desktop';
 import { PromoManager } from 'im.v2.lib.promo';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { UpdateStateManager } from 'im.v2.lib.update-state.manager';
+import { Router } from 'im.v2.lib.router';
 
 export class InitManager
 {
@@ -28,17 +29,20 @@ export class InitManager
 		this.#initCurrentUser();
 		this.#initSettings();
 		this.#initTariffRestrictions();
+		this.#initAnchors();
+		this.#initCallManager();
+		this.#initAvailableAIModelsList();
 
 		CounterManager.init();
 		PermissionManager.init();
 		PromoManager.init();
 		MarketManager.init();
 		PhoneManager.init();
-		CallManager.init();
 		SmileManager.init();
-		NotifierManager.init();
+		MessageNotifierManager.init();
 		DesktopManager.init();
 		UpdateStateManager.init();
+		Router.init();
 
 		this.#started = true;
 	}
@@ -87,5 +91,34 @@ export class InitManager
 
 		Logger.warn('InitManager: tariffRestrictions', tariffRestrictions);
 		void Core.getStore().dispatch('application/tariffRestrictions/set', tariffRestrictions);
+	}
+
+	static #initCallManager()
+	{
+		const { activeCalls } = Core.getApplicationData();
+		CallManager.getInstance().updateRecentCallsList(activeCalls);
+	}
+
+	static #initAnchors()
+	{
+		const { anchors } = Core.getApplicationData();
+		if (!anchors)
+		{
+			return;
+		}
+
+		void Core.getStore().dispatch('messages/anchors/setAnchors', { anchors });
+	}
+
+	static #initAvailableAIModelsList(): void
+	{
+		const { copilot } = Core.getApplicationData();
+
+		if (!copilot.availableEngines)
+		{
+			return;
+		}
+
+		void Core.getStore().dispatch('copilot/setAvailableAIModels', copilot.availableEngines);
 	}
 }

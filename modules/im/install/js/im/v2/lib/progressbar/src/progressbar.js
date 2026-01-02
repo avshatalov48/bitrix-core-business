@@ -65,6 +65,13 @@ export class ProgressBarManager extends EventEmitter
 			this.progressBar.setIcon(ProgressBar.icon.cloud);
 			this.progressBar.setProgressTitle(Loc.getMessage('IM_LIB_PROGRESSBAR_FILE_UPLOAD_SAVING'));
 		}
+		else if (this.uploadState.status === FileStatus.preparing)
+		{
+			this.progressBar.setProgress(this.uploadState.progress > STARTING_PROGRESS? this.uploadState.progress: STARTING_PROGRESS);
+			this.progressBar.setCancelDisable(false);
+			this.progressBar.setIcon(ProgressBar.icon.cancel);
+			this.progressBar.setProgressTitle(Loc.getMessage('IM_LIB_PROGRESSBAR_FILE_UPLOAD_SAVING'));
+		}
 		else if (this.uploadState.progress === 100)
 		{
 			this.progressBar.setProgress(100);

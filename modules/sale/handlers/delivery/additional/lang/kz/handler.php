@@ -1,0 +1,26 @@
+<?php
+$MESS["SALE_DLVRS_ADD_CONFIG_RECEIVE_ERROR"] = "Жеткізу қызметінің конфигурациясын алу қатесі";
+$MESS["SALE_DLVRS_ADD_DESCRIPTION"] = "Қосымша жеткізу қызметтерінің жинағы";
+$MESS["SALE_DLVRS_ADD_LICENSE_WRONG"] = "Лицензия жарамсыз болғандықтан, өңдеушінің мүмкіндіктері шектеулі";
+$MESS["SALE_DLVRS_ADD_LIST_LICENSE_WRONG"] = "Лицензия жарамсыз болғандықтан, кейбір жеткізу қызметтерін қосу мүмкін емес";
+$MESS["SALE_DLVRS_ADD_LIST_RECEIVE_ERROR"] = "Жеткізу қызметтерінің тізімін алу қатесі";
+$MESS["SALE_DLVRS_ADD_LOC_COMP_AJAX_ERROR"] = "Ақпарат алу қатесі";
+$MESS["SALE_DLVRS_ADD_LOC_COMP_CLOSE"] = "Жабу";
+$MESS["SALE_DLVRS_ADD_LOC_COMP_PREPARE"] = "Дайындық";
+$MESS["SALE_DLVRS_ADD_LOC_COMP_TITLE"] = "Орналасуды сәйкестендіру";
+$MESS["SALE_DLVRS_ADD_LOC_INSTALL"] = "Дүкен орналасуы мен жеткізу қызметінің орналасуы арасында сәйкестікті орнату қажет. Ол үшін \"Орналасу\" қойындысына өтіп, \"Сәйкестендіру\" батырмасын басыңыз. Өнімділікке байланысты бұл ұзақ уақыт алуы мүмкін";
+$MESS["SALE_DLVRS_ADD_LOC_INSTALL_START"] = "Бастау";
+$MESS["SALE_DLVRS_ADD_LOC_TAB"] = "Орналасулар";
+$MESS["SALE_DLVRS_ADD_LOC_TAB_TITLE"] = "Орналасуды сәйкестендіру";
+$MESS["SALE_DLVRS_ADD_MAIN_DEFAULT_VALUES"] = "Әдепкі бойынша мән";
+$MESS["SALE_DLVRS_ADD_MAIN_DESCRIPTION"] = "Жеткізу қызметінің баптаулары";
+$MESS["SALE_DLVRS_ADD_MAIN_HEIGHT_DEFAULT"] = "Биіктігі (мм)";
+$MESS["SALE_DLVRS_ADD_MAIN_LENGTH_DEFAULT"] = "Ұзындығы (мм)";
+$MESS["SALE_DLVRS_ADD_MAIN_TITLE"] = "Баптаулар";
+$MESS["SALE_DLVRS_ADD_MAIN_WEIGHT_DEFAULT"] = "Салмағы (г)";
+$MESS["SALE_DLVRS_ADD_MAIN_WIDTH_DEFAULT"] = "Ені (мм)";
+$MESS["SALE_DLVRS_ADD_NAME"] = "Қосымша жеткізу қызметтері";
+$MESS["SALE_DLVRS_ADD_PCONFIG_RECEIVE_ERROR"] = "Жеткізу қызметі профилінің конфигурациясын алу қатесі";
+$MESS["SALE_DLVRS_ADD_SERVICE_TYPE"] = "Жеткізу қызметінің түрі";
+$MESS["SALE_DLVRS_ADD_SP_CHOOSE_TITLE"] = "Жеткізу нүктесін таңдау";
+$MESS["SALE_DLVRS_ADD_SP_SAVE"] = "Сақтау";

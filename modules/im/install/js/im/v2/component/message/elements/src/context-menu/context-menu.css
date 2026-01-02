@@ -1,5 +1,5 @@
 .bx-im-message-context-menu__scope {
-	--im-message-context-menu__offset: var(--im-message-base__offset_context-menu, 54px);
+	--im-message-context-menu__offset: var(--im-message-base__offset_context-menu, 42px);
 	--im-message-context-menu__background-color_button: rgb(82 92 105 / 20%);
 	--im-message-context-menu__background-color_button-hover: rgb(82 92 105 / 40%);
 }
@@ -23,7 +23,7 @@
 	width: 22px;
 	height: 22px;
 	cursor: pointer;
-	margin-left: 7px;
+	margin-left: 8px;
 	opacity: 0;
 	transition: opacity .3s, background-color .2s;
 }

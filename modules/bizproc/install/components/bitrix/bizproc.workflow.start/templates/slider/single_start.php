@@ -32,8 +32,7 @@ global $APPLICATION;
 $template = $arResult['template'];
 $htmlId = 'bizproc-workflow-start-single-start';
 
-$hasParameters = is_array($template['PARAMETERS'] ?? null) && $template['PARAMETERS'];
-$parameters = $hasParameters ? $template['PARAMETERS']: null;
+$parameters = $arResult['hasParameters'] ? $template['PARAMETERS']: null;
 $constants = $arResult['isConstantsTuned'] ? null : ($template['CONSTANTS'] ?? null);
 
 $singleStartData = [
@@ -41,7 +40,7 @@ $singleStartData = [
 	'signedDocumentType' => $arResult['signedDocumentType'],
 	'signedDocumentId' => $arResult['signedDocumentId'],
 
-	'hasParameters' => $hasParameters,
+	'hasParameters' => $arResult['hasParameters'],
 	'isConstantsTuned' => $arResult['isConstantsTuned'],
 
 	'id' => (int)$template['ID'],
@@ -50,6 +49,9 @@ $singleStartData = [
 	'duration' => $arResult['duration'],
 	'constants' => is_array($constants) ? \Bitrix\Bizproc\FieldType::normalizePropertyList($constants) : null,
 	'parameters' => is_array($parameters) ? \Bitrix\Bizproc\FieldType::normalizePropertyList($parameters) : null,
+
+	'errors' => $arResult['errors'] ?? null,
+	'workflowId' => $arResult['workflowId'] ?? null,
 ];
 ?>
 

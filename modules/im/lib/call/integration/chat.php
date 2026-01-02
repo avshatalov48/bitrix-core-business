@@ -6,6 +6,7 @@ use Bitrix\Im\Call\Call;
 use Bitrix\Im\Call\CallUser;
 use Bitrix\Im\Common;
 use Bitrix\Im\Dialog;
+use Bitrix\Im\V2\Chat\NullChat;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\Params;
 use Bitrix\Main\Application;
@@ -34,23 +35,21 @@ class Chat extends AbstractEntity
 			throw new ArgumentException("Invalid chat id {$entityId}");
 		}
 
-		$params = ['ID' => $chatId];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		global $USER;
-		if ($USER instanceof \CUser)
+		if (empty($userId))
 		{
-			$params['USER_ID'] = (int)$USER->getId();
+			$params['USER_ID'] = $this->initiatorId;
 		}
 
-		$result = \CIMChat::GetChatData($params);
-
-		if ($result['chat'][$chatId])
+		if (!$chat instanceof NullChat)
 		{
-			$this->chatFields = $result['chat'][$chatId];
+			$this->chatFields = $this->getChatFields($chat);
 		}
-		if (is_array($result['userInChat'][$chatId]))
+		$users = $chat->getRelationProvider()->getAllMemberIds();
+		$users[$call->getInitiatorId()] = $call->getInitiatorId();
+		if (!empty($users))
 		{
-			$users = $result['userInChat'][$chatId];
 			$activeRealUsers = UserTable::getList([
 				'select' => ['ID'],
 				'filter' => [
@@ -61,7 +60,6 @@ class Chat extends AbstractEntity
 						'=IS_REAL_USER' => 'Y',
 						'=EXTERNAL_AUTH_ID' => \Bitrix\Im\Call\Auth::AUTH_TYPE,
 					]
-
 				]
 			])->fetchAll();
 			$this->chatUsers = array_column($activeRealUsers, 'ID');
@@ -85,10 +83,8 @@ class Chat extends AbstractEntity
 		{
 			return $this->entityId;
 		}
-		else
-		{
-			return $this->call->getInitiatorId() == $currentUserId ? $this->entityId : $this->call->getInitiatorId();
-		}
+
+		return $this->call->getInitiatorId() == $currentUserId ? $this->entityId : $this->call->getInitiatorId();
 	}
 
 	public function getChatId()
@@ -128,7 +124,7 @@ class Chat extends AbstractEntity
 	 *
 	 * @param int $userId
 	 * @return bool
- 	*/
+	 */
 	public function canStartCall(int $userId): bool
 	{
 		if (Common::isChatId($this->entityId))
@@ -164,6 +160,34 @@ class Chat extends AbstractEntity
 	}
 
 	/**
+	 * Returns chat owner id.
+	 * @return int|null
+	 */
+	public function getOwnerId(): ?int
+	{
+		if (!empty($this->chatFields['owner']))
+		{
+			return (int)$this->chatFields['owner'];
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns list of the chat managers.
+	 * @return int[]
+	 */
+	public function getManagerIds(): array
+	{
+		if (!empty($this->chatFields['manager_list']))
+		{
+			return array_map('intVal', $this->chatFields['manager_list']);
+		}
+
+		return [];
+	}
+
+	/**
 	 * Returns associated entity name.
 	 *
 	 * @param int $currentUserId Id of the user.
@@ -171,16 +195,16 @@ class Chat extends AbstractEntity
 	 */
 	public function getName($currentUserId)
 	{
-		if(!$this->chatFields)
+		if (!$this->chatFields)
 		{
 			return false;
 		}
 
-		if($this->chatFields['message_type'] === IM_MESSAGE_PRIVATE && count($this->chatUsers) === 2)
+		if ($this->chatFields['message_type'] === IM_MESSAGE_PRIVATE && count($this->chatUsers) === 2)
 		{
 			return \Bitrix\Im\User::getInstance($this->getEntityId($currentUserId))->getFullName();
 		}
-		if($this->chatFields['message_type'] !== IM_MESSAGE_PRIVATE)
+		if ($this->chatFields['message_type'] !== IM_MESSAGE_PRIVATE)
 		{
 			return $this->chatFields['name'];
 		}
@@ -190,16 +214,16 @@ class Chat extends AbstractEntity
 
 	public function getAvatar($currentUserId)
 	{
-		if(!$this->chatFields)
+		if (!$this->chatFields)
 		{
 			return false;
 		}
 
-		if($this->chatFields['message_type'] === IM_MESSAGE_PRIVATE && count($this->chatUsers) === 2)
+		if ($this->chatFields['message_type'] === IM_MESSAGE_PRIVATE && count($this->chatUsers) === 2)
 		{
 			return \Bitrix\Im\User::getInstance($this->getEntityId($currentUserId))->getAvatarHr();
 		}
-		if($this->chatFields['message_type'] !== IM_MESSAGE_PRIVATE)
+		if ($this->chatFields['message_type'] !== IM_MESSAGE_PRIVATE)
 		{
 			return $this->chatFields['avatar'];
 		}
@@ -209,16 +233,16 @@ class Chat extends AbstractEntity
 
 	public function getAvatarColor($currentUserId)
 	{
-		if(!$this->chatFields)
+		if (!$this->chatFields)
 		{
 			return false;
 		}
 
-		if($this->chatFields['message_type'] === IM_MESSAGE_PRIVATE && count($this->chatUsers) === 2)
+		if ($this->chatFields['message_type'] === IM_MESSAGE_PRIVATE && count($this->chatUsers) === 2)
 		{
 			return \Bitrix\Im\User::getInstance($this->getEntityId($currentUserId))->getColor();
 		}
-		if($this->chatFields['message_type'] !== IM_MESSAGE_PRIVATE)
+		if ($this->chatFields['message_type'] !== IM_MESSAGE_PRIVATE)
 		{
 			return $this->chatFields['color'];
 		}
@@ -291,13 +315,13 @@ class Chat extends AbstractEntity
 	public function onStateChange($state, $prevState)
 	{
 		$initiatorId = $this->call->getInitiatorId();
-		$initiator = \Bitrix\Im\User::getInstance($initiatorId);
+		//$initiator = \Bitrix\Im\User::getInstance($initiatorId);
 		if ($state === Call::STATE_INVITING && $prevState === Call::STATE_NEW)
 		{
 			// todo: return the call method when the calls are supported in the mobile
 			//$this->sendMessagesCallStart();
 		}
-		elseif($state === Call::STATE_FINISHED)
+		elseif ($state === Call::STATE_FINISHED)
 		{
 			$message = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_FINISHED_V2", [
 				'#CALL_DURATION#' => $this->getCallDuration(),
@@ -316,7 +340,7 @@ class Chat extends AbstractEntity
 				'INITIATOR_ID' => $this->call->getActionUserId(),
 			];
 
-			if(count($userIds) == 1)
+			if ($this->call instanceof \Bitrix\Call\Call\PlainCall)
 			{
 				$otherUser = \Bitrix\Im\User::getInstance($userIds[0]);
 				$otherUserState = $this->call->getUser($userIds[0]) ? $this->call->getUser($userIds[0])->getState() : '';
@@ -328,7 +352,7 @@ class Chat extends AbstractEntity
 						'#NAME#' => $otherUser->getFullName(false)
 					]);
 				}
-				else if ($otherUserState == CallUser::STATE_BUSY)
+				elseif ($otherUserState == CallUser::STATE_BUSY)
 				{
 					$componentParams['MESSAGE_TYPE'] = 'BUSY';
 					$message = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_USER_BUSY_" . $otherUser->getGender(), [
@@ -337,7 +361,7 @@ class Chat extends AbstractEntity
 					$mute = false;
 					$skipCounterInc = false;
 				}
-				else if ($otherUserState == CallUser::STATE_UNAVAILABLE || $otherUserState == CallUser::STATE_CALLING)
+				elseif ($otherUserState == CallUser::STATE_UNAVAILABLE || $otherUserState == CallUser::STATE_CALLING)
 				{
 					$componentParams['MESSAGE_TYPE'] = 'MISSED';
 					$message = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_MISSED", [
@@ -349,7 +373,7 @@ class Chat extends AbstractEntity
 			}
 
 			$componentParams['MESSAGE_TEXT'] = $message;
-			$this->sendMessageDeferred($message, $mute, $skipCounterInc, $componentParams);
+			$this->sendMessage($message, $mute, $skipCounterInc, $componentParams);
 		}
 	}
 
@@ -371,7 +395,7 @@ class Chat extends AbstractEntity
 			'MESSAGE_TEXT' => $message,
 		];
 
-		$this->sendMessageDeferred($message, self::MUTE_MESSAGE, true, $componentParams);
+		$this->sendMessage($message, self::MUTE_MESSAGE, true, $componentParams);
 	}
 
 	public function sendMessageDeferred($message, $muted = false, $skipCounterInc = false, $componentParams = [])
@@ -381,9 +405,9 @@ class Chat extends AbstractEntity
 
 	public function isBroadcast()
 	{
-		return $this->chatFields['entity_type'] === \Bitrix\Im\Alias::ENTITY_TYPE_VIDEOCONF
-			&& $this->chatFields['entity_data_1'] === 'BROADCAST'
-		;
+		return
+			$this->chatFields['entity_type'] === \Bitrix\Im\Alias::ENTITY_TYPE_VIDEOCONF
+			&& $this->chatFields['entity_data_1'] === 'BROADCAST';
 	}
 
 	public function sendMessage($message, $muted = false, $skipCounterInc = false, $componentParams = [])
@@ -402,6 +426,7 @@ class Chat extends AbstractEntity
 		}
 
 		\CIMMessenger::add([
+			'WAIT_FULL_EXECUTION' => 'N',
 			'TO_CHAT_ID' => $chatId,
 			'MESSAGE_TYPE' => $this->isPrivateChat() ? IM_MESSAGE_PRIVATE : IM_MESSAGE_CHAT,
 			'FROM_USER_ID' => $initiator,
@@ -426,9 +451,11 @@ class Chat extends AbstractEntity
 		return [
 			'type' => $this->getEntityType(),
 			'id' => (string)$this->getEntityId($initiatorId), //todo: Cast to string for compatibility with immobile. Remove it in a while
+			'chatId' => $this->chatId,
 			'name' => $this->getName($initiatorId),
 			'avatar' => $this->getAvatar($initiatorId),
 			'avatarColor' => $this->getAvatarColor($initiatorId),
+			'userCounter' => count($this->chatUsers),
 			'advanced' => [
 				'chatType' => $this->chatFields['type'],
 				'entityType' => $this->chatFields['entity_type'],
@@ -462,27 +489,32 @@ class Chat extends AbstractEntity
 		[$hours, $minutes, $seconds] = explode(' ', $interval->format('%H %I %S'));
 		$result = [];
 
-		if ((int) $hours > 0)
+		if ((int)$hours > 0)
 		{
 			$result[] = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_DURATION_HOURS", [
-				"#HOURS#" => (int) $hours
+				"#HOURS#" => (int)$hours
 			]);
 		}
 
-		if ((int) $minutes > 0)
+		if ((int)$minutes > 0)
 		{
 			$result[] = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_DURATION_MINUTES", [
-				"#MINUTES#" => (int) $minutes
+				"#MINUTES#" => (int)$minutes
 			]);
 		}
 
-		if ((int) $seconds > 0 && !(int) $hours > 0)
+		if ((int)$seconds > 0 && !((int)$hours > 0))
 		{
 			$result[] = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_DURATION_SECONDS", [
-				"#SECONDS#" => (int) $seconds
+				"#SECONDS#" => (int)$seconds
 			]);
 		}
 
 		return implode(" ", $result);
+	}
+
+	private function getChatFields(\Bitrix\Im\V2\Chat $chat): array
+	{
+		return $chat->toPullFormat();
 	}
 }

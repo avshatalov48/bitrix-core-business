@@ -654,7 +654,7 @@ if (
 
 	if ($pk)
 	{
-		if ($_POST['clear_managed_cache'] === 'Y')
+		if (isset($_POST['clear_managed_cache']) && $_POST['clear_managed_cache'] === 'Y')
 		{
 			$CACHE_MANAGER->CleanAll();
 			$stackCacheManager->CleanAll();
@@ -1001,7 +1001,7 @@ if ($strError)
 					value="<?php echo htmlspecialcharsbx($value) ?>"
 					<?php echo $value === null && !$bNewRow ? 'disabled' : '' ?>
 				>
-				<span class="adm-calendar-icon" title="<?php echo GetMessage("admin_lib_calend_title") ?>" onclick="BX.calendar({node:this, field:'<?php echo htmlspecialcharsbx($Field) ?>', form: '', bTime: true, bHideTime: false});"></span>
+				<span class="adm-calendar-icon" title="<?php echo GetMessage('admin_lib_calend_title') ?>" onclick="BX.calendar({node:this, field:'<?php echo htmlspecialcharsbx($Field) ?>', form: '', bTime: true, bHideTime: false});"></span>
 				</div><?php if ($arField['nullable']): ?>
 						<label><input
 							type="checkbox"
@@ -1028,7 +1028,7 @@ if ($strError)
 					value="<?php echo htmlspecialcharsbx($value) ?>"
 					<?php echo $value === null && !$bNewRow ? 'disabled' : '' ?>
 				>
-				<span class="adm-calendar-icon" title="<?php echo GetMessage("admin_lib_calend_title") ?>" onclick="BX.calendar({node:this, field:'<?php echo htmlspecialcharsbx($Field) ?>', form: '', bTime: false, bHideTime: false});"></span>
+				<span class="adm-calendar-icon" title="<?php echo GetMessage('admin_lib_calend_title') ?>" onclick="BX.calendar({node:this, field:'<?php echo htmlspecialcharsbx($Field) ?>', form: '', bTime: false, bHideTime: false});"></span>
 				</div><?php if ($arField['nullable']): ?>
 						<label><input
 							type="checkbox"
@@ -1051,7 +1051,7 @@ if ($strError)
 						$selectValues,
 						$value,
 						$arField['nullable'] ? '[NULL]' : '',
-						"class='typeselect'" . ($arField['nullable'] ? ' oninput="document.getElementById(\'' . htmlspecialcharsbx($Field . '_IS_NULL') . '\').checked = false;"' : '') . ($value === null && !$bNewRow? ' disabled' : '')
+						"class='typeselect'" . ($arField['nullable'] ? ' oninput="document.getElementById(\'' . htmlspecialcharsbx($Field . '_IS_NULL') . '\').checked = false;"' : '') . ($value === null && !$bNewRow ? ' disabled' : '')
 					);
 					?><?php if ($arField['nullable']): ?>
 						<label><input

@@ -284,7 +284,7 @@ class ChatTable extends Entity\DataManager
 		Sync\Logger::getInstance()->add(
 			new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $chatId),
 			static fn () => Chat::getInstance($chatId)->getRelations()->getUserIds(),
-			Chat::getInstance($chatId)->getType()
+			Chat::getInstance($chatId)
 		);
 
 		return new Entity\EventResult();
@@ -487,7 +487,7 @@ class ChatTable extends Entity\DataManager
 						->whereNot('ENTITY_TYPE', 'LIVECHAT')
 						->whereNull('ENTITY_TYPE')
 				)
-				->whereNotIn('TYPE', [\Bitrix\Im\Chat::TYPE_SYSTEM, \Bitrix\Im\Chat::TYPE_PRIVATE, Chat::IM_TYPE_COPILOT])
+				->whereNotIn('TYPE', [\Bitrix\Im\Chat::TYPE_SYSTEM, \Bitrix\Im\Chat::TYPE_PRIVATE])
 				->fetch()
 			;
 	}

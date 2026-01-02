@@ -1,0 +1,27 @@
+<?php
+$MESS["customrank_edit_add_new"] = "Қосу";
+$MESS["customrank_edit_add_new_title"] = "Жаңа ережені қосу";
+$MESS["customrank_edit_add_rule"] = "Ережені қосу";
+$MESS["customrank_edit_delete"] = "Жою";
+$MESS["customrank_edit_delete_conf"] = "Ережені жою керек пе?";
+$MESS["customrank_edit_delete_title"] = "Осы ережені жою";
+$MESS["customrank_edit_edit_rule"] = "# ережесін редакциялау";
+$MESS["customrank_edit_files"] = "Статикалық файлдар";
+$MESS["customrank_edit_list_rule"] = "Тізім";
+$MESS["customrank_edit_list_rule_title"] = "Ережелер тізімі";
+$MESS["customrank_edit_module"] = "Модуль:";
+$MESS["customrank_edit_no"] = "(жоқ)";
+$MESS["customrank_edit_param1"] = "1-параметр:";
+$MESS["customrank_edit_param1_forum"] = "1-параметр (форум):";
+$MESS["customrank_edit_param1_iblock"] = "1-параметр (ақпараттық блок түрі):";
+$MESS["customrank_edit_param2"] = "2-параметр:";
+$MESS["customrank_edit_param2_forum"] = "2-параметр (форум тақырыбы):";
+$MESS["customrank_edit_param2_iblock"] = "2-параметр (ақпараттық блок):";
+$MESS["customrank_edit_param3"] = "3-параметр:";
+$MESS["customrank_edit_param3_forum"] = "3-параметр (форумдағы хабар):";
+$MESS["customrank_edit_param3_iblock"] = "3-параметр (ақпараттық блок элементі):";
+$MESS["customrank_edit_param3_main"] = "3-параметр (файлға толық жол):";
+$MESS["customrank_edit_rule"] = "Ереже";
+$MESS["customrank_edit_rule_title"] = "Сұрыптау ережесінің параметрлері";
+$MESS["customrank_edit_site"] = "Сайт:";
+$MESS["customrank_edit_sort"] = "Салмағы:";

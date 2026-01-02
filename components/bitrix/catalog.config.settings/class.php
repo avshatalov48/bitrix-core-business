@@ -81,7 +81,7 @@ class CatalogConfigSettingsComponent extends \CBitrixComponent implements Contro
 			return ['success' => false];
 		}
 
-		$catalogSettings = new CatalogSettings($data);
+		$catalogSettings = new CatalogSettings($filteredData);
 		$result = $catalogSettings->save();
 		if ($result->isSuccess())
 		{

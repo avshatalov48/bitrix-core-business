@@ -4,13 +4,13 @@ import { UserMenu } from 'im.v2.lib.menu';
 import { Core } from 'im.v2.application.core';
 import { Utils } from 'im.v2.lib.utils';
 import { CallManager } from 'im.v2.lib.call';
-import { ChatService } from 'im.v2.provider.service';
+import { ChatService } from 'im.v2.provider.service.chat';
 import { ActionByRole, ActionByUserType, ChatType, UserType } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { showLeaveChatConfirm } from 'im.v2.lib.confirm';
 
 import type { ImModelUser, ImModelChat } from 'im.v2.model';
-import type { MenuItem } from 'im.v2.lib.menu';
+import type { MenuItemOptions } from 'ui.system.menu';
 
 type MembersMenuContext = {
 	dialog: ImModelChat,
@@ -33,7 +33,7 @@ export class MembersMenu extends UserMenu
 		this.permissionManager = PermissionManager.getInstance();
 	}
 
-	getMenuItems(): MenuItem[]
+	getMenuItems(): MenuItemOptions | null[]
 	{
 		if (this.context.user.id === Core.getUserId())
 		{
@@ -55,7 +55,7 @@ export class MembersMenu extends UserMenu
 		];
 	}
 
-	getManagerItem(): ?MenuItem
+	getManagerItem(): ?MenuItemOptions
 	{
 		const isOwner = this.context.user.id === this.context.dialog.ownerId;
 		const canChangeManagers = PermissionManager.getInstance().canPerformActionByRole(
@@ -72,8 +72,8 @@ export class MembersMenu extends UserMenu
 		const isManager = this.context.dialog.managerList.includes(this.context.user.id);
 
 		return {
-			text: isManager ? Loc.getMessage('IM_SIDEBAR_MENU_MANAGER_REMOVE') : Loc.getMessage('IM_SIDEBAR_MENU_MANAGER_ADD'),
-			onclick: () => {
+			title: isManager ? Loc.getMessage('IM_SIDEBAR_MENU_MANAGER_REMOVE') : Loc.getMessage('IM_SIDEBAR_MENU_MANAGER_ADD'),
+			onClick: () => {
 				if (isManager)
 				{
 					this.chatService.removeManager(this.context.dialog.dialogId, this.context.user.id);
@@ -87,7 +87,7 @@ export class MembersMenu extends UserMenu
 		};
 	}
 
-	getCallItem(): ?MenuItem
+	getCallItem(): ?MenuItemOptions
 	{
 		const userDialogId = this.context.user.id.toString();
 
@@ -99,15 +99,15 @@ export class MembersMenu extends UserMenu
 		}
 
 		return {
-			text: Loc.getMessage('IM_LIB_MENU_CALL_2'),
-			onclick: () => {
+			title: Loc.getMessage('IM_LIB_MENU_CALL_2'),
+			onClick: () => {
 				this.callManager.startCall(userDialogId);
 				this.menuInstance.close();
 			},
 		};
 	}
 
-	getOpenUserCalendarItem(): ?MenuItem
+	getOpenUserCalendarItem(): ?MenuItemOptions
 	{
 		if (this.isBot())
 		{
@@ -119,15 +119,15 @@ export class MembersMenu extends UserMenu
 		const phraseCode = isCurrentUser ? 'IM_LIB_MENU_OPEN_OWN_CALENDAR' : 'IM_LIB_MENU_OPEN_CALENDAR_V2';
 
 		return {
-			text: Loc.getMessage(phraseCode),
-			onclick: () => {
+			title: Loc.getMessage(phraseCode),
+			onClick: () => {
 				BX.SidePanel.Instance.open(profileUri);
 				this.menuInstance.close();
 			},
 		};
 	}
 
-	getLeaveItem(): ?MenuItem
+	getLeaveItem(): ?MenuItemOptions
 	{
 		if (this.isCollabChat() && !this.canLeaveCollab())
 		{
@@ -144,8 +144,8 @@ export class MembersMenu extends UserMenu
 		}
 
 		return {
-			text: Loc.getMessage('IM_LIB_MENU_LEAVE_MSGVER_1'),
-			onclick: async () => {
+			title: Loc.getMessage('IM_LIB_MENU_LEAVE_MSGVER_1'),
+			onClick: async () => {
 				this.menuInstance.close();
 				const userChoice = await showLeaveChatConfirm(this.context.dialog.dialogId);
 				if (!userChoice)

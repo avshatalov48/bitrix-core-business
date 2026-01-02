@@ -54,7 +54,7 @@ if ($arResult["TW_USE"])
 
 if ($arResult["VK_USE"])
 {
-	$APPLICATION->AddHeadString('<script src="https://vk.com/js/api/share.js?93" charset="windows-1251"></script>');
+	$APPLICATION->AddHeadString('<script src="https://vk.ru/js/api/share.js?93" charset="windows-1251"></script>');
 	?> <div class="catalog-sb-item vk" id="vk-shared-button-<?$this->randString()?>"></div><script>
 	(function() {
 		var div = document.getElementById("vk-shared-button-<?$this->randString()?>");

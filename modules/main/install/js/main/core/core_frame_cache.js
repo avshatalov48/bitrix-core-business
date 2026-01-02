@@ -502,7 +502,7 @@
 		var result = null;
 		try
 		{
-			eval("result = " + response);
+			result = JSON.parse(response);
 		}
 		catch (e)
 		{

@@ -1,0 +1,20 @@
+<?php
+$MESS["BLOG_BLOG_BLOG_FRIENDS_ONLY"] = "Хабарламаларды оқуға құқықтар жеткіліксіз.";
+$MESS["BLOG_BLOG_BLOG_MES_DELED"] = "Хабарлама жойылды";
+$MESS["BLOG_BLOG_BLOG_MES_DEL_ERROR"] = "Хабарламаны жою қателігі";
+$MESS["BLOG_BLOG_BLOG_MES_DEL_NO_RIGHTS"] = "Сізде бұл хабарламаны жою үшін құқық жоқ";
+$MESS["BLOG_BLOG_BLOG_MES_PUB"] = "Хабарлама жарияланған";
+$MESS["BLOG_BLOG_BLOG_MES_PUB_ERROR"] = "Хабарламаны жариялау қатесі";
+$MESS["BLOG_BLOG_BLOG_MES_PUB_NO_RIGHTS"] = "Сізде бұл хабарламаны жариялау үшін құқық жоқ";
+$MESS["BLOG_BLOG_SESSID_WRONG"] = "Сіздің сессияңыздың мерзімі аяқталды, әрекетті қайталаңыз";
+$MESS["BLOG_MODULE_NOT_INSTALL"] = "Блогтар модулі орнатылмаған.";
+$MESS["BLOG_MOD_DELETE"] = "Жою";
+$MESS["BLOG_MOD_DELETE_CONFIRM"] = "Хабарламаны жойғыңыз келетініне сенімдісіз бе?";
+$MESS["BLOG_MOD_EMPTY_SOCNET_USER"] = "Пайдаланушы профилі көрсетілмеген";
+$MESS["BLOG_MOD_NO_RIGHTS"] = "Сіз бұл топтағы хабарламаларды модерациялауға құқығыңыз жоқ";
+$MESS["BLOG_MOD_NO_SOCNET_GROUP"] = "Әлеуметтік желі тобы берілмеген";
+$MESS["BLOG_MOD_NO_SOCNET_USER"] = "Сіз модерация үшін басқа адамдардың хабарламаларын көре алмайсыз";
+$MESS["BLOG_MOD_PUB"] = "Жариялау";
+$MESS["BLOG_MOD_TITLE_MSGVER_1"] = "Модерация";
+$MESS["BLOG_SONET_MODULE_NOT_AVAIBLE"] = "Хабарламалар бұл топ үшін қолжетімсіз";
+$MESS["MESSAGE_COUNT"] = "Хабарламалар";

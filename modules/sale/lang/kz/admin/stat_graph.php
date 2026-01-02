@@ -1,0 +1,20 @@
+<?php
+$MESS["STAT_M_01"] = "Қаң";
+$MESS["STAT_M_02"] = "Ақп";
+$MESS["STAT_M_03"] = "Наурыз";
+$MESS["STAT_M_04"] = "Сәу";
+$MESS["STAT_M_05"] = "Мамыр";
+$MESS["STAT_M_06"] = "Маусым";
+$MESS["STAT_M_07"] = "Шілде";
+$MESS["STAT_M_08"] = "Там";
+$MESS["STAT_M_09"] = "Қыр";
+$MESS["STAT_M_10"] = "Қаз";
+$MESS["STAT_M_11"] = "Қар";
+$MESS["STAT_M_12"] = "Жел";
+$MESS["STAT_WEEKDAY_0"] = "Жк";
+$MESS["STAT_WEEKDAY_1"] = "Дс";
+$MESS["STAT_WEEKDAY_2"] = "Сс";
+$MESS["STAT_WEEKDAY_3"] = "Ср";
+$MESS["STAT_WEEKDAY_4"] = "Бс";
+$MESS["STAT_WEEKDAY_5"] = "Жм";
+$MESS["STAT_WEEKDAY_6"] = "Сб";

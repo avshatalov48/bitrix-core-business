@@ -9,6 +9,7 @@ import { SettingsRow } from './settings-row';
 import { SettingsSection } from './settings-section';
 import { TabField } from './tab-field';
 import { TabsField } from './tabs-field';
+import { DescriptionField } from './description-field';
 
 export {
 	BaseSettingsElement,
@@ -22,4 +23,5 @@ export {
 	SettingsSection,
 	TabsField,
 	TabField,
+	DescriptionField,
 };

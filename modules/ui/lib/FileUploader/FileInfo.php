@@ -14,6 +14,7 @@ class FileInfo extends FileData implements \JsonSerializable
 	protected int $previewWidth = 0;
 	protected int $previewHeight = 0;
 	protected ?Dictionary $customData = null;
+	protected ?Dictionary $viewerAttrs = null;
 
 	/**
 	 * @param {string | int} $id
@@ -156,6 +157,23 @@ class FileInfo extends FileData implements \JsonSerializable
 		return $this->customData;
 	}
 
+	public function setViewerAttrs(array $viewerAttrs): self
+	{
+		$this->getViewerAttrs()->setValues($viewerAttrs);
+
+		return $this;
+	}
+
+	public function getViewerAttrs(): Dictionary
+	{
+		if ($this->viewerAttrs === null)
+		{
+			$this->viewerAttrs = new Dictionary();
+		}
+
+		return $this->viewerAttrs;
+	}
+
 	public function jsonSerialize(): array
 	{
 		return [
@@ -174,6 +192,7 @@ class FileInfo extends FileData implements \JsonSerializable
 			'serverPreviewWidth' => $this->getPreviewWidth(),
 			'serverPreviewHeight' => $this->getPreviewHeight(),
 			'customData' => $this->customData !== null ? $this->getCustomData()->getValues() : [],
+			'viewerAttrs' => $this->viewerAttrs !== null ? $this->getViewerAttrs()->getValues() : [],
 		];
 	}
 }

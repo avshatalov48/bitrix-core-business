@@ -66,7 +66,7 @@ class MailingTriggerTable extends Entity\DataManager
 			),
 			'IS_TYPE_START' => array(
 				'data_type' => 'boolean',
-				'values' => array(false, true),
+				'values' => array(0, 1),
 				'primary' => true,
 				'required' => true,
 			),

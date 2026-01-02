@@ -2,9 +2,9 @@
 
 namespace Bitrix\Im\V2\Integration\HumanResources\Sync\SyncProcessor;
 
-use Bitrix\HumanResources\Contract\Repository\NodeRelationRepository;
-use Bitrix\HumanResources\Contract\Service\NodeMemberService;
-use Bitrix\HumanResources\Contract\Service\NodeService;
+use Bitrix\HumanResources\Repository\NodeRelationRepository;
+use Bitrix\HumanResources\Service\NodeMemberService;
+use Bitrix\HumanResources\Service\NodeService;
 use Bitrix\HumanResources\Service\Container;
 use Bitrix\HumanResources\Service\NodeRelationService;
 use Bitrix\Im\Model\HrSyncQueueTable;
@@ -31,19 +31,14 @@ abstract class Base implements SyncProcessor
 	protected NodeRelationRepository $relationRepository;
 	protected NodeService $nodeService;
 
-	public function __construct(
-		?NodeMemberService $memberService = null,
-		?NodeRelationService $nodeRelationService = null,
-		?NodeRelationRepository $relationRepository = null,
-		?NodeService $nodeService = null
-	)
+	public function __construct()
 	{
 		Loader::includeModule('humanresources');
 
-		$this->memberService = $memberService ?? Container::getNodeMemberService();
-		$this->relationService = $nodeRelationService ?? Container::getNodeRelationService();
-		$this->relationRepository = $relationRepository ?? Container::getNodeRelationRepository();
-		$this->nodeService = $nodeService ?? Container::getNodeService();
+		$this->memberService = Container::getNodeMemberService();
+		$this->relationService = Container::getNodeRelationService();
+		$this->relationRepository = Container::getNodeRelationRepository();
+		$this->nodeService = Container::getNodeService();
 	}
 
 	public static function getInstance(EntityType $entityType): static

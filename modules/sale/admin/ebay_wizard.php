@@ -480,7 +480,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Wizard
 					if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 						$domainName = SITE_SERVER_NAME;
 					else
-						$domainName = \COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
+						$domainName = \COption::GetOptionString("main", "server_name");
 				}
 			}
 

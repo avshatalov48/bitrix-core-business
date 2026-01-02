@@ -1,10 +1,14 @@
 import { EventEmitter, BaseEvent } from 'main.core.events';
-import { Store } from 'ui.vue3.vuex';
+import { Runtime } from 'main.core';
 
 import { Core } from 'im.v2.application.core';
 import { DesktopManager } from 'im.v2.lib.desktop';
 import { Logger } from 'im.v2.lib.logger';
-import { EventType } from 'im.v2.const';
+import { EventType, NavigationMenuItem } from 'im.v2.const';
+
+import { updateBrowserTitleCounter } from './helpers/update-browser-title-counter';
+
+import type { Store } from 'ui.vue3.vuex';
 
 type CounterMap = {[chatId: string]: number};
 
@@ -13,6 +17,7 @@ type InitialCounters = {
 	LINES: CounterMap,
 	COLLAB: CounterMap,
 	COPILOT: CounterMap,
+	TASKS_TASK: CounterMap,
 	CHANNEL_COMMENT: {
 		[channelChatId: string]: {
 			[commentChatId: string]: number,
@@ -21,13 +26,28 @@ type InitialCounters = {
 	CHAT_MUTED: number[],
 	CHAT_UNREAD: number[],
 	COLLAB_UNREAD: number[],
+	COPILOT_UNREAD: number[],
+	TASKS_TASK_UNREAD: number[],
 	TYPE: {
 		'ALL': number,
 		'CHAT': number,
 		'NOTIFY': number,
 		'LINES': number,
 		'COLLAB': number,
+		'TASK': number,
+		'COPILOT': number,
+		'TASKS_TASK': number,
 	}
+};
+
+type NavigationCountersPayload = {
+	chat: number;
+	copilot: number;
+	collab: number;
+	task: number;
+	openlines: number;
+	openlinesV2: number;
+	notification: number;
 };
 
 export class CounterManager
@@ -35,6 +55,7 @@ export class CounterManager
 	static #instance: CounterManager;
 
 	#store: Store;
+	#emitCountersUpdateWithDebounce: Function;
 
 	static getInstance(): CounterManager
 	{
@@ -46,17 +67,23 @@ export class CounterManager
 		return this.#instance;
 	}
 
+	constructor()
+	{
+		this.#store = Core.getStore();
+		this.#emitCountersUpdateWithDebounce = Runtime.debounce(this.#emitCountersUpdate, 0, this);
+		const { counters } = Core.getApplicationData();
+		Logger.warn('CounterManager: counters', counters);
+		this.#init(counters);
+	}
+
 	static init()
 	{
 		CounterManager.getInstance();
 	}
 
-	constructor()
+	emitCounters()
 	{
-		this.#store = Core.getStore();
-		const { counters } = Core.getApplicationData();
-		Logger.warn('CounterManager: counters', counters);
-		this.#init(counters);
+		this.#emitCountersUpdate();
 	}
 
 	removeBrowserTitleCounter()
@@ -77,16 +104,21 @@ export class CounterManager
 		const preparedChatCounters = this.#prepareChatCounters(counters.CHAT, counters.CHAT_UNREAD);
 		this.#store.dispatch('counters/setUnloadedChatCounters', preparedChatCounters);
 		this.#store.dispatch('counters/setUnloadedLinesCounters', counters.LINES);
-		this.#store.dispatch('counters/setUnloadedCopilotCounters', counters.COPILOT);
 		const preparedCollabCounters = this.#prepareChatCounters(counters.COLLAB, counters.COLLAB_UNREAD);
 		this.#store.dispatch('counters/setUnloadedCollabCounters', preparedCollabCounters);
+		const preparedCopilotCounters = this.#prepareChatCounters(counters.COPILOT, counters.COPILOT_UNREAD);
+		this.#store.dispatch('counters/setUnloadedCopilotCounters', preparedCopilotCounters);
+		const preparedTaskCounters = this.#prepareChatCounters(counters.TASKS_TASK, counters.TASKS_TASK_UNREAD);
+		this.#store.dispatch('counters/setUnloadedTaskCounters', preparedTaskCounters);
 		this.#store.dispatch('counters/setCommentCounters', counters.CHANNEL_COMMENT);
 		this.#store.dispatch('notifications/setCounter', counters.TYPE.NOTIFY);
 
+		this.#emitCountersUpdate();
 		this.#subscribeToCountersChange();
-		this.#sendChatCounterChangeEvent(counters.TYPE.CHAT);
-		this.#sendNotificationCounterChangeEvent(counters.TYPE.NOTIFY);
-		this.#sendLinesCounterChangeEvent(counters.TYPE.LINES);
+		this.#emitLegacyChatCounterUpdate(counters.TYPE.CHAT);
+		this.#emitLegacyNotificationCounterUpdate(counters.TYPE.NOTIFY);
+		this.#emitLegacyLinesCounterUpdate(counters.TYPE.LINES);
+		this.#onTotalCounterChange();
 	}
 
 	#prepareChatCounters(counters: CounterMap, unreadCounters: number[]): CounterMap
@@ -108,38 +140,61 @@ export class CounterManager
 	#subscribeToCountersChange()
 	{
 		this.#store.watch(notificationCounterWatch, (newValue: number) => {
-			this.#sendNotificationCounterChangeEvent(newValue);
+			this.#emitLegacyNotificationCounterUpdate(newValue);
+			this.#emitCountersUpdateWithDebounce();
 			this.#onTotalCounterChange();
 		});
 
 		this.#store.watch(chatCounterWatch, (newValue: number) => {
-			this.#sendChatCounterChangeEvent(newValue);
+			this.#emitLegacyChatCounterUpdate(newValue);
+			this.#emitCountersUpdateWithDebounce();
 			this.#onTotalCounterChange();
 		});
 
 		this.#store.watch(linesCounterWatch, (newValue: number) => {
-			this.#sendLinesCounterChangeEvent(newValue);
+			this.#emitLegacyLinesCounterUpdate(newValue);
+			this.#emitCountersUpdateWithDebounce();
 			this.#onTotalCounterChange();
 		});
+
+		this.#store.watch(copilotCounterWatch, () => this.#emitCountersUpdateWithDebounce());
+		this.#store.watch(collabCounterWatch, () => this.#emitCountersUpdateWithDebounce());
+		this.#store.watch(taskCounterWatch, () => this.#emitCountersUpdateWithDebounce());
 	}
 
-	#sendNotificationCounterChangeEvent(notificationsCounter: number)
+	#emitLegacyNotificationCounterUpdate(notificationsCounter: number)
 	{
 		const event = new BaseEvent({ compatData: [notificationsCounter] });
 		EventEmitter.emit(window, EventType.counter.onNotificationCounterChange, event);
 	}
 
-	#sendChatCounterChangeEvent(chatCounter: number)
+	#emitLegacyChatCounterUpdate(chatCounter: number)
 	{
 		const event = new BaseEvent({ compatData: [chatCounter] });
 		EventEmitter.emit(window, EventType.counter.onChatCounterChange, event);
 	}
 
-	#sendLinesCounterChangeEvent(linesCounter: number)
+	#emitLegacyLinesCounterUpdate(linesCounter: number)
 	{
 		const LINES_TYPE = 'LINES';
 		const event = new BaseEvent({ compatData: [linesCounter, LINES_TYPE] });
 		EventEmitter.emit(window, EventType.counter.onLinesCounterChange, event);
+	}
+
+	#emitCountersUpdate()
+	{
+		const payload: NavigationCountersPayload = {
+			[NavigationMenuItem.chat]: this.#store.getters['counters/getTotalChatCounter'],
+			[NavigationMenuItem.copilot]: this.#store.getters['counters/getTotalCopilotCounter'],
+			[NavigationMenuItem.collab]: this.#store.getters['counters/getTotalCollabCounter'],
+			[NavigationMenuItem.tasksTask]: this.#store.getters['counters/getTotalTaskCounter'],
+			[NavigationMenuItem.openlines]: this.#store.getters['counters/getTotalLinesCounter'],
+			[NavigationMenuItem.openlinesV2]: this.#store.getters['counters/getTotalLinesCounter'],
+			[NavigationMenuItem.notification]: this.#store.getters['notifications/getCounter'],
+		};
+
+		Logger.warn('CounterManager: Emitting IM.Counters:onUpdate', payload);
+		EventEmitter.emit(EventType.counter.onUpdate, payload);
 	}
 
 	#onTotalCounterChange()
@@ -154,37 +209,13 @@ export class CounterManager
 			return;
 		}
 
-		this.#updateBrowserTitleCounter(totalCounter);
-	}
-
-	#updateBrowserTitleCounter(newCounter: number)
-	{
-		const regexp = /^\((?<currentCounter>\d+)\)\s(?<text>.*)+/;
-		const matchResult: ?RegExpMatchArray = document.title.match(regexp);
-		if (matchResult?.groups.currentCounter)
-		{
-			const currentCounter = Number.parseInt(matchResult.groups.currentCounter, 10);
-			if (newCounter !== currentCounter)
-			{
-				const counterPrefix = newCounter > 0 ? `(${newCounter}) ` : '';
-				document.title = `${counterPrefix}${matchResult.groups.text}`;
-			}
-		}
-		else if (newCounter > 0)
-		{
-			document.title = `(${newCounter}) ${document.title}`;
-		}
+		updateBrowserTitleCounter(totalCounter);
 	}
 }
 
-const notificationCounterWatch = (state, getters) => {
-	return getters['notifications/getCounter'];
-};
-
-const chatCounterWatch = (state, getters) => {
-	return getters['counters/getTotalChatCounter'];
-};
-
-const linesCounterWatch = (state, getters) => {
-	return getters['counters/getTotalLinesCounter'];
-};
+const notificationCounterWatch = (state, getters) => getters['notifications/getCounter'];
+const chatCounterWatch = (state, getters) => getters['counters/getTotalChatCounter'];
+const linesCounterWatch = (state, getters) => getters['counters/getTotalLinesCounter'];
+const copilotCounterWatch = (state, getters) => getters['counters/getTotalCopilotCounter'];
+const collabCounterWatch = (state, getters) => getters['counters/getTotalCollabCounter'];
+const taskCounterWatch = (state, getters) => getters['counters/getTotalTaskCounter'];

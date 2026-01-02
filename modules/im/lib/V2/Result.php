@@ -2,6 +2,8 @@
 
 namespace Bitrix\Im\V2;
 
+use Bitrix\Main\DB\SqlExpression;
+
 /**
  * @template T
  */
@@ -29,6 +31,17 @@ class Result extends \Bitrix\Main\Result
 		return parent::getData()['RESULT'] ?? null;
 	}
 
+	public function addToResult(string $key, mixed $value): static
+	{
+		if (!$value instanceof SqlExpression)
+		{
+			$this->hasResult = true;
+			$this->data['RESULT'][$key] = $value;
+		}
+
+		return $this;
+	}
+
 	/**
 	 * We have a result.
 	 * @return bool
@@ -41,7 +54,7 @@ class Result extends \Bitrix\Main\Result
 	public static function merge(Result ...$results): Result
 	{
 		$mergedResult = new Result();
-		$mergedData = [];
+		$dataResults = [];
 
 		foreach ($results as $result)
 		{
@@ -51,13 +64,13 @@ class Result extends \Bitrix\Main\Result
 			}
 			elseif ($result->hasResult)
 			{
-				$mergedData = array_merge($mergedData, $result->getResult());
+				$dataResults[] = $result->getResult();
 			}
 		}
 
-		if (!empty($mergedData))
+		if (!empty($dataResults))
 		{
-			$mergedResult->setResult($mergedData);
+			$mergedResult->setResult(array_merge(...$dataResults));
 		}
 
 		return $mergedResult;

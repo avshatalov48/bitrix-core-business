@@ -1,6 +1,6 @@
 import { Dom } from 'main.core';
 
-export function createVideoNode({ url, width, height, type }): HTMLSpanElement
+export function createVideoNode({ url, width, height, viewerAttrs = {}, type }): HTMLSpanElement
 {
 	const video: HTMLVideoElement = Dom.create({
 		tag: 'video',
@@ -36,6 +36,7 @@ export function createVideoNode({ url, width, height, type }): HTMLSpanElement
 		},
 		dataset: {
 			decorator: true,
+			...viewerAttrs,
 		},
 		children: [video],
 	});

@@ -229,7 +229,7 @@ while (is_array($arRes = $rsData->Fetch()))
 		}
 	}
 
-	$row =& $lAdmin->AddRow($arRes['FILE_SIZE'] . ',' . $arRes['FILE_HASH'], $arRes);
+	$row = $lAdmin->AddRow($arRes['FILE_SIZE'] . ',' . $arRes['FILE_HASH'], $arRes);
 
 	$row->AddViewField('FILE_SIZE', CFile::FormatSize($arRes['FILE_SIZE']));
 	$row->AddViewField('FILE_LIST', implode('<br>', $fileList));

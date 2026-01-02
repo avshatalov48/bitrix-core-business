@@ -8,11 +8,11 @@ return [
 	'css' => 'dist/access-rights.bundle.css',
 	'js' => 'dist/access-rights.bundle.js',
 	'rel' => [
+		'main.core.events',
 		'ui.form-elements.view',
 		'ui.forms',
 		'ui.hint',
 		'main.core',
-		'main.core.events',
 		'ui.design-tokens',
 		'ui.sidepanel-content',
 	],

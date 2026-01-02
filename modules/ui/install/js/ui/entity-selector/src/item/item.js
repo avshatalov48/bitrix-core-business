@@ -9,7 +9,7 @@ import TextNode from '../common/text-node';
 import TypeUtils from '../common/type-utils';
 
 import type Dialog from '../dialog/dialog';
-import type { ItemOptions } from './item-options';
+import type { ItemOptions, ItemSelectOptions } from './item-options';
 import type { ItemNodeOptions } from './item-node-options';
 import type { ItemBadgeOptions } from './item-badge-options';
 import type { TagItemOptions } from '../tag-selector/tag-item-options';
@@ -49,6 +49,7 @@ export default class Item
 	saveable: boolean = true;
 	deselectable: boolean = true;
 	hidden: boolean = false;
+	locked: boolean = false;
 	searchIndex: { [key: string]: string[] } = null;
 	customData: Map<string, any> = null;
 
@@ -72,7 +73,9 @@ export default class Item
 		this.id = options.id;
 		this.entityId = options.entityId.toLowerCase();
 		this.entityType = Type.isStringFilled(options.entityType) ? options.entityType : 'default';
-		this.selected = Type.isBoolean(options.selected) ? options.selected : false;
+
+		this.locked = Type.isBoolean(options.locked) ? options.locked : false;
+		this.selected = Type.isBoolean(options.selected) && !this.locked ? options.selected : false;
 
 		this.customData = TypeUtils.createMapFromOptions(options.customData);
 		this.tagOptions = TypeUtils.createMapFromOptions(options.tagOptions);
@@ -462,19 +465,30 @@ export default class Item
 		return this.nodes;
 	}
 
-	select(preselectedMode: boolean = false): void
+	select(selectOptions: ItemSelectOptions = {}): void
 	{
 		if (this.selected)
 		{
 			return;
 		}
 
-		const dialog = this.getDialog();
-		const emitEvents = dialog && !preselectedMode;
+		const options: ItemSelectOptions = (
+			Type.isBoolean(selectOptions) // Compatibility signature select(preselectedMode: boolean = false)
+				? { emitEvents: !selectOptions, animate: !selectOptions }
+				: selectOptions
+		);
 
-		if (emitEvents)
+		const { emitEvents, animate, node } = {
+			emitEvents: true,
+			animate: true,
+			node: null,
+			...options,
+		};
+
+		const dialog = this.getDialog();
+		if (dialog && emitEvents)
 		{
-			const event = new BaseEvent({ data: { item: this } });
+			const event = new BaseEvent({ data: { item: this, node } });
 			dialog.emit('Item:onBeforeSelect', event);
 			if (event.isDefaultPrevented())
 			{
@@ -482,38 +496,56 @@ export default class Item
 			}
 		}
 
+		if (this.isLocked())
+		{
+			return;
+		}
+
 		this.selected = true;
 
 		if (dialog)
 		{
-			dialog.handleItemSelect(this, !preselectedMode);
+			dialog.handleItemSelect(this, animate);
 		}
 
 		if (this.isRendered())
 		{
-			this.getNodes().forEach((node: ItemNode) => {
-				node.select();
+			this.getNodes().forEach((itemNode: ItemNode) => {
+				itemNode.select();
 			});
 		}
 
-		if (emitEvents)
+		if (dialog && emitEvents)
 		{
-			dialog.emit('Item:onSelect', { item: this });
+			dialog.emit('Item:onSelect', { item: this, node });
 			dialog.saveRecentItem(this);
 		}
 	}
 
-	deselect(): void
+	deselect(deselectOptions: ItemSelectOptions = {}): void
 	{
 		if (!this.selected)
 		{
 			return;
 		}
 
+		const options: ItemSelectOptions = (
+			Type.isBoolean(deselectOptions) // Compatibility signature select(preselectedMode: boolean = false)
+				? { emitEvents: !deselectOptions, animate: !deselectOptions }
+				: deselectOptions
+		);
+
+		const { emitEvents, animate, node } = {
+			emitEvents: true,
+			animate: true,
+			node: null,
+			...options,
+		};
+
 		const dialog = this.getDialog();
-		if (dialog)
+		if (dialog && emitEvents)
 		{
-			const event = new BaseEvent({ data: { item: this } });
+			const event = new BaseEvent({ data: { item: this, node } });
 			dialog.emit('Item:onBeforeDeselect', event);
 			if (event.isDefaultPrevented())
 			{
@@ -525,15 +557,19 @@ export default class Item
 
 		if (this.isRendered())
 		{
-			this.getNodes().forEach(node => {
-				node.deselect();
+			this.getNodes().forEach((itemNode: ItemNode) => {
+				itemNode.deselect();
 			});
 		}
 
 		if (dialog)
 		{
-			dialog.handleItemDeselect(this);
-			dialog.emit('Item:onDeselect', { item: this });
+			dialog.handleItemDeselect(this, animate);
+		}
+
+		if (dialog && emitEvents)
+		{
+			dialog.emit('Item:onDeselect', { item: this, node });
 		}
 	}
 
@@ -614,6 +650,82 @@ export default class Item
 		return this.hidden;
 	}
 
+	lock(): void
+	{
+		if (this.locked)
+		{
+			return;
+		}
+
+		const dialog = this.getDialog();
+		if (dialog)
+		{
+			const event = new BaseEvent({ data: { item: this } });
+			dialog.emit('Item:onBeforeLock', event);
+			if (event.isDefaultPrevented())
+			{
+				return;
+			}
+		}
+
+		if (this.isSelected())
+		{
+			return;
+		}
+
+		this.locked = true;
+
+		if (this.isRendered())
+		{
+			this.getNodes().forEach((node: ItemNode) => {
+				node.lock();
+			});
+		}
+
+		if (dialog)
+		{
+			dialog.emit('Item:onLock', { item: this });
+		}
+	}
+
+	unlock(): void
+	{
+		if (!this.locked)
+		{
+			return;
+		}
+
+		const dialog = this.getDialog();
+		if (dialog)
+		{
+			const event = new BaseEvent({ data: { item: this } });
+			dialog.emit('Item:onBeforeUnlock', event);
+			if (event.isDefaultPrevented())
+			{
+				return;
+			}
+		}
+
+		this.locked = false;
+
+		if (this.isRendered())
+		{
+			this.getNodes().forEach((node: ItemNode) => {
+				node.unlock();
+			});
+		}
+
+		if (dialog)
+		{
+			dialog.emit('Item:onUnlock', { item: this });
+		}
+	}
+
+	isLocked(): boolean
+	{
+		return this.locked;
+	}
+
 	setContextSort(sort: ?number): void
 	{
 		if (Type.isNumber(sort) || sort === null)
@@ -671,6 +783,37 @@ export default class Item
 	getCustomData(): Map<string, any>
 	{
 		return this.customData;
+	}
+
+	setCustomData(property: ?string | { [key: string]: any }, value?: any): void
+	{
+		if (Type.isNull(property))
+		{
+			this.customData = new Map();
+			this.#renderNodes();
+		}
+		else if (Type.isPlainObject(property))
+		{
+			Object.entries(property).forEach((item) => {
+				const [currentKey, currentValue] = item;
+				this.customData.set(currentKey, currentValue);
+			});
+
+			this.#renderNodes();
+		}
+		else if (Type.isString(property))
+		{
+			if (Type.isNull(value))
+			{
+				this.customData.delete(property);
+				this.#renderNodes();
+			}
+			else if (!Type.isUndefined(value))
+			{
+				this.customData.set(property, value);
+				this.#renderNodes();
+			}
+		}
 	}
 
 	isRendered(): boolean
@@ -846,6 +989,7 @@ export default class Item
 			searchable: this.isSearchable(),
 			saveable: this.isSaveable(),
 			hidden: this.isHidden(),
+			locked: this.isLocked(),
 			title: this.getTitleNode(),
 			link: this.getLink(),
 			linkTitle: this.getLinkTitleNode(),
@@ -859,7 +1003,7 @@ export default class Item
 			globalSort: this.getGlobalSort(),
 			customData: TypeUtils.convertMapToObject(this.getCustomData()),
 			tagOptions: TypeUtils.convertMapToObject(this.getTagOptions()),
-			badges: this.getBadges()
+			badges: this.getBadges(),
 		};
 	}
 }

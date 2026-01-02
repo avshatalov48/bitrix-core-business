@@ -13,4 +13,9 @@ export const chatFieldsConfig: FieldsConfig = [
 		targetFieldName: 'role',
 		checkFunction: Type.isString,
 	},
+	{
+		fieldName: 'engine',
+		targetFieldName: 'aiModel',
+		checkFunction: Type.isString,
+	},
 ];

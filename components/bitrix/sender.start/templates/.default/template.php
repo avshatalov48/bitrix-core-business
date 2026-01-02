@@ -113,23 +113,19 @@ $containerId = 'sender-start-container';
 			<div data-role="tile/items" class="ui-tile-list-list">
 				<div
 					class="ui-tile-list-item sender-ui-tile-custom-list-item"
+					data-forms='<?= \Bitrix\Main\Web\Json::encode($arResult['FEEDBACK_FORMS_DATA']) ?>'
 					style=""
 					onclick="BX.UI.Feedback.Form.open(
 						{
-						title:'<?= CUtil::addslashes(Loc::getMessage('SENDER_START_CONFIGURATION_NEED_HELP')) ?>',
-						forms: [
-						{zones: ['en', 'eu', 'in', 'uk'], id: 986, lang: 'en', sec: 'bb83fq'},
-						{zones: ['de'], id: 988, lang: 'de', sec: 'c59qtl'},
-						{zones: ['la', 'co', 'mx'], id: 990, lang: 'es', sec: 'kqcqnn'},
-						{zones: ['com.br'], id: 992, lang: 'br', sec: '74yrxg'},
-						{zones: ['pl'], id: 994, lang: 'pl', sec: 'qtxmku'},
-						{zones: ['ua'], id: 977, lang: 'ua', sec: '23hkre'},
-						{zones: ['by'], id: 980, lang: 'by', sec: 'yfkacy'},
-						{zones: ['kz'], id: 975, lang: 'kz', sec: 'z1ocbi'},
-						{zones: ['ru'], id: 974, lang: 'ru', sec: 'flmbhs'},
-						],
+						title:'<?= htmlspecialcharsbx(CUtil::JSescape(
+						Loc::getMessage('SENDER_START_CONFIGURATION_NEED_HELP')
+						)) ?>',
+						forms: JSON.parse(this.dataset.forms),
 						id:'sender-configuration-help',
-						portalUri: 'https://bitrix24.team'
+						portalUri: '<?= htmlspecialcharsbx(CUtil::JSescape($arResult['FEEDBACK_FORM_URI'])) ?>',
+						presets: {
+						source: 'sender',
+						},
 						}
 						);"
 				>

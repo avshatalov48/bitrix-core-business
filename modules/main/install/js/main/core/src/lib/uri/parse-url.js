@@ -35,7 +35,7 @@ function getParser(format)
 
 				if (Type.isUndefined(accumulator[key]))
 				{
-					accumulator[key] = [value];
+					accumulator[key] = Type.isNil(value) ? [] : [value];
 					return;
 				}
 
@@ -100,13 +100,36 @@ function parseQuery(input)
 
 const urlExp = /^((\w+):)?(\/\/((\w+)?(:(\w+))?@)?([^\/\?:]+)(:(\d+))?)?(\/?([^\/\?#][^\?#]*)?)?(\?([^#]+))?(#((?:[\w-?/:@.~!$&'()*+,;=]|%\w{2})*))?/;
 
+function prepareParams(params: { [key: string]: any }): { [key: string]: any }
+{
+	const paramsEntries: Array<Array<string, ?string>> = Object.entries(params);
+
+	return paramsEntries.reduce((acc, [key, value]) => {
+		if (Type.isNil(value))
+		{
+			acc[key] = '';
+		}
+		else if (Type.isPlainObject(value))
+		{
+			acc[key] = prepareParams(value);
+		}
+		else
+		{
+			acc[key] = value;
+		}
+
+		return acc;
+	}, {});
+}
+
 export default function parseUrl(url)
 {
 	const result = url.match(urlExp);
 
 	if (Type.isArray(result))
 	{
-		const queryParams = parseQuery(result[14]);
+		const sourceParams: { [key: string]: ?string } = parseQuery(result[14]);
+		const preparedParams: { [key: string]: string } = prepareParams(sourceParams);
 
 		return {
 			useShort: /^\/\//.test(url),
@@ -116,7 +139,8 @@ export default function parseUrl(url)
 			port: result[10] || '',
 			path: result[11] || '',
 			query: result[14] || '',
-			queryParams,
+			sourceQueryParams: sourceParams,
+			queryParams: preparedParams,
 			hash: result[16] || '',
 			username: result[5] || '',
 			password: result[7] || '',

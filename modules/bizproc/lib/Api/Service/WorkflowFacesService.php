@@ -11,6 +11,7 @@ use Bitrix\Bizproc\Api\Request\WorkflowFacesService\GetDataRequest;
 use Bitrix\Bizproc\Api\Response\Error;
 use Bitrix\Bizproc\Api\Response\WorkflowFacesService\GetDataResponse;
 use Bitrix\Bizproc\Api\Response\WorkflowFacesService\GetDataByStepsResponse;
+use Bitrix\Bizproc\UI\Helpers\DurationFormatter;
 use Bitrix\Bizproc\Workflow\Task\TaskTable;
 use Bitrix\Bizproc\Workflow\WorkflowState;
 use Bitrix\Bizproc\WorkflowStateTable;
@@ -74,7 +75,10 @@ final class WorkflowFacesService
 		}
 
 		$response = new GetDataResponse();
-		$response->setAuthorId($workflow->getStartedBy() ?? 0);
+		$response
+			->setAuthorId($workflow->getStartedBy() ?? 0)
+			->setWorkflowStarted($workflow->getStarted())
+		;
 
 		$response->setWorkflowIsFinished(\CBPHelper::isWorkflowFinished($request->workflowId));
 
@@ -394,7 +398,7 @@ final class WorkflowFacesService
 			(new Step(WorkflowFacesStep::Done))
 				->setAvatars($doneTaskId ? $data->getTaskUserIds($doneTaskId) : [])
 				->setDuration((int)($duration?->getRoundedDoneDuration()))
-				->setSuccess($data->isDoneTaskStatusSuccess())
+				->setSuccess(!$doneTask || $data->isDoneTaskStatusSuccess())
 				->setTaskId($doneTaskId ?: 0)
 		);
 	}
@@ -426,11 +430,20 @@ final class WorkflowFacesService
 
 			return (
 				(new Step(WorkflowFacesStep::TimeFinal))
-					->setDuration($totalDuration)
+					->setDuration(
+						DurationFormatter::roundTimeInSeconds($totalDuration)
+					)
 			);
 		}
 
-		return new Step(WorkflowFacesStep::TimeInWork);
+		$timestamp = $data->getWorkflowStarted()?->getTimestamp();
+
+		return (
+			(new Step(WorkflowFacesStep::TimeInWork))
+				->setDuration(
+					DurationFormatter::roundTimeInSeconds($timestamp ? time() - $timestamp : 0)
+				)
+		);
 	}
 
 	public static function getStepById(string $id): ?Step

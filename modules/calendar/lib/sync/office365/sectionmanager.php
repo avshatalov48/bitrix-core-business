@@ -3,14 +3,18 @@
 namespace Bitrix\Calendar\Sync\Office365;
 
 use Bitrix\Calendar\Core\Base\BaseException;
+use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Section\Section;
+use Bitrix\Calendar\Integration\Dav\ConnectionProvider;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromDM;
+use Bitrix\Calendar\Sync\Connection;
 use Bitrix\Calendar\Sync\Connection\SectionConnection;
 use Bitrix\Calendar\Sync\Entities\SyncSection;
 use Bitrix\Calendar\Sync\Exceptions\ApiException;
 use Bitrix\Calendar\Sync\Exceptions\AuthException;
 use Bitrix\Calendar\Sync\Exceptions\ConflictException;
+use Bitrix\Calendar\Sync\Exceptions\GoneException;
 use Bitrix\Calendar\Sync\Exceptions\NotFoundException;
 use Bitrix\Calendar\Sync\Exceptions\RemoteAccountException;
 use Bitrix\Calendar\Sync\Internals\HasContextTrait;
@@ -21,13 +25,18 @@ use Bitrix\Calendar\Sync\Office365\Dto\SectionDto;
 use Bitrix\Calendar\Sync\Push\Push;
 use Bitrix\Calendar\Sync\Util\Result;
 use Bitrix\Calendar\Sync\Util\SectionContext;
+use Bitrix\Calendar\Synchronization\Internal\Service\Logger\RequestLogger;
+use Bitrix\Calendar\Synchronization\Internal\Service\Vendor\Office365\AbstractOffice365Synchronizer;
+use Bitrix\Calendar\Synchronization\Internal\Service\Vendor\Office365\Office365SectionSynchronizer;
+use Bitrix\Calendar\Synchronization\Public\Service\SynchronizationFeature;
 use Bitrix\Dav\Internals\DavConnectionTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\DateTime;
 use Exception;
@@ -42,31 +51,32 @@ class SectionManager extends AbstractManager implements SectionManagerInterface
 	public function __construct(Office365Context $context)
 	{
 		$this->context = $context;
+
 		parent::__construct($context->getConnection());
 	}
 
 	/**
 	 * @param Section $section
-	 * @param SectionContext|null $context
+	 * @param SectionContext $context
 	 *
 	 * @return Result
 	 *
 	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws ArgumentNullException
+	 * @throws AuthException
 	 * @throws BaseException
 	 * @throws ConflictException
-	 * @throws NotFoundException
-	 * @throws AuthException
-	 * @throws RemoteAccountException
 	 * @throws LoaderException
+	 * @throws NotFoundException
+	 * @throws RemoteAccountException
+	 * @throws GoneException
 	 */
 	public function create(Section $section, SectionContext $context): Result
 	{
 		$result = new Result();
 
 		$dto = new SectionDto([
-			'name' => $this->getSectionName($section),
+			'name' => $section->getExternalName(),
 			'color' => ColorConverter::toOffice($section->getColor()),
 		]);
 		$sectionDto = $this->context->getVendorSyncService()->createSection($dto);
@@ -103,25 +113,6 @@ class SectionManager extends AbstractManager implements SectionManagerInterface
 	}
 
 	/**
-	 * @param Section $section
-	 *
-	 * @return string
-	 */
-	private function getSectionName(Section $section): string
-	{
-		if ($section->getExternalType() === Section::LOCAL_EXTERNAL_TYPE)
-		{
-			IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/classes/general/calendar.php');
-
-			return Loc::getMessage('EC_CALENDAR_BITRIX24_NAME')
-				. ' '
-				. ($section->getName() ?: $section->getId());
-		}
-
-		return $section->getName() ?: $section->getId();
-	}
-
-	/**
 	 * @throws NotFoundException
 	 */
 	public function update(Section $section, SectionContext $context): Result
@@ -130,7 +121,7 @@ class SectionManager extends AbstractManager implements SectionManagerInterface
 		$sectionLink = $context->getSectionConnection();
 
 		$dto = new SectionDto([
-			'name' => $this->getSectionName($sectionLink->getSection()),
+			'name' => $sectionLink->getSection()->getExternalName(),
 			'id' => $context->getSectionConnection()->getVendorSectionId(),
 			// 'color' => ColorConverter::toOffice(
 			// 	$sectionLink->getSection()->getColor()
@@ -228,6 +219,8 @@ class SectionManager extends AbstractManager implements SectionManagerInterface
 	 *
 	 * @throws ApiException
 	 * @throws Exception
+	 *
+	 * @todo Unused?
 	 */
 	public function subscribe(SectionConnection $link): Result
 	{
@@ -297,63 +290,134 @@ class SectionManager extends AbstractManager implements SectionManagerInterface
 		return $result;
 	}
 
-	/**
-	 * @return string
-	 */
 	public static function updateSectionsAgent(): string
 	{
-		$agentName = __METHOD__ . '();';
-
 		try
 		{
 			if (!Loader::includeModule('dav') || !Loader::includeModule('calendar'))
 			{
 				throw new SystemException('Module not found');
 			}
-			$connectionsEO = DavConnectionTable::query()
-				->setSelect(['*'])
-				->addFilter('=ACCOUNT_TYPE', [Helper::ACCOUNT_TYPE])
-				->addFilter('=IS_DELETED', 'N')
-				->addOrder('SYNCHRONIZED')
-				->setLimit(self::IMPORT_SECTIONS_LIMIT)
-				->exec();
 
-			while ($connectionEO = $connectionsEO->fetchObject())
+			$connections = self::getConnections();
+
+			foreach ($connections as $connection)
 			{
-				try
-				{
-					$connection = (new BuilderConnectionFromDM($connectionEO))->build();
-					$manager    = new IncomingManager($connection);
-					$result = $manager->importSections();
-					if ($result->isSuccess())
-					{
-						DavConnectionTable::update($connectionEO->getId(), [
-							'SYNCHRONIZED' => new DateTime(),
-							'LAST_RESULT'  => '[200] OK',
-						]);
-					}
-					else
-					{
-						DavConnectionTable::update($connectionEO->getId(), [
-							'SYNCHRONIZED' => new DateTime(),
-							'LAST_RESULT'  => '[400] Error.',
-						]);
-					}
-				}
-				catch (Exception $e)
-				{
-					DavConnectionTable::update($connectionEO->getId(), [
-						'SYNCHRONIZED' => new DateTime(),
-						'LAST_RESULT'  => '[400] Error.',
-					]);
-				}
+				SynchronizationFeature::setUserId($connection->getOwner()->getId());
 
+				if (SynchronizationFeature::isOn())
+				{
+					self::runNewImport($connection);
+				}
+				else
+				{
+					self::runOldImport($connection);
+				}
 			}
-		} catch (BaseException|Throwable $e) {
+
+
+		}
+		catch (Throwable)
+		{
 			// TODO: write into log
 		}
 
-		return $agentName;
+		return __METHOD__ . '();';
+	}
+
+	/**
+	 * @return Connection\Connection[]
+	 *
+	 * @throws LoaderException
+	 */
+	private static function getConnections(): array
+	{
+		$connectionProvider = ServiceLocator::getInstance()->get(ConnectionProvider::class);
+
+		return $connectionProvider->getActiveByProvider(AbstractOffice365Synchronizer::VENDOR_CODE);
+	}
+
+	/**
+	 * @throws ArgumentException
+	 * @throws SystemException
+	 * @throws ObjectPropertyException
+	 */
+	private static function runOldImport(Connection\Connection $connection): void
+	{
+		try
+		{
+			$manager = new IncomingManager($connection);
+
+			$result = $manager->importSections();
+
+			if ($result->isSuccess())
+			{
+				DavConnectionTable::update($connection->getId(), [
+					'SYNCHRONIZED' => new DateTime(),
+					'LAST_RESULT' => '[200] OK',
+				]);
+			}
+			else
+			{
+				DavConnectionTable::update($connection->getId(), [
+					'SYNCHRONIZED' => new DateTime(),
+					'LAST_RESULT' => '[400] Error.',
+				]);
+			}
+		}
+		catch (Exception)
+		{
+			DavConnectionTable::update($connection->getId(), [
+				'SYNCHRONIZED' => new DateTime(),
+				'LAST_RESULT' => '[400] Error.',
+			]);
+		}
+	}
+
+	private static function runNewImport(Connection\Connection $connection): void
+	{
+		$synchronizer = ServiceLocator::getInstance()->get(Office365SectionSynchronizer::class);
+
+		$logger = ServiceLocator::getInstance()->get(RequestLogger::class);
+
+		$logger
+			->setType(AbstractOffice365Synchronizer::VENDOR_CODE)
+			->setUserId($connection->getOwner()->getId())
+			->setEntityId($connection->getId())
+		;
+
+		$logger->debug('Import sections of connection ' . $connection->getName() . ' has been started');
+
+		try
+		{
+			$synchronizer->importSections($connection->getOwner()->getId(), $connection->getToken());
+		}
+		catch (\Exception $e)
+		{
+			$logger->error(
+				sprintf(
+					'Error in import sections of connection %s: "%s"',
+					$connection->getName(),
+					$e->getMessage()
+				),
+				[
+					'error' => [
+						'message' => $e->getMessage(),
+						'code' => $e->getCode(),
+						'trace' => $e->getTraceAsString(),
+					]
+				]
+			);
+
+			$connection
+				->setLastSyncTime(new Date())
+				->setStatus('[400] Error')
+			;
+
+			(new \Bitrix\Calendar\Core\Mappers\Connection())->update($connection);
+		}
+
+		$logger->debug('Import sections of connection ' . $connection->getName() . ' has been completed');
 	}
 
 	public function getAvailableExternalType(): array

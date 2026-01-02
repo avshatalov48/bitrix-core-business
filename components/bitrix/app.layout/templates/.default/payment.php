@@ -9,6 +9,7 @@ use Bitrix\Rest\AppTable;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Rest\Marketplace\Client;
+use Bitrix\Rest\PlacementTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -37,11 +38,20 @@ if ($arResult['PAYMENT_TYPE'] === AppTable::STATUS_SUBSCRIPTION || $arResult['AP
 	if (!$arResult['SUBSCRIPTION_FINISH'])
 	{
 		$title = Loc::getMessage(
-			'REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE_APP',
+			'REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE_APP_MSGVER_2',
 			[
 				'#APP_NAME#' => htmlspecialcharsbx($arResult['APP_NAME'])
 			]
 		);
+		if (\Bitrix\Rest\Integration\Market\Label::isRenamedMarket())
+		{
+			$title = Loc::getMessage(
+				'REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE_APP_MSGVER_1',
+				[
+					'#APP_NAME#' => htmlspecialcharsbx($arResult['APP_NAME'])
+				]
+			);
+		}
 		$buyButton = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_BTN_BUY_SUBSCRIBE_NEW');
 		if (Client::isSubscriptionDemoAvailable())
 		{
@@ -51,6 +61,11 @@ if ($arResult['PAYMENT_TYPE'] === AppTable::STATUS_SUBSCRIPTION || $arResult['AP
 	else
 	{
 		$title = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE_2');
+		if (\Bitrix\Rest\Integration\Market\Label::isRenamedMarket())
+		{
+			$title = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE_2_MSGVER_1');
+		}
+
 		$buyButton = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_BTN_BUY_SUBSCRIBE');
 	}
 	$buyUrl = \Bitrix\Rest\Marketplace\Url::getSubscriptionBuyUrl();
@@ -67,7 +82,7 @@ else
 	$buyUrl = $arResult['DETAIL_URL'];
 }
 
-if (!empty($arResult['HELPER_DATA']['URL'])):?>
+if (!empty($arResult['HELPER_DATA']['URL']) && !isset($arResult['HELPER_DATA']['CODE'])):?>
 	<div
 		id="appframe_layout_<?=$arResult['APP_SID']?>"
 		class="app-frame-layout"
@@ -102,6 +117,7 @@ else:
 		</div>
 		<div>
 			<?php
+			if (!isset($arResult['HELPER_DATA']['CODE'])):
 			if ($arResult['PAYMENT_TYPE'] === AppTable::STATUS_SUBSCRIPTION || $arResult['APP_STATUS']['STATUS'] === AppTable::STATUS_SUBSCRIPTION):?>
 				<a class="ui-btn ui-btn-success ui-btn-lg ui-btn-round app-layout-subscribe-renew-button" target="_blank" href="<?=$buyUrl; ?>"><?=$buyButton; ?></a>
 				<?php if ($demoButton !== ''):?>
@@ -114,10 +130,16 @@ else:
 				<?php endif;?>
 			<?php else:?>
 				<a class="ui-btn ui-btn-success ui-btn-lg ui-btn-round app-layout-subscribe-renew-button" href="<?=$buyUrl; ?>"><?=$buyButton; ?></a>
-			<?php endif;?>
+			<?php endif;
+			endif;?>
 		</div>
 	</div>
+	<?php if(isset($arResult['HELPER_DATA']['CODE']) && $arParams['PLACEMENT'] === PlacementTable::PLACEMENT_DEFAULT):?>
+	<script>
+		top.BX.UI.InfoHelper.show('<?=\CUtil::JSescape($arResult['HELPER_DATA']['CODE'])?>');
+	</script>
 <?php
+endif;
 endif;
 if ($arParams['IS_SLIDER'])
 {

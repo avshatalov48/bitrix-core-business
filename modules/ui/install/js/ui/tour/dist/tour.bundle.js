@@ -40,8 +40,8 @@ this.BX.UI = this.BX.UI || {};
 	    for (const eventName in events) {
 	      const callback = main_core.Type.isFunction(events[eventName]) ? events[eventName] : main_core.Reflection.getClass(events[eventName]);
 	      if (callback) {
-	        this.subscribe(this.constructor.getFullEventName(eventName), () => {
-	          callback();
+	        this.subscribe(this.constructor.getFullEventName(eventName), (...args) => {
+	          callback(...args);
 	        });
 	      }
 	    }
@@ -633,6 +633,15 @@ this.BX.UI = this.BX.UI || {};
 	          forceBindPosition: true
 	        },
 	        events: {
+	          onBeforeShow: () => {
+	            if (this.getCurrentStep()) {
+	              const currentStep = this.getCurrentStep();
+	              currentStep.emit(currentStep.constructor.getFullEventName('onBeforeShow'), {
+	                step: currentStep,
+	                guide: this
+	              });
+	            }
+	          },
 	          onPopupClose: popup => {
 	            if (popup.destroyed === false && this.onEvents) main_core_events.EventEmitter.emit('UI.Tour.Guide:onPopupClose', this);
 	            this.close();

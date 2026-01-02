@@ -181,7 +181,7 @@ if (
 			$fields['DISCOUNT_ID'] = $rawData['DISCOUNT_ID'];
 
 		if (isset($rawData['COUPON']))
-			$fields['COUPON'] = $rawData['COUPON'];
+			$fields['COUPON'] = trim((string)$rawData['COUPON']);
 		if (!empty($rawData[$prefix.'ACTIVE']))
 			$fields['ACTIVE'] = $rawData[$prefix.'ACTIVE'];
 		$fields['ACTIVE_FROM'] = (!empty($rawData[$prefix.'ACTIVE_FROM']) ? Main\Type\DateTime::createFromUserTime($rawData[$prefix.'ACTIVE_FROM']) : null);

@@ -21,6 +21,11 @@ export class InfoHelper
 
 	static __showExternal(code, option): void
 	{
+		if (!this.sliderProviderForOldFormat)
+		{
+			this.init({});
+		}
+
 		this.sliderProviderForOldFormat?.__showExternal(code, option);
 	}
 

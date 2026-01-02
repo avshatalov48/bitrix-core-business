@@ -163,22 +163,6 @@ export class SettingsForm
 						form.reloadDirectory(this.directoryValue);
 					},
 
-					normalizeName(e)
-					{
-						const input = e.target;
-						if (input)
-						{
-							input.value = BX.translit(
-								input.value,
-								{
-									change_case: 'L',
-									replace_space: '',
-									delete_repeat_replace: true,
-								}
-							);
-						}
-					},
-
 					addNewRow()
 					{
 						form.gridController.prependRowEditor();

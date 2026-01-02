@@ -5,86 +5,57 @@
 	--im-textarea__font-color_edit-text: var(--im-color-palette-gray-70);
 	--im-textarea__background-color: var(--im-color-palette-white-base);
 	--im-textarea__background-color_edit-separator: var(--im-color-palette-blue-50);
-	--im-textarea__background-color_send-button: #00ace3;
+	--im-textarea__background-color_send-button: rgba(31, 134, 255, 1);
 	--im-textarea__background-color_send-button-channel: var(--im-color-accent-turquoise);
-	--im-textarea__background-color_send-button-copilot: var(--im-color-palette-copilot-primary);
 }
 
 .bx-im-send-panel__container {
 	display: flex;
 	align-items: flex-end;
 	width: 100%;
-}
-
-.bx-im-content-chat__container.--center-align .bx-im-send-panel__container {
-	max-width: var(--im-content-chat__max-width_textarea_container);
-	padding: 0 3px 0 9px;
-}
-
-.bx-im-content-chat__container.--left-align .bx-im-send-panel__container {
-	max-width: 100%;
-	padding: 0 33px 0;
+	margin: 0 auto;
+	min-width: 0;
 }
 
 .bx-im-send-panel__container > div {
 	z-index: 90;
 }
 
+.bx-im-content-chat__container.--center-align .bx-im-send-panel__container {
+	max-width: var(--im-content-chat__max-width_textarea_container);
+}
+
 .bx-im-textarea__container {
 	width: 100%;
 	height: 100%;
-	margin-right: 12px;
-	padding-bottom: 11px;
-	box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+	box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.05);
 	background-color: var(--im-textarea__background-color);
-	border-radius: var(--im-border-radius-sm);
+	border-radius: var(--im-border-radius-lg);
 	position: relative;
-	border-top: 1px solid var(--im-content-chat__background-color);
 	overflow: hidden;
 }
 
 .bx-im-textarea__content {
 	width: 100%;
-	display: flex;
-	align-items: end;
-	padding: 11px 10px 0;
+	padding: 8px 8px 8px 12px;
+	cursor: text;
 }
 
-.bx-im-textarea__left {
+.bx-im-textarea__top {
 	display: flex;
 	flex-grow: 1;
+	padding: 4px 0;
 }
 
-.bx-im-textarea__upload_container {
+.bx-im-textarea__icon-container {
+	display: flex;
 	flex-shrink: 0;
 	flex-grow: 0;
+	max-height: fit-content;
 }
 
 .bx-im-textarea__icon {
-	width: 24px;
-	height: 24px;
-	background-position: center;
-	background-repeat: no-repeat;
 	cursor: pointer;
-	/*opacity: 0.35;*/
-	transition: opacity .3s;
-}
-.bx-im-textarea__icon:hover,
-.bx-im-textarea__icon.--active {
-	/*opacity: 0.7;*/
-}
-
-.bx-im-textarea__icon.--disabled {
-	/*opacity: 0.1;*/
-	cursor: initial;
-}
-
-.bx-im-textarea__action-panel .bx-im-textarea__icon {
-	margin-right: 13px;
-}
-
-.bx-im-textarea__action-panel .bx-im-textarea__icon:last-child {
-	margin-right: 5px;
 }
 
 .bx-im-textarea__element {
@@ -106,15 +77,17 @@
 	overflow: hidden;
 }
 
-.bx-im-textarea__right {
-	flex-grow: 0;
-	flex-shrink: 0;
+.bx-im-textarea__bottom {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+	align-items: center;
+	width: 100%;
+	margin-top: 2px;
 }
 
-.bx-im-textarea__action-panel {
-	display: flex;
-	justify-content: flex-end;
-	width: 100%;
+.bx-im-textarea__bottom .bx-im-elements-send-button {
+	margin-left: 4px;
 }
 
 .bx-im-textarea__drag-handle {
@@ -155,56 +128,10 @@
 	background-image: url(./images/market-active.svg);
 }
 
-.bx-im-textarea__icon.--create {
-	background-image: url(./images/create.svg);
-}
-
-.bx-im-textarea__icon.--create.--active {
-	background-image: url(./images/create-active.svg);
-}
-
-.bx-im-textarea__icon.--create.--with-ai {
-	background-image: url(./images/create-with-ai.svg);
-}
-
-.bx-im-textarea__icon.--create.--with-ai.--active {
-	background-image: url(./images/create-with-ai-active.svg);
-}
-
 .bx-im-textarea__icon.--smile {
 	background-image: url(./images/smile.svg);
 }
 
 .bx-im-textarea__icon.--smile.--active {
 	background-image: url(./images/smile-active.svg);
-}
-
-.bx-im-send-panel__button_container {
-	flex-shrink: 0;
-	width: 44px;
-	height: 44px;
-	background-color: var(--im-textarea__background-color_send-button);
-	background-image: url('./images/send.svg');
-	background-repeat: no-repeat;
-	background-position: center;
-	border-radius: 50%;
-	cursor: pointer;
-}
-
-.bx-im-send-panel__button_container.--edit {
-	background-image: url('./images/check.svg');
-}
-
-.bx-im-send-panel__button_container.--disabled {
-	background-image: url('./images/send-inactive.svg');
-}
-
-.bx-im-send-panel__button_container.--channel,
-.bx-im-send-panel__button_container.--openChannel,
-.bx-im-send-panel__button_container.--generalChannel {
-	background-color: var(--im-textarea__background-color_send-button-channel);
-}
-
-.bx-im-send-panel__button_container.--copilot {
-	background-color: var(--im-textarea__background-color_send-button-copilot);
 }

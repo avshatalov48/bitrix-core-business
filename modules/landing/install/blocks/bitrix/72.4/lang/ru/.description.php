@@ -1,0 +1,10 @@
+<?php
+$MESS['LANDING_BLOCK_WIDGET_72_4_NAME'] = 'Заголовок с картинкой слева и пунктами справа';
+$MESS['LANDING_BLOCK_WIDGET_72_4_NODE_TITLE'] = 'Заголовок';
+$MESS['LANDING_BLOCK_WIDGET_72_4_NODE_CARD'] = 'Карточка';
+$MESS['LANDING_BLOCK_WIDGET_72_4_NODE_CARD_ICON'] = 'Иконка карточки';
+$MESS['LANDING_BLOCK_WIDGET_72_4_NODE_CARD_TEXT'] = 'Текст карточки';
+$MESS['LANDING_BLOCK_WIDGET_72_4_NODE_IMAGE'] = 'Картинка';
+$MESS['LANDING_BLOCK_WIDGET_72_4_NODE_CONTAINERS'] = 'Контейнеры';
+$MESS['LANDING_BLOCK_WIDGET_72_4_NODE_CONTAINER'] = 'Контейнер';
+$MESS['LANDING_BLOCK_WIDGET_72_4_NODE_CONTAINER_CARD'] = 'Контейнер карточки';

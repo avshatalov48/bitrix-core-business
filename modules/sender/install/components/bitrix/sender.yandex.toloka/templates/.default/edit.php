@@ -40,6 +40,6 @@ $APPLICATION->IncludeComponent(
 		'USE_PADDING' => false,
 		'PLAIN_VIEW' => false,
 		'PAGE_MODE' => false,
-		'PAGE_MODE_OFF_BACK_URL' => "/marketing/toloka/"
+		'PAGE_MODE_OFF_BACK_URL' => "/marketing/toloka/",
 	]
 );

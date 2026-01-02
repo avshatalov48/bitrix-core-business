@@ -259,14 +259,10 @@ class SkuRepository extends BaseIblockElementRepository implements SkuRepository
 
 				foreach ($propertySettings as $setting)
 				{
-					if (isset($propertyElementMap[$skuId][$setting['ID']]))
-					{
-						$propertyItem = $propertyElementMap[$skuId][$setting['ID']];
-					}
-					else
-					{
-						$propertyItem = $this->propertyRepository->createEntity([], $setting);
-					}
+					$propertyItem =
+						$propertyElementMap[$skuId][$setting['ID']]
+						?? $this->propertyRepository->createEntity([], $setting)
+					;
 
 					if ($propertyItem)
 					{

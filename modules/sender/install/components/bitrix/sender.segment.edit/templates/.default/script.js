@@ -124,24 +124,22 @@
 		return fields;
 	};
 
-
 	/**
 	 * Manager.
-	 *
 	 */
 	function Manager()
-	{
+	{}
 
-	}
-	Manager.prototype.init = function (params)
+	Manager.prototype.init = function(params)
 	{
 		this.list = [];
+		this.toolbarId = params.toolbarId;
 		this.groupId = params.groupId || 0;
 		this.actionUri = params.actionUri || '';
 		this.onlyConnectorFilters = params.onlyConnectorFilters;
 		this.showContactSets = params.showContactSets;
 		this.prettyDateFormat = params.prettyDateFormat;
-		this.mess = params.mess || {patternTitle:"", newTitle: ""};
+		this.mess = params.mess || { patternTitle: '', newTitle: '' };
 		this.availableConnectors = params.availableConnectors || [];
 		this.context = BX(params.containerId);
 		this.isFrame = params.isFrame || false;
@@ -154,9 +152,11 @@
 		this.segmentTile = params.segmentTile || {};
 		this.filterCounterTag = params.filterCounterTag || null;
 
+		this.uiToolbar = BX.UI.ToolbarManager.get(this.toolbarId);
+		this.titleNode = Helper.getNode('segment-title', this.context);
 		this.ajaxAction = new BX.AjaxAction(this.actionUri);
-		this.form = new Form({node: this.context.querySelector('form')});
-		new FilterListener({'manager': this});
+		this.form = new Form({ node: this.context.querySelector('form') });
+		new FilterListener({ manager: this });
 
 		this.initUi();
 		this.initItems();
@@ -169,23 +169,30 @@
 			this.ui.title.value = Helper.replace(
 				this.mess.patternTitle,
 				{
-					'name': this.mess.newTitle,
-					'date': BX.date.format(this.prettyDateFormat)
-				}
+					name: this.mess.newTitle,
+					date: BX.date.format(this.prettyDateFormat),
+				},
 			);
 		}
 
 		Page.initButtons();
 
-		if (this.isFrame)
-		{
-			Helper.titleEditor.init({'dataNode': this.ui.title});
-		}
-
 		if (this.isFrame && this.isSaved)
 		{
 			top.BX.onCustomEvent(top, 'sender-segment-edit-change', [this.segmentTile]);
 			BX.Sender.Page.slider.close();
+		}
+
+		if (this.uiToolbar && this.isFrame)
+		{
+			this.uiToolbar.subscribe(BX.UI.ToolbarEvents.finishEditing, (event) => {
+				const updatedTitle = event.getData().updatedTitle;
+
+				if (updatedTitle && this.titleNode)
+				{
+					this.titleNode.value = updatedTitle;
+				}
+			});
 		}
 
 		return this;
@@ -218,20 +225,21 @@
 		}
 	};
 
-	Manager.prototype.initUi = function ()
+	Manager.prototype.initUi = function()
 	{
 		this.ui = {
 			counter: this.context.querySelector('[data-bx-counter]'),
 			countInfo: this.context.querySelector('[data-bx-count-info]'),
 			button: this.context.querySelector('[data-bx-button]'),
 			list: this.context.querySelector('[data-bx-list]'),
-			title: Helper.getNode('segment-title', this.context)
+			title: this.titleNode,
 		};
 
 		BX.unbindAll(this.ui.button);
 		BX.bind(this.ui.button, 'click', this.showMenuAdd.bind(this));
 	};
-	Manager.prototype.initItems = function ()
+
+	Manager.prototype.initItems = function()
 	{
 		var itemNodes = this.ui.list.querySelectorAll('[data-bx-item]');
 		itemNodes = BX.convert.nodeListToArray(itemNodes);

@@ -56,8 +56,25 @@ class Runtime
 				'=TEMPLATE.DOCUMENT_TYPE' => $documentType[2],
 			],
 		])->fetchAll();
+		$workflowInstanceIds = array_column($ids, 'ID');
 
-		return array_column($ids, 'ID');
+		$runtime = \CBPRuntime::getRuntime();
+		$workflows = $runtime->getWorkflows();
+		$workflowsRuntimeIds = [];
+		foreach ($workflows as $id => $workflow)
+		{
+			$eventType = $workflow->getRootActivity()->getDocumentEventType();
+			if (
+				($eventType === \CBPDocumentEventType::Automation || $eventType === \CBPDocumentEventType::Debug)
+				&& \CBPHelper::isEqualDocument($workflow->getDocumentType(), $documentType)
+				&& \CBPHelper::isEqualDocument($workflow->getDocumentId(), $this->getTarget()->getComplexDocumentId())
+			)
+			{
+				$workflowsRuntimeIds[] = $id;
+			}
+		}
+
+		return array_merge($workflowInstanceIds, $workflowsRuntimeIds);
 	}
 
 	public function getCurrentWorkflowId(): ?string
@@ -165,7 +182,6 @@ class Runtime
 				if ($trigger)
 				{
 					$this->writeTriggerTracking($workflowId, $trigger);
-					$this->writeTriggerAnalytics($documentComplexId, $trigger);
 				}
 
 				if ($useForcedTracking && !$isDebug)
@@ -193,15 +209,6 @@ class Runtime
 		);
 	}
 
-	protected function writeTriggerAnalytics(array $documentId, array $trigger)
-	{
-		$analyticsService = \CBPRuntime::getRuntime(true)->getAnalyticsService();
-		if ($analyticsService->isEnabled())
-		{
-			$analyticsService->write($documentId, 'trigger_run', $trigger['CODE']);
-		}
-	}
-
 	protected function stopTemplates()
 	{
 		$errors = [];
@@ -222,7 +229,6 @@ class Runtime
 	/**
 	 * Document creation handler.
 	 *
-	 * @return void
 	 * @throws InvalidOperationException
 	 */
 	public function onDocumentAdd(?Context $context = null)
@@ -249,13 +255,12 @@ class Runtime
 			$this->writeCategoryTracking($preGeneratedWorkflowId);
 		}
 
-		$this->runDocumentStatus($preGeneratedWorkflowId);
+		return $this->runDocumentStatus($preGeneratedWorkflowId);
 	}
 
 	/**
 	 * Document status changed handler.
 	 *
-	 * @return void
 	 * @throws InvalidOperationException
 	 */
 	public function onDocumentStatusChanged()
@@ -281,7 +286,7 @@ class Runtime
 			}
 		}
 
-		$this->runDocumentStatus($preGeneratedWorkflowId);
+		return $this->runDocumentStatus($preGeneratedWorkflowId);
 	}
 
 	public function runDocumentStatus(string $preGeneratedWorkflowId = null): ?string

@@ -1,7 +1,10 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 \Bitrix\Main\Loader::includeModule('bizproc');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/prolog.php");
+
+use Bitrix\Main\Localization\Loc;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -51,7 +54,7 @@ if ($fatalErrorMessage == '')
 if ($fatalErrorMessage == '')
 {
 	$showMode = "SelectWorkflow";
-	$workflowTemplateId = intval($_REQUEST["workflow_template_id"]);
+	$workflowTemplateId = (int)($_REQUEST['workflow_template_id'] ?? null);
 	$arWorkflowTemplates = array();
 
 	$dbWorkflowTemplate = CBPWorkflowTemplateLoader::GetList(
@@ -65,11 +68,14 @@ if ($fatalErrorMessage == '')
 	{
 		$arWorkflowTemplates[$arWorkflowTemplate["ID"]] = $arWorkflowTemplate;
 		$arWorkflowTemplates[$arWorkflowTemplate["ID"]]["URL"] = htmlspecialcharsex($APPLICATION->GetCurPageParam("workflow_template_id=".$arWorkflowTemplate["ID"].'&'.bitrix_sessid_get(), Array("workflow_template_id", "sessid")));
-;
 	}
 
-	if ($workflowTemplateId > 0 && check_bitrix_sessid() && $_POST["CancelStartParamWorkflow"] == ''
-		&& array_key_exists($workflowTemplateId, $arWorkflowTemplates))
+	if (
+		$workflowTemplateId > 0
+		&& check_bitrix_sessid()
+		&& empty($_POST['CancelStartParamWorkflow'])
+		&& array_key_exists($workflowTemplateId, $arWorkflowTemplates)
+	)
 	{
 		$arWorkflowTemplate = $arWorkflowTemplates[$workflowTemplateId];
 
@@ -233,10 +239,15 @@ else
 			<input type="hidden" name="back_url" value="<?= htmlspecialcharsbx($backUrl) ?>">
 
 			<?= bitrix_sessid_post() ?>
-			<?
-			$aTabs = array(
-				array("DIV" => "edit1", "TAB" => GetMessage("BPABS_TAB"), "ICON" => "bizproc", "TITLE" => GetMessage("BPABS_TAB_TITLE"))
-			);
+			<?php
+			$aTabs = [
+				[
+					'DIV' => 'edit1',
+					'TAB' => Loc::getMessage('BPABS_TAB'),
+					'ICON' => 'bizproc',
+					'TITLE' => Loc::getMessage('BPABS_TAB_TITLE_MSGVER_1'),
+				],
+			];
 
 			$tabControl = new CAdminTabControl("tabControl", $aTabs);
 

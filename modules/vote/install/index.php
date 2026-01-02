@@ -80,6 +80,16 @@ Class vote extends CModule
 			$eventManager->registerEventHandlerCompatible("main", "OnUserTypeBuildList", "vote", "Bitrix\\Vote\\Uf\\VoteUserType", "getUserTypeDescription", 200);
 			$eventManager->registerEventHandlerCompatible("main", "OnUserLogin", "vote", "Bitrix\\Vote\\User", "onUserLogin", 200);
 			$eventManager->registerEventHandlerCompatible("im", "OnGetNotifySchema", "vote", "CVoteNotifySchema", "OnGetNotifySchema");
+			$eventManager->registerEventHandlerCompatible("im", "OnAfterMessagesDelete", "vote", "Bitrix\\Vote\\Integration\\Im\\ImVoteEventHandler", "onDeleteByEntityId");
+			$eventManager->registerEventHandlerCompatible("im", "OnAfterMessagesAdd", "vote", "Bitrix\\Vote\\Integration\\Im\\ImVoteEventHandler", "onImMessageAdd");
+			\Bitrix\Main\UrlPreview\Router::setRouteHandler(
+				'/bitrix/components/bitrix/voting.attached.result/slider.php',
+				'vote',
+				'\Bitrix\Vote\Integration\Main\UrlPreview',
+				[
+					'signedAttachId' => '$signedAttachId',
+				]
+			);
 
 			RegisterModule("vote");
 			return true;
@@ -110,6 +120,8 @@ Class vote extends CModule
 
 		COption::RemoveOption("vote");
 
+		UnRegisterModuleDependences("im", "OnAfterMessagesAdd", "vote", "Bitrix\\Vote\\Integration\\Im\\ImVoteEventHandler", "onImMessageAdd");
+		UnRegisterModuleDependences("im", "OnAfterMessagesDelete", "vote", "Bitrix\\Vote\\Integration\\Im\\ImVoteEventHandler", "onDeleteByEntityId");
 		UnRegisterModuleDependences("im", "OnGetNotifySchema", "vote", "CVoteNotifySchema", "OnGetNotifySchema");
 		UnRegisterModuleDependences("main", "OnUserLogin", "vote", "Bitrix\\Vote\\User", "onUserLogin");
 		UnRegisterModuleDependences("main", "OnUserTypeBuildList", "vote", "Bitrix\\Vote\\Uf\\VoteUserType", "getUserTypeDescription");
@@ -133,7 +145,7 @@ Class vote extends CModule
 	{
 		global $DB;
 		$sIn = "'VOTE_FOR'";
-		$rs = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rs = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ");
 		$ar = $rs->Fetch();
 		if($ar["C"] <= 0)
 		{
@@ -146,24 +158,19 @@ Class vote extends CModule
 	{
 		global $DB;
 		$sIn = "'VOTE_NEW', 'VOTE_FOR'";
-		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN (".$sIn.") ");
+		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ");
 		return true;
 	}
 
 	function InstallFiles($arParams = array())
 	{
-		global $DB;
-
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools/vote");
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/vote", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js/vote", true, true);
-		}
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools/vote");
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/vote", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
 
 		$bReWriteAdditionalFiles = (($GLOBALS["public_rewrite"] == "Y") ? True : False);
 
@@ -182,20 +189,17 @@ Class vote extends CModule
 
 	function UnInstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
+		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
+		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");
+		DeleteDirFilesEx("/bitrix/themes/.default/icons/vote/");//icons
+		DeleteDirFilesEx("/bitrix/themes/.default/start_menu/vote/");
+		DeleteDirFilesEx("/bitrix/images/vote/");//images
+		DeleteDirFilesEx("/bitrix/js/vote/");//js
+		DeleteDirFilesEx("/bitrix/tools/vote");
+		$children = (new \Bitrix\Main\IO\Directory($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/components/bitrix/"))->getChildren();
+		foreach ($children as $componentDir)
 		{
-			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");
-			DeleteDirFilesEx("/bitrix/themes/.default/icons/vote/");//icons
-			DeleteDirFilesEx("/bitrix/themes/.default/start_menu/vote/");
-			DeleteDirFilesEx("/bitrix/images/vote/");//images
-			DeleteDirFilesEx("/bitrix/js/vote/");//js
-			DeleteDirFilesEx("/bitrix/tools/vote");
-			$children = (new \Bitrix\Main\IO\Directory($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/components/bitrix/"))->getChildren();
-			foreach ($children as $componentDir)
-			{
-				DeleteDirFilesEx("/bitrix/component/bitrix/".$componentDir->getName());
-			}
+			DeleteDirFilesEx("/bitrix/component/bitrix/".$componentDir->getName());
 		}
 		return true;
 	}

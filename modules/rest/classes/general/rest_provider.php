@@ -9,7 +9,6 @@ use Bitrix\Main\Engine\Resolver;
 use Bitrix\Main\Engine\Router;
 use Bitrix\Main\HttpRequest;
 use Bitrix\Rest\Engine\ScopeManager;
-use Bitrix\Main\Entity;
 use Bitrix\Main\Loader;
 use Bitrix\Rest\OAuth\Client;
 use Bitrix\Rest\RestException;
@@ -17,8 +16,7 @@ use Bitrix\Rest\AccessException;
 use Bitrix\OAuth;
 use Bitrix\Rest\Exceptions;
 
-class CRestProvider
-	extends \IRestService
+class CRestProvider extends IRestService
 {
 	const ERROR_BATCH_LENGTH_EXCEEDED = 'ERROR_BATCH_LENGTH_EXCEEDED';
 	const ERROR_BATCH_METHOD_NOT_ALLOWED = 'ERROR_BATCH_METHOD_NOT_ALLOWED';
@@ -68,7 +66,7 @@ class CRestProvider
 		if(!is_array(self::$arMethodsList))
 		{
 			$globalMethods = array(
-				\CRestUtil::GLOBAL_SCOPE => array(
+				CRestUtil::GLOBAL_SCOPE => array(
 					'batch' => array(__CLASS__, 'methodsBatch'),
 
 					'scope' => array(__CLASS__, 'scopeList'),
@@ -80,13 +78,13 @@ class CRestProvider
 			);
 
 			$ownMethods = array(
-				\CRestUtil::GLOBAL_SCOPE => array(
+				CRestUtil::GLOBAL_SCOPE => array(
 					'app.option.get' => array(__CLASS__, 'appOptionGet'),
 					'app.option.set' => array(__CLASS__, 'appOptionSet'),
 					'user.option.get' => array(__CLASS__, 'userOptionGet'),
 					'user.option.set' => array(__CLASS__, 'userOptionSet'),
 
-					\CRestUtil::EVENTS => array(
+					CRestUtil::EVENTS => array(
 						'OnAppUninstall' => array(
 							'rest',
 							'OnRestAppDelete',
@@ -124,7 +122,7 @@ class CRestProvider
 						),
 						'OnSubscriptionRenew' => [
 							'rest',
-							'onAfterSubscriptionRenew',
+							'onSubscriptionRenew',
 							[
 								__CLASS__,
 								'onSubscriptionRenew',
@@ -151,8 +149,8 @@ class CRestProvider
 							)
 						),
 					),
-					\CRestUtil::PLACEMENTS => array(
-						\CRestUtil::PLACEMENT_APP_URI => array(
+					CRestUtil::PLACEMENTS => array(
+						CRestUtil::PLACEMENT_APP_URI => array(
 							'max_count' => 1
 						)
 					)
@@ -161,8 +159,8 @@ class CRestProvider
 
 			if(!\Bitrix\Rest\Integration\OAuthModule::isSupported())
 			{
-				$ownMethods[\CRestUtil::GLOBAL_SCOPE]['app.info'] = array(__CLASS__, 'appInfo');
-				$ownMethods[\CRestUtil::GLOBAL_SCOPE]['feature.get'] = array(__CLASS__, 'getFeature');
+				$ownMethods[CRestUtil::GLOBAL_SCOPE]['app.info'] = array(__CLASS__, 'appInfo');
+				$ownMethods[CRestUtil::GLOBAL_SCOPE]['feature.get'] = array(__CLASS__, 'getFeature');
 			}
 
 			$arDescription = array();
@@ -182,32 +180,30 @@ class CRestProvider
 				$arDescription
 			);
 
-			if(!array_key_exists('profile', self::$arMethodsList[\CRestUtil::GLOBAL_SCOPE]))
+			if(!array_key_exists('profile', self::$arMethodsList[CRestUtil::GLOBAL_SCOPE]))
 			{
-				self::$arMethodsList[\CRestUtil::GLOBAL_SCOPE]['profile'] = array(
+				self::$arMethodsList[CRestUtil::GLOBAL_SCOPE]['profile'] = array(
 					'callback' => array(__CLASS__, 'getProfile'),
 					'options' => array(),
 				);
 			}
 
-			array_change_key_case(self::$arMethodsList, CASE_LOWER);
-
 			foreach(self::$arMethodsList as $scope => $arScopeMethods)
 			{
 				self::$arMethodsList[$scope] = array_change_key_case(self::$arMethodsList[$scope], CASE_LOWER);
 				if(
-					array_key_exists(\CRestUtil::EVENTS, self::$arMethodsList[$scope])
-					&& is_array(self::$arMethodsList[$scope][\CRestUtil::EVENTS])
+					array_key_exists(CRestUtil::EVENTS, self::$arMethodsList[$scope])
+					&& is_array(self::$arMethodsList[$scope][CRestUtil::EVENTS])
 				)
 				{
-					self::$arMethodsList[$scope][\CRestUtil::EVENTS] = array_change_key_case(self::$arMethodsList[$scope][\CRestUtil::EVENTS], CASE_UPPER);
+					self::$arMethodsList[$scope][CRestUtil::EVENTS] = array_change_key_case(self::$arMethodsList[$scope][CRestUtil::EVENTS], CASE_UPPER);
 				}
 				if(
-					array_key_exists(\CRestUtil::PLACEMENTS, self::$arMethodsList[$scope])
-					&& is_array(self::$arMethodsList[$scope][\CRestUtil::PLACEMENTS])
+					array_key_exists(CRestUtil::PLACEMENTS, self::$arMethodsList[$scope])
+					&& is_array(self::$arMethodsList[$scope][CRestUtil::PLACEMENTS])
 				)
 				{
-					self::$arMethodsList[$scope][\CRestUtil::PLACEMENTS] = array_change_key_case(self::$arMethodsList[$scope][\CRestUtil::PLACEMENTS], CASE_UPPER);
+					self::$arMethodsList[$scope][CRestUtil::PLACEMENTS] = array_change_key_case(self::$arMethodsList[$scope][CRestUtil::PLACEMENTS], CASE_UPPER);
 				}
 			}
 		}
@@ -215,13 +211,13 @@ class CRestProvider
 		return self::$arMethodsList;
 	}
 
-	public static function getProfile($params, $n, \CRestServer $server)
+	public static function getProfile($params, $n, CRestServer $server)
 	{
 		global $USER;
 
 		if(!$USER->isAuthorized())
 		{
-			throw new \Bitrix\Rest\AccessException("User authorization required");
+			throw new AccessException("User authorization required");
 		}
 
 		$dbRes = CUser::getById($USER->getId());
@@ -233,21 +229,17 @@ class CRestProvider
 		{
 			$result = array(
 				'ID' => $userInfo['ID'],
-				'ADMIN' => \CRestUtil::isAdmin(),
+				'ADMIN' => CRestUtil::isAdmin(),
 				'NAME' => $userInfo['NAME'],
 				'LAST_NAME' => $userInfo['LAST_NAME'],
 				'PERSONAL_GENDER' => $userInfo['PERSONAL_GENDER'],
+				'TIME_ZONE' => $userInfo['TIME_ZONE'],
 			);
 
 			if($userInfo['PERSONAL_PHOTO'] > 0)
 			{
-				$result['PERSONAL_PHOTO'] = \CRestUtil::GetFile($userInfo["PERSONAL_PHOTO"]);
+				$result['PERSONAL_PHOTO'] = CRestUtil::GetFile($userInfo["PERSONAL_PHOTO"]);
 			}
-
-			$result['TIME_ZONE'] = \CTimeZone::IsAutoTimeZone($userInfo['AUTO_TIME_ZONE']) === true
-				? ''
-				: $userInfo['TIME_ZONE'];
-			$result['TIME_ZONE_OFFSET'] = \CTimeZone::GetOffset($USER->getId()) + date('Z');
 
 			$securityState = array(
 				"ID" => $result['ID'],
@@ -262,11 +254,11 @@ class CRestProvider
 	}
 
 
-	public static function methodsBatch($arQuery, $start, \CRestServer $server)
+	public static function methodsBatch($arQuery, $start, CRestServer $server)
 	{
 		$arQuery = array_change_key_case($arQuery, CASE_UPPER);
 
-		$bHalt = (isset($arQuery['HALT'])) ? ((bool) $arQuery['HALT']) : false;
+		$bHalt = isset($arQuery['HALT']) && $arQuery['HALT'];
 
 		$arResult = [
 			'result' => [],
@@ -282,7 +274,7 @@ class CRestProvider
 			$authData = $server->getAuth();
 			foreach ($arQuery['CMD'] as $key => $call)
 			{
-				if (($cnt++) < \CRestUtil::BATCH_MAX_LENGTH)
+				if (($cnt++) < CRestUtil::BATCH_MAX_LENGTH)
 				{
 					if (!is_string($call))
 					{
@@ -293,15 +285,15 @@ class CRestProvider
 					$method = $queryData['path'];
 					$query = $queryData['query'];
 
-					$arParams = \CRestUtil::ParseBatchQuery($query, $arResult);
+					$arParams = CRestUtil::ParseBatchQuery($query, $arResult);
 					if (method_exists('CSecurityFilter', 'processVar'))
 					{
 						$arParams = CSecurityFilter::processVar($arParams);
 					}
 
 					if (
-						$method === \CRestUtil::METHOD_DOWNLOAD
-						|| $method === \CRestUtil::METHOD_UPLOAD
+						$method === CRestUtil::METHOD_DOWNLOAD
+						|| $method === CRestUtil::METHOD_UPLOAD
 						|| $method === Client::METHOD_BATCH
 					)
 					{
@@ -325,7 +317,7 @@ class CRestProvider
 						// try lowercase first, then original
 						foreach ($methods as $restMethod)
 						{
-							$pseudoServer = new \CRestServerBatchItem([
+							$pseudoServer = new CRestServerBatchItem([
 								'CLASS' => __CLASS__,
 								'METHOD' => $restMethod,
 								'QUERY' => $arParams
@@ -390,13 +382,13 @@ class CRestProvider
 		];
 	}
 
-	public static function scopeList($arQuery, $n, \CRestServer $server)
+	public static function scopeList($arQuery, $n, CRestServer $server)
 	{
 		$arQuery = array_change_key_case($arQuery, CASE_UPPER);
 
 		if(isset($arQuery['FULL']) && $arQuery['FULL'])
 		{
-			$arScope = \Bitrix\Rest\Engine\ScopeManager::getInstance()->listScope();
+			$arScope = ScopeManager::getInstance()->listScope();
 		}
 		else
 		{
@@ -406,11 +398,11 @@ class CRestProvider
 		return $arScope;
 	}
 
-	public static function methodsList($arQuery, $n, \CRestServer $server)
+	public static function methodsList($arQuery, $n, CRestServer $server)
 	{
 		$arMethods = $server->getServiceDescription();
 
-		$arScope = array(\CRestUtil::GLOBAL_SCOPE);
+		$arScope = array(CRestUtil::GLOBAL_SCOPE);
 		$arResult = array();
 
 		$arQuery = array_change_key_case($arQuery, CASE_UPPER);
@@ -427,17 +419,17 @@ class CRestProvider
 		else
 		{
 			$arScope = self::getScope($server);
-			$arScope[] = \CRestUtil::GLOBAL_SCOPE;
+			$arScope[] = CRestUtil::GLOBAL_SCOPE;
 		}
 
 		foreach ($arMethods as $scope => $arScopeMethods)
 		{
 			if(in_array($scope, $arScope))
 			{
-				unset($arScopeMethods[\CRestUtil::METHOD_DOWNLOAD]);
-				unset($arScopeMethods[\CRestUtil::METHOD_UPLOAD]);
-				unset($arScopeMethods[\CRestUtil::EVENTS]);
-				unset($arScopeMethods[\CRestUtil::PLACEMENTS]);
+				unset($arScopeMethods[CRestUtil::METHOD_DOWNLOAD]);
+				unset($arScopeMethods[CRestUtil::METHOD_UPLOAD]);
+				unset($arScopeMethods[CRestUtil::EVENTS]);
+				unset($arScopeMethods[CRestUtil::PLACEMENTS]);
 
 				foreach($arScopeMethods as $method => $methodDesc)
 				{
@@ -454,7 +446,7 @@ class CRestProvider
 		return $arResult;
 	}
 
-	public static function getMethod($query, $n, \CRestServer $server): array
+	public static function getMethod($query, $n, CRestServer $server): array
 	{
 		$result = [
 			'isExisting' => false,
@@ -464,7 +456,7 @@ class CRestProvider
 		if (!empty($name))
 		{
 			$currentScope = self::getScope($server);
-			$currentScope[] = \CRestUtil::GLOBAL_SCOPE;
+			$currentScope[] = CRestUtil::GLOBAL_SCOPE;
 			$cache = Cache::createInstance();
 			if ($cache->initCache(
 				ScopeManager::CACHE_TIME,
@@ -528,7 +520,7 @@ class CRestProvider
 		return $result;
 	}
 
-	public static function appInfo($params, $n, \CRestServer $server)
+	public static function appInfo($params, $n, CRestServer $server)
 	{
 		$licensePrevious = '';
 		if(\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
@@ -538,7 +530,7 @@ class CRestProvider
 
 			if ($result['TYPE'] == 'demo')
 			{
-				$result = self::getBitrix24LicenseName(\CBitrix24::LICENSE_TYPE_PREVIOUS);
+				$result = self::getBitrix24LicenseName(CBitrix24::LICENSE_TYPE_PREVIOUS);
 				$licensePrevious = $result['LICENSE'];
 			}
 		}
@@ -561,7 +553,7 @@ class CRestProvider
 				'INSTALLED' => $arApp['INSTALLED'] == \Bitrix\Rest\AppTable::INSTALLED,
 				'PAYMENT_EXPIRED' => $info['PAYMENT_EXPIRED'],
 				'DAYS' => $info['DAYS_LEFT'],
-				'LANGUAGE_ID' => \CRestUtil::getLanguage(),
+				'LANGUAGE_ID' => CRestUtil::getLanguage(),
 				'LICENSE' => $license,
 			);
 			if ($licensePrevious)
@@ -617,7 +609,7 @@ class CRestProvider
 	 * @throws RestException
 	 * @throws \Bitrix\Main\LoaderException
 	 */
-	public static function getFeature($params, $n, \CRestServer $server)
+	public static function getFeature($params, $n, CRestServer $server)
 	{
 		$params = array_change_key_case($params, CASE_UPPER);
 		$result = [
@@ -628,7 +620,7 @@ class CRestProvider
 			throw new RestException(
 				'CODE can\'t be empty',
 				'CODE_EMPTY',
-				\CRestServer::STATUS_WRONG_REQUEST
+				CRestServer::STATUS_WRONG_REQUEST
 			);
 		}
 
@@ -678,10 +670,8 @@ class CRestProvider
 	 * @return array|mixed|null|string
 	 *
 	 * @throws AccessException
-	 * @throws ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
-	public static function appOptionGet($params, $n, \CRestServer $server)
+	public static function appOptionGet($params, $n, CRestServer $server)
 	{
 		global $USER;
 
@@ -695,7 +685,7 @@ class CRestProvider
 			throw new AccessException("User authorization required");
 		}
 
-		$appOptions = Option::get("rest", "options_".$server->getClientId(), "");
+		$appOptions = Option::get("rest", "options_".$server->getClientId());
 
 		if($appOptions <> '')
 		{
@@ -708,7 +698,7 @@ class CRestProvider
 
 		if(isset($params['option']))
 		{
-			return isset($appOptions[$params['option']]) ? $appOptions[$params['option']] : null;
+			return $appOptions[$params['option']] ?? null;
 		}
 		else
 		{
@@ -726,10 +716,9 @@ class CRestProvider
 	 * @return true
 	 *
 	 * @throws AccessException
-	 * @throws ArgumentNullException
 	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
-	public static function appOptionSet($params, $n, \CRestServer $server)
+	public static function appOptionSet($params, $n, CRestServer $server)
 	{
 		if(!$server->getClientId())
 		{
@@ -746,9 +735,9 @@ class CRestProvider
 			throw new Exceptions\ArgumentNullException('options');
 		}
 
-		if(\CRestUtil::isAdmin())
+		if(CRestUtil::isAdmin())
 		{
-			$appOptions = Option::get("rest", "options_".$server->getClientId(), "");
+			$appOptions = Option::get("rest", "options_".$server->getClientId());
 			if($appOptions <> '')
 			{
 				$appOptions = unserialize($appOptions, ['allowed_classes' => false]);
@@ -784,7 +773,7 @@ class CRestProvider
 	 *
 	 * @throws AccessException
 	 */
-	public static function userOptionGet($params, $n, \CRestServer $server)
+	public static function userOptionGet($params, $n, CRestServer $server)
 	{
 		global $USER;
 
@@ -798,11 +787,11 @@ class CRestProvider
 			throw new AccessException("User authorization required");
 		}
 
-		$userOptions = \CUserOptions::GetOption("app_options", "options_".$server->getClientId(), array());
+		$userOptions = CUserOptions::GetOption("app_options", "options_".$server->getClientId(), array());
 
 		if(isset($params['option']))
 		{
-			return isset($userOptions[$params['option']]) ? $userOptions[$params['option']] : null;
+			return $userOptions[$params['option']] ?? null;
 		}
 		else
 		{
@@ -822,7 +811,7 @@ class CRestProvider
 	 * @throws AccessException
 	 * @throws ArgumentNullException
 	 */
-	public static function userOptionSet($params, $n, \CRestServer $server)
+	public static function userOptionSet($params, $n, CRestServer $server)
 	{
 		global $USER;
 
@@ -846,14 +835,14 @@ class CRestProvider
 			throw new ArgumentNullException('options');
 		}
 
-		$userOptions = \CUserOptions::GetOption("app_options", "options_".$server->getClientId(), array());
+		$userOptions = CUserOptions::GetOption("app_options", "options_".$server->getClientId(), array());
 
 		foreach($params['options'] as $key => $value)
 		{
 			$userOptions[$key] = $value;
 		}
 
-		\CUserOptions::SetOption("app_options", "options_".$server->getClientId(), $userOptions);
+		CUserOptions::SetOption("app_options", "options_".$server->getClientId(), $userOptions);
 
 		return true;
 	}
@@ -868,7 +857,7 @@ class CRestProvider
 		$arEventFields = $arParams[0];
 		if($arEventFields['APP_ID'] == $arHandler['APP_ID'] || $arEventFields['APP_ID'] == $arHandler['APP_CODE'])
 		{
-			$arEventFields["LANGUAGE_ID"] = \CRestUtil::getLanguage();
+			$arEventFields["LANGUAGE_ID"] = CRestUtil::getLanguage();
 
 			unset($arEventFields['APP_ID']);
 			return $arEventFields;
@@ -901,14 +890,14 @@ class CRestProvider
 		throw new Exception('Wrong app!');
 	}
 
-	private static function getBitrix24LicenseName($licenseType = \CBitrix24::LICENSE_TYPE_CURRENT)
+	private static function getBitrix24LicenseName($licenseType = CBitrix24::LICENSE_TYPE_CURRENT)
 	{
 		if (!\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
 		{
 			return null;
 		}
 
-		$licenseOption = ($licenseType == \CBitrix24::LICENSE_TYPE_CURRENT? "~controller_group_name": "~prev_controller_group_name");
+		$licenseOption = ($licenseType == CBitrix24::LICENSE_TYPE_CURRENT? "~controller_group_name": "~prev_controller_group_name");
 
 		$licenseInfo = COption::GetOptionString("main", $licenseOption);
 
@@ -931,7 +920,7 @@ class CRestProvider
 		];
 	}
 
-	protected static function getApp(\CRestServer $server)
+	protected static function getApp(CRestServer $server)
 	{
 		if(self::$arApp == null)
 		{
@@ -965,9 +954,8 @@ class CRestProvider
 		return self::$arApp;
 	}
 
-	protected static function getScope(\CRestServer $server)
+	protected static function getScope(CRestServer $server)
 	{
 		return $server->getAuthScope();
 	}
 }
-?>

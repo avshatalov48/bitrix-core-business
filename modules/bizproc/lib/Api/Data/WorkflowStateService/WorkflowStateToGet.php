@@ -2,6 +2,7 @@
 
 namespace Bitrix\Bizproc\Api\Data\WorkflowStateService;
 
+use Bitrix\Bizproc\Api\Service\WorkflowStateService;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowUserCommentTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowUserTable;
 use Bitrix\Bizproc\Workflow\Task\TaskSearchContentTable;
@@ -16,13 +17,14 @@ class WorkflowStateToGet
 	private const SEARCH_REF_NAME = 'SEARCH_CONTENT';
 	private array $select = ['ID', 'MODULE_ID', 'DOCUMENT_ID', 'ENTITY'];
 	private int $filterUserId = 0;
-	private ?string $filterPresetId;
+	private ?string $filterPresetId = null;
 	private ?array $filterWorkflowIds;
-	private ?string $filterSearchQuery;
+	private ?string $filterSearchQuery = null;
 	private array $filter = [];
 	private int $limit = 0;
 	private int $offset = 0;
 	private bool $isSelectAllFields = false;
+	private array $order = ['MODIFIED' => 'DESC'];
 
 	private array $selectTaskFields = [];
 	private ?int $selectTaskLimit = 50;
@@ -227,32 +229,6 @@ class WorkflowStateToGet
 		{
 			$filter['=WORKFLOW_STATUS'] = WorkflowUserTable::WORKFLOW_STATUS_COMPLETED;
 		}
-		elseif ($filterPresetId === WorkflowStateFilter::PRESET_IN_WORK)
-		{
-			$inWorkFilter = ['LOGIC' => 'OR'];
-			$inWorkFilter[] = [
-				'=WORKFLOW_STATUS' => new SqlExpression('?i', WorkflowUserTable::WORKFLOW_STATUS_ACTIVE),
-				0 => [
-					'LOGIC' => 'OR',
-					'=IS_AUTHOR' => 1,
-					'=TASK_STATUS' => WorkflowUserTable::TASK_STATUS_ACTIVE,
-				],
-			];
-
-			$inWorkFilter[] = [
-				'!=COMMENTS.UNREAD_CNT' => null,
-				0 => [
-					'LOGIC' => 'OR',
-					'=COMMENTS.LAST_TYPE' => new SqlExpression('?i', WorkflowUserCommentTable::COMMENT_TYPE_DEFAULT),
-					0 => [
-						'=COMMENTS.LAST_TYPE' => WorkflowUserCommentTable::COMMENT_TYPE_SYSTEM,
-						'>COMMENTS.MODIFIED' => DateTime::createFromTimestamp(time() - 86400) // one day
-					],
-				],
-			];
-
-			$filter[] = $inWorkFilter;
-		}
 		elseif ($filterPresetId === WorkflowStateFilter::PRESET_ACTIVE_TASK)
 		{
 			$filter['=TASK_STATUS'] = WorkflowUserTable::TASK_STATUS_ACTIVE;
@@ -276,6 +252,9 @@ class WorkflowStateToGet
 		return $filter;
 	}
 
+	/**
+	 * @deprecated Use the `SEARCH_CONTENT` field directly
+	 */
 	public function getOrmRuntime(): ?Reference
 	{
 		if (empty($this->filterSearchQuery))
@@ -297,7 +276,14 @@ class WorkflowStateToGet
 
 	public function getOrder(): array
 	{
-		return ['MODIFIED' => 'DESC'];
+		return $this->order;
+	}
+
+	public function setOrder(array $order): static
+	{
+		$this->order = $order;
+
+		return $this;
 	}
 
 	public function getLimit(): int

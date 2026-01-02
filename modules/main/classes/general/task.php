@@ -330,7 +330,7 @@ class CAllTask
 		{
 			if (COption::GetOptionString("main", "event_log_task", "N") === "Y")
 			{
-				CEventLog::Log("SECURITY", "TASK_CHANGED", "main", $ID, "(" . implode(", ", $aPrevOp) . ") => (" . implode(", ", $aNewOp) . ")");
+				CEventLog::Log(CEventLog::SEVERITY_SECURITY, "TASK_CHANGED", "main", $ID, ['before' => $aPrevOp, 'after' => $aNewOp]);
 			}
 			foreach (GetModuleEvents("main", "OnTaskOperationsChanged", true) as $arEvent)
 			{

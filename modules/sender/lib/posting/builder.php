@@ -290,7 +290,7 @@ class Builder
 					->addToDB(Model\GroupQueueTable::TYPE['POSTING'], $this->postingId, $group['GROUP_ID']);
 			}
 
-			if ($rebuild)
+			if ($rebuild && $group['GROUP_ID'])
 			{
 				SegmentDataBuilder::actualize($group['GROUP_ID'], true);
 				$this->stopRecipientListBuilding();

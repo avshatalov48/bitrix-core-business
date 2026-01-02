@@ -1,5 +1,5 @@
-import { SidebarFileTypes, SidebarDetailBlock } from 'im.v2.const';
-import { Loader } from 'im.v2.component.elements';
+import { SidebarFileGroups, SidebarDetailBlock } from 'im.v2.const';
+import { Loader } from 'im.v2.component.elements.loader';
 
 import { File } from '../../../../classes/panels/file';
 import { FileSearch } from '../../../../classes/panels/search/file-search';
@@ -60,10 +60,10 @@ export const BriefTab = {
 		{
 			if (this.isSearch)
 			{
-				return this.$store.getters['sidebar/files/getSearchResultCollection'](this.chatId, SidebarFileTypes.brief);
+				return this.$store.getters['sidebar/files/getSearchResultCollection'](this.chatId, SidebarFileGroups.brief);
 			}
 
-			return this.$store.getters['sidebar/files/get'](this.chatId, SidebarFileTypes.brief);
+			return this.$store.getters['sidebar/files/get'](this.chatId, SidebarFileGroups.brief);
 		},
 		formattedCollection(): Array
 		{
@@ -120,7 +120,7 @@ export const BriefTab = {
 			const target = event.target;
 			const isAtThreshold = target.scrollTop + target.clientHeight >= target.scrollHeight - target.clientHeight;
 			const nameGetter = this.searchQuery.length > 0 ? 'sidebar/files/hasNextPageSearch' : 'sidebar/files/hasNextPage';
-			const hasNextPage = this.$store.getters[nameGetter](this.chatId, SidebarFileTypes.brief);
+			const hasNextPage = this.$store.getters[nameGetter](this.chatId, SidebarFileGroups.brief);
 
 			return isAtThreshold && hasNextPage;
 		},
@@ -136,11 +136,11 @@ export const BriefTab = {
 			this.isLoading = true;
 			if (this.isSearchQueryMinimumSize)
 			{
-				await this.service.loadNextPage(SidebarFileTypes.brief);
+				await this.service.loadNextPage(SidebarFileGroups.brief);
 			}
 			else
 			{
-				await this.serviceSearch.loadNextPage(SidebarFileTypes.brief, this.searchQuery);
+				await this.serviceSearch.loadNextPage(SidebarFileGroups.brief, this.searchQuery);
 			}
 			this.isLoading = false;
 		},
@@ -176,8 +176,8 @@ export const BriefTab = {
 				</template>
 				<DetailEmptyState
 					v-else-if="isEmptyState"
-					:title="loc('IM_SIDEBAR_BRIEFS_EMPTY')"
-					:iconType="SidebarDetailBlock.other"
+					:title="loc('IM_SIDEBAR_BRIEFS_EMPTY_MSGVER_2')"
+					:iconType="SidebarDetailBlock.document"
 				/>
 			</template>
 			<Loader v-if="isLoading || isLoadingSearch" class="bx-im-sidebar-detail__loader-container" />

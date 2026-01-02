@@ -8,6 +8,7 @@ use Bitrix\Main\Web\Json;
 class Logger
 {
 	private const MODULE = 'im';
+	private const TRACE_DEPTH = 10;
 
 	private string $uniqueString;
 
@@ -19,7 +20,7 @@ class Logger
 	public function log(string $text): void
 	{
 		$text = 'unique-string: ' . $this->uniqueString . "\n" . $text;
-		AddMessage2Log($text, self::MODULE);
+		AddMessage2Log($text, self::MODULE, self::TRACE_DEPTH);
 	}
 
 	public function logArray(array $array): void

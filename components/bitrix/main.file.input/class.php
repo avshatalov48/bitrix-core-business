@@ -145,11 +145,11 @@ class MFIComponent extends \CBitrixComponent
 			$arParams['ALLOW_UPLOAD'] = 'A';
 		}
 
-		if (str_ends_with($arParams['INPUT_NAME'], '[]'))
+		if (isset($arParams['INPUT_NAME']) && str_ends_with($arParams['INPUT_NAME'], '[]'))
 		{
 			$arParams['INPUT_NAME'] = substr($arParams['INPUT_NAME'], 0, -2);
 		}
-		if (str_ends_with($arParams['INPUT_NAME_UNSAVED'], '[]'))
+		if (isset($arParams['INPUT_NAME_UNSAVED']) && str_ends_with($arParams['INPUT_NAME_UNSAVED'], '[]'))
 		{
 			$arParams['INPUT_NAME_UNSAVED'] = mb_substr($arParams['INPUT_NAME_UNSAVED'], 0, -2);
 		}

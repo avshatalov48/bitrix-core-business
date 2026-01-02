@@ -15,6 +15,7 @@ use Bitrix\Socialnetwork\Control\Command\Attribute\Override;
 use Bitrix\Socialnetwork\Control\Command\ValueObject\CreateObjectInterface;
 use Bitrix\Socialnetwork\Control\Command\ValueObject\CreateWithDefaultValueInterface;
 use Bitrix\Socialnetwork\ValueObjectInterface;
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionProperty;
 use TypeError;
@@ -186,14 +187,10 @@ abstract class AbstractCommand implements Arrayable
 
 	protected function getAccessControllerClass(): ?string
 	{
-		$attributes = (new ReflectionClass($this))->getAttributes();
+		$attributes = (new ReflectionClass($this))->getAttributes(AccessController::class, ReflectionAttribute::IS_INSTANCEOF);
 		foreach ($attributes as $attributeReflection)
 		{
-			$attribute = $attributeReflection->newInstance();
-			if ($attribute instanceof AccessController)
-			{
-				return $attribute->class;
-			}
+			return $attributeReflection->newInstance()->class;
 		}
 
 		return null;
@@ -201,14 +198,10 @@ abstract class AbstractCommand implements Arrayable
 
 	protected function getOverrideClass(ReflectionProperty $reflectionProperty): ?string
 	{
-		$attributes = $reflectionProperty->getAttributes();
+		$attributes = $reflectionProperty->getAttributes(Override::class, ReflectionAttribute::IS_INSTANCEOF);
 		foreach ($attributes as $attributeReflection)
 		{
-			$attribute = $attributeReflection->newInstance();
-			if ($attribute instanceof Override)
-			{
-				return $attribute->class;
-			}
+			return $attributeReflection->newInstance()->class;
 		}
 
 		return null;

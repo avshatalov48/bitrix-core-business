@@ -6,13 +6,73 @@ use Bitrix\Disk\AttachedObject;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\MimeType;
+use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
 
 class MobileResultHandler implements DeviceResultHandler
 {
-	public function handle(RenderedResult $renderedResult): array
+	protected string $workflowId;
+
+	public function __construct(string $workflowId)
 	{
+		$this->workflowId = $workflowId;
+	}
+
+	public function handle(RenderedResult $renderedResult = null): array
+	{
+		static $cache = [];
+
 		$files = [];
+		$noResult = [
+			'text' => Loc::getMessage('BIZPROC_RESULT_BP_WORKFLOW_NO_RESULT'),
+			'status' => \Bitrix\Bizproc\Result\RenderedResult::NO_RESULT,
+			'files' => $files
+		];
 		$text = $this->extractFromSource($renderedResult->text ?? '', $files);
+
+		if (is_null($renderedResult))
+		{
+			if (isset($cache[$this->workflowId]))
+			{
+				return $cache[$this->workflowId];
+			}
+
+			$state = WorkflowStateTable::getByPrimary(
+				$this->workflowId,
+				['select' => ['STARTED_BY', 'MODULE_ID', 'ENTITY', 'DOCUMENT_ID']]
+			)->fetchObject();
+			if (!$state)
+			{
+				$cache[$this->workflowId] = $noResult;
+
+				return $cache[$this->workflowId];
+			}
+
+			$startedBy = $state->getStartedBy();
+			if (empty($startedBy))
+			{
+				$startedBy = \CCrmBizProcHelper::getDocumentResponsibleId($state->getComplexDocumentId());
+			}
+
+			$userName = \CBPViewHelper::getUserFullNameById($startedBy);
+
+			if ($userName)
+			{
+				$userLink = '[URL=/company/personal/user/' . $startedBy . '/]' . $userName . '[/URL]';
+				$text = Loc::getMessage('BIZPROC_RESULT_BP_WORKFLOW_RESULT_USER', ['#USER#' => $userLink]) ?? '';
+
+				$cache[$this->workflowId] = [
+					'text' => $text,
+					'status' => \Bitrix\Bizproc\Result\RenderedResult::USER_RESULT,
+					'files' => $files
+				];
+
+				return $cache[$this->workflowId];
+			}
+
+			$cache[$this->workflowId] = $noResult;
+
+			return $cache[$this->workflowId];
+		}
 
 		switch ($renderedResult->status)
 		{
@@ -25,7 +85,9 @@ class MobileResultHandler implements DeviceResultHandler
 
 			case RenderedResult::USER_RESULT:
 				return [
-					'text' => $renderedResult->text ?? '',
+					'text' => Loc::getMessage(
+						'BIZPROC_RESULT_BP_WORKFLOW_RESULT_USER', ['#USER#' => $renderedResult->text]
+					) ?? '',
 					'status' => $renderedResult->status,
 					'files' => $files,
 				];
@@ -36,6 +98,8 @@ class MobileResultHandler implements DeviceResultHandler
 					'status' => $renderedResult->status,
 					'files' => $files,
 				];
+			case RenderedResult::NO_RESULT:
+				return $noResult;
 		}
 	}
 

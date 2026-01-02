@@ -4,19 +4,22 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Landing\Domain;
+use Bitrix\Landing\Copilot;
+use Bitrix\Landing\Domain;
 use Bitrix\Landing\Error;
 use Bitrix\Landing\Mutator;
-use \Bitrix\Landing\Site;
-use \Bitrix\Landing\Landing;
-use \Bitrix\Landing\Rights;
-use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\Transfer;
-use \Bitrix\Landing\Restriction;
-use \Bitrix\Main\Context;
-use \Bitrix\Main\ModuleManager;
-use \Bitrix\Main\Loader;
-use \Bitrix\Main\Config\Option;
+use Bitrix\Landing\Site;
+use Bitrix\Landing\Landing;
+use Bitrix\Landing\Rights;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\Transfer;
+use Bitrix\Landing\Restriction;
+use Bitrix\Landing\Copilot\Generation\Scenario;
+use Bitrix\Main\Context;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Web\Uri;
 
 \CBitrixComponent::includeComponentClass('bitrix:landing.base');
 
@@ -193,6 +196,22 @@ class LandingSitesComponent extends LandingBaseComponent
 	 */
 	public function executeComponent()
 	{
+		if (
+			Copilot\Manager::isAvailable()
+			&& Copilot\Manager::isFeatureEnabled()
+		)
+		{
+			$url = new Uri($_SERVER['REQUEST_URI']);
+			if (
+				str_contains($url, 'feature_promoter=limit_copilot')
+				&& !str_contains($url, 'feature_promoter=limit_copilot_off')
+			)
+			{
+				$url->deleteParams(['feature_promoter']);
+				\localRedirect($url->getUri());
+			}
+		}
+
 		$init = $this->init();
 
 		if ($init)
@@ -390,6 +409,23 @@ class LandingSitesComponent extends LandingBaseComponent
 				$item['EXPORT_URI'] = Transfer\Export\Site::getUrl(
 					$this->arParams['TYPE'], $item['ID']
 				);
+
+				$item['COPILOT_PROCESS'] = null;
+				if (\Bitrix\Landing\Copilot\Manager::isAvailable())
+				{
+					$generation = new Bitrix\Landing\Copilot\Generation();
+					if ($generation->initBySiteId((int)$item['ID'], (new Scenario\CreateSite())))
+					{
+						$item['COPILOT_PROCESS'] = true;
+						if (
+							$generation->isFinished()
+							|| $generation->isError()
+						)
+						{
+							$item['COPILOT_PROCESS'] = false;
+						}
+					}
+				}
 			}
 			unset($item);
 			if ($ids)

@@ -1,0 +1,21 @@
+.bx-im-chat-forms-auto-delete__container {
+	--im-chat-forms-auto-delete__color_title: var(--im-color-palette-gray-80);
+
+	display: flex;
+	gap: 12px;
+}
+
+.bx-im-chat-forms-auto-delete__title {
+	font-size: var(--im-font-size-md);
+	color: var(--im-chat-forms-auto-delete__color_title);
+	position: relative;
+}
+
+.bx-im-chat-forms-auto-delete__hint {
+	position: absolute;
+	top: -4px;
+}
+
+.bx-im-chat-forms-auto-delete__toggle {
+	margin-top: 2px;
+}

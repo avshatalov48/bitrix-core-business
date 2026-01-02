@@ -66,6 +66,36 @@ class PinCollection extends BaseLinkCollection
 		return $pinCollection;
 	}
 
+	public static function getByMessages(MessageCollection $messages): self
+	{
+		$entities = LinkPinTable::query()
+			->setSelect(['ID', 'CHAT_ID', 'AUTHOR_ID', 'DATE_CREATE', 'MESSAGE_ID'])
+			->whereIn('MESSAGE_ID', $messages->getIds())
+			->fetchCollection()
+		;
+
+		if ($entities === null)
+		{
+			return new static();
+		}
+
+		$links = static::initByEntityCollection($entities);
+
+		foreach ($links as $link)
+		{
+			$messageId = $link->getMessageId();
+
+			if (!isset($messageId))
+			{
+				continue;
+			}
+
+			$link->setEntity($messages[$messageId]);
+		}
+
+		return $links;
+	}
+
 	public static function getCollectionElementClass(): string
 	{
 		return PinItem::class;
@@ -79,5 +109,27 @@ class PinCollection extends BaseLinkCollection
 	protected static function processFilters(Query $query, array $filter, array $order): void
 	{
 		static::processSidebarFilters($query, $filter, $order);
+	}
+
+	public function getAuthorIds(): array
+	{
+		$authorIds = [];
+		foreach ($this as $item)
+		{
+			$authorIds[$item->getAuthorId()] = $item->getAuthorId();
+		}
+
+		return $authorIds;
+	}
+
+	public function getMessageIds(): array
+	{
+		$messageIds = [];
+		foreach ($this as $item)
+		{
+			$messageIds[$item->getMessageId()] = $item->getMessageId();
+		}
+
+		return $messageIds;
 	}
 }

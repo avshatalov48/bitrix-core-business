@@ -17,4 +17,5 @@ $MESS ['GP_PASSWORD_CHANGE_DAYS'] = "Требовать смены пароля 
 $MESS ['GP_PASSWORD_UNIQUE_COUNT'] = "Проверять на совпадение указанное количество последних паролей";
 $MESS["GP_PASSWORD_CHECK_WEAK"] = "Проверять пароль по базе слабых паролей";
 $MESS["GP_PASSWORD_CHECK_POLICY"] = "Требовать смены пароля при несоответствии текущей политике";
+$MESS['GP_PASSWORD_MIN_CHANGE_DAYS'] = 'Минимальное количество дней до смены пароля';
 ?>

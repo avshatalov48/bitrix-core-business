@@ -14,3 +14,4 @@ DROP TABLE if exists b_perf_index_ban;
 DROP TABLE if exists b_perf_index_complete;
 DROP TABLE if exists b_perf_history;
 DROP TABLE if exists b_perf_table;
+DROP TABLE if exists b_perf_cache_hitrate;

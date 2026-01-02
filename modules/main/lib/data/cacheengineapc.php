@@ -1,7 +1,10 @@
 <?php
+
 namespace Bitrix\Main\Data;
 
-class CacheEngineApc extends CacheEngine
+use Bitrix\Main\Data\LocalStorage\Storage;
+
+class CacheEngineApc extends Cache\KeyValueEngine implements Storage\CacheEngineInterface
 {
 	public function getConnectionName(): string
 	{

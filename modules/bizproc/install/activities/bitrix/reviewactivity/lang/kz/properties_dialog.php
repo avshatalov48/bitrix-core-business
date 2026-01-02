@@ -1,0 +1,25 @@
+<?php
+$MESS["BPAR_PD_ACCESS_CONTROL"] = "Қолжетімділікті шектеу";
+$MESS["BPAR_PD_APPROVE_TYPE"] = "Танысып шығу керек";
+$MESS["BPAR_PD_APPROVE_TYPE_ALL"] = "Барлық қызметкер";
+$MESS["BPAR_PD_APPROVE_TYPE_ANY"] = "Кез-келген қызметкер";
+$MESS["BPAR_PD_COMMENT_LABEL_MESSAGE_1"] = "Түсіндіруге арналған өріс атауы";
+$MESS["BPAR_PD_COMMENT_REQUIRED_1"] = "Түсініктеме сұрау";
+$MESS["BPAR_PD_DELEGATION_TYPE"] = "Табыстау түрі";
+$MESS["BPAR_PD_DESCR"] = "Тапсырманың сипаттамасы";
+$MESS["BPAR_PD_NAME"] = "Тапсырманың атауы";
+$MESS["BPAR_PD_NO"] = "Жоқ";
+$MESS["BPAR_PD_REVIEWERS"] = "Пайдаланушыларды таныстырып өту";
+$MESS["BPAR_PD_SET_STATUS_MESSAGE"] = "Мәртебе мәтінін орнату";
+$MESS["BPAR_PD_SHOW_COMMENT_1"] = "Түсініктемесі бар өрісті көрсету";
+$MESS["BPAR_PD_STATUS_MESSAGE"] = "Мәртебе мәтіні";
+$MESS["BPAR_PD_STATUS_MESSAGE_HINT1"] = "#PERCENT# - пайыз, #REVIEWED# - адам танысып шықты, #TOTAL# - барлығы танысып шығу керек адамдар саны, #REVIEWERS# - танысып шыққандар жетілдіргіштерін пайдалануға болады";
+$MESS["BPAR_PD_TASK_BUTTON_MESSAGE"] = "Тапсырмадағы батырма мәтіні";
+$MESS["BPAR_PD_TIMEOUT_DURATION"] = "Танысу кезеңі";
+$MESS["BPAR_PD_TIMEOUT_DURATION_HINT"] = "Кезең аяқталғаннан кейін танысу автоматты түрде аяқталады. Бос мән немесе 0-кезеңнің болмауы.";
+$MESS["BPAR_PD_TIMEOUT_LIMIT"] = "Танысып шығудың ең қысқа кезеңі";
+$MESS["BPAR_PD_TIME_D"] = "күн";
+$MESS["BPAR_PD_TIME_H"] = "сағат";
+$MESS["BPAR_PD_TIME_M"] = "минут";
+$MESS["BPAR_PD_TIME_S"] = "секунд";
+$MESS["BPAR_PD_YES"] = "Иә";

@@ -1,0 +1,21 @@
+<?php
+$MESS["LANDING_COPILOT_DEMO_WISH_1"] = "Сәулет";
+$MESS["LANDING_COPILOT_DEMO_WISH_2"] = "Интернет-агенттік";
+$MESS["LANDING_COPILOT_DEMO_WISH_3"] = "Құрылыс компаниясы";
+$MESS["LANDING_COPILOT_DEMO_WISH_4"] = "IT қызметтері";
+$MESS["LANDING_COPILOT_DEMO_WISH_5"] = "Музыка";
+$MESS["LANDING_COPILOT_DEMO_WISH_6"] = "Азық-түлік жеткізу";
+$MESS["LANDING_COPILOT_DEMO_WISH_7"] = "Курстар";
+$MESS["LANDING_COPILOT_DEMO_WISH_8"] = "Тапсырыс бойынша гүл шоқтары";
+$MESS["LANDING_COPILOT_DEMO_WISH_9"] = "Фотографтың портфолиосы";
+$MESS["LANDING_COPILOT_DEMO_WISH_10"] = "СПА";
+$MESS["LANDING_COPILOT_DEMO_WISH_11"] = "Табиғи косметика";
+$MESS["LANDING_COPILOT_DEMO_WISH_12"] = "Бухгалтерлік қызметтер";
+$MESS["LANDING_COPILOT_DEMO_WISH_13"] = "Ойын клубы";
+$MESS["LANDING_COPILOT_DEMO_WISH_14"] = "Жылжымайтын мүлік агенті";
+$MESS["LANDING_COPILOT_DEMO_WISH_15"] = "Арнайы тапсырыспен жиһаз";
+$MESS["LANDING_COPILOT_DEMO_WISH_16"] = "Адвокат";
+$MESS["LANDING_COPILOT_DEMO_WISH_17"] = "Техниканы жөндеу";
+$MESS["LANDING_COPILOT_DEMO_WISH_18"] = "Автоқызмет";
+$MESS["LANDING_COPILOT_DEMO_WISH_19"] = "Жөндеу қызметтері";
+$MESS["LANDING_COPILOT_DEMO_WISH_20"] = "Заң қызметтері";

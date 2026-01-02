@@ -239,33 +239,10 @@ class Domain
 				$siteController = Manager::getExternalSiteController();
 				if ($siteController)
 				{
-					//todo: revert changes after change .by domain
-					$domainName = $return['domain'];
-					$byDomainName = '';
-					$isOnlineSite = str_ends_with($domainName, '.b24site.online');
-					$isOnlineShop = str_ends_with($domainName, '.b24shop.online');
-					if ($isOnlineSite)
-					{
-						$byDomainName = str_replace('.b24site.online', '.bitrix24site.by', $domainName);
-					}
-					if ($isOnlineShop)
-					{
-						$byDomainName = str_replace('.b24shop.online', '.bitrix24shop.by', $domainName);
-					}
-					$checkResult = $siteController::isDomainExists(
-						$domainName
+				 	$checkResult = $siteController::isDomainExists(
+						$return['domain']
 					);
-					if ($byDomainName === '')
-					{
-						$return['available'] = $checkResult < 2;
-					}
-					else
-					{
-						$checkResultBy = $siteController::isDomainExists(
-							$byDomainName
-						);
-						$return['available'] = $checkResult < 2 && $checkResultBy < 2;
-					}
+					$return['available'] = $checkResult < 2;
 				}
 			}
 			catch (SystemException $ex)

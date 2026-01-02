@@ -1,3 +1,2 @@
-<?
-$MESS ['subscr_prolog_title'] = "Newsletter module";
-?>
+<?php
+$MESS['subscr_prolog_title'] = "Newsletter module";

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
@@ -7,7 +8,6 @@ this.BX = this.BX || {};
 	  function SidePanelWrapper() {
 	    babelHelpers.classCallCheck(this, SidePanelWrapper);
 	  }
-
 	  babelHelpers.createClass(SidePanelWrapper, null, [{
 	    key: "open",
 	    value: function open() {
@@ -25,10 +25,8 @@ this.BX = this.BX || {};
 	      var header = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"mail-slider-wrapper-header\"></div>"])));
 	      var title = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"mail-slider-wrapper-header-title\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), config['titleText']);
 	      var footer = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div></div>"])));
-
 	      if (config['footerIsActive']) {
 	        footer = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"mail-slider-wrapper-footer-fixed\"></div>"])));
-
 	        if (config['consentButton'] !== undefined) {
 	          var consentButton = new BX.UI.Button({
 	            text: config['consentButton']['text'],
@@ -40,28 +38,21 @@ this.BX = this.BX || {};
 	          });
 	          footer.append(consentButton.getContainer());
 	        }
-
 	        if (config['cancelButton'] !== undefined) {
 	          var cancelButton = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-md ui-btn-link\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), config['cancelButton']['text']);
-
 	          cancelButton.onclick = function () {
 	            cancelButton.onclick = function () {};
-
 	            BX.SidePanel.Instance.close();
 	          };
-
 	          footer.append(cancelButton);
 	        }
 	      }
-
 	      var content = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div class=\"mail-slider-wrapper-content\"></div>"])));
-
 	      if (typeof config['content'] === "string") {
 	        content = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"mail-slider-wrapper-content\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), config['content']);
 	      } else {
 	        content.append(config['content']);
 	      }
-
 	      header.append(title);
 	      wrapper.append(header);
 	      wrapper.append(content);

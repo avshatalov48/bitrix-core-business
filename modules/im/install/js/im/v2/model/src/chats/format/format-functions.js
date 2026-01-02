@@ -44,26 +44,6 @@ export const prepareAvatar = (avatar: string): string => {
 	return result;
 };
 
-export const prepareWritingList = (writingList: Object[]): Array<{userId: number, userName: string}> => {
-	const result = [];
-
-	writingList.forEach((element) => {
-		const item = {};
-
-		if (!element.userId)
-		{
-			return;
-		}
-
-		item.userId = Number.parseInt(element.userId, 10);
-		item.userName = Text.decode(element.userName);
-
-		result.push(item);
-	});
-
-	return result;
-};
-
 export const prepareMuteList = (muteList: Object[] | Object): Object[] => {
 	const result = [];
 

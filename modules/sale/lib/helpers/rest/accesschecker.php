@@ -2,6 +2,7 @@
 
 namespace Bitrix\Sale\Helpers\Rest;
 
+use Bitrix\Crm\Service\Container;
 use Bitrix\Main;
 use Bitrix\Rest\AccessException;
 
@@ -17,12 +18,11 @@ class AccessChecker
 	 */
 	public static function checkAccessPermission()
 	{
-		global $APPLICATION, $USER;
+		global $APPLICATION;
 
 		if (Main\ModuleManager::isModuleInstalled('intranet') && Main\Loader::includeModule('crm'))
 		{
-			$crmPerms = new \CCrmPerms($USER->GetID());
-			if (!$crmPerms->HavePerm('CONFIG', BX_CRM_PERM_CONFIG, 'WRITE'))
+			if (!Container::getInstance()->getUserPermissions()->isCrmAdmin())
 			{
 				throw new AccessException();
 			}

@@ -1,0 +1,8 @@
+.vote-display-inner {
+	padding: 12px 14px 3px 15px;
+}
+
+.vote-display__loader {
+	height: 44px;
+	padding-top: 7px;
+}

@@ -21,6 +21,7 @@
 	gap: 32px;
 	align-items: center;
 	max-width: 916px;
+	min-height: 253px;
 	padding: 32px 40px;
 	border-radius: 18px;
 	position: relative;
@@ -77,6 +78,24 @@
 	animation-delay: 3s;
 }
 
+.rest-market-expired-popup__discount-percentage {
+	margin: 0;
+	font-size: 40px;
+	font-weight: var(--ui-font-weight-bold);
+	color: var(--ui-color-white-base);
+}
+
+.rest-market-expired-popup__discount-terms {
+	font-weight: var(--ui-font-weight-normal);
+	color: var(--ui-color-white-base);
+	opacity: .5;
+}
+
+.rest-market-expired-popup__discount-terms:hover {
+	opacity: 1;
+	color: var(--ui-color-white-base);
+}
+
 @keyframes marketExpiredPopupGlance {
 	from {
 		left: -110px;
@@ -96,6 +115,10 @@
 	margin-top: 12px;
 }
 
+.rest-market-expired-popup__discount--subscription {
+	width: 132px;
+}
+
 .rest-market-expired-popup__discount-description {
 	margin: 0;
 	font-size: var(--ui-font-size-2xl);
@@ -108,12 +131,11 @@
 	color: #FFFFFF;
 }
 
-.rest-market-expired-popup__discount-description-demo {
-	margin-top: 18px;
-	font-size: var(--ui-font-size-xs);
-	line-height: 16px;
-	font-weight: var(--ui-font-weight-regular);
-	color: #FFFFFF;
+.rest-market-expired-popup__discount--subscription .rest-market-expired-popup__discount-description {
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-normal);
+	line-height: 19px;
+	color: var(--ui-color-palette-blue-20);
 }
 
 .rest-market-expired-popup__content {
@@ -145,8 +167,7 @@
 }
 
 .rest-market-expired-popup__details {
-	margin-top: 14px;
-	margin-bottom: 24px;
+	margin: 14px 0 0 0;
 	font-size: var(--ui-font-size-md);
 	line-height: 16px;
 }
@@ -258,6 +279,7 @@
 }
 
 .rest-market-expired-popup__buttons-wrapper {
+	padding-top: 24px;
 	margin-top: auto;
 	display: flex;
 	flex-direction: column;
@@ -298,3 +320,8 @@
 	}
 }
 
+.rest-market-expired-curtain {
+	color: var(--ui-color-white-base);
+	font-size: var(--ui-font-size-xl);
+	line-height: 19px;
+}

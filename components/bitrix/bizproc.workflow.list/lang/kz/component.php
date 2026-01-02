@@ -1,0 +1,26 @@
+<?php
+$MESS["BPATT_AE_CREATE"] = "Құру";
+$MESS["BPATT_AE_DELETE"] = "Жою";
+$MESS["BPATT_AE_EDIT"] = "Өзгерту";
+$MESS["BPATT_AE_NONE"] = "Жоқ";
+$MESS["BPATT_DO_DELETE1"] = "Жою";
+$MESS["BPATT_DO_DELETE1_CONFIRM"] = "Бұл қалыпты жойғыңыз келетініне сенімдісіз бе?";
+$MESS["BPATT_DO_EDIT1"] = "Өзгерту";
+$MESS["BPATT_DO_EDIT_CONSTANTS"] = "Константа мәндерін белгілеу";
+$MESS["BPATT_DO_EDIT_CONSTANTS1"] = "Константалар";
+$MESS["BPATT_DO_EDIT_VARS"] = "Айнымалылардың бастапқы мәндерін өзгерту";
+$MESS["BPATT_DO_EDIT_VARS1"] = "Айнымалылар";
+$MESS["BPATT_DO_LOAD_CREATE"] = "Құру кезіне іске қосу";
+$MESS["BPATT_DO_LOAD_CREATE_TITLE"] = "Құжаттарды құру кезінде бизнес-процесті іске қосу";
+$MESS["BPATT_DO_LOAD_EDIT"] = "Өзгерту кезінде іске қосу";
+$MESS["BPATT_DO_LOAD_EDIT_TITLE"] = "Құжаттарды өзгерту кезінде бизнес-процесті іске қосу";
+$MESS["BPATT_DO_N_LOAD_CREATE"] = "Құру кезінде іске қоспау";
+$MESS["BPATT_DO_N_LOAD_CREATE_TITLE"] = "Құжаттарды жасау кезінде бизнес-процесті бастамау";
+$MESS["BPATT_DO_N_LOAD_EDIT"] = "Өзгерту кезінде іске қоспау";
+$MESS["BPATT_DO_N_LOAD_EDIT_TITLE"] = "Құжаттарды өзгерту кезінде бизнес-процесті іске қоспау";
+$MESS["BPATT_NAV"] = "Бизнес-процесстер қалыбы";
+$MESS["BPATT_NO_DOCUMENT_TYPE"] = "Құжаттың түрі көрсетілмеген.";
+$MESS["BPATT_NO_ENTITY"] = "Ол үшін бизнес-процесс басталатын мән көрсетілмеген.";
+$MESS["BPATT_NO_MODULE_ID"] = "Модуль көрсетілмеген.";
+$MESS["BPATT_NO_PERMS"] = "Қолжетімділікке тыйым салынған.";
+$MESS["BPATT_TITLE"] = "Бизнес-процесстер қалыбы";

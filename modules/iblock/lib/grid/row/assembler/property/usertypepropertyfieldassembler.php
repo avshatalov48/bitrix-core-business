@@ -5,24 +5,14 @@ namespace Bitrix\Iblock\Grid\Row\Assembler\Property;
 use Bitrix\Iblock\Grid\Column\ElementPropertyProvider;
 use Bitrix\Iblock\Grid\RowType;
 use Bitrix\Iblock\PropertyTable;
-use Bitrix\Main\Grid\Row\FieldAssembler;
 use CIBlockProperty;
 use Closure;
 
-final class UserTypePropertyFieldAssembler extends FieldAssembler
+final class UserTypePropertyFieldAssembler extends BaseFieldAssembler
 {
-	private int $iblockId;
-	private array $customEditableColumnIds;
-	private array $properties;
-
 	public function __construct(int $iblockId, array $customEditableColumnIds)
 	{
-		$this->iblockId = $iblockId;
-		$this->customEditableColumnIds = $customEditableColumnIds;
-
-		parent::__construct(
-			$this->getPropertyColumnsIdsWithUserType()
-		);
+		parent::__construct($iblockId, $customEditableColumnIds);
 
 		$this->preloadResources();
 	}
@@ -41,66 +31,61 @@ final class UserTypePropertyFieldAssembler extends FieldAssembler
 		$APPLICATION->AddHeadScript('/bitrix/js/main/utils.js');
 	}
 
-	private function getPropertyColumnsIdsWithUserType(): array
+	protected function getPropertyFilter(): array
 	{
-		$result = [];
-
-		$rows = PropertyTable::getList([
-			'select' => [
-				'ID',
-			],
-			'filter' => [
-				'=IBLOCK_ID' => $this->iblockId,
-				'!USER_TYPE' => null,
-			],
-		]);
-		foreach ($rows as $row)
-		{
-			$result[] = ElementPropertyProvider::getColumnIdByPropertyId($row['ID']);
-		}
-
-		return $result;
+		return [
+			'!USER_TYPE' => null,
+		];
 	}
 
-	private function getPropertiesWithUserType(): array
+	protected function validateProperty(array $property): ?array
 	{
-		if (!isset($this->properties))
+		$property['USER_TYPE_SETTINGS'] = $property['USER_TYPE_SETTINGS_LIST'];
+		$property['PROPERTY_USER_TYPE'] = CIBlockProperty::GetUserType($property['USER_TYPE']);
+
+		if (
+			$property['PROPERTY_TYPE'] === PropertyTable::TYPE_ELEMENT
+			|| $property['PROPERTY_TYPE'] === PropertyTable::TYPE_SECTION
+		)
 		{
-			$this->properties = [];
-
-			$usedPropertyIds = ElementPropertyProvider::getPropertyIdsFromColumnsIds($this->getColumnIds());
-			if (!empty($usedPropertyIds))
+			$property['LINK_IBLOCK_ID'] = (int)$property['LINK_IBLOCK_ID'];
+			if ($property['LINK_IBLOCK_ID'] <= 0)
 			{
-				$rows = PropertyTable::getList([
-					'filter' => [
-						'=IBLOCK_ID' => $this->iblockId,
-						'!USER_TYPE' => null,
-						'@ID' => $usedPropertyIds,
-					],
-				]);
-				foreach ($rows as $row)
-				{
-					$id = $row['ID'];
-
-					$this->properties[$id] = $row;
-					$this->properties[$id]['USER_TYPE_SETTINGS'] = $row['USER_TYPE_SETTINGS_LIST'];
-					$this->properties[$id]['PROPERTY_USER_TYPE'] = CIBlockProperty::GetUserType($row['USER_TYPE']);
-				}
+				$property['LINK_IBLOCK_ID'] = null;
 			}
 		}
 
-		return $this->properties;
+		// TODO: remove this hack after refactoring \CIBlockPropertyEmployee::GetPublicEditHTMLMulty and \CIBlockPropertyEmployee::GetPublicEditHTML
+		if (
+			$property['PROPERTY_TYPE'] === PropertyTable::TYPE_STRING
+			&& $property['USER_TYPE'] === PropertyTable::USER_TYPE_EMPLOYEE
+		)
+		{
+			$property['SETTINGS'] ??= [];
+			$property['SETTINGS']['USE_ENTITY_SELECTOR'] = true;
+		}
+
+		return $property;
 	}
 
 	protected function prepareRow(array $row): array
 	{
-		$row['columns'] ??= [];
-
-		if (($row['data']['ROW_TYPE'] ?? '') !== RowType::ELEMENT)
+		if (!self::isElementRow($row))
 		{
 			return $row;
 		}
 
+		$columnIds = $this->getColumnIds();
+		if (empty($columnIds))
+		{
+			return $row;
+		}
+
+		$rowId = RowType::getIndex(self::getRowType($row), (string)($row['data']['ID'] ?? ''));
+
+		$row['columns'] ??= [];
+
+		/*
 		foreach ($this->getPropertiesWithUserType() as $propertyId => $property)
 		{
 			$columnId = ElementPropertyProvider::getColumnIdByPropertyId($propertyId);
@@ -120,11 +105,31 @@ final class UserTypePropertyFieldAssembler extends FieldAssembler
 				$row['data']['~' . $columnId] = $this->getEditValue($columnId, $property, $value);
 			}
 		}
+		*/
+
+		foreach ($columnIds as $columnId)
+		{
+			$property = $this->properties[$columnId];
+			$value = $row['data'][$columnId] ?? null;
+
+			// view
+			$viewValue = $this->getColumnValue($rowId, $columnId, $property, $value);
+			if (isset($viewValue))
+			{
+				$row['columns'][$columnId] = is_array($viewValue) ? implode(' / ', $viewValue) : $viewValue;
+			}
+
+			// edit custom
+			if ($this->isCustomEditable($columnId))
+			{
+				$row['data']['~' . $columnId] = $this->getEditValue($rowId, $columnId, $property, $value);
+			}
+		}
 
 		return $row;
 	}
 
-	private function renderUserTypeFunction(Closure $callback, string $name, $value, array $property)
+	private function renderUserTypeFunction(Closure $callback, string $rowId, string $name, $value, array $property)
 	{
 		return call_user_func_array(
 			$callback,
@@ -132,6 +137,8 @@ final class UserTypePropertyFieldAssembler extends FieldAssembler
 				$property,
 				$value,
 				[
+					'ROW_ID' => $rowId,
+					'FIELD_NAME' => $name,
 					'GRID' => 'PUBLIC',
 					'VALUE' => $name . '[VALUE]',
 					'DESCRIPTION' => $name . '[DESCRIPTION]',
@@ -140,7 +147,7 @@ final class UserTypePropertyFieldAssembler extends FieldAssembler
 		);
 	}
 
-	private function getColumnValue(string $columnId, array $property, $value)
+	private function getColumnValue(string $rowId, string $columnId, array $property, $value)
 	{
 		if ($value === null)
 		{
@@ -155,6 +162,7 @@ final class UserTypePropertyFieldAssembler extends FieldAssembler
 				{
 					$tmp[] = $this->renderUserTypeFunction(
 						Closure::fromCallable($property['PROPERTY_USER_TYPE']['GetPublicViewHTML']),
+						$rowId,
 						$columnId . "[n{$i}]",
 						$valueItem,
 						$property
@@ -185,6 +193,7 @@ final class UserTypePropertyFieldAssembler extends FieldAssembler
 			{
 				return $this->renderUserTypeFunction(
 					Closure::fromCallable($property['PROPERTY_USER_TYPE']['GetPublicViewHTML']),
+					$rowId,
 					$columnId,
 					$value,
 					$property
@@ -195,7 +204,7 @@ final class UserTypePropertyFieldAssembler extends FieldAssembler
 		return null;
 	}
 
-	private function getEditValue(string $columnId, array $property, $value)
+	private function getEditValue(string $rowId, string $columnId, array $property, $value)
 	{
 		if ($property['MULTIPLE'] === 'Y')
 		{
@@ -203,6 +212,7 @@ final class UserTypePropertyFieldAssembler extends FieldAssembler
 			{
 				return $this->renderUserTypeFunction(
 					Closure::fromCallable($property['PROPERTY_USER_TYPE']['GetPublicEditHTMLMulty']),
+					$rowId,
 					$columnId,
 					$value,
 					$property
@@ -215,6 +225,7 @@ final class UserTypePropertyFieldAssembler extends FieldAssembler
 				{
 					$tmp[] = $this->renderUserTypeFunction(
 						Closure::fromCallable($property['PROPERTY_USER_TYPE']['GetPublicEditHTML']),
+						$rowId,
 						$columnId . "[n{$i}]",
 						$valueItem,
 						$property
@@ -228,6 +239,7 @@ final class UserTypePropertyFieldAssembler extends FieldAssembler
 		{
 			return $this->renderUserTypeFunction(
 				Closure::fromCallable($property['PROPERTY_USER_TYPE']['GetPublicEditHTML']),
+				$rowId,
 				$columnId,
 				$value,
 				$property

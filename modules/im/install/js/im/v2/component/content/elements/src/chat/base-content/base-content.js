@@ -56,11 +56,15 @@ export const BaseChatContent = {
 			type: String,
 			default: '',
 		},
-		backgroundId: {
-			type: [Number, String, null],
-			default: null,
-		},
 		withSidebar: {
+			type: Boolean,
+			default: true,
+		},
+		withHeader: {
+			type: Boolean,
+			default: true,
+		},
+		withDropArea: {
 			type: Boolean,
 			default: true,
 		},
@@ -81,6 +85,11 @@ export const BaseChatContent = {
 		},
 		canSend(): boolean
 		{
+			if (!this.dialog.isTextareaEnabled)
+			{
+				return false;
+			}
+
 			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.send, this.dialog.dialogId);
 		},
 		isGuest(): boolean
@@ -89,7 +98,7 @@ export const BaseChatContent = {
 		},
 		isBulkActionsMode(): boolean
 		{
-			return this.$store.getters['messages/select/getBulkActionsMode'];
+			return this.$store.getters['messages/select/isBulkActionsModeActive'](this.dialogId);
 		},
 		hasCommentsOnTop(): boolean
 		{
@@ -103,12 +112,7 @@ export const BaseChatContent = {
 		},
 		backgroundStyle(): BackgroundStyle
 		{
-			if (this.backgroundId)
-			{
-				return ThemeManager.getBackgroundStyleById(this.backgroundId);
-			}
-
-			return ThemeManager.getCurrentBackgroundStyle();
+			return ThemeManager.getCurrentBackgroundStyle(this.dialogId);
 		},
 		dialogContainerStyle(): Object
 		{
@@ -118,8 +122,10 @@ export const BaseChatContent = {
 				textareaHeight = Height.blockedTextarea;
 			}
 
+			const headerHeight = this.withHeader ? Height.chatHeader : 0;
+
 			return {
-				height: `calc(100% - ${Height.chatHeader}px - ${textareaHeight}px)`,
+				height: `calc(100% - ${headerHeight}px - ${textareaHeight}px)`,
 			};
 		},
 	},
@@ -143,13 +149,11 @@ export const BaseChatContent = {
 		this.initTextareaResizeManager();
 		this.bindEvents();
 
-		BulkActionsManager.getInstance().init();
+		BulkActionsManager.init();
 	},
 	beforeUnmount()
 	{
 		this.unbindEvents();
-
-		BulkActionsManager.getInstance().destroy();
 	},
 	methods:
 	{
@@ -208,9 +212,10 @@ export const BaseChatContent = {
 	template: `
 		<div class="bx-im-content-chat__scope bx-im-content-chat__container" :class="containerClasses" :style="backgroundStyle">
 			<div class="bx-im-content-chat__content" ref="content">
-				<slot name="header">
+				<slot v-if="withHeader" name="header">
 					<ChatHeader :dialogId="dialogId" :key="dialogId" />
 				</slot>
+				<slot name="sub-header"></slot>
 				<div :style="dialogContainerStyle" class="bx-im-content-chat__dialog_container">
 					<Transition name="loading-bar-transition">
 						<LoadingBar v-if="showLoadingBar" />
@@ -223,13 +228,12 @@ export const BaseChatContent = {
 				</div>
 				<!-- Textarea -->
 				<Transition name="bx-im-panel-transition">
-					<BulkActionsPanel v-if="isBulkActionsMode"/>
+					<BulkActionsPanel v-if="isBulkActionsMode" :dialogId="dialogId"/>
 					<div v-else-if="canSend" v-textarea-observer class="bx-im-content-chat__textarea_container" ref="textarea-container">
 						<slot name="textarea" :onTextareaMount="onTextareaMount">
 							<ChatTextarea
 								:dialogId="dialogId"
 								:key="dialogId"
-								:withAudioInput="false"
 								@mounted="onTextareaMount"
 							/>
 						</slot>
@@ -239,7 +243,12 @@ export const BaseChatContent = {
 					</slot>
 					<MutePanel v-else :dialogId="dialogId" />
 				</Transition>
-				<DropArea :dialogId="dialogId" :container="$refs.content || {}" :key="dialogId" />
+				<DropArea
+					v-if="withDropArea"
+					:key="dialogId" 
+					:dialogId="dialogId" 
+					:container="$refs.content || {}" 
+				/>
 				<!-- End textarea -->
 			</div>
 			<ChatSidebar

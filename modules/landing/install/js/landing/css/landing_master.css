@@ -51,7 +51,11 @@ body {
 	transition: 200ms opacity ease;
 }
 
-.block-wrapper:hover::after {
+body.landing-copilot-generation .landing-block *
+{
+	pointer-events: none;
+}
+body:not(.landing-copilot-generation) .block-wrapper:hover::after {
 	opacity: 1;
 }
 
@@ -152,7 +156,7 @@ main > .landing-footer [class~='block-wrapper']:last-of-type {
 	margin-bottom: 40px;
 }
 
-.block-wrapper:hover .landing-ui-panel-create-action {
+body:not(.landing-copilot-generation) .block-wrapper:hover .landing-ui-panel-create-action {
 	opacity: 1;
 }
 
@@ -239,17 +243,17 @@ main .landing-sidebar:not(.landing-empty) + .landing-main.landing-empty {
 	opacity: 0;
 }
 
-.block-wrapper:hover .landing-ui-panel-content-action,
-.block-wrapper.landing-ui-hover .landing-ui-panel-content-action,
-.block-wrapper:hover .landing-ui-panel-block-action,
-.block-wrapper.landing-ui-hover .landing-ui-panel-block-action {
+body:not(.landing-copilot-generation) .block-wrapper:hover .landing-ui-panel-content-action,
+body:not(.landing-copilot-generation) .block-wrapper.landing-ui-hover .landing-ui-panel-content-action,
+body:not(.landing-copilot-generation) .block-wrapper:hover .landing-ui-panel-block-action,
+body:not(.landing-copilot-generation) .block-wrapper.landing-ui-hover .landing-ui-panel-block-action {
 	opacity: 1;
 }
 
-.landing-sidebar .block-wrapper:hover .landing-ui-panel-content-action,
-.landing-sidebar .block-wrapper.landing-ui-hover .landing-ui-panel-content-action,
-.landing-sidebar .block-wrapper:hover .landing-ui-panel-block-action,
-.landing-sidebar .block-wrapper.landing-ui-hover .landing-ui-panel-block-action {
+body:not(.landing-copilot-generation) .landing-sidebar .block-wrapper:hover .landing-ui-panel-content-action,
+body:not(.landing-copilot-generation) .landing-sidebar .block-wrapper.landing-ui-hover .landing-ui-panel-content-action,
+body:not(.landing-copilot-generation) .landing-sidebar .block-wrapper:hover .landing-ui-panel-block-action,
+body:not(.landing-copilot-generation) .landing-sidebar .block-wrapper.landing-ui-hover .landing-ui-panel-block-action {
 	display: none!important;
 }
 

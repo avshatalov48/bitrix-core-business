@@ -173,7 +173,6 @@ else
 			? Helper\Workgroup::getProjectPresets([
 				'currentExtranetSite' => $arResult['bExtranet'],
 				'entityOptions' => $arParams['PROJECT_OPTIONS'],
-				'isFromFlowCreationForm' => $arParams['isFromFlowCreationForm'] ?? false,
 			])
 			: []
 	);
@@ -640,7 +639,7 @@ else
 			)
 			{
 				$arFields = array(
-					"NAME" => $_POST["GROUP_NAME"] ?? null,
+					"NAME" => trim($_POST["GROUP_NAME"] ?? ''),
 					"DESCRIPTION" => $_POST["GROUP_DESCRIPTION"] ?? null,
 					'VISIBLE' => (($_POST['GROUP_VISIBLE'] ?? null) === 'Y' ? 'Y' : 'N'),
 					'OPENED' => (($_POST['GROUP_OPENED'] ?? null) === 'Y' ? 'Y' : 'N'),
@@ -842,6 +841,32 @@ else
 
 							$arResult["trialEnabled"]['project'] = true;
 						}
+
+						$privacyType = 'Secret';
+						if ($arFields['VISIBLE'] === 'Y')
+						{
+							$privacyType = $arFields['OPENED'] === 'Y' ? 'Open' : 'Close';
+						}
+
+						$analytics = Helper\Analytics\ProjectAnalytics::getInstance();
+						if ($isScrumProject)
+						{
+							$analytics->onProjectCreated(
+								$privacyType,
+								$analytics::EVENT_SCRUM_CREATE_FINISH,
+								$analytics::CATEGORY_SCRUM,
+								$analytics::SECTION_SCRUM,
+								$analytics::SUBSECTION_SCRUM_GRID,
+							);
+						}
+						else
+						{
+							$projectType = ($arFields['PROJECT'] ?? '') === 'Y' ? 'Project' : 'Group';
+							$analytics->onProjectCreated(
+								privacyType: $privacyType,
+								params: ['p2' => 'projectType_' . $projectType],
+							);
+						}
 					}
 				}
 				else
@@ -1034,7 +1059,7 @@ else
 							&& $feature === 'chat'
 						)
 						{
-							CUserOptions::setOption('socialnetwork', 'default_chat_create_default', ($_POST[$feature . '_active'] === 'Y' ? 'Y' : 'N'));
+							CUserOptions::setOption('socialnetwork', 'default_chat_create_default', (($_POST[$feature . '_active'] ?? null) === 'Y' ? 'Y' : 'N'));
 						}
 
 						if (!$idTmp)
@@ -2003,6 +2028,24 @@ if ($arParams['GROUP_ID'] > 0)
 }
 
 $culture = \Bitrix\Main\Context::getCurrent()->getCulture();
+
+$analytics = Helper\Analytics\ProjectAnalytics::getInstance();
+if (
+	($arResult['GROUP_ID'] ?? 0) <= 0
+	&& ($arParams['PROJECT_OPTIONS']['scrum'] ?? false)
+)
+{
+	$analytics->onProjectCreateFormOpened(
+		$analytics::EVENT_SCRUM_CREATE_START,
+		$analytics::CATEGORY_SCRUM,
+		$analytics::SECTION_SCRUM,
+		$analytics::SUBSECTION_SCRUM_GRID,
+	);
+}
+else
+{
+	$analytics->onProjectCreateFormOpened();
+}
 
 $arResult['culture'] = [
 	'shortDateFormat' => $culture->getShortDateFormat(),

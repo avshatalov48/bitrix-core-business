@@ -411,9 +411,9 @@ while ($rule = $ruleIterator->Fetch())
 	{
 		$row->AddViewField('DATE_CREATE', $rule['DATE_CREATE']);
 	}
-	if ($selectFieldsMap['TIMESTAMP_X'])
+	if ($selectFieldsMap['DATE_MODIFY'])
 	{
-		$row->AddViewField('TIMESTAMP_X', $rule['TIMESTAMP_X']);
+		$row->AddViewField('DATE_MODIFY', $rule['DATE_MODIFY']);
 	}
 
 	$row->AddViewField(

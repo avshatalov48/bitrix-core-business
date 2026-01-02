@@ -453,6 +453,34 @@ class ItemAttributes
 		return $likeDataSet;
 	}
 
+	/**
+	 * Convert structure to array which we can use in vue.js (v-bind)
+	 *
+	 * @return array
+	 */
+	public function toVueBind(): array
+	{
+		$result = [];
+		foreach ($this->attributes as $key => $value)
+		{
+			if (is_int($key))
+			{
+				$result[$value] = '';
+			}
+			else
+			{
+				$result[$key] = $value ?? '';
+			}
+		}
+
+		if ($this->actions)
+		{
+			$result['data-actions'] = Json::encode($this->actions);
+		}
+
+		return $result;
+	}
+
 	protected function convertKeyToDataSet($key)
 	{
 		$key = str_replace('data-', '', $key);

@@ -17,6 +17,7 @@ export const BotCode = Object.freeze({
 	marta: 'marta',
 	giphy: 'giphy',
 	copilot: 'copilot',
+	aiAssistant: 'AiAssistantBot',
 });
 
 export const BotCommand = Object.freeze({

@@ -1,10 +1,4 @@
 <?php
-/**
- * Bitrix Framework
- * @package    bitrix
- * @subpackage iblock
- * @copyright  2001-2018 Bitrix
- */
 
 namespace Bitrix\Iblock;
 

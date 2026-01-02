@@ -196,7 +196,7 @@ $APPLICATION->IncludeComponent(
 		'SHOW_PAGINATION' => true,
 		'SHOW_SELECTED_COUNTER' => true,
 		'SHOW_TOTAL_COUNTER' => true,
-		'SHOW_PAGESIZE' => false,
+		'SHOW_PAGESIZE' => true,
 
 		'ENABLE_COLLAPSIBLE_ROWS' => false,
 

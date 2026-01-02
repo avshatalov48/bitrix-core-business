@@ -13,6 +13,7 @@ use Bitrix\Sale\Payment;
 use Bitrix\Sale\Registry;
 use Bitrix\Sale\Services\PaySystem\Restrictions;
 use Bitrix\Crm\Invoice;
+use Bitrix\Crm\Service\Container;
 
 if (!Main\Loader::includeModule('rest'))
 {
@@ -1466,9 +1467,10 @@ class RestService extends \IRestService
 
 		if (IsModuleInstalled('intranet') && Main\Loader::includeModule('crm'))
 		{
+			$crmUserPermissions = Container::getInstance()->getUserPermissions()->entityType();
 			if (
-				!\Bitrix\Crm\Order\Permissions\Order::checkCreatePermission()
-				&& !\Bitrix\Crm\Order\Permissions\Order::checkUpdatePermission(0)
+				!$crmUserPermissions->canAddItems(\CCrmOwnerType::Order)
+				&& !$crmUserPermissions->canUpdateItems(\CCrmOwnerType::Order)
 			)
 			{
 				throw new AccessException();
@@ -1494,10 +1496,10 @@ class RestService extends \IRestService
 
 		if (IsModuleInstalled('intranet') && Main\Loader::includeModule('crm'))
 		{
-			$CCrmInvoice = new \CCrmInvoice();
+			$crmUserPermissions = Container::getInstance()->getUserPermissions()->entityType();
 			if (
-				$CCrmInvoice->cPerms->HavePerm('INVOICE', BX_CRM_PERM_NONE, 'WRITE')
-				&& $CCrmInvoice->cPerms->HavePerm('INVOICE', BX_CRM_PERM_NONE, 'ADD')
+				!$crmUserPermissions->canUpdateItems(\CCrmOwnerType::Invoice)
+				&& !$crmUserPermissions->canAddItems(\CCrmOwnerType::Invoice)
 			)
 			{
 				throw new AccessException();

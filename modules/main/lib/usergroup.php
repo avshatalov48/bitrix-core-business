@@ -1,15 +1,16 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2012 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
+
 namespace Bitrix\Main;
 
-use Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
+use Bitrix\Main\ORM\Data\AddStrategy\Trait\AddInsertIgnoreTrait;
 
 /**
  * Class UserGroupTable
@@ -29,6 +30,9 @@ Loc::loadMessages(__FILE__);
  */
 class UserGroupTable extends Entity\DataManager
 {
+	use DeleteByFilterTrait;
+	use AddInsertIgnoreTrait;
+
 	public static function getTableName()
 	{
 		return 'b_user_group';
@@ -36,29 +40,29 @@ class UserGroupTable extends Entity\DataManager
 
 	public static function getMap()
 	{
-		return array(
-			'USER_ID' => array(
+		return [
+			'USER_ID' => [
 				'data_type' => 'integer',
-				'primary' => true
-			),
-			'USER' => array(
+				'primary' => true,
+			],
+			'GROUP_ID' => [
+				'data_type' => 'integer',
+				'primary' => true,
+			],
+			'DATE_ACTIVE_FROM' => [
+				'data_type' => 'datetime',
+			],
+			'DATE_ACTIVE_TO' => [
+				'data_type' => 'datetime',
+			],
+			'USER' => [
 				'data_type' => 'User',
-				'reference' => array('=this.USER_ID' => 'ref.ID')
-			),
-			'GROUP_ID' => array(
-				'data_type' => 'integer',
-				'primary' => true
-			),
-			'GROUP' => array(
+				'reference' => ['=this.USER_ID' => 'ref.ID'],
+			],
+			'GROUP' => [
 				'data_type' => 'Group',
-				'reference' => array('=this.GROUP_ID' => 'ref.ID')
-			),
-			'DATE_ACTIVE_FROM' => array(
-				'data_type' => 'datetime',
-			),
-			'DATE_ACTIVE_TO' => array(
-				'data_type' => 'datetime',
-			),
-		);
+				'reference' => ['=this.GROUP_ID' => 'ref.ID'],
+			],
+		];
 	}
 }

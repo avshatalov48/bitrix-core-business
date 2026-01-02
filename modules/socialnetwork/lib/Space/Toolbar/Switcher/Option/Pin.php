@@ -28,11 +28,19 @@ class Pin extends AbstractSwitcher
 			return $result;
 		}
 
-		$result = (new Internals\Pin\Pin())
-			->setGroupId($this->spaceId)
-			->setUserId($this->userId)
-			->setContext($this->code)
-			->save();
+		$connection = \Bitrix\Main\Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+
+		$sqlQuery = $connection->getSqlHelper()->getInsertIgnore(
+			'b_sonet_group_pin',
+			' (GROUP_ID, USER_ID, CONTEXT) ',
+			"VALUES("
+			. (int)$this->spaceId . ", "
+			. (int)$this->userId . ", '"
+			. $sqlHelper->forSql($this->code) . "')"
+		);
+
+		$connection->query($sqlQuery);
 
 		$this->invalidate();
 

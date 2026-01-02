@@ -742,14 +742,16 @@ class CAllMailBox
 		if(!$DB->Query($strSql, true))
 			return false;
 
-		$DB->query(sprintf('DELETE FROM b_mail_mailbox_access WHERE MAILBOX_ID = %u', $ID));
+		\Bitrix\Mail\Internals\MailboxAccessTable::deleteByFilter(['=MAILBOX_ID' => $ID,]);
 		$DB->query(sprintf('DELETE FROM b_mail_mailbox_dir WHERE MAILBOX_ID = %u', $ID));
 		$DB->query(sprintf('DELETE FROM b_mail_counter WHERE MAILBOX_ID = %u', $ID));
 		$DB->query(sprintf('DELETE FROM b_mail_entity_options WHERE MAILBOX_ID = %u', $ID));
 
 		CMailbox::SMTPReload();
-		$strSql = "DELETE FROM b_mail_mailbox WHERE ID=".$ID;
-		return $DB->Query($strSql, true);
+
+		\Bitrix\Mail\MailboxTable::delete($ID);
+
+		return new CDBResult();
 	}
 
 	public static function SMTPReload()
@@ -1947,6 +1949,7 @@ class CAllMailMessage
 				$arFields['IS_TRASH'] = !empty($params['trash']);
 				$arFields['IS_SPAM'] = !empty($params['spam']);
 				$arFields['IS_SEEN'] = !empty($params['seen']);
+				$arFields['IS_RECOVERED'] = !empty($params['recovered']);
 				$arFields['MSG_HASH'] = $params['hash'];
 
 				if (!empty($params['excerpt']) && is_array($params['excerpt']))

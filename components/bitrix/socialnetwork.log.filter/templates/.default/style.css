@@ -305,13 +305,16 @@ select.log-filter-field-inp {
 }
 
 #feed_filter_button.ui-btn {
-	margin-left: 7px;
-	opacity: .5;
-	width: 30px;
 	z-index: 130;
 }
 
-#feed_filter_button.ui-btn:hover {
+#feed_filter_button.ui-btn:not(.--air) {
+	margin-left: 7px;
+	opacity: .5;
+	width: 30px;
+}
+
+#feed_filter_button.ui-btn:not(.--air):hover {
 	opacity: 1;
 }
 
@@ -333,4 +336,115 @@ select.log-filter-field-inp {
 
 .bitrix24-light-theme .ui-btn.ui-btn-filter-button:after {
 	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2215%22%20height%3D%2215%22%3E%3Cpath%20fill%3D%22%23fff%22%20fill-rule%3D%22evenodd%22%20d%3D%22M15%208.443V6.555h-1.828a5.68%205.68%200%2000-.982-2.41l1.282-1.28-1.335-1.335-1.281%201.28a5.696%205.696%200%2000-2.398-1.003V0H6.572v1.802a5.72%205.72%200%2000-2.422.99L2.875%201.52%201.54%202.855l1.275%201.271a5.7%205.7%200%2000-1%202.429H0v1.888h1.815c.15.888.495%201.705%201.001%202.406L1.53%2012.134l1.335%201.334%201.287-1.287c.708.502%201.529.84%202.42.985V15h1.885v-1.84a5.672%205.672%200%20002.394-.994l1.294%201.295%201.338-1.336-1.3-1.297c.5-.695.841-1.506.989-2.387h1.828l.001.002zm-7.503%202.556A3.499%203.499%200%20017.5%204a3.5%203.5%200%2011.001%207l-.003-.001z%22/%3E%3C/svg%3E);
+}
+
+/* NEW MESSAGE BALLOON */
+.template-air .feed-new-message-informer-container {
+	position: relative;
+}
+
+.template-air .start-page .feed-new-message-informer-place {
+	position: absolute;
+	box-sizing: border-box;
+	left: 50%;
+	top: 20px;
+	z-index: 119;
+}
+
+.template-air .new-message-balloon-wrap:not(.feed-new-message-informer-fixed) {
+	position: absolute;
+	top: -65px;
+	left: 50%;
+	transform: translate(-50%, 0);
+	visibility: visible;
+}
+
+.template-air .new-message-balloon-wrap.feed-new-message-informer-fixed {
+	position: fixed;
+	left: auto;
+	top: 8px;
+	transition: height 0.3s linear 0s;
+	z-index: 200;
+}
+
+.template-air .new-message-balloon {
+	display: flex;
+	align-items: center;
+	margin: 20px 10px;
+	padding: 0 20px 0 12px;
+	height: 36px;
+	background: rgba(47, 199, 247, .7);
+	font: var(--ui-font-weight-bold) 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #fff;
+	white-space: nowrap;
+	border-radius: 30px;
+	box-shadow: 0 3px 7px 1px rgba(0, 0, 0, .1);
+	transition: background .3s;
+}
+
+.template-air .new-message-balloon .feed-new-message-informer-counter {
+	margin-left: 3px;
+}
+
+.template-air .new-message-balloon-wrap .feed-new-message-informer {
+	height: 76px;
+}
+
+.template-air .feed-new-message-informer-place .feed-new-message-informer-fix-anim {
+	height: 76px;
+}
+
+.template-air .feed-new-message-informer-place .feed-new-message-informer-fixed.new-message-balloon-wrap {
+	top: -12px;
+}
+
+.template-air .feed-new-message-inf-text-reload.new-message-balloon {
+	padding: 0 20px;
+}
+
+.template-air .new-message-balloon-icon {
+	margin: 0 8px 0 0;
+	height: 16px;
+	width: 16px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cdefs%3E%3Cstyle%3E.cls-1%20%7B%20fill%3A%20%23fff%3B%20fill-rule%3A%20evenodd%3B%20%7D%3C/style%3E%3C/defs%3E%3Cpath%20class%3D%22cls-1%22%20d%3D%22M8.094%2013.558a5.558%205.558%200%201%201%203.414-9.944l-1.466%201.78%205.95.585L14.22.324l-1.146%201.39a7.99%207.99%200%201%200%20.926%2011.736l-1.744-1.726a5.62%205.62%200%200%201-4.16%201.834z%22/%3E%3C/svg%3E') center no-repeat;
+}
+
+.template-air .new-message-balloon-wrap .feed-new-message-informer:hover .new-message-balloon {
+	background: rgba(47, 199, 247, 1);
+	color: #fff;
+}
+
+.template-air .new-message-balloon-icon.new-message-balloon-icon-rotating {
+	-webkit-animation: new-message-balloon-icon-rotating 1s linear infinite;
+	animation: new-message-balloon-icon-rotating 1s linear infinite;
+}
+
+@keyframes new-message-balloon-icon-rotating {
+	from {
+		transform: rotate(0deg);
+		-webkit-transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+		-webkit-transform: rotate(360deg);
+	}
+}
+
+@-webkit-keyframes new-message-balloon-icon-rotating {
+	from {
+		transform: rotate(0deg);
+		-webkit-transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+		-webkit-transform: rotate(360deg);
+	}
+}
+
+/* END OF NEW MESSAGE BALLOON */
+
+.feed-toolbar-container {
+	box-sizing: border-box;
+	min-height: 78px;
+	padding: 22px 0;
 }

@@ -1,0 +1,4 @@
+<?php
+$MESS["LANDING_DEMO_STORE_DETAILPAGE_NAME"] = "Тауарлар карточкасы";
+$MESS["LANDING_DEMO_STORE_DETAILPAGE_TEXT_1"] = "Артқа";
+$MESS["LANDING_DEMO_STORE_DETAILPAGE_TEXT_2"] = "Басқа тауарлар";

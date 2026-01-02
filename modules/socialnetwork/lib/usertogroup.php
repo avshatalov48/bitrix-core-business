@@ -59,6 +59,8 @@ class UserToGroupTable extends Entity\DataManager
 	/** @see SONET_INITIATED_BY_GROUP */
 	public const INITIATED_BY_GROUP = 'G';
 
+	public const INITIATED_BY_STRUCTURE = 'S';
+
 	public static function getObjectClass(): string
 	{
 		return Member::class;
@@ -111,7 +113,7 @@ class UserToGroupTable extends Entity\DataManager
 	 */
 	public static function getInitiatedByAll(): array
 	{
-		return [ self::INITIATED_BY_USER, self::INITIATED_BY_GROUP ];
+		return [ self::INITIATED_BY_USER, self::INITIATED_BY_GROUP, self::INITIATED_BY_STRUCTURE ];
 	}
 
 	/**
@@ -157,7 +159,7 @@ class UserToGroupTable extends Entity\DataManager
 			),
 			'INITIATED_BY_TYPE' => array(
 				'data_type' => 'enum',
-				'values' => array(self::INITIATED_BY_USER, self::INITIATED_BY_GROUP),
+				'values' => [ self::INITIATED_BY_USER, self::INITIATED_BY_GROUP, self::INITIATED_BY_STRUCTURE ],
 			),
 			'INITIATED_BY_USER_ID' => array(
 				'data_type' => 'integer',

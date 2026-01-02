@@ -1,0 +1,37 @@
+.ui-block-diagram-icon-button {
+    display: block;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.ui-block-diagram-icon-button {
+	display: block;
+	padding: 0;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+}
+
+.ui-block-diagram-icon-button.--disabled {
+    opacity: 0.5;
+}
+
+.ui-block-diagram-icon-button__icon {
+    opacity: 1;
+}
+
+.ui-block-diagram-icon-button__icon.--active {
+    opacity: 1;
+    background: var(--ui-color-blue-57, #4A9DFF);
+}
+
+.ui-block-diagram-icon-button.--disabled .ui-block-diagram-icon-button__icon:hover {
+    background: var(--ui-color-gray-50, #A8ADB4);
+}
+
+.ui-block-diagram-icon-button__icon:hover {
+    opacity: 1;
+    background: var(--ui-color-blue-57, #4A9DFF);
+}

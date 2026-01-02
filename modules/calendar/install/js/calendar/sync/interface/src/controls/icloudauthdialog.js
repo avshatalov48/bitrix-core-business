@@ -27,7 +27,9 @@ export default class IcloudAuthDialog extends EventEmitter
 		this.popup = new Popup({
 			className: 'calendar-sync__auth-popup calendar-sync__scope',
 			titleBar: Loc.getMessage('CAL_ICLOUD_AUTH_TITLE'),
-			draggable: true,
+			draggable: {
+				restrict: true,
+			},
 			content: this.getContainer(),
 			width: 475,
 			animation: 'fading-slide',
@@ -55,12 +57,12 @@ export default class IcloudAuthDialog extends EventEmitter
 			},
 		});
 		this.popup.show();
-		
+
 		Event.bind(document, 'keydown', this.keyHandler);
 		Event.bind(document, 'mouseup', this.checkOutsideClickClose);
 		Event.bind(document, 'mousedown', this.outsideMouseDownClose);
 	}
-	
+
 	authorize()
 	{
 		if (this.isFormDataValid())
@@ -139,7 +141,7 @@ export default class IcloudAuthDialog extends EventEmitter
 		this.DOM.appPasswordInput.focus();
 
 	}
-	
+
 	enableSaveButton()
 	{
 		const saveBtn = this.popup.getButtons()[0];
@@ -189,7 +191,7 @@ export default class IcloudAuthDialog extends EventEmitter
 
 		return this.DOM.appleInfo;
 	}
-	
+
 	getAppleIdTitle()
 	{
 		if (!this.DOM.appleIdTitle)
@@ -200,10 +202,10 @@ export default class IcloudAuthDialog extends EventEmitter
 			</p>
 			`;
 		}
-		
+
 		return this.DOM.appleIdTitle;
 	}
-	
+
 	getAppPasswordTitle()
 	{
 		if (!this.DOM.appPasswordTitle)
@@ -214,10 +216,10 @@ export default class IcloudAuthDialog extends EventEmitter
 				</p>
 			`;
 		}
-		
+
 		return this.DOM.appPasswordTitle;
 	}
-	
+
 	getAppleIdError()
 	{
 		if (!this.DOM.appleIdError)
@@ -228,10 +230,10 @@ export default class IcloudAuthDialog extends EventEmitter
 				</div>
 			`;
 		}
-		
+
 		return this.DOM.appleIdError;
 	}
-	
+
 	getAppPasswordError()
 	{
 		if (!this.DOM.appPasswordError)
@@ -309,7 +311,7 @@ export default class IcloudAuthDialog extends EventEmitter
 
 		return this.DOM.appPasswordInput;
 	}
-	
+
 	getShowHidePasswordIcon()
 	{
 		if (!this.DOM.showHidePasswordIcon)
@@ -319,10 +321,10 @@ export default class IcloudAuthDialog extends EventEmitter
 			`;
 			Event.bind(this.DOM.showHidePasswordIcon, 'click', this.switchPasswordVisibility.bind(this));
 		}
-		
+
 		return this.DOM.showHidePasswordIcon;
 	}
-	
+
 	getLearnMoreButton()
 	{
 		if (!this.DOM.learnMoreButton)
@@ -332,7 +334,7 @@ export default class IcloudAuthDialog extends EventEmitter
 			`;
 			Event.bind(this.DOM.learnMoreButton, 'click', this.openHelpDesk.bind(this));
 		}
-		
+
 		return this.DOM.learnMoreButton;
 	}
 
@@ -358,7 +360,7 @@ export default class IcloudAuthDialog extends EventEmitter
 			Dom.append(this.DOM.alertBlock, this.DOM.container);
 		}
 	}
-	
+
 	validateAppleIdInput()
 	{
 		const emailRegExp = /^[a-zA-Z\d.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z\d-]+(?:\.[a-zA-Z\d-]+)*$/;
@@ -370,7 +372,7 @@ export default class IcloudAuthDialog extends EventEmitter
 
 		return emailRegExp.test(input);
 	}
-	
+
 	validateAppPasswordInput()
 	{
 		const appPasswordRegExp = /^[a-z]{4}-[a-z]{4}-[a-z]{4}-[a-z]{4}$/;
@@ -386,7 +388,7 @@ export default class IcloudAuthDialog extends EventEmitter
 			Dom.addClass(this.DOM.appPasswordError, 'show');
 		}
 	}
-	
+
 	switchPasswordVisibility()
 	{
 		if (Dom.hasClass(this.DOM.showHidePasswordIcon, '--hide'))
@@ -400,7 +402,7 @@ export default class IcloudAuthDialog extends EventEmitter
 			Dom.addClass(this.DOM.showHidePasswordIcon, '--hide');
 		}
 	}
-	
+
 	clearForm()
 	{
 		this.DOM.appPasswordInput.value = '';
@@ -422,20 +424,20 @@ export default class IcloudAuthDialog extends EventEmitter
 			Dom.removeClass(this.DOM.appPasswordError, 'show');
 		}
 	}
-	
+
 	completeWithTemplate(password)
 	{
 		const addition = this.appPasswordTemplate.slice(password.length, this.appPasswordTemplate.length);
 		password += addition;
 		return password;
 	}
-	
+
 	openHelpDesk()
 	{
 		const helpDeskCode = '15426356';
 		top.BX.Helper.show('redirect=detail&code=' + helpDeskCode);
 	}
-	
+
 	handleKeyPress(e)
 	{
 		if (e.keyCode === Util.getKeyCode('enter'))
@@ -447,7 +449,7 @@ export default class IcloudAuthDialog extends EventEmitter
 			this.close();
 		}
 	}
-	
+
 	checkOutsideClickClose(e)
 	{
 		let target = e.target || e.srcElement;
@@ -457,13 +459,13 @@ export default class IcloudAuthDialog extends EventEmitter
 			this.close();
 		}
 	}
-	
+
 	outsideMouseDownClose(e)
 	{
 		let target = e.target || e.srcElement;
 		this.outsideMouseDown = !target.closest('div.popup-window');
 	}
-	
+
 	close()
 	{
 		if (this.popup)
@@ -475,7 +477,7 @@ export default class IcloudAuthDialog extends EventEmitter
 		Event.unbind(document, 'mousedown', this.outsideMouseDownClose);
 		this.clearForm();
 	}
-	
+
 	checkTopSlider()
 	{
 		return !Util.getBX().SidePanel.Instance.getTopSlider();

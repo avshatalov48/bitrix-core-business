@@ -1,55 +1,37 @@
 <?php
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\UI\Buttons\Color;
+use Bitrix\UI\Toolbar\ButtonLocation;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
+
+/** @var \CMain $APPLICATION */
+/** @var array $arResult */
+
 \Bitrix\Main\UI\Extension::load("ui.alerts");
 \Bitrix\Main\UI\Extension::load("ui.forms");
 \Bitrix\Main\UI\Extension::load('ui.buttons');
 \Bitrix\Main\UI\Extension::load("ui.notification");
+\Bitrix\Main\Loader::includeModule('ui');
 \CJSCore::init("sidepanel");
-$isIframe = isset($arResult["IFRAME"]) && $arResult["IFRAME"] === "Y";
 
 $bodyClass = $APPLICATION->getPageProperty('BodyClass', false);
 $APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, 'pagetitle-toolbar-field-view pagetitle-mail-view')));
 
-if ($isIframe):?>
-	<div class="mail-signature-is-iframe">
-<?endif;
+$button = new Bitrix\UI\Buttons\Button([
+	'text' => Loc::getMessage('MAIL_USERSIGNATURE_ADD_BUTTON'),
+	'classList' => ['mail-signature-create-btn'],
+	'color' => Color::PRIMARY,
+]);
+$button->addAttribute('onclick', sprintf('BX.Mail.UserSignature.List.openUrl("%s")', CUtil::JSEscape($arResult['addUrl'])));
 
-if (SITE_TEMPLATE_ID == 'bitrix24' || $isIframe)
-{
-	$this->setViewTarget('inside_pagetitle'); ?>
-
-	<div class="pagetitle-container mail-pagetitle-flexible-space">
-		<? $APPLICATION->includeComponent(
-			'bitrix:main.ui.filter', '',
-			$arResult['FILTER']
-		); ?>
-	</div>
-
-	<button class="ui-btn ui-btn-primary mail-signature-create-btn" onclick="BX.Mail.UserSignature.List.openUrl('<?=CUtil::JSEscape($arResult['addUrl']);?>');">
-		<?= Loc::getMessage('MAIL_USERSIGNATURE_ADD_BUTTON') ?>
-	</button>
-
-	<? $this->endViewTarget();
-}
-else
-{
-	$APPLICATION->includeComponent(
-		'bitrix:main.ui.filter', '',
-		$arResult['FILTER']
-	); ?>
-
-	<button class="ui-btn ui-btn-primary mail-signature-create-btn" onclick="BX.Mail.UserSignature.List.openUrl('<?=CUtil::JSEscape($arResult['addUrl']);?>');">
-		<?= Loc::getMessage('MAIL_USERSIGNATURE_ADD_BUTTON') ?>
-	</button>
-
-	<?
-}
+Toolbar::addFilter($arResult['FILTER']);
+Toolbar::addButton($button, ButtonLocation::AFTER_TITLE);
 
 $APPLICATION->SetTitle(Loc::getMessage('MAIL_USERSIGNATURE_LIST_TITLE'));
 
@@ -62,10 +44,6 @@ $APPLICATION->IncludeComponent(
 	$arResult['GRID']
 );?>
 
-<?if ($isIframe)
-{?>
-	</div>
-<?}?>
 <script>
 	BX.ready(function() {
 		<?='BX.message('.\CUtil::PhpToJSObject(\Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__)).');'?>

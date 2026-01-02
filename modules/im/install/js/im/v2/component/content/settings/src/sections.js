@@ -2,7 +2,7 @@ import { Loc } from 'main.core';
 
 export const SectionMetaData = {
 	appearance: {
-		name: Loc.getMessage('IM_CONTENT_SETTINGS_SECTION_LIST_APPEARANCE'),
+		name: Loc.getMessage('IM_CONTENT_SETTINGS_SECTION_LIST_APPEARANCE_MSGVER_1'),
 		icon: 'fa-solid fa-brush',
 	},
 	notification: {
@@ -18,7 +18,7 @@ export const SectionMetaData = {
 		icon: 'fa-solid fa-message',
 	},
 	recent: {
-		name: Loc.getMessage('IM_CONTENT_SETTINGS_SECTION_LIST_RECENT'),
+		name: Loc.getMessage('IM_CONTENT_SETTINGS_SECTION_LIST_RECENT_MSGVER_1'),
 		icon: 'fa-solid fa-list-ul',
 	},
 	desktop: {

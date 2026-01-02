@@ -1,9 +1,10 @@
 <?php
+
 namespace Bitrix\Catalog;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
 
 /**
  * Class ProductGroupAccessTable
@@ -34,7 +35,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Catalog\EO_ProductGroupAccess_Collection wakeUpCollection($rows)
  */
 
-class ProductGroupAccessTable extends Main\Entity\DataManager
+class ProductGroupAccessTable extends DataManager
 {
 	const ACCESS_LENGTH_HOUR = 'H';
 	const ACCESS_LENGTH_DAY = 'D';
@@ -49,7 +50,7 @@ class ProductGroupAccessTable extends Main\Entity\DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_product2group';
 	}
@@ -59,7 +60,7 @@ class ProductGroupAccessTable extends Main\Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return array(
 			'ID' => new Main\Entity\IntegerField('ID', array(

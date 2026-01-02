@@ -3,7 +3,6 @@ namespace Bitrix\Report\VisualConstructor;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\SystemException;
-use Bitrix\Main\UI\Extension;
 use Bitrix\Report\VisualConstructor\Helper\Filter;
 
 /**
@@ -48,7 +47,6 @@ class AnalyticBoard
 				]
 			);
 			$this->addButton($configurationButton);
-			//$this->addButton(new BoardButton(' '));
 		}
 	}
 
@@ -225,8 +223,8 @@ class AnalyticBoard
 			'PRESETS' => [
 				'BOARD_KEY' => $this->getBoardKey(),
 				'sender_page' => $this->getTitle()
-			]
-
+			],
+			'air' => true,
 		]);
 		$this->addButton($feedbackButton);
 	}

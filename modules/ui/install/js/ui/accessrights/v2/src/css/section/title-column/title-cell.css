@@ -2,12 +2,12 @@
 	margin-right: 12px;
 	cursor: pointer;
 
-	visibility: hidden;
-	width: 0;
-	transition: width 0.2s ease, visibility 0.2s ease;
+	opacity: 0;
+	width: 22px;
+
+	transition: opacity 0.2s ease;
 }
 
 .ui-access-rights-v2-column-item:hover .ui-access-rights-v2-title-column-menu {
-	visibility: visible;
-	width: 22px;
+	opacity: 1;
 }

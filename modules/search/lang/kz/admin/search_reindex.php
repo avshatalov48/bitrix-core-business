@@ -1,0 +1,22 @@
+<?php
+$MESS["SEARCH_REINDEX_ALL"] = "(барлығы)";
+$MESS["SEARCH_REINDEX_CLEAR_SUGGEST"] = "Ишара үшін іздеу сөйлемдерін жойыңыз:";
+$MESS["SEARCH_REINDEX_COMPLETE"] = "Қайта индекстеу аяқталды.";
+$MESS["SEARCH_REINDEX_CONTINUE"] = "Жалғастыру";
+$MESS["SEARCH_REINDEX_IN_PROGRESS"] = "Қайта индекстеу...";
+$MESS["SEARCH_REINDEX_MAIN"] = "Статикалық файлдар";
+$MESS["SEARCH_REINDEX_MODULE"] = "Модуль:";
+$MESS["SEARCH_REINDEX_NEXT_STEP"] = "Келесі қадам";
+$MESS["SEARCH_REINDEX_REINDEX_BUTTON"] = "Қайта индекстеу";
+$MESS["SEARCH_REINDEX_REINDEX_CHANGED"] = "Тек өзгертілгендерді қайта индекстеу:";
+$MESS["SEARCH_REINDEX_SITE"] = "Сайт:";
+$MESS["SEARCH_REINDEX_SOCNET_MESSAGE"] = "Назар аударыңыз! Қайта индекстеуді орындағаннан кейін <b>әлеуметтік желі модулі</b> жария бөлімнен бөлек қайта индекстелуі керек. Әзірлеу режиміне әлеуметтік желі бөлімдеріне өтіңіз (мұнда <i>socialnetwork, socialnetwork_group, socialnetwork_user</i> компоненттері орнатылған) және құралдар панеліндегі \"Индекстеу\" батырмасын басыңыз. <br><br><img src=\"/bitrix/images/search/socnet_reindex_ru.png\">";
+$MESS["SEARCH_REINDEX_SOCNET_WARNING"] = "Әлеуметтік желінің модулі орнатылды.";
+$MESS["SEARCH_REINDEX_SOCNET_WARN_DETAILS"] = "Іздеу модулімен индекстелгеннен кейін жария бөлімде орналастырылған компоненттен әлеуметтік желіні қайта индекстеу қажет.";
+$MESS["SEARCH_REINDEX_STEP"] = "Қадам:";
+$MESS["SEARCH_REINDEX_STEP_sec"] = "секунд";
+$MESS["SEARCH_REINDEX_STOP"] = "Тоқтату";
+$MESS["SEARCH_REINDEX_TAB"] = "Қайта индекстеу";
+$MESS["SEARCH_REINDEX_TAB_TITLE"] = "Қайта индекстеу параметрлері";
+$MESS["SEARCH_REINDEX_TITLE"] = "Сайтты қайта индекстеу";
+$MESS["SEARCH_REINDEX_TOTAL"] = "Индекстелген құжаттар:";

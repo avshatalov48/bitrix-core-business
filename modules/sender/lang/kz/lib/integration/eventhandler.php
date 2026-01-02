@@ -1,0 +1,4 @@
+<?php
+$MESS["SENDER_LETTER_ONBEFOREUPDATE_ERROR_FEATURE_NOT_AVAILABLE"] = "Құрал тек ақылы тарифте қолжетімді.";
+$MESS["SENDER_LETTER_ONBEFOREUPDATE_ERROR_INVALID_FROM_EMAIL"] = "Жіберушінің Email расталмаған";
+$MESS["SENDER_LETTER_ONBEFOREUPDATE_ERROR_LETTER_NOT_AVAILABLE"] = "Хат қолжетімсіз немесе жойылған";

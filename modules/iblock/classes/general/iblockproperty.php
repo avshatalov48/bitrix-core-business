@@ -1135,26 +1135,31 @@ class CAllIBlockProperty
 		");
 	}
 
-	function UpdateEnum($ID, $arVALUES, $bForceDelete = true)
+	public function UpdateEnum($ID, $arVALUES, $bForceDelete = true)
 	{
 		global $DB, $CACHE_MANAGER;
-		$ID = intval($ID);
+		$ID = (int)$ID;
 
-		if(!is_array($arVALUES) || (empty($arVALUES) && $bForceDelete))
+		if (!is_array($arVALUES) || (empty($arVALUES) && $bForceDelete))
 		{
 			CIBlockPropertyEnum::DeleteByPropertyID($ID);
+
 			return true;
 		}
 
-		$ar_XML_ID = array();
+		$ar_XML_ID = [];
 		$db_res = $this->GetPropertyEnum($ID);
-		while($res = $db_res->Fetch())
+		while ($res = $db_res->Fetch())
 		{
 			$ar_XML_ID[rtrim($res["XML_ID"], " ")] = $res["ID"];
 		}
+		unset(
+			$res,
+			$db_res,
+		);
 
 		$sqlWhere = "";
-		if(!$bForceDelete)
+		if (!$bForceDelete)
 		{
 			$rsProp = CIBlockProperty::GetByID($ID);
 			if($arProp = $rsProp->Fetch())
@@ -1187,7 +1192,7 @@ class CAllIBlockProperty
 		{
 			$VALUE = $arVALUES[$res["ID"]];
 			$VAL = is_array($VALUE)? $VALUE["VALUE"]: $VALUE;
-			UnSet($arVALUES[$res["ID"]]);
+			unset($arVALUES[$res["ID"]]);
 
 			if((string)$VAL == '')
 			{
@@ -1244,6 +1249,10 @@ class CAllIBlockProperty
 				$DB->Query($strSql);
 			}
 		}
+		unset(
+			$res,
+			$db_res,
+		);
 
 		foreach($arVALUES as $id => $VALUE)
 		{

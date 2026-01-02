@@ -11,4 +11,9 @@ export type TileWidgetOptions = {
 	enableDropzone?: boolean,
 	insertIntoText?: boolean,
 	events?: Object<string, (event: BaseEvent) => {}>,
+	hideDropArea: boolean,
+	compact: boolean,
+	readonly: boolean,
+	removeFromServer?: boolean,
+	forceDisableSelection?: boolean,
 };

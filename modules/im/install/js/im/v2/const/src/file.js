@@ -4,6 +4,7 @@ export const FileStatus = Object.freeze({
 	progress: 'progress',
 	done: 'done',
 	error: 'error',
+	preparing: 'preparing',
 });
 
 export const FileType = Object.freeze({
@@ -22,6 +23,16 @@ export const FileIconType = Object.freeze({
 	call: 'call',
 	attach: 'attach',
 	quote: 'quote',
+	gallery: 'gallery',
+});
+
+export const FileViewerContext = Object.freeze({
+	dialog: 'dialog',
+	sidebarMain: 'sidebarMain',
+	sidebarTabBriefs: 'sidebarTabBriefs',
+	sidebarTabFiles: 'sidebarTabFiles',
+	sidebarTabMedia: 'sidebarTabMedia',
+	sidebarTabFileUnsorted: 'sidebarTabFileUnsorted',
 });
 
 export const AudioPlaybackRate = Object.freeze({

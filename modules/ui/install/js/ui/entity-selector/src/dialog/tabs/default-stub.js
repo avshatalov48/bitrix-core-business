@@ -1,4 +1,6 @@
 import { Tag, Type, Loc } from 'main.core';
+import { Icon } from 'ui.icon-set.api.core';
+
 import type Tab from '../tabs/tab';
 import BaseStub from './base-stub';
 import encodeUrl from '../../common/encode-url';
@@ -25,10 +27,9 @@ export default class DefaultStub extends BaseStub
 				iconOpacity = Math.min(100, Math.max(0, this.getOption('iconOpacity')));
 			}
 
-			const iconStyle =
-				Type.isStringFilled(icon)
-					? `style="background-image: url('${encodeUrl(icon)}'); opacity: ${iconOpacity / 100};"`
-					: ''
+			const iconStyle = Type.isStringFilled(icon) && !Icon.isValid({ icon })
+				? `style="background-image: url('${encodeUrl(icon)}'); opacity: ${iconOpacity / 100};"`
+				: ''
 			;
 
 			const arrow = this.getOption('arrow', false) && this.getTab().getDialog().getActiveFooter() !== null;
@@ -38,13 +39,8 @@ export default class DefaultStub extends BaseStub
 					<div class="ui-selector-tab-default-stub-icon" ${iconStyle}></div>
 					<div class="ui-selector-tab-default-stub-titles">
 						<div class="ui-selector-tab-default-stub-title">${title}</div>
-						${
-				subtitle ?
-					Tag.render`<div class="ui-selector-tab-default-stub-subtitle">${subtitle}</div>`
-					: ''
-			}
+						${subtitle ? Tag.render`<div class="ui-selector-tab-default-stub-subtitle">${subtitle}</div>` : ''}
 					</div>
-					
 					${arrow ? Tag.render`<div class="ui-selector-tab-default-stub-arrow"></div>` : ''}
 				</div>
 			`;

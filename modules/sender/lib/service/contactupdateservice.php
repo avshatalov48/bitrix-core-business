@@ -17,17 +17,12 @@ final class ContactUpdateService
 	 */
 	public function updateByCollection(UpdateContactDtoCollection $collection): void
 	{
-		$onDuplicateUpdateFields = [
-			'NAME',
-			'BLACKLISTED',
-			'DATE_UPDATE',
-		];
 		foreach (SqlBatch::divide($collection->toArray()) as $list)
 		{
 			SqlBatch::insert(
 				ContactTable::getTableName(),
 				$list,
-				$onDuplicateUpdateFields,
+				$collection->getOnDuplicateKeyUpdateFields(),
 				ContactTable::getConflictFields(),
 			);
 		}

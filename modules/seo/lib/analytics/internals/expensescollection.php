@@ -6,14 +6,10 @@ use Bitrix\Main\Type\Dictionary;
 
 /**
  * Dictionary for work with Expenses objects
+ * @property Expenses[] $values
  */
 final class ExpensesCollection extends Dictionary
 {
-	/**
-	 * @var Expenses[]
-	 */
-	protected $values = [];
-
 	/**
 	 * @param $name
 	 * @param Expenses | null $value

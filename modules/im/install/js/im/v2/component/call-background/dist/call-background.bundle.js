@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_vue3,ui_buttons,ui_fonts_opensans,im_v2_lib_progressbar,ui_infoHelper,im_v2_lib_utils,im_v2_lib_desktopApi,im_v2_lib_helpdesk,rest_client,im_v2_const,main_core,main_core_events,im_v2_lib_logger,im_lib_uploader) {
+(function (exports,ui_vue3,ui_buttons,ui_fonts_opensans,im_v2_lib_progressbar,ui_infoHelper,im_v2_lib_utils,im_v2_lib_desktopApi,im_v2_lib_helpdesk,rest_client,im_v2_const,main_core,main_core_events,im_v2_lib_logger,im_lib_uploader,im_v2_lib_notifier) {
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -603,11 +603,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          var maskResult = response[im_v2_const.RestMethod.imCallMaskGet];
 	          if (backgroundResult.error()) {
 	            console.error('BackgroundService: error getting background list', backgroundResult.error());
-	            return reject('Error getting background list');
+	            return reject(backgroundResult.error());
 	          }
 	          if (maskResult.error()) {
 	            console.error('BackgroundService: error getting mask list', maskResult.error());
-	            return reject('Error getting mask list');
+	            return reject(maskResult.error());
 	          }
 	          return resolve({
 	            backgroundResult: backgroundResult.data(),
@@ -619,15 +619,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }, {
 	    key: "commitBackground",
 	    value: function commitBackground(fileId) {
-	      return rest_client.rest.callMethod(im_v2_const.RestMethod.imCallBackgroundCommit, {
+	      rest_client.rest.callMethod(im_v2_const.RestMethod.imCallBackgroundCommit, {
 	        fileId: fileId
+	      })["catch"](function (result) {
+	        console.error('BackgroundService: commitBackground error', result.error());
 	      });
 	    }
 	  }, {
 	    key: "deleteFile",
 	    value: function deleteFile(fileId) {
-	      return rest_client.rest.callMethod(im_v2_const.RestMethod.imCallBackgroundDelete, {
+	      rest_client.rest.callMethod(im_v2_const.RestMethod.imCallBackgroundDelete, {
 	        fileId: fileId
+	      })["catch"](function (result) {
+	        console.error('BackgroundService: deleteFile error', result.error());
 	      });
 	    }
 	  }]);
@@ -640,7 +644,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var FILE_MAX_SIZE = 100 * 1024 * 1024;
 	var FILE_MAX_SIZE_PHRASE_NUMBER = 100;
 	var UPLOAD_CHUNK_SIZE = 1024 * 1024;
-	var NOTIFICATION_HIDE_DELAY = 5000;
 	var CUSTOM_BG_TASK_PREFIX = 'custom';
 	var EVENT_NAMESPACE = 'BX.Messenger.v2.CallBackground.UploadManager';
 	var _bindEvents = /*#__PURE__*/new WeakSet();
@@ -652,14 +655,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _onUploadError = /*#__PURE__*/new WeakSet();
 	var _addUploadTask = /*#__PURE__*/new WeakSet();
 	var _isAllowedType = /*#__PURE__*/new WeakSet();
-	var _showNotification = /*#__PURE__*/new WeakSet();
 	var UploadManager = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(UploadManager, _EventEmitter);
 	  function UploadManager(params) {
 	    var _this;
 	    babelHelpers.classCallCheck(this, UploadManager);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(UploadManager).call(this));
-	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _showNotification);
 	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _isAllowedType);
 	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _addUploadTask);
 	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _onUploadError);
@@ -705,8 +706,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  im_v2_lib_logger.Logger.warn('UploadManager: onFileMaxSizeExceeded', event);
 	  var eventData = event.getData();
 	  var file = eventData.file;
-	  var phrase = main_core.Loc.getMessage('BX_IM_CALL_BG_FILE_SIZE_EXCEEDED').replace('#LIMIT#', FILE_MAX_SIZE_PHRASE_NUMBER).replace('#FILE_NAME#', file.name);
-	  _classPrivateMethodGet$1(this, _showNotification, _showNotification2).call(this, phrase);
+	  im_v2_lib_notifier.Notifier.call.onBackgroundFileSizeError({
+	    fileName: file.name,
+	    fileSizeLimit: FILE_MAX_SIZE_PHRASE_NUMBER
+	  });
 	}
 	function _onSelectFile2(event) {
 	  im_v2_lib_logger.Logger.warn('UploadManager: onSelectFile', event);
@@ -714,9 +717,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    file = _event$getData.file,
 	    previewData = _event$getData.previewData;
 	  if (!_classPrivateMethodGet$1(this, _isAllowedType, _isAllowedType2).call(this, file.type) || !previewData) {
-	    var phrase = main_core.Loc.getMessage('BX_IM_CALL_BG_UNSUPPORTED_FILE').replace('#FILE_NAME#', file.name);
-	    _classPrivateMethodGet$1(this, _showNotification, _showNotification2).call(this, phrase);
-	    return false;
+	    im_v2_lib_notifier.Notifier.call.onBackgroundUnsupportedError(file.name);
+	    return;
 	  }
 	  _classPrivateMethodGet$1(this, _addUploadTask, _addUploadTask2).call(this, file, previewData);
 	}
@@ -773,12 +775,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _isAllowedType2(fileType) {
 	  return UploadManager.allowedFileTypes.includes(fileType);
-	}
-	function _showNotification2(text) {
-	  BX.UI.Notification.Center.notify({
-	    content: text,
-	    autoHideDelay: NOTIFICATION_HIDE_DELAY
-	  });
 	}
 	babelHelpers.defineProperty(UploadManager, "allowedFileTypes", ['image/png', 'image/jpg', 'image/jpeg', 'video/avi', 'video/mp4', 'video/quicktime']);
 	babelHelpers.defineProperty(UploadManager, "event", {
@@ -1207,5 +1203,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.CallBackground = CallBackground;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Vue3,BX.UI,BX,BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.Lib));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Vue3,BX.UI,BX,BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=call-background.bundle.js.map

@@ -1,10 +1,9 @@
-import type { ImModelMessage } from 'im.v2.model';
-import { Type } from 'main.core';
-
 import { BaseMessage } from 'im.v2.component.message.base';
 import { DefaultMessageContent, AuthorTitle } from 'im.v2.component.message.elements';
 
 import './css/deleted.css';
+
+import type { ImModelMessage } from 'im.v2.model';
 
 // @vue/component
 export const DeletedMessage = {
@@ -28,19 +27,13 @@ export const DeletedMessage = {
 			default: true,
 		},
 	},
-	computed:
-	{
+	computed: {
 		message(): ImModelMessage
 		{
 			return this.item;
 		},
-		canSetReactions(): boolean
-		{
-			return Type.isNumber(this.message.id);
-		},
 	},
-	methods:
-	{
+	methods: {
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);

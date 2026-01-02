@@ -1,0 +1,11 @@
+.ui-block-diagram .ui-block-diagram-context-menu__layout {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: -100;
+}
+
+.ui-block-diagram .ui-block-diagram-context-menu__target-container {
+    position: absolute;
+    width: 200px;
+}

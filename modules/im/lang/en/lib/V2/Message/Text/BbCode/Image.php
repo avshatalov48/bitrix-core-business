@@ -1,0 +1,2 @@
+<?php
+$MESS["IM_MESSAGE_BB_CODE_IMAGE_PLACEHOLDER"] = "Image";

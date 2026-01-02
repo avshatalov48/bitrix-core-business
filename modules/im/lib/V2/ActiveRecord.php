@@ -89,5 +89,5 @@ interface ActiveRecord
 	 * Returns object state as array.
 	 * @return array
 	 */
-	public function toArray(): array;
+	public function toArray(bool $recursive): array;
 }

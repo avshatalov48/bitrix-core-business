@@ -1,13 +1,13 @@
 import { EventEmitter } from 'main.core.events';
+import { Runtime, Extension } from 'main.core';
 
-import { Loader } from 'im.v2.component.elements';
+import { Loader } from 'im.v2.component.elements.loader';
 import { EntityCreator } from 'im.v2.lib.entity-creator';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { EventType, SidebarDetailBlock, ActionByRole } from 'im.v2.const';
-import { concatAndSortSearchResult } from '../../../classes/panels/helpers/concat-and-sort-search-result';
-import { Runtime, Extension } from 'main.core';
-import { TariffLimit } from '../../elements/tariff-limit/tariff-limit';
 
+import { concatAndSortSearchResult } from '../../../classes/panels/helpers/concat-and-sort-search-result';
+import { TariffLimit } from '../../elements/tariff-limit/tariff-limit';
 import { TaskItem } from './task-item';
 import { Task } from '../../../classes/panels/task';
 import { TaskSearch } from '../../../classes/panels/search/task-search';

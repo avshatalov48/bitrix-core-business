@@ -276,7 +276,6 @@ export class Backend
 						&& requestBody.action !== 'Site::moveFolder'
 						&& requestBody.action !== 'Site::markDelete'
 						&& requestBody.action !== 'Vk::getVideoInfo'
-						&& requestBody.action !== 'RepoWidget::fetchData'
 					)
 					{
 						const error = Type.isString(err) ? {type: 'error'} : err;

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_SECSEARCH_TITLE"] = "Поиск раздела";
 $MESS["IBLOCK_SECSEARCH_IBLOCK"] = "Информационный блок:";
 $MESS["IBLOCK_SECSEARCH_PARENT_ID"] = "Раздел-родитель";
@@ -22,4 +22,3 @@ $MESS["IBLOCK_SECSEARCH_USERINFO"] = "Посмотреть параметры п
 $MESS["IBLOCK_SECSEARCH_SELECT"] = "Выбрать";
 $MESS["IBLOCK_SECSEARCH_PARENT"] = "Раздел-родитель";
 $MESS["IBLOCK_SECSEARCH_SECTIONS"] = "Разделы";
-?>

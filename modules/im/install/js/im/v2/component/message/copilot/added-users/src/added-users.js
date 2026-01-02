@@ -1,6 +1,6 @@
 import { Messenger } from 'im.public';
 import { BaseMessage } from 'im.v2.component.message.base';
-import { UserListPopup } from 'im.v2.component.elements';
+import { UserListPopup } from 'im.v2.component.elements.user-list-popup';
 
 import './css/copilot-added-users-message.css';
 

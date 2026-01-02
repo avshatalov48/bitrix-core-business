@@ -8,17 +8,26 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	"ui.design-tokens",
 	"popup",
 	"ui.buttons.icons",
+	'report.integration.toolbar',
 ]);
-?>
 
-<div class="visual-constructor-contols">
-	<button id="visualconstrctor_board_configuration_button" type="button" class="ui-btn ui-btn-themes ui-btn-light-border ui-btn-icon-setting"></button>
-	<?if(!$arResult['IS_FRAME_MODE']):?>
-		<div id="add_report_popup_button" class="ui-btn ui-btn-primary">
-			<?= \Bitrix\Main\Localization\Loc::getMessage('VISUALCONSTUCTOR_ADD_WIDGET_TO_BOARD') ?>
-		</div>
-	<?endif;?>
-</div>
+$buttonSettings = new \Bitrix\UI\Buttons\SettingsButton();
+$buttonSettings->addAttribute('id', 'visualconstrctor_board_configuration_button');
+\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($buttonSettings);
+
+if (!$arResult['IS_FRAME_MODE'])
+{
+	$buttonAdd = new \Bitrix\UI\Buttons\Button([
+		'text' => \Bitrix\Main\Localization\Loc::getMessage('VISUALCONSTUCTOR_ADD_WIDGET_TO_BOARD'),
+		'color' => \Bitrix\UI\Buttons\Color::PRIMARY,
+		'dataset' => [
+			'toolbar-collapsed-icon' => Bitrix\UI\Buttons\Icon::ADD,
+		]
+	]);
+	$buttonAdd->addAttribute('id', 'add_report_popup_button');
+	\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($buttonAdd);
+}
+?>
 
 <div id="add_report_to_board"></div>
 

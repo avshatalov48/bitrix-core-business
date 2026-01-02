@@ -1077,6 +1077,10 @@ input.checkout-item-quantity-field {
 	flex: 1;
 }
 
+.main-user-consent-request-announce a {
+	padding-left: 10px;
+}
+
 /*endregion*/
 
 /*region PRICE*/

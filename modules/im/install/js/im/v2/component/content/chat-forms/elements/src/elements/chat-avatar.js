@@ -1,7 +1,7 @@
 import { Type } from 'main.core';
 
-import { EmptyAvatar, AvatarSize, EmptyAvatarType } from 'im.v2.component.elements';
-import { ChatService } from 'im.v2.provider.service';
+import { EmptyAvatar, AvatarSize, EmptyAvatarType } from 'im.v2.component.elements.avatar';
+import { ChatService } from 'im.v2.provider.service.chat';
 
 import './css/chat-avatar.css';
 

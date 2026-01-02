@@ -16,13 +16,13 @@ class WorkflowTemplateInstancesView implements \JsonSerializable
 	private array $usersView = [];
 	private ?DateTime $lastActivity;
 
-	public function __construct(int $tplId)
+	public function __construct(int $tplId, bool $onlyHuman = false)
 	{
 		$this->tplId = $tplId;
-		$this->loadInstances();
+		$this->loadInstances($onlyHuman);
 	}
 
-	protected function loadInstances(): void
+	protected function loadInstances(bool $onlyHuman): void
 	{
 		$query = WorkflowInstanceTable::query();
 		$query->addFilter('WORKFLOW_TEMPLATE_ID', $this->tplId)
@@ -31,6 +31,10 @@ class WorkflowTemplateInstancesView implements \JsonSerializable
 			->setOrder(['STARTED' => 'ASC'])
 			->setLimit(3)
 		;
+		if ($onlyHuman)
+		{
+			$query->whereNotNull('STARTED_BY');
+		}
 		$result = $query->exec();
 		$rows = $result->fetchAll();
 

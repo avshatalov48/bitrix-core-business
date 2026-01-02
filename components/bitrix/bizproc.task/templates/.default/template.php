@@ -176,11 +176,21 @@ if (empty($arResult['DOCUMENT_ICON']))
 			<a href="<?=$arResult["TASK"]["URL"]["VIEW"]?>" <?if ($arParams['POPUP']):?>target="_blank" <?endif?>><?=GetMessage("BPAT_GOTO_DOC")?></a>
 			<?endif;?>
 		</p>
-		<?
-		if ($showDelegationButton && $arResult["TASK"]['IS_INLINE'] == 'Y'): ?>
+		<?php
+		if ($showDelegationButton && $arResult['TASK']['IS_INLINE'] === 'Y'): ?>
 			<a href="#"
 				class="ui-btn ui-btn-light-border"
-				onclick="return BX.Bizproc.showDelegationPopup(this, <?= (int)$arResult["TASK"]["ID"] ?>, <?= (int)$arParams["USER_ID"] ?>)"><span></span><?= GetMessage('BPAT_DELEGATE_LABEL') ?>
+				onclick="
+					return BX.Bizproc.showDelegationPopup(
+						this,
+						<?= (int)$arResult['TASK']['ID'] ?>,
+						<?= (int)$arParams['USER_ID'] ?>
+					)
+				"
+				data-options=<?= \Bitrix\Main\Web\Json::encode([
+					'canUseHumanResources' => \Bitrix\Main\ModuleManager::isModuleInstalled('humanresources'),
+				]) ?>
+			><span></span><?= \Bitrix\Main\Localization\Loc::getMessage('BPAT_DELEGATE_LABEL') ?>
 			</a>
 		<?php
 		endif;
@@ -223,12 +233,22 @@ if (empty($arResult['DOCUMENT_ICON']))
 						?>
 					<?else: echo $arResult["TaskFormButtons"]; endif;?>
 
-					<?if ($showDelegationButton):?>
+					<?php if ($showDelegationButton): ?>
 						<a href="#"
 							class="ui-btn ui-btn-light-border"
-							onclick="return BX.Bizproc.showDelegationPopup(this, <?= (int)$arResult["TASK"]["ID"] ?>, <?= (int)$arParams["USER_ID"] ?>)"><span></span><?= GetMessage('BPAT_DELEGATE_LABEL') ?>
+							onclick="
+								return BX.Bizproc.showDelegationPopup(
+									this,
+									<?= (int)$arResult["TASK"]["ID"] ?>,
+									<?= (int)$arParams["USER_ID"] ?>,
+								)
+							"
+							data-options=<?= \Bitrix\Main\Web\Json::encode([
+								'canUseHumanResources' => \Bitrix\Main\ModuleManager::isModuleInstalled('humanresources'),
+							]) ?>
+						><span></span><?= \Bitrix\Main\Localization\Loc::getMessage('BPAT_DELEGATE_LABEL') ?>
 						</a>
-					<?endif?>
+					<?php endif ?>
 				</div>
 				<script>
 					BX.ready(function(){

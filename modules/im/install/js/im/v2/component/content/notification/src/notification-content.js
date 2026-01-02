@@ -5,8 +5,9 @@ import { MessageBox, MessageBoxButtons } from 'ui.dialogs.messagebox';
 
 import { Logger } from 'im.v2.lib.logger';
 import { NotificationTypesCodes, Settings } from 'im.v2.const';
-import { NotificationService } from 'im.v2.provider.service';
-import { UserListPopup, Loader } from 'im.v2.component.elements';
+import { NotificationService } from 'im.v2.provider.service.notification';
+import { UserListPopup } from 'im.v2.component.elements.user-list-popup';
+import { Loader } from 'im.v2.component.elements.loader';
 import { Utils } from 'im.v2.lib.utils';
 
 import { NotificationItem } from './components/notification-item';
@@ -143,14 +144,13 @@ export const NotificationContent = {
 
 		this.initObserver();
 	},
-	mounted()
+	async mounted()
 	{
 		this.isInitialLoading = true;
 		this.windowFocused = document.hasFocus();
-		this.notificationService.loadFirstPage().then((response) => {
-			this.schema = response;
-			this.isInitialLoading = false;
-		});
+
+		this.schema = await this.notificationService.loadFirstPage();
+		this.isInitialLoading = false;
 	},
 	beforeUnmount()
 	{
@@ -214,12 +214,11 @@ export const NotificationContent = {
 			this.notificationReadService.addToReadQueue(notificationIds);
 			this.notificationReadService.read();
 		},
-		searchOnServer(event)
+		async searchOnServer(event)
 		{
-			this.notificationSearchService.loadFirstPage(event).then((result) => {
-				this.isNextPageLoading = false;
-				this.setSearchResult(result);
-			});
+			const result = await this.notificationSearchService.loadFirstPage(event);
+			this.isNextPageLoading = false;
+			this.setSearchResult(result);
 		},
 		setSearchResult(items: Array)
 		{
@@ -279,7 +278,7 @@ export const NotificationContent = {
 				this.isNextPageLoading = false;
 			});
 		},
-		onScrollSearchResult(event)
+		async onScrollSearchResult(event)
 		{
 			if (
 				!Utils.dom.isOneScreenRemaining(event.target)
@@ -292,10 +291,9 @@ export const NotificationContent = {
 			}
 
 			this.isNextPageLoading = true;
-			this.notificationSearchService.loadNextPage().then((result) => {
-				this.isNextPageLoading = false;
-				this.setSearchResult(result);
-			});
+			const result = await this.notificationSearchService.loadNextPage();
+			this.isNextPageLoading = false;
+			this.setSearchResult(result);
 		},
 		onDoubleClick(notificationId: number)
 		{
@@ -379,7 +377,12 @@ export const NotificationContent = {
 						></div>
 					</div>
 				</div>
-				<NotificationSearchPanel v-if="showSearchPanel" :schema="schema" @search="onSearch" />
+				<NotificationSearchPanel 
+					v-if="showSearchPanel" 
+					:schema="schema" 
+					@search="onSearch" 
+					@close="showSearchPanel = false" 
+				/>
 			</div>
 			<div class="bx-im-content-notification__elements-container">
 				<div class="bx-im-content-notification__elements" @scroll.passive="onScroll" ref="listNotifications">

@@ -66,7 +66,7 @@ class Manager
 
 		$fields['DATE_MODIFY'] = new Main\Type\DateTime();
 
-		$files['FILES'] = $fields['FILES'];
+		$files['FILES'] = $fields['FILES'] ?? [];
 		$files['FILES_del'] = $fields['FILES_del'] ?? [];
 		unset($fields['FILES'], $fields['FILES_del']);
 

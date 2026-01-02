@@ -2,12 +2,19 @@
 
 namespace Bitrix\Bizproc\Controller\Workflow;
 
-use Bitrix\Bizproc\Api\Request\WorkflowService\PrepareParametersRequest;
-use Bitrix\Bizproc\Api\Request\WorkflowService\PrepareStartParametersRequest;
-use Bitrix\Bizproc\Api\Request\WorkflowService\SetConstantsRequest;
+use Bitrix\Bizproc\Api\Request\WorkflowAccessService\CheckStartWorkflowRequest;
+use Bitrix\Bizproc\Api\Request\WorkflowTemplateService\PrepareParametersRequest;
+use Bitrix\Bizproc\Api\Request\WorkflowTemplateService\PrepareStartParametersRequest;
+use Bitrix\Bizproc\Api\Request\WorkflowTemplateService\SetConstantsRequest;
 use Bitrix\Bizproc\Api\Request\WorkflowService\StartWorkflowRequest;
+use Bitrix\Bizproc\Api\Service\WorkflowAccessService;
 use Bitrix\Bizproc\Api\Service\WorkflowService;
+use Bitrix\Bizproc\Api\Service\WorkflowTemplateService;
 use Bitrix\Bizproc\Error;
+use Bitrix\Bizproc\Starter\Dto\ContextDto;
+use Bitrix\Bizproc\Starter\Dto\DocumentDto;
+use Bitrix\Bizproc\Starter\Dto\MetaDataDto;
+use Bitrix\Bizproc\Starter\Enum\Scenario;
 use Bitrix\Main\Localization\Loc;
 
 class Starter extends \Bitrix\Bizproc\Controller\Base
@@ -71,8 +78,52 @@ class Starter extends \Bitrix\Bizproc\Controller\Base
 			return null;
 		}
 
-		$service = new WorkflowService();
-		$workflowParameters = $service->prepareStartParameters(
+		if (\Bitrix\Bizproc\Starter\Starter::isEnabled())
+		{
+			$userId = $this->getCurrentUserId();
+
+			$accessRequest = new CheckStartWorkflowRequest(
+				userId: $userId,
+				complexDocumentId: $complexDocumentId,
+				parameters: [
+					\CBPDocument::PARAM_TAGRET_USER => 'user_' . $userId,
+					'WorkflowTemplateId' => $templateId,
+				],
+			);
+
+			$accessResponse = (new WorkflowAccessService())->checkStartWorkflow($accessRequest);
+			if (!$accessResponse->isSuccess())
+			{
+				$this->addErrors($accessResponse->getErrors());
+
+				return null;
+			}
+
+			$starter =
+				\Bitrix\Bizproc\Starter\Starter::getByScenario(Scenario::onManual)
+					->setUser($this->getCurrentUserId())
+					->setDocument(new DocumentDto($complexDocumentId, $complexDocumentType))
+					->setParameters(
+						array_merge($this->getRequest()->toArray(), $this->getRequest()->getFileList()->toArray())
+					)
+					->setMetaData(new MetaDataDto($startDuration >= 0 ? $startDuration : null))
+					->setTemplateIds([$templateId])
+					->setContext(new ContextDto('bizproc'))
+			;
+
+			$result = $starter->start();
+			if (!$result->isSuccess())
+			{
+				$this->addErrors($result->getErrors());
+
+				return null;
+			}
+
+			return ['workflowId' => current($result->getWorkflowIds())];
+		}
+
+		$templateService = new WorkflowTemplateService();
+		$workflowParameters = $templateService->prepareStartParameters(
 			new PrepareStartParametersRequest(
 				templateId: $templateId,
 				complexDocumentType: $complexDocumentType,
@@ -91,7 +142,8 @@ class Starter extends \Bitrix\Bizproc\Controller\Base
 			return null;
 		}
 
-		$startWorkflow = $service->startWorkflow(
+		$workflowService = new WorkflowService();
+		$startWorkflow = $workflowService->startWorkflow(
 			new StartWorkflowRequest(
 				userId: $this->getCurrentUserId(),
 				targetUserId: $this->getCurrentUserId(),
@@ -204,7 +256,7 @@ class Starter extends \Bitrix\Bizproc\Controller\Base
 		$request = $this->getRequest();
 
 		$response =
-			(new WorkflowService())
+			(new WorkflowTemplateService())
 				->setConstants(
 					new SetConstantsRequest(
 						templateId: $templateId,
@@ -337,7 +389,7 @@ class Starter extends \Bitrix\Bizproc\Controller\Base
 			$requestParameters[$key] = $allRequestParameters[$searchKey] ?? null;
 		}
 
-		$parameters = (new WorkflowService())
+		$parameters = (new WorkflowTemplateService())
 			->prepareParameters(
 				new PrepareParametersRequest(
 					templateParameters: $templateParameters,

@@ -1,3 +1,7 @@
+.ui-tile-uploader-drop-area {
+	margin-top: 24px;
+}
+
 .ui-tile-uploader-drop-box {
 	display: flex;
 	align-items: center;

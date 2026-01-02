@@ -318,25 +318,22 @@ class CPgCreateDatabaseStep extends CBasePgWizardStep
 		$this->content .= $this->ShowRadioField('create', 'by_wizard', [
 			'id' => 'create_by_wizard',
 		]) . '<label for="create_by_wizard">' . GetMessage('PGWIZ_CREATE_BY_WIZARD') . '</label><br>';
+		$size = [
+			'size' => '30',
+		];
 		$this->content .= '
 		<table border="0" class="data-table">
 		<tr>
 			<td nowrap align="right" valign="top" width="40%" >' . GetMessage('PGWIZ_HOST') . '</td>
-			<td width="60%" valign="top">' . $this->ShowInputField('text', 'host', [
-				'size' => '30',
-			]) . '</td>
+			<td width="60%" valign="top">' . $this->ShowInputField('text', 'host', $size) . '</td>
 		</tr>
 		<tr>
 			<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_ROOT_USER') . '</td>
-			<td valign="top">' . $this->ShowInputField('text', 'root_user', [
-				'size' => '30',
-			]) . '</td>
+			<td valign="top">' . $this->ShowInputField('text', 'root_user', $size) . '</td>
 		</tr>
 		<tr>
 			<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_ROOT_PASSWORD') . '</td>
-			<td valign="top">' . $this->ShowInputField('password', 'root_password', [
-				'size' => '30',
-			]) . '</td>
+			<td valign="top">' . $this->ShowInputField('password', 'root_password', $size) . '</td>
 		</tr>
 		</table>
 		';
@@ -377,28 +374,27 @@ class CPgUserStep extends CBasePgWizardStep
 	public function ShowStep()
 	{
 		$wizard = $this->GetWizard();
+		$size = [
+			'size' => '30',
+		];
+
 		parent::ShowStep();
+
 		if ($wizard->GetVar('create') === 'by_wizard')
 		{
 			$this->content .= '
 			<table border="0" class="data-table">
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_USER') . '</td>
-				<td valign="top">' . $this->ShowInputField('text', 'user', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('text', 'user', $size) . '</td>
 			</tr>
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_PASSWORD') . '</td>
-				<td valign="top">' . $this->ShowInputField('password', 'password', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('password', 'password', $size) . '</td>
 			</tr>
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_DATABASE') . '</td>
-				<td valign="top">' . $this->ShowInputField('text', 'database', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('text', 'database', $size) . '</td>
 			</tr>
 			</table>
 			';
@@ -409,27 +405,19 @@ class CPgUserStep extends CBasePgWizardStep
 			<table border="0" class="data-table">
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_HOST') . '</td>
-				<td valign="top">' . $this->ShowInputField('text', 'host', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('text', 'host', $size) . '</td>
 			</tr>
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_USER') . '</td>
-				<td valign="top">' . $this->ShowInputField('text', 'user', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('text', 'user', $size) . '</td>
 			</tr>
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_PASSWORD') . '</td>
-				<td valign="top">' . $this->ShowInputField('password', 'password', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('password', 'password', $size) . '</td>
 			</tr>
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_DATABASE') . '</td>
-				<td valign="top">' . $this->ShowInputField('text', 'database', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('text', 'database', $size) . '</td>
 			</tr>
 			</table>
 			';
@@ -516,6 +504,20 @@ class CPgUserStep extends CBasePgWizardStep
 					'#CUR#' => $version[0],
 					'#REQ#' => $pgVersionMin,
 				]));
+				return;
+			}
+
+			$option = $conn->query("select setting from pg_settings where name = 'standard_conforming_strings'")->fetch();
+			if (!isset($option['SETTING']) || $option['SETTING'] != 'on')
+			{
+				$this->SetError(GetMessage("PGWIZ_ERROR_PGSQL_CONFIG_ER"));
+				return;
+			}
+
+			$option = $conn->query("select setting from pg_settings where name = 'ac_ignore_maclabel'")->fetch();
+			if (isset($option['SETTING']) && $option['SETTING'] == 'false')
+			{
+				$this->SetError(GetMessage("PGWIZ_ERROR_PGSQL_CONFIG_MAC_ER"));
 				return;
 			}
 

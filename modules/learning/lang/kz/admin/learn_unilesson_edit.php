@@ -1,0 +1,22 @@
+<?php
+$MESS["LEARNING_ADMIN_TAB1"] = "Сабақ";
+$MESS["LEARNING_ADMIN_TAB1_EX"] = "Сабақ параметрлері";
+$MESS["LEARNING_ADMIN_TAB2"] = "Аңдатпа";
+$MESS["LEARNING_ADMIN_TAB2_EX"] = "Аңдатпа үшін сипаттама";
+$MESS["LEARNING_ADMIN_TAB3"] = "Мазмұны";
+$MESS["LEARNING_ADMIN_TAB3_EX"] = "Сабақтың мазмұны";
+$MESS["LEARNING_ADMIN_TAB4"] = "Байланыстар";
+$MESS["LEARNING_ADMIN_TAB4_EX"] = "Сабақтың өзара байланысы";
+$MESS["LEARNING_CONFIRM_DEL_MESSAGE"] = "Сіз осы сабақты жойғыңыз келетініне сенімдісіз бе?";
+$MESS["LEARNING_CONFIRM_UNLINK_LESSON_FROM_PARENT"] = "Сіз осы сабақты ата-аналықтан ажыратқыңыз келетініне сенімдісіз бе?";
+$MESS["LEARNING_COURSE_ADM_PUBLISH_PROHIBITED"] = "Жарияламау";
+$MESS["LEARNING_COURSE_ADM_PUBLISH_PROHIBITED_CONTEXT"] = "курс шеңберінде: #COURSE_NAME#";
+$MESS["LEARNING_EDIT_FORM_WILL_BE_AVAILABLE_AFTER_LESSON_CREATION"] = "Бұл қойынды тек бұрыннан бар сабақтар/тараулар үшін қолжетімді";
+$MESS["LEARNING_ERROR"] = "Сабақты сақтау кезіндегі қате";
+$MESS["LEARNING_HEIGHT"] = "Биіктігі";
+$MESS["LEARNING_PATH_TO_FILE"] = "Файлға жол";
+$MESS["LEARNING_PREVIEW_TEXT"] = "Аңдатпа";
+$MESS["LEARNING_SAVE"] = "Сақтау";
+$MESS["LEARNING_UNLINK_LESSON_FROM_PARENT"] = "Ата-аналықтан ажырату";
+$MESS["LEARNING_VIDEO_AUDIO"] = "Бейне/аудио";
+$MESS["LEARNING_WIDTH"] = "Ені";

@@ -59,7 +59,7 @@ abstract class Account extends Retargeting\Account
 	}
 
 	/**
-	 * Get expenses report by day
+	 * Get expenses report by day, grouped by concrete ads
 	 *
 	 * @return Result
 	 */
@@ -189,5 +189,11 @@ abstract class Account extends Retargeting\Account
 		]);
 
 		return $response;
+	}
+
+	protected function buildErrorMessage(string $error): string
+	{
+		$accountType = static::TYPE_CODE;
+		return "[{$accountType} account error] {$error}";
 	}
 }

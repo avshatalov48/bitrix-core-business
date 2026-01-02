@@ -16,6 +16,9 @@ $MESS["MAIN_EVENTLOG_USER_AUTHORIZE"] = "Успешный вход";
 $MESS["MAIN_EVENTLOG_USER_DELETE"] = "Удаление пользователя";
 $MESS["MAIN_EVENTLOG_USER_INFO"] = "Запрос на смену пароля пользователя";
 $MESS["MAIN_EVENTLOG_USER_LOGIN"] = "Ошибки входа";
+$MESS["MAIN_EVENTLOG_USER_LOGIN_INCORRECT_CAPTCHA"] = "Вход с неверной капчей";
+$MESS["MAIN_EVENTLOG_USER_LOGIN_BLOCKED"] = "Вход заблокированного пользователя";
+$MESS["MAIN_EVENTLOG_USER_LOGIN_NOT_FOUND"] = "Вход несуществующего пользователя";
 $MESS["MAIN_EVENTLOG_USER_LOGINBYHASH_FAILED"] = "Ошибка входа при сохраненной авторизации";
 $MESS["MAIN_EVENTLOG_USER_LOGOUT"] = "Выход из системы";
 $MESS["MAIN_EVENTLOG_USER_PASSWORD_CHANGED"] = "Смена пароля пользователя";
@@ -33,4 +36,7 @@ $MESS["MAIN_EVENTLOG_MP_MODULE_DOWNLOADED"] = "Решение Маркетпле
 $MESS["MAIN_EVENTLOG_USER_BLOCKED"] = "Пользователь заблокирован";
 $MESS["MAIN_EVENTLOG_USER_PERMISSIONS_FAIL"] = "Ошибка доступа к файлу";
 $MESS["MAIN_EVENTLOG_SECURITY_WWALL_COMMON"] = "Попытка эксплуатации уязвимости";
+$MESS['MAIN_EVENTLOG_GROUP_ADDED'] = 'Группа добавлена';
+$MESS['MAIN_EVENTLOG_GROUP_UPDATED'] = 'Группа обновлена';
+$MESS['MAIN_EVENTLOG_GROUP_DELETED'] = 'Группа удалена';
 ?>

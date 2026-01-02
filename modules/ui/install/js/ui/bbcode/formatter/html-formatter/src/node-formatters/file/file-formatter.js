@@ -15,6 +15,7 @@ export class FileNodeFormatter extends NodeFormatter
 	{
 		const formatter: HtmlFormatter = options.formatter;
 		const fileMode = formatter.getFileMode();
+		const viewerGroupBy = Text.getRandom();
 
 		super({
 			name: fileMode || '__unknown__',
@@ -42,13 +43,26 @@ export class FileNodeFormatter extends NodeFormatter
 					return createTextNode();
 				}
 
-				const info: UploaderFileInfo = data.files.find((file: UploaderFileInfo): boolean => {
-					return file.serverFileId.toString() === serverFileId.toString();
+				const info: UploaderFileInfo = data?.files?.find((file: UploaderFileInfo): boolean => {
+					return file.serverFileId.toString() === serverFileId.toString()
+						|| `n${file.customData?.objectId.toString()}` === serverFileId.toString()
+					;
 				});
 
 				if (!info)
 				{
 					return createTextNode();
+				}
+
+				const viewerAttrsExist = Type.isPlainObject(info.viewerAttrs);
+				const viewerAttrs = viewerAttrsExist ? { ...info.viewerAttrs } : {};
+				if (
+					viewerAttrsExist
+					&& !Type.isStringFilled(viewerAttrs.viewerGroupBy)
+					&& Type.isUndefined(viewerAttrs.viewerSeparateItem)
+				)
+				{
+					viewerAttrs.viewerGroupBy = viewerGroupBy;
 				}
 
 				if (info.isImage)
@@ -63,6 +77,7 @@ export class FileNodeFormatter extends NodeFormatter
 						width,
 						height,
 						src: info.serverPreviewUrl,
+						viewerAttrs,
 					});
 				}
 
@@ -73,7 +88,12 @@ export class FileNodeFormatter extends NodeFormatter
 					width = Type.isNumber(width) && width > 0 ? Math.round(width) : 600;
 					height = Type.isNumber(height) && height > 0 ? Math.round(height) : null;
 
-					return createVideoNode({ url: info.downloadUrl, width, height });
+					return createVideoNode({
+						url: info.downloadUrl,
+						viewerAttrs,
+						width,
+						height,
+					});
 				}
 
 				return Dom.create({
@@ -86,6 +106,7 @@ export class FileNodeFormatter extends NodeFormatter
 					dataset: {
 						fileId: info.serverFileId,
 						fileInfo: JSON.stringify(info),
+						...viewerAttrs,
 					},
 				});
 			},

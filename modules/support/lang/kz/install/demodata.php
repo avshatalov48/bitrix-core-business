@@ -1,0 +1,21 @@
+<?php
+$MESS["SUP_DEF_ANSWER_DOES_NOT_SUIT"] = "Жауап қанағаттанарлық емес";
+$MESS["SUP_DEF_ANSWER_IS_NOT_COMPLETE"] = "Толық емес";
+$MESS["SUP_DEF_ANSWER_SUITS_THE_NEEDS"] = "Жауап қанағаттандырады";
+$MESS["SUP_DEF_BUGS"] = "Қателер";
+$MESS["SUP_DEF_COULD_NOT_BE_SOLVED"] = "Шешу мүмкін емес";
+$MESS["SUP_DEF_EASY"] = "Жеңіл";
+$MESS["SUP_DEF_E_MAIL"] = "E-mail";
+$MESS["SUP_DEF_FORUM"] = "Форум";
+$MESS["SUP_DEF_HARD"] = "Жоғары";
+$MESS["SUP_DEF_HIGH"] = "Жоғары";
+$MESS["SUP_DEF_LOW"] = "Төмен";
+$MESS["SUP_DEF_MEDIUM"] = "Орташа";
+$MESS["SUP_DEF_MIDDLE"] = "Орташа";
+$MESS["SUP_DEF_ORDER_PAYMENT"] = "Тапсырысты төлеу";
+$MESS["SUP_DEF_ORDER_SHIPPING"] = "Тапсырысты жеткізу";
+$MESS["SUP_DEF_PHONE"] = "Телефон";
+$MESS["SUP_DEF_PROBLEM_SOLVING_IN_PROGRESS"] = "Шешім сатысында";
+$MESS["SUP_DEF_REQUEST_ACCEPTED"] = "Қарауға қабылданды";
+$MESS["SUP_DEF_SLA_NAME"] = "Әдепкі бойынша";
+$MESS["SUP_DEF_SUCCESSFULLY_SOLVED"] = "Сәтті шешілді";

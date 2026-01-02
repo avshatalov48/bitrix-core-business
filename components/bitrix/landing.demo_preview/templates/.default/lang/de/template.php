@@ -18,7 +18,6 @@ $MESS["LANDING_TPL_HEADER_LOGO_KB"] = "Wissensbasis";
 $MESS["LANDING_TPL_HEADER_LOGO_MAINPAGE"] = "Vibe";
 $MESS["LANDING_TPL_HEADER_LOGO_SITE"] = "Websites";
 $MESS["LANDING_TPL_HEADER_RIGHT_CREATE_HINT_MSGVER_1"] = "Sie sind nicht berechtigt, Websites zu erstellen. Kontaktieren Sie bitte den Administrator Ihres Accounts.";
-$MESS["LANDING_TPL_MY_COLOR"] = "Benutzerdefinierte Farbe";
 $MESS["LANDING_TPL_POPUP_REPEAT_BUTTON"] = "Neustart";
 $MESS["LANDING_TPL_POPUP_REPEAT_TEXT"] = "Etwas ist schiefgegangen. Klicken Sie auf Neustart und versuchen Sie es erneut.";
 $MESS["LANDING_TPL_POPUP_TEXT"] = "Den QR-Code einscannen, um die Website zu öffnen";

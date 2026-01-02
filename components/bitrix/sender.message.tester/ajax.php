@@ -31,6 +31,8 @@ $actions[] = Controller\Action::create('test')->setHandler(
 			$messageData = array();
 		}
 
+		$messageData['RAW'] = $request->getRaw('messageData');
+
 		$list = $request->get('list');
 		if (!is_array($list))
 		{
@@ -73,6 +75,8 @@ $actions[] = Controller\Action::create('consent')->setHandler(
 		$transport = \Bitrix\Sender\Transport\Adapter::create($request->get('messageCode'));
 
 		$messageData = $request->get('messageData');
+		$messageData['RAW'] = $request->getRaw('messageData');
+
 		$letter = new Entity\Letter;
 		$letter->mergeData(array(
 			'MESSAGE_CODE' => $request->get('messageCode'),
@@ -136,8 +140,8 @@ function prepareOptions(&$letter, &$messageData)
 
 			if ($option->getType() === \Bitrix\Sender\Message\ConfigurationOption::TYPE_MAIL_EDITOR)
 			{
-				$value = $messageData[$option->getCode()];
-				$value = Security\Sanitizer::fixReplacedStyles($value);
+				$value = $messageData['RAW'][$option->getCode()] ?? $messageData[$option->getCode()];
+
 				$value = Security\Sanitizer::sanitizeHtml($value, $option->getValue());
 				$messageData[$option->getCode()] = $value;
 			}

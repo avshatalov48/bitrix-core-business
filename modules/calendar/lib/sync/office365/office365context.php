@@ -3,6 +3,7 @@ namespace Bitrix\Calendar\Sync\Office365;
 
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Role\Role;
+use Bitrix\Calendar\Internal\Integration\Socialservices\Auth\Office365AuthService;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Exceptions\AuthException;
 use Bitrix\Calendar\Sync\Exceptions\RemoteAccountException;
@@ -10,16 +11,13 @@ use Bitrix\Calendar\Sync\Internals\ContextInterface;
 use Bitrix\Calendar\Sync\Managers\IncomingSectionManagerInterface;
 use Bitrix\Calendar\Sync\Managers\OutgoingEventManagerInterface;
 use Bitrix\Calendar\Sync\Office365\Converter\Converter;
-use Bitrix\Calendar\Sync\Util\RequestLogger;
+use Bitrix\Calendar\Synchronization\Internal\Service\Logger\RequestLogger;
 use Bitrix\Main\DI\ServiceLocator;
-use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\Web\HttpClient;
-use CSocServOffice365OAuth;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 
 /**
  * Factory for Sync Manager classes
@@ -50,6 +48,7 @@ class Office365Context implements ContextInterface
 	private OutgoingEventManagerInterface $outgoingEventManager;
 	private Converter $converter;
 	private PushManager $pushManager;
+	private Office365AuthService $authService;
 
 	/**
 	 * @param Connection $connection
@@ -79,6 +78,8 @@ class Office365Context implements ContextInterface
 		$this->connection = $connection;
 		$this->owner = $connection->getOwner();
 		$this->helper = ServiceLocator::getInstance()->get('calendar.service.office365.helper');
+
+		$this->authService = ServiceLocator::getInstance()->get(Office365AuthService::class);
 	}
 
 	/**
@@ -207,13 +208,10 @@ class Office365Context implements ContextInterface
 	 */
 	private function prepareHttpClient(): HttpClient
 	{
-		if (!Loader::includeModule('socialservices'))
-		{
-			throw new LoaderException('Module socialservices is required.');
-		}
 		$httpClient = new HttpClient();
 
-		$oAuthEntity = $this->prepareAuthEntity($this->owner->getId());
+		$oAuthEntity = $this->authService->prepareAuthEntity($this->owner->getId());
+
 		if ($oAuthEntity->GetAccessToken())
 		{
 			$httpClient->setHeader('Authorization', 'Bearer ' . $oAuthEntity->getToken());
@@ -245,55 +243,6 @@ class Office365Context implements ContextInterface
 			throw new RemoteAccountException('Office365 account not found', 403);
 		}
 		return $httpClient;
-	}
-
-	/**
-	 * @param $userId
-	 *
-	 * @return \COffice365OAuthInterface
-	 */
-	public function prepareAuthEntity($userId): \COffice365OAuthInterface
-	{
-		$oauth = new CSocServOffice365OAuth($userId);
-		$oAuthEntity = $oauth->getEntityOAuth();
-		$oAuthEntity->addScope($this->helper::NEED_SCOPE);
-		$oAuthEntity->setUser($this->owner->getId());
-		
-		$tokens = $this->getStorageToken($userId);
-		if ($tokens)
-		{
-			$oAuthEntity->setToken($tokens['OATOKEN']);
-			$oAuthEntity->setAccessTokenExpires($tokens['OATOKEN_EXPIRES']);
-			$oAuthEntity->setRefreshToken($tokens['REFRESH_TOKEN']);
-		}
-		
-		if (!$oAuthEntity->checkAccessToken())
-		{
-			$oAuthEntity->getNewAccessToken(
-				$oAuthEntity->getRefreshToken(),
-				$this->owner->getId(),
-				true
-			);
-		}
-
-		return $oAuthEntity;
-	}
-	
-	/**
-	 * @param $userId
-	 * @return array|false
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
-	public function getStorageToken($userId)
-	{
-		return \Bitrix\Socialservices\UserTable::query()
-			->setSelect(['USER_ID', 'EXTERNAL_AUTH_ID', 'OATOKEN', 'OATOKEN_EXPIRES', 'REFRESH_TOKEN'])
-			->where('USER_ID', $userId)
-			->where('EXTERNAL_AUTH_ID', 'Office365')
-			->exec()->fetch()
-		;
 	}
 
 	public function getIncomingManager()
@@ -328,14 +277,12 @@ class Office365Context implements ContextInterface
 	 */
 	public function getLogger(): LoggerInterface
 	{
-		if (RequestLogger::isEnabled())
-		{
-			$logger = new RequestLogger($this->getOwner()->getId(), Helper::ACCOUNT_TYPE);
-		}
-		else
-		{
-			$logger = new NullLogger();
-		}
+		$logger = ServiceLocator::getInstance()->get(RequestLogger::class);
+
+		$logger
+			->setUserId($this->getOwner()->getId())
+			->setType(Helper::ACCOUNT_TYPE)
+		;
 
 		return $logger;
 	}

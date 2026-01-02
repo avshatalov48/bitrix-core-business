@@ -5,3 +5,4 @@ DROP TABLE if exists b_clouds_copy_queue;
 DROP TABLE if exists b_clouds_delete_queue;
 DROP TABLE if exists b_clouds_file_save;
 DROP TABLE if exists b_clouds_file_hash;
+DROP TABLE if exists b_clouds_size_queue;

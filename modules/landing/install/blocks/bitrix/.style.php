@@ -1158,6 +1158,12 @@ return [
 				['name' => 'g-bg-brown--before', 'value' => 'g-bg-brown--before'],
 			],
 		],
+		'background-color-after' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BG_COLOR_BEFORE'),
+			'type' => 'color',
+			'subtype' => 'bg-color-after',
+			'items' => [],
+		],
 		'background-size' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BACKGROUND_SIZE'),
 			'property' => 'background-size',
@@ -1903,6 +1909,7 @@ return [
 				['name' => '25', 'value' => 'g-rounded-25'],
 				['name' => '30', 'value' => 'g-rounded-30'],
 				['name' => '50', 'value' => 'g-rounded-50'],
+				['name' => '100', 'value' => 'g-rounded-100'],
 			],
 		],
 		'border-width' => [
@@ -2939,6 +2946,12 @@ return [
 				['name' => 'g-theme-bitrix-btn-v6', 'value' => 'g-theme-bitrix-btn-v6'],
 			],
 		],
+		'button-color-hover' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BUTTON_COLOR_HOVER'),
+			'type' => 'color',
+			'subtype' => 'bg-color-hover',
+			'items' => [],
+		],
 		'animation' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_ANIMATION'),
 			'property' => 'animation-name',
@@ -3061,6 +3074,7 @@ return [
 				],
 				['name' => Loc::getMessage('LANDING_BLOCK_STYLE-TEXT_CONTAINER_FULL'), 'value' => 'g-max-width-100x'],
 				['name' => Loc::getMessage('LANDING_BLOCK_STYLE-TEXT_CONTAINER_MINI'), 'value' => 'g-max-width-800'],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE-TEXT_CONTAINER_MAXI'), 'value' => 'g-max-width-1462'],
 			],
 		],
 		'button-type' => [
@@ -3202,7 +3216,6 @@ return [
 				['name' => '200%', 'value' => 'scale-200'],
 			],
 		],
-		//todo: change phrases
 		'widget-type' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_WIDGET_TYPE'),
 			'type' => 'list',
@@ -3222,6 +3235,20 @@ return [
 				[
 					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_WIDGET_TYPE_ROUNDED_BOTTOM'),
 					'value' => 'widget-type-rounded-bottom',
+				],
+			],
+		],
+		'display-element' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_DISPLAY_ELEMENT'),
+			'type' => 'list',
+			'items' => [
+				[
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_DISPLAY_ELEMENT_SHOW'),
+					'value' => 'd-flex',
+				],
+				[
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_DISPLAY_ELEMENT_HIDE'),
+					'value' => 'd-none'
 				],
 			],
 		],
@@ -3350,12 +3377,14 @@ return [
 		],
 		'button' => [
 			'button-color',
+			'button-color-hover',
 			'button-type',
 			'button-size',
 			'button-padding',
 			'border-radius',
 			'color',
 			'color-hover',
+			'border-color-hover',
 			'font-family',
 			'text-transform',
 		],
@@ -3376,7 +3405,6 @@ return [
 		'background-gradient' => ['background-color'],
 		'background-hover' => ['background-color-hover'],
 		// dont forget add new usage 'background' style in \Bitrix\Landing\Node\StyleImg::STYLES_WITH_IMAGE
-
-		'widget' => ['background', 'widget-type', 'margin-bottom'],
+		'widget' => ['background', 'widget-type', 'margin-top', 'margin-bottom', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right'],
 	],
 ];

@@ -1,4 +1,4 @@
-<?
+<?php
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -7,8 +7,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 return [
 	'js' => 'dist/ui.icon-set.vue.bundle.js',
 	'rel' => [
-		'main.core',
+		'main.polyfill.core',
 		'ui.icon-set.api.core',
 	],
-	'skip_core' => false,
+	'skip_core' => true,
 ];

@@ -3,13 +3,13 @@
 namespace Bitrix\Main\UserField\Internal;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\InvalidOperationException;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ORM\Query\Query;
 
 final class UserFieldHelper
 {
@@ -101,14 +101,14 @@ final class UserFieldHelper
 
 				Loc::loadLanguageFile(__DIR__.'/highloadblock.php');
 				$APPLICATION->ThrowException(
-					Loc::getMessage('HIGHLOADBLOCK_HIGHLOAD_BLOCK_ENTITY_FIELD_NAME_REF_RESERVED')
+					Loc::getMessage('HIGHLOADBLOCK_HIGHLOAD_BLOCK_ENTITY_FIELD_NAME_REF_RESERVED'),
 				);
 
 				return false;
 			}
 
 			return [
-				'PROVIDE_STORAGE' => false
+				'PROVIDE_STORAGE' => false,
 			];
 		}
 
@@ -139,7 +139,7 @@ final class UserFieldHelper
 			if (empty($typeData))
 			{
 				$application->throwException(sprintf(
-					'Entity "%s" wasn\'t found.', $factory->getUserFieldEntityId($typeId)
+					'Entity "%s" wasn\'t found.', $factory->getUserFieldEntityId($typeId),
 				));
 
 				return false;
@@ -156,7 +156,7 @@ final class UserFieldHelper
 			{
 				$connection->query(sprintf(
 					'ALTER TABLE %s ADD %s %s',
-					$sqlHelper->quote($typeData['TABLE_NAME']), $sqlHelper->quote($field['FIELD_NAME']), $sql_column_type
+					$sqlHelper->quote($typeData['TABLE_NAME']), $sqlHelper->quote($field['FIELD_NAME']), $sql_column_type,
 				));
 
 				if ($field['MULTIPLE'] == 'Y')
@@ -172,14 +172,14 @@ final class UserFieldHelper
 						'CREATE INDEX %s ON %s (%s)',
 						$sqlHelper->quote('IX_UTM_HL'.$typeId.'_'.$field['ID'].'_ID'),
 						$sqlHelper->quote($utmEntity->getDBTableName()),
-						$sqlHelper->quote('ID')
+						$sqlHelper->quote('ID'),
 					));
 
 					$connection->query(sprintf(
 						'CREATE INDEX %s ON %s (%s)',
 						$sqlHelper->quote('IX_UTM_HL'.$typeId.'_'.$field['ID'].'_VALUE'),
 						$sqlHelper->quote($utmEntity->getDBTableName()),
-						$sqlHelper->quote('VALUE')
+						$sqlHelper->quote('VALUE'),
 					));
 				}
 			}
@@ -190,12 +190,12 @@ final class UserFieldHelper
 
 				throw new InvalidOperationException(
 					'Could not create new user field ' . $field['FIELD_NAME'],
-					$sqlQueryException
+					$sqlQueryException,
 				);
 			}
 
 			return [
-				'PROVIDE_STORAGE' => false
+				'PROVIDE_STORAGE' => false,
 			];
 		}
 
@@ -210,82 +210,127 @@ final class UserFieldHelper
 	{
 		$userFieldHelper = static::getInstance();
 		$parseResult = $userFieldHelper->parseUserFieldEntityId($field['ENTITY_ID']);
-		if($parseResult)
+		if (!$parseResult)
 		{
-			/** @var TypeFactory $factory */
-			[$factory, $typeId] = $parseResult;
-			/** @var TypeDataManager $dataClass */
-			$dataClass = $factory->getTypeDataClass();
-			// get entity info
-			$typeData = $dataClass::getById($typeId)->fetch();
-
-			if (empty($typeData))
-			{
-				// non-existent or zombie. let it go
-				return [
-					'PROVIDE_STORAGE' => false,
-				];
-			}
-
-			$userFieldManager = $userFieldHelper->getManager();
-			/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
-			$fieldType = $userFieldManager->getUserType($field["USER_TYPE_ID"]);
-
-			if ($fieldType['BASE_TYPE'] === 'file')
-			{
-				// if it was file field, then delete all files
-				$itemEntity = $dataClass::compileEntity($typeData);
-				$query = new Query($itemEntity);
-				$rows = $query->addSelect($field['FIELD_NAME'])->exec();
-
-				while ($oldData = $rows->fetch())
-				{
-					if (empty($oldData[$field['FIELD_NAME']]))
-					{
-						continue;
-					}
-
-					if(is_array($oldData[$field['FIELD_NAME']]))
-					{
-						foreach($oldData[$field['FIELD_NAME']] as $value)
-						{
-							\CFile::delete($value);
-						}
-					}
-					else
-					{
-						\CFile::delete($oldData[$field['FIELD_NAME']]);
-					}
-				}
-			}
-
-			// drop db column
-			$connection = Application::getConnection();
-			try
-			{
-				$connection->dropColumn($typeData['TABLE_NAME'], $field['FIELD_NAME']);
-			}
-			catch(SqlQueryException $e)
-			{
-				// no column is ok
-			}
-
-			// if multiple - drop utm table
-			if ($field['MULTIPLE'] === 'Y')
-			{
-				$utmTableName = $dataClass::getMultipleValueTableName($typeData, $field);
-				if ($connection->isTableExists($utmTableName))
-				{
-					$connection->dropTable($utmTableName);
-				}
-			}
-
-			return [
-				'PROVIDE_STORAGE' => false,
-			];
+			return true;
 		}
 
-		return true;
+		return [
+			'PROVIDE_STORAGE' => false,
+		];
+	}
+
+	public static function OnAfterUserTypeDelete($field): void
+	{
+		$userFieldHelper = static::getInstance();
+		$parseResult = $userFieldHelper->parseUserFieldEntityId($field['ENTITY_ID']);
+		if (!$parseResult)
+		{
+			return;
+		}
+
+		/** @var TypeFactory $factory */
+		/** @var int $typeId */
+		[$factory, $typeId] = $parseResult;
+		/** @var class-string<TypeDataManager> $dataClass */
+		$dataClass = $factory->getTypeDataClass();
+		$typeData = $dataClass::getById($typeId)->fetch();
+
+		if (empty($typeData))
+		{
+			// non-existent or zombie. let it go
+			return;
+		}
+
+		$fieldType = $userFieldHelper->getManager()->GetUserType($field['USER_TYPE_ID']);
+		if ($fieldType && $fieldType['BASE_TYPE'] === 'file')
+		{
+			self::deleteAllFilesFromUserField($typeData['TABLE_NAME'], $field['FIELD_NAME']);
+		}
+
+		$connection = Application::getConnection();
+
+		try
+		{
+			$connection->dropColumn($typeData['TABLE_NAME'], $field['FIELD_NAME']);
+		}
+		catch (SqlQueryException)
+		{
+			// no column is ok
+		}
+
+		if ($field['MULTIPLE'] === 'Y')
+		{
+			$utmTableName = $dataClass::getMultipleValueTableName($typeData, $field);
+			if ($connection->isTableExists($utmTableName))
+			{
+				$connection->dropTable($utmTableName);
+			}
+		}
+	}
+
+	private static function deleteAllFilesFromUserField(string $tableName, string $fieldName): void
+	{
+		// cant use ORM here, the field is already deleted
+		$query = new SqlExpression(
+			'SELECT ?# FROM ?#',
+			$fieldName,
+			$tableName,
+		);
+
+		try
+		{
+			$queryResult = Application::getConnection()->query($query->compile());
+		}
+		catch (SqlQueryException)
+		{
+			// no column is ok
+			return;
+		}
+
+		while ($oldData = $queryResult->fetch())
+		{
+			$value = $oldData[$fieldName];
+
+			if (empty($value))
+			{
+				continue;
+			}
+
+			if (is_numeric($value))
+			{
+				// single file
+				\CFile::Delete($value);
+				continue;
+			}
+
+			if (is_string($value))
+			{
+				// multiple files
+
+				try
+				{
+					$valueUnserialized = unserialize($value, ['allowed_classes' => false, 'max_depth' => 1]);
+				}
+				catch (\Throwable)
+				{
+					continue;
+				}
+
+				if (!is_array($valueUnserialized))
+				{
+					continue;
+				}
+
+				foreach ($valueUnserialized as $singleValue)
+				{
+					if (!empty($singleValue) && is_numeric($singleValue))
+					{
+						\CFile::Delete($singleValue);
+					}
+				}
+			}
+		}
 	}
 
 	public static function onGetUserFieldValues(Event $event): EventResult

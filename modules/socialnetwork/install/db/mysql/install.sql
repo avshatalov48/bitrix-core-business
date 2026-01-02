@@ -605,3 +605,20 @@ create table if not exists b_sonet_collab_log
 	index ix_sonet_collab_log_collab_id_datetime (COLLAB_ID, DATETIME),
 	index ix_sonet_collab_log_entity (ENTITY_TYPE, ENTITY_ID)
 );
+
+create table if not exists b_sonet_onboarding_queue
+(
+	ID int not null auto_increment,
+	COLLAB_ID int not null,
+	USER_ID int not null,
+	TYPE varchar(150) not null,
+	CREATED_DATE datetime default now(),
+	NEXT_EXECUTION datetime not null,
+	PROCESSED_DATE datetime default null,
+	IS_PROCESSED tinyint default 0,
+
+	primary key (ID),
+	unique ix_b_sonet_onboarding_queue_collab_user_type(COLLAB_ID, USER_ID, TYPE),
+	index ix_b_sonet_onboarding_queue_execution_processed (NEXT_EXECUTION, IS_PROCESSED),
+	index ix_b_sonet_onboarding_queue_collab_type_execution (COLLAB_ID, TYPE, NEXT_EXECUTION)
+);

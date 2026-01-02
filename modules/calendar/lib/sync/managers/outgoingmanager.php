@@ -622,6 +622,7 @@ class OutgoingManager
 			if ($subscription && !$subscription->isExpired())
 			{
 				$result = $this->syncManager->renewPush($subscription);
+
 				if ($result->isSuccess())
 				{
 					$mainResult = $pushManager->renewPush($subscription, $result->getData());
@@ -635,6 +636,7 @@ class OutgoingManager
 			else
 			{
 				$subscribeResult = $this->syncManager->subscribeConnection();
+
 				if ($subscribeResult->isSuccess())
 				{
 					if ($subscription !== null)

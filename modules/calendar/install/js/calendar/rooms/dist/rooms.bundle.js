@@ -406,7 +406,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          'all-users': true
 	        }
 	      }];
-	      if (calendar_util.Util.isProjectFeatureEnabled()) {
+	      if (BX.Calendar.Util.isProjectFeatureEnabled()) {
 	        entities.push({
 	          id: 'project'
 	        });

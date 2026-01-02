@@ -68,41 +68,32 @@ class UserCollection extends EntityCollection
 		}
 	}
 
-	public function filterExtranet(): self
+	public static function filterUserIds(array $userIds, callable $predicate, ?int $limit = null): array
 	{
-		$filteredUsers = new static();
-
-		foreach ($this as $user)
+		$filteredUserIds = [];
+		foreach ($userIds as $userId)
 		{
-			if (!$user->isExtranet())
+			if ($limit !== null && count($filteredUserIds) >= $limit)
 			{
-				$filteredUsers[] = $user;
+				return $filteredUserIds;
+			}
+
+			$user = User::getInstance((int)$userId);
+			if ($predicate($user))
+			{
+				$filteredUserIds[(int)$userId] = (int)$userId;
 			}
 		}
 
-		return $filteredUsers;
+		return $filteredUserIds;
 	}
 
-	public static function filterOnlineUserId(array $userIds): array
+	public static function hasUserByType(array $userIds, UserType $type): bool
 	{
-		if (empty($userIds))
-		{
-			return [];
-		}
+		$filter = static fn (User $user) => $user->getType() === $type;
+		$firstUserByType = static::filterUserIds($userIds, $filter, 1);
 
-		$result = UserTable::query()
-			->setSelect(['ID'])
-			->whereIn('ID', $userIds)
-			->where('IS_ONLINE', true)
-			->fetchAll()
-		;
-		$onlineUsers = [];
-		foreach ($result as $row)
-		{
-			$onlineUsers[] = (int)$row['ID'];
-		}
-
-		return $onlineUsers;
+		return !empty($firstUserByType);
 	}
 
 	public function toRestFormat(array $option = []): array

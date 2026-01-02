@@ -1,0 +1,1 @@
+{"version":3,"file":"menu.bundle.js","sources":["../src/menu.js"],"sourcesContent":["// @deprecated\nexport * from 'ui.system.menu.vue';\n"],"names":[],"mappings":";;;;;;;CAAA;;;;;;;;"}

@@ -1,22 +1,35 @@
 <?php
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
 use Bitrix\Landing\Help;
+use Bitrix\Landing\Manager;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
+use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\UI\Extension;
+use Bitrix\Main\Web\Json;
+use Bitrix\UI;
+use Bitrix\UI\Toolbar\ButtonLocation;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 /** @var array $arParams */
 /** @var array $arResult */
 /** @var \CMain $APPLICATION */
+/** @var CBitrixComponentTemplate $this */
+/** @var LandingFilterComponent $component */
 
 // init
 Loc::loadMessages(__FILE__);
 \CJSCore::init(array('sidepanel', 'action_dialog', 'loader'));
-\Bitrix\Main\UI\Extension::load('ui.buttons');
-\Bitrix\Main\UI\Extension::load('ui.buttons.icons');
-\Bitrix\Main\UI\Extension::load('ui.hint');
+Extension::load([
+	'ui.hint',
+	'ui.toolbar',
+	'ai.copilot-promo-popup',
+]);
 
 if ($arResult['FATAL'])
 {
@@ -24,203 +37,251 @@ if ($arResult['FATAL'])
 }
 
 // some vars
+$toolbarParams = [];
+$isDeleted = $component::isDeleted();
+
 $uriAjax = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
 $uriAjax->addParams(array(
 	'IS_AJAX' => 'Y',
-	$arResult['NAVIGATION_ID'] => $arResult['CURRENT_PAGE']
+	$arResult['NAVIGATION_ID'] => $arResult['CURRENT_PAGE'],
 ));
 $uriAjax->deleteParams([
-	LandingBaseComponent::NAVIGATION_ID
+	LandingBaseComponent::NAVIGATION_ID,
 ]);
+$toolbarParams['landingAjaxPath'] = $uriAjax->getUri();
+
+// title
+$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
+$APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : '') . 'pagetitle-toolbar-field-view');
+Asset::getInstance()->addJs($this->GetFolder() . '/script.js');
+
+// template
+$isBitrix24Template = false;
 if (defined('SITE_TEMPLATE_ID'))
 {
 	$isBitrix24Template = SITE_TEMPLATE_ID === 'bitrix24';
 }
-
-// title
-$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
-$APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '') . 'pagetitle-toolbar-field-view');
 ?>
 
 <?php
-if ($isBitrix24Template)
+if (!$isBitrix24Template)
 {
-	$this->SetViewTarget('inside_pagetitle');
+	Toolbar::hideTitle();
+	$APPLICATION->IncludeComponent("bitrix:ui.toolbar", '', []);
 }
+?>
 
-/** @var CBitrixComponentTemplate $this */
-\Bitrix\Main\Page\Asset::getInstance()->addJs($this->GetFolder() . '/script.js');
-
-if (!$isBitrix24Template):?>
-<div class="tasks-interface-filter-container">
-<?endif;?>
-
-	<?
-	if (isset($arParams['BUTTONS']) && is_array($arParams['BUTTONS']))
+<?php
+// CREATE BUTTON
+if (isset($arParams['BUTTONS']) && is_array($arParams['BUTTONS']))
+{
+	$button = array_shift($arParams['BUTTONS']);
+	if (isset($button['LINK'], $button['TITLE']))
 	{
-		if (count($arParams['BUTTONS']) === 1)
+		$createButton = new UI\Buttons\CreateButton([
+			'id' => 'landing-create-element',
+			'text' => HtmlFilter::encode($button['TITLE']),
+		]);
+		$toolbarParams['landingCreateButtonId'] = $createButton->getUniqId();
+
+		$isButtonDisabled = isset($button['DISABLED']) && $button['DISABLED'] === true;
+		if ($isButtonDisabled)
 		{
-			$button = array_shift($arParams['BUTTONS']);
-			if (isset($button['LINK'], $button['TITLE']))
+			$hint = Loc::getMessage('LANDING_TPL_CREATE_BUTTON_HINT');
+			if ($helpUrl = Help::getHelpUrl('SHOP1C'))
 			{
-				$linkClassList = 'ui-btn ui-btn-md ui-btn-success landing-filter-action-link';
-				$linkEnabled = true;
-				$isButtonDisabled = isset($button['DISABLED']) && $button['DISABLED'] === true;
-				if ($isButtonDisabled)
-				{
-					$linkClassList .= ' ui-btn-disabled ui-btn-icon-lock';
-					$linkEnabled = false;
-				}
-				?>
-				<div id="landing-create-element-container" class="pagetitle-container pagetitle-align-right-container">
-					<a
-						<?php if ($isButtonDisabled):?>
-							data-hint="
-								<?= Loc::getMessage('LANDING_TPL_CREATE_BUTTON_HINT') ?>
-								<?php if ($helpUrl = Help::getHelpUrl('SHOP1C')):?>
-									<br>
-									<a href='<?= $helpUrl ?>'>
-										<?= Loc::getMessage('LANDING_TPL_CREATE_BUTTON_HINT_LINK_TEXT') ?>
-									</a>
-								<?php endif;?>
-							"
-							data-hint-no-icon
-							data-hint-html
-							data-hint-interactivity
-						<?php endif;?>
-						<?php if ($linkEnabled):?>
-							href="<?= \htmlspecialcharsbx($button['LINK']) ?>"
-						<?php endif;?>
-						id="landing-create-element"
-						class="<?= \htmlspecialcharsbx($linkClassList) ?>"
-					>
-						<?= \htmlspecialcharsbx($button['TITLE']);?>
-					</a>
-				</div>
-				<script>
-					BX.ready(function ()
-					{
-						BX.UI.Hint.init(BX('landing-create-element-container'));
-					});
-				</script>
-			<?
+				$hint .= '<br>';
+				$hint .= "<a href=\"{$helpUrl}\">";
+				$hint .= Loc::getMessage('LANDING_TPL_CREATE_BUTTON_HINT_LINK_TEXT');
+				$hint .= '</a>';
 			}
+			$createButton->addDataAttribute('hint', $hint);
+			$createButton->addDataAttribute('hint-no-icon');
+			$createButton->addDataAttribute('hint-html');
+			$createButton->addDataAttribute('hint-interactivity');
+
+			$createButton->setDisabled();
+		}
+		elseif ($isDeleted)
+		{
+			$createButton->setDisabled();
 		}
 		else
 		{
-		$button = array_shift($arParams['BUTTONS']);
-		?>
-		<?if (isset($button['LINK']) && isset($button['TITLE'])):?>
-			<div class="pagetitle-container pagetitle-align-right-container" id="landing-menu-actions">
-				<a href="<?= \htmlspecialcharsbx($button['LINK']);?>" id="landing-create-element" <?
-				?>class="ui-btn ui-btn-md ui-btn-success ui-btn-icon-add landing-filter-action-link ui-btn-dropdown">
-					<?= \htmlspecialcharsbx($button['TITLE']);?>
-				</a>
-			</div>
-			<script>
-				var landingCreateButtons = [
-					<?foreach ($arParams['BUTTONS'] as $button):?>
-					<?if (isset($button['LINK']) && isset($button['TITLE'])):?>
-					{
-						href: '<?= \CUtil::JSEscape($button['LINK']);?>',
-						text: '<?= \CUtil::JSEscape($button['TITLE']);?>'
-					},
-					<?endif;?>
-					<?endforeach;?>
-					null
-				];
-			</script>
-		<?endif;?>
-			<?
+			$createButton->setLink($button['LINK']);
 		}
-	}
-	?>
 
-	<div class="pagetitle-container<?if (!$isBitrix24Template) {?> pagetitle-container-light<?}?> pagetitle-flexible-space">
-		<?$APPLICATION->IncludeComponent(
-			'bitrix:main.ui.filter',
-			'',
-			array(
-				'FILTER_ID' => $arParams['FILTER_ID'],
-				'GRID_ID' => $arParams['FILTER_ID'],
-				'FILTER' => $arResult['FILTER'],
-				'FILTER_PRESETS' => $arResult['FILTER_PRESETS'],
-				'ENABLE_LABEL' => true,
-				'ENABLE_LIVE_SEARCH' => true,
-				'RESET_TO_DEFAULT_MODE' => true
-			),
-			$this->__component,
-			array('HIDE_ICONS' => true)
-		);?>
-		<script>
-			var landingAjaxPath = '<?= \CUtil::jsEscape($uriAjax->getUri());?>';
-			var landingFilterId = '<?= \CUtil::jsEscape($arParams['FILTER_ID']);?>';
-		</script>
-	</div>
-
-	<div class="landing-filter-buttons-container">
-
-		<span class="ui-btn ui-btn-light-border ui-btn-themes landing-recycle-bin-btn" id="landing-recycle-bin">
-			<?= Loc::getMessage('LANDING_TPL_RECYCLE_BIN');?>
-		</span>
-
-		<?if ($arParams['SETTING_LINK']):
-			// for compatibility
-			if (!is_array($arParams['SETTING_LINK']))
+		if (!empty($arParams['BUTTONS']))
+		{
+			$createButtonOptions = [];
+			foreach ($arParams['BUTTONS'] as $button)
 			{
-				$arParams['SETTING_LINK'] = [[
-					'TITLE' => '',
-					'LINK' => $arParams['SETTING_LINK']
-				]];
+				if (isset($button['LINK'], $button['TITLE']))
+				{
+					$createButtonOptions[] = [
+						'href' => $button['LINK'],
+						'text' => $button['TITLE'],
+					];
+				}
 			}
-			?>
-			<script>
-				var landingSettingsButtons = [
-					<?
-					$bFirst = true;
-					foreach ($arParams['SETTING_LINK'] as $link):?>
-						<?if (isset($link['LINK']) && isset($link['TITLE'])):?>
-						<?= !$bFirst ? ',' : '';?>{
-							href: '<?= \CUtil::JSEscape($link['LINK']);?>',
-							text: '<?= \CUtil::JSEscape($link['TITLE']);?>'
-							<? if (isset($link['DATASET']) && is_array($link['DATASET'])): ?>
-								, dataset: <?= \CUtil::phpToJSObject($link['DATASET']) ?>
-							<? endif ?>
-							<? if (isset($link['DELIMITER']) && $link['DELIMITER'] === true): ?>
-								, delimiter: true
-							<? endif ?>
-						}
-						<?
-						$bFirst = false;
-						endif;?>
-					<?endforeach;?>
-				];
-			</script>
-			<a class="ui-btn ui-btn-light-border ui-btn-themes ui-btn-icon-setting" id="landing-menu-settings" href="#"></a>
-		<?endif;?>
+			if (!empty($createButtonOptions))
+			{
+				$createButton
+					->setIcon(UI\Buttons\Icon::ADD)
+					->setDropdown()
+					->setMenu([
+						'autoHide' => true,
+						'closeEsc' => true,
+						'offsetLeft' => 20,
+						'angle' => true,
+						'items' => $createButtonOptions,
+					])
+				;
+			}
+		}
 
-		<?if ($arParams['FOLDER_SITE_ID']):?>
-		<a class="ui-btn ui-btn-light-border ui-btn-icon-add-folder ui-btn-themes landing-filter-buttons-add-folder" <?
-			?>id="landing-create-folder" <?
-			?>data-type="<?= $arParams['TYPE'];?>" <?
-			?>data-action="<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_CREATE_FOLDER_ACTION'));?>" <?
-			?>data-siteId="<?= $arParams['FOLDER_SITE_ID'];?>" <?
-			?>data-folderId="<?= $arParams['FOLDER_ID'];?>" <?
-			?>href="javascript:void(0);" <?
-			?>title="<?= Loc::getMessage('LANDING_TPL_CREATE_FOLDER');?>"></a>
-		<?else:?>
-		<?endif;?>
+		Toolbar::addButton($createButton, ButtonLocation::AFTER_TITLE);
+	}
+}
 
-	</div>
+// FILTER
+$filterId = \CUtil::jsEscape($arParams['FILTER_ID']);
+$toolbarParams['filterId'] = $filterId;
+$filterOptions = [
+	'FILTER_ID' => $filterId,
+	'GRID_ID' => $arParams['FILTER_ID'],
+	'FILTER' => $arResult['FILTER'],
+	'FILTER_PRESETS' => $arResult['FILTER_PRESETS'],
+	'ENABLE_LABEL' => true,
+	'ENABLE_LIVE_SEARCH' => true,
+	'RESET_TO_DEFAULT_MODE' => true,
+];
+Toolbar::addFilter($filterOptions);
 
+// RECYCLE
+Toolbar::addButton(
+	new UI\Buttons\Button([
+		'id' => 'landing-recycle-bin',
+		'color' => UI\Buttons\Color::LIGHT_BORDER,
+		'text' => Loc::getMessage('LANDING_TPL_RECYCLE_BIN'),
+		'click' => new UI\Buttons\JsHandler('BX.Landing.Component.Filter.onRecycleBinClick'),
+	])
+);
 
-<?if (!$isBitrix24Template):?>
-</div>
-<?endif;?>
-
-<?php
-if ($isBitrix24Template)
+// SETTINGS
+if ($arParams['SETTING_LINK'])
 {
-	$this->EndViewTarget();
+	// for compatibility
+	if (!is_array($arParams['SETTING_LINK']))
+	{
+		$arParams['SETTING_LINK'] = [
+			[
+				'TITLE' => '',
+				'LINK' => $arParams['SETTING_LINK'],
+			],
+		];
+	}
+
+	$links = [];
+	foreach ($arParams['SETTING_LINK'] as $settingsLink)
+	{
+		if (isset($settingsLink['DELIMITER']) && $settingsLink['DELIMITER'] === true)
+		{
+			$links[] = [
+				'delimiter' => true,
+			];
+
+			continue;
+		}
+
+		if (
+			!isset($settingsLink['LINK'], $settingsLink['TITLE'])
+			|| $settingsLink['LINK'] === ''
+			|| $settingsLink['TITLE'] === ''
+		)
+		{
+			continue;
+		}
+
+		$link = [
+			'href' => $settingsLink['LINK'],
+			'text' => $settingsLink['TITLE'],
+		];
+		if (isset($settingsLink['DATASET']) && is_array($settingsLink['DATASET']))
+		{
+			$link['dataset'] = $settingsLink['DATASET'];
+		}
+
+		$links[] = $link;
+	}
+
+	$toolbarParams['landingSettingsButtons'] = $links;
+
+	Toolbar::addButton(
+		new UI\Buttons\Button([
+			'id' => 'landing-menu-settings',
+			'color' => UI\Buttons\Color::LIGHT_BORDER,
+			'icon' => UI\Buttons\Icon::SETTINGS,
+			'click' => new UI\Buttons\JsHandler('BX.Landing.Component.Filter.onSettingsClick'),
+		])
+	);
+}
+
+// FOLDER
+if ($arParams['FOLDER_SITE_ID'])
+{
+	$createFolderButton = new UI\Buttons\Button([
+		'id' => 'landing-create-folder',
+		'color' => UI\Buttons\Color::LIGHT_BORDER,
+		'icon' => UI\Buttons\Icon::ADD_FOLDER,
+		'click' => new UI\Buttons\JsHandler('BX.Landing.Component.Filter.onFolderCreateClick'),
+		'dataset' => [
+			'type' => $arParams['TYPE'],
+			'action' => \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_CREATE_FOLDER_ACTION')),
+			'siteId' => $arParams['FOLDER_SITE_ID'],
+			'folderId' => $arParams['FOLDER_ID'],
+		],
+	]);
+	$toolbarParams['landingCreateFolderButtonId'] = $createFolderButton->getUniqId();
+	if ($isDeleted)
+	{
+		$createFolderButton->setDisabled();
+	}
+	else
+	{
+		$toolbarParams['canCreateFolder'] = true;
+	}
+	Toolbar::addButton($createFolderButton);
 }
 ?>
+
+<?php
+// AI site first popup
+$isNeedShowSiteAIPopup = false;
+$option = \CUserOptions::GetOption('landing', 'site-ai-popup');
+if (!isset($option['isShow']))
+{
+	$isNeedShowSiteAIPopup = true;
+}
+if (
+	$arParams['TYPE'] === 'PAGE'
+	&& $isNeedShowSiteAIPopup
+	&& \Bitrix\Landing\Copilot\Manager::isAvailable()
+)
+{
+	$toolbarParams['landingShowSiteAIPopup'] = true;
+}
+?>
+
+<script>
+	BX.ready(() =>
+	{
+		new BX.Landing.Component.Filter(<?= Json::encode($toolbarParams) ?>);
+
+		const container = document.querySelector('.ui-toolbar');
+		if (container)
+		{
+			BX.UI.Hint.init(container);
+		}
+	});
+</script>

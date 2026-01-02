@@ -241,7 +241,6 @@ class WizardTemplate extends CWizardTemplate
 		</noscript>
 
 		<script>
-		<!--
 
 			function SubmitForm(button)
 			{
@@ -267,7 +266,6 @@ class WizardTemplate extends CWizardTemplate
 
 			}
 			{$jsCode}
-		//-->
 		</script>
 
 

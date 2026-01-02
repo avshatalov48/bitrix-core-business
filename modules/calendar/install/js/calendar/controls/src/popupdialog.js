@@ -16,7 +16,9 @@ export class PopupDialog {
 			zIndex: this.zIndex,
 			offsetLeft: 0,
 			offsetTop: 0,
-			draggable: true,
+			draggable: {
+				restrict: true,
+			},
 			bindOnResize: false,
 			titleBar: this.getTitle(),
 			closeIcon: { right : "12px", top : "10px"},

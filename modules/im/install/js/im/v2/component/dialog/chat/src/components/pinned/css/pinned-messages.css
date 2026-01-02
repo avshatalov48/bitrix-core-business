@@ -1,0 +1,66 @@
+.bx-im-dialog-chat__pinned_container {
+	font: var(--im-font-size-xs) var(--im-font-family-system);
+}
+
+.bx-im-dialog-chat__pinned_item {
+	--im-dialog-chat__pin_max-content-width: 678px;
+	--im-dialog-chat__pin_border: rgba(82, 92, 105, 0.08);
+
+	position: relative;
+	cursor: pointer;
+	font-size: var(--im-font-size-sm);
+	color: var(--im-dialog-chat__font-color_pinned-text);
+	padding: 8px 0;
+	border-bottom: 1px solid var(--im-dialog-chat__pin_border);
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: var(--im-dialog-chat__pin_height);
+}
+
+.bx-im-dialog-chat__pinned_item:last-of-type {
+	border-bottom: none;
+}
+
+.bx-im-dialog-chat__pinned_item .bx-im-avatar__container {
+	margin-right: 10px;
+}
+
+.bx-im-dialog-chat__pinned_item_content {
+	display: flex;
+	width: 100%;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.bx-im-dialog-chat__pinned_item_user {
+	color: var(--im-dialog-chat__font-color_pinned-text);
+	font-weight: var(--im-font-weight-medium);
+	font-size: var(--im-font-size-sm);
+	line-height: 16px;
+	margin-bottom: 1px;
+}
+
+.bx-im-dialog-chat__pinned_item_text {
+	display: block;
+	color: var(--im-dialog-chat__font-color_pinned-message-text);
+	font-weight: var(--im-font-weight-normal);
+	font-size: var(--im-font-size-xs);
+	line-height: 15px;
+	max-width: var(--im-dialog-chat__pin_max-content-width);
+	margin-right: 18px;
+}
+
+.bx-im-dialog-chat__pinned_icon-item-unpin {
+	width: 24px;
+	height: 24px;
+	background-image: url('../header/css/images/unpin.svg');
+	background-color: transparent;
+	cursor: pointer;
+	border: none;
+	visibility: hidden;
+}
+
+.bx-im-dialog-chat__pinned_item:hover .bx-im-dialog-chat__pinned_icon-item-unpin {
+	visibility: visible;
+}

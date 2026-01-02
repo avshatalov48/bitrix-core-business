@@ -87,5 +87,5 @@ if ($bFound)
 }
 else
 {
-	?><div align="center"><?=ShowError(GetMessage('FORM_VALIDATOR_NOT_FOUND'));?></div><?
+	?><div align="center"><? ShowError(GetMessage('FORM_VALIDATOR_NOT_FOUND')); ?></div><?
 }

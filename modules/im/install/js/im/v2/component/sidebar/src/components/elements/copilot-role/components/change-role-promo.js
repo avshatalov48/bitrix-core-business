@@ -1,14 +1,11 @@
 import { PromoVideoPopup, PromoVideoPopupEvents } from 'ui.promo-video-popup';
 import { Loc } from 'main.core';
 
-import { MessengerPopup } from 'im.v2.component.elements';
-
 import '../css/change-role-promo.css';
 
 // @vue/component
 export const ChangeRolePromo = {
 	name: 'ChangeRolePromo',
-	components: { MessengerPopup },
 	props:
 	{
 		bindElement: {

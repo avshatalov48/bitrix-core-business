@@ -19,7 +19,7 @@ import {
 	SendMessagesHintByChatType,
 } from './const/config';
 
-import type { DropdownItem } from 'im.v2.component.elements';
+import type { DropdownItem } from 'im.v2.component.elements.dropdown';
 
 type UserRoleItem = $Keys<typeof UserRole>;
 

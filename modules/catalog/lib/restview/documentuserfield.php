@@ -37,8 +37,13 @@ final class DocumentUserField extends Base
 
 	public function internalizeFieldsList($arguments, $fieldsInfo = []): array
 	{
-		$documentType = $arguments['filter']['DOCUMENT_TYPE'];
-		$fieldsInfo = array_merge($fieldsInfo, $this->getFields(), $this->getFieldMapForType($documentType));
+		$documentType = $arguments['filter']['DOCUMENT_TYPE'] ?? null;
+		$allowUserFields = (is_string($documentType) && $documentType !== '');
+		$fieldsInfo = array_merge(
+			$fieldsInfo,
+			$this->getFields(),
+			$allowUserFields ? $this->getFieldMapForType($documentType) : []
+		);
 
 		return parent::internalizeFieldsList($arguments, $fieldsInfo);
 	}
@@ -93,9 +98,14 @@ final class DocumentUserField extends Base
 		return parent::externalizeListFields($list, $fieldsInfo);
 	}
 
-	private function getFieldMapForType($documentType)
+	private function getFieldMapForType($documentType): array
 	{
 		global $USER_FIELD_MANAGER;
+
+		if (!(is_string($documentType) && $documentType !== ''))
+		{
+			return [];
+		}
 
 		$ufEntityId = StoreDocumentTableManager::getUfEntityIds()[$documentType] ?? '';
 		if (!$ufEntityId)

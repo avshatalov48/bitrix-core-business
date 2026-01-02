@@ -3,6 +3,7 @@
 namespace Bitrix\Im\V2\Link\Task;
 
 use Bitrix\Im\Model\LinkTaskTable;
+use Bitrix\Im\V2\Entity\EntityCollection;
 use Bitrix\Im\V2\Link\BaseLinkCollection;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Service\Context;
@@ -30,6 +31,8 @@ class TaskCollection extends BaseLinkCollection
 		'IM_CHAT_CHAT_ID',
 		'IM_CHAT_AUTHOR_ID',
 	];
+
+	protected ?EntityCollection $entities = null;
 
 	public static function getCollectionElementClass(): string
 	{
@@ -130,5 +133,45 @@ class TaskCollection extends BaseLinkCollection
 		}
 
 		return $result;
+	}
+
+	public static function getByMessages(MessageCollection $messages): self
+	{
+		$chatTasks = LinkTaskTable::query()
+			->setSelect(['ID', 'MESSAGE_ID', 'CHAT_ID', 'TASK_ID', 'AUTHOR_ID', 'DATE_CREATE'])
+			->whereIn('MESSAGE_ID', $messages->getIds())
+			->fetchCollection()
+		;
+
+		return new static($chatTasks);
+	}
+
+	public function getEntities(): EntityCollection
+	{
+		if (isset($this->entities))
+		{
+			return $this->entities;
+		}
+		$this->entities = \Bitrix\Im\V2\Entity\Task\TaskCollection::getByIds($this->getEntityIds());
+
+		return $this->entities;
+	}
+
+	public function fillEntities(): self
+	{
+		$entities = $this->getEntities();
+
+		foreach ($this as $task)
+		{
+			$id = $task->getEntityId();
+			if (!isset($id) || ($entities->getById($id) === null))
+			{
+				continue;
+			}
+
+			$task->setEntity($entities->getById($id));
+		}
+
+		return $this;
 	}
 }

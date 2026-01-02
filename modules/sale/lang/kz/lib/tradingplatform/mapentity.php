@@ -1,0 +1,4 @@
+<?php
+$MESS["TRADING_PLATFORM_MAP_ENTITY_ENTITY_CODE_FIELD"] = "Көрсетілетін мән коды";
+$MESS["TRADING_PLATFORM_MAP_ENTITY_ENTITY_ID_FIELD"] = "Идентификатор";
+$MESS["TRADING_PLATFORM_MAP_ENTITY_ENTITY_TRADING_PLATFORM_CODE_FIELD"] = "Сауда платформасының сәйкестендіргіші ";

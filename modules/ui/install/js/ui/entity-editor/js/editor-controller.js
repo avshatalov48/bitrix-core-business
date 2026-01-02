@@ -223,18 +223,23 @@ if(typeof BX.UI.EditorFieldViewController === "undefined")
 			},
 			isHandleableEvent: function(e)
 			{
-				var node = BX.getEventTarget(e);
-				if(node.tagName === "A")
+				const node = BX.getEventTarget(e);
+				if (node.tagName === 'A')
 				{
 					return false;
 				}
 
-				if(node.getAttribute("data-editor-control-type") === "button")
+				const isButton = (control) => {
+					return typeof control?.getAttribute === 'function'
+						&& control.getAttribute('data-editor-control-type') === 'button';
+				};
+
+				if (isButton(node) || BX.findParent(node, isButton, this._wrapper))
 				{
 					return false;
 				}
 
-				return !BX.findParent(node, { tagName: "a" }, this._wrapper);
+				return !BX.findParent(node, { tagName: 'a' }, this._wrapper);
 			},
 			switchTo: function()
 			{

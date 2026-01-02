@@ -43,8 +43,20 @@ if ($os === 'LIN')
 	$osIconClass = '--linux';
 }
 $id = 'widget-' . htmlspecialcharsbx(bin2hex(random_bytes(5)));
+
+$allowedTypes = ['1', '2'];
+$type = isset($arResult['TYPE']) && in_array((string)$arResult['TYPE'], $allowedTypes, true)
+	? (string)$arResult['TYPE']
+		: '1';
+
+$widgetTypeClass = '';
+if ($type === '2')
+{
+	$widgetTypeClass = 'landing-widget-apps-type-2';
+}
+
 ?>
-<div class="landing-widget-apps" id="<?= $id ?>">
+<div class="landing-widget-apps <?= $widgetTypeClass ?>" id="<?= $id ?>">
 	<div class="landing-widget-view-main">
 		<div class="landing-widget-content">
 			<div class="landing-widget-app-mobile" id="<?= $mobileId ?>">

@@ -41,7 +41,7 @@ class Recurrence
 	 *
 	 * @return DateTime[]
 	 *
-	 * @throws BaseException*@throws Exception
+	 * @throws BaseException
 	 * @throws Exception
 	 */
 	public function getEventOccurenceDates(Event $event, array $params = []): array

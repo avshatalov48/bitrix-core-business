@@ -5,7 +5,7 @@ import { SidebarMenu } from '../sidebar-base-menu';
 import { TaskManager } from './task-manager';
 
 import type { ImModelSidebarTaskItem } from 'im.v2.model';
-import type { MenuItem } from 'im.v2.lib.menu';
+import type { MenuItemOptions } from 'ui.system.menu';
 
 type TaskMenuContext = {
 	task: ImModelSidebarTaskItem,
@@ -26,7 +26,7 @@ export class TaskMenu extends SidebarMenu
 		this.taskManager = new TaskManager();
 	}
 
-	getMenuItems(): MenuItem[]
+	getMenuItems(): MenuItemOptions | null[]
 	{
 		return [
 			this.getOpenContextMessageItem(),
@@ -35,11 +35,11 @@ export class TaskMenu extends SidebarMenu
 		];
 	}
 
-	getDeleteItem(): MenuItem
+	getDeleteItem(): MenuItemOptions
 	{
 		return {
-			text: Loc.getMessage('IM_SIDEBAR_MENU_DELETE_TASK_CONNECTION'),
-			onclick: function() {
+			title: Loc.getMessage('IM_SIDEBAR_MENU_DELETE_TASK_CONNECTION'),
+			onClick: function() {
 				this.taskManager.delete(this.context.task);
 				this.menuInstance.close();
 			}.bind(this),

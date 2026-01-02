@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\EventLog\Internal;
@@ -38,8 +38,9 @@ class EventLogTable extends Data\DataManager
 	{
 		return [
 			(new Fields\IntegerField("ID"))
-				->configurePrimary(true)
-				->configureAutocomplete(true),
+				->configurePrimary()
+				->configureAutocomplete()
+				->configureSize(8),
 			(new Fields\DatetimeField("TIMESTAMP_X")),
 			(new Fields\StringField("SEVERITY")),
 			(new Fields\StringField("AUDIT_TYPE_ID")),

@@ -4,7 +4,6 @@
 
 .landing-widget-livefeed {
 	display: block;
-	font-family: var(--ui-font-family-system);
 	cursor: default;
 }
 
@@ -20,7 +19,8 @@
 	display: flex;
 	margin-bottom: 20px;
 	padding-bottom: 16px;
-	font: var(--ui-font-weight-medium) 28px var(--ui-font-family-system);
+	font-size: 28px;
+	font-weight: var(--ui-font-weight-medium);
 	color: var(--widget-color-h);
 	line-height: 19px;
 }
@@ -36,7 +36,8 @@
 	height: 20px;
 	border-radius: var(--ui-border-radius-pill);
 	background: rgba(var(--ui-color-background-primary-rgb), .2);
-	font: var(--ui-font-weight-medium) var(--ui-font-size-4xs) var(--ui-font-family-system);
+	font-size: var(--ui-font-size-4xs);
+	font-weight: var(--ui-font-weight-medium);
 	color: var(--ui-color-on-primary-alt);
 	box-sizing: border-box;
 	cursor: default;
@@ -44,7 +45,8 @@
 
 .landing-widget-livefeed-badge.--yellow {
 	background: var(--ui-color-palette-orange-50);
-	font: var(--ui-font-weight-regular) var(--ui-font-size-sm) var(--ui-font-family-system);
+	font-size: var(--ui-font-size-sm);
+	font-weight: var(--ui-font-weight-regular);
 }
 
 .landing-widget-livefeed-title .landing-widget-livefeed-badge {
@@ -115,7 +117,8 @@
 	padding: 0;
 	max-width: 100%;
 	border: none;
-	font: var(--ui-font-weight-semi-bold) var(--ui-font-size-md) var(--ui-font-family-system);
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-semi-bold);
 	color: var(--ui-color-text-primary);
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -132,7 +135,8 @@
 
 .landing-widget-livefeed-user-box {
 	margin-bottom: 12px;
-	font: var(--ui-font-weight-regular) var(--ui-font-size-xs) var(--ui-font-family-system);
+	font-size: var(--ui-font-size-xs);
+	font-weight: var(--ui-font-weight-regular);
 	color: var(--ui-color-base-80);
 	overflow: hidden;
 }
@@ -211,7 +215,8 @@
 }
 
 .landing-widget-view-sidebar .landing-widget-livefeed-title {
-	font: var(--ui-font-weight-medium) 17px var(--ui-font-family-system);
+	font-size: 17px;
+	font-weight: var(--ui-font-weight-medium);
 	margin-bottom: 0;
 	padding-bottom: 18px;
 	padding-left: 2px;
@@ -318,5 +323,6 @@
 }
 
 .landing-widget-view-sidebar .landing-widget-button.view-all-button {
-	font: var(--ui-font-weight-medium) var(--ui-font-size-xs) / 12px var(--ui-font-family-system);
+	font-size: var(--ui-font-size-xs) / 12px;
+	font-weight: var(--ui-font-weight-medium);
 }

@@ -11,6 +11,8 @@ use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
+use Bitrix\Socialnetwork\Item\Workgroup;
 
 class Group
 {

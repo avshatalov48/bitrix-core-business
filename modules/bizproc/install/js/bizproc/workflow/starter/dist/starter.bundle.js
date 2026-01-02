@@ -519,19 +519,21 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }
 	}
 	function _showTemplatesSlider2(callback = null) {
-	  const sliderOptions = {
-	    width: 970,
-	    cacheable: false,
-	    events: {
-	      onCloseComplete: main_core.Type.isFunction(callback) ? callback : () => {}
-	    }
-	  };
-	  const componentParams = {
-	    signedDocumentType: babelHelpers.classPrivateFieldLooseBase(this, _signedDocumentType)[_signedDocumentType],
-	    signedDocumentId: babelHelpers.classPrivateFieldLooseBase(this, _signedDocumentId)[_signedDocumentId]
-	  };
-	  const url = BX.Uri.addParam('/bitrix/components/bitrix/bizproc.workflow.start.list/', componentParams);
-	  BX.SidePanel.Instance.open(url, sliderOptions);
+	  main_core.Runtime.loadExtension('bizproc.router').then(({
+	    Router
+	  }) => {
+	    const options = {
+	      requestMethod: 'get',
+	      requestParams: {
+	        signedDocumentType: babelHelpers.classPrivateFieldLooseBase(this, _signedDocumentType)[_signedDocumentType],
+	        signedDocumentId: babelHelpers.classPrivateFieldLooseBase(this, _signedDocumentId)[_signedDocumentId]
+	      },
+	      events: {
+	        onCloseComplete: main_core.Type.isFunction(callback) ? callback : () => {}
+	      }
+	    };
+	    Router.openWorkflowStartList(options);
+	  }).catch(e => console.error(e));
 	}
 	function _loadTemplates2() {
 	  return new Promise((resolve, reject) => {

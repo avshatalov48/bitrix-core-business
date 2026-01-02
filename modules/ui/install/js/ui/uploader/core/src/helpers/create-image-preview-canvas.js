@@ -8,8 +8,8 @@ const createImagePreviewCanvas = (
 	newWidth: number,
 	newHeight: number,
 ): HTMLCanvasElement | OffscreenCanvas => {
-	let width: number = Math.round(newWidth);
-	let height: number = Math.round(newHeight);
+	const width: number = Math.round(newWidth);
+	const height: number = Math.round(newHeight);
 
 	const isPageContext: boolean = (
 		typeof (window) !== 'undefined'
@@ -38,15 +38,6 @@ const createImagePreviewCanvas = (
 		context.drawImage(imageSource, 0, 0, width, height);
 
 		return canvas;
-	}
-
-	if (imageSource.height > imageSource.width)
-	{
-		width = Math.floor(height * (imageSource.width / imageSource.height));
-	}
-	else
-	{
-		height = Math.floor(width * (imageSource.height / imageSource.width));
 	}
 
 	let currentImageWidth: number = Math.floor(imageSource.width);

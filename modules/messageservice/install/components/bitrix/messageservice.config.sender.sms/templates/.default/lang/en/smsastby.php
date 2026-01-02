@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_ACTION_REGISTRATION"] = "Connect";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CABINET_TITLE"] = "SMS Assistant service is now ready!";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_CONFIRMATION"] = "Are you sure you want to reset settings?";
@@ -16,8 +16,8 @@ $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_UNP"] = "Taxpayer ID";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_1"] = "Send messages directly from lead, deal, client or quote.";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_2"] = "Configure rules to send SMS messages to a client or employee at a specified time or when a specified task is completed.";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_3"] = "Bulk send SMS messages from a list of clients, deals, leads or other CRM entities.";
-$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION"] = "Bitrix24 provides easy and hassle free SMS messaging";
-$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION_ADMIN"] = "Bitrix24 provides easy and hassle free SMS messaging.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION"] = "Bitrix24 provides easy and hassle-free SMS messaging.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION_ADMIN"] = "Bitrix24 provides easy and hassle-free SMS messaging.";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_TITLE"] = "Explore possibilities of SMS marketing";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_ACCOUNT_FRIENDLY_NAME"] = "Account name";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_ACCOUNT_PASSWORD"] = "Password";
@@ -35,4 +35,3 @@ $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_TITLE_ADMIN"] = "Configure SM
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE"] = "SMS notifications";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE_2"] = "This service is brought to you by SMS Assistant";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE_3"] = "Service provided by \"SMS Assitant\" (Belarus)";
-?>

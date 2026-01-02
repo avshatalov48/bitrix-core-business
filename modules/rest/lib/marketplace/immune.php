@@ -3,6 +3,8 @@
 namespace Bitrix\Rest\Marketplace;
 
 use Bitrix\Main\Data\Cache;
+use Bitrix\Main\DB\Exception;
+use Bitrix\Main\SystemException;
 use Bitrix\Rest\Internals\FreeAppTable;
 
 /**
@@ -11,7 +13,7 @@ use Bitrix\Rest\Internals\FreeAppTable;
  */
 class Immune
 {
-	private const CACHE_TTL_TIMEOUT = 120;
+	private const CACHE_TTL_TIMEOUT = 86400;
 	private const CACHE_DIR = '/rest/';
 	private static $immuneAppList;
 
@@ -25,7 +27,7 @@ class Immune
 			static::$immuneAppList = [];
 			$cache = Cache::createInstance();
 
-			if ($cache->initCache(86400, 'immuneAppList', static::CACHE_DIR))
+			if ($cache->initCache(static::CACHE_TTL_TIMEOUT, 'immuneAppList', static::CACHE_DIR))
 			{
 				$result = $cache->getVars();
 				static::$immuneAppList = is_array($result) ? $result : [];
@@ -38,15 +40,6 @@ class Immune
 						->setSelect(['APP_CODE'])
 						->fetchAll();
 
-					if (empty($appList))
-					{
-						$appList = static::getExternal();
-					}
-					else
-					{
-						$appList = array_map(fn($app) => $app['APP_CODE'], $appList);
-					}
-
 					static::$immuneAppList = $appList;
 				}
 				catch (\Exception $exception)
@@ -56,6 +49,8 @@ class Immune
 
 				$cache->endDataCache(is_array(static::$immuneAppList) ? static::$immuneAppList : []);
 			}
+
+			static::$immuneAppList = array_map(fn($app) => $app['APP_CODE'], static::$immuneAppList);
 		}
 
 		return static::$immuneAppList;
@@ -63,33 +58,12 @@ class Immune
 
 	private static function getExternal(): array
 	{
-		$result = [];
+		$immuneAppList = Client::getImmuneApp();
+		FreeAppTable::updateFreeAppTable($immuneAppList);
 		$cache = Cache::createInstance();
+		$cache->clean('immuneAppList', static::CACHE_DIR);
 
-		if ($cache->initCache(static::CACHE_TTL_TIMEOUT, 'immuneLoadsRepeatingTimeout', static::CACHE_DIR))
-		{
-			$result = $cache->getVars();
-		}
-		elseif ($cache->startDataCache())
-		{
-			$res = Client::getImmuneApp();
-
-			if (!empty($res['ITEMS']))
-			{
-				$result = $res['ITEMS'];
-				FreeAppTable::updateFreeAppTable($result);
-				$cache->clean('immuneAppList', static::CACHE_DIR);
-			}
-
-			$cache->endDataCache($result);
-		}
-
-		if (is_array($result))
-		{
-			return $result;
-		}
-
-		return [];
+		return $immuneAppList;
 	}
 
 	/**

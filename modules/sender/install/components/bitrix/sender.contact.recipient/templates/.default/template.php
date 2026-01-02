@@ -2,7 +2,7 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Web\Json;
-use Bitrix\Main\Localization\Loc;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 /** @var CMain $APPLICATION */
 /** @var array $arParams */
@@ -11,6 +11,19 @@ use Bitrix\Main\Localization\Loc;
 foreach ($arResult['ERRORS'] as $error)
 {
 	ShowError($error);
+}
+
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] === 'Y')
+{
+	Toolbar::deleteFavoriteStar();
+	$APPLICATION->IncludeComponent(
+		"bitrix:sender.ui.button.panel",
+		"",
+		[
+			'CLOSE' => ['URL' => $arParams['PATH_TO_LIST']],
+		],
+		false
+	);
 }
 
 foreach ($arResult['ROWS'] as $index => $data)
@@ -48,24 +61,16 @@ foreach ($arResult['ROWS'] as $index => $data)
 	);
 }
 
-ob_start();
-$APPLICATION->IncludeComponent(
-	"bitrix:main.ui.filter",
-	"",
-	array(
+$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", ['LIST' => [
+	['type' => 'filter', 'params' => [
 		"FILTER_ID" => $arParams['FILTER_ID'],
 		"GRID_ID" => $arParams['GRID_ID'],
 		"FILTER" => $arResult['FILTERS'],
 		"FILTER_PRESETS" => $arResult['FILTER_PRESETS'],
 		"DISABLE_SEARCH" => true,
 		"ENABLE_LABEL" => true,
-	)
-);
-$filterLayout = ob_get_clean();
-
-$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' => array(
-	array('type' => 'filter', 'content' => $filterLayout),
-	array('type' => 'buttons', 'list' => [
+	]],
+	['type' => 'buttons', 'list' => [
 		[
 			'type' => 'abuses',
 			'href' => $arParams['PATH_TO_ABUSES'],
@@ -74,9 +79,8 @@ $APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' 
 			'type' => 'settings',
 			'items' => ['import']
 		],
-	]),
-)));
-
+	]],
+]]);
 
 $controlPanel = array('GROUPS' => array(array('ITEMS' => array())));
 
@@ -104,9 +108,6 @@ $APPLICATION->IncludeComponent(
 		"AJAX_OPTION_HISTORY" => "N"
 	)
 );
-
-
-
 ?>
 	<script>
 		BX.ready(function () {

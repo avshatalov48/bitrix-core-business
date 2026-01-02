@@ -1,6 +1,9 @@
-import { Type } from 'main.core';
-import { Dialog, type Item, type ItemId } from 'ui.entity-selector';
-import { EntitySelectorContext } from '../../../integration/entity-selector/dictionary';
+import { BaseEvent } from 'main.core.events';
+import { type ItemId } from 'ui.entity-selector';
+import { mapState } from 'ui.vue3.vuex';
+import { type SelectorService } from '../../../service/selector-service';
+import { ServiceLocator } from '../../../service/service-locator';
+import type { Member } from '../../../store/model/user-groups-model';
 
 export const Selector = {
 	name: 'Selector',
@@ -21,210 +24,53 @@ export const Selector = {
 			const result = [];
 			for (const accessCode of this.userGroup.members.keys())
 			{
-				result.push(this.getItemIdByAccessCode(accessCode));
+				result.push(
+					this.getSelectorService().getItemIdByAccessCode(accessCode),
+				);
 			}
 
 			return result;
 		},
+		...mapState({
+			options: (state) => state.application.options,
+			memberOptions: (state) => state.application.options.additionalMembersParams,
+		}),
 	},
 	mounted()
 	{
-		(new Dialog({
-			enableSearch: true,
-			context: EntitySelectorContext.MEMBER,
-			alwaysShowLabels: true,
-			entities: [
-				{
-					id: 'user',
-					options: {
-						intranetUsersOnly: true,
-						emailUsers: false,
-						inviteEmployeeLink: false,
-						inviteGuestLink: false,
-					},
+		this.getSelectorService()
+			.createDialog({
+				targetNode: this.bindNode,
+				preselectedItems: this.selectedItems,
+				events: {
+					onHide: this.onHide,
 				},
-				{
-					id: 'department',
-					options: {
-						selectMode: 'usersAndDepartments',
-						allowSelectRootDepartment: true,
-						allowFlatDepartments: true,
-					},
-				},
-				{
-					id: 'project',
-					dynamicLoad: true,
-					options: {
-						addProjectMetaUsers: true,
-					},
-					itemOptions: {
-						default: {
-							link: '',
-							linkTitle: '',
-						},
-					},
-				},
-				{
-					id: 'site-groups',
-					dynamicLoad: true,
-					dynamicSearch: true,
-				},
-			],
-			targetNode: this.bindNode,
-			preselectedItems: this.selectedItems,
-			cacheable: false,
-			events: {
-				'Item:onSelect': this.onMemberAdd,
-				'Item:onDeselect': this.onMemberRemove,
-				onHide: () => {
-					this.$emit('close');
-				},
-			},
-		})).show();
+			})
+			.show();
 	},
 	methods: {
-		// eslint-disable-next-line sonarjs/cognitive-complexity
-		getItemIdByAccessCode(accessCode: string): ItemId {
-			if (/^I?U(\d+)$/.test(accessCode))
-			{
-				const match = accessCode.match(/^I?U(\d+)$/) || null;
-				const userId = match ? match[1] : null;
-
-				return ['user', userId];
-			}
-
-			if (/^DR(\d+)$/.test(accessCode))
-			{
-				const match = accessCode.match(/^DR(\d+)$/) || null;
-				const departmentId = match ? match[1] : null;
-
-				return ['department', departmentId];
-			}
-
-			if (/^D(\d+)$/.test(accessCode))
-			{
-				const match = accessCode.match(/^D(\d+)$/) || null;
-				const departmentId = match ? match[1] : null;
-
-				return ['department', `${departmentId}:F`];
-			}
-
-			if (/^G(\d+)$/.test(accessCode))
-			{
-				const match = accessCode.match(/^G(\d+)$/) || null;
-				const groupId = match ? match[1] : null;
-
-				return ['site-groups', groupId];
-			}
-
-			if (/^SG(\d+)_([AEK])$/.test(accessCode))
-			{
-				const match = accessCode.match(/^SG(\d+)_([AEK])$/) || null;
-
-				const projectId = match ? match[1] : null;
-				const postfix = match ? match[2] : null;
-
-				return ['project', `${projectId}:${postfix}`];
-			}
-
-			return ['unknown', accessCode];
-		},
-		onMemberAdd(event: BaseEvent): void {
-			const member = this.getMemberFromEvent(event);
-
-			this.$store.dispatch('userGroups/addMember', {
-				userGroupId: this.userGroup.id,
-				accessCode: member.id,
-				member,
+		onHide(event: BaseEvent): void {
+			const dialog: Dialog = event.getTarget();
+			const members = [];
+			dialog.selectedItems.forEach((item) => {
+				members.push(this.getSelectorService().getMemberByItem(item));
 			});
-		},
-		onMemberRemove(event: BaseEvent): void {
-			const member = this.getMemberFromEvent(event);
 
-			this.$store.dispatch('userGroups/removeMember', {
+			this.$store.dispatch('userGroups/updateMembersForUserGroup', {
 				userGroupId: this.userGroup.id,
-				accessCode: member.id,
+				members,
 			});
+
+			this.$emit('close');
 		},
 		getMemberFromEvent(event: BaseEvent): ?Member {
 			const { item } = event.getData();
 
-			return {
-				id: this.getAccessCodeByItem(item),
-				type: this.getMemberTypeByItem(item),
-				name: item.title.text,
-				avatar: Type.isStringFilled(item.avatar) ? item.avatar : null,
-			};
+			return this.getSelectorService().getMemberByItem(item);
 		},
-		// eslint-disable-next-line sonarjs/cognitive-complexity
-		getAccessCodeByItem(item: Item): string {
-			const entityId = item.entityId;
-
-			if (entityId === 'user')
-			{
-				return `U${item.id}`;
-			}
-
-			if (entityId === 'department')
-			{
-				if (Type.isString(item.id) && item.id.endsWith(':F'))
-				{
-					const match = item.id.match(/^(\d+):F$/);
-					const originalId = match ? match[1] : null;
-
-					// only members of the department itself
-					return `D${originalId}`;
-				}
-
-				// whole department recursively
-				return `DR${item.id}`;
-			}
-
-			if (entityId === 'site-groups')
-			{
-				return `G${item.id}`;
-			}
-
-			if (entityId === 'project')
-			{
-				const subType = item.customData.get('metauser');
-				const originalId = item.customData.get('projectId');
-				if (subType === 'owner')
-				{
-					return `SG${originalId}_A`;
-				}
-
-				if (subType === 'moderator')
-				{
-					return `SG${originalId}_E`;
-				}
-
-				if (subType === 'all')
-				{
-					return `SG${originalId}_K`;
-				}
-			}
-
-			return '';
-		},
-		getMemberTypeByItem(item: Item): string {
-			switch (item.entityId)
-			{
-				case 'user':
-					return 'users';
-				case 'intranet':
-				case 'department':
-					return 'departments';
-				case 'socnetgroup':
-				case 'project':
-					return 'sonetgroups';
-				case 'group':
-					return 'groups';
-				case 'site-groups':
-					return 'usergroups';
-				default:
-					return '';
-			}
+		getSelectorService(): SelectorService
+		{
+			return ServiceLocator.getSelectorService(this.memberOptions);
 		},
 	},
 	// just a template stub

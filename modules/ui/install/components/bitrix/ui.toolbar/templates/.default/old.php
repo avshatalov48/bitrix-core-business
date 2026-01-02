@@ -20,6 +20,11 @@ Loc::loadMessages($_SERVER['DOCUMENT_ROOT'] . $this->getFolder() . '/template.ph
 
 $this->setFrameMode(true);
 
+if (!Toolbar::isEnabled())
+{
+	return;
+}
+
 $favoriteTitleTemplate = (!empty($arParams['~FAVORITES_TITLE_TEMPLATE']) ? $arParams['~FAVORITES_TITLE_TEMPLATE'] : '');
 if (mb_strlen($favoriteTitleTemplate) <= 0)
 {
@@ -51,6 +56,7 @@ $favoriteStar = Toolbar::hasFavoriteStar()? '<span class="ui-toolbar-star" id="u
 		<?=$APPLICATION->getViewContent("inside_pagetitle")?>
 	</div>
 </div>
+<script>console.error('UI Toolbar: do not use an old toolbar.')</script>
 <script>
 	BX.message({
 		UI_TOOLBAR_ADD_PAGE_TO_LEFT_MENU: '<?= GetMessageJS('UI_TOOLBAR_ADD_PAGE_TO_LEFT_MENU') ?>',

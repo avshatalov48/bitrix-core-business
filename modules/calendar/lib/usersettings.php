@@ -251,136 +251,6 @@ class UserSettings
 		\CUserOptions::setOption("calendar", "superpose_tracking_users", serialize($value), false, $userId);
 	}
 
-	public static function getTrackingGroups($userId = false, $params = [])
-	{
-		$res = [];
-
-		if (!Loader::includeModule('socialnetwork'))
-		{
-			return $res;
-		}
-
-		$isProjectFeatureEnabled = \Bitrix\Socialnetwork\Helper\Feature::isFeatureEnabled(\Bitrix\Socialnetwork\Helper\Feature::PROJECTS_GROUPS)
-			|| \Bitrix\Socialnetwork\Helper\Feature::canTurnOnTrial(\Bitrix\Socialnetwork\Helper\Feature::PROJECTS_GROUPS)
-		;
-
-		if (!$isProjectFeatureEnabled)
-		{
-			return $res;
-		}
-
-		$str = \CUserOptions::getOption("calendar", "superpose_tracking_groups", false, $userId);
-
-		if ($str !== false && CheckSerializedData($str))
-		{
-			$ids = unserialize($str, ['allowed_classes' => false]);
-			if (is_array($ids))
-			{
-				foreach($ids as $id)
-				{
-					if ((int)$id > 0)
-					{
-						$res[] = (int)$id;
-					}
-				}
-			}
-		}
-
-		if ($params && isset($params['groupList']))
-		{
-			$params['groupList'] = array_unique($params['groupList']);
-			$diff = array_diff($params['groupList'], $res);
-			if (count($diff) > 0)
-			{
-				$res = array_merge($res, $diff);
-				self::setTrackingGroups($userId, $res);
-			}
-		}
-
-		return $res;
-	}
-
-	public static function setTrackingGroups($userId = false, $value = [])
-	{
-		if (!$userId)
-		{
-			$userId = \CCalendar::getUserId();
-		}
-
-		if (!is_array($value))
-		{
-			$value = [];
-		}
-
-		\CUserOptions::setOption("calendar", "superpose_tracking_groups", serialize($value), false, $userId);
-	}
-
-	public static function getTrackingCollabs($userId = false, $params = []): array
-	{
-		$res = [];
-
-		if (!Loader::includeModule('socialnetwork'))
-		{
-			return $res;
-		}
-
-		$str = \CUserOptions::getOption(
-			'calendar',
-			'superpose_tracking_collabs',
-			false,
-			$userId
-		);
-
-		if ($str !== false && CheckSerializedData($str))
-		{
-			$ids = unserialize($str, ['allowed_classes' => false]);
-			if (is_array($ids))
-			{
-				foreach($ids as $id)
-				{
-					if ((int)$id > 0)
-					{
-						$res[] = (int)$id;
-					}
-				}
-			}
-		}
-
-		if ($params && isset($params['collabList']))
-		{
-			$params['collabList'] = array_unique($params['collabList']);
-			$diff = array_diff($params['collabList'], $res);
-			if (count($diff) > 0)
-			{
-				$res = array_merge($res, $diff);
-				self::setTrackingCollabs($userId, $res);
-			}
-		}
-
-		return $res;
-	}
-
-	public static function setTrackingCollabs($userId = false, $value = []): void
-	{
-		if (!$userId)
-		{
-			$userId = \CCalendar::getUserId();
-		}
-
-		if (!is_array($value))
-		{
-			$value = [];
-		}
-
-		\CUserOptions::setOption(
-			'calendar',
-			'superpose_tracking_collabs',
-			serialize($value),
-			false,
-			$userId
-		);
-	}
-
 	public static function getHiddenSections($userId = false, $options = []): array
 	{
 		$res = [];
@@ -410,9 +280,9 @@ class UserSettings
 		return is_array($res) ? $res : [];
 	}
 
-	public static function saveHiddenSections(int $userId, array $sections)
+	public static function saveHiddenSections(int $userId, array $sections, string $optionName = 'hidden_sections')
 	{
-		\CUserOptions::SetOption('calendar', 'hidden_sections', $sections, false, $userId);
+		\CUserOptions::SetOption('calendar', $optionName, $sections, false, $userId);
 	}
 
 	public static function getSectionCustomization($userId = false)

@@ -17,7 +17,7 @@ const EntityToEventMap = {
 
 export class CollabEntities
 {
-	onClick(dialogId: string, type: $Values<typeof CollabEntityType>)
+	onClick(dialogId: string, type: $Values<typeof CollabEntityType>): void
 	{
 		const event = EntityToEventMap[type];
 		if (!event)

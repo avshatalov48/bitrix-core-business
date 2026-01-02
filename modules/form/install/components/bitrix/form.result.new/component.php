@@ -342,7 +342,7 @@ if (CModule::IncludeModule("form"))
 							LocalRedirect(
 								$APPLICATION->GetCurPageParam(
 									"formresult=" . urlencode($arResult["FORM_RESULT"]),
-									['formresult', 'strFormNote', 'SEF_APPLICATION_CUR_PAGE_URL']
+									['formresult', 'strFormNote']
 								)
 							);
 						}

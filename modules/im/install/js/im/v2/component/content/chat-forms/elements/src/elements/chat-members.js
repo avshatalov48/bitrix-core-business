@@ -1,13 +1,12 @@
-import { BaseEvent } from 'main.core.events';
-import {
-	TagSelector,
-	type Dialog as SelectorDialog,
-	type Item as SelectorItem,
-	type EntityOptions,
-} from 'ui.entity-selector';
-
 import { Core } from 'im.v2.application.core';
 import { Feature, FeatureManager } from 'im.v2.lib.feature';
+import { BaseEvent } from 'main.core.events';
+import {
+	type Dialog as SelectorDialog,
+	type EntityOptions,
+	type Item as SelectorItem,
+	TagSelector,
+} from 'ui.entity-selector';
 
 import './css/chat-members.css';
 
@@ -22,6 +21,16 @@ export const ChatMembersSelector = {
 		customElements: {
 			type: Array,
 			default: () => [],
+		},
+		undeselectedItems: {
+			type: Array,
+			default(): [[string, number | string]] {
+				return [['user', Core.getUserId()]];
+			},
+		},
+		allowTeamsSelect: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	emits: ['membersChange'],
@@ -42,7 +51,7 @@ export const ChatMembersSelector = {
 				context: 'IM_CHAT_CREATE',
 				entities: this.getEntitiesConfig(),
 				preselectedItems: this.chatMembers,
-				undeselectedItems: [['user', Core.getUserId()]],
+				undeselectedItems: this.undeselectedItems,
 				events: {
 					'Item:onSelect': this.onItemsChange,
 					'Item:onDeselect': this.onItemsChange,
@@ -60,23 +69,53 @@ export const ChatMembersSelector = {
 		{
 			const entitiesConfig = [{ id: 'user' }];
 			const allowDepartments = FeatureManager.isFeatureAvailable(Feature.chatDepartments);
+			entitiesConfig.push(this.getDepartmentEntityConfig(allowDepartments));
+
+			if (this.allowTeamsSelect && FeatureManager.isFeatureAvailable(Feature.teamsInStructureAvailable))
+			{
+				entitiesConfig.push(this.getEntityTeamsConfig(allowDepartments));
+			}
+
+			return entitiesConfig;
+		},
+		getDepartmentEntityConfig(allowDepartments: boolean): EntityOptions
+		{
 			if (allowDepartments)
 			{
-				entitiesConfig.push({
+				return {
 					id: 'department',
 					options: {
 						selectMode: 'usersAndDepartments',
 						allowFlatDepartments: true,
 						allowSelectRootDepartment: true,
 					},
-				});
-			}
-			else
-			{
-				entitiesConfig.push({ id: 'department' });
+				};
 			}
 
-			return entitiesConfig;
+			return { id: 'department' };
+		},
+		getEntityTeamsConfig(allowDepartments: boolean): EntityOptions
+		{
+			const baseOptionsConfig = {
+				includedNodeEntityTypes: ['team'],
+				useMultipleTabs: true,
+				visual: {
+					avatarMode: 'node',
+					tagStyle: 'none',
+				},
+			};
+
+			const departmentOptionsConfig = {
+				...baseOptionsConfig,
+				selectMode: 'usersAndDepartments',
+				allowFlatDepartments: true,
+				allowSelectRootDepartment: true,
+			};
+
+			return {
+				id: 'structure-node',
+				options: allowDepartments ? departmentOptionsConfig : baseOptionsConfig,
+			};
 		},
 		onItemsChange(event: BaseEvent)
 		{

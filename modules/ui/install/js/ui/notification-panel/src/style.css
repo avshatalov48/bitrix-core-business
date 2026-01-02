@@ -9,6 +9,7 @@
 	margin: auto;
 	border-radius: 0 0 18px 18px;
 	padding: 24px 16px 12px;
+	max-width: 90%;
 }
 
 .ui-notification-panel__show {
@@ -64,7 +65,47 @@
 	--ui-icon-set__icon-color: var(--ui-color-palette-gray-90);
 }
 
+.ui-notification-panel-blue.ui-notification-panel__container {
+	background: rgba(42, 152, 215, 1) !important;
+}
+
+.ui-notification-panel-red.ui-notification-panel__container {
+	background: rgba(194, 27, 22, 1) !important;
+}
+
+.ui-notification-panel-blue .ui-notification-panel__text,
+.ui-notification-panel-red .ui-notification-panel__text {
+	color: #ffffff;
+}
+
+.ui-notification-panel-blue .ui-notification-panel__close-button,
+.ui-notification-panel-red .ui-notification-panel__close-button {
+	--ui-icon-set__icon-color: #ffffff;
+	opacity: 0.5;
+}
+
+.ui-notification-panel-blue .ui-btn-light-border:hover,
+.ui-notification-panel-red .ui-btn-light-border:hover,
+.ui-notification-panel-blue .ui-btn-light-border:focus,
+.ui-notification-panel-red .ui-btn-light-border:focus{
+	background-color: rgba(255, 255, 255, 0.3);
+}
+
+.ui-notification-panel-blue .ui-btn-light-border:active,
+.ui-notification-panel-red .ui-btn-light-border:active {
+	background-color: rgba(255, 255, 255, 0.4);
+}
+
+.ui-notification-panel-blue .ui-btn-light-border:visited,
+.ui-notification-panel-red .ui-btn-light-border:visited {
+	background-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.ui-notification-panel-blue .ui-notification-panel-text-padding,
+.ui-notification-panel-red .ui-notification-panel-text-padding {
+	padding-right: 45px;
+}
+
 .ui-notification-panel__close-button:hover {
 	opacity: 1;
 }
-

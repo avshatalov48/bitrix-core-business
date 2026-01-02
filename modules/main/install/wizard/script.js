@@ -73,14 +73,14 @@ function strip_tags(str)
 }
 
 
-function CAjaxForm(formName, target, hiddenField)
+function CAjaxForm(formName, target, hiddenFields)
 {
 	var form = document.forms[formName];
 	if (!form)
 		 form = document.getElementById(formName);
 
-	this.nextStep = form.elements[hiddenField];
-	this.nextStepStage = form.elements[hiddenField+"Stage"];
+	this.hiddenFields = hiddenFields;
+
 	this.iframe = document.getElementById(target);
 	this.form = form;
 	this.form.target = target;
@@ -160,15 +160,15 @@ CAjaxForm.prototype.ShowError = function(errorMessage)
 	var skipButton = document.getElementById("error_skip_button");
 
 	var _this = this;
-	var nextStep = this.nextStep.value;
-	var nextStepStage = this.nextStepStage.value;
 
-	retryButton.onclick = function() {_this.HideError(); _this.Post(nextStep, nextStepStage,'');};
+	var nextStep = this.form.elements[this.hiddenFields.nextStep].value;
+
+	retryButton.onclick = function() {_this.HideError(); _this.Post({}, '');};
 
 	if (nextStep == "main")
-		skipButton.onclick = function() {_this.HideError(); _this.Post(nextStep, nextStepStage,'');};
+		skipButton.onclick = function() {_this.HideError(); _this.Post({}, '');};
 	else
-		skipButton.onclick = function() {_this.HideError(); _this.Post(nextStep, 'skip','');};
+		skipButton.onclick = function() {_this.HideError(); _this.Post({'nextStepStage': 'skip'}, '');};
 }
 
 CAjaxForm.prototype.HideError = function()
@@ -188,13 +188,18 @@ CAjaxForm.prototype.HideError = function()
 		waitWindow.style.display = "block";
 }
 
-CAjaxForm.prototype.Post = function(nextStep, nextStepStage, status)
+CAjaxForm.prototype.Post = function(vars, status)
 {
-	if (nextStep)
-		this.nextStep.value = nextStep;
-
-	if (nextStepStage)
-		this.nextStepStage.value = nextStepStage;
+	for (let key in vars)
+	{
+		if (vars.hasOwnProperty(key))
+		{
+			if (this.form.elements[this.hiddenFields[key]])
+			{
+				this.form.elements[this.hiddenFields[key]].value = vars[key];
+			}
+		}
+	}
 
 	this.form.submit();
 
@@ -221,9 +226,12 @@ CAjaxForm.prototype.SetStatus = function(percent, status)
 	if (!this.indicator)
 		this.indicator = document.getElementById("indicator");
 
-	if (!this.status)
-		this.status = document.getElementById("status");
-	this.status.innerHTML = status;
+	if (status)
+	{
+		if (!this.status)
+			this.status = document.getElementById("status");
+		this.status.innerHTML = status;
+	}
 
 	if (this.percent)
 		this.percent.innerHTML = percent + "%";
@@ -252,3 +260,39 @@ function PreloadImages()
 	}
 }
 
+function SubmitForm(formId, action, fields)
+{
+	let form = document.getElementById(formId);
+	if (!form)
+	{
+		form = document.createElement('form');
+		form.setAttribute('id', formId);
+		form.setAttribute('method', 'post');
+		form.setAttribute('action', action);
+		form.setAttribute('target', '_blank');
+
+		for (let name in fields)
+		{
+			if (fields.hasOwnProperty(name))
+			{
+				let i = document.createElement('input');
+				i.setAttribute('type', 'hidden');
+				i.setAttribute('name', name);
+
+				form.appendChild(i);
+			}
+		}
+
+		document.getElementsByTagName('body')[0].appendChild(form);
+	}
+
+	for (let name in fields)
+	{
+		if (fields.hasOwnProperty(name))
+		{
+			form.elements[name].value = fields[name];
+		}
+	}
+
+	form.submit();
+}

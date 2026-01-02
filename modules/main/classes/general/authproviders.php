@@ -1,13 +1,15 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\UserGroupTable;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -79,59 +81,22 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		$DB->Query($sql);
 	}
 
-	public static function OnBeforeGroupUpdate($ID, $arFields)
-	{
-		if(array_key_exists("ACTIVE", $arFields) || array_key_exists("USER_ID", $arFields))
-		{
-			self::RecalculateForGroup($ID);
-		}
-		return true;
-	}
-
-	public static function OnAfterGroupAdd($arFields)
-	{
-		if(is_array($arFields["USER_ID"]) && !empty($arFields["USER_ID"]))
-		{
-			self::RecalculateForGroup($arFields["ID"]);
-		}
-	}
-
-	public static function OnBeforeGroupDelete($ID)
-	{
-		self::RecalculateForGroup($ID);
-		return true;
-	}
-
 	public static function OnAfterSetUserGroup($USER_ID, $groups)
 	{
 		$dates = [];
 		foreach ($groups as $group)
 		{
-			if ($group['DATE_ACTIVE_FROM'] == '' && $group['DATE_ACTIVE_TO'] == '')
+			if ($group['DATE_ACTIVE_FROM'] !== null)
 			{
-				if (!isset($dates['']))
-				{
-					$dates[''] = null;
-				}
+				$dates[(string)$group['DATE_ACTIVE_FROM']] = $group['DATE_ACTIVE_FROM'];
 			}
-			else
+			if ($group['DATE_ACTIVE_TO'] !== null)
 			{
-				if ($group['DATE_ACTIVE_FROM'] != '')
-				{
-					if (!isset($dates['DATE_ACTIVE_FROM']))
-					{
-						$dates[$group['DATE_ACTIVE_FROM']] = DateTime::createFromUserTime($group['DATE_ACTIVE_FROM']);
-					}
-				}
-				if ($group['DATE_ACTIVE_TO'] != '')
-				{
-					if (!isset($dates['DATE_ACTIVE_TO']))
-					{
-						$dates[$group['DATE_ACTIVE_TO']] = DateTime::createFromUserTime($group['DATE_ACTIVE_TO']);
-					}
-				}
+				$dates[(string)$group['DATE_ACTIVE_TO']] = $group['DATE_ACTIVE_TO'];
 			}
 		}
+
+		CAccess::RecalculateForUser($USER_ID, self::ID);
 
 		foreach ($dates as $date)
 		{
@@ -139,32 +104,28 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		}
 	}
 
-	protected static function RecalculateForGroup($ID)
+	public static function RecalculateForGroup($ID, $checkTime = true)
 	{
-		global $DB;
+		$users = UserGroupTable::getList([
+			'filter' => ['=GROUP_ID' => $ID],
+			'cache' => ['ttl' => 3600],
+		]);
 
-		$helper = Application::getConnection()->getSqlHelper();
-
-		$groups = $DB->Query("
-			select USER_ID, DATE_ACTIVE_FROM, DATE_ACTIVE_TO
-			from b_user_group 
-			where GROUP_ID = " . intval($ID)
-		);
-		while ($group = $groups->Fetch())
+		while ($user = $users->fetch())
 		{
-			if ($group['DATE_ACTIVE_FROM'] == '' && $group['DATE_ACTIVE_TO'] == '')
+			if (($user['DATE_ACTIVE_FROM'] == '' && $user['DATE_ACTIVE_TO'] == '') || !$checkTime)
 			{
-				CAccess::RecalculateForUser($group["USER_ID"], self::ID);
+				CAccess::RecalculateForUser($user["USER_ID"], self::ID);
 			}
 			else
 			{
-				if ($group['DATE_ACTIVE_FROM'] != '')
+				if ($user['DATE_ACTIVE_FROM'] != '')
 				{
-					CAccess::RecalculateForUser($group["USER_ID"], self::ID, $helper->convertFromDbDateTime($group['DATE_ACTIVE_FROM']));
+					CAccess::RecalculateForUser($user["USER_ID"], self::ID, $user['DATE_ACTIVE_FROM']);
 				}
-				if ($group['DATE_ACTIVE_TO'] != '')
+				if ($user['DATE_ACTIVE_TO'] != '')
 				{
-					CAccess::RecalculateForUser($group["USER_ID"], self::ID, $helper->convertFromDbDateTime($group['DATE_ACTIVE_TO']));
+					CAccess::RecalculateForUser($user["USER_ID"], self::ID, $user['DATE_ACTIVE_TO']);
 				}
 			}
 		}

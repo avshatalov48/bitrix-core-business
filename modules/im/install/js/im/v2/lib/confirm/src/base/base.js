@@ -18,6 +18,10 @@ export const showTwoButtonConfirm = (params: ConfirmParams): Promise<boolean> =>
 			message: text,
 			modal: true,
 			buttons: MessageBoxButtons.YES_CANCEL,
+			popupOptions:
+			{
+				closeByEsc: true,
+			},
 			onYes: (messageBox: ChatConfirm) => {
 				resolve(true);
 				messageBox.close();

@@ -243,7 +243,7 @@ if ($arResult["MODE"] == "AJAX")
 	}
 }
 
-if (SITE_TEMPLATE_ID === 'bitrix24')
+if (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 {
 	$arResult["EnableFulltextSearch"] = \Bitrix\Socialnetwork\LogIndexTable::getEntity()->fullTextIndexEnabled("CONTENT");
 
@@ -253,4 +253,3 @@ if (SITE_TEMPLATE_ID === 'bitrix24')
 
 $arResult["VIDEO_TRANSFORM_POST_URL"] = CUserOptions::getOption("socialnetwork", "~log_videotransform_post_url", "#");
 $arResult["VIDEO_TRANSFORM_POST_ID"] = CUserOptions::getOption("socialnetwork", "~log_videotransform_post_id", 0);
-?>

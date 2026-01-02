@@ -1,0 +1,219 @@
+.ui-icon-set,
+.ui-icon-set__scope {
+	--so-ui-icon-set__path_audio-to-script: url('/bitrix/js/ui/icon-set/small-outline/images/audio-to-script.svg');
+	--so-ui-icon-set__path_check: url('/bitrix/js/ui/icon-set/small-outline/images/check.svg');
+	--so-ui-icon-set__path_circle-check: url('/bitrix/js/ui/icon-set/small-outline/images/circle-check.svg');
+	--so-ui-icon-set__path_clock: url('/bitrix/js/ui/icon-set/small-outline/images/clock.svg');
+	--so-ui-icon-set__path_cloud-time: url('/bitrix/js/ui/icon-set/small-outline/images/cloud-time.svg');
+	--so-ui-icon-set__path_cross: url('/bitrix/js/ui/icon-set/small-outline/images/cross.svg');
+	--so-ui-icon-set__path_digits-24: url('/bitrix/js/ui/icon-set/small-outline/images/digits-24.svg');
+	--so-ui-icon-set__path_double-check: url('/bitrix/js/ui/icon-set/small-outline/images/double-check.svg');
+	--so-ui-icon-set__path_earth: url('/bitrix/js/ui/icon-set/small-outline/images/earth.svg');
+	--so-ui-icon-set__path_facebook: url('/bitrix/js/ui/icon-set/small-outline/images/facebook.svg');
+	--so-ui-icon-set__path_gift: url('/bitrix/js/ui/icon-set/small-outline/images/gift.svg');
+	--so-ui-icon-set__path_globe-extranet: url('/bitrix/js/ui/icon-set/small-outline/images/globe-extranet.svg');
+	--so-ui-icon-set__path_groupme: url('/bitrix/js/ui/icon-set/small-outline/images/groupme.svg');
+	--so-ui-icon-set__path_instagram: url('/bitrix/js/ui/icon-set/small-outline/images/instagram.svg');
+	--so-ui-icon-set__path_kik: url('/bitrix/js/ui/icon-set/small-outline/images/kik.svg');
+	--so-ui-icon-set__path_mail: url('/bitrix/js/ui/icon-set/small-outline/images/mail.svg');
+	--so-ui-icon-set__path_mention: url('/bitrix/js/ui/icon-set/small-outline/images/mention.svg');
+	--so-ui-icon-set__path_message-2: url('/bitrix/js/ui/icon-set/small-outline/images/message-2.svg');
+	--so-ui-icon-set__path_message: url('/bitrix/js/ui/icon-set/small-outline/images/message.svg');
+	--so-ui-icon-set__path_messenger-meta: url('/bitrix/js/ui/icon-set/small-outline/images/messenger-meta.svg');
+	--so-ui-icon-set__path_notification-off: url('/bitrix/js/ui/icon-set/small-outline/images/notification-off.svg');
+	--so-ui-icon-set__path_notification: url('/bitrix/js/ui/icon-set/small-outline/images/notification.svg');
+	--so-ui-icon-set__path_open-channels: url('/bitrix/js/ui/icon-set/small-outline/images/open-channels.svg');
+	--so-ui-icon-set__path_person: url('/bitrix/js/ui/icon-set/small-outline/images/person.svg');
+	--so-ui-icon-set__path_pin: url('/bitrix/js/ui/icon-set/small-outline/images/pin.svg');
+	--so-ui-icon-set__path_robot: url('/bitrix/js/ui/icon-set/small-outline/images/robot.svg');
+	--so-ui-icon-set__path_skype: url('/bitrix/js/ui/icon-set/small-outline/images/skype.svg');
+	--so-ui-icon-set__path_slack: url('/bitrix/js/ui/icon-set/small-outline/images/slack.svg');
+	--so-ui-icon-set__path_small-crown: url('/bitrix/js/ui/icon-set/small-outline/images/small-crown.svg');
+	--so-ui-icon-set__path_small-heart: url('/bitrix/js/ui/icon-set/small-outline/images/small-heart.svg');
+	--so-ui-icon-set__path_small-phone-up: url('/bitrix/js/ui/icon-set/small-outline/images/small-phone-up.svg');
+	--so-ui-icon-set__path_sound-off: url('/bitrix/js/ui/icon-set/small-outline/images/sound-off.svg');
+	--so-ui-icon-set__path_stop: url('/bitrix/js/ui/icon-set/small-outline/images/stop.svg');
+	--so-ui-icon-set__path_telegram: url('/bitrix/js/ui/icon-set/small-outline/images/telegram.svg');
+	--so-ui-icon-set__path_timer-dot: url('/bitrix/js/ui/icon-set/small-outline/images/timer-dot.svg');
+	--so-ui-icon-set__path_transcription: url('/bitrix/js/ui/icon-set/small-outline/images/transcription.svg');
+	--so-ui-icon-set__path_twillio: url('/bitrix/js/ui/icon-set/small-outline/images/twillio.svg');
+	--so-ui-icon-set__path_undo: url('/bitrix/js/ui/icon-set/small-outline/images/undo.svg');
+	--so-ui-icon-set__path_unpin: url('/bitrix/js/ui/icon-set/small-outline/images/unpin.svg');
+	--so-ui-icon-set__path_vacation: url('/bitrix/js/ui/icon-set/small-outline/images/vacation.svg');
+	--so-ui-icon-set__path_viber: url('/bitrix/js/ui/icon-set/small-outline/images/viber.svg');
+	--so-ui-icon-set__path_vk: url('/bitrix/js/ui/icon-set/small-outline/images/vk.svg');
+	--so-ui-icon-set__path_window-screen: url('/bitrix/js/ui/icon-set/small-outline/images/window-screen.svg');
+}
+
+.ui-icon-set.--so-audio-to-script {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_audio-to-script);
+}
+
+.ui-icon-set.--so-check {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_check);
+}
+
+.ui-icon-set.--so-circle-check {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_circle-check);
+}
+
+.ui-icon-set.--so-clock {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_clock);
+}
+
+.ui-icon-set.--so-cloud-time {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_cloud-time);
+}
+
+.ui-icon-set.--so-cross {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_cross);
+}
+
+.ui-icon-set.--so-digits-24 {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_digits-24);
+}
+
+.ui-icon-set.--so-double-check {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_double-check);
+}
+
+.ui-icon-set.--so-earth {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_earth);
+}
+
+.ui-icon-set.--so-facebook {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_facebook);
+}
+
+.ui-icon-set.--so-gift {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_gift);
+}
+
+.ui-icon-set.--so-globe-extranet {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_globe-extranet);
+}
+
+.ui-icon-set.--so-groupme {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_groupme);
+}
+
+.ui-icon-set.--so-instagram {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_instagram);
+}
+
+.ui-icon-set.--so-kik {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_kik);
+}
+
+.ui-icon-set.--so-mail {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_mail);
+}
+
+.ui-icon-set.--so-mention {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_mention);
+}
+
+.ui-icon-set.--so-message-2 {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_message-2);
+}
+
+.ui-icon-set.--so-message {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_message);
+}
+
+.ui-icon-set.--so-messenger-meta {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_messenger-meta);
+}
+
+.ui-icon-set.--so-notification-off {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_notification-off);
+}
+
+.ui-icon-set.--so-notification {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_notification);
+}
+
+.ui-icon-set.--so-open-channels {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_open-channels);
+}
+
+.ui-icon-set.--so-person {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_person);
+}
+
+.ui-icon-set.--so-pin {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_pin);
+}
+
+.ui-icon-set.--so-robot {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_robot);
+}
+
+.ui-icon-set.--so-skype {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_skype);
+}
+
+.ui-icon-set.--so-slack {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_slack);
+}
+
+.ui-icon-set.--so-small-crown {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_small-crown);
+}
+
+.ui-icon-set.--so-small-heart {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_small-heart);
+}
+
+.ui-icon-set.--so-small-phone-up {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_small-phone-up);
+}
+
+.ui-icon-set.--so-sound-off {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_sound-off);
+}
+
+.ui-icon-set.--so-stop {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_stop);
+}
+
+.ui-icon-set.--so-telegram {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_telegram);
+}
+
+.ui-icon-set.--so-timer-dot {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_timer-dot);
+}
+
+.ui-icon-set.--so-transcription {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_transcription);
+}
+
+.ui-icon-set.--so-twillio {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_twillio);
+}
+
+.ui-icon-set.--so-undo {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_undo);
+}
+
+.ui-icon-set.--so-unpin {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_unpin);
+}
+
+.ui-icon-set.--so-vacation {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_vacation);
+}
+
+.ui-icon-set.--so-viber {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_viber);
+}
+
+.ui-icon-set.--so-vk {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_vk);
+}
+
+.ui-icon-set.--so-window-screen {
+	--ui-icon-set__icon-path: var(--so-ui-icon-set__path_window-screen);
+}
+

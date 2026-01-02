@@ -15,6 +15,7 @@ class Theme
 	const LIGHT = "LIGHT";
 	const MUTED = "MUTED";
 	const SPACES = "SPACES";
+	const AIR = "AIR";
 
 	/**
 	 * Gets themes list

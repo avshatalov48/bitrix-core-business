@@ -1,4 +1,11 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Localization\Loc;
 
 if($arParams["IBLOCK_TYPE_ID"] == COption::GetOptionString("lists", "livefeed_iblock_type_id"))
 {
@@ -16,22 +23,16 @@ $link = str_replace(
 	$arResult["FOLDER"].$arResult["URL_TEMPLATES"]["bizproc_workflow_admin"]
 );
 CJSCore::Init(array('lists'));
-$isBitrix24Template = (SITE_TEMPLATE_ID == "bitrix24");
-if($isBitrix24Template)
-{
-	$this->SetViewTarget("pagetitle", 100);
-}
-?>
-	<div class="pagetitle-container pagetitle-align-right-container">
-		<a href="<?= htmlspecialcharsbx($link) ?>" class="ui-btn ui-btn-sm ui-btn-link ui-btn-themes lists-list-back">
-			<?=GetMessage("CT_BL_LIST_PROCESSES")?>
-		</a>
-	</div>
-<?
-if($isBitrix24Template)
-{
-	$this->EndViewTarget();
-}
+
+$returnButton = new Bitrix\UI\Buttons\Button([
+	'text' => Loc::getMessage('CT_BL_LIST_PROCESSES'),
+	'color' => Bitrix\UI\Buttons\Color::LINK,
+	'link' => $link,
+	'icon' => Bitrix\UI\Buttons\Icon::BACK,
+]);
+$returnButton->setSize(Bitrix\UI\Buttons\Size::SMALL);
+Bitrix\UI\Toolbar\Facade\Toolbar::addButton($returnButton);
+
 $APPLICATION->IncludeComponent("bitrix:bizproc.workflow.setvar", ".default", array(
 	"MODULE_ID" => $moduleId,
 	"ENTITY" => $entity,
@@ -53,4 +54,3 @@ $APPLICATION->IncludeComponent("bitrix:bizproc.workflow.setvar", ".default", arr
 	$component,
 	array("HIDE_ICONS" => "Y")
 );
-?>

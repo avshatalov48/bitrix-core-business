@@ -36,7 +36,9 @@ export class ConfirmedEmailDialog extends EventEmitter
 			zIndex: this.Z_INDEX,
 			offsetLeft: 0,
 			offsetTop: 0,
-			draggable: true,
+			draggable: {
+				restrict: true,
+			},
 			bindOnResize: false,
 			titleBar: Loc.getMessage('EC_CONFIRMED_EMAIL_TITLE'),
 			closeIcon: { right : "12px", top : "10px"},

@@ -87,7 +87,7 @@ export class SaveBlock extends Content
 			const items = [];
 			const { blocks } = Env.getInstance().getOptions();
 			Object.keys(blocks).map(key => {
-				if (key !== 'last' && key !== 'separator_apps' && key.indexOf('.') === -1)
+				if (key !== 'last' && key !== 'favourite' && key !== 'separator_apps' && key.indexOf('.') === -1)
 				{
 					items.push({value: key, name: blocks[key].name});
 				}

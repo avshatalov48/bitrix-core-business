@@ -8,7 +8,6 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Seo\BusinessSuite\AuthAdapter\IAuthSettings;
 use Bitrix\Seo\Retargeting;
-use Bitrix\Seo\BusinessSuite;
 use Bitrix\Seo\BusinessSuite\Configuration\Facebook;
 use InvalidArgumentException;
 
@@ -25,11 +24,13 @@ final class BusinessAuthAdapter extends Retargeting\AuthAdapter
 
 	public function getAuthUrl()
 	{
+		$serviceUrl = (new Retargeting\ProxyRequest())->getServiceUrl(Seo\Service::SERVICE_URL);
+
 		if (!Seo\Service::isRegistered())
 		{
 			try
 			{
-				Seo\Service::register();
+				Seo\Service::register($serviceUrl);
 			}
 			catch (SystemException $e)
 			{
@@ -37,7 +38,8 @@ final class BusinessAuthAdapter extends Retargeting\AuthAdapter
 			}
 		}
 
-		$authorizeUrl = Seo\Service::getAuthorizeLink();
+		$authorizeUrl = (new Retargeting\ProxyRequest())->getServiceUrl(Seo\Service::getAuthorizeLink());
+
 		$authorizeData = Seo\Service::getAuthorizeData(
 			$this->getEngineCode(),
 			$this->canUseMultipleClients() ? Seo\Service::CLIENT_TYPE_MULTIPLE : Seo\Service::CLIENT_TYPE_SINGLE

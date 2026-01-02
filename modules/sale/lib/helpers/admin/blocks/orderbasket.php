@@ -605,8 +605,10 @@ class OrderBasket
 
 			foreach($productsParams["ITEMS"] as $params)
 			{
-				if($params['MODULE'] != 'catalog')
+				if (($params['MODULE'] ?? '') !== 'catalog')
+				{
 					continue;
+				}
 
 				$productIds[] = $params['PRODUCT_ID'];
 
@@ -657,8 +659,10 @@ class OrderBasket
 
 			foreach($productsParams["ITEMS"] as &$params)
 			{
-				if($params['MODULE'] != 'catalog')
+				if (($params['MODULE'] ?? '') !== 'catalog')
+				{
 					continue;
+				}
 
 				if (!isset(self::$productsOffersSkuParams[$params["PRODUCT_ID"]]))
 				{
@@ -699,8 +703,10 @@ class OrderBasket
 
 			foreach($productsParams["ITEMS"] as &$params)
 			{
-				if($params['MODULE'] != 'catalog')
+				if (($params['MODULE'] ?? '') !== 'catalog')
+				{
 					continue;
+				}
 
 				$possibleSku = array();
 
@@ -769,8 +775,10 @@ class OrderBasket
 				{
 					foreach($productsParams["ITEMS"] as $key => $params)
 					{
-						if($params['MODULE'] != 'catalog')
+						if (($params['MODULE'] ?? '') !== 'catalog')
+						{
 							continue;
+						}
 
 						$productsParams["ITEMS"][$key]["SKU_PROPS_POSSIBLE_VALUES"] = $possibleSkuProps[$params['OFFER_ID']] ?? [];
 					}

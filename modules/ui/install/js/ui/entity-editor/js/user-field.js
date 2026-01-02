@@ -330,6 +330,11 @@ if(typeof BX.UI.EntityUserFieldManager === "undefined")
 			fieldData["ENTITY_ID"] = this._fieldEntityId;
 			fieldData["SIGNATURE"] = this._creationSignature;
 
+			if (BX.type.isNotEmptyString(fieldData['HELP_MESSAGE']))
+			{
+				this.addFieldLabel('HELP_MESSAGE', fieldData['HELP_MESSAGE'], fieldData);
+			}
+
 			if(BX.type.isNotEmptyString(fieldData["EDIT_FORM_LABEL"]))
 			{
 				this.addFieldLabel("EDIT_FORM_LABEL", fieldData["EDIT_FORM_LABEL"], fieldData);
@@ -720,6 +725,10 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 	BX.UI.EntityEditorUserField.prototype.getEntityValueId = function()
 	{
 		return BX.prop.getString(this.getFieldInfo(), "ENTITY_VALUE_ID", "");
+	};
+	BX.UI.EntityEditorUserField.prototype.getAdditional = function()
+	{
+		return BX.prop.getObject(this.getFieldInfo(), "ADDITIONAL", {});
 	};
 	BX.UI.EntityEditorUserField.prototype.getFieldValue = function()
 	{
@@ -1679,6 +1688,9 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 
 		this._enableMandatoryControl = true;
 		this._mandatoryConfigurator = null;
+
+		this._userFieldFileViewConfigurator = null;
+		this._fileViewCheckBox = null;
 	};
 
 	BX.extend(BX.UI.EntityEditorUserFieldConfigurator, BX.UI.EntityEditorFieldConfigurator);
@@ -1960,6 +1972,24 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 			: this._field.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways);
 		//endregion
 
+		//region Tooltip configurator
+		if (this.tooltipConfigurator)
+		{
+			this.tooltipConfiguratorCheckBox = this.createOption({
+				caption: this.tooltipConfigurator.getCaption(),
+				elements: [this.tooltipConfigurator.getInput().prepareLayout()],
+			});
+			this.tooltipConfigurator.getInput().adjustVisibility();
+			this.tooltipConfigurator.setCheckBox(this.tooltipConfiguratorCheckBox);
+		}
+		//endregion
+
+		if (this.isFileViewSettingsAvailable())
+		{
+			this._userFieldFileViewConfigurator = new BX.UI.EntityEditorUserFieldFileViewConfigurator(this);
+			this._fileViewCheckBox = this._userFieldFileViewConfigurator.getOption();
+		}
+
 		return this._optionWrapper;
 	};
 
@@ -1977,6 +2007,12 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 			params["innerConfig"] = (this._field) ? this._field.getInnerConfig() : {};
 			params["enumeration"] = this._enumConfigurator.prepareSaveParams();
 			params['display'] = this._enumConfigurator.getDisplaySelectValue();
+		}
+
+		if (this.isFileViewSettingsAvailable())
+		{
+			params['settings'] ??= {};
+			params['settings']['DEFAULT_VIEW'] = this._fileViewCheckBox.checked ? this._userFieldFileViewConfigurator.getSettingsValue() : false;
 		}
 
 		if (this._field)
@@ -2002,6 +2038,8 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 				params["enableTime"] = this._isTimeEnabledCheckBox.checked;
 			}
 		}
+
+		params['additional'] = this.getField()?.getAdditional() ?? {};
 
 		return params;
 	};
@@ -2044,6 +2082,28 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 		return checkBox;
 	};
 
+	BX.UI.EntityEditorUserFieldConfigurator.prototype.isFileViewSettingsAvailable = function ()
+	{
+		const isFile = this._typeId === BX.UI.EntityUserFieldType.file;
+		if (!isFile || !this.getEditor().canChangeCommonConfiguration())
+		{
+			return false;
+		}
+
+		const entityEditorSettings = BX.Extension.getSettings('ui.entity-editor');
+
+		const isViewingModesAvailable = entityEditorSettings.get('isFileUserFieldViewingModesAvailable');
+		if (!isViewingModesAvailable)
+		{
+			return false;
+		}
+
+		const isAllowSwitchViewAvailable = entityEditorSettings.get('isFileUserFieldIsAllowSwitchViewAvailable');
+		const isAllowSwitchView = this.getField()?.getAdditional()?.['IS_ALLOW_SWITCH_VIEW'] === 'Y';
+
+		return !isAllowSwitchViewAvailable || isAllowSwitchView;
+	};
+
 	BX.UI.EntityEditorUserFieldConfigurator.create = function(id, settings)
 	{
 		var self = new BX.UI.EntityEditorUserFieldConfigurator();
@@ -2084,4 +2144,219 @@ if (typeof BX.UI.EntityEditorUserFieldEnumConfigurator === "undefined")
 		self.initialize(settings);
 		return self;
 	};
+}
+
+if (typeof BX.UI.EntityEditorUserFieldFileView === 'undefined')
+{
+	BX.UI.EntityEditorUserFieldFileView = {};
+
+	BX.UI.EntityEditorUserFieldFileView.TILE = {
+		id: 'tile',
+		title: BX.message('UI_ENTITY_EDITOR_UF_FILE_VIEW_TITLE_TILE'),
+		icon: BX.UI.ButtonIcon.APPS,
+	};
+
+	BX.UI.EntityEditorUserFieldFileView.LIST = {
+		id: 'list',
+		title: BX.message('UI_ENTITY_EDITOR_UF_FILE_VIEW_TITLE_LIST'),
+		icon: BX.UI.ButtonIcon.LIST,
+	};
+
+	BX.UI.EntityEditorUserFieldFileView.ADAPTIVE = {
+		id: 'adaptive',
+		title: BX.message('UI_ENTITY_EDITOR_UF_FILE_VIEW_TITLE_ADAPTIVE'),
+		icon: BX.UI.ButtonIcon.IMAGE,
+	};
+
+	BX.UI.EntityEditorUserFieldFileView.getAll = function ()
+	{
+		return [
+			BX.UI.EntityEditorUserFieldFileView.TILE,
+			BX.UI.EntityEditorUserFieldFileView.LIST,
+			BX.UI.EntityEditorUserFieldFileView.ADAPTIVE,
+		];
+	};
+
+	BX.UI.EntityEditorUserFieldFileView.getMap = function ()
+	{
+		const views = BX.UI.EntityEditorUserFieldFileView.getAll();
+		const map = new Map();
+		views.forEach((view) => {
+			map.set(view.id, view);
+		})
+
+		return map;
+	};
+
+	BX.UI.EntityEditorUserFieldFileView.default = function ()
+	{
+		return BX.UI.EntityEditorUserFieldFileView.TILE;
+	};
+}
+
+if (typeof BX.UI.EntityEditorUserFieldFileViewConfigurator === 'undefined')
+{
+	BX.UI.EntityEditorUserFieldFileViewConfigurator = function (baseConfigurator)
+	{
+		this._baseConfigurator = baseConfigurator;
+		this._currentView = this.getViewFromSettingsOrDefault();
+	};
+
+	BX.UI.EntityEditorUserFieldFileViewConfigurator.prototype.views = function ()
+	{
+		return BX.UI.EntityEditorUserFieldFileView;
+	};
+
+	BX.UI.EntityEditorUserFieldFileViewConfigurator.prototype.currentView = function ()
+	{
+		return this._currentView;
+	};
+
+	BX.UI.EntityEditorUserFieldFileViewConfigurator.prototype.getOption = function ()
+	{
+		if (!this._option)
+		{
+			this._option = this._baseConfigurator.createOption({
+				caption: BX.message('UI_ENTITY_EDITOR_UF_FILE_VIEW_CONFIGURE_VIEW_DEFAULT_OPTION_TITLE'),
+				containerSettings: {
+					props: {
+						className: 'ui-entity-editor-userfield-file-default-view',
+					},
+				},
+				elements: [
+					this.getViewSelectorButton().getContainer(),
+				],
+			});
+
+			this._option.checked = this.getViewFromSettings() !== null;
+
+			const button = this.getViewSelectorButton();
+			button.setDisabled(!this._option.checked);
+
+			this._option.onchange = () => {
+				const isChecked = this._option.checked;
+				if (!isChecked)
+				{
+					this._currentView = this.views().default();
+					this.adjust();
+				}
+
+				button.setDisabled(!isChecked);
+			};
+		}
+
+		return this._option;
+	}
+
+	BX.UI.EntityEditorUserFieldFileViewConfigurator.prototype.getSettingsValue = function ()
+	{
+		return this.currentView().id;
+	};
+
+	BX.UI.EntityEditorUserFieldFileViewConfigurator.prototype.getViewFromSettingsOrDefault = function ()
+	{
+		return this.getViewFromSettings() ?? this.views().default();
+	};
+
+	BX.UI.EntityEditorUserFieldFileViewConfigurator.prototype.getViewFromSettings = function ()
+	{
+		const field = this._baseConfigurator.getField();
+		if (!field)
+		{
+			return null;
+		}
+
+		const settings = BX.prop.getObject(field.getFieldInfo(), 'SETTINGS', {});
+		const viewId = BX.prop.getString(settings, 'DEFAULT_VIEW', null);
+
+		const view = this.views().getMap().get(viewId);
+		if (!view)
+		{
+			return null;
+		}
+
+		return view;
+	};
+
+	BX.UI.EntityEditorUserFieldFileViewConfigurator.prototype.getViewSelectorButton = function ()
+	{
+		if (!this._viewSelectorButton)
+		{
+			this._viewSelectorButton = new BX.UI.Button({
+				text: this.currentView().title,
+				icon: this.currentView().icon,
+				round: true,
+				noCaps: true,
+				dropdown: true,
+				size: BX.UI.ButtonSize.EXTRA_SMALL,
+				color: BX.UI.ButtonColor.BASE_LIGHT,
+			});
+
+			this._viewSelectorButton.setMenu({
+				items: this.getMenuItems(),
+			});
+		}
+
+		return this._viewSelectorButton;
+	};
+
+	BX.UI.EntityEditorUserFieldFileViewConfigurator.prototype.getMenuItems = function ()
+	{
+		return this.views().getAll().map((view) => this.buildMenuItemByView(view));
+	};
+
+	BX.UI.EntityEditorUserFieldFileViewConfigurator.prototype.buildMenuItemByView = function (view)
+	{
+		const classList = [
+			'menu-popup-icon',
+		];
+
+		if (view.id === this.currentView().id)
+		{
+			classList.push('menu-popup-item-accept');
+		}
+
+		return {
+			id: view.id,
+			text: view.title,
+			className: classList.join(' '),
+			onclick: this.handleMenuItemClick.bind(this),
+		};
+	};
+
+	BX.UI.EntityEditorUserFieldFileViewConfigurator.prototype.handleMenuItemClick = function (event, selectedMenuItem)
+	{
+		const view = this.views().getMap().get(selectedMenuItem.id);
+		if (!view)
+		{
+			return;
+		}
+
+		this._currentView = view;
+		this.adjust();
+	};
+
+	BX.UI.EntityEditorUserFieldFileViewConfigurator.prototype.adjust = function ()
+	{
+		const button = this.getViewSelectorButton();
+		const currentView = this.currentView();
+
+		button.setText(currentView.title);
+		button.setIcon(currentView.icon);
+		button
+			.getMenuWindow()
+			.getMenuItems()
+			.forEach((item) => {
+				const itemClassList = item.getLayout().item.classList;
+
+				if (item.id === currentView.id)
+				{
+					itemClassList.add('menu-popup-item-accept');
+
+					return;
+				}
+
+				itemClassList.remove('menu-popup-item-accept');
+			});
+	}
 }

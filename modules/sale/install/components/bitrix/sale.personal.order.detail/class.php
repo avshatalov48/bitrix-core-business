@@ -682,8 +682,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 	 */
 	public function obtainBasketPropsElement(&$basketItems, $elementIds, $skuParentMap)
 	{
-		$imgFields = array("PREVIEW_PICTURE", "DETAIL_PICTURE");
-		$productPropertySelect = array_merge(['ID', 'IBLOCK_ID'], $imgFields);
+		$productPropertySelect = ['ID', 'IBLOCK_ID'];
 		if (is_array($this->arParams['CUSTOM_SELECT_PROPS']))
 		{
 			$productPropertySelect = array_merge($productPropertySelect, $this->arParams['CUSTOM_SELECT_PROPS']);
@@ -691,6 +690,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 
 		// get BASKET product properties data (from iblocks): id, pictures and some any PROPERTY_*
 		$productProperties = $this->obtainProductProps($elementIds, $productPropertySelect);
+		$productPicture = \Bitrix\Sale\Product\ProductPicture::get($elementIds);
 
 		if (self::isNonemptyArray($basketItems))
 		{
@@ -709,7 +709,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 				{
 					foreach ($productProperties[$productId] as $key => $value)
 					{
-						if (mb_strpos($key, "PROPERTY_") !== false || in_array($key, $imgFields))
+						if (mb_strpos($key, "PROPERTY_") !== false)
 						{
 							$item[$key] = $value;
 						}
@@ -719,13 +719,13 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 				// if we have SKU product with parent...
 				if (array_key_exists($productId, $skuParentMap)) // if sku element doesn't have value of some property - we'll show parent element value instead
 				{
-					$arFieldsToFill = array_merge($this->arParams['CUSTOM_SELECT_PROPS'], $imgFields); // fields to be filled with parents' values if empty
+					$arFieldsToFill = $this->arParams['CUSTOM_SELECT_PROPS']; // fields to be filled with parents' values if empty
 					foreach ($arFieldsToFill as $field)
 					{
 						if($field == '')
 							continue;
 						$field = mb_strtoupper($field);
-						$fieldVal = (in_array($field, $imgFields)) ? $field : $field."_VALUE";
+						$fieldVal = $field . "_VALUE";
 						$parentId = $skuParentMap[$item["PRODUCT_ID"]];
 
 						if ((!isset($item[$fieldVal]) || (isset($item[$fieldVal]) && $item[$fieldVal] == ''))
@@ -737,7 +737,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 				}
 
 				// resampling picture
-				$pict = $this->getPictureId($item);
+				$pict = !empty($productPicture[$productId]) ? $productPicture[$productId] : false;
 				if ($pict)
 				{
 					$arImage = CFile::GetFileArray($pict);
@@ -759,26 +759,6 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 				}
 			}
 		}
-	}
-
-	/**
-	 * @param $item
-	 * @return int
-	 */
-	protected function getPictureId($item): int
-	{
-		$result = 0;
-
-		if ((int)$item['DETAIL_PICTURE'] > 0)
-		{
-			$result = $item['DETAIL_PICTURE'];
-		}
-		elseif ((int)$item['PREVIEW_PICTURE'] > 0)
-		{
-			$result = $item['PREVIEW_PICTURE'];
-		}
-
-		return (int)$result;
 	}
 
 	/**

@@ -1,6 +1,6 @@
 import { Dom } from 'main.core';
 
-export function createImageNode({ src, width, height }): HTMLSpanElement
+export function createImageNode({ src, width, height, viewerAttrs = {} }): HTMLSpanElement
 {
 	return Dom.create({
 		tag: 'span',
@@ -9,6 +9,7 @@ export function createImageNode({ src, width, height }): HTMLSpanElement
 		},
 		dataset: {
 			decorator: true,
+			...viewerAttrs,
 		},
 		children: [
 			Dom.create({

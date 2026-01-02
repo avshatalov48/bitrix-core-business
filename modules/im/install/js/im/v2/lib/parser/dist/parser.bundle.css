@@ -2,7 +2,6 @@
 	--bx-im-message-quote__border-color: #939ba4;
 	--bx-im-message-quote__color: #767e87;
 	--bx-im-message-quote__color_name: #767a7e;
-	--bx-im-message-quote__color_time: var(--im-message-base__font-color_date);
 	--bx-im-message-quote-with-context__border-color: #2FC6F6;
 	--bx-im-message-quote-with-context__color_name: #11A9D9;
 	--bx-im-mention__color_highlight: var(--im-color-palette-black-solid);
@@ -12,7 +11,6 @@
 	--bx-im-message-quote__border-color: #939ba4;
 	--bx-im-message-quote__color: var(--im-color-palette-gray-70);
 	--bx-im-message-quote__color_name: #767a7e;
-	--bx-im-message-quote__color_time: var(--im-message-base__font-color_date);
 	--bx-im-message-quote-with-context__border-color: #2FC6F6;
 	--bx-im-message-quote-with-context__color_name: #11A9D9;
 
@@ -29,7 +27,6 @@
 	font: var(--ui-font-size-sm) var(--im-font-family-system);
 	line-height: var(--ui-font-line-height-md);
 	color: var(--bx-im-message-quote__color);
-	/*border-left: 3px solid var(--bx-im-message-quote__border-color);*/
 	padding-left: 10px;
 	padding-bottom: 2px;
 	margin: 4px 0;
@@ -60,7 +57,6 @@
 .bx-im-message-quote__name-time {
 	display: inline-block;
 	font: var(--im-font-size-4xs) var(--im-font-family-system);
-	color: var(--bx-im-message-quote__color_time);
 }
 
 .bx-im-message-quote:not([data-context="none"]) {
@@ -69,13 +65,16 @@
 	        user-select: none;
 }
 
+.bx-im-message-quote__text {
+	word-wrap: break-word;
+}
+
 .bx-im-message-quote:not([data-context="none"]) .bx-im-message-quote__text {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	display: -webkit-box;
 	-webkit-line-clamp: 4;
 	-webkit-box-orient: vertical;
-	word-break: break-word;
 }
 
 .bx-im-message-quote:not([data-context="none"]) .bx-im-message-quote__text pre {
@@ -97,8 +96,6 @@
 	display: none;
 }
 
-
-
 .bx-im-message-content-code {
 	white-space: pre-line;
 	padding-left: 5px;
@@ -106,18 +103,14 @@
 	border-left: 3px solid #505050;
 }
 
-
-
-.bx-im-message-image
-{
-	display: block;
+.bx-im-message-image {
+	display: inline-flex;
 	cursor: pointer;
 	align-items: center;
-	justify-content: left;
+	justify-content: center;
 	overflow: hidden;
-	height: 160px;
-	min-width: 80px;
-	border-radius: 12px;
+	border-radius: 0;
+	max-width: var(--im-content-chat__max-width_message_container);
 }
 
 .bx-im-message-image-source {
@@ -127,13 +120,16 @@
 	border-radius: 12px;
 }
 
-
-
 .bx-im-mention {
 	display: inline-block;
 	color: #1d54a2;
 	border-bottom: 1px dotted #1d54a2;
 	cursor: pointer;
+}
+
+.bx-im-mention.--extranet {
+	color: var(--im-color-extranet-orange-60);
+	border-bottom: 1px dotted var(--im-color-extranet-orange-60);
 }
 
 .bx-im-mention.--highlight {
@@ -143,8 +139,6 @@
 	border-radius: 6px;
 	padding: 1px 5px;
 }
-
-
 
 .bx-im-message-command-wrap {
 	display: inline-block;
@@ -158,7 +152,6 @@
 .bx-im-message-command-data {
 	display: none;
 }
-
 
 .bx-im-lines-rating {
 	display: inline-block;
@@ -193,3 +186,15 @@
 	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='21' height='20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10.294' cy='10' r='10' fill='%23FF5752'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M5.812 12.325h2.506c.072 0 .142.041.17.107.112.282.108.6-.016.88a3.234 3.234 0 00-.068 1.876c.17.425.215 1.202 1.001 1.238a.81.81 0 00.584-.4.256.256 0 00.032-.127s-.036-.754 0-1.278 1.039-1.86 1.677-2.708a.249.249 0 01.163-.1c.24-.035.695-.096.86-.117.038-.005.06-.054.06-.076V6.864c0-.018-.02-.056-.058-.062a5.732 5.732 0 01-.776-.185c-.408-.131-.749-.441-1.43-.671a.357.357 0 00-.113-.019H7.207a.906.906 0 00-.741.85c-.006.237.04.47.137.685.014.03-.004.063-.037.07-.41.074-.923.852-.291 1.48.016.015.013.037-.01.043a.963.963 0 00-.695.714.768.768 0 00.019.4c.046.154.12.3.217.43.025.032.011.074-.028.087a.864.864 0 00-.583.825c-.04.37.257.813.617.814zm7.95-.2h1.813a.15.15 0 00.15-.175l-1.053-5.913a.192.192 0 00-.19-.157h-.67a.185.185 0 00-.188.183l-.014 5.911c0 .083.068.15.153.15z' fill='%23fff'/%3E%3C/svg%3E");
 }
 
+
+.bx-im-message-image--small img {
+	max-height: 120px;
+}
+
+.bx-im-message-image--medium img {
+	max-height: 200px;
+}
+
+.bx-im-message-image--large img {
+	max-height: 300px;
+}

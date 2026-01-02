@@ -1,7 +1,8 @@
-"use strict";
-import {Loc, Dom, Tag, Type} from 'main.core';
-import {DateTimeControl, TimeSelector} from 'calendar.controls';
-import {Util} from "calendar.util";
+'use strict';
+
+import { Loc, Dom, Tag, Type } from 'main.core';
+import { DateTimeControl, TimeSelector } from 'calendar.controls';
+import { Util } from 'calendar.util';
 
 export class SliderDateTimeControl extends DateTimeControl
 {
@@ -16,12 +17,12 @@ export class SliderDateTimeControl extends DateTimeControl
 
 		this.fromTimeControl = new TimeSelector({
 			input: this.DOM.fromTime,
-			onChangeCallback: this.handleTimeFromChange.bind(this)
+			onChangeCallback: this.handleTimeFromChange.bind(this),
 		});
 
 		this.toTimeControl = new TimeSelector({
 			input: this.DOM.toTime,
-			onChangeCallback: this.handleTimeToChange.bind(this)
+			onChangeCallback: this.handleTimeToChange.bind(this),
 		});
 
 		this.DOM.fullDay = this.DOM.outerContent.querySelector(`#${this.UID}_date_full_day`);
@@ -54,10 +55,10 @@ export class SliderDateTimeControl extends DateTimeControl
 
 	prepareModel()
 	{
-		Dom.adjust(this.DOM.fromDate, {props: {autocomplete: 'off'}});
-		Dom.adjust(this.DOM.toDate, {props: {autocomplete: 'off'}});
-		Dom.adjust(this.DOM.fromTime, {props: {autocomplete: 'off'}});
-		Dom.adjust(this.DOM.toTime, {props: {autocomplete: 'off'}});
+		Dom.adjust(this.DOM.fromDate, { props: { autocomplete: 'off' } });
+		Dom.adjust(this.DOM.toDate, { props: { autocomplete: 'off' } });
+		Dom.adjust(this.DOM.fromTime, { props: { autocomplete: 'off' } });
+		Dom.adjust(this.DOM.toTime, { props: { autocomplete: 'off' } });
 	}
 
 	setReadonly(timezoneHint)
@@ -68,7 +69,7 @@ export class SliderDateTimeControl extends DateTimeControl
 		const dateTo = Util.formatDateUsable(value.to, true, true);
 		const timeFrom = this.DOM.fromTime.value;
 		const timeTo = this.DOM.toTime.value;
-		result += dateFrom + ', ';
+		result += `${dateFrom}, `;
 
 		if (value.fullDay)
 		{
@@ -78,17 +79,17 @@ export class SliderDateTimeControl extends DateTimeControl
 			}
 			else
 			{
-				result += ' - '
+				result += ' - ';
 			}
 		}
 		else
 		{
-			result += timeFrom + ' - ' + timeTo;
+			result += `${timeFrom} - ${timeTo}`;
 		}
 
 		if (!value.fullDay && dateFrom !== dateTo)
 		{
-			result += ', ' + dateTo;
+			result += `, ${dateTo}`;
 		}
 
 		let timezoneIcon = '';

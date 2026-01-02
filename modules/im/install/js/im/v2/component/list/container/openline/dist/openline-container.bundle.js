@@ -18,5 +18,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.OpenlineListContainer = OpenlineListContainer;
 
-}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.OpenLines.v2.Component.List));
+}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX?.OpenLines?.v2?.Component?.List??{}));
 //# sourceMappingURL=openline-container.bundle.js.map

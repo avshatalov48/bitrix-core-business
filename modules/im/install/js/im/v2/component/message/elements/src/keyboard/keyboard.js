@@ -1,4 +1,4 @@
-import { Keyboard } from 'im.v2.component.elements';
+import { Keyboard } from 'im.v2.component.elements.keyboard';
 
 import './keyboard.css';
 

@@ -1,5 +1,25 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+class StepNotAllowed extends CWizardStep
+{
+	public function InitStep(): void
+	{
+		$this->SetTitle(GetMessage('WSL_STEP1_TITLE'));
+		$this->SetStepID('now_allowed');
+		$this->SetCancelStep('cancel');
+		$this->SetCancelCaption(GetMessage('WSL_CANCELSTEP_BUTTONTITLE'));
+	}
+
+	public function ShowStep(): void
+	{
+		$this->content = GetMessage('WSL_NOT_ALLOWED');
+	}
+}
 
 class Step1 extends CWizardStep
 {
@@ -361,4 +381,3 @@ class CancelStep extends CWizardStep
 		$this->content = GetMessage('WSL_CANCELSTEP_CONTENT');
 	}
 }
-?>

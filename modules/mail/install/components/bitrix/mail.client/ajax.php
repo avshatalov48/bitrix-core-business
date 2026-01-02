@@ -11,6 +11,7 @@ use Bitrix\Mail\ImapCommands\MailsFoldersManager;
 use Bitrix\Mail\Integration\Calendar\ICal\ICalMailManager;
 use Bitrix\Mail\Integration\Intranet\Secretary;
 use Bitrix\Mail\Internals\MessageAccessTable;
+use Bitrix\Mail\MailboxTable;
 use Bitrix\Mail\MailMessageTable;
 use Bitrix\Main;
 use Bitrix\Main\Context;
@@ -43,7 +44,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 	{
 		parent::init();
 
-		$this->isCrmEnable = Loader::includeModule('crm') && \CCrmPerms::isAccessEnabled();
+		$this->isCrmEnable = \Bitrix\Mail\Integration\Crm\Permissions::getInstance()->hasAccessToCrm();
 	}
 
 
@@ -488,7 +489,15 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			return $response;
 		}
 
-		$mailbox = \Bitrix\Mail\MailboxTable::getUserMailbox($id);
+		global $USER;
+		if ($USER && $USER->IsAdmin())
+		{
+			$mailbox = MailboxTable::getById($id)->fetch();
+		}
+		else
+		{
+			$mailbox = MailboxTable::getUserMailbox($id);
+		}
 
 		if ($mailbox)
 		{
@@ -1168,7 +1177,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			return;
 		}
 
-		$mailbox = Mail\MailboxTable::getUserMailbox($message['MAILBOX_ID']);
+		$mailbox = MailboxTable::getUserMailbox($message['MAILBOX_ID']);
 
 		if (empty($mailbox))
 		{

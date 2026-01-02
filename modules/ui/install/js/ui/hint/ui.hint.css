@@ -27,6 +27,7 @@
 	margin: 7px;
 	min-width: 45px;
 	max-width: 400px;
+	word-wrap: break-word;
 }
 
 .ui-hint-popup {

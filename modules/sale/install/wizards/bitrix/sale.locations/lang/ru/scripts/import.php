@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS['WSL_IMPORT_ERROR_ACCESS_DENIED'] = 'Ошибка! Нет доступа.';
 $MESS['WSL_IMPORT_ERROR_FILES'] = 'Ошибка! Неверные имена файлов.';
 $MESS['WSL_IMPORT_FILES_LOADING'] = 'Обрабатываем файлы...';
@@ -17,4 +17,3 @@ $MESS['WSL_IMPORT_ZIP_STATS'] = "Индексы:<ul>
 </ul>";
 $MESS['WSL_IMPORT_ERROR_NO_ZIP_FILE'] = "Нет файла с индексами";
 $MESS['WSL_IMPORT_ALL_DONE'] = 'Обработка завершена.';
-?>

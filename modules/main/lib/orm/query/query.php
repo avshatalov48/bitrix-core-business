@@ -8,9 +8,9 @@ use Bitrix\Main\ORM\Fields\ArrayField;
 use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Field;
-use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\Relations\ManyToMany;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\ScalarField;
 use Bitrix\Main\ORM\Fields\TextField;
 use Bitrix\Main\ORM\Query\Filter\ConditionTree as Filter;
@@ -2652,7 +2652,7 @@ class Query
 						$filter_match = $field->normalizeValue($filter_match);
 					}
 				}
-				elseif ($field_type == 'float')
+				elseif ($field_type == 'float' || $field_type == 'decimal')
 				{
 					$field_type = 'double';
 				}

@@ -1,0 +1,51 @@
+.ui-dialog-tooltip {
+	padding: 12px 20px 16px 20px;
+	border-radius: 18px;
+	background: var(--ui-color-bg-content-inapp, #085dc1);
+}
+
+.ui-dialog-tooltip.popup-window.popup-window-with-titlebar {
+	padding: 12px 20px 16px 20px;
+}
+
+.ui-dialog-tooltip .popup-window-content {
+	padding: 0;
+	font-family: var(--ui-font-family-system);
+	font-size: var(--ui-font-size-lg);
+	line-height: var(--ui-font-line-height-sm);
+	color: var(--ui-color-base-white-fixed, #ffffff);
+	opacity: .82;
+}
+
+.ui-dialog-tooltip .popup-window-titlebar-text,
+.ui-dialog-tooltip .popup-window-titlebar-text-version {
+	color: var(--ui-color-base-white-fixed, #ffffff);
+	font-size: 17px;
+	line-height: var(--ui-font-line-height-sm);
+	font-weight: var(--ui-font-weight-medium);
+	padding: 0;
+}
+
+.ui-dialog-tooltip.popup-window-with-titlebar .popup-window-content,
+.ui-dialog-tooltip.popup-window-content-gray .popup-window-content {
+	background: transparent;
+	padding: 0;
+}
+
+.ui-dialog-tooltip .popup-window-titlebar {
+	height: auto;
+}
+
+.ui-dialog-tooltip .popup-window-angly-top .popup-window-angly--arrow {
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='36' height='13' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.571 12C7.687 12 13.393 0 17.994 0c4.6 0 10.239 12 16.422 12H1.572z' fill='%23085DC1'/%3E%3C/svg%3E") center bottom no-repeat;
+}
+
+.ui-dialog-tooltip .popup-window-angly--arrow {
+	width: 36px;
+	height: 13px;
+	left: -1px;
+	top: unset;
+	bottom: -1px;
+	transform: unset;
+	transform-origin: unset;
+}

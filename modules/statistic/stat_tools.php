@@ -340,9 +340,9 @@ function __GetFullRequestUri($url=false, $host=false, $port=false, $protocol=fal
 {
 	global $HTTP_HOST, $SERVER_PORT, $APPLICATION;
 
-	if ($url===false) $url = $_SERVER["REQUEST_URI"];
-	if ($host===false) $host = $_SERVER["HTTP_HOST"];
-	if ($port===false) $port = $_SERVER["SERVER_PORT"];
+	if ($url===false) $url = $_SERVER["REQUEST_URI"] ?? '';
+	if ($host===false) $host = $_SERVER["HTTP_HOST"] ?? '';
+	if ($port===false) $port = $_SERVER["SERVER_PORT"] ?? 0;
 	if ($protocol===false) $protocol = CMain::IsHTTPS() ? "https" : "http";
 
 	$res = "";

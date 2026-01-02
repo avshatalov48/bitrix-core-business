@@ -2,8 +2,11 @@
 
 namespace Bitrix\Im\V2\Integration\HumanResources;
 
+use Bitrix\HumanResources\Config\Feature;
 use Bitrix\HumanResources\Config\Storage;
 use Bitrix\HumanResources\Service\Container;
+use Bitrix\HumanResources\Type\AccessCodeType;
+use Bitrix\HumanResources\Type\RelationEntitySubtype;
 use Bitrix\HumanResources\Type\RelationEntityType;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Result;
@@ -19,6 +22,14 @@ class Structure
 		$this->chat = $chat;
 	}
 
+	public static function isTeamsAvailable(): bool
+	{
+		return Loader::includeModule('humanresources')
+			&& Storage::instance()->isCompanyStructureConverted()
+			&& Feature::instance()->isCrossFunctionalTeamsAvailable()
+		;
+	}
+
 	public static function splitEntities(array $entities): array
 	{
 		$entities = static::convertEntities($entities);
@@ -31,7 +42,7 @@ class Structure
 			{
 				$users[] = (int)mb_substr($entity, 1);
 			}
-			if (str_starts_with($entity, 'D') || str_starts_with($entity, 'DR'))
+			if (static::isStructureNode($entity))
 			{
 				$structureNodes[] = $entity;
 			}
@@ -69,7 +80,8 @@ class Structure
 				$nodeRelationService->linkEntityToNodeByAccessCode(
 					$structureNodeId,
 					RelationEntityType::CHAT,
-					$this->chat->getId()
+					$this->chat->getId(),
+					RelationEntitySubtype::fromChatType($this->chat->getType()),
 				);
 			}
 			catch (\Exception $exception)
@@ -103,13 +115,39 @@ class Structure
 				$nodeRelationService->unlinkEntityFromNodeByAccessCode(
 					$structureNodeId,
 					RelationEntityType::CHAT,
-					$this->chat->getId()
+					$this->chat->getId(),
 				);
 			}
 			catch (\Exception $exception)
 			{
 				$result->addError(new Error(Error::UNLINK_ERROR));
 			}
+		}
+
+		return $result;
+	}
+
+	public function unlinkAll(): Result
+	{
+		$result = new Result();
+
+		if (!Loader::includeModule('humanresources'))
+		{
+			return $result->addError(new Error(Error::UNLINK_ERROR));
+		}
+
+		$nodeRelationRepository = Container::getNodeRelationRepository();
+
+		try
+		{
+			$nodeRelationRepository->deleteRelationByEntityTypeAndEntityIds(
+				RelationEntityType::CHAT,
+				[(int)$this->chat->getId()],
+			);
+		}
+		catch (\Exception)
+		{
+			return $result->addError(new Error(Error::UNLINK_ERROR));
 		}
 
 		return $result;
@@ -125,13 +163,16 @@ class Structure
 		return Converter::convertToFinderCodes($entities);
 	}
 
-	public function getChatDepartments(): array
+	/**
+	 * @return list<string>
+	 */
+	public function getNodesAccessCodes(): array
 	{
-		$departments = [];
+		$accessCodes = [];
 
 		if (!Loader::includeModule('humanresources'))
 		{
-			return $departments;
+			return $accessCodes;
 		}
 
 		$nodeRelationService = Container::getNodeRelationService();
@@ -143,12 +184,47 @@ class Structure
 
 		foreach ($links as $link)
 		{
-			$departments[] = $link->withChildNodes
-				? str_replace('D', 'DR', $link->node->accessCode)
-				: $link->node->accessCode
-			;
+			if ($link->node === null)
+			{
+				continue;
+			}
+
+			if ($link->node->isDepartment())
+			{
+				$accessCodes[] = $link->withChildNodes
+					? str_replace('D', 'DR', $link->node->accessCode)
+					: $link->node->accessCode;
+			}
+			if ($link->node->isTeam())
+			{
+				$accessCodes[] = $link->withChildNodes
+					? AccessCodeType::HrTeamRecursiveType->buildAccessCode($link->nodeId)
+					: AccessCodeType::HrTeamType->buildAccessCode($link->nodeId);
+			}
 		}
 
-		return $departments;
+		return $accessCodes;
+	}
+
+	private static function isStructureNode(string $entity): bool
+	{
+		if (!Loader::includeModule('humanresources'))
+		{
+			return false;
+		}
+
+		$prefixes = [
+			...AccessCodeType::getIntranetDepartmentTypesPrefixes(),
+			...AccessCodeType::getTeamTypesPrefixes(),
+		];
+		foreach ($prefixes as $prefix)
+		{
+			if (str_starts_with($entity, $prefix))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

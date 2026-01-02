@@ -6,6 +6,7 @@
 
 use Bitrix\Main;
 use Bitrix\Main\Context;
+use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Loader;
 use Bitrix\Iblock;
 use Bitrix\Iblock\Template;
@@ -506,6 +507,17 @@ function __AddPropRow($intOFPropID,$strPrefix,$arPropInfo): string
 	</tr>';
 }
 
+function getIblockEditStringOptionFromRequest(HttpRequest $request, string $index): ?string
+{
+	$result = $request->getPost($index) ?? null;
+	if ($result === null || is_array($result))
+	{
+		return null;
+	}
+
+	return trim($result);
+}
+
 $arNewPropInfo = $arDefPropInfo;
 ConvProp($arNewPropInfo,$arHiddenPropFields);
 $arCellTemplates = [];
@@ -540,6 +552,8 @@ if ($arIBTYPE === false)
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
+
+$allowEditPhp = $USER->CanDoOperation('edit_php');
 
 $strWarning = '';
 $bVarsFromForm = false;
@@ -644,8 +658,6 @@ if (
 		'CANONICAL_PAGE_URL',
 		'DESCRIPTION',
 		'DESCRIPTION_TYPE',
-		'EDIT_FILE_BEFORE',
-		'EDIT_FILE_AFTER',
 		'SECTION_CHOOSER',
 		'LIST_MODE',
 		'ELEMENTS_NAME',
@@ -736,6 +748,42 @@ if (
 			{
 				$formFields[$fieldId] = $value;
 			}
+		}
+	}
+
+	$pathList = [
+		'EDIT_FILE_BEFORE',
+		'EDIT_FILE_AFTER',
+	];
+	if ($allowEditPhp)
+	{
+		foreach ($pathList as $fieldId)
+		{
+			$value = getIblockEditStringOptionFromRequest($request, $fieldId);
+			if ($value === null)
+			{
+				continue;
+			}
+			if ($value !== '')
+			{
+				try
+				{
+					$value = Main\IO\Path::normalize($value);
+					if ($value === '/')
+					{
+						$value = '';
+					}
+					elseif (Main\IO\Path::getExtension($value) !== 'php')
+					{
+						$value = '';
+					}
+				}
+				catch (Main\IO\InvalidPathException $e)
+				{
+					$value = '';
+				}
+			}
+			$formFields[$fieldId] = $value;
 		}
 	}
 
@@ -1567,7 +1615,7 @@ if (
 			{
 				if(
 					$bBizproc
-					&& $_REQUEST['BIZ_PROC_ADD_DEFAULT_TEMPLATES']=='Y'
+					&& ($_REQUEST['BIZ_PROC_ADD_DEFAULT_TEMPLATES'] ?? null) === 'Y'
 					&& CBPDocument::GetNumberOfWorkflowTemplatesForDocumentType(["iblock", "CIBlockDocument", "iblock_".$ID])<=0
 					&& $arFields["BIZPROC"] == "Y"
 				)
@@ -1687,6 +1735,7 @@ $str_SECTION_PAGE_URL="#SITE_DIR#/".$arIBTYPE["ID"]."/list.php?SECTION_ID=#SECTI
 $str_DETAIL_PAGE_URL="#SITE_DIR#/".$arIBTYPE["ID"]."/detail.php?ID=#ELEMENT_ID#";
 $str_CANONICAL_PAGE_URL="";
 $str_SORT="500";
+$str_XML_ID = '';
 $str_VERSION="1";
 $str_RSS_ACTIVE="N";
 $str_RSS_TTL="24";
@@ -1820,7 +1869,7 @@ if($bVarsFromForm)
 		$str_OF_IBLOCK_NAME = $OF_IBLOCK_NAME;
 		$str_OF_IBLOCK_TYPE_ID = $OF_IBLOCK_TYPE_ID;
 		$str_OF_CREATE_IBLOCK_TYPE_ID = ('Y' != $OF_CREATE_IBLOCK_TYPE_ID ? 'N' : 'Y');
-		$str_OF_NEW_IBLOCK_TYPE_ID = $OF_NEW_IBLOCK_TYPE_ID;
+		$str_OF_NEW_IBLOCK_TYPE_ID = (string)($OF_NEW_IBLOCK_TYPE_ID ?? '');
 
 		$int_OFFERS_PROPERTY_COUNT = intval($OFFERS_PROPERTY_COUNT);
 		if (0 >= $int_OFFERS_PROPERTY_COUNT)
@@ -2300,54 +2349,84 @@ $tabControl->BeginNextTab();
 			</select>
 		</td>
 	</tr>
-	<tr>
-		<td>
-		<?php
-		CAdminFileDialog::ShowScript([
-			"event" => "BtnClick",
-			"arResultDest" => [
-				"FORM_NAME" => "frm",
-				"FORM_ELEMENT_NAME" => "EDIT_FILE_BEFORE",
-			],
-			"arPath" => [
-				"PATH" => GetDirPath($str_EDIT_FILE_BEFORE),
-			],
-			"select" => 'F',// F - file only, D - folder only
-			"operation" => 'O',// O - open, S - save
-			"showUploadTab" => true,
-			"showAddToMenuTab" => false,
-			"fileFilter" => 'php',
-			"allowAllFiles" => true,
-			"SaveConfig" => true,
-		]);
+	<?php
+	$fileInputControls = [
+		[
+			'NAME' => 'EDIT_FILE_BEFORE',
+			'TITLE' => GetMessage("IB_E_FILE_BEFORE"),
+			'HINT' => GetMessage('IB_E_FILE_FIELD_HINT'),
+			'VALUE' => $str_EDIT_FILE_BEFORE,
+			'BUTTON_EVENT' => 'BtnClick',
+		],
+		[
+			'NAME' => 'EDIT_FILE_AFTER',
+			'TITLE' => GetMessage("IB_E_FILE_AFTER"),
+			'HINT' => GetMessage('IB_E_FILE_FIELD_HINT'),
+			'VALUE' => $str_EDIT_FILE_AFTER,
+			'BUTTON_EVENT' => 'BtnClick2',
+		],
+	];
+	foreach ($fileInputControls as $fileControl):
+			$hintId = 'hint_' . $fileControl['NAME'];
 		?>
-		<?= GetMessage("IB_E_FILE_BEFORE")?></td>
-		<td><input type="text" name="EDIT_FILE_BEFORE" size="55"  maxlength="255" value="<?= $str_EDIT_FILE_BEFORE ?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick()"></td>
-	</tr>
-	<tr>
-		<td>
-		<?php
-		CAdminFileDialog::ShowScript([
-			"event" => "BtnClick2",
-			"arResultDest" => [
-				"FORM_NAME" => "frm",
-				"FORM_ELEMENT_NAME" => "EDIT_FILE_AFTER",
-			],
-			"arPath" => [
-				"PATH" => GetDirPath($str_EDIT_FILE_AFTER),
-			],
-			"select" => 'F',// F - file only, D - folder only
-			"operation" => 'O',// O - open, S - save
-			"showUploadTab" => true,
-			"showAddToMenuTab" => false,
-			"fileFilter" => 'php',
-			"allowAllFiles" => true,
-			"SaveConfig" => true,
-		]);
-		?>
-		<?= GetMessage("IB_E_FILE_AFTER")?></td>
-		<td><input type="text" name="EDIT_FILE_AFTER" size="55"  maxlength="255" value="<?= $str_EDIT_FILE_AFTER ?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick2()"></td>
-	</tr>
+		<tr>
+			<td>
+				<span id="<?= $hintId ?>"></span>
+				<script>BX.hint_replace(BX('<?= $hintId ?>'), '<?= CUtil::JSEscape($fileControl['HINT']) ?>');</script>&nbsp;<?php
+				echo $fileControl['TITLE'];
+				?>
+			</td>
+			<td>
+			<?php
+			if ($allowEditPhp):
+				CAdminFileDialog::ShowScript([
+					'event' => $fileControl['BUTTON_EVENT'],
+					'arResultDest' => [
+						'FORM_NAME' => 'frm',
+						'FORM_ELEMENT_NAME' => $fileControl['NAME'],
+					],
+					'arPath' => [
+						'PATH' => GetDirPath($fileControl['VALUE']),
+					],
+					'select' => 'F', // F - file only, D - folder only
+					'operation' => 'O', // O - open, S - save
+					'showUploadTab' => true,
+					'showAddToMenuTab' => false,
+					'fileFilter' => 'php',
+					'allowAllFiles' => true,
+					'SaveConfig' => true,
+				]);
+				?>
+				<input
+					type="text"
+					name="<?= $fileControl['NAME'] ?>"
+					size="55"
+					maxlength="255"
+					value="<?= $fileControl['VALUE'] ?>"
+				>&nbsp;<input type="button" name="browse" value="..." onClick="<?= $fileControl['BUTTON_EVENT'] ?>();">
+			<?php
+			else:
+				?>
+				<input
+					disabled
+					type="text"
+					name="<?= $fileControl['NAME'] ?>"
+					size="55"
+					maxlength="255"
+					value="<?= $fileControl['VALUE'] ?>"
+				>
+			<?php
+			endif;
+			?>
+			</td>
+		</tr>
+	<?php
+	endforeach;
+	unset(
+		$fileControl,
+		$fileInputControls,
+	);
+	?>
 	<tr class="heading">
 		<td colspan="2"><?= GetMessage("IB_E_DESCRIPTION")?></td>
 	</tr>

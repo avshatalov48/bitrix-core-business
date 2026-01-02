@@ -28,3 +28,12 @@
 	line-height: var(--ui-font-line-height-xl, 1.62);
 	opacity: 0.4;
 }
+
+.ui-entity-catalog__option-info_top_text {
+	font-weight: var(--ui-font-weight-semi-bold, 500);
+	font-size: var(--ui-font-size-5xs, 9px);
+	line-height: 100%;
+	letter-spacing: 0;
+	color: var(--ui-color-palette-blue-50);
+	margin-bottom: 6px;
+}

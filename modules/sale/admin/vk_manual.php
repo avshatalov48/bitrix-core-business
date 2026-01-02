@@ -76,7 +76,7 @@ else
 									Loc::getMessage(
 										"SALE_VK_MANUAL__CONNECTION_GROUP_SETUP_STEP_GOODS_WARNING",
 										[
-											"#LINK_START#" => "<a href=\"https://vk.com/@business-magazin-2-0\" target=\"_blank\">",
+											"#LINK_START#" => "<a href=\"https://vk.ru/@business-magazin-2-0\" target=\"_blank\">",
 											"#LINK_END#" => "</a>",
 										],
 									)
@@ -92,7 +92,7 @@ else
 					<?= Loc::getMessage(
 					"SALE_VK_MANUAL__CONNECTION_APP_CREATE_DESCRIPTION",
 						[
-							"#LINK_START#" => "<a href=\"https://id.vk.com/about/business/go\" target=\"_blank\">",
+							"#LINK_START#" => "<a href=\"https://id.vk.ru/about/business/go\" target=\"_blank\">",
 							"#LINK_END#" => "</a>",
 						],
 					) ?>
@@ -117,7 +117,7 @@ else
 						Loc::getMessage(
 							"SALE_VK_MANUAL__CONNECTION_APP_CREATE_STAGE_DATA_NOTE",
 							[
-								"#LINK_START#" => "<a href=\"https://id.vk.com/about/business/go/docs/ru/vkid/latest/oauth-vkontakte/create-and-configure-app\" target=\"_blank\">",
+								"#LINK_START#" => "<a href=\"https://id.vk.ru/about/business/go/docs/ru/vkid/latest/oauth-vkontakte/create-and-configure-app\" target=\"_blank\">",
 								"#LINK_END#" => "</a>",
 							],
 						)

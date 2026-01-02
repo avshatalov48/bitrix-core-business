@@ -47,7 +47,7 @@ class GroupTable extends ORM\Data\DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_group';
 	}
@@ -57,7 +57,7 @@ class GroupTable extends ORM\Data\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return [
 			'ID' => new ORM\Fields\IntegerField(

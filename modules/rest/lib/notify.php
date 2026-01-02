@@ -23,11 +23,11 @@ class Notify
 		$this->setUserList($userList);
 	}
 
-	public function send($clientId, $token, $method, $message)
+	public function send($clientId, $token, $method, $message, $notifyEvent = 'admin_notification')
 	{
-		foreach($this->userList as $userId)
+		foreach ($this->userList as $userId)
 		{
-			$this->getNotifier()->send($clientId, $userId, $token, $method, $message);
+			$this->getNotifier()->send($clientId, $userId, $token, $method, $message, $notifyEvent);
 		}
 	}
 

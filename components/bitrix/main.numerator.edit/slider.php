@@ -13,15 +13,22 @@ require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/header.php');
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 
 $APPLICATION->IncludeComponent(
-	"bitrix:main.numerator.edit",
-	'',
-	[
-		"NUMERATOR_TYPE"               => $request->get('NUMERATOR_TYPE'),
-		"IS_HIDE_NUMERATOR_NAME"       => $request->get('IS_HIDE_NUMERATOR_NAME'),
-		"IS_EMBED_FORM"                => $request->get('IS_EMBED_FORM'),
-		"IS_HIDE_IS_DIRECT_NUMERATION" => $request->get('IS_HIDE_IS_DIRECT_NUMERATION'),
-		"IS_SHOW_CHANGE_NUMBER"        => $request->get('IS_SHOW_CHANGE_NUMBER'),
-		"NUMERATOR_ID"                 => $request->get('ID'),
-	]
+	'bitrix:ui.sidepanel.wrapper',
+	"",
+	array(
+		'POPUP_COMPONENT_NAME' => 'bitrix:main.numerator.edit',
+		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+		'POPUP_COMPONENT_PARAMS' => [
+			"NUMERATOR_TYPE" => $request->get('NUMERATOR_TYPE'),
+			"IS_HIDE_NUMERATOR_NAME" => $request->get('IS_HIDE_NUMERATOR_NAME'),
+			"IS_EMBED_FORM" => $request->get('IS_EMBED_FORM'),
+			"IS_HIDE_IS_DIRECT_NUMERATION" => $request->get('IS_HIDE_IS_DIRECT_NUMERATION'),
+			"IS_SHOW_CHANGE_NUMBER" => $request->get('IS_SHOW_CHANGE_NUMBER'),
+			"NUMERATOR_ID" => $request->get('ID'),
+		],
+		'USE_UI_TOOLBAR' => 'Y',
+	)
 );
+
+
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_after.php');

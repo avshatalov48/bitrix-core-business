@@ -1,0 +1,13 @@
+.bx-im-dialog-chat__pin-header_opened {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	font-size: var(--ui-font-size-xl);
+	color: var(--im-dialog-chat__font-color_pinned-text);
+	line-height: 16px;
+}
+
+.bx-im-dialog-chat__pin-header_counter-total {
+	color: var(--im-dialog-chat__font-color_pinned-info);
+}

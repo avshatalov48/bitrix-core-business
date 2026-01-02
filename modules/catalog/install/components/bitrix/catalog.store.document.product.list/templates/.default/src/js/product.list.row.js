@@ -530,6 +530,33 @@ export class Row
 		return result;
 	}
 
+	getFieldsWithHashed(fieldList: Array): Object
+	{
+		const result = {};
+
+		const realValues = this.#getRealValues() || {};
+		const fields = Type.isArrayFilled(fieldList) ? fieldList : Object.keys(this.fields);
+		const fieldsToEncode = {};
+
+		fields.forEach((fieldName) => {
+			if (fieldName in realValues)
+			{
+				fieldsToEncode[fieldName] = this.getField(fieldName);
+			}
+			else
+			{
+				result[fieldName] = this.getField(fieldName);
+			}
+		});
+
+		if (Object.keys(fieldsToEncode).length > 0)
+		{
+			result.REAL_VALUES = this.#encodeRealValues(fieldsToEncode);
+		}
+
+		return result;
+	}
+
 	/**
 	 * Get real values field.
 	 *
@@ -549,7 +576,7 @@ export class Row
 			const value = this.getField('REAL_VALUES');
 			if (value)
 			{
-				const parsedValue = JSON.parse(atob(value));
+				const parsedValue = this.parseRealValues(value);
 				if (Type.isPlainObject(parsedValue))
 				{
 					this.realValues = parsedValue;
@@ -562,6 +589,35 @@ export class Row
 		}
 
 		return this.realValues;
+	}
+
+	updateRealValues(newRealValues: Object): void
+	{
+		const newRealValuesKey = Object.keys(newRealValues);
+
+		if (newRealValuesKey.length === 0)
+		{
+			return;
+		}
+
+		if (!this.realValues)
+		{
+			return;
+		}
+
+		newRealValuesKey.forEach((valueKey) => {
+			this.realValues[valueKey] = newRealValues[valueKey];
+		});
+	}
+
+	parseRealValues(values: string): Object
+	{
+		return JSON.parse(atob(values));
+	}
+
+	#encodeRealValues(values: Object): string
+	{
+		return btoa(JSON.stringify(values));
 	}
 
 	initFields(fields: Object): void

@@ -1,8 +1,13 @@
-<?
+<?php
+
+if(class_exists("security"))
+{
+	return;
+}
+
 IncludeModuleLangFile(__FILE__);
 
-if(class_exists("security")) return;
-Class security extends CModule
+class security extends CModule
 {
 	var $MODULE_ID = "security";
 	var $MODULE_VERSION;
@@ -11,6 +16,7 @@ Class security extends CModule
 	var $MODULE_DESCRIPTION;
 	var $MODULE_CSS;
 	var $MODULE_GROUP_RIGHTS = "Y";
+	var $errors;
 
 	public function __construct()
 	{
@@ -103,6 +109,7 @@ Class security extends CModule
 	function InstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+
 		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
@@ -162,6 +169,7 @@ Class security extends CModule
 	function UnInstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+
 		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
@@ -223,15 +231,13 @@ Class security extends CModule
 
 	function InstallFiles($arParams = array())
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/otp", $_SERVER["DOCUMENT_ROOT"]."/bitrix/otp", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/js/security", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js/security", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/security", false, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", True, True);
-		}
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/otp", $_SERVER["DOCUMENT_ROOT"]."/bitrix/otp", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/js/security", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js/security", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/security", false, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", True, True);
+
 		return true;
 	}
 
@@ -249,7 +255,8 @@ Class security extends CModule
 
 	function DoInstall()
 	{
-		global $DB, $DOCUMENT_ROOT, $APPLICATION, $step;
+		global $APPLICATION, $step;
+
 		$SEC_RIGHT = $APPLICATION->GetGroupRight("security");
 		if($SEC_RIGHT >= "W")
 		{
@@ -273,7 +280,8 @@ Class security extends CModule
 
 	function DoUninstall()
 	{
-		global $DB, $DOCUMENT_ROOT, $APPLICATION, $step;
+		global $APPLICATION, $step;
+
 		$SEC_RIGHT = $APPLICATION->GetGroupRight("security");
 		if($SEC_RIGHT >= "W")
 		{

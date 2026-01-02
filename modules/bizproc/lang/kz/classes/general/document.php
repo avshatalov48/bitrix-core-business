@@ -1,0 +1,30 @@
+<?php
+$MESS["BPCGDOC_ADD"] = "Қосу";
+$MESS["BPCGDOC_AUTO_EXECUTE_CREATE"] = "Құру";
+$MESS["BPCGDOC_AUTO_EXECUTE_DELETE"] = "Жою";
+$MESS["BPCGDOC_AUTO_EXECUTE_EDIT"] = "Өзгерту";
+$MESS["BPCGDOC_AUTO_EXECUTE_NONE"] = "Жоқ";
+$MESS["BPCGDOC_DELEGATE_LOG_MSGVER_1"] = "Пайдаланушы #FROM#, \"#NAME#\" тапсырмасын #TO# пайдаланушыға табыстады";
+$MESS["BPCGDOC_DELEGATE_LOG_TITLE"] = "Табыстау";
+$MESS["BPCGDOC_DELEGATE_NOTIFY_TEXT_MSGVER_1"] = "Сізге [URL=#TASK_URL#]#TASK_NAME#[/URL] бизнес-процестің тапсырмасы табысталды";
+$MESS["BPCGDOC_EMPTY_WD_ID_MSGVER_1"] = "Бизнес-процесс қалыбының коды көрсетілмеген";
+$MESS["BPCGDOC_ERROR_ACTION_MSGVER_1"] = "\"#NAME#\" тапсырмасы: #ERROR#";
+$MESS["BPCGDOC_ERROR_DELEGATE_0_MSGVER_1"] = "\"#NAME#\" тапсырмасы табыстала алмайды, өйткені таңдалған қызметкер сізге бағынышты емес";
+$MESS["BPCGDOC_ERROR_DELEGATE_0_SINGLE_MSGVER_1"] = "Қызметкер сізге бағынышты емес";
+$MESS["BPCGDOC_ERROR_DELEGATE_1_MSGVER_1"] = "\"#NAME#\" тапсырмасы табыстала алмайды, өйткені таңдалған пайдаланушы компанияның қызметкері болып табылмайды";
+$MESS["BPCGDOC_ERROR_DELEGATE_1_SINGLE_MSGVER_1"] = "Пайдаланушы компанияның қызметкері болып табылмайды";
+$MESS["BPCGDOC_ERROR_DELEGATE_2_MSGVER_1"] = "\"#NAME#\" тапсырмасы табыстала алмайды, өйткені бұл әрекет тапсырманың баптауларымен тыйым салынған";
+$MESS["BPCGDOC_ERROR_DELEGATE_2_SINGLE_MSGVER_1"] = "Табыстау тапсырманың баптауларымен тыйым салынған";
+$MESS["BPCGDOC_ERROR_DELEGATE_MSGVER_1"] = "\"#NAME#\" тапсырмасы табыстала алмайды: таңдалған қызметкер тапсырманы орындауға қатысуда";
+$MESS["BPCGDOC_ERROR_DELEGATE_SINGLE_MSGVER_1"] = "Қызметкер тапсырманы орындауға әлдеқашан қатысып жатыр";
+$MESS["BPCGDOC_ERROR_TASK_IS_NOT_INLINE_MSGVER_1"] = "\"#NAME#\" тапсырмасы бұл әрекетпен орындала алмайды";
+$MESS["BPCGDOC_INVALID_TYPE"] = "Параметрдің түрі анықталмаған";
+$MESS["BPCGDOC_INVALID_WF_ID_MSGVER_1"] = "#ID# коды бар бизнес-процесс қалыбы табылмады";
+$MESS["BPCGDOC_INVALID_WF_MSGVER_1"] = "Бизнес-процесс бұл құжат үшін іске қосылмады";
+$MESS["BPCGDOC_NO"] = "Жоқ";
+$MESS["BPCGDOC_WAIT"] = "күтіңіз...";
+$MESS["BPCGDOC_WI_B24_LIMITS_MESSAGE"] = "Сіздің порталыңызда кейбір құжаттарда бір уақытта екіден астам бизнес-процесстер орындалады. Біраз уақыттан кейін бір құжатқа бір уақытта іске қосылған ең көп дегенде екі бизнес-процеске шектеу енгізіледі. Жақын арада бизнес-процестердің логикасын түзетуге кеңес береміз. [URL=https://helpdesk.bitrix24.ru/open/4662427/] Толығырақ[/URL]";
+$MESS["BPCGDOC_WI_LOCKED_NOTICE_MESSAGE"] = "Сіз іске қосқан кейбір бизнес-процестер(#CNT#) дұрыс аяқталмады.
+[URL=#PATH#]Олармен танысып шығу үшін тізімге өтіңіз [/URL].";
+$MESS["BPCGDOC_WI_LOCKED_NOTICE_TITLE_MSGVER_1"] = "Портал көмекшісі";
+$MESS["BPCGDOC_YES"] = "Иә";

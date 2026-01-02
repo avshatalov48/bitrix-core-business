@@ -1,0 +1,10 @@
+<?php
+$MESS["LEARNING_ADMIN_GROUPS_ACTIVE"] = "Белс.";
+$MESS["LEARNING_ADMIN_GROUPS_ACTIVE_FROM"] = "Белсенділіктің басталуы";
+$MESS["LEARNING_ADMIN_GROUPS_ACTIVE_TO"] = "Белсенділіктің аяқталуы";
+$MESS["LEARNING_ADMIN_GROUPS_CODE"] = "Символдық атау";
+$MESS["LEARNING_ADMIN_GROUPS_COURSE_LESSON_ID"] = "Курстың ID-і";
+$MESS["LEARNING_ADMIN_GROUPS_COURSE_TITLE"] = "Курс";
+$MESS["LEARNING_ADMIN_GROUPS_SORT"] = "Сұрыптау";
+$MESS["LEARNING_ADMIN_GROUPS_TITLE"] = "Атауы";
+$MESS["LEARNING_ADMIN_TITLE"] = "Оқу топтарының тізімі";

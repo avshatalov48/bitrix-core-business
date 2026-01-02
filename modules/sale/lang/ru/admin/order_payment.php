@@ -1,5 +1,5 @@
 <?php
-$MESS['SALE_ORDER_ID'] = "ID заказа";
+$MESS["SALE_ORDER_ID"] = "ID заказа";
 $MESS['SALE_ACCOUNT_NUMBER'] = "Номер заказа";
 $MESS['SALE_ORDER_PAID'] = "Оплата заказа";
 $MESS['SALE_ORDER_SUM'] = "Сумма";

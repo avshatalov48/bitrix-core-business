@@ -175,7 +175,7 @@ if (check_bitrix_sessid())
 						"(%2\$s LIKE '%%" . $word . "%%')"
 					);
 				}
-				$sortWeight = new \Bitrix\Main\Entity\ExpressionField('SORT_WEIGHT', $sortExpr, ['NAME', 'EMAIL']);
+				$sortWeight = new \Bitrix\Main\ORM\Fields\ExpressionField('SORT_WEIGHT', $sortExpr, ['NAME', 'EMAIL']);
 				$queryFilter = [
 					[
 						'LOGIC' => 'OR',

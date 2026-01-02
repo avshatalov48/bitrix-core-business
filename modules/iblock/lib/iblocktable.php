@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Iblock;
 
 use Bitrix\Iblock\ORM\ElementEntity;
@@ -21,7 +22,6 @@ use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type\DateTime;
 use CIBlockProperty;
-
 
 /**
  * Class IblockTable

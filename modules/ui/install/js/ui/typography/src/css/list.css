@@ -12,4 +12,10 @@
 
 .ui-typography-li {
 	margin: 0 12px;
+	white-space: break-spaces;
+	overflow-wrap: anywhere;
+}
+
+.ui-typography-li.--nested {
+	list-style-type: none;
 }

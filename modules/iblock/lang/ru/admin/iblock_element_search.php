@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_ELSEARCH_TITLE"] = "Поиск элемента";
 $MESS["IBLOCK_ELSEARCH_LOCK_BY"] = "Кем заблокирована";
 $MESS["IBLOCK_ELSEARCH_CHOOSE_IBLOCK"] = "Выберите информационный блок";
@@ -21,4 +21,3 @@ $MESS["IBLOCK_ELSEARCH_FROMTO_ID"] = "ID (начальный и конечный
 $MESS["IBLOCK_ELSEARCH_ELEMENTS"] = "Элементы";
 $MESS["IBLOCK_FIELD_EXTERNAL_ID"] = "Внешний код";
 $MESS["IBLOCK_FIELD_CODE"] = "Символьный код";
-?>

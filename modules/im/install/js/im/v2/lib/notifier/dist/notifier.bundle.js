@@ -2,271 +2,301 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_notificationManager,ui_vue3_vuex,main_core,main_core_events,im_v2_application_core,im_v2_lib_parser,im_v2_lib_desktop,im_public,im_v2_const,im_v2_provider_service) {
+(function (exports,ui_notification,im_v2_application_core,im_public,im_v2_const,main_core) {
 	'use strict';
 
-	const CHAT_MESSAGE_PREFIX = 'im-chat';
-	const COPILOT_MESSAGE_PREFIX = 'im-copilot';
-	const LINES_MESSAGE_PREFIX = 'im-lines';
-	const NOTIFICATION_PREFIX = 'im-notify';
-	const ACTION_BUTTON_PREFIX = 'button_';
-	const ButtonNumber = {
-	  first: '1',
-	  second: '2'
+	const showNotification = (text, params) => {
+	  BX.UI.Notification.Center.notify({
+	    content: text,
+	    ...params
+	  });
 	};
-	var _instance = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("instance");
-	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
-	var _notificationService = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("notificationService");
-	var _prepareNotificationOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareNotificationOptions");
-	var _subscribeToNotifierEvents = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribeToNotifierEvents");
-	var _onNotifierClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onNotifierClick");
-	var _onNotifierAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onNotifierAction");
-	var _onNotifierQuickAnswer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onNotifierQuickAnswer");
-	var _onNotifierButtonClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onNotifierButtonClick");
-	var _sendButtonAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendButtonAction");
-	var _isChatMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isChatMessage");
-	var _isCopilotMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCopilotMessage");
-	var _isLinesMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isLinesMessage");
-	var _isNotification = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isNotification");
-	var _isConfirmButtonAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isConfirmButtonAction");
-	var _extractDialogId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("extractDialogId");
-	var _extractNotificationId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("extractNotificationId");
-	var _extractButtonNumber = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("extractButtonNumber");
-	var _extractButtonParams = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("extractButtonParams");
-	class NotifierManager {
-	  static getInstance() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance]) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance] = new this();
+
+	const extractRestErrorCode = error => {
+	  const {
+	    ex: {
+	      error: errorCode
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance];
-	  }
-	  static init() {
-	    NotifierManager.getInstance();
-	  }
-	  constructor() {
-	    Object.defineProperty(this, _extractButtonParams, {
-	      value: _extractButtonParams2
-	    });
-	    Object.defineProperty(this, _extractButtonNumber, {
-	      value: _extractButtonNumber2
-	    });
-	    Object.defineProperty(this, _extractNotificationId, {
-	      value: _extractNotificationId2
-	    });
-	    Object.defineProperty(this, _extractDialogId, {
-	      value: _extractDialogId2
-	    });
-	    Object.defineProperty(this, _isConfirmButtonAction, {
-	      value: _isConfirmButtonAction2
-	    });
-	    Object.defineProperty(this, _isNotification, {
-	      value: _isNotification2
-	    });
-	    Object.defineProperty(this, _isLinesMessage, {
-	      value: _isLinesMessage2
-	    });
-	    Object.defineProperty(this, _isCopilotMessage, {
-	      value: _isCopilotMessage2
-	    });
-	    Object.defineProperty(this, _isChatMessage, {
-	      value: _isChatMessage2
-	    });
-	    Object.defineProperty(this, _sendButtonAction, {
-	      value: _sendButtonAction2
-	    });
-	    Object.defineProperty(this, _onNotifierButtonClick, {
-	      value: _onNotifierButtonClick2
-	    });
-	    Object.defineProperty(this, _onNotifierQuickAnswer, {
-	      value: _onNotifierQuickAnswer2
-	    });
-	    Object.defineProperty(this, _onNotifierAction, {
-	      value: _onNotifierAction2
-	    });
-	    Object.defineProperty(this, _onNotifierClick, {
-	      value: _onNotifierClick2
-	    });
-	    Object.defineProperty(this, _subscribeToNotifierEvents, {
-	      value: _subscribeToNotifierEvents2
-	    });
-	    Object.defineProperty(this, _prepareNotificationOptions, {
-	      value: _prepareNotificationOptions2
-	    });
-	    Object.defineProperty(this, _store, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _notificationService, {
-	      writable: true,
-	      value: void 0
-	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = im_v2_application_core.Core.getStore();
-	    babelHelpers.classPrivateFieldLooseBase(this, _notificationService)[_notificationService] = new im_v2_provider_service.NotificationService();
-	    babelHelpers.classPrivateFieldLooseBase(this, _subscribeToNotifierEvents)[_subscribeToNotifierEvents]();
-	  }
-	  showMessage(params) {
-	    const {
-	      message,
-	      dialog,
-	      user,
-	      lines
-	    } = params;
-	    let text = '';
-	    if (user && dialog.type !== im_v2_const.ChatType.user) {
-	      text += `${user.name}: `;
+	  } = error;
+	  return errorCode;
+	};
+
+	const ChatNotifier = {
+	  handleLoadError(error) {
+	    // eslint-disable-next-line unicorn/prefer-switch
+	    if (error.code === im_v2_const.ErrorCode.chat.notFound) {
+	      this.onNotFoundError();
+	    } else if (error.code === im_v2_const.ErrorCode.chat.accessDenied) {
+	      this.onAccessDeniedError();
+	    } else if (error.code === im_v2_const.ErrorCode.message.notFound) {
+	      this.onContextMessageNotFoundError();
 	    }
-	    text += im_v2_lib_parser.Parser.purifyMessage(message);
-	    let id = `${CHAT_MESSAGE_PREFIX}-${dialog.dialogId}-${message.id}`;
-	    if (dialog.type === im_v2_const.ChatType.copilot) {
-	      id = `${COPILOT_MESSAGE_PREFIX}-${dialog.dialogId}-${message.id}`;
-	    } else if (lines) {
-	      id = `${LINES_MESSAGE_PREFIX}-${dialog.dialogId}-${message.id}`;
-	    }
-	    const notificationOptions = {
-	      id,
-	      title: dialog.name,
-	      icon: dialog.avatar || (user == null ? void 0 : user.avatar),
-	      text
+	  },
+	  handleLeaveError(error) {
+	    var _NotificationTextByEr;
+	    const errorCode = extractRestErrorCode(error);
+	    const NotificationTextByErrorCode = {
+	      [im_v2_const.ErrorCode.user.invitedFromStructure]: main_core.Loc.getMessage('IM_NOTIFIER_LEAVE_CHAT_STRUCTURE_ERROR'),
+	      default: main_core.Loc.getMessage('IM_NOTIFIER_LEAVE_CHAT_ERROR')
 	    };
-	    const isDesktopFocused = im_v2_lib_desktop.DesktopManager.isChatWindow() && document.hasFocus();
-	    if (isDesktopFocused) {
-	      ui_notificationManager.Notifier.notifyViaBrowserProvider(notificationOptions);
-	    } else {
-	      ui_notificationManager.Notifier.notify(notificationOptions);
-	    }
+	    const notificationText = (_NotificationTextByEr = NotificationTextByErrorCode[errorCode]) != null ? _NotificationTextByEr : NotificationTextByErrorCode.default;
+	    showNotification(notificationText);
+	  },
+	  handleUserKickError(error) {
+	    var _NotificationTextByEr2;
+	    const errorCode = extractRestErrorCode(error);
+	    const NotificationTextByErrorCode = {
+	      [im_v2_const.ErrorCode.user.invitedFromStructure]: main_core.Loc.getMessage('IM_NOTIFIER_KICK_CHAT_STRUCTURE_ERROR'),
+	      default: main_core.Loc.getMessage('IM_NOTIFIER_KICK_CHAT_ERROR')
+	    };
+	    const notificationText = (_NotificationTextByEr2 = NotificationTextByErrorCode[errorCode]) != null ? _NotificationTextByEr2 : NotificationTextByErrorCode.default;
+	    showNotification(notificationText);
+	  },
+	  onNotFoundError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_CHAT_ACCESS_ERROR'));
+	  },
+	  onAccessDeniedError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_CHAT_ACCESS_ERROR'));
+	  },
+	  onContextMessageNotFoundError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_CONTEXT_MESSAGE_NOT_FOUND_ERROR'));
+	  },
+	  onCreateError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_CHAT_CREATE_ERROR'));
+	  },
+	  onUpdateError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_CHAT_UPDATE_ERROR'));
+	  },
+	  onDeleteError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_CHAT_DELETE_ERROR'));
+	  },
+	  onRenameError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_CHAT_RENAME_ERROR'));
+	  },
+	  onMessagesPinLimitError(pinLimit) {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_MESSAGES_PIN_LIMIT_ERROR', {
+	      '#MAX_PINS#': pinLimit
+	    }));
 	  }
-	  showNotification(notification, user) {
-	    let title = main_core.Loc.getMessage('IM_LIB_NOTIFIER_NOTIFY_SYSTEM_TITLE');
-	    if (notification.title) {
-	      title = notification.title;
-	    } else if (user) {
-	      title = user.name;
-	    }
-	    const notificationOptions = babelHelpers.classPrivateFieldLooseBase(this, _prepareNotificationOptions)[_prepareNotificationOptions](title, notification, user);
-	    const isDesktopFocused = im_v2_lib_desktop.DesktopManager.isChatWindow() && document.hasFocus();
-	    if (isDesktopFocused) {
-	      ui_notificationManager.Notifier.notifyViaBrowserProvider(notificationOptions);
-	    } else {
-	      ui_notificationManager.Notifier.notify(notificationOptions);
-	    }
-	  }
-	}
-	function _prepareNotificationOptions2(title, notification, user) {
-	  var _notification$params;
-	  const notificationOptions = {
-	    id: `${NOTIFICATION_PREFIX}-${notification.id}`,
-	    title,
-	    icon: user ? user.avatar : '',
-	    text: im_v2_lib_parser.Parser.purifyNotification(notification)
-	  };
-	  if (notification.sectionCode === im_v2_const.NotificationTypesCodes.confirm) {
-	    const [firstButton, secondButton] = notification.notifyButtons;
-	    notificationOptions.button1Text = firstButton.TEXT;
-	    notificationOptions.button2Text = secondButton.TEXT;
-	  } else if (((_notification$params = notification.params) == null ? void 0 : _notification$params.canAnswer) === 'Y') {
-	    notificationOptions.inputPlaceholderText = main_core.Loc.getMessage('IM_LIB_NOTIFIER_NOTIFY_REPLY_PLACEHOLDER');
-	  }
-	  return notificationOptions;
-	}
-	function _subscribeToNotifierEvents2() {
-	  ui_notificationManager.Notifier.subscribe('click', event => {
-	    babelHelpers.classPrivateFieldLooseBase(this, _onNotifierClick)[_onNotifierClick](event.getData());
-	  });
-	  ui_notificationManager.Notifier.subscribe('action', event => {
-	    babelHelpers.classPrivateFieldLooseBase(this, _onNotifierAction)[_onNotifierAction](event.getData());
-	  });
-	}
-	function _onNotifierClick2(params) {
-	  const {
-	    id
-	  } = params;
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _isChatMessage)[_isChatMessage](id)) {
-	    const dialogId = babelHelpers.classPrivateFieldLooseBase(this, _extractDialogId)[_extractDialogId](id);
-	    im_public.Messenger.openChat(dialogId);
-	  } else if (babelHelpers.classPrivateFieldLooseBase(this, _isCopilotMessage)[_isCopilotMessage](id)) {
-	    const dialogId = babelHelpers.classPrivateFieldLooseBase(this, _extractDialogId)[_extractDialogId](id);
-	    im_public.Messenger.openCopilot(dialogId);
-	  } else if (babelHelpers.classPrivateFieldLooseBase(this, _isLinesMessage)[_isLinesMessage](id)) {
-	    const dialogId = babelHelpers.classPrivateFieldLooseBase(this, _extractDialogId)[_extractDialogId](id);
-	    im_public.Messenger.openLines(dialogId);
-	  } else if (babelHelpers.classPrivateFieldLooseBase(this, _isNotification)[_isNotification](id)) {
-	    im_public.Messenger.openNotifications();
-	  }
-	}
-	function _onNotifierAction2(params) {
-	  const {
-	    id,
-	    action,
-	    userInput
-	  } = params;
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isNotification)[_isNotification](id)) {
-	    return;
-	  }
-	  const notificationId = babelHelpers.classPrivateFieldLooseBase(this, _extractNotificationId)[_extractNotificationId](id);
-	  const notification = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['notifications/getById'](notificationId);
-	  if (userInput) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _onNotifierQuickAnswer)[_onNotifierQuickAnswer](notification, userInput);
-	  } else if (babelHelpers.classPrivateFieldLooseBase(this, _isConfirmButtonAction)[_isConfirmButtonAction](action, notification)) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _onNotifierButtonClick)[_onNotifierButtonClick](action, notification);
-	  }
-	}
-	function _onNotifierQuickAnswer2(notification, text) {
-	  babelHelpers.classPrivateFieldLooseBase(this, _notificationService)[_notificationService].sendQuickAnswer({
-	    id: notification.id,
-	    text
-	  });
-	}
-	function _onNotifierButtonClick2(action, notification) {
-	  const [firstButton, secondButton] = notification.notifyButtons;
-	  const actionButtonNumber = babelHelpers.classPrivateFieldLooseBase(this, _extractButtonNumber)[_extractButtonNumber](action);
-	  if (actionButtonNumber === ButtonNumber.first) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _sendButtonAction)[_sendButtonAction](notification, firstButton);
-	  } else if (actionButtonNumber === ButtonNumber.second) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _sendButtonAction)[_sendButtonAction](notification, secondButton);
-	  }
-	}
-	function _sendButtonAction2(notification, button) {
-	  const [notificationId, value] = babelHelpers.classPrivateFieldLooseBase(this, _extractButtonParams)[_extractButtonParams](button);
-	  babelHelpers.classPrivateFieldLooseBase(this, _notificationService)[_notificationService].sendConfirmAction(notificationId, value);
-	}
-	function _isChatMessage2(id) {
-	  return id.startsWith(CHAT_MESSAGE_PREFIX);
-	}
-	function _isCopilotMessage2(id) {
-	  return id.startsWith(COPILOT_MESSAGE_PREFIX);
-	}
-	function _isLinesMessage2(id) {
-	  return id.startsWith(LINES_MESSAGE_PREFIX);
-	}
-	function _isNotification2(id) {
-	  return id.startsWith(NOTIFICATION_PREFIX);
-	}
-	function _isConfirmButtonAction2(action, notification) {
-	  const notificationType = notification.sectionCode;
-	  return action.startsWith(ACTION_BUTTON_PREFIX) && notificationType === im_v2_const.NotificationTypesCodes.confirm;
-	}
-	function _extractDialogId2(id) {
-	  // 'im-chat-1-2565'
-	  return id.split('-')[2];
-	}
-	function _extractNotificationId2(id) {
-	  // 'im-notify-2558'
-	  return id.split('-')[2];
-	}
-	function _extractButtonNumber2(action) {
-	  // 'button_1'
-	  return action.split('_')[1];
-	}
-	function _extractButtonParams2(button) {
-	  // '2568|Y'
-	  return button.COMMAND_PARAMS.split('|');
-	}
-	Object.defineProperty(NotifierManager, _instance, {
-	  writable: true,
-	  value: void 0
-	});
+	};
 
-	exports.NotifierManager = NotifierManager;
+	const MessageNotifier = {
+	  onCopyComplete() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_MESSAGE_COPY_COMPLETE'));
+	  },
+	  onCopyLinkComplete() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_MESSAGE_LINK_COPY_COMPLETE'));
+	  },
+	  onAddToFavoriteComplete() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_MESSAGE_FAVORITE_ADD_COMPLETE'));
+	  },
+	  onForwardNotesComplete(messagesIds) {
+	    const text = messagesIds.length > 1 ? main_core.Loc.getMessage('IM_NOTIFIER_MESSAGE_FORWARD_NOTES_SEVERAL_MESSAGES_COMPLETE') : main_core.Loc.getMessage('IM_NOTIFIER_MESSAGE_FORWARD_NOTES_COMPLETE');
+	    const dialogId = im_v2_application_core.Core.getUserId().toString();
+	    const notesOpeningAction = {
+	      title: main_core.Loc.getMessage('IM_NOTIFIER_MESSAGE_FORWARD_NOTES_OPEN_COMPLETE'),
+	      events: {
+	        click: () => {
+	          void im_public.Messenger.openChat(dialogId);
+	        }
+	      }
+	    };
+	    showNotification(text, {
+	      actions: [notesOpeningAction]
+	    });
+	  },
+	  handleLoadContextError(error) {
+	    if (error.code === im_v2_const.ErrorCode.message.notFound) {
+	      this.onNotFoundError();
+	    }
+	  },
+	  onNotFoundError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_CONTEXT_MESSAGE_NOT_FOUND_ERROR'));
+	  },
+	  onSelectLimitError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_MESSAGE_SELECT_LIMIT_ERROR'));
+	  }
+	};
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.UI.NotificationManager,BX.Vue3.Vuex,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Service));
+	const CollabErrorCode = {
+	  emptyName: 'name',
+	  duplicateName: 'ERROR_GROUP_NAME_EXISTS',
+	  urlInName: 'ERROR_NAME_CONTAINS_URL',
+	  tasksNotEmpty: 'TASKS_NOT_EMPTY',
+	  diskNotEmpty: 'DISK_NOT_EMPTY',
+	  calendarNotEmpty: 'CALENDAR_NOT_EMPTY'
+	};
+	const NotEmptyCollabErrorCodes = new Set([CollabErrorCode.tasksNotEmpty, CollabErrorCode.diskNotEmpty, CollabErrorCode.calendarNotEmpty]);
+	const CollabNotifier = {
+	  onBeforeDelete() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_DELETE_PROGRESS'));
+	  },
+	  onUpdateLinkComplete() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_LINK_UPDATE_COMPLETE'));
+	  },
+	  handleCreateError(error) {
+	    var _NotificationTextByEr;
+	    const NotificationTextByErrorCode = {
+	      [CollabErrorCode.emptyName]: main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_EMPTY_NAME_ERROR'),
+	      [CollabErrorCode.duplicateName]: main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_DUPLICATE_NAME_ERROR'),
+	      [CollabErrorCode.urlInName]: main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_URL_IN_NAME_ERROR'),
+	      default: main_core.Loc.getMessage('IM_NOTIFIER_CHAT_CREATE_ERROR')
+	    };
+	    const notificationText = (_NotificationTextByEr = NotificationTextByErrorCode[error.code]) != null ? _NotificationTextByEr : NotificationTextByErrorCode.default;
+	    showNotification(notificationText);
+	  },
+	  handleUpdateError(error) {
+	    var _NotificationTextByEr2;
+	    const NotificationTextByErrorCode = {
+	      [CollabErrorCode.emptyName]: main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_EMPTY_NAME_ERROR'),
+	      [CollabErrorCode.duplicateName]: main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_DUPLICATE_NAME_ERROR'),
+	      [CollabErrorCode.urlInName]: main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_URL_IN_NAME_ERROR'),
+	      default: main_core.Loc.getMessage('IM_NOTIFIER_CHAT_UPDATE_ERROR')
+	    };
+	    const notificationText = (_NotificationTextByEr2 = NotificationTextByErrorCode[error.code]) != null ? _NotificationTextByEr2 : NotificationTextByErrorCode.default;
+	    showNotification(notificationText);
+	  },
+	  handleDeleteError(error) {
+	    if (NotEmptyCollabErrorCodes.has(error.code)) {
+	      showNotification(main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_DELETE_ENTITIES_ERROR'));
+	      return;
+	    }
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_DELETE_ERROR'));
+	  },
+	  onLeaveError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_LEAVE_ERROR'));
+	  },
+	  onKickUserError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_KICK_ERROR'));
+	  },
+	  onCollaberNotAcceptInvitation() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_COLLABER_NOT_ACCEPT_INVITATION'));
+	  },
+	  onCopyLinkError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_COLLAB_COPY_LINK_FORBIDDEN_ERROR'));
+	  }
+	};
+
+	const FileNotifier = {
+	  onDiskSaveComplete(isSingleFile = true) {
+	    if (isSingleFile) {
+	      showNotification(main_core.Loc.getMessage('IM_NOTIFIER_FILE_DISK_SAVE_COMPLETE'));
+	      return;
+	    }
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_FILES_DISK_SAVE_COMPLETE'));
+	  },
+	  onCopyComplete() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_FILE_COPY_COMPLETE'));
+	  },
+	  handleUploadError(error) {
+	    if (error.getCode() === im_v2_const.ErrorCode.file.maxFileSize) {
+	      showNotification(`${error.getMessage()}<br>${error.getDescription()}`);
+	    }
+	  }
+	};
+
+	const InviteNotifier = {
+	  onResendComplete() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_INVITE_RESEND_COMPLETE'), {
+	      autoHideDelay: 2000
+	    });
+	  },
+	  onCancelComplete() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_INVITE_CANCEL_COMPLETE'), {
+	      autoHideDelay: 2000
+	    });
+	  }
+	};
+
+	const ConferenceNotifier = {
+	  onCopyLinkComplete() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_CONFERENCE_LINK_COPY_COMPLETE'));
+	  },
+	  onPasswordError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_CONFERENCE_PASSWORD_ERROR'));
+	  }
+	};
+
+	const SupportNotifier = {
+	  onVoteClosedError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_VOTE_CLOSED_ERROR'));
+	  }
+	};
+
+	const SpeechNotifier = {
+	  onRecognitionError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_AUDIO_INPUT_ERROR'));
+	  }
+	};
+
+	const CallNotifier = {
+	  onBackgroundFileSizeError(payload) {
+	    const {
+	      fileName,
+	      fileSizeLimit
+	    } = payload;
+	    const phrase = main_core.Loc.getMessage('IM_NOTIFIER_CALL_BACKGROUND_FILE_SIZE_ERROR', {
+	      '#LIMIT#': fileSizeLimit,
+	      '#FILE_NAME#': fileName
+	    });
+	    showNotification(phrase);
+	  },
+	  onBackgroundUnsupportedError(fileName) {
+	    const phrase = main_core.Loc.getMessage('IM_NOTIFIER_CALL_BACKGROUND_FILE_UNSUPPORTED_ERROR', {
+	      '#FILE_NAME#': fileName
+	    });
+	    showNotification(phrase);
+	  }
+	};
+
+	const RecentErrorCodes = {
+	  maxPinned: 'MAX_PINNED_CHATS_ERROR'
+	};
+	const MAX_PINS = 45;
+	const RecentNotifier = {
+	  handlePinError(error) {
+	    var _NotificationTextByEr;
+	    const maxPinnedMessage = main_core.Loc.getMessage('IM_NOTIFIER_RECENT_PIN_LIMIT_ERROR', {
+	      '#MAX_PINS#': MAX_PINS
+	    });
+	    const NotificationTextByErrorCode = {
+	      [RecentErrorCodes.maxPinned]: maxPinnedMessage,
+	      default: main_core.Loc.getMessage('IM_NOTIFIER_RECENT_PIN_DEFAULT_ERROR')
+	    };
+	    const notificationText = (_NotificationTextByEr = NotificationTextByErrorCode[error.code]) != null ? _NotificationTextByEr : NotificationTextByErrorCode.default;
+	    showNotification(notificationText);
+	  },
+	  onUnpinError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_RECENT_UNPIN_DEFAULT_ERROR'));
+	  }
+	};
+
+	const Notifier = {
+	  chat: ChatNotifier,
+	  message: MessageNotifier,
+	  collab: CollabNotifier,
+	  file: FileNotifier,
+	  invite: InviteNotifier,
+	  conference: ConferenceNotifier,
+	  support: SupportNotifier,
+	  speech: SpeechNotifier,
+	  call: CallNotifier,
+	  recent: RecentNotifier,
+	  onCopyTextComplete() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_TEXT_COPY_COMPLETE'));
+	  },
+	  onCopyLinkComplete() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_LINK_COPY_COMPLETE'));
+	  },
+	  onDefaultError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_DEFAULT_ERROR'));
+	  },
+	  onCopyLinkError() {
+	    showNotification(main_core.Loc.getMessage('IM_NOTIFIER_LINK_COPY_ERROR'));
+	  }
+	};
+
+	exports.Notifier = Notifier;
+
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX));
 //# sourceMappingURL=notifier.bundle.js.map

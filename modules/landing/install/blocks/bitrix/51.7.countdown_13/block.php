@@ -1,11 +1,11 @@
-<section class="landing-block g-flex-centered g-bg-black-opacity-0_8--after g-pt-30 g-pb-30">
+	<section class="landing-block g-flex-centered g-bg-black-opacity-0_8--after g-pt-30 g-pb-30">
 	<div class="landing-block-node-container container">
 		<div class="text-center g-mb-40 g-mb-60--sm container g-max-width-800">
 			<h2 class="landing-block-node-title">Upcoming event</h2>
 		</div>
 
 			<div class="landing-block-node-date row js-countdown u-countdown text-center justify-content-center"
-				 data-end-date="1744474800000"
+				 data-end-date="#COUNTDOWN#"
 				 data-days-format="%D"
 				 data-hours-format="%H"
 				 data-minutes-format="%M"

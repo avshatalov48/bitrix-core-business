@@ -27,4 +27,20 @@ class FlowPath
 			->addQueryParam('p1', 'isDemo_' . $demoSuffix)
 			->makeEntitiesListPath();
 	}
+
+	public static function getTemplate(int $userId): string
+	{
+		if (!Loader::includeModule('tasks'))
+		{
+			return '';
+		}
+
+		$path = (new FlowPathMaker(ownerId: $userId))
+			->addQueryParam('GROUP_ID', 'groupId')
+			->addQueryParam('apply_filter', 'Y')
+			->makeEntitiesListPath()
+		;
+
+		return str_replace('groupId', '#groupId#', $path);
+	}
 }

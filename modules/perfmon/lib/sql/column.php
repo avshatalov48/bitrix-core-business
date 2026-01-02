@@ -172,6 +172,7 @@ class Column extends BaseObject
 	 * Current position should point to the name of the column.
 	 *
 	 * @param Tokenizer $tokenizer Tokens collection.
+	 * @param Table $parent Column owner Table object.
 	 *
 	 * @return Column
 	 * @throws NotSupportedException
@@ -245,7 +246,7 @@ class Column extends BaseObject
 			{
 				$constraint = new Constraint;
 				$constraint->columns[] = $column->name;
-				$constraint->setBody('PRIMARY KEY ('.$column->name.')');
+				$constraint->setBody('PRIMARY KEY (' . $column->name . ')');
 				$constraint->setParent($column->parent);
 				$column->parent->constraints->add($constraint);
 			}
@@ -336,7 +337,8 @@ class Column extends BaseObject
 	 */
 	public function getDdlType()
 	{
-		return $this->type
+		return ($this->unsigned ? 'UNSIGNED ' : '')
+			. $this->type
 			. ($this->typeAddition ? ' ' . $this->typeAddition : '')
 			. ($this->length !== '' ? '(' . $this->length . ($this->precision !== 0 ? ',' . $this->precision : '') . ')' : '');
 	}
@@ -449,7 +451,7 @@ class Column extends BaseObject
 			}
 			else
 			{
-				return '// ' . get_class($this) . ':getModifyDdl for database type [' . $dbType . "] not implemented. Change requested from [${this}->body] to [${target}->body].";
+				return '// ' . get_class($this) . ':getModifyDdl for database type [' . $dbType . '] not implemented. Change requested from [' . $this->body . '] to [' . $target->body . '].';
 			}
 		case 'MSSQL':
 			if ($this->nullable !== $target->nullable)

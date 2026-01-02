@@ -6,6 +6,7 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM;
 use Bitrix\Main\Type;
+use Bitrix\Main\Event;
 
 /**
  * Class CurrencyLangTable
@@ -177,5 +178,77 @@ class CurrencyLangTable extends ORM\Data\DataManager
 	{
 		parent::cleanCache();
 		CurrencyTable::cleanCache();
+	}
+
+	public static function onLanguageAddHandler(array|Event $event): void
+	{
+		if ($event instanceof Event)
+		{
+			$primary = $event->getParameter('primary');
+			$languageId = $primary['LID'] ?? null;
+		}
+		else
+		{
+			$languageId = $event['LID'] ?? null;
+		}
+
+		if (!$languageId)
+		{
+			return;
+		}
+
+		self::addCurrencyLanguagesByLanguageId((string)$languageId);
+	}
+
+	private static function addCurrencyLanguagesByLanguageId(string $languageId): void
+	{
+		$existCurrencies = \Bitrix\Currency\CurrencyTable::getList(['select' => ['CURRENCY']])->fetchAll();
+		foreach ($existCurrencies as $existCurrency)
+		{
+			$existsCurrencyCode = $existCurrency['CURRENCY'];
+			$currencyLangData = CurrencyLangTable::getRow(
+				[
+					'select' => ['CURRENCY', 'LID'],
+					'filter' => [
+						'=CURRENCY' => $existsCurrencyCode,
+						'=LID' => $languageId,
+					],
+				],
+			);
+			if ($currencyLangData)
+			{
+				continue;
+			}
+
+			$currencyClassifierData = CurrencyClassifier::getCurrency(
+				$existsCurrencyCode,
+				[$languageId]
+			);
+			if (!$currencyClassifierData)
+			{
+				continue;
+			}
+
+			$languageData = $currencyClassifierData[mb_strtoupper($languageId)];
+			$datetimeEntity = new \Bitrix\Main\DB\SqlExpression(
+				\Bitrix\Main\Application::getConnection()->getSqlHelper()->getCurrentDateTimeFunction()
+			);
+			self::add([
+				'CURRENCY' => $existsCurrencyCode,
+				'LID' => $languageId,
+				'FORMAT_STRING' => str_replace('#VALUE#', '#', $languageData['FORMAT_STRING']),
+				'FULL_NAME' => $languageData['FULL_NAME'],
+				'DEC_POINT' => $languageData['DEC_POINT'],
+				'THOUSANDS_SEP' => null,
+				'DECIMALS' => $languageData['DECIMALS'],
+				'THOUSANDS_VARIANT' => $languageData['THOUSANDS_VARIANT'],
+				'HIDE_ZERO' => 'Y',
+				'CREATED_BY' => null,
+				'DATE_CREATE' => $datetimeEntity,
+				'MODIFIED_BY' => null,
+				'TIMESTAMP_X' => $datetimeEntity,
+			]);
+			\Bitrix\Currency\CurrencyManager::clearCurrencyCache();
+		}
 	}
 }

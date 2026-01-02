@@ -9,6 +9,7 @@ use Bitrix\Main\Web\Json;
 
 Loc::loadMessages(__FILE__);
 
+\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
 \Bitrix\Main\UI\Extension::load('ui.design-tokens');
 ?>
 <form method="post" id="rest-integration-form">
@@ -640,7 +641,7 @@ Loc::loadMessages(__FILE__);
 											><?=Loc::getMessage('REST_INTEGRATION_EDIT_SHOW_MORE_BTN')?></span>
 										<?php endif;?>
 									</div>
-									<? if ($arResult['DESCRIPTION_' . $block]): ?>
+									<? if (isset($arResult['DESCRIPTION_' . $block]) && $arResult['DESCRIPTION_' . $block]): ?>
 										<div class="integration-row integration-row-padding-right">
 											<? if (!empty($arResult['DESCRIPTION_' . $block]['TITLE'])): ?>
 												<div class="integration-row-container-title-text">

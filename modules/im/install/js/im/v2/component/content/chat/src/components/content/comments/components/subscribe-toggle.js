@@ -1,5 +1,5 @@
-import { Toggle, ToggleSize } from 'im.v2.component.elements';
-import { CommentsService } from 'im.v2.provider.service';
+import { Toggle, ToggleSize } from 'im.v2.component.elements.toggle';
+import { CommentsService } from 'im.v2.provider.service.comments';
 
 import '../css/follow-toggle.css';
 

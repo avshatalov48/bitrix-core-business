@@ -31,6 +31,30 @@ class UserGroups extends EntityBase
 		return $result;
 	}
 
+	/**
+	 * @return array{
+	 *     ITEMS: array<string, array{
+	 *         id: string,
+	 *         entityId: int,
+	 *         name: string,
+	 *         desc: string
+	 *     }>,
+	 *     ITEMS_LAST: array<int, mixed>,
+	 *     ITEMS_HIDDEN: array<int, mixed>,
+	 *     ADDITIONAL_INFO: array{
+	 *         GROUPS_LIST: array{
+	 *             usergroups: array{
+	 *                 TITLE: string,
+	 *                 TYPE_LIST: array<int, string>,
+	 *                 DESC_LESS_MODE: string,
+	 *                 SORT: int
+	 *             }
+	 *         },
+	 *         PREFIX: string,
+	 *         SORT_SELECTED: int
+	 *     }
+	 * }
+	 */
 	public function getData($params = [])
 	{
 		$entityType = Handler::ENTITY_TYPE_GROUP;
@@ -69,6 +93,12 @@ class UserGroups extends EntityBase
 			"entityId" 	=> 0,
 			"name" 		=> Loc::getMessage('MAIN_UI_SELECTOR_EMPLOYEE_NAME'),
 			"desc" 		=> Loc::getMessage('MAIN_UI_SELECTOR_EMPLOYEE_DESCRIPTION')
+		];
+		$result['ITEMS'][AccessCode::ACCESS_DEPUTY . '0'] = [
+			"id" 		=> AccessCode::ACCESS_DEPUTY . '0',
+			"entityId" 	=> 0,
+			"name" 		=> Loc::getMessage('MAIN_UI_SELECTOR_DEPUTY_NAME'),
+			"desc" 		=> Loc::getMessage('MAIN_UI_SELECTOR_DEPUTY_DESCRIPTION')
 		];
 
 		if (!empty($lastItems[$entityType])) {

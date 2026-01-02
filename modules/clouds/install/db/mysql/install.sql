@@ -103,3 +103,12 @@ CREATE TABLE b_clouds_file_hash
 	PRIMARY KEY pk_b_clouds_file_hash(ID),
 	INDEX ix_b_clouds_file_hash(BUCKET_ID, FILE_PATH(190))
 );
+
+CREATE TABLE b_clouds_size_queue
+(
+	ID BIGINT NOT NULL auto_increment,
+	BUCKET_ID INT NOT NULL,
+	FILE_COUNT INT NOT NULL,
+	FILE_SIZE BIGINT,
+	PRIMARY KEY pk_b_clouds_size_queue(ID)
+);

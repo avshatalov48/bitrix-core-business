@@ -17,6 +17,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Loader;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 Loader::includeModule('ui');
 Loc::loadMessages(__FILE__);
@@ -29,33 +30,25 @@ CJSCore::Init(
 		'ui.fonts.opensans',
 	]
 );
+
+Toolbar::addFilter([
+	'FILTER_ID' => $arParams['FILTER_NAME'],
+	'FILTER' => $arResult['FILTER'],
+	'GRID_ID' => $arParams['GRID_ID'],
+	'ENABLE_LIVE_SEARCH' => true,
+	'DISABLE_SEARCH' => true,
+	'ENABLE_LABEL' => true,
+	'RESET_TO_DEFAULT_MODE' => true,
+	'THEME' => 'DEFAULT',
+]);
+Toolbar::deleteFavoriteStar();
+
 Asset::getInstance()->addJs('/bitrix/js/main/amcharts/3.21/gantt.js');
 
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : '') . 'no-background');
+
 ?>
-<div class="filter-statistic pagetitle-container pagetitle-flexible-space">
-	<?
-	$APPLICATION->IncludeComponent(
-		'bitrix:main.ui.filter',
-		'',
-		array(
-			'FILTER_ID' => $arParams['FILTER_NAME'],
-			'FILTER' => $arResult['FILTER'],
-			'GRID_ID' => $arParams['GRID_ID'],
-			'ENABLE_LIVE_SEARCH' => true,
-			'DISABLE_SEARCH' => true,
-			'ENABLE_LABEL' => true,
-			'RESET_TO_DEFAULT_MODE' => true,
-			'THEME' => 'DEFAULT'
-		),
-		$component,
-		array(
-			'HIDE_ICONS' => true
-		)
-	);
-	?>
-</div>
 
 <div id="appHistoryChart"></div>
 

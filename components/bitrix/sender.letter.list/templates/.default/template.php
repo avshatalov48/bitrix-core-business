@@ -12,6 +12,7 @@ use Bitrix\Main\Web\Json;
 	'sender.error_handler',
 	'bitrix24.phoneverify'
 ]);
+\Bitrix\Main\Loader::includeModule('ui');
 
 foreach ($arResult['ERRORS'] as $error)
 {
@@ -428,23 +429,8 @@ foreach ($arResult['ROWS'] as $index => $data)
 	);
 }
 
-ob_start();
-$APPLICATION->IncludeComponent(
-	"bitrix:main.ui.filter",
-	"",
-	array(
-		"FILTER_ID" => $arParams['FILTER_ID'],
-		"GRID_ID" => $arParams['GRID_ID'],
-		"FILTER" => $arResult['FILTERS'],
-		"FILTER_PRESETS" => $arResult['FILTER_PRESETS'],
-		'ENABLE_LIVE_SEARCH' => true,
-		"ENABLE_LABEL" => true,
-	)
-);
-$filterLayout = ob_get_clean();
-
-$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' => array(
-	array('type' => 'buttons', 'list' => [
+$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", ['LIST' => [
+	['type' => 'buttons', 'list' => [
 		$arParams['CAN_EDIT']
 			?
 			[
@@ -455,9 +441,6 @@ $APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' 
 			]
 			:
 			null,
-	]),
-	array('type' => 'filter', 'content' => $filterLayout),
-	array('type' => 'buttons', 'list' => [
 		[
 			'type' => 'abuses',
 			'href' => $arParams['PATH_TO_ABUSES'],
@@ -466,8 +449,16 @@ $APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' 
 			'type' => 'settings',
 			'items' => ['import']
 		]
-	]),
-)));
+	]],
+	['type' => 'filter', 'params' => [
+		"FILTER_ID" => $arParams['FILTER_ID'],
+		"GRID_ID" => $arParams['GRID_ID'],
+		"FILTER" => $arResult['FILTERS'],
+		"FILTER_PRESETS" => $arResult['FILTER_PRESETS'],
+		'ENABLE_LIVE_SEARCH' => true,
+		"ENABLE_LABEL" => true,
+	]],
+]]);
 
 
 $snippet = new \Bitrix\Main\Grid\Panel\Snippet();
@@ -488,7 +479,6 @@ $APPLICATION->IncludeComponent(
 		'NAV_OBJECT' => $navigation,
 		'PAGE_SIZES' => $navigation->getPageSizes(),
 		'DEFAULT_PAGE_SIZE' => $navigation->getPageSize(),
-		'TOTAL_ROWS_COUNT' => $navigation->getRecordCount(),
 		'NAV_PARAM_NAME' => $navigation->getId(),
 		'CURRENT_PAGE' => $navigation->getCurrentPage(),
 		'PAGE_COUNT' => $navigation->getPageCount(),
@@ -497,7 +487,7 @@ $APPLICATION->IncludeComponent(
 		'SHOW_GRID_SETTINGS_MENU' => true,
 		'SHOW_PAGINATION' => true,
 		'SHOW_SELECTED_COUNTER' => true,
-		'SHOW_TOTAL_COUNTER' => true,
+		'SHOW_TOTAL_COUNTER' => false,
 		'ACTION_PANEL' => $controlPanel,
 		'ALLOW_COLUMNS_SORT' => true,
 		'ALLOW_COLUMNS_RESIZE' => true,

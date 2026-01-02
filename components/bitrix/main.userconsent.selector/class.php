@@ -26,6 +26,23 @@ class MainUserConsentSelectorComponent extends CBitrixComponent
 	protected function initParams()
 	{
 		$this->arParams['ID'] = isset($this->arParams['ID']) ? intval($this->arParams['ID']) : null;
+		if (isset($this->arParams['AGREEMENTS']))
+		{
+			if (!is_array($this->arParams['AGREEMENTS']) || empty($this->arParams['AGREEMENTS']))
+			{
+				$this->arParams['AGREEMENTS'] = [
+					[
+						'ID' => null,
+						'CHECKED' => 'Y',
+						'REQUIRED' => 'Y',
+					],
+				];
+			}
+		}
+		else
+		{
+			$this->arParams['AGREEMENTS'] = null;
+		}
 		$this->arParams['INPUT_NAME'] = isset($this->arParams['INPUT_NAME']) ? (string) $this->arParams['INPUT_NAME'] : 'AGREEMENT_ID';
 
 		$this->arParams['PATH_TO_ADD'] = $this->arParams['PATH_TO_ADD'] ?? '';
@@ -41,9 +58,8 @@ class MainUserConsentSelectorComponent extends CBitrixComponent
 		foreach ($list as $id => $name)
 		{
 			$this->arResult['LIST'][] = array(
-				'ID' => $id,
+				'ID' => (int)$id,
 				'NAME' => $name,
-				'SELECTED' => $id == $this->arParams['ID'],
 			);
 		}
 

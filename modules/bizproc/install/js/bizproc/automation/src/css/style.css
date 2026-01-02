@@ -554,10 +554,6 @@
 	margin-left: 30px;
 }
 
-.automation-toolbar-search {
-	margin-left: 12px;
-}
-
 .bitrix24-light-theme .automation-toolbar-search {
 
 }
@@ -591,13 +587,6 @@
 	.automation-toolbar-search .automation-toolbar-search-input {
 		width: 250px;
 	}
-}
-
-.ui-btn-dropdown.bizproc-automation-category-selector {
-	max-width: 200px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	display: inline-block;
 }
 
 .automation-base-node-edit {

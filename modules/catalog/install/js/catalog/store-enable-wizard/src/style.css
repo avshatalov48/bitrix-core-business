@@ -67,7 +67,7 @@
 	display: grid;
 	grid-template-columns: repeat(2, minmax(400px, 445px));
 	gap: 10px;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .inventory-management__card-item {
@@ -75,7 +75,7 @@
 	min-height: 565px;
 	border-radius: var(--ui-border-radius-lg);
 	background: rgba(var(--ui-color-base-03-rgb), var(--ui-opacity-90));
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--ui-color-base-70);
 	transition: background .3s;
 	backdrop-filter: blur(6px);
@@ -445,7 +445,7 @@
 	flex-direction: column;
 	align-items: center;
 	padding-inline: 20px;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .inventory-management__popup-icon {

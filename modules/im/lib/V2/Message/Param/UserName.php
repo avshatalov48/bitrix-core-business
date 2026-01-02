@@ -18,32 +18,4 @@ class UserName extends Param
 
 		return '';
 	}
-
-	/**
-	 * @param mixed $value
-	 * @return mixed
-	 */
-	public function saveValueFilter($value)
-	{
-		if (!empty($value))
-		{
-			$value = \Bitrix\Im\Text::encodeEmoji($value);
-		}
-
-		return $value;
-	}
-
-	/**
-	 * @param mixed $value
-	 * @return mixed
-	 */
-	public function loadValueFilter($value)
-	{
-		if (!empty($value))
-		{
-			$value = \Bitrix\Im\Text::decodeEmoji($value);
-		}
-
-		return $value;
-	}
 }

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Main;
 
+use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\DI\ServiceLocator;
 
 /**
@@ -49,6 +50,8 @@ class Loader
 	 */
 	protected static $namespaces = [];
 	protected static $autoLoadClasses = [];
+	protected static $aliases = [];
+	protected static $classAliases = [];
 	/**
 	 * @var bool Controls throwing exception by requireModule method
 	 */
@@ -291,6 +294,26 @@ class Loader
 	}
 
 	/**
+	 * Registers class aliases for autoloading.
+	 *
+	 * @param array $aliases Array with aliases as keys and classes as values.
+	 */
+	public static function registerClassAliases(array $aliases): void
+	{
+		foreach ($aliases as $alias => $class)
+		{
+			$alias = strtolower(ltrim($alias, "\\"));
+			$class = strtolower(ltrim($class, "\\"));
+
+			// one class for an alias
+			self::$aliases[$alias] = $class;
+			// but many aliases for a class
+			self::$classAliases[$class][] = $alias;
+		}
+	}
+
+
+	/**
 	 * Registers namespaces with custom paths.
 	 * e.g. ('Bitrix\Main\Dev', '/home/bitrix/web/site/bitrix/modules/main/dev/lib')
 	 *
@@ -345,15 +368,24 @@ class Loader
 
 		$classLower = strtolower($className);
 
+		// dynamically define the alias for a class
+		if (isset(self::$aliases[$classLower]))
+		{
+			class_alias(self::$aliases[$classLower], $classLower);
+
+			return;
+		}
+
 		static $documentRoot = null;
 		if ($documentRoot === null)
 		{
 			$documentRoot = self::getDocumentRoot();
 		}
 
-		//optimization via direct paths
 		if (isset(self::$autoLoadClasses[$classLower]))
 		{
+			// optimization via direct paths
+
 			$pathInfo = self::$autoLoadClasses[$classLower];
 			if ($pathInfo["module"] != "")
 			{
@@ -372,81 +404,93 @@ class Loader
 			{
 				require_once($documentRoot . $pathInfo["file"]);
 			}
-			return;
 		}
-
-		if (preg_match("#[^\\\\/a-zA-Z0-9_]#", $className))
+		else
 		{
-			return;
-		}
+			// search the path in namespaces
 
-		$tryFiles = [[
-			"real" => $className,
-			"lower" => $classLower,
-		]];
-
-		if (str_ends_with($classLower, "table"))
-		{
-			// old *Table stored in reserved files
-			$tryFiles[] = [
-				"real" => substr($className, 0, -5),
-				"lower" => substr($classLower, 0, -5),
-			];
-		}
-
-		foreach ($tryFiles as $classInfo)
-		{
-			$classParts = explode("\\", $classInfo["lower"]);
-
-			//remove class name
-			array_pop($classParts);
-
-			while (!empty($classParts))
+			if (preg_match("#[^\\\\/a-zA-Z0-9_]#", $className))
 			{
-				//go from the end
-				$namespace = implode("\\", $classParts) . "\\";
+				return;
+			}
 
-				if (isset(self::$namespaces[$namespace]))
+			$tryFiles = [[
+				"real" => $className,
+				"lower" => $classLower,
+			]];
+
+			if (str_ends_with($classLower, "table"))
+			{
+				// old *Table stored in reserved files
+				$tryFiles[] = [
+					"real" => substr($className, 0, -5),
+					"lower" => substr($classLower, 0, -5),
+				];
+			}
+
+			foreach ($tryFiles as $classInfo)
+			{
+				$classParts = explode("\\", $classInfo["lower"]);
+
+				//remove class name
+				array_pop($classParts);
+
+				while (!empty($classParts))
 				{
-					//found
-					foreach (self::$namespaces[$namespace] as $namespaceLocation)
+					//go from the end
+					$namespace = implode("\\", $classParts) . "\\";
+
+					if (isset(self::$namespaces[$namespace]))
 					{
-						$depth = $namespaceLocation["depth"];
-						$path = $namespaceLocation["path"];
-
-						$fileParts = explode("\\", $classInfo["real"]);
-
-						for ($i = 0; $i <= $depth; $i++)
+						//found
+						foreach (self::$namespaces[$namespace] as $namespaceLocation)
 						{
-							array_shift($fileParts);
-						}
+							$depth = $namespaceLocation["depth"];
+							$path = $namespaceLocation["path"];
 
-						$classPath = implode("/", $fileParts);
+							$fileParts = explode("\\", $classInfo["real"]);
 
-						$classPathLower = strtolower($classPath);
+							for ($i = 0; $i <= $depth; $i++)
+							{
+								array_shift($fileParts);
+							}
 
-						// final path lower case
-						$filePath = $path . '/' . $classPathLower . ".php";
+							$classPath = implode("/", $fileParts);
 
-						if (file_exists($filePath))
-						{
-							require_once($filePath);
-							break 3;
-						}
+							$classPathLower = strtolower($classPath);
 
-						// final path original case
-						$filePath = $path . '/' . $classPath . ".php";
+							// final path lower case
+							$filePath = $path . '/' . $classPathLower . ".php";
 
-						if (file_exists($filePath))
-						{
-							require_once($filePath);
-							break 3;
+							if (file_exists($filePath))
+							{
+								require_once($filePath);
+								break 3;
+							}
+
+							// final path original case
+							$filePath = $path . '/' . $classPath . ".php";
+
+							if (file_exists($filePath))
+							{
+								require_once($filePath);
+								break 3;
+							}
 						}
 					}
-				}
 
-				//try the shorter namespace
-				array_pop($classParts);
+					//try the shorter namespace
+					array_pop($classParts);
+				}
+			}
+		}
+
+		// dynamically define the class aliases
+		if (isset(self::$classAliases[$classLower]))
+		{
+			foreach (self::$classAliases[$classLower] as $alias)
+			{
+				class_exists($alias);
 			}
 		}
 	}
@@ -574,6 +618,40 @@ class Loader
 	public static function setRequireThrowException($requireThrowException)
 	{
 		self::$requireThrowException = (bool)$requireThrowException;
+	}
+
+	/**
+	 * Include autoload.php files from composer folder.
+	 *
+	 * @return void
+	 */
+	public static function includeComposerAutoload(): void
+	{
+		// load from config
+		$composerSettings = Configuration::getValue('composer');
+		if (empty($composerSettings['config_path']))
+		{
+			return;
+		}
+
+		$composerFilePath = (string)$composerSettings['config_path'];
+		if ($composerFilePath[0] !== '/')
+		{
+			$composerFilePath = realpath(
+				self::getDocumentRoot() . '/' . $composerFilePath
+			);
+			if (empty($composerFilePath))
+			{
+				return;
+			}
+		}
+
+		require_once dirname($composerFilePath) . '/vendor/autoload.php';
+	}
+
+	public static function getNamespaces(): array
+	{
+		return self::$namespaces;
 	}
 }
 

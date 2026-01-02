@@ -425,7 +425,7 @@ if (Manager::getZone() === 'cn')
 	$result = array_merge($result, $resultCnZone);
 }
 
-if (!in_array(Manager::getZone(), ['ru', 'kz', 'by']))
+if (!in_array(Manager::getZone(), ['ru', 'kz', 'by', 'uz']))
 {
 	unset($result['vk'], $result['odnoklassniki']);
 }

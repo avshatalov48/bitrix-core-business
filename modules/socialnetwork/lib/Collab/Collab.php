@@ -6,10 +6,10 @@ namespace Bitrix\Socialnetwork\Collab;
 
 use Bitrix\Main\Engine\Response\Converter;
 use Bitrix\Main\Type\Contract\Arrayable;
-use Bitrix\Socialnetwork\Collab\Control\Option\Type\ShowHistoryOption;
 use Bitrix\Socialnetwork\Collab\Property\Feature;
 use Bitrix\Socialnetwork\Collab\Property\Option;
 use Bitrix\Socialnetwork\Collab\Property\Permission;
+use Bitrix\Socialnetwork\Collab\Url\UrlManager;
 use Bitrix\Socialnetwork\Item\Workgroup;
 
 class Collab extends Workgroup
@@ -66,6 +66,11 @@ class Collab extends Workgroup
 		$this->fields['PERMISSIONS'] = $permissions;
 	}
 
+	public function getUrl(): string
+	{
+		return UrlManager::getCollabUrl($this);
+	}
+
 	/** @return Permission[] */
 	public function getPermissions(): array
 	{
@@ -80,6 +85,7 @@ class Collab extends Workgroup
 		$data['OPTIONS'] = $this->mapProperty(...$this->getOptions());
 		$data['FEATURES'] = $this->mapProperty(...$this->getFeatures());
 		$data['ADDITIONAL_INFO'] = $this->mapAdditionalInfo();
+		$data['URL'] = $this->getUrl();
 
 		$converter = Converter::toJson();
 
@@ -98,6 +104,7 @@ class Collab extends Workgroup
 		$data['FEATURES'] = $this->mapProperty(...$this->getFeatures());
 		$data['PERMISSIONS'] = $this->mapProperty(...$this->getPermissions());
 		$data['ADDITIONAL_INFO'] = $this->mapAdditionalInfo();
+		$data['URL'] = $this->getUrl();
 
 		return $data;
 	}

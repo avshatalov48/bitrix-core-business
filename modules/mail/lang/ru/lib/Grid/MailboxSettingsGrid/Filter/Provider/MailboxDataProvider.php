@@ -1,0 +1,9 @@
+<?php
+$MESS['MAIL_MAILBOX_GRID_FILTER_EMAIL'] = 'Адрес ящика';
+$MESS['MAIL_MAILBOX_GRID_FILTER_OWNER'] = 'Владелец';
+$MESS['MAIL_MAILBOX_GRID_FILTER_LAST_SYNC'] = 'Время последней синхронизации';
+$MESS['MAIL_MAILBOX_GRID_FILTER_CRM_INTEGRATION'] = 'Связь с CRM';
+$MESS['MAIL_MAILBOX_GRID_FILTER_ACCESS_USERS'] = 'Пользователи с доступом';
+$MESS['MAIL_MAILBOX_GRID_FILTER_CRM_QUEUE'] = 'Ответственные в CRM';
+$MESS['MAIL_MAILBOX_GRID_FILTER_DISK_SIZE'] = 'Место на диске (МБ)';
+$MESS['MAIL_MAILBOX_GRID_FILTER_SENDER_NAME'] = 'Имя отправителя';

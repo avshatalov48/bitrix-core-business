@@ -89,7 +89,7 @@
 			this.createValueNode(this.config.valueInputName || '');
 			this.tagSelector.getTags().forEach((tag) => this.addItem(tag));
 		},
-		getDialogOptions: function()
+		getDialogOptions()
 		{
 			return {
 				context: 'BIZPROC',
@@ -98,24 +98,24 @@
 				tabs: [
 					{
 						id: 'bpuserroles',
-						title: BX.Loc.getMessage('BIZPROC_JS_USER_SELECTOR_ROLE_TAB')
-					}
+						title: BX.Loc.getMessage('BIZPROC_JS_USER_SELECTOR_ROLE_TAB'),
+					},
 				],
 				entities: [
 					{
 						id: 'user',
 						options: {
 							inviteEmployeeLink: false,
-							inviteGuestLink: false,//this.config.allowEmailUsers === true, // maybe later :-)
+							inviteGuestLink: false, // this.config.allowEmailUsers === true, // maybe later :-)
 							emailUsers: this.config.allowEmailUsers === true,
 							myEmailUsers: this.config.allowEmailUsers === true,
-						}
+						},
 					},
 					{
-						id: 'department',
+						id: this.config.canUseHumanResources ? 'structure-node' : 'department',
 						options: {
-							selectMode: 'usersAndDepartments'
-						}
+							selectMode: 'usersAndDepartments',
+						},
 					},
 					{
 						id: 'bpuserroles',
@@ -126,10 +126,10 @@
 								bgColor: '#ade7e4',
 							},
 							inactive: {
-								textColor: 'grey'
-							}
+								textColor: 'grey',
+							},
 						},
-					}
+					},
 				],
 				items: Object.values(this.roles),
 			};
@@ -232,27 +232,23 @@
 				this.valueNode.value = newVal.join(',');
 			}
 		},
-		convertItemToValue: function(item, type)
+		convertItemToValue(item, type)
 		{
 			const id = this.getValueId(item, type);
-			let value = id;
+			const value = id;
 			const name = this.getItemName(item);
 
-			if (type === 'user')
+			if (
+				['user', 'department', 'structure-node'].includes(type)
+				|| (type === 'bpuserroles' && value.indexOf('G') === 1)
+			)
 			{
-				value = [name, id].join(' ');
+				return [name, id].join(' ');
 			}
-			else if (type === 'department')
+
+			if (type === 'bpuserroles' && !value.includes('{'))
 			{
-				value = [name, id].join(' ');
-			}
-			else if (type === 'bpuserroles' && value.indexOf('G') === 1)
-			{
-				value = [name, id].join(' ');
-			}
-			else if (type === 'bpuserroles' && value.indexOf('{') === -1)
-			{
-				value = name;
+				return name;
 			}
 
 			return value;
@@ -281,23 +277,31 @@
 				this.valueNode.value = newVal.join(',');
 			}
 		},
-		getValueId: function(item, type)
+		getValueId(item, type)
 		{
 			const id = item.getId().toString();
 
 			if (type === 'user')
 			{
-				return '[' + id +']';
+				return `[${id}]`;
 			}
-			else if (type === 'department')
+
+			if (type === 'department')
 			{
-				return '[DR' + id +']';
+				return `[DR${id}]`;
 			}
-			else if (type === 'bpuserroles' && id.indexOf('G') === 0)
+
+			if (type === 'structure-node')
 			{
-				return '[' + id + ']';
+				return `[HRR${id}]`;
 			}
-			else if (type === 'bpuserroles' && id.indexOf('{') === -1)
+
+			if (type === 'bpuserroles' && id.indexOf('G') === 0)
+			{
+				return `[${id}]`;
+			}
+
+			if (type === 'bpuserroles' && !id.includes('{'))
 			{
 				return this.getItemName(item);
 			}
@@ -312,41 +316,32 @@
 		{
 			return this.valueNode.value;
 		},
-		parseValue: function(value)
+		parseValue(value)
 		{
-			value = this.prepareValueString(value);
+			const pairs = this.prepareValueString(value).split(',');
+			const items = [];
+			pairs.forEach((pair) => {
+				const trimmedPair = pair.trim();
 
-			var i, name, id, entityId, entityType,
-				items = [],
-				pair, pairs = value.split(','),
-				matches, found;
-
-			for (i = 0; i < pairs.length; ++i)
-			{
-				pair = BX.util.trim(pairs[i]);
-
-				if (matches = pair.match(/(.*)\[([A-Z]{0,2})(\d+)\]/))
+				let matches = trimmedPair.match(/(.*)\[([A-Z]{0,2})(\d+)]/);
+				if (matches)
 				{
-					let needConvertToInt = true;
-					name =  BX.util.trim(matches[1]);
-					entityId = matches[3];
-					id = matches[2] + entityId;
-					entityType = (matches[2] === '') ? 'user' : 'bpuserroles';
+					const entityId = matches[3];
+					const prefix = matches[2];
+
+					const needConvertToInt = prefix !== 'G';
+					let id = prefix + entityId;
+					let entityType = prefix === '' ? 'user' : 'bpuserroles';
 
 					if (entityType === 'user' && id[0] === 'U')
 					{
 						id = id.replace('U', '');
 					}
 
-					if (matches[2] === 'DR')
+					if (prefix === 'DR')
 					{
 						entityType = 'department';
 						id = id.replace('DR', '');
-					}
-
-					if (matches[2] === 'G')
-					{
-						needConvertToInt = false;
 					}
 
 					if (needConvertToInt)
@@ -355,67 +350,74 @@
 					}
 
 					const preloadedItem = this.preloadedItems.find(
-						(item) => item.id === id && item.entityId === entityType
+						(item) => item.id === id && item.entityId === entityType,
 					);
 
-					items.push(preloadedItem || {id, entityId: entityType, title: name});
+					items.push(preloadedItem || { id, entityId: entityType, title: matches[1].trim() });
+
+					return;
 				}
-				else
+
+				matches = trimmedPair.match(/(.*)\[HRR(\d+)]/);
+				if (matches)
 				{
-					found = false;
+					const id = BX.Text.toInteger(matches[2]);
+					const preloadedItem = this.preloadedItems.find(
+						(item) => item.id === id && item.entityId === 'structure-node',
+					);
 
-					if (this.roles[pair])
-					{
-						found = true;
-						items.push(this.roles[pair]);
-					}
+					items.push(preloadedItem || { id, entityId: 'bpuserroles', title: matches[1].trim() });
 
-					if (!found && this.getGroups().length)
-					{
-						this.getGroups().forEach(function(group)
-						{
-							if (pair === group['name'])
-							{
-								found = true;
-								items.push({
-									id: group['id'],
-									entityId: 'bpuserroles',
-									title: group['name'],
-								});
-							}
-						});
-					}
+					return;
+				}
 
-					if (!found)
+				if (this.roles[trimmedPair])
+				{
+					items.push(this.roles[trimmedPair]);
+
+					return;
+				}
+
+				if (this.getGroups().length > 0)
+				{
+					const groupData = this.getGroups().find((group) => group.name === trimmedPair);
+					if (groupData)
 					{
 						items.push({
-							id: pair,
+							id: groupData.id,
 							entityId: 'bpuserroles',
-							title: pair,
+							title: groupData.name,
 						});
+
+						return;
 					}
 				}
-			}
+
+				items.push({
+					id: trimmedPair,
+					entityId: 'bpuserroles',
+					title: trimmedPair,
+				});
+			});
 
 			return items;
 		},
-		prepareValueString: function(value)
+		prepareValueString(value)
 		{
-			value = value.toString();
+			let preparedValue = value.toString();
 
-			if (value.indexOf('{{') >= 0) //if contains simple expressions
+			if (preparedValue.includes('{{')) // if contains simple expressions
 			{
-				var fields = BX.Bizproc.FieldType.getDocumentFields();
-				fields.forEach(function(field)
-				{
-					if (field['Type'] === 'user')
+				const fields = BX.Bizproc.FieldType.getDocumentFields();
+				fields.forEach((field) => {
+					if (field.Type === 'user')
 					{
-						value = value.replace(field['Expression'], field['SystemExpression']);
+						preparedValue = preparedValue.replace(field.Expression, field.SystemExpression);
 					}
 				});
 			}
 
-			return value;
+			return preparedValue;
 		},
 		prepareRoles: function()
 		{
@@ -468,7 +470,7 @@
 		 */
 		getGroups: function()
 		{
-			return this.config.groups ||  BX.Bizproc.FieldType.getDocumentUserGroups();
+			return this.config.groups || BX.Bizproc.FieldType.getDocumentUserGroups();
 		}
 	};
 

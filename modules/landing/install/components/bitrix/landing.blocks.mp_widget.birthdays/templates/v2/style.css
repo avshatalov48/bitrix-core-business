@@ -9,7 +9,7 @@
 .landing-widget-birthdays-v2 {
 	display: flex;
 	flex-direction: column;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	cursor: default;
 }
 
@@ -22,7 +22,7 @@
 	justify-content: center;
 	align-items: center;
 	margin-bottom: 5px;
-	font: var(--ui-font-weight-medium) 28px var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) 28px var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--widget-color-h);
 }
 
@@ -178,7 +178,7 @@ a[href].landing-widget-birthdays-v2-content-item-text-name:hover {
 }
 
 .landing-widget-view-sidebar .landing-widget-birthdays-v2-title {
-	font: var(--ui-font-weight-medium) 17px var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) 17px var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .landing-widget-view-sidebar .landing-widget-birthdays-v2-content-box {

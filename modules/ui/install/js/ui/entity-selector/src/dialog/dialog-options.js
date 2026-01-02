@@ -1,3 +1,4 @@
+import type { JsonObject } from 'main.core';
 import type { PopupOptions } from 'main.popup';
 import type { TabOptions } from './tabs/tab-options';
 import type { ItemOptions } from '../item/item-options';
@@ -54,4 +55,5 @@ export type DialogOptions = {
 	recentItemsLimit?: number,
 	offsetAnimation?: boolean,
 	alwaysShowLabels?: boolean,
+	customData?: JsonObject,
 };

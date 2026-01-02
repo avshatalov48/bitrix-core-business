@@ -120,10 +120,7 @@ class Queue extends Http\Queue
 						$exception = new Http\NetworkException($promise->getRequest(), 'Stream timeout has been reached.');
 						$promise->reject($exception);
 
-						if ($logger = $handler->getLogger())
-						{
-							$logger->error($exception->getMessage());
-						}
+						$handler->getLogger()?->error($exception->getMessage());
 
 						$removedPromises[] = $promise;
 					}

@@ -599,7 +599,12 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 	{
 		if (!Loader::includeModule('calendar'))
 		{
-			return ['isSharingFeatureEnabled' => 'false'];
+			return ['isSharingFeatureEnabled' => false];
+		}
+
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
+		{
+			return ['isSharingFeatureEnabled' => false];
 		}
 
 		if (!Loader::includeModule('crm') || \CCrmOwnerType::DealName !== $entityType)
@@ -609,6 +614,14 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 				'isSharingFeatureEnabled' => $sharing->isEnabled(),
 				'sharingUrl' => $sharing->getActiveLinkShortUrl(),
 			];
+		}
+
+		if (
+			!$entityId
+			|| !\Bitrix\Crm\Service\Container::getInstance()->getUserPermissions()->item()->canUpdate(\CCrmOwnerType::Deal, $entityId)
+		)
+		{
+			return ['isSharingFeatureEnabled' => false];
 		}
 
 		$broker = Crm\Service\Container::getInstance()->getEntityBroker(\CCrmOwnerType::Deal);

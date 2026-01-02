@@ -345,13 +345,23 @@ class CWiki
 			if($arProperty['CODE'] == 'IMAGES')
 			{
 				$arProperties['IMAGES'] = $arProperty;
-				$arCurImages[$arProperty['VALUE']] = '';
+				$imageId = $arProperty['VALUE'];
+
+				if (is_numeric($imageId))
+				{
+					$arCurImages[(int)$imageId] = '';
+				}
 			}
 		}
 
-		$rsFile = CFile::GetList(array(), array('@ID' => implode(',', array_keys($arCurImages))));
-		while($arFile = $rsFile->Fetch())
-			$arCurImages[$arFile['ID']] = $arFile['ORIGINAL_NAME'];
+		if (!empty($arCurImages))
+		{
+			$rsFile = CFile::GetList(array(), array('@ID' => implode(',', array_keys($arCurImages))));
+			while($arFile = $rsFile->Fetch())
+			{
+				$arCurImages[(int)$arFile['ID']] = $arFile['ORIGINAL_NAME'];
+			}
+		}
 
 		if(array_search($arImage['name'], $arCurImages) !== false)
 		{

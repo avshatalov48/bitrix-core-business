@@ -15,8 +15,8 @@ return [
 		'landing.ui.panel.saveblock',
 		'landing.sliderhacks',
 		'landing.pageobject',
-		'main.core',
 		'landing.backend',
+		'main.core',
 	],
 	'skip_core' => false,
 ];

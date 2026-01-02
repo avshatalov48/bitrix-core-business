@@ -84,6 +84,7 @@ class ErrorEnumeration
 
 	// \Bitrix\Sale\Controller\Action\Entity\UserConsentRequestAction
 	public const USER_CONSENT_REQUEST_ACTION_ID_NOT_FOUND = 202440400001;
+	public const USER_CONSENT_REQUEST_ACTION_CONSENTS_NOT_FOUND = 202440400002;
 
 	// \Bitrix\Sale\Controller\Action\Entity\ChangeBasketItemAction
 	public const CHANGE_BASKET_ITEM_ACTION_SITE_ID_NOT_FOUND = 202540400001;

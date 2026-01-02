@@ -171,8 +171,10 @@ class CurrencyFormat
 			$locationAreaId = $langSetting['ID'];
 			$languageId = $langSetting['LANGUAGE_ID'];
 			$currencyCode = $langSetting['CURRENCY'];
-			$url = 'https://util.1c-bitrix.ru/b24/catalog/get.php?currencyCode=' . $currencyCode . '&productType=CLOUD'
-				   . '&locationAreaId=' . $locationAreaId . '&languageId=' . $languageId . '&requestData=formatting|patterns'
+
+			$url = Main\Application::getInstance()->getLicense()->getDomainStoreLicense()
+					. '/b24/catalog/get.php?currencyCode=' . $currencyCode . '&productType=CLOUD'
+					. '&locationAreaId=' . $locationAreaId . '&languageId=' . $languageId . '&requestData=formatting|patterns'
 			;
 
 			$resultRequest = $httpClient->get($url);

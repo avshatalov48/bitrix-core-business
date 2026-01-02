@@ -716,7 +716,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements Contro
 	 */
 	private function setCrmEnableFields(): void
 	{
-		$this->isCrmEnable = Main\Loader::includeModule('crm') && \CCrmPerms::isAccessEnabled();
+		$this->isCrmEnable = \Bitrix\Mail\Integration\Crm\Permissions::getInstance()->hasAccessToCrm();
 		$this->arResult['CRM_ENABLE'] = ($this->isCrmEnable ? 'Y' : 'N');
 	}
 

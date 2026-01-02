@@ -1,0 +1,18 @@
+.ui-block-diagram-canvas-map-btn {
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	cursor: pointer;
+}
+
+.ui-block-diagram-canvas-map-btn__icon {
+	fill: var(--ui-color-palette-gray-40);
+	color: var(--ui-color-palette-gray-40);
+	stroke: none;
+}
+
+.ui-block-diagram-canvas-map-btn__rect {
+	fill: var(--ui-color-palette-gray-40);
+	color: var(--ui-color-palette-gray-40);
+	stroke: none;
+}

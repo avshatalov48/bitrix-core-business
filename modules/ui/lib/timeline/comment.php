@@ -170,7 +170,8 @@ class Comment
 		int $fromUserId,
 		string $text,
 		string $message,
-		array $previouslyMentionedUserIds = []
+		array $previouslyMentionedUserIds = [],
+		array $options = [],
 	): array
 	{
 		$messageIds = [];
@@ -179,13 +180,14 @@ class Comment
 		$mentionedUserIds = $parser->getMentionedUserIds($text);
 		$mentionedUserIds = array_filter(
 			$mentionedUserIds,
-			static function($userId) use ($fromUserId, $previouslyMentionedUserIds) {
+			static function($userId) use ($fromUserId, $previouslyMentionedUserIds)
+			{
 				$userId = (int)$userId;
 				return (
 					$userId !== $fromUserId
 					&& !in_array($userId, $previouslyMentionedUserIds, true)
 				);
-			}
+			},
 		);
 
 		if(empty($mentionedUserIds))
@@ -202,14 +204,18 @@ class Comment
 		{
 			$userId = (int)$userId;
 
-			$messageIds[] = \CIMNotify::Add([
-				'TO_USER_ID' => $userId,
-				'FROM_USER_ID' => $fromUserId,
-				'NOTIFY_TYPE' => IM_NOTIFY_FROM,
-				'NOTIFY_MODULE' => Driver::MODULE_ID,
-				'NOTIFY_TAG' => 'RPA|MESSAGE_TIMELINE_MENTION|' . $id,
-				'NOTIFY_MESSAGE' => $message,
-			]);
+			$messageIds[] = \CIMNotify::Add(array_merge(
+				[
+					'TO_USER_ID' => $userId,
+					'FROM_USER_ID' => $fromUserId,
+					'NOTIFY_TYPE' => IM_NOTIFY_FROM,
+					'NOTIFY_MODULE' => Driver::MODULE_ID,
+					'NOTIFY_EVENT' => 'mention',
+					'NOTIFY_TAG' => "RPA|MESSAGE_TIMELINE_MENTION|{$id}",
+					'NOTIFY_MESSAGE' => $message,
+				],
+					$options['notify'] ?? []
+			));
 		}
 
 		return $messageIds;

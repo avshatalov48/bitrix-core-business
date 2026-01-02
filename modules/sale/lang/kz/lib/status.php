@@ -1,0 +1,19 @@
+<?php
+$MESS["SALE_STATUS_DA"] = "Тапсырыстың жиынтықтамасы";
+$MESS["SALE_STATUS_DA_DESCR"] = "Тапсырыстың жиынтықтамасы";
+$MESS["SALE_STATUS_DF"] = "Жөнелтілді";
+$MESS["SALE_STATUS_DF_DESCR"] = "Жөнелтілді";
+$MESS["SALE_STATUS_DG"] = "Тауардың келуін күтудеміз";
+$MESS["SALE_STATUS_DG_DESCR"] = "Тауардың келуін күтудеміз";
+$MESS["SALE_STATUS_DN"] = "Өңдеуді күтуде";
+$MESS["SALE_STATUS_DN_DESCR"] = "Өңдеуді күтуде";
+$MESS["SALE_STATUS_DS"] = "Жеткізу қызметіне берілді";
+$MESS["SALE_STATUS_DS_DESCR"] = "Жеткізу қызметіне берілді";
+$MESS["SALE_STATUS_DT"] = "Көлік компаниясының алып кетуін күтудеміз";
+$MESS["SALE_STATUS_DT_DESCR"] = "Көлік компаниясының алып кетуін күтудеміз";
+$MESS["SALE_STATUS_F"] = "Орындалды";
+$MESS["SALE_STATUS_F_DESCR"] = "Тапсырыс жеткізілді және төленді";
+$MESS["SALE_STATUS_N"] = "Қабылданды, төлем күтілуде";
+$MESS["SALE_STATUS_N_DESCR"] = "Тапсырыс қабылданды, бірақ өңделіп жатқан жоқ (мысалы, тапсырыс жаңа ғана жасалды немесе төлемді күтуде)";
+$MESS["SALE_STATUS_P"] = "Төленді, жөнелтуге дайындалуда";
+$MESS["SALE_STATUS_P_DESCR"] = "Тапсырыс төленді, клиентке жіберуге дайындалуда.";

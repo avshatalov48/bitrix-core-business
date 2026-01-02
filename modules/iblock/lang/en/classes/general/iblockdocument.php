@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBD_FIELD_ID"] = "Element ID";
 $MESS["IBD_FIELD_TIMESTAMP_X"] = "Element Last Modified On";
 $MESS["IBD_FIELD_MODYFIED"] = "Element Last Modified By";
@@ -45,4 +45,3 @@ $MESS["IBD_DOCUMENT_XFORMOPTIONS2"] = "Click \"Set\" when finished.";
 $MESS["IBD_DOCUMENT_XFORMOPTIONS3"] = "Set";
 $MESS["IBD_DOCUMENT_MOPROMT"] = "Information block";
 $MESS["IBD_DOCUMENT_ENTITY_NAME"] = "Information blocks";
-?>

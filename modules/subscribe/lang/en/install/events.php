@@ -1,15 +1,15 @@
-<?
-$MESS ['SUBSCRIBE_CONFIRM_NAME'] = "Confirmation of subscription";
-$MESS ['SUBSCRIBE_CONFIRM_DESC'] = "#ID# - subscription ID
+<?php
+$MESS['SUBSCRIBE_CONFIRM_NAME'] = "Confirmation of subscription";
+$MESS['SUBSCRIBE_CONFIRM_DESC'] = "#ID# - subscription ID
 #EMAIL# - subscription email
 #CONFIRM_CODE# - confirmation code
 #SUBSCR_SECTION# - section with subscription edit page (specifies in the settings)
 #USER_NAME# - subscriber's name (optional)
 #DATE_SUBSCR# - date of adding/change of address
 ";
-$MESS ['SUBSCRIBE_CONFIRM_SUBJECT'] = "#SITE_NAME#: Subscription confirmation
+$MESS['SUBSCRIBE_CONFIRM_SUBJECT'] = "#SITE_NAME#: Subscription confirmation
 ";
-$MESS ['SUBSCRIBE_CONFIRM_MESSAGE'] = "Informational message from #SITE_NAME#
+$MESS['SUBSCRIBE_CONFIRM_MESSAGE'] = "Informational message from #SITE_NAME#
 ---------------------------------------
 
 Hello,
@@ -45,4 +45,3 @@ http://#SERVER_NAME##SUBSCR_SECTION#subscr_edit.php?ID=#ID#&CONFIRM_CODE=#CONFIR
 
 This is an automatically generated message.
 ";
-?>

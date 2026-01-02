@@ -1,0 +1,20 @@
+<?php
+$MESS["FILEMAN_FILEVIEW_DOWNLOAD"] = "Файлды жүктеу";
+$MESS["FILEMAN_FILEVIEW_EDIT_AS_HTML"] = "HTML ретінде редакциялау";
+$MESS["FILEMAN_FILEVIEW_EDIT_AS_PHP"] = "PHP ретінде редакциялау";
+$MESS["FILEMAN_FILEVIEW_EDIT_AS_TEXT"] = "Мәтін ретінде редакциялау";
+$MESS["FILEMAN_FILEVIEW_ENLARGE"] = "Үлкейту үшін басыңыз";
+$MESS["FILEMAN_FILEVIEW_LAST_ACCESS"] = "Соңғы қолжетімділік:";
+$MESS["FILEMAN_FILEVIEW_NAME"] = "Файлдың атауы:";
+$MESS["FILEMAN_FILEVIEW_PHPERROR"] = "Орындалатын файлды көру үшін құқықтар жеткіліксіз.";
+$MESS["FILEMAN_FILEVIEW_RENAME"] = "Атауын өзгерту";
+$MESS["FILEMAN_FILEVIEW_SIZE"] = "Өлшемі:";
+$MESS["FILEMAN_FILEVIEW_TIMESTAMP"] = "Соңғы өзгерту:";
+$MESS["FILEMAN_FILEVIEW_TITLE"] = "Файлды қарау";
+$MESS["FILEMAN_FILEVIEW_TYPE"] = "Түрі:";
+$MESS["FILEMAN_FILE_DELETE"] = "Файлды жою";
+$MESS["FILEMAN_FILE_DELETE_CONFIRM"] = "Шынымен файлды жойғыңыз келе ме?";
+$MESS["FILEMAN_FILE_EDIT"] = "Редакциялау";
+$MESS["FILEMAN_VIEW_CONT"] = "Файл мазмұны";
+$MESS["FILEMAN_VIEW_TAB"] = "Файлды қарау";
+$MESS["FILEMAN_VIEW_TAB_ALT"] = "Файлды қарау";

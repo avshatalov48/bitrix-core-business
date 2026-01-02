@@ -183,7 +183,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	/**
 	 * @param $primary
 	 *
-	 * @return EntityObject
+	 * @return EntityObject|null
 	 * @throws ArgumentException
 	 */
 	final public function getByPrimary($primary)
@@ -250,7 +250,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 
 	public function sysRemove($srPrimary)
 	{
-		$object = $this->_objects[$srPrimary];
+		$object = $this->_objects[$srPrimary] ?? null;
 
 		if (empty($object))
 		{

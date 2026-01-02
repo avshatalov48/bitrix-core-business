@@ -22,6 +22,7 @@ class CashboxRobokassa extends CashboxPaySystem
 	private const CODE_VAT_20 = 'vat20';
 	private const CODE_VAT_5 = 'vat5';
 	private const CODE_VAT_7 = 'vat7';
+	private const CODE_VAT_22 = 'vat22';
 
 	private const CHECK_PAYMENT_TYPE = 2;
 
@@ -449,6 +450,7 @@ class CashboxRobokassa extends CashboxPaySystem
 					20 => self::CODE_VAT_20,
 					5 => self::CODE_VAT_5,
 					7 => self::CODE_VAT_7,
+					22 => self::CODE_VAT_22,
 				];
 
 				foreach ($vatList as $vat)

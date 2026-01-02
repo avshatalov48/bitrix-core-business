@@ -5,10 +5,10 @@ namespace Bitrix\Im\V2\Message\Send\Push;
 use Bitrix\Im\Text;
 use Bitrix\Im\User;
 use Bitrix\Im\V2\Chat\CommentChat;
-use Bitrix\Im\V2\Chat\CopilotChat;
 use Bitrix\Im\V2\Message;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Web\Uri;
 
 class MobilePush
 {
@@ -66,8 +66,12 @@ class MobilePush
 			$preparedPush['push']['advanced_params']['senderMessage'] = $this->message->getPushMessage();
 		}
 
+		$chat = $this->message->getChat();
+		$relation = $chat->getRelationByUserId($userId);
+		$isNotifyBlocked = $relation && $relation->getNotifyBlock();
+
 		$preparedPush['push']['advanced_params']['counter'] = $push['params']['counter'];
-		if ($userId === $this->message->getAuthorId())
+		if ($userId === $this->message->getAuthorId() || $isNotifyBlocked)
 		{
 			$preparedPush = array_merge_recursive($preparedPush, [
 				'push' => [
@@ -87,28 +91,12 @@ class MobilePush
 	protected function needToSend(): bool
 	{
 		$chat = $this->message->getChat();
-
-		if ($chat instanceof CopilotChat)
-		{
-			return $this->needToSendFromCopilot();
-		}
 		if ($chat instanceof CommentChat)
 		{
 			return false;
 		}
 
 		return true;
-	}
-
-	protected function needToSendFromCopilot(): bool
-	{
-		if (!\Bitrix\Main\Loader::includeModule('mobile'))
-		{
-			return false;
-		}
-
-		/** @see \Bitrix\Mobile\AppTabs\Chat::isCopilotMobileEnabled */
-		return \Bitrix\Main\Config\Option::get('immobile', 'copilot_mobile_chat_enabled', 'N') === 'Y';
 	}
 
 	protected function getPushUsers(): array
@@ -139,6 +127,7 @@ class MobilePush
 
 	protected function preparePushForChat(array $params): array
 	{
+		$attachmentSuffix = self::getAttachmentSuffixForPush($params['params']);
 		$pushText = $this->prepareMessageForPush($params['params']);
 		unset($params['params']['message']['text_push']);
 
@@ -215,8 +204,9 @@ class MobilePush
 			'avatarUrl' => $chatAvatar? $chatAvatar: $avatarUser,
 			'senderName' => $chatTitle,
 			'senderMessage' => ($userName? $userName.': ': '').$pushText,
+			'attachmentSuffix' => $attachmentSuffix,
 			'senderCut' => mb_strlen($userName? $userName.': ' : ''),
-			'data' => $this->prepareEventForPush($params['command'], $params['params'])
+			'data' => $this->prepareEventForPush($params['command'], $params['params']),
 		];
 		$result['push']['params'] = [
 			'TAG' => 'IM_CHAT_'.$params['params']['chatId'],
@@ -234,6 +224,7 @@ class MobilePush
 
 	protected function preparePushForPrivate(array $params): array
 	{
+		$attachmentSuffix = self::getAttachmentSuffixForPush($params['params']);
 		$pushText = $this->prepareMessageForPush($params['params']);
 		unset($params['params']['message']['text_push']);
 
@@ -290,6 +281,7 @@ class MobilePush
 			'avatarUrl' => $avatarUser,
 			'senderName' => $userName,
 			'senderMessage' => $pushText,
+			'attachmentSuffix' => $attachmentSuffix,
 			'data' => $this->prepareEventForPush($params['command'], $params['params']),
 		];
 		$result['push']['params'] = [
@@ -316,48 +308,7 @@ class MobilePush
 		}
 		else
 		{
-			if (isset($message['message']['params']['ATTACH']) && count($message['message']['params']['ATTACH']) > 0)
-			{
-				$attachText = $message['message']['params']['ATTACH'][0]['DESCRIPTION'];
-				if (!$attachText)
-				{
-					$attachText = Text::getEmoji('attach').' '.Loc::getMessage('IM_MESSAGE_ATTACH');
-				}
-
-				if ($attachText === \CIMMessageParamAttach::SKIP_MESSAGE)
-				{
-					$attachText = '';
-				}
-
-				$messageText .=
-					(empty($messageText)? '': ' ')
-					. $attachText
-				;
-			}
-
-			if (isset($message['files']) && count($message['files']) > 0)
-			{
-				$file = array_values($message['files'])[0];
-
-				if ($file['type'] === 'image')
-				{
-					$fileName = Text::getEmoji($file['type']).' '.Loc::getMessage('IM_MESSAGE_IMAGE');
-				}
-				else if ($file['type'] === 'audio')
-				{
-					$fileName = Text::getEmoji($file['type']).' '.Loc::getMessage('IM_MESSAGE_AUDIO');
-				}
-				else if ($file['type'] === 'video')
-				{
-					$fileName = Text::getEmoji($file['type']).' '.Loc::getMessage('IM_MESSAGE_VIDEO');
-				}
-				else
-				{
-					$fileName = Text::getEmoji('file', Loc::getMessage('IM_MESSAGE_FILE').':').' '.$file['name'];
-				}
-
-				$messageText .= trim($fileName);
-			}
+			$messageText .= self::getAttachmentSuffixForPush($message);
 		}
 
 		$codeIcon = Text::getEmoji('code', '['.Loc::getMessage('IM_MESSAGE_CODE').']');
@@ -369,20 +320,77 @@ class MobilePush
 		$messageText = preg_replace("/\[[bui]\](.*?)\[\/[bui]\]/i", "$1", $messageText);
 		$messageText = preg_replace("/\\[url\\](.*?)\\[\\/url\\]/iu", "$1", $messageText);
 		$messageText = preg_replace("/\\[url\\s*=\\s*((?:[^\\[\\]]++|\\[ (?: (?>[^\\[\\]]+) | (?:\\1) )* \\])+)\\s*\\](.*?)\\[\\/url\\]/ixsu", "$2", $messageText);
-		$messageText = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", ['\Bitrix\Im\Text', 'modifyShortUserTag'], $messageText);
-		$messageText = preg_replace("/\[USER=([0-9]+)( REPLACE)?](.+?)\[\/USER]/i", "$3", $messageText);
+		$messageText = preg_replace_callback("/\[USER=([0-9]+|all)\]\[\/USER\]/i", ['\Bitrix\Im\Text', 'modifyShortUserTag'], $messageText);
+		$messageText = preg_replace("/\[USER=([0-9]+|all)( REPLACE)?](.+?)\[\/USER]/i", "$3", $messageText);
 		$messageText = preg_replace("/\[CHAT=([0-9]{1,})\](.*?)\[\/CHAT\]/i", "$2", $messageText);
+		$messageText = preg_replace("/\[context=(chat\d+|\d+:\d+)\/(\d+)](.*?)\[\/context]/i", "$3", $messageText);
 		$messageText = preg_replace_callback("/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/i", ['\Bitrix\Im\Text', "modifySendPut"], $messageText);
 		$messageText = preg_replace_callback("/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/i", ['\Bitrix\Im\Text', "modifySendPut"], $messageText);
 		$messageText = preg_replace("/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/i", "$2", $messageText);
 		$messageText = preg_replace("/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/i", "$2", $messageText);
 		$messageText = preg_replace_callback("/\[ICON\=([^\]]*)\]/i", ['\Bitrix\Im\Text', 'modifyIcon'], $messageText);
+		$messageText = preg_replace_callback('/\[TIMESTAMP=(\d+) FORMAT=([^\]]*)\]/i', [Text::class, 'modifyTimestampCode'], $messageText);
+		$messageText = preg_replace_callback('/\[IMG SIZE=([a-z]+)\](.*?)\[\/IMG\]/i', [Text::class, 'modifyImageCode'], $messageText);
 		$messageText = preg_replace('#\-{54}.+?\-{54}#s', ' '.$quoteIcon.' ', str_replace('#BR#', ' ', $messageText));
 		$messageText = preg_replace('/^(>>(.*)(\n)?)/mi', ' '.$quoteIcon.' ', str_replace('#BR#', ' ', $messageText));
 		$messageText = preg_replace("/\\[color\\s*=\\s*([^\\]]+)\\](.*?)\\[\\/color\\]/isu", "$2", $messageText);
 		$messageText = preg_replace("/\\[size\\s*=\\s*([^\\]]+)\\](.*?)\\[\\/size\\]/isu", "$2", $messageText);
 
 		return trim($messageText);
+	}
+
+	public static function getAttachmentSuffixForPush(array $message): string
+	{
+		Message::loadPhrases();
+
+		$attachmentSuffix = '';
+		$attach = $message['message']['params']['ATTACH'] ?? null;
+		$files = $message['files'] ?? null;
+		$text = $message['message']['text'] ?? null;
+
+		if (!empty($attach) && is_array($attach))
+		{
+			$attachmentSuffix = self::getAttachDescription($attach);
+
+			if (!$attachmentSuffix)
+			{
+				$attachmentSuffix = Text::getEmoji('attach') . ' ' . Loc::getMessage('IM_MESSAGE_ATTACH');
+			}
+			if ($attachmentSuffix === \CIMMessageParamAttach::SKIP_MESSAGE)
+			{
+				$attachmentSuffix = '';
+			}
+			if (!empty($text))
+			{
+				$attachmentSuffix = ' ' . $attachmentSuffix;
+			}
+		}
+
+		if (!empty($files) && is_array($files))
+		{
+			$file = reset($files);
+
+			$attachmentSuffix = match ($file['type'] ?? '')
+			{
+				'image' => Text::getEmoji('image') .' '. Loc::getMessage('IM_MESSAGE_IMAGE'),
+				'audio' => Text::getEmoji('audio') .' '. Loc::getMessage('IM_MESSAGE_AUDIO'),
+				'video' => Text::getEmoji('video') .' '. Loc::getMessage('IM_MESSAGE_VIDEO'),
+				default => Text::getEmoji('file', Loc::getMessage('IM_MESSAGE_FILE') . ':') . ' ' . $file['name'],
+			};
+		}
+
+		return $attachmentSuffix;
+	}
+
+	protected static function getAttachDescription(array $attach): string
+	{
+		$attachItem = reset($attach);
+		if (is_array($attachItem))
+		{
+			return (string)($attachItem['DESCRIPTION'] ?? '');
+		}
+
+		return '';
 	}
 
 	private function prepareEventForPush(string $command, array $event): array
@@ -536,8 +544,8 @@ class MobilePush
 					'type' => (string)$value['type'],
 					'image' => $value['image'],
 					'urlDownload' => '',
-					'urlPreview' => (new \Bitrix\Main\Web\Uri($value['urlPreview']))->deleteParams(['fileName'])->getUri(),
-					'urlShow' => '',
+					'urlPreview' => (new Uri($value['urlPreview']))->deleteParams(['fileName'])->getUri(),
+					'urlShow' => (new Uri($value['urlShow']))->deleteParams(['fileName'])->getUri(),
 				];
 				if ($value['image'])
 				{

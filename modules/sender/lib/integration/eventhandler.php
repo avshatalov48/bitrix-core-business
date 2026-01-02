@@ -460,7 +460,7 @@ class EventHandler
 				{
 					$result->addError(
 						new MainEntity\EntityError(
-							Bitrix24\Limitation\Rating::getNotifyText('blocked')
+							Bitrix24\Limitation\Rating::getNotifyText('blocked'),
 						)
 					);
 				}

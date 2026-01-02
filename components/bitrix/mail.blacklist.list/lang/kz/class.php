@@ -1,0 +1,21 @@
+<?php
+$MESS["MAIL_BLACKLIST_LIST_AJAX_DELETE_CONFIRM"] = "Қара тізімнен мекенжайды нақты жойғыңыз келеді ме?";
+$MESS["MAIL_BLACKLIST_LIST_COLUMN_EMAIL"] = "Email-мекенжайы";
+$MESS["MAIL_BLACKLIST_LIST_COLUMN_IS_FOR_ALL_USERS"] = "Барлық пайдаланушылар үшін";
+$MESS["MAIL_BLACKLIST_LIST_CREATE_BLACKLIST"] = "Қара тізімге қосу";
+$MESS["MAIL_BLACKLIST_LIST_CREATE_BLACKLIST_2"] = "Мекенжайды қосу";
+$MESS["MAIL_BLACKLIST_LIST_DELETE_ERROR"] = "#EMAIL# пошта мекенжайын жою мүмкін болмады";
+$MESS["MAIL_BLACKLIST_LIST_DELETE_TEXT"] = "Қара тізімнен Email-ды жою";
+$MESS["MAIL_BLACKLIST_LIST_DELETE_TITLE"] = "Жою";
+$MESS["MAIL_BLACKLIST_LIST_FILTER_DOMAIN_TITLE"] = "Домен";
+$MESS["MAIL_BLACKLIST_LIST_FILTER_MAIL_TITLE"] = "Пошта жәшігі";
+$MESS["MAIL_BLACKLIST_LIST_FILTER_TYPE"] = "Жазба түрі";
+$MESS["MAIL_BLACKLIST_LIST_INTERNAL_AJAX_DELETE_ERROR"] = "Өшіру кезіндегі қате";
+$MESS["MAIL_BLACKLIST_LIST_INTERNAL_ERROR_TITLE"] = "Ішкі қате пайда болды";
+$MESS["MAIL_BLACKLIST_LIST_IS_FOR_ALL_USERS"] = "Иә";
+$MESS["MAIL_BLACKLIST_LIST_PAGE_TITLE"] = "Email-мекенжайларының қара тізімі";
+$MESS["MAIL_BLACKLIST_LIST_PAGE_TITLE_2"] = "Қара тізім";
+$MESS["MAIL_BLACKLIST_LIST_POPUP_BTN_ADD"] = "Қосу";
+$MESS["MAIL_BLACKLIST_LIST_POPUP_BTN_CLOSE"] = "Болдырмау";
+$MESS["MAIL_BLACKLIST_LIST_POPUP_CHECKBOX_TITLE"] = "Барлық пайдаланушылар үшін";
+$MESS["MAIL_BLACKLIST_LIST_POPUP_TITLE"] = "Қара тізім";

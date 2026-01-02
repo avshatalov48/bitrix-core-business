@@ -147,6 +147,15 @@ class ProductForm
 		return this.wrapper;
 	}
 
+	setShowCompilationModeSwitcher(visible: boolean): void
+	{
+		if (!visible)
+		{
+			this.changeFormOption('isCompilationMode', 'N');
+		}
+		this.options.showCompilationModeSwitcher = visible;
+	}
+
 	initTemplate(result): Promise
 	{
 		return new Promise((resolve) =>

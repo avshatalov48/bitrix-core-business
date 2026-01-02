@@ -1,12 +1,12 @@
 <?php
-/*
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2002 Bitrix                  #
-# https://www.bitrixsoft.com          #
-# mailto:admin@bitrix.ru                     #
-##############################################
-*/
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage support
+ * @copyright 2001-2025 Bitrix
+ */
+
 define("STOP_STATISTICS", "Y");
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");

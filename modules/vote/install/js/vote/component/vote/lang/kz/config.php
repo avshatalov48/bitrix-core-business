@@ -1,0 +1,19 @@
+<?php
+$MESS["VOTE_ANONYMOUS"] = "Анонимді сауалнама";
+$MESS["VOTE_BUTTON"] = "Дауыс беру";
+$MESS["VOTE_NOTICE_COMPLETED"] = "сауалнама аяқталды";
+$MESS["VOTE_NOTICE_ERROR_MESSAGE_COMPLETE"] = "Сауалнаманы аяқтау мүмкін болмады";
+$MESS["VOTE_NOTICE_ERROR_MESSAGE_REVOKE"] = "Қайта дауыс беру мүмкін болмады";
+$MESS["VOTE_NOTICE_ERROR_MESSAGE_SUBMIT"] = "Дауыс беру мүмкін болмады. Қайталап көріңіз";
+$MESS["VOTE_NOTICE_REVOKE_IS_NOT_AVAILABLE"] = "қайта дауыс беруге болмайды";
+$MESS["VOTE_POPUP_BTN_CANCEL"] = "Болдырмау";
+$MESS["VOTE_POPUP_BTN_COMPLETE"] = "Аяқтау";
+$MESS["VOTE_POPUP_TEXT"] = "Нәтижелер сақталады, бірақ басқа ешкім дауыс бере алмайды. Сауалнаманы қайта бастау мүмкін болмайды";
+$MESS["VOTE_POPUP_TITLE"] = "Сауалнаманы аяқтайсыз ба?";
+$MESS["VOTE_PUBLIC"] = "Жария сауалнама";
+$MESS["VOTE_RESULT_COUNT_PLURAL_0"] = "#COUNT# дауыс";
+$MESS["VOTE_RESULT_COUNT_PLURAL_1"] = "#COUNT# дауыс";
+$MESS["VOTE_RESULT_COUNT_PLURAL_2"] = "#COUNT# дауыс";
+$MESS["VOTE_REVOKE"] = "Қайта дауыс беру";
+$MESS["VOTE_SHOW_RESULTS"] = "Нәтижелерді қарау";
+$MESS["VOTE_SUMMARY_COUNT_NO_VOTES"] = "Дауыстар жоқ";

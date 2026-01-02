@@ -1,0 +1,42 @@
+.ui-block-diagram-connection {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 0;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+    fill: var(--ui-color-background-transparent, transparent);
+	pointer-events: none;
+	overflow-clip-margin: content-box;
+}
+
+.ui-block-diagram-connection:hover .ui-block-diagram-connection__target {
+	stroke: var(--pallete-blue-blue-57, #4A9DFF);
+}
+
+.ui-block-diagram-connection:hover .ui-block-diagram-connection__bar {
+	display: block;
+}
+
+.ui-block-diagram-connection__target {
+	stroke: #B1BBC7;
+	stroke-width: 1;
+	pointer-events: visibleStroke;
+}
+
+.ui-block-diagram-connection__target.--active {
+	stroke: var(--pallete-blue-blue-57, #4A9DFF);
+}
+
+.ui-block-diagram-connection__hovered {
+    stroke: var(--ui-color-background-transparent, transparent);
+    stroke-width: 10;
+	pointer-events: visibleStroke;
+}
+
+.ui-block-diagram-connection__bar {
+	display: none;
+	pointer-events: all;
+	border-radius: 4px;
+}

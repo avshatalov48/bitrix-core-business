@@ -199,6 +199,15 @@ abstract class Engine
 	abstract public function resize(Rectangle $source, Rectangle $destination);
 
 	/**
+	 * Blur the image.
+	 *
+	 * @param int $sigma
+	 *
+	 * @return bool
+	 */
+	abstract public function blur(int $sigma): bool;
+
+	/**
 	 * Applies a mask to the image (convolution).
 	 * @param Mask $mask
 	 * @return bool

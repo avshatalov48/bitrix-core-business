@@ -15,5 +15,6 @@ return [
 	"bundle_css" => "ui_notification",
 	"rel" => [
 		"ui.design-tokens",
+		"ui.design-tokens.air",
 	],
 ];

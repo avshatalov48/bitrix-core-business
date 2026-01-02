@@ -1,7 +1,7 @@
 .bx-im-online-page__scope {
 	--im-online-page__color_title: var(--ui-color-palette-black-base, #333);
 	--im-online-page__color_description: var(--ui-color-palette-gray-70, #828b95);
-	--im-online-page__font: var(--ui-font-family-system);
+	--im-online-page__font: var(--ui-font-family-primary, var(--ui-font-family-system));
 	--im-online-page__background-color_button: #00ace3;
 	--im-online-page__background-color_button-hover: #33bde9;
 	--im-online-page__color_button: #fff;

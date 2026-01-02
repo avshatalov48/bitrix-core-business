@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Web\Http;
@@ -13,13 +13,10 @@ use Bitrix\Main\Application;
 
 abstract class Queue
 {
-	public function __construct(bool $backgroundJob = true)
+	public function __construct()
 	{
-		if ($backgroundJob)
-		{
-			// wait for promises if no one called wait()
-			Application::getInstance()->addBackgroundJob([$this, 'wait'], [], Application::JOB_PRIORITY_LOW);
-		}
+		// wait for promises if no one called wait()
+		Application::getInstance()->addBackgroundJob([$this, 'wait'], [], Application::JOB_PRIORITY_LOW);
 	}
 
 	/**

@@ -309,7 +309,7 @@ this.BX = this.BX || {};
 	      };
 	      var prepareControl = function prepareControl(control) {
 	        // skip `ui.forms` controls
-	        if (control.classList.contains('ui-ctl-element')) {
+	        if (control.classList.contains('ui-ctl-element') || control.classList.contains('ui-tag-selector-item')) {
 	          return;
 	        }
 	        switch (control.nodeName) {

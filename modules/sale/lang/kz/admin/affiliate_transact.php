@@ -1,0 +1,25 @@
+<?php
+$MESS["SAT2_AFFILIATE"] = "Аффилиат";
+$MESS["SAT2_AFFILIATE1"] = "Аффилиат:";
+$MESS["SAT2_AFFILIATE_CLEAR"] = "Нөлдеу (ақша аударылды)";
+$MESS["SAT2_AFF_ACCT"] = "Ішкі шотқа төлеу";
+$MESS["SAT2_AFF_IN"] = "Есептеу";
+$MESS["SAT2_AFF_PROFILE"] = "Аффилиат профайлы";
+$MESS["SAT2_AFF_TRANSACTIONS"] = "Аффилиаттар транзакциялары";
+$MESS["SAT2_ALL"] = "(барлығы)";
+$MESS["SAT2_CURRENCY"] = "Валюта";
+$MESS["SAT2_CURRENCY1"] = "Валюта:";
+$MESS["SAT2_DATE_TRANSACT"] = "Транзакция күні:";
+$MESS["SAT2_DESCR"] = "Сипаттама";
+$MESS["SAT2_FROM_ACCT"] = "шоттан";
+$MESS["SAT2_MAIL"] = "Хатты жазу";
+$MESS["SAT2_NO_AFFILIATE"] = "Аффилиат табылмады";
+$MESS["SAT2_SUM"] = "Сома";
+$MESS["SAT2_TO_ACCT"] = "шотқа";
+$MESS["SAT2_TRANSACT_DATE"] = "Транзакция күні";
+$MESS["SAT2_TYPE"] = "Түрі";
+$MESS["SAT2_USER"] = "Пайдаланушы";
+$MESS["SAT2_USER1"] = "Пайдаланушы:";
+$MESS["SAT2_USER_PROFILE"] = "Пайдаланушы профайлы";
+$MESS["SAT2_WAIT"] = "күтіңіз";
+$MESS["STA_NAV"] = "Транзакциялар";

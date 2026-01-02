@@ -48,20 +48,6 @@ class WatchTable extends ORM\Data\DataManager
 
 	public static function getUserIdsByTag(string $tag): array
 	{
-		$userIds = [];
-
-		$list = static::getList([
-			'select' => ['USER_ID'],
-			'filter' => [
-				'=TAG' => $tag,
-			],
-		]);
-		while($record = $list->fetch())
-		{
-			$record['USER_ID'] = (int)$record['USER_ID'];
-			$userIds[$record['USER_ID']] = $record['USER_ID'];
-		}
-
-		return $userIds;
+		return \CPullWatch::getUsersByTag($tag);
 	}
 }

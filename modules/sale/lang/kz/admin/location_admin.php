@@ -1,0 +1,26 @@
+<?php
+$MESS["ERROR_DELETING"] = "Жою қатесі.";
+$MESS["SALE_ACTION"] = "Әрекеттер";
+$MESS["SALE_ADD"] = "Қосу";
+$MESS["SALE_ALL"] = "(барлығы)";
+$MESS["SALE_CITY"] = "Қала";
+$MESS["SALE_CONFIRM_DEL_MESSAGE"] = "Бұл орналасуды жойғыңыз келетініне сенімдісіз бе?";
+$MESS["SALE_COUNTRY"] = "Мемлекет";
+$MESS["SALE_DELETE"] = "Жою";
+$MESS["SALE_DELETE_DESCR"] = "Орналасқан жерін жою";
+$MESS["SALE_EDIT"] = "Өзгерту";
+$MESS["SALE_EDIT_DESCR"] = "Орналасулар параметрлерін өзгерту";
+$MESS["SALE_F_CITY"] = "Қала";
+$MESS["SALE_F_COUNTRY"] = "Мемлекет";
+$MESS["SALE_F_DEL"] = "Қалпына келтіру";
+$MESS["SALE_F_FILTER"] = "Сүзгі";
+$MESS["SALE_F_REGION"] = "Аймақ";
+$MESS["SALE_F_SUBMIT"] = "Орнату";
+$MESS["SALE_PRLIST"] = "Орналасқан жерлері";
+$MESS["SALE_REGION"] = "Аймақ";
+$MESS["SALE_SECTION_TITLE"] = "Орналасқан жерлері";
+$MESS["SALE_SORT"] = "Сұрыптау";
+$MESS["SLAN_ADD_NEW"] = "Орналасуды қосу";
+$MESS["SLAN_ADD_NEW_ALT"] = "Орналасуларды қосу үшін басыңыз";
+$MESS["SLAN_IMPORT"] = "Орналасуларды импорттау";
+$MESS["SLAN_IMPORT_ALT"] = "Сыртқы көздерден орналасу базасын жүктеу";

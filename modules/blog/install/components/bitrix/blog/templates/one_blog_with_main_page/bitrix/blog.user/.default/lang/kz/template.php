@@ -1,0 +1,26 @@
+<?php
+$MESS["BU_DELETE_FILE"] = "Файлды жою";
+$MESS["B_B_FR_FR"] = "Достар:";
+$MESS["B_B_FR_FR_OF"] = "Достары қатарында:";
+$MESS["B_B_FR_NO"] = "жоқ";
+$MESS["B_B_USER_ABOUT"] = "Өзі туралы:";
+$MESS["B_B_USER_ABOUT_COM"] = "Өзі туралы еркін ақпарат.";
+$MESS["B_B_USER_ALIAS"] = "Бүркеншік ат:";
+$MESS["B_B_USER_ALIAS_COM"] = "Егер орнатылған болса, барлық жерде көрсетіледі.";
+$MESS["B_B_USER_AVATAR"] = "Аватар:";
+$MESS["B_B_USER_BIRTHDAY"] = "Туған күні:";
+$MESS["B_B_USER_BIRTHDAY_COM"] = "Туған күніңізді келесі пішімде көрсетіңіз";
+$MESS["B_B_USER_BLOG"] = "Блог:";
+$MESS["B_B_USER_CANCEL"] = "Болдырмау";
+$MESS["B_B_USER_INTERESTS"] = "Қызығушылықтар:";
+$MESS["B_B_USER_INTERESTS_COM"] = "Қызығушылықтарыңызды үтір арқылы жазыңыз.";
+$MESS["B_B_USER_LAST_AUTH"] = "Соңғы кіруі:";
+$MESS["B_B_USER_PHOTO"] = "Фото:";
+$MESS["B_B_USER_PHOTO_COM"] = "Пайдаланушы профилінен сурет";
+$MESS["B_B_USER_SAVE"] = "Сақтау";
+$MESS["B_B_USER_SEX"] = "Жынысы:";
+$MESS["B_B_USER_SITE"] = "Сайт:";
+$MESS["B_B_USER_SITE_COM"] = "Жеке парақшаға сілтеме.";
+$MESS["B_B_USER_TEXT2"] = "Бұл ақпаратты парақшада редакциялай аласыз";
+$MESS["B_B_USER_TEXT3"] = "пайдаланушы профилінің өзгерістері";
+$MESS["B_B_USER_USER"] = "Пайдаланушы:";

@@ -1,0 +1,28 @@
+.--ui-hoverable,
+.--ui-hoverable-alt,
+.--ui-hoverable-overlay,
+.--ui-hoverable-overlay-alt {
+	--ui-color: inherit;
+	--ui-color-hover: unset;
+	--ui-color-active: unset;
+}
+
+.--ui-hoverable {
+	--ui-color-hover: color-mix(in srgb, var(--ui-color) 100%, var(--ui-color-bg-state-hover-default-hex) var(--ui-color-bg-state-hover-default-opacity));
+	--ui-color-active: color-mix(in srgb, var(--ui-color) 100%, var(--ui-color-bg-state-click-default-hex) var(--ui-color-bg-state-click-default-opacity));
+}
+
+.--ui-hoverable-alt {
+	--ui-color-hover: color-mix(in srgb, var(--ui-color) 100%, var(--ui-color-bg-state-hover-alt-hex) var(--ui-color-bg-state-hover-alt-opacity));
+	--ui-color-active: color-mix(in srgb, var(--ui-color) 100%, var(--ui-color-bg-state-click-alt-hex) var(--ui-color-bg-state-click-alt-opacity));
+}
+
+.--ui-hoverable-overlay {
+	--ui-color-hover: color-mix(in srgb, var(--ui-color) 100%, var(--ui-color-bg-state-hover-default-overlay-hex) var(--ui-color-bg-state-hover-default-overlay-opacity));
+	--ui-color-active: color-mix(in srgb, var(--ui-color) 100%, var(--ui-color-bg-state-click-default-overlay-hex) var(--ui-color-bg-state-click-default-overlay-opacity));
+}
+
+.--ui-hoverable-overlay-alt {
+	--ui-color-hover: color-mix(in srgb, var(--ui-color) 100%, var(--ui-color-bg-state-hover-alt-overlay-hex) var(--ui-color-bg-state-hover-alt-overlay-opacity));
+	--ui-color-active: color-mix(in srgb, var(--ui-color) 100%, var(--ui-color-bg-state-click-alt-overlay-hex) var(--ui-color-bg-state-click-alt-overlay-opacity));
+}

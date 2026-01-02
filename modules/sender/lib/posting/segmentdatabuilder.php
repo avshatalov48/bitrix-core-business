@@ -16,6 +16,7 @@ use Bitrix\Sender\Internals\Model\GroupStateTable;
 use Bitrix\Sender\Internals\Model\GroupThreadTable;
 use Bitrix\Sender\Internals\Model\LetterSegmentTable;
 use Bitrix\Sender\Internals\Model\LetterTable;
+use Bitrix\Sender\Internals\SqlBatch;
 use Bitrix\Sender\Recipient\Type;
 use Bitrix\Sender\Runtime\SegmentDataBuilderJob;
 use Bitrix\Sender\SegmentDataTable;
@@ -321,19 +322,28 @@ INNER JOIN (
 					'WAITING_RECIPIENT' => 'N'
 				]);
 
+				$notifyTitleCallback = fn (?string $languageId = null) => Loc::getMessage(
+					'SENDER_SEGMENT_BUILDER_GROUP_PREPARED_TITLE',
+					language: $languageId,
+				);
+
+				$notifyMessageCallback = fn (?string $languageId = null) => Loc::getMessage(
+					'SENDER_SEGMENT_BUILDER_GROUP_PREPARED',
+					[
+						"#SEGMENT_ID#" => $groupId,
+						"#SEGMENT_NAME#" => htmlspecialcharsbx($group['NAME']),
+					],
+					$languageId,
+				);
+
 				$messageFields = [
 					"NOTIFY_TYPE" => IM_NOTIFY_SYSTEM,
 					"NOTIFY_MODULE" => "sender",
 					"NOTIFY_EVENT" => "group_prepared",
 					"TO_USER_ID" => $mailing['USER_ID'],
 					"NOTIFY_TAG" => "SENDER|GROUP_PREPARED|" . $groupId . "|" . $mailing['USER_ID'],
-					"NOTIFY_MESSAGE" => Loc::getMessage(
-						"SENDER_SEGMENT_BUILDER_GROUP_PREPARED",
-						[
-							"#SEGMENT_ID#" => $groupId,
-							"#SEGMENT_NAME#" => htmlspecialcharsbx($group['NAME'])
-						]
-					)
+					"NOTIFY_TITLE" => $notifyTitleCallback,
+					"NOTIFY_MESSAGE" => $notifyMessageCallback,
 				];
 
 				\CIMNotify::Add($messageFields);
@@ -1216,17 +1226,19 @@ INNER JOIN (
 		}
 
 		GroupCounterTable::deleteByGroupId($this->groupId);
+		$insertRows = [];
 		foreach ($rowsDataCounter as $groupId => $dataCounter)
 		{
 			foreach ($dataCounter as $typeId => $count)
 			{
-				GroupCounterTable::add(array(
+				$insertRows[] = [
 					'GROUP_ID' => $groupId,
 					'TYPE_ID' => $typeId,
 					'CNT' => $count,
-				));
+				];
 			}
 		}
+		SqlBatch::insert(GroupCounterTable::getTableName(), $insertRows);
 		Locker::unlock(self::SEGMENT_LOCK_KEY, $this->groupId);
 
 		$groupState = $this->getCurrentGroupState();

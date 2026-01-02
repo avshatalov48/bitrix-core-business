@@ -1,12 +1,21 @@
 'use strict';
 
-import { BusyUsersDialog, ColorSelector, Location, Reminder, RepeatSelector, SectionSelector } from 'calendar.controls';
+import {
+	AccessibilitySelector,
+	BusyUsersDialog,
+	ColorSelector,
+	Location,
+	Reminder,
+	RepeatSelector,
+	SectionSelector,
+} from 'calendar.controls';
 import { Entry, EntryManager } from 'calendar.entry';
 import { Planner } from 'calendar.planner';
 import { RoomsManager } from 'calendar.roomsmanager';
 import { CalendarSection, SectionManager } from 'calendar.sectionmanager';
 import { Util } from 'calendar.util';
 import { Dom, Event, Loc, Runtime, Tag, Type } from 'main.core';
+import { DateTimeFormat } from 'main.date'; // need for planner.js
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import { TagSelector as EntityTagSelector } from 'ui.entity-selector';
 import { SliderDateTimeControl } from './sliderdatetimecontrol.js';
@@ -64,7 +73,7 @@ export class EventEditForm
 			}
 		}
 
-		this.isOpenEvent = (this.entry?.data['CAL_TYPE'] || this.type) === 'open_event';
+		this.isOpenEvent = (this.entry?.data.CAL_TYPE || this.type) === 'open_event';
 		// TODO: remove this check, planner enabled always
 		this.plannerEnabled = true;
 		this.sectionSelectorEnabled = !this.isOpenEvent;
@@ -249,6 +258,15 @@ export class EventEditForm
 
 		if (!this.isAvailable)
 		{
+			return;
+		}
+
+		if (this.notLoaded)
+		{
+			BX.SidePanel.Instance.close();
+
+			location.reload();
+
 			return;
 		}
 
@@ -514,9 +532,32 @@ export class EventEditForm
 
 		const data = new FormData(this.DOM.form);
 
+		const rruleType = this.DOM.content.querySelector(`#${this.uid}_rrule_type`);
+		if (rruleType)
+		{
+			data.append('EVENT_RRULE[FREQ]', rruleType.dataset.value);
+		}
+
+		const accessibility = this.DOM.content.querySelector(`#${this.uid}_accessibility`);
+		if (accessibility)
+		{
+			data.append('accessibility', accessibility.dataset.value);
+		}
+
+		if (this.DOM.form.tz_from)
+		{
+			data.append('tz_from', this.DOM.form.tz_from.dataset.value);
+		}
+
+		if (this.DOM.form.tz_to)
+		{
+			data.append('tz_to', this.DOM.form.tz_to.dataset.value);
+		}
+
 		this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
 			data,
-		}).then(async (response) => {
+		}).then(
+			async (response) => {
 				if (this.canEditOnlyThis() && formDataChanges.includes('color'))
 				{
 					const newChildEvent = response.data?.eventList?.find((event) =>
@@ -798,6 +839,8 @@ export class EventEditForm
 						});
 						this.setUserSettings(params.userSettings);
 						Util.setEventWithEmailGuestEnabled(params.eventWithEmailGuestEnabled);
+						Util.setTimezoneList(params.timezoneList);
+						Util.setAbsenceAvailable(params.absenceAvailable);
 						this.handleSections(params.sections, params.trackingUsersList);
 						this.handleLocationData(params.locationFeatureEnabled, params.locationList, params.iblockMeetingRoomList);
 						this.locationAccess = params.locationAccess;
@@ -832,6 +875,8 @@ export class EventEditForm
 					}
 				},
 				(response) => {
+					this.notLoaded = true;
+
 					if (response.data && !Type.isNil(response.data.isAvailable) && !response.data.isAvailable)
 					{
 						this.isAvailable = false;
@@ -860,7 +905,6 @@ export class EventEditForm
 					const html = this.BX.util.trim('<div></div>');
 					slider.getData().set('sliderContent', html);
 					promise.fulfill(html);
-					// this.calendar.displayError(response.errors);
 				},
 			);
 
@@ -896,6 +940,7 @@ export class EventEditForm
 		this.initRepeatRuleControl(uid);
 		this.initColorControl(uid);
 		this.initCrmUfControl(uid);
+		this.initAccessibilityControl(uid);
 		this.initAdditionalControls(uid);
 
 		this.checkLastItemBorder();
@@ -1075,7 +1120,7 @@ export class EventEditForm
 		// accessibility
 		if (this.DOM.accessibilityInput)
 		{
-			this.DOM.accessibilityInput.value = entry.accessibility;
+			this?.accessibilitySelector?.setValue(entry.accessibility);
 		}
 
 		// Location
@@ -1196,7 +1241,7 @@ export class EventEditForm
 			Dom.style(this.DOM.accessibilityInput, 'display', 'none');
 			const accessibilityText = Tag.render`
 				<span class="calendar-field calendar-repeat-selector-readonly">
-					${this.DOM.accessibilityInput.options[this.DOM.accessibilityInput.selectedIndex].text}
+					${this.DOM.accessibilityInput.value}
 				</span>
 			`;
 			this.DOM.accessibilityInput.after(accessibilityText);
@@ -1627,13 +1672,13 @@ export class EventEditForm
 		}
 
 		this.DOM.rruleWrap = rruleWrap;
-		this.repeatSelector = new RepeatSelector(
-			{
-				wrap: this.DOM.rruleWrap,
-				rruleType: this.DOM.content.querySelector(`#${uid}_rrule_type`),
-				getDate: function() { return this.dateTimeControl.getValue().from; }.bind(this),
-			},
-		);
+		this.repeatSelector = new RepeatSelector({
+			uid: this.uid,
+			wrap: this.DOM.rruleWrap,
+			rruleType: this.DOM.content.querySelector(`#${uid}_rrule_type`),
+			rruleCount: this.DOM.content.querySelector(`#${uid}_rrule_count`),
+			getDate: function() { return this.dateTimeControl.getValue().from; }.bind(this),
+		});
 
 		this.dateTimeControl.subscribe('onChange', () => {
 			if (this.repeatSelector.getType() === 'weekly')
@@ -1854,7 +1899,6 @@ export class EventEditForm
 
 	initAdditionalControls(uid)
 	{
-		this.DOM.accessibilityInput = this.DOM.content.querySelector(`#${uid}_accessibility`);
 		this.DOM.privateEventCheckbox = this.DOM.content.querySelector(`#${uid}_private`);
 		this.DOM.importantEventCheckbox = this.DOM.content.querySelector(`#${uid}_important`);
 		this.DOM.importantEventCheckboxContainer = this.DOM.importantEventCheckbox.closest('.calendar-info-panel-important');
@@ -1909,6 +1953,17 @@ export class EventEditForm
 				);
 			}, 800);
 		}
+	}
+
+	initAccessibilityControl(uid)
+	{
+		this.DOM.accessibilityInput = this.DOM.content.querySelector(`#${uid}_accessibility`);
+
+		this.accessibilitySelector = new AccessibilitySelector({
+			uid,
+			readonly: !this.canEdit(),
+			input: this.DOM.accessibilityInput,
+		});
 	}
 
 	denySliderClose()
@@ -2524,7 +2579,7 @@ export class EventEditForm
 	{
 		const slider = Util.getBX().SidePanel.Instance.getTopSlider();
 
-		return slider && slider.options.type === 'calendar:slider';
+		return slider && slider.getData().get('type') === 'calendar:slider';
 	}
 
 	showError(errorList)
@@ -2694,12 +2749,12 @@ export class EventEditForm
 			fields.push('important');
 		}
 
-		if (this.DOM.form.tz_from.value !== this.initialTimezoneFrom)
+		if (this.DOM.form.tz_from.dataset.value !== this.initialTimezoneFrom)
 		{
 			fields.push('tz_from');
 		}
 
-		if (this.DOM.form.tz_to.value !== this.initialTimezoneTo)
+		if (this.DOM.form.tz_to.dataset.value !== this.initialTimezoneTo)
 		{
 			fields.push('tz_to');
 		}
@@ -2716,7 +2771,7 @@ export class EventEditForm
 			fields.push('meeting_notify');
 		}
 
-		if (this.DOM.accessibilityInput && this.DOM.accessibilityInput.value !== entry.accessibility)
+		if (this.DOM.accessibilityInput && this.DOM.accessibilityInput.dataset.value !== entry.accessibility)
 		{
 			fields.push('accessibility');
 		}

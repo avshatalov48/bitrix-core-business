@@ -18,10 +18,12 @@ export const MainContent = {
 	},
 	props: {
 		items: {
+			/** @type Array<ItemData> */
 			type: Array,
 			required: true
 		},
 		itemsToShow: {
+			/** @type Array<ItemData> */
 			type: Array,
 		},
 		group: {

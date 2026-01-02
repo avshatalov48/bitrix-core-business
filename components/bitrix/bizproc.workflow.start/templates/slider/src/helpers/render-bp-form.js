@@ -12,7 +12,7 @@ export function renderBpForm(
 	fields: Array<Property>,
 	documentType: [],
 	description: ?string,
-	signedDocumentId: string,
+	signedDocumentId: ?string,
 ): HTMLFormElement
 {
 	let context = {};

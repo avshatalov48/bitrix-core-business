@@ -43,8 +43,6 @@ if (Loader::includeModule('crm'))
 	}
 }
 
-// refresh block repo
-Block::getRepository();
 $arParams['TYPE'] = isset($arParams['TYPE']) ? $arParams['TYPE'] : '';
 $arParams['STRICT_TYPE'] = isset($arParams['STRICT_TYPE']) ? $arParams['STRICT_TYPE'] : 'N';
 
@@ -103,6 +101,7 @@ $defaultUrlTemplates404 = array(
 	'landing_settings' => 'site/#site_show#/settings/#landing_edit#/',
 	'domains' => 'domains/',
 	'domain_edit' => 'domain/edit/#domain_edit#/',
+	'ai' => 'ai/',
 	'roles' => 'roles/',
 	'notes' => 'notes/',
 	'role_edit' => 'role/edit/#role_edit#/',
@@ -125,6 +124,7 @@ $urlTpls = array(
 	'landing_settings' => array('landing_edit', 'site_show'),
 	'domains' => array(),
 	'domain_edit' => array('domain_edit'),
+	'ai' => array(),
 	'roles' => array(),
 	'notes' => array(),
 	'role_edit' => array('role_edit'),
@@ -257,39 +257,69 @@ else
 $arResult['VARS'] = $variables;
 
 // check rules for templates
-if (
-	$arParams['SEF_MODE'] == 'Y' &&
-	isset($arParams['PAGE_URL_LANDING_VIEW'])
-)
+if ($arParams['SEF_MODE'] === 'Y')
 {
-	$condition = $arParams['PAGE_URL_LANDING_VIEW'];
-	$condition = str_replace(
-		array('#site_show#', '#landing_edit#'),
-		'[\\d]+',
-		$condition
-	);
-	$condition = 'preg_match(\'#' . $condition . '#\', ' .
-				 '$GLOBALS[\'APPLICATION\']->GetCurPage(0))';
-	$res = SiteTemplateTable::getList(array(
-		'select' => array(
-			'ID'
-		),
-		'filter' => array(
-			'=SITE_ID' => SITE_ID,
-			'=CONDITION' => $condition
-		)
-	));
-	if (!$res->fetch())
+	if (
+		isset($arParams['PAGE_URL_LANDING_VIEW'])
+		&& $arParams['TYPE'] !== 'MAINPAGE'
+	)
 	{
-		SiteTemplateTable::add(array(
-			'TEMPLATE' => Manager::getTemplateId(SITE_ID),
-			'SITE_ID' => SITE_ID,
-			'SORT' => 500,
-			'CONDITION' => $condition
-		));
-		if ($componentPage == 'landing_view')
+		$condition = $arParams['PAGE_URL_LANDING_VIEW'];
+		$condition = str_replace(
+			array('#site_show#', '#landing_edit#'),
+			'[\\d]+',
+			$condition
+		);
+		$condition = 'preg_match(\'#' . $condition . '#\', ' . '$GLOBALS[\'APPLICATION\']->GetCurPage(0))';
+		$res = SiteTemplateTable::getList([
+			'select' => [
+				'ID',
+			],
+			'filter' => [
+				'=SITE_ID' => SITE_ID,
+				'=CONDITION' => $condition,
+			],
+		]);
+		if (!$res->fetch())
 		{
-			\localRedirect(Manager::getApplication()->getCurPage());
+			SiteTemplateTable::add([
+				'TEMPLATE' => Manager::getTemplateId(SITE_ID),
+				'SITE_ID' => SITE_ID,
+				'SORT' => 500,
+				'CONDITION' => $condition
+			]);
+			if ($componentPage === 'landing_view')
+			{
+				\localRedirect(Manager::getApplication()->getCurPage());
+			}
+		}
+	}
+	if (isset($arParams['PAGE_URL_AI']))
+	{
+		$condition = $arParams['PAGE_URL_AI'];
+		$condition = 'preg_match(\'#' . $condition . '#\', ' .
+			'$GLOBALS[\'APPLICATION\']->GetCurPage(0))';
+		$res = SiteTemplateTable::getList([
+			'select' => [
+				'ID'
+			],
+			'filter' => [
+				'=SITE_ID' => SITE_ID,
+				'=CONDITION' => $condition
+			]
+		]);
+		if (!$res->fetch())
+		{
+			SiteTemplateTable::add([
+				'TEMPLATE' => Manager::getTemplateId(SITE_ID),
+				'SITE_ID' => SITE_ID,
+				'SORT' => 450,
+				'CONDITION' => $condition
+			]);
+			if ($componentPage === 'ai')
+			{
+				\localRedirect(Manager::getApplication()->getCurPage());
+			}
 		}
 	}
 }
@@ -329,15 +359,6 @@ if ($componentPage == 'domains' || $componentPage == 'domain_edit')
 
 // only AGREEMENTS below
 
-if (
-	$request->get('landing_mode') ||
-	!Manager::isB24()
-)
-{
-	$this->IncludeComponentTemplate($componentPage);
-	return;
-}
-
 $currentLang = LANGUAGE_ID;
 $currentZone = Manager::getZone();
 $agreementCode = 'landing_agreement';
@@ -349,7 +370,8 @@ $agreements = array(
 $virtualLangs = array(
 	'ua' => 'ru',
 	'by' => 'ru',
-	'kz' => 'ru'
+	'kz' => 'ru',
+	'uz' => 'ru',
 );
 
 if (isset($agreements['es']))
@@ -358,7 +380,7 @@ if (isset($agreements['es']))
 }
 
 // lang zone is in CIS
-$cis = $currentZone == 'by' || $currentZone == 'kz';
+$cis = $currentZone === 'by' || $currentZone === 'kz' || $currentZone === 'uz';
 
 // actual from lang-file
 foreach ($agreements as $lng => $item)
@@ -447,6 +469,27 @@ while ($row = $res->fetch())
 	$agreements[$row['LANGUAGE_ID']]['ID'] = $row['ID'];
 }
 
+// check accepted
+$consentTableRes = ConsentTable::getList(array(
+	'filter' => array(
+		'USER_ID' => Manager::getUserId(),
+		'AGREEMENT_ID' => $agreementsId
+	)
+));
+if ($consentTableRes->fetch())
+{
+	$arResult['AGREEMENT_ACCEPTED'] = true;
+}
+
+if (
+	$request->get('landing_mode') ||
+	!Manager::isB24()
+)
+{
+	$this->IncludeComponentTemplate($componentPage);
+	return;
+}
+
 // add new to db
 foreach ($agreements as $lng => $agreement)
 {
@@ -496,16 +539,9 @@ else
 }
 
 // check accepted
-$res = ConsentTable::getList(array(
-	'filter' => array(
-		'USER_ID' => Manager::getUserId(),
-		'AGREEMENT_ID' => $agreementsId
-	)
-));
-if ($res->fetch())
+if ($consentTableRes->fetch())
 {
 	$redirectIfUnAccept = false;
-	$arResult['AGREEMENT_ACCEPTED'] = true;
 }
 
 // accept

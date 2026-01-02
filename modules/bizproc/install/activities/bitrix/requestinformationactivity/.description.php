@@ -1,5 +1,11 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+use Bitrix\Main\Localization\Loc;
 
 $arActivityDescription = array(
 	"NAME" => GetMessage("BPRIA_DESCR_NAME_1"),
@@ -12,26 +18,26 @@ $arActivityDescription = array(
 		'OWN_ID' => 'task',
 		'OWN_NAME' => GetMessage('BPAA_DESCR_TASKS')
 	),
-	"RETURN" => array(
+	'RETURN' => [
 		'TaskId' => [
 			'NAME' => 'ID',
 			'TYPE' => 'int'
 		],
-		"Comments" => array(
-			"NAME" => GetMessage("BPAA_DESCR_CM"),
-			"TYPE" => "string",
-		),
-		"IsTimeout" => array(
-			"NAME" => GetMessage("BPAA_DESCR_TA1"),
-			"TYPE" => "int",
-		),
-		"InfoUser" => array(
-			"NAME" => GetMessage("BPAA_DESCR_LU"),
-			"TYPE" => "user",
-		),
-		"Changes" => array(
-			"NAME" => GetMessage("BPAA_DESCR_CHANGES"),
-			"TYPE" => "string",
-		),
-	),
+		'Comments' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_CM_1'),
+			'TYPE' => 'string',
+		],
+		'IsTimeout' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_TA1'),
+			'TYPE' => 'int',
+		],
+		'InfoUser' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_LU'),
+			'TYPE' => 'user',
+		],
+		'Changes' => [
+			'NAME' => Loc::getMessage('BPAA_DESCR_CHANGES'),
+			'TYPE' => 'string',
+		],
+	],
 );

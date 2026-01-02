@@ -1,0 +1,66 @@
+.mail-notification-container {
+	display: flex;
+	align-items: center;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
+}
+
+.mail-notification-container__image-wrapper {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 98px;
+	min-height: 80px;
+}
+
+.mail-notification-container__image {
+	background: url("images/mailbox_grid.svg") no-repeat center center;
+	height: 70px;
+	width: 78px;
+	background-size: 100%;
+}
+
+.mail-notification-content {
+	color: #ffffff;
+	width: 246px;
+	min-height: 80px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.mail-notification-content-wrapper {
+	width: 234px;
+	padding-bottom: 6px;
+}
+
+.mail-notification-content__title {
+	font-size: 17px;
+	line-height: 23px;
+	font-weight: 500;
+	letter-spacing: -0.1px;
+	padding-bottom: 6px;
+	margin: 0;
+}
+
+.mail-notification-content__description {
+	font-size: 15px;
+	line-height: 20px;
+	font-weight: 400;
+	letter-spacing: -0.05px;
+	opacity: 0.82;
+}
+
+#push-mailbox-grid .popup-window-angly--arrow {
+	background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg width='34' height='12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M.571 12c6.116 0 9.822-12 16.423-12 6.6 0 10.239 12 16.422 12H.572z' fill='%23085DC1'/%3E%3C/svg%3E") !important;
+	background-color: transparent !important;
+	height: 12px;
+	left: 0;
+	top: 10px;
+	width: 35px;
+	border-radius: 0;
+	transform: none;
+	-webkit-transform: none;
+	-ms-transform: none;
+}

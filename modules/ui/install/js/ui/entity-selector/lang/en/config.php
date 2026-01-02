@@ -1,8 +1,9 @@
 <?php
+$MESS["UI_SELECTOR_CREATE_ITEM_LABEL"] = "Create:";
 $MESS["UI_SELECTOR_ITEM_LINK_TITLE"] = "Details";
 $MESS["UI_SELECTOR_RECENT_TAB_TITLE"] = "Recent items";
 $MESS["UI_SELECTOR_SEARCH_LOADER_TEXT"] = "Searching for additional results...";
-$MESS["UI_SELECTOR_SEARCH_STUB_SUBTITLE_MSGVER_1"] = "Try different keywords or filters";
+$MESS["UI_SELECTOR_SEARCH_STUB_SUBTITLE_MSGVER_1"] = "Try different keywords or filters.";
 $MESS["UI_SELECTOR_SEARCH_STUB_TITLE"] = "No matches";
 $MESS["UI_SELECTOR_SEARCH_TAB_TITLE"] = "Search";
 $MESS["UI_SELECTOR_TAB_STUB_TITLE"] = "Nothing has been found in category \"#TAB_TITLE#\"";
@@ -11,4 +12,3 @@ $MESS["UI_TAG_SELECTOR_ADD_BUTTON_CAPTION_MORE"] = "Add more";
 $MESS["UI_TAG_SELECTOR_ADD_BUTTON_CAPTION_SINGLE"] = "Edit";
 $MESS["UI_TAG_SELECTOR_CREATE_BUTTON_CAPTION"] = "Create";
 $MESS["UI_TAG_SELECTOR_SEARCH_PLACEHOLDER"] = "search";
-$MESS["UI_SELECTOR_CREATE_ITEM_LABEL"] = "Create:";

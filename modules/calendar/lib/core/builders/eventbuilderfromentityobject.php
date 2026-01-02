@@ -384,16 +384,19 @@ class EventBuilderFromEntityObject extends EventBuilder
 	protected function getUid(): ?string
 	{
 		$uid = $this->event->getDavXmlId();
-		if ($uid == $this->event->getId())
+		if ($uid === (string)$this->event->getId())
 		{
 			$uid = UidGenerator::createInstance()
 				->setPortalName(Util::getServerName())
 				->setDate(new Date(Util::getDateObject(
-					$this->event->getDateFrom()->format(\Bitrix\Main\Type\Date::convertFormatToPhp(FORMAT_DATETIME)),
+					$this->event->getDateFrom()
+						? $this->event->getDateFrom()->format(\Bitrix\Main\Type\Date::convertFormatToPhp(FORMAT_DATETIME))
+						: null
+					,
 					false,
 					$this->getStartTimezone() ? $this->getStartTimezone()->getTimeZone()->getName() : null
 				)))
-				->setUserId((int)$this->event->getOwnerId())
+				->setUserId($this->event->getOwnerId())
 				->getUidWithDate()
 			;
 		}

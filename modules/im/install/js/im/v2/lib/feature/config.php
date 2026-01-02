@@ -10,9 +10,10 @@ return [
 	],
 	'rel' => [
 		'main.core',
-		'ui.info-helper',
-		'im.v2.const',
 		'im.v2.application.core',
+		'im.v2.const',
+		'im.v2.lib.feature',
+		'ui.info-helper',
 	],
 	'skip_core' => false,
 ];

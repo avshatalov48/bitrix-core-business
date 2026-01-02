@@ -1,0 +1,27 @@
+<?php
+$MESS["CAT_DOC_AND_MORE"] = "және #COUNT# тауар.";
+$MESS["CAT_DOC_BARCODE_ALREADY_EXIST"] = "#PRODUCT# тауары үшін енгізілген #BARCODE# штрихкоды қазірдің өзінде бар.";
+$MESS["CAT_DOC_CONDUCT_UNCONDUCT_NOT_AVAILABLE"] = "Құжаттарды өткізу тек қойма есебі қосылған жағдайда ғана мүмкін болады";
+$MESS["CAT_DOC_CONDUCT_UNCONDUCT_NOT_AVAILABLE_EXTERNAL_CATALOG"] = "Тауарлардың сыртқы каталогын пайдалану кезінде құжаттарды өткізу мүмкін емес";
+$MESS["CAT_DOC_ERROR_CANCEL_STATUS"] = "Құжат әлі өткізілген жоқ.";
+$MESS["CAT_DOC_ERROR_ELEMENT_IN_DOCUMENT_EXISTS"] = "##ID# (#NAME#) тауарын жою мүмкін емес, себебі ол қойма есебі құжаттарында бар.";
+$MESS["CAT_DOC_ERROR_ELEMENT_IN_DOCUMENT_EXT"] = "Өткізілген қойма есебінің құжаттарында осы тауар бар. Құжаттардың белсенділігін қайтарыңыз және тауарды өшіріңіз.";
+$MESS["CAT_DOC_ERROR_ELEMENT_IN_DOCUMENT_EXT_2"] = "Бұл тауар қоймалық есепке алу құжаттарында қамтылған. Тауарды жою үшін оны құжаттардан өшіріп тастау керек.";
+$MESS["CAT_DOC_ERROR_MODULE_SALE_NOT_INSTALLED"] = "\"Интернет дүкен\" модулі орнатылмаған";
+$MESS["CAT_DOC_ERROR_REQUIRED_FIELD"] = "#FIELD_NAME#\" міндетті өрісі толтырылмаған";
+$MESS["CAT_DOC_ERROR_SHIPMENT_NOT_FOUND"] = "Сатылым құжаты үшін жөнелту табылмады";
+$MESS["CAT_DOC_ERROR_STORE_TO"] = "#PRODUCT# тауарына арналған мақсатты қойма көрсетілмеген";
+$MESS["CAT_DOC_PURCHASING_INFO_ERROR"] = "Сатып алу бағасы мен валютаны жаңарту қатесі.";
+$MESS["CAT_DOC_SAVE_CONDUCTED_DOCUMENT"] = "Өткізілген құжатты өзгерту мүмкін емес";
+$MESS["CAT_DOC_STATUS_ALREADY_YES"] = "Құжат бұрын өткізілген";
+$MESS["CAT_DOC_WRONG_AMOUNT"] = "Сіз #PRODUCT# тауардың дұрыс емес санын енгіздіңіз";
+$MESS["CAT_DOC_WRONG_BARCODE"] = "Базада #BARCODE# штрихкоды табылмады.";
+$MESS["CAT_DOC_WRONG_CONTRACTOR"] = "Жеткізуші көрсетілмеген";
+$MESS["CAT_DOC_WRONG_COUNT"] = "#PRODUCT# тауарда енгізілген штрих - кодтардың саны штрих-кодтардың жалпы санына сәйкес келмейді.";
+$MESS["CAT_DOC_WRONG_ELEMENT_COUNT"] = "Кем дегенде бір тауарды енгізіңіз.";
+$MESS["CAT_DOC_WRONG_RESERVED_AMOUNT"] = "Резервтелген #PRODUCT# тауардың мұндай саны жоқ.";
+$MESS["CAT_DOC_WRONG_RESPONSIBLE"] = "Жауапты адам көрсетілмеген.";
+$MESS["CAT_DOC_WRONG_SITE_ID"] = "Дұрыс емес SITE_ID көрсетілген";
+$MESS["CAT_DOC_WRONG_STATUS"] = "Өткізілген құжатты жою мүмкін емес";
+$MESS["CAT_DOC_WRONG_STORE_BARCODE"] = "#STORE# қоймасында #BARCODE# штрихкоды бар #PRODUCT# тауары жоқ";
+$MESS["CAT_DOC_WRONG_TYPE"] = "Құжаттың дұрыс емес түрі.";

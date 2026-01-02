@@ -1,0 +1,21 @@
+<?php
+$MESS['PERFMON_INDEX_ANALYZE'] = "Жиналған SQL сұрауларына талдау жасау";
+$MESS['PERFMON_INDEX_BANNED'] = "Нәтижесі";
+$MESS['PERFMON_INDEX_COLUMN_NAMES'] = "Бағандар";
+$MESS['PERFMON_INDEX_COMPLETE'] = "Талдау аяқталды.";
+$MESS['PERFMON_INDEX_DETAILS'] = "Егжей-тегжейлі талдау";
+$MESS['PERFMON_INDEX_EXPLAIN'] = "Орындау жоспары";
+$MESS['PERFMON_INDEX_GREEN_ALT'] = "Индекс жасалды";
+$MESS['PERFMON_INDEX_IN_PROGRESS'] = "Сұраулардың SQL талдауы жүріп жатыр.";
+$MESS['PERFMON_INDEX_KEEPER_NOTE_ANALYZE'] = "Жиналған SQL сұрауларына талдау оның белсенділігі аяқталғаннан кейін жасалуы мүмкін.";
+$MESS['PERFMON_INDEX_KEEPER_NOTE_IS_ACTIVE'] = "Өнімділік мониторы қосулы.";
+$MESS['PERFMON_INDEX_PAGE'] = "Индекстер";
+$MESS['PERFMON_INDEX_QUERIES_ANALYZED'] = "Талданды: #QUERIES#";
+$MESS['PERFMON_INDEX_RED_ALT'] = "Индекс қажет емес";
+$MESS['PERFMON_INDEX_SQL_COUNT'] = "Сұрау саны";
+$MESS['PERFMON_INDEX_SQL_TEXT'] = "Сұрау мәтіні";
+$MESS['PERFMON_INDEX_SQL_TIME'] = "Сұраудың жалпы уақыты";
+$MESS['PERFMON_INDEX_SQL_TIME_AVG'] = "Сұраудың орташа уақыты";
+$MESS['PERFMON_INDEX_TABLE_NAME'] = "Кесте";
+$MESS['PERFMON_INDEX_TITLE'] = "Индекстер талдауы";
+$MESS['PERFMON_INDEX_YELLOW_ALT'] = "Егжей-тегжейлі талдау жасау керек";

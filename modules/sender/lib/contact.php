@@ -576,23 +576,38 @@ class ContactTable extends Entity\DataManager
 			return 0;
 		}
 
-		(new ContactUpdateService())->updateByCollection($updateCollection);
+		$listHash = hash('sha256', serialize($updateCollection->all()));
+		$lockKey = 'b_sender_contact_' . $listHash;
 
-		if (!$listId)
+		if (!Application::getConnection()->lock($lockKey))
 		{
-			return $updateCollection->count();
+			return 0;
 		}
 
-		$row = ListTable::getRowById($listId);
-		if (!$row)
+		try
 		{
-			return false;
+			(new ContactUpdateService())->updateByCollection($updateCollection);
+
+			if (!$listId)
+			{
+				return $updateCollection->count();
+			}
+
+			$row = ListTable::getRowById($listId);
+			if (!$row)
+			{
+				return false;
+			}
+
+			// insert contacts & lists
+			(new ContactListUpdateService())->updateByCollection($updateCollection, $listId);
+
+			return ContactListTable::getCount(array('=LIST_ID' => $listId));
 		}
-
-		// insert contacts & lists
-		(new ContactListUpdateService())->updateByCollection($updateCollection, $listId);
-
-		return ContactListTable::getCount(array('=LIST_ID' => $listId));
+		finally
+		{
+			Application::getConnection()->unlock($lockKey);
+		}
 	}
 
 	/**

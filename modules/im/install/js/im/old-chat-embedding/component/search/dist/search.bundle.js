@@ -2215,5 +2215,5 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 
 	exports.Search = Search;
 
-}((this.BX.Messenger.Embedding.ComponentLegacy = this.BX.Messenger.Embedding.ComponentLegacy || {}),BX,BX.Messenger.Embedding.LibLegacy,BX,BX.Messenger.Embedding.Lib,BX.Messenger.Embedding.Lib,BX.Dexie3,BX.Messenger.Embedding.ComponentLegacy,BX,BX.Event,BX.Messenger.Embedding.Const));
+}((this.BX.Messenger.Embedding.ComponentLegacy = this.BX.Messenger.Embedding.ComponentLegacy || {}),BX,BX.Messenger.Embedding.LibLegacy,BX,BX.Messenger.Embedding.Lib,BX.Messenger.Embedding.Lib,BX.DexieExport,BX.Messenger.Embedding.ComponentLegacy,BX,BX.Event,BX.Messenger.Embedding.Const));
 //# sourceMappingURL=search.bundle.js.map

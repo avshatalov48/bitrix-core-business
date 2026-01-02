@@ -10,7 +10,7 @@ use Bitrix\Socialnetwork\Permission\AbstractAccessController;
 
 /**
  * @method int getInitiatorId()
- * @method self setInitiatorId(int $initiatorId)
+ * @method static setInitiatorId(int $initiatorId)
  * @method bool hasInitiatorId()
  */
 abstract class InitiatedCommand extends AbstractCommand

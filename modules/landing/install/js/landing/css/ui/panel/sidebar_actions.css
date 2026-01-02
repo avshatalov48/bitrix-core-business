@@ -9,8 +9,8 @@
 	transition: opacity 200ms ease 0s;
 }
 
-.block-wrapper:hover .landing-ui-panel-sidebar-actions,
-.block-wrapper.landing-ui-hover .landing-ui-panel-sidebar-actions {
+body:not(.landing-copilot-generation) .block-wrapper:hover .landing-ui-panel-sidebar-actions,
+body:not(.landing-copilot-generation) .block-wrapper.landing-ui-hover .landing-ui-panel-sidebar-actions {
 	opacity: 1;
 }
 

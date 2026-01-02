@@ -1,0 +1,19 @@
+<?php
+$MESS["BP_SSA_ACTIVITY_EMPTY_DOCUMENT_ID"] = "Элементтің ID-і толтырылмаған";
+$MESS["BP_SSA_ACTIVITY_EMPTY_START_BY"] = "«Пайдаланушыдан іске қосу» міндетті өрісі толтырылмаған";
+$MESS["BP_SSA_ACTIVITY_INCORRECT_TEMPLATE_ID"] = "Қалыптың дұрыс емес ID-і";
+$MESS["BP_SSA_ACTIVITY_LIMIT_DOCUMENT_IDS"] = "Ақылды сценарийлерді іске қосу лимиті асып кетті";
+$MESS["BP_SSA_ACTIVITY_LIMIT_QUEUE"] = "Бұл ақылды сценарий әлі аяқталған жоқ, оны екінші рет қосу мүмкін емес";
+$MESS["BP_SSA_ACTIVITY_LOOPING_ERROR"] = "Ақылды сценарийдің рекурсивті іске қосылуы бұғатталған";
+$MESS["BP_SSA_ACTIVITY_MAP_DOCUMENT_ID"] = "Элементтің ID-і";
+$MESS["BP_SSA_ACTIVITY_MAP_PARAMETERS"] = "Ақылды сценарийді іске қосу параметрлері";
+$MESS["BP_SSA_ACTIVITY_MAP_PARAMETERS_HIDDEN"] = "Ағымдағы Ақылды сценарий баптауларын өзгерту үшін құқықтар жеткіліксіз";
+$MESS["BP_SSA_ACTIVITY_MAP_START_BY"] = "Пайдаланушыдан іске қосу";
+$MESS["BP_SSA_ACTIVITY_MAP_TEMPLATE_ID"] = "Ақылды сценарий";
+$MESS["BP_SSA_ACTIVITY_NOT_FOUND_DOCUMENT"] = "Мұндай ID бар элемент табылмады";
+$MESS["BP_SSA_ACTIVITY_NOT_FOUND_TEMPLATE"] = "Ақылды сценарий табылмады немесе өшірілді";
+$MESS["BP_SSA_ACTIVITY_NOT_MATCH_DOCUMENT_TYPE"] = "Көрсетілген элементтің ID-і ақылды сценарийлер жұмыс істей алатын элементтер түріне сәйкес келмейді";
+$MESS["BP_SSA_ACTIVITY_TEMPLATE_PARAMETERS_ERROR"] = "«#NAME#« міндетті параметрі толтырылмаған";
+$MESS["BP_SSA_ACTIVITY_VALIDATE_EMPTY_DOCUMENT_ID"] = "«Элементтің ID» міндетті өрісі толтырылмаған";
+$MESS["BP_SSA_ACTIVITY_VALIDATE_EMPTY_START_BY"] = "«Пайдаланушыдан іске қосу» міндетті өрісі толтырылмаған";
+$MESS["BP_SSA_ACTIVITY_VALIDATE_EMPTY_TEMPLATE_ID"] = "«Ақылды сценарий» міндетті өрісі толтырылмаған";

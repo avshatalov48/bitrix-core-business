@@ -171,12 +171,13 @@ class User implements RestEntity
 			return null;
 		}
 
-		if (!$createResult->isSuccess())
+		$chat = $createResult->getChat();
+		if (!($chat instanceof PrivateChat) || !$createResult->isSuccess())
 		{
 			return null;
 		}
 
-		return $createResult->getResult()['CHAT'];
+		return $chat;
 	}
 
 	final public function checkAccess(?int $idOtherUser = null): Result
@@ -359,11 +360,6 @@ class User implements RestEntity
 		$option['FOR_REST'] = false;
 		$userData = $this->toRestFormat($option);
 
-		if ($option['USER_SHORT_FORMAT'] ?? null)
-		{
-			return $userData;
-		}
-
 		$converter = new Converter(Converter::TO_SNAKE | Converter::TO_UPPER | Converter::KEYS);
 		$userData = $converter->process($userData);
 
@@ -463,6 +459,11 @@ class User implements RestEntity
 		return $this->userData['EXTERNAL_AUTH_ID'] ?? 'default';
 	}
 
+	public function isInternalType(): bool
+	{
+		return !in_array($this->getExternalAuthId(), \Bitrix\Im\Model\UserTable::getExternalUserTypes(), true);
+	}
+
 	public function getWebsite(): string
 	{
 		return $this->userData['PERSONAL_WWW'] ?? '';
@@ -523,11 +524,6 @@ class User implements RestEntity
 		return $this->userData['COLOR'] ?? '';
 	}
 
-	public function getTzOffset(): string
-	{
-		return $this->userData['TIME_ZONE_OFFSET'] ?? '';
-	}
-
 	public function getLanguageId(): ?string
 	{
 		return $this->userData['LANGUAGE_ID'] ?? null;
@@ -536,6 +532,11 @@ class User implements RestEntity
 	public function isExtranet(): bool
 	{
 		return $this->userData['IS_EXTRANET'] ?? false;
+	}
+
+	public function isCollaber(): bool
+	{
+		return $this->getType() === UserType::COLLABER;
 	}
 
 	public function isActive(): bool
@@ -590,6 +591,11 @@ class User implements RestEntity
 		}
 
 		return 'online';
+	}
+
+	public function getTimeZone(): string
+	{
+		return $this->userData['TIME_ZONE'] ?? '';
 	}
 
 	public function getIdle(bool $real = false): ?DateTime

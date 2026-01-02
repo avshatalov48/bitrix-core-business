@@ -9,6 +9,26 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  * @var StoreOrderBlockStoreV3 $classBlock
  */
 $detailUrl = '#system_catalogitem/#ELEMENT_CODE#/';
+
+$agreements = $classBlock->get('AGREEMENTS');
+if (!is_array($agreements))
+{
+	$agreementId = (int)$classBlock->get('AGREEMENT_ID');
+	if ($agreementId > 0)
+	{
+		$agreements = [
+			[
+				'ID' => $agreementId,
+				'CHECKED' => 'Y',
+				'REQUIRED' => 'Y',
+			],
+		];
+	}
+	else
+	{
+		$agreements = [];
+	}
+}
 ?>
 <section class="landing-block">
 	<div class="landing-component">
@@ -18,8 +38,7 @@ $detailUrl = '#system_catalogitem/#ELEMENT_CODE#/';
 			'.default',
 			[
 				'USER_CONSENT' => $classBlock->get('USER_CONSENT'),
-				'USER_CONSENT_ID' => $classBlock->get('AGREEMENT_ID'),
-				'USER_CONSENT_IS_CHECKED' => 'Y',
+				'USER_CONSENTS' => $agreements,
 				'USER_CONSENT_IS_LOADED' => 'N',
 				'CONTEXT_SITE_ID' => $classBlock->get('SITE_ID'),
 				'IS_LANDING_SHOP' => 'Y',

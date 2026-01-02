@@ -22,7 +22,6 @@ CModule::AddAutoloadClasses(
 		'clouds' => 'install/index.php',
 		'CCloudUtil' => 'classes/general/util.php',
 		'CCloudStorage' => 'classes/general/storage.php',
-		'CAllCloudStorageBucket' => 'classes/general/storage_bucket.php',
 		'CCloudStorageBucket' => 'classes/general/storage_bucket.php',
 		'CCloudStorageUpload' => 'classes/general/storage_upload.php',
 		'CCloudTempFile' => 'classes/general/temp_file.php',

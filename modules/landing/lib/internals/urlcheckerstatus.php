@@ -6,6 +6,22 @@ use Bitrix\Main\Entity;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class UrlCheckerStatusTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UrlCheckerStatus_Query query()
+ * @method static EO_UrlCheckerStatus_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_UrlCheckerStatus_Result getById($id)
+ * @method static EO_UrlCheckerStatus_Result getList(array $parameters = [])
+ * @method static EO_UrlCheckerStatus_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_UrlCheckerStatus createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_UrlCheckerStatus_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_UrlCheckerStatus wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_UrlCheckerStatus_Collection wakeUpCollection($rows)
+ */
 class UrlCheckerStatusTable extends Entity\DataManager
 {
 	/**

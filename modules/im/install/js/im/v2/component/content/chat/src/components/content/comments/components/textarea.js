@@ -15,7 +15,6 @@ export const CommentsTextarea = {
 		<ChatTextarea
 			:dialogId="dialogId"
 			:withMarket="false"
-			:withAudioInput="false"
 			class="bx-im-comments-send-panel__container"
 		/>
 	`,

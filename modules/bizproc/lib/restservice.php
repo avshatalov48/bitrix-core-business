@@ -39,6 +39,10 @@ class RestService extends \IRestService
 	const ERROR_TASK_TYPE = 'ERROR_TASK_TYPE';
 	const ERROR_TASK_COMPLETED = 'ERROR_TASK_COMPLETED';
 	const ERROR_TASK_EXECUTION = 'ERROR_TASK_EXECUTION';
+	const ERROR_SELECT_VALIDATION_FAILURE = 'ERROR_SELECT_VALIDATION_FAILURE';
+
+	const ERROR_INVALID_USER_ID = 'ERROR_INVALID_USER_ID';
+	const ERROR_DELEGATION_NOT_ALLOWED = 'ERROR_DELEGATION_NOT_ALLOWED';
 
 	private const ALLOWED_TASK_ACTIVITIES = [
 		'ReviewActivity',
@@ -67,6 +71,7 @@ class RestService extends \IRestService
 				//task
 				'bizproc.task.list' => [__CLASS__, 'getTaskList'],
 				'bizproc.task.complete' => [__CLASS__, 'completeTask'],
+				'bizproc.task.delegate' => [__CLASS__, 'delegateTask'],
 
 				//workflow
 				'bizproc.workflow.terminate' => [__CLASS__, 'terminateWorkflow'],
@@ -724,6 +729,11 @@ class RestService extends \IRestService
 			throw new RestException('Empty workflow instance ID', self::ERROR_WRONG_WORKFLOW_ID);
 		}
 
+		if (!is_string($params['ID']))
+		{
+			throw new RestException('Invalid workflow instance ID (string expected)', self::ERROR_WRONG_WORKFLOW_ID);
+		}
+
 		$id = $params['ID'];
 		$status = isset($params['STATUS']) ? (string)$params['STATUS'] : '';
 		$errors = [];
@@ -951,15 +961,22 @@ class RestService extends \IRestService
 
 		$data = self::prepareTemplateData($params['TEMPLATE_DATA']);
 
-		return \CBPWorkflowTemplateLoader::ImportTemplate(
-			0,
-			$params['DOCUMENT_TYPE'],
-			$autoExecute,
-			$params['NAME'],
-			isset($params['DESCRIPTION']) ? (string) $params['DESCRIPTION'] : '',
-			$data,
-			self::generateTemplateSystemCode($server)
-		);
+		try
+		{
+			return \CBPWorkflowTemplateLoader::ImportTemplate(
+				0,
+				$params['DOCUMENT_TYPE'],
+				$autoExecute,
+				$params['NAME'],
+				isset($params['DESCRIPTION']) ? (string) $params['DESCRIPTION'] : '',
+				$data,
+				self::generateTemplateSystemCode($server)
+			);
+		}
+		catch (\Exception $e)
+		{
+			throw new RestException($e->getMessage());
+		}
 	}
 
 	/**
@@ -1298,6 +1315,42 @@ class RestService extends \IRestService
 		return true;
 	}
 
+	public static function delegateTask($params, $n, $server)
+	{
+		$params = array_change_key_case($params, CASE_UPPER);
+		$currentUserId = self::getCurrentUserId();
+
+		if (!is_array($params['TASK_IDS']) || array_filter($params['TASK_IDS'], static fn($id) => !is_numeric($id)))
+		{
+			throw new RestException('Invalid TASK_IDS', self::ERROR_TASK_VALIDATION);
+		}
+		$taskIds = array_map('intval', $params['TASK_IDS']);
+
+		if (!isset($params['FROM_USER_ID']) || !is_numeric($params['FROM_USER_ID']) || $params['FROM_USER_ID'] <= 0)
+		{
+			throw new RestException('Invalid FROM_USER_ID', self::ERROR_INVALID_USER_ID);
+		}
+		$fromUserId = (int)$params['FROM_USER_ID'];
+
+		if (!isset($params['TO_USER_ID']) || !is_numeric($params['TO_USER_ID']) || $params['TO_USER_ID'] <= 0)
+		{
+			throw new RestException('Invalid TO_USER_ID', self::ERROR_INVALID_USER_ID);
+		}
+		$toUserId = (int)$params['TO_USER_ID'];
+
+		$taskService = new Api\Service\TaskService(new Api\Service\TaskAccessService($currentUserId));
+		$tasksRequest = new Api\Request\TaskService\DelegateTasksRequest($taskIds, $fromUserId, $toUserId, $currentUserId);
+		$delegateTaskResult = $taskService->delegateTasks($tasksRequest);
+
+		if (!$delegateTaskResult->isSuccess())
+		{
+			$errors = implode(';', $delegateTaskResult->getErrorMessages());
+			throw new RestException($errors, self::ERROR_DELEGATION_NOT_ALLOWED);
+		}
+
+		return true;
+	}
+
 	private static function validateTaskParameters(array $params)
 	{
 		if (empty($params['TASK_ID']))
@@ -1473,13 +1526,21 @@ class RestService extends \IRestService
 		{
 			foreach ($rules as $field)
 			{
+				if (!is_scalar($field))
+				{
+					throw new RestException(
+						"Invalid data in SELECT parameter",
+						self::ERROR_SELECT_VALIDATION_FAILURE,
+					);
+				}
+
 				$field = mb_strtoupper($field);
 				if (isset($fields[$field]) && !in_array($field, $select))
 					$select[$field] = $fields[$field];
 			}
 		}
 
-		return $select ? $select : $default;
+		return $select ?: $default;
 	}
 
 	private static function getOrder($rules, $fields, array $default = array())
@@ -1731,7 +1792,7 @@ class RestService extends \IRestService
 		{
 			$documentService = \CBPRuntime::getRuntime()->getDocumentService();
 			$documentId = $documentService->normalizeDocumentId($documentId);
-			if ($documentService->getDocument($documentId))
+			if ($documentService->getDocument($documentId, select: ['ID']))
 			{
 				return $documentId;
 			}

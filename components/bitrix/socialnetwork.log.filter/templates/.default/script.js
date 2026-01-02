@@ -525,6 +525,7 @@ BitrixLFFilter.prototype.__SLFShowInfoPopup = function(params)
 		autoHide: false,
 		overlay: true,
 		events: {},
+		width: 700,
 		buttons: [],
 		zIndex : 0,
 		content: BX.create('DIV', {

@@ -1,4 +1,6 @@
 import { Runtime, ajax as Ajax, Type, Loc, type AjaxResponse } from 'main.core';
+import EntityErrorCollection from '../../entity/entity-error-collection';
+import type { EntityErrorOptions } from '../../entity/entity-error-options';
 
 import Tab from './tab';
 import SearchEngine from '../../search/search-engine';
@@ -30,16 +32,17 @@ export default class SearchTab extends Tab
 			stubOptions: {
 				autoShow: false,
 				title: Loc.getMessage('UI_SELECTOR_SEARCH_STUB_TITLE'),
-				subtitle: Loc.getMessage('UI_SELECTOR_SEARCH_STUB_SUBTITLE_MSGVER_1')
-			}
+				subtitle: Loc.getMessage('UI_SELECTOR_SEARCH_STUB_SUBTITLE_MSGVER_1'),
+			},
 		};
 
-		const options: TabOptions = Object.assign({}, defaults, tabOptions);
+		const options: TabOptions = { ...defaults, ...tabOptions };
 		options.id = 'search';
 		options.stubOptions.autoShow = false;
 
 		super(dialog, options);
 
+		// eslint-disable-next-line no-param-reassign
 		searchOptions = Type.isPlainObject(searchOptions) ? searchOptions : {};
 		this.setAllowCreateItem(searchOptions.allowCreateItem, searchOptions.footerOptions);
 
@@ -80,12 +83,9 @@ export default class SearchTab extends Tab
 				this.getStub().hide();
 			}
 		}
-		else
+		else if (!this.getSearchLoader().isShown())
 		{
-			if (!this.getSearchLoader().isShown())
-			{
-				this.toggleEmptyResult();
-			}
+			this.toggleEmptyResult();
 		}
 	}
 
@@ -119,7 +119,6 @@ export default class SearchTab extends Tab
 	appendResults(matchResults: MatchResult[]): void
 	{
 		matchResults.sort((a: MatchResult, b: MatchResult) => {
-
 			const matchSortA = a.getSort();
 			const matchSortB = b.getSort();
 
@@ -127,11 +126,13 @@ export default class SearchTab extends Tab
 			{
 				return matchSortA - matchSortB;
 			}
+
 			if (matchSortA !== null && matchSortB === null)
 			{
 				return -1;
 			}
-			else if (matchSortA === null && matchSortB !== null)
+
+			if (matchSortA === null && matchSortB !== null)
 			{
 				return 1;
 			}
@@ -143,34 +144,36 @@ export default class SearchTab extends Tab
 			{
 				return -1;
 			}
-			else if (contextSortA === null && contextSortB !== null)
+
+			if (contextSortA === null && contextSortB !== null)
 			{
 				return 1;
 			}
-			else if (contextSortA !== null && contextSortB !== null)
+
+			if (contextSortA !== null && contextSortB !== null)
 			{
 				return contextSortB - contextSortA;
 			}
-			else
+
+			const globalSortA = a.getItem().getGlobalSort();
+			const globalSortB = b.getItem().getGlobalSort();
+
+			if (globalSortA !== null && globalSortB === null)
 			{
-				const globalSortA = a.getItem().getGlobalSort();
-				const globalSortB = b.getItem().getGlobalSort();
-
-				if (globalSortA !== null && globalSortB === null)
-				{
-					return -1;
-				}
-				else if (globalSortA === null && globalSortB !== null)
-				{
-					return 1;
-				}
-				else if (globalSortA !== null && globalSortB !== null)
-				{
-					return globalSortB - globalSortA;
-				}
-
-				return 0;
+				return -1;
 			}
+
+			if (globalSortA === null && globalSortB !== null)
+			{
+				return 1;
+			}
+
+			if (globalSortA !== null && globalSortB !== null)
+			{
+				return globalSortB - globalSortA;
+			}
+
+			return 0;
 		});
 
 		this.getRootNode().disableRender();
@@ -217,7 +220,7 @@ export default class SearchTab extends Tab
 	isQueryLoaded(searchQuery: SearchQuery): boolean
 	{
 		let found = false;
-		this.queryCache.forEach(query => {
+		this.queryCache.forEach((query) => {
 			if (found === false && searchQuery.getQuery().startsWith(query))
 			{
 				found = true;
@@ -319,7 +322,7 @@ export default class SearchTab extends Tab
 					const isTabEmpty = this.isEmptyResult();
 
 					const matchResults = SearchEngine.matchItems(
-						Array.from(items.values()),
+						[...items.values()],
 						this.getLastSearchQuery(),
 					);
 					this.appendResults(matchResults);
@@ -328,6 +331,11 @@ export default class SearchTab extends Tab
 					{
 						this.getDialog().focusOnFirstNode();
 					}
+				}
+
+				if (Type.isArrayFilled(response.data.dialog.errors))
+				{
+					this.getDialog().emitEntityErrors(response.data.dialog.errors);
 				}
 
 				this.toggleEmptyResult();

@@ -1,0 +1,25 @@
+<?php
+$MESS["SALE_ALLOW_DELIVERY"] = "Жеткізуі рұқсат етілген тапсырыстар саны";
+$MESS["SALE_ALLOW_DELIVERY_PROC"] = "Тапсырыстарды жеткізуге рұқсат етілген (%)";
+$MESS["SALE_BASKET_QUANTITY"] = "Себеттердегі жалпы саны";
+$MESS["SALE_COUNT"] = "Себеттер саны";
+$MESS["SALE_DELAY"] = "Кейінге қалдырылды";
+$MESS["SALE_NAME"] = "Тауар атауы";
+$MESS["SALE_ORDER_COUNT"] = "Тапсырыстар саны";
+$MESS["SALE_ORDER_QUANTITY"] = "Тапсырыстардағы жалпы саны";
+$MESS["SALE_PAYED"] = "Төленген тапсырыстар саны";
+$MESS["SALE_PAYED_PROC"] = "Төленген тапсырыстар (%)";
+$MESS["SALE_PRICE"] = "Жалпы құны (#CURRENCY#)";
+$MESS["SALE_PRICE_MAX"] = "Тауардың максималды құны (#CURRENCY#)";
+$MESS["SALE_PRICE_MIN"] = "Тауардың минималды құны (#CURRENCY#)";
+$MESS["SALE_PRICE_ORDER"] = "Тапсырыстар құны (#CURRENCY#)";
+$MESS["SALE_PRICE_ORDER_ALLOW_DELIVERY"] = "Жеткізуі рұқсат етілгенмен тапсырыстар құны (#CURRENCY#)";
+$MESS["SALE_PRICE_ORDER_PAYED"] = "Төленген тапсырыстар сомасы (#CURRENCY#)";
+$MESS["SALE_PRICE_PRODUCT"] = "Тапсырыстардағы тауардың жалпы құны (#CURRENCY#)";
+$MESS["SALE_PRICE_PRODUCT_ALLOW_DELIVERY"] = "Жеткізілуі рұқсат етілген тапсырыстардағы тауардың жалпы құны (#CURRENCY#)";
+$MESS["SALE_PRICE_PRODUCT_PAYED"] = "Төленген тапсырыстардағы тауардың жалпы құны (#CURRENCY#)";
+$MESS["SALE_PRODUCT_ID"] = "Идентификатор";
+$MESS["SALE_QUANTITY"] = "Жалпы саны";
+$MESS["SALE_SECTION_TITLE"] = "Өнімдер бойынша статистика";
+$MESS["SALE_S_DATE"] = "Тапсырыс күні";
+$MESS["SALE_S_SITE"] = "Сайт";

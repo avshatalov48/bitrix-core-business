@@ -13,13 +13,14 @@ use Bitrix\Iblock\ElementTable;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Engine\Response\AjaxJson;
 use Bitrix\Main\Grid\Editor\Types;
+use Bitrix\Main\Grid\Options;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 
 class GridVariationForm extends VariationForm
 {
-	/** @var \Bitrix\Catalog\v2\Sku\BaseSku */
+	/** @var Catalog\v2\Sku\BaseSku */
 	protected $entity;
 
 	protected static ?array $usedHeaders = null;
@@ -102,7 +103,7 @@ class GridVariationForm extends VariationForm
 
 		if (!empty($headers))
 		{
-			$options = new \Bitrix\Main\Grid\Options($this->getVariationGridId());
+			$options = new Options($this->getVariationGridId());
 			$allUsedColumns = $options->getUsedColumns();
 
 			if (empty($allUsedColumns))
@@ -883,7 +884,7 @@ class GridVariationForm extends VariationForm
 	{
 		if (!self::$usedHeaders)
 		{
-			$options = new \Bitrix\Main\Grid\Options($this->getVariationGridId());
+			$options = new Options($this->getVariationGridId());
 			self::$usedHeaders = $options->getUsedColumns();
 
 			if (!self::$usedHeaders)

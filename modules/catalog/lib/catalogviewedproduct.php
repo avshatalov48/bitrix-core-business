@@ -1,14 +1,14 @@
 <?php
+
 namespace Bitrix\Catalog;
 
-use Bitrix\Main,
-	Bitrix\Main\Application,
-	Bitrix\Main\Config\Option,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock,
-	Bitrix\Catalog;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Application;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Iblock;
+use Bitrix\Catalog;
 
 /**
  * Class CatalogViewedProductTable
@@ -26,14 +26,14 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Catalog\EO_CatalogViewedProduct wakeUpObject($row)
  * @method static \Bitrix\Catalog\EO_CatalogViewedProduct_Collection wakeUpCollection($rows)
  */
-class CatalogViewedProductTable extends Main\Entity\DataManager
+class CatalogViewedProductTable extends DataManager
 {
 	/**
 	 * Returns DB table name for entity.
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_viewed_product';
 	}
@@ -43,7 +43,7 @@ class CatalogViewedProductTable extends Main\Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return array(
 			'ID' => new Main\Entity\IntegerField('ID', array(

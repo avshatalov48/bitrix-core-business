@@ -11,7 +11,6 @@ use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type as MainType;
-use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\Model;
 use Bitrix\Sender\Posting\Builder as PostingBuilder;
 
@@ -710,6 +709,11 @@ class PostingRecipientTable extends Entity\DataManager
 			),
 			'DATE_DENY' => array(
 				'data_type' => 'datetime',
+			),
+			'DATE_UPDATE' => array(
+				'data_type' => 'datetime',
+				'required' => true,
+				'default_value' => new MainType\DateTime(),
 			),
 			'CONTACT_ID' => array(
 				'required' => true,

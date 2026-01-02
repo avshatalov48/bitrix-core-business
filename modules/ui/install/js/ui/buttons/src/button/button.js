@@ -1,14 +1,19 @@
+import { Type, Dom, Text, Event, Tag } from 'main.core';
+import { Menu, type MenuOptions } from 'main.popup';
+
+import { SplitButton, type ButtonCounterOptions } from 'ui.buttons';
+import { Icon } from 'ui.icon-set.api.core';
+import 'ui.cnt';
+
 import BaseButton from '../base-button';
-import { Menu } from 'main.popup';
-import { Type, Dom, Text, Event } from 'main.core';
 import ButtonColor from './button-color';
 import ButtonSize from './button-size';
 import ButtonIcon from './button-icon';
 import ButtonState from './button-state';
 import ButtonStyle from './button-style';
 import ButtonTag from './button-tag';
-import { ButtonOptions } from './button-options';
-import { type MenuOptions } from 'main.popup';
+import AirButtonStyle from './air-button-style';
+import type { ButtonOptions } from './button-options';
 
 /**
  * @namespace {BX.UI}
@@ -17,12 +22,19 @@ export default class Button extends BaseButton
 {
 	static BASE_CLASS = 'ui-btn';
 
+	#style: ?string;
+	#isWide: boolean = false;
+	#layout: {
+		icon: HTMLElement,
+	} = {};
+
 	constructor(options: ButtonOptions)
 	{
-		options = Type.isPlainObject(options) ? options : {};
-		options.baseClass = Type.isStringFilled(options.baseClass) ? options.baseClass : Button.BASE_CLASS;
-
-		super(options);
+		super({
+			dependOnTheme: options.className?.includes(ButtonStyle.DEPEND_ON_THEME),
+			...(Type.isPlainObject(options) ? options : {}),
+			baseClass: Type.isStringFilled(options?.baseClass) ? options.baseClass : Button.BASE_CLASS,
+		});
 
 		this.isDependOnTheme = null;
 		this.size = null;
@@ -36,17 +48,42 @@ export default class Button extends BaseButton
 		this.handleMenuClick = this.handleMenuClick.bind(this);
 		this.handleMenuClose = this.handleMenuClose.bind(this);
 
-		this.setDependOnTheme(this.options.dependOnTheme);
+		this.setDependOnTheme(this.options.dependOnTheme ?? false);
 		this.setSize(this.options.size);
 		this.setColor(this.options.color);
-		this.setIcon(this.options.icon);
+		this.setIcon(this.options.icon, this.options.iconPosition || 'left');
 		this.setState(this.options.state);
 		this.setId(this.options.id);
 		this.setMenu(this.options.menu);
 		this.setContext(this.options.context);
+		this.setWide(this.options.wide === true);
+		this.setLeftCorners(this.options.removeLeftCorners !== true);
+		this.setRightCorners(this.options.removeRightCorners !== true);
+		if (this.options.collapsedIcon)
+		{
+			this.setCollapsedIcon(this.options.collapsedIcon);
+		}
 
-		this.options.noCaps && this.setNoCaps();
-		this.options.round && this.setRound();
+		if (this.hasAirDesign())
+		{
+			this.setStyle(this.options.style || AirButtonStyle.FILLED);
+			this.setNoCaps(true);
+
+			if (!this.text && !(this instanceof SplitButton))
+			{
+				this.setCollapsed(true);
+			}
+		}
+
+		if (this.options.noCaps)
+		{
+			this.setNoCaps();
+		}
+
+		if (this.options.round)
+		{
+			this.setRound();
+		}
 
 		if (this.options.dropdown || (this.getMenuWindow() && this.options.dropdown !== false))
 		{
@@ -60,53 +97,61 @@ export default class Button extends BaseButton
 	static Icon = ButtonIcon;
 	static Tag = ButtonTag;
 	static Style = ButtonStyle;
+	static AirStyle = AirButtonStyle;
 
-	/**
-	 * @public
-	 * @param {ButtonSize|null} size
-	 * @return {this}
-	 */
+	setText(text: string): this
+	{
+		super.setText(text);
+
+		if (this.hasAirDesign())
+		{
+			Dom.toggleClass(this.getContainer(), ButtonStyle.COLLAPSED, !this.text);
+		}
+
+		return this;
+	}
+
 	setSize(size: ButtonSize | null): this
 	{
 		return this.setProperty('size', size, ButtonSize);
 	}
 
-	/**
-	 * @public
-	 * @return {?ButtonSize}
-	 */
 	getSize(): ButtonSize | null
 	{
 		return this.size;
 	}
 
-	/**
-	 * @public
-	 * @param {ButtonColor|null} color
-	 * @return {this}
-	 */
 	setColor(color: ButtonColor | null): this
 	{
 		return this.setProperty('color', color, ButtonColor);
 	}
 
-	/**
-	 * @public
-	 * @return {?ButtonSize}
-	 */
 	getColor(): ButtonColor | null
 	{
 		return this.color;
 	}
 
-	/**
-	 * @public
-	 * @param {?ButtonIcon} icon
-	 * @return {this}
-	 */
-	setIcon(icon: ButtonIcon | null): this
+	setIcon(icon: ?string, iconPosition: 'right' | 'left' = 'left'): this
 	{
+		if (icon && !icon.startsWith('ui-btn-icon'))
+		{
+			this.#layout.icon?.remove();
+			this.#layout.icon = new Icon({ icon }).render();
+			Dom.addClass(this.getContainer(), '--with-icon');
+			Dom.prepend(this.#layout.icon, this.getContainer());
+
+			return this;
+		}
+
 		this.setProperty('icon', icon, ButtonIcon);
+
+		const iconClass = {
+			left: '--with-left-icon',
+			right: '--with-right-icon',
+		}[iconPosition] ?? '';
+
+		Dom.removeClass(this.getContainer(), '--with-icon');
+		Dom.toggleClass(this.getContainer(), ['ui-icon-set__scope', iconClass], Boolean(icon));
 
 		if (this.isInputType() && this.getIcon() !== null)
 		{
@@ -116,184 +161,102 @@ export default class Button extends BaseButton
 		return this;
 	}
 
-	/**
-	 * @public
-	 * @return {?ButtonIcon}
-	 */
-	getIcon(): ButtonColor | null
+	setCollapsedIcon(icon: ButtonIcon | null): this
+	{
+		this.setProperty('icon', icon, ButtonIcon);
+
+		Dom.toggleClass(this.getContainer(), ['ui-icon-set__scope', '--with-collapsed-icon'], Boolean(icon));
+	}
+
+	getIcon(): ButtonIcon | null
 	{
 		return this.icon;
 	}
 
-	/**
-	 * @public
-	 * @param {ButtonState|null} state
-	 * @return {this}
-	 */
 	setState(state: ButtonState | null): this
 	{
 		return this.setProperty('state', state, ButtonState);
 	}
 
-	/**
-	 * @public
-	 * @return {?ButtonState}
-	 */
 	getState(): ButtonState | null
 	{
 		return this.state;
 	}
 
-	/**
-	 * @public
-	 * @param {boolean} [flag=true]
-	 * @return {this}
-	 */
-	setNoCaps(flag: ? boolean): this
+	setNoCaps(noCaps: boolean = true): this
 	{
-		if (flag === false)
-		{
-			Dom.removeClass(this.getContainer(), ButtonStyle.NO_CAPS);
-		}
-		else
-		{
-			Dom.addClass(this.getContainer(), ButtonStyle.NO_CAPS);
-		}
+		Dom.toggleClass(this.getContainer(), ButtonStyle.NO_CAPS, noCaps);
 
 		return this;
 	}
 
-	/**
-	 *
-	 * @return {boolean}
-	 */
 	isNoCaps(): boolean
 	{
 		return Dom.hasClass(this.getContainer(), ButtonStyle.NO_CAPS);
 	}
 
-	/**
-	 * @public
-	 * @param {boolean} [flag=true]
-	 * @return {this}
-	 */
-	setRound(flag: ? boolean): this
+	setRound(round: boolean = true): this
 	{
-		if (flag === false)
-		{
-			Dom.removeClass(this.getContainer(), ButtonStyle.ROUND);
-		}
-		else
-		{
-			Dom.addClass(this.getContainer(), ButtonStyle.ROUND);
-		}
+		Dom.toggleClass(this.getContainer(), ButtonStyle.ROUND, round);
 
 		return this;
 	}
 
-	/**
-	 * @public
-	 * @return {boolean}
-	 */
 	isRound(): boolean
 	{
 		return Dom.hasClass(this.getContainer(), ButtonStyle.ROUND);
 	}
 
-	/**
-	 * @public
-	 * @param {boolean} [flag=true]
-	 * @return {this}
-	 */
-	setDependOnTheme(flag: boolean): this {
-		if (flag === true)
-		{
-			Dom.addClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME);
-		}
-		else if (flag === false)
-		{
-			Dom.removeClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME);
-		}
-
-		return this;
-	}
-
-	/**
-	 *
-	 * @return {boolean}
-	 */
-	isDependOnTheme(): boolean {
-		if (flag === false)
-		{
-			Dom.removeClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME);
-		}
-		else
-		{
-			Dom.addClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME);
-		}
-
-		return this;
-	}
-
-	/**
-	 *
-	 * @param {boolean} [flag=true]
-	 * @return {this}
-	 */
-	setDropdown(flag: ? boolean): this
+	setDependOnTheme(dependOnTheme: boolean = true): this
 	{
-		if (flag === false)
-		{
-			Dom.removeClass(this.getContainer(), ButtonStyle.DROPDOWN);
-		}
-		else
-		{
-			Dom.addClass(this.getContainer(), ButtonStyle.DROPDOWN);
-		}
+		Dom.toggleClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME, dependOnTheme);
 
 		return this;
 	}
 
-	/**
-	 *
-	 * @return {boolean}
-	 */
+	setDropdown(dropdown: boolean = true): this
+	{
+		Dom.toggleClass(this.getContainer(), ButtonStyle.DROPDOWN, dropdown);
+
+		return this;
+	}
+
 	isDropdown(): boolean
 	{
 		return Dom.hasClass(this.getContainer(), ButtonStyle.DROPDOWN);
 	}
 
-	/**
-	 *
-	 * @param {boolean} [flag=true]
-	 * @return {this}
-	 */
-	setCollapsed(flag: ? boolean): this
+	setCollapsed(collapsed: boolean = true): this
 	{
-		if (flag === false)
-		{
-			Dom.removeClass(this.getContainer(), ButtonStyle.COLLAPSED);
-		}
-		else
-		{
-			Dom.addClass(this.getContainer(), ButtonStyle.COLLAPSED);
-		}
+		const isAirWithoutText = this.hasAirDesign() && !this.getText();
+		Dom.toggleClass(this.getContainer(), ButtonStyle.COLLAPSED, collapsed || isAirWithoutText);
 
 		return this;
 	}
 
-	/**
-	 *
-	 * @return {boolean}
-	 */
 	isCollapsed(): boolean
 	{
 		return Dom.hasClass(this.getContainer(), ButtonStyle.COLLAPSED);
 	}
 
+	// works only with air buttons
+	setLeftCorners(withLeftCorners: boolean = true): this
+	{
+		Dom.toggleClass(this.getContainer(), '--remove-left-corners', !withLeftCorners);
+
+		return this;
+	}
+
+	// works only with air buttons
+	setRightCorners(withRightCorners: boolean = true): this
+	{
+		Dom.toggleClass(this.getContainer(), '--remove-right-corners', !withRightCorners);
+
+		return this;
+	}
+
 	/**
 	 * @protected
-	 * @param {MenuOptions|false} options
 	 */
 	setMenu(options: MenuOptions): this
 	{
@@ -304,7 +267,7 @@ export default class Button extends BaseButton
 			this.menuWindow = new Menu({
 				id: `ui-btn-menu-${Text.getRandom().toLowerCase()}`,
 				bindElement: this.getMenuBindElement(),
-				...options
+				...options,
 			});
 
 			this.menuWindow.getPopupWindow().subscribe('onClose', this.handleMenuClose);
@@ -324,19 +287,11 @@ export default class Button extends BaseButton
 		return this;
 	}
 
-	/**
-	 * @public
-	 * @return {HTMLElement}
-	 */
 	getMenuBindElement(): HTMLElement
 	{
 		return this.getContainer();
 	}
 
-	/**
-	 * @public
-	 * @return {HTMLElement}
-	 */
 	getMenuClickElement(): HTMLElement
 	{
 		return this.getContainer();
@@ -344,12 +299,24 @@ export default class Button extends BaseButton
 
 	/**
 	 * @protected
-	 * @param {MouseEvent} event
 	 */
 	handleMenuClick(event: MouseEvent): void
 	{
 		this.getMenuWindow().show();
 		this.setActive(this.getMenuWindow().getPopupWindow().isShown());
+	}
+
+	setAirDesign(use: boolean) {
+		super.setAirDesign(use);
+
+		const isButtonInOldFormat = !this.getContainer()?.querySelector('.ui-btn-text-inner');
+
+		if (this.hasAirDesign() && isButtonInOldFormat)
+		{
+			Dom.remove(this.textNode);
+			this.textNode = null;
+			this.setText(this.getText());
+		}
 	}
 
 	/**
@@ -360,20 +327,11 @@ export default class Button extends BaseButton
 		this.setActive(false);
 	}
 
-	/**
-	 * @public
-	 * @return {Menu}
-	 */
 	getMenuWindow(): Menu
 	{
 		return this.menuWindow;
 	}
 
-	/**
-	 * @public
-	 * @param {string|null} id
-	 * @return {this}
-	 */
 	setId(id: string | null): this
 	{
 		if (Type.isStringFilled(id) || Type.isNull(id))
@@ -384,130 +342,65 @@ export default class Button extends BaseButton
 		return this;
 	}
 
-	/**
-	 * @public
-	 * @return {?string}
-	 */
 	getId(): ?string
 	{
 		return this.id;
 	}
 
-	/**
-	 * @public
-	 * @param {boolean} [flag=true]
-	 * @return {this}
-	 */
-	setActive(flag?: boolean): this
+	setActive(active: boolean = true): this
 	{
-		return this.setState(flag === false ? null : ButtonState.ACTIVE);
+		return this.setState(active ? ButtonState.ACTIVE : null);
 	}
 
-	/**
-	 * @public
-	 * @return {boolean}
-	 */
 	isActive(): boolean
 	{
 		return this.getState() === ButtonState.ACTIVE;
 	}
 
-	/**
-	 * @public
-	 * @param {boolean} [flag=true]
-	 * @return {this}
-	 */
-	setHovered(flag?: boolean): this
+	setHovered(hovered: boolean = true): this
 	{
-		return this.setState(flag === false ? null : ButtonState.HOVER);
+		return this.setState(hovered ? ButtonState.HOVER : null);
 	}
 
-	/**
-	 * @public
-	 * @return {boolean}
-	 */
 	isHover(): boolean
 	{
 		return this.getState() === ButtonState.HOVER;
 	}
 
-	/**
-	 * @public
-	 * @param {boolean} [flag=true]
-	 * @return {this}
-	 */
-	setDisabled(flag): this
+	setDisabled(disabled: boolean = true): this
 	{
-		this.setState(flag === false ? null : ButtonState.DISABLED);
-		super.setDisabled(flag);
+		this.setState(disabled ? ButtonState.DISABLED : null);
+		super.setDisabled(disabled);
 
 		return this;
 	}
 
-	/**
-	 * @public
-	 * @return {boolean}
-	 */
 	isDisabled(): boolean
 	{
 		return this.getState() === ButtonState.DISABLED;
 	}
 
-	/**
-	 * @public
-	 * @param {boolean} [flag=true]
-	 * @return {this}
-	 */
-	setWaiting(flag: ? boolean): this
+	setWaiting(waiting: boolean = true): this
 	{
-		if (flag === false)
-		{
-			this.setState(null);
-			this.setProps({ disabled: null });
-		}
-		else
-		{
-			this.setState(ButtonState.WAITING);
-			this.setProps({ disabled: true });
-		}
+		this.setState(waiting ? ButtonState.WAITING : null);
+		this.setProps({ disabled: waiting ? true : null });
 
 		return this;
 	}
 
-	/**
-	 * @public
-	 * @return {boolean}
-	 */
 	isWaiting(): boolean
 	{
 		return this.getState() === ButtonState.WAITING;
 	}
 
-	/**
-	 * @public
-	 * @param {boolean} [flag=true]
-	 * @return {this}
-	 */
-	setClocking(flag?: boolean): this
+	setClocking(clocking: boolean = true): this
 	{
-		if (flag === false)
-		{
-			this.setState(null);
-			this.setProps({ disabled: null });
-		}
-		else
-		{
-			this.setState(ButtonState.CLOCKING);
-			this.setProps({ disabled: true });
-		}
+		this.setState(clocking ? ButtonState.CLOCKING : null);
+		this.setProps({ disabled: clocking ? true : null });
 
 		return this;
 	}
 
-	/**
-	 * @public
-	 * @return {boolean}
-	 */
 	isClocking(): boolean
 	{
 		return this.getState() === ButtonState.CLOCKING;
@@ -533,10 +426,6 @@ export default class Button extends BaseButton
 		return this;
 	}
 
-	/**
-	 * @public
-	 * @param {*} context
-	 */
 	setContext(context: any): this
 	{
 		if (!Type.isUndefined(context))
@@ -547,12 +436,94 @@ export default class Button extends BaseButton
 		return this;
 	}
 
-	/**
-	 *
-	 * @return {*}
-	 */
 	getContext(): any
 	{
 		return this.context;
+	}
+
+	setWide(isWide: boolean): this
+	{
+		this.#isWide = isWide === true;
+
+		Dom.toggleClass(this.getContainer(), '--wide', this.#isWide);
+
+		return this;
+	}
+
+	isWide(): boolean
+	{
+		return this.#isWide;
+	}
+
+	// This method works only with useAirDesign: true option
+	setStyle(style: string): void
+	{
+		if (this.hasAirDesign() === false)
+		{
+			console.warn('Style option works only with air buttons.');
+
+			return;
+		}
+
+		if (Object.values(AirButtonStyle).includes(style) === false)
+		{
+			console.warn('Undefined style option. Use value from AirButtonStyle');
+
+			return;
+		}
+
+		Dom.removeClass(this.getContainer(), this.#style);
+		Dom.addClass(this.getContainer(), style);
+
+		this.#style = style;
+	}
+
+	getStyle(): string
+	{
+		return this.#style;
+	}
+
+	setLeftCounter(options: ButtonCounterOptions | null): this
+	{
+		super.setLeftCounter(this.prepareCounterOptions(options));
+
+		return this;
+	}
+
+	setRightCounter(options: ButtonCounterOptions | null): this
+	{
+		super.setRightCounter(this.prepareCounterOptions(options));
+
+		return this;
+	}
+
+	/**
+	 * @protected
+	 */
+	prepareCounterOptions(options: ButtonCounterOptions | null): ButtonCounterOptions | null
+	{
+		if (!options)
+		{
+			return null;
+		}
+
+		return {
+			...options,
+			...(this.getSize() ? { size: this.getSize() } : {}),
+		};
+	}
+
+	startShimmer(): void
+	{
+		const highlighter = Tag.render`<span class="ui-button__shimmer"></span>`;
+
+		Dom.append(highlighter, this.getContainer());
+	}
+
+	stopShimmer(): void
+	{
+		const highlighter = this.getContainer().querySelector('.ui-button__shimmer');
+
+		Dom.remove(highlighter);
 	}
 }

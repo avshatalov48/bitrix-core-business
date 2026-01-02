@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SALE_EDIT_RECORD"] = "Изменение статуса #ID#";
 $MESS["SALE_NEW_RECORD"] = "Новый статус";
 $MESS["ERROR_NO_NAME"] = "Не указано название статуса на языке";

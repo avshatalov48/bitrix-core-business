@@ -23,7 +23,7 @@ class RemoteDictionary extends Dictionary
 	const ID = 'generic';
 
 	const CACHE_TTL = 86400;
-	const CACHE_PREFIX = 'rest_dictionary';
+	const CACHE_PREFIX = 'rest_dictionary_v2';
 
 	protected $baseUrl = array(
 		'ru' => 'https://www.bitrix24.ru/util/',
@@ -117,14 +117,7 @@ class RemoteDictionary extends Dictionary
 	 */
 	protected function getDictionaryUri()
 	{
-		if(Loader::includeModule('bitrix24'))
-		{
-			$lang = \CBitrix24::getLicensePrefix();
-		}
-		else
-		{
-			$lang = $this->language;
-		}
+		$lang = Application::getInstance()->getLicense()->getRegion();
 
 		$baseUrl = array_key_exists($lang, $this->baseUrl)
 			? $this->baseUrl[$lang]

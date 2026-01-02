@@ -30,14 +30,24 @@ class Extension
 	}
 
 	/**
-	 * @param $extName
+	 * @param string $extName
 	 * @return bool
 	 */
 	public static function register($extName)
 	{
+		if (!is_string($extName))
+		{
+			return false;
+		}
+
 		if (\CJSCore::isExtRegistered($extName))
 		{
 			return true;
+		}
+
+		if (preg_match('/[^a-z0-9_.-]/i', $extName))
+		{
+			return false;
 		}
 
 		$extension = static::getConfig($extName);
@@ -47,7 +57,8 @@ class Extension
 
 			return true;
 		}
-		return \CJSCore::isExtRegistered($extName);
+
+		return false;
 	}
 
 	/**

@@ -39,27 +39,32 @@ class EntityLink implements RestConvertible
 	public static function getInstance(Chat $chat): self
 	{
 		$type = $chat->getEntityType() ?? '';
-		if ($type === Type::Sonet->value && Loader::includeModule('socialnetwork'))
+		if ($type === ExtendedType::Sonet->value && Loader::includeModule('socialnetwork'))
 		{
 			$instance = new SonetType();
 		}
-		elseif ($type === Type::Tasks->value && Loader::includeModule('tasks'))
+		elseif (
+			Loader::includeModule('tasks')
+			&& ($type === ExtendedType::Tasks->value || $type === \Bitrix\Tasks\V2\Internal\Integration\Im\Chat::ENTITY_TYPE)
+		)
 		{
+			// TODO: replace with send event!!!
+			$type = ExtendedType::Tasks->value;
 			$instance = new TasksType();
 		}
-		elseif ($type === Type::Calendar->value && Loader::includeModule('calendar'))
+		elseif ($type === ExtendedType::Calendar->value && Loader::includeModule('calendar'))
 		{
 			$instance = new CalendarType();
 		}
-		elseif ($type === Type::Crm->value && Loader::includeModule('crm'))
+		elseif ($type === ExtendedType::Crm->value && Loader::includeModule('crm'))
 		{
 			$instance = new CrmType($chat->getEntityId() ?? '');
 		}
-		elseif ($type === Type::Call->value && Loader::includeModule('crm'))
+		elseif ($type === ExtendedType::Call->value && Loader::includeModule('crm'))
 		{
 			$instance = new CallType($chat->getEntityData1() ?? '');
 		}
-		elseif ($type === Type::Mail->value && Loader::includeModule('mail'))
+		elseif ($type === ExtendedType::Mail->value && Loader::includeModule('mail'))
 		{
 			$instance = new MailType();
 		}

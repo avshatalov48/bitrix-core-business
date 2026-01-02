@@ -1298,18 +1298,19 @@ class CCloudStorageBucket
 		return $res;
 	}
 
+	protected static $applyFileCounterJobAdded = false;
+
 	/**
 	 * @param float $file_size
 	 * @return CDBResult
 	*/
 	public function IncFileCounter($file_size = 0.0)
 	{
-		global $DB, $CACHE_MANAGER;
+		global $DB;
+
 		$res = $DB->Query('
-			UPDATE b_clouds_file_bucket
-			SET FILE_COUNT = FILE_COUNT + 1
-			,FILE_SIZE = FILE_SIZE + ' . roundDB($file_size) . '
-			WHERE ID = ' . $this->GetActualBucketId() . '
+			INSERT INTO b_clouds_size_queue (BUCKET_ID, FILE_COUNT, FILE_SIZE)
+			VALUES (' . $this->GetActualBucketId() . ', 1, ' . roundDB($file_size) . ')
 		');
 
 		if (defined('BX_CLOUDS_COUNTERS_DEBUG'))
@@ -1317,15 +1318,12 @@ class CCloudStorageBucket
 			\CCloudsDebug::getInstance()->endAction();
 		}
 
-		if ($file_size)
+		if (!static::$applyFileCounterJobAdded)
 		{
-			COption::SetOptionString('main_size', '~cloud', intval(COption::GetOptionString('main_size', '~cloud')) + $file_size);
+			static::$applyFileCounterJobAdded = true;
+			\Bitrix\Main\Application::getInstance()->addBackgroundJob([__CLASS__, 'ApplyFileCounter'], [], \Bitrix\Main\Application::JOB_PRIORITY_NORMAL);
 		}
 
-		if (CACHED_b_clouds_file_bucket !== false)
-		{
-			$CACHE_MANAGER->CleanDir('b_clouds_file_bucket');
-		}
 		return $res;
 	}
 
@@ -1335,12 +1333,11 @@ class CCloudStorageBucket
 	*/
 	public function DecFileCounter($file_size = 0.0)
 	{
-		global $DB, $CACHE_MANAGER;
+		global $DB;
+
 		$res = $DB->Query('
-			UPDATE b_clouds_file_bucket
-			SET FILE_COUNT = case when FILE_COUNT - 1 >= 0 then FILE_COUNT - 1 else 0 end
-			,FILE_SIZE = case when FILE_SIZE - ' . roundDB($file_size) . ' >= 0 then FILE_SIZE - ' . roundDB($file_size) . ' else 0 end
-			WHERE ID = ' . $this->GetActualBucketId() . '
+			INSERT INTO b_clouds_size_queue (BUCKET_ID, FILE_COUNT, FILE_SIZE)
+			VALUES (' . $this->GetActualBucketId() . ', -1, ' . roundDB($file_size) . ')
 		');
 
 		if (defined('BX_CLOUDS_COUNTERS_DEBUG'))
@@ -1348,15 +1345,63 @@ class CCloudStorageBucket
 			\CCloudsDebug::getInstance()->endAction();
 		}
 
-		if ($file_size)
+		if (!static::$applyFileCounterJobAdded)
 		{
-			COption::SetOptionString('main_size', '~cloud', intval(COption::GetOptionString('main_size', '~cloud')) - $file_size);
+			static::$applyFileCounterJobAdded = true;
+			\Bitrix\Main\Application::getInstance()->addBackgroundJob([__CLASS__, 'ApplyFileCounter'], [], \Bitrix\Main\Application::JOB_PRIORITY_NORMAL);
 		}
 
-		if (CACHED_b_clouds_file_bucket !== false)
-		{
-			$CACHE_MANAGER->CleanDir('b_clouds_file_bucket');
-		}
 		return $res;
+	}
+
+	/**
+	 * @return void
+	*/
+	public static function ApplyFileCounter()
+	{
+		global $DB, $CACHE_MANAGER;
+
+		$connection = \Bitrix\Main\Application::getConnection();
+		if ($connection->lock('CCloudStorageBucket::ApplyFileCounter'))
+		{
+			$res = $DB->Query('SELECT * FROM b_clouds_size_queue ORDER BY ID');
+			$c = 0;
+			while ($job = $res->Fetch())
+			{
+				if ($job['FILE_COUNT'] > 0)
+				{
+					$DB->Query('
+						UPDATE b_clouds_file_bucket
+						SET FILE_COUNT = FILE_COUNT + 1
+						,FILE_SIZE = FILE_SIZE + ' . $job['FILE_SIZE'] . '
+						WHERE ID = ' . $job['BUCKET_ID'] . '
+					');
+					$c++;
+
+					COption::SetOptionString('main_size', '~cloud', intval(COption::GetOptionString('main_size', '~cloud')) + $job['FILE_SIZE']);
+				}
+				elseif ($job['FILE_COUNT'] < 0)
+				{
+					$DB->Query('
+						UPDATE b_clouds_file_bucket
+						SET FILE_COUNT = case when FILE_COUNT - 1 > 0 then FILE_COUNT - 1 else 0 end
+						,FILE_SIZE = case when FILE_SIZE - ' . $job['FILE_SIZE'] . ' > 0 then FILE_SIZE - ' . $job['FILE_SIZE'] . ' else 0 end
+						WHERE ID = ' . $job['BUCKET_ID'] . '
+					');
+					$c++;
+
+					COption::SetOptionString('main_size', '~cloud', intval(COption::GetOptionString('main_size', '~cloud')) - $job['FILE_SIZE']);
+				}
+
+				$DB->Query('DELETE FROM b_clouds_size_queue WHERE ID = ' . $job['ID']);
+			}
+
+			if ($c > 0 && CACHED_b_clouds_file_bucket !== false)
+			{
+				$CACHE_MANAGER->CleanDir('b_clouds_file_bucket');
+			}
+
+			$connection->unlock('CCloudStorageBucket::ApplyFileCounter');
+		}
 	}
 }

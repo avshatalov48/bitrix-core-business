@@ -182,6 +182,7 @@ class Repository
 		Mail\MailMessageUidTable::deleteList(
 			[
 				'=MAILBOX_ID' => $this->mailboxId,
+				'!=MESSAGE_ID' => 0,
 				'@MESSAGE_ID' => $ids,
 			],
 			$mailFieldsForEvent

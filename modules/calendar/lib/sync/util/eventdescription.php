@@ -10,14 +10,6 @@ IncludeModuleLangFile(__FILE__);
 
 class EventDescription
 {
-	/**
-	 * @param Event $event
-	 *
-	 * @return string|null
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
 	public function prepareForExport(Event $event): ?string
 	{
 		$languageId = \CCalendar::getUserLanguageId($event->getOwner()?->getId());
@@ -52,16 +44,6 @@ class EventDescription
 			;
 	}
 
-	/**
-	 * @param string $description
-	 * @param Event $event
-	 * @param string $languageId
-	 *
-	 * @return string
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
 	private function addAttendeesInfo(?string $description, Event $event, string $languageId): string
 	{
 		if (!$description)

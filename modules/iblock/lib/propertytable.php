@@ -2,9 +2,9 @@
 
 namespace Bitrix\Iblock;
 
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM;
 use Bitrix\Main\Type\DateTime;
-use Bitrix\Main\Localization\Loc;
 
 /**
  * Class PropertyTable
@@ -363,5 +363,112 @@ class PropertyTable extends ORM\Data\DataManager
 			}
 			unset($settings);
 		}
+	}
+
+	/**
+	 * Fetch modifier for user type settings from old iblock core.
+	 *
+	 * @param array $fields Fetch result fields.
+	 * @return array|null
+	 */
+	public static function userTypeSettingsFetchModifer(array $fields): ?array
+	{
+		$userTypeId = (string)($fields['USER_TYPE'] ?? '');
+		if ($userTypeId === '')
+		{
+			unset($fields['USER_TYPE_SETTINGS_LIST']);
+
+			return $fields;
+		}
+		$settingsListExists = array_key_exists('USER_TYPE_SETTINGS_LIST', $fields);
+		$rawSettingsExists = array_key_exists('USER_TYPE_SETTINGS', $fields);
+		if (!$settingsListExists && !$rawSettingsExists)
+		{
+			return null;
+		}
+		if ($settingsListExists)
+		{
+			$fields['USER_TYPE_SETTINGS'] =
+				!empty($fields['USER_TYPE_SETTINGS_LIST']) && is_array($fields['USER_TYPE_SETTINGS_LIST'])
+					? $fields['USER_TYPE_SETTINGS_LIST']
+					: false
+			;
+			unset($fields['USER_TYPE_SETTINGS_LIST']);
+		}
+		else
+		{
+			$value = (string)$fields['USER_TYPE_SETTINGS'];
+			if ($value !== '')
+			{
+				try
+				{
+					$value = unserialize(
+						$value,
+						['allowed_classes' => false]
+					);
+				}
+				catch (\Exception)
+				{
+					$value = false;
+				}
+			}
+			$fields['USER_TYPE_SETTINGS'] = !empty($value) && is_array($value) ? $value : false;
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * Fetch modifier for user type default value from old iblock core.
+	 *
+	 * @param array $fields Fetch result fields.
+	 * @return array|null
+	 */
+	public static function defaultValueFetchModifier(array $fields): ?array
+	{
+		if (!array_key_exists('DEFAULT_VALUE', $fields))
+		{
+			return null;
+		}
+		$userTypeId = (string)($fields['USER_TYPE'] ?? '');
+		if ($userTypeId === '')
+		{
+			return null;
+		}
+		$userType = \CIBlockProperty::getUserType($userTypeId);
+		if (!isset($userType['ConvertFromDB']))
+		{
+			return null;
+		}
+		if (!is_callable($userType['ConvertFromDB']))
+		{
+			return null;
+		}
+		$value = [
+			'VALUE' => $fields['DEFAULT_VALUE'],
+			'DESCRIPTION' => '',
+		];
+		$value = call_user_func_array(
+			$userType['ConvertFromDB'],
+			[
+				$fields,
+				$value,
+			]
+		);
+		$fields['DEFAULT_VALUE'] = $value['VALUE'] ?? null;
+
+		return $fields;
+	}
+
+	/**
+	 * Add fetch modifiers for emulate old iblock core.
+	 *
+	 * @param ORM\Query\Result $result getList result.
+	 * @return void
+	 */
+	public static function fillOldCoreFetchModifiers(ORM\Query\Result $result): void
+	{
+		$result->addFetchDataModifier([__CLASS__, 'userTypeSettingsFetchModifer']);
+		$result->addFetchDataModifier([__CLASS__, 'defaultValueFetchModifier']);
 	}
 }

@@ -1,0 +1,27 @@
+<?php
+$MESS["SUPPORT_ERROR_EDITABLE"] = "Модуль сіздің редакцияңызда қолжетімсіз.";
+$MESS["SUP_ATTENTION"] = "Назар аударыңыз! Модуль жойылады.";
+$MESS["SUP_BACK"] = "Оралу";
+$MESS["SUP_COMPLETE"] = "Орнату аяқталды.";
+$MESS["SUP_CREATE_TICKET"] = "техникалық қолдау клиенті";
+$MESS["SUP_DELETE_COMLETE"] = "Жою аяқталды.";
+$MESS["SUP_DEMO_ACCESS"] = "демо-қолжетімділік";
+$MESS["SUP_DEMO_DIR"] = "Қоғамдық бөлімдегі техникалық қолдау жұмысын төмендегі сілтемелер бойынша көре аласыз:";
+$MESS["SUP_DENIED"] = "қолжетімділік жабық";
+$MESS["SUP_ERRORS"] = "Қателер:";
+$MESS["SUP_INSTALL"] = "Орнату";
+$MESS["SUP_INSTALL_TITLE"] = "Техникалық қолдау модулін орнату";
+$MESS["SUP_LINK"] = "Сілтеме";
+$MESS["SUP_MODULE_DESCRIPTION"] = "Сайтта келушілердің техникалық қолдау тобына жүгіну жүйесін ұйымдастыруға мүмкіндік беретін Модуль.";
+$MESS["SUP_MODULE_NAME"] = "Техникалық қолдау";
+$MESS["SUP_NO"] = "жоқ";
+$MESS["SUP_RESET"] = "Қалпына келтіру";
+$MESS["SUP_SAVE_TABLES"] = "Кестелерді сақтау";
+$MESS["SUP_SELECT_INITITAL"] = "Техникалық қолдау Модулінің файлдары үшін каталогты таңдаңыз:";
+$MESS["SUP_SITE"] = "Сайт";
+$MESS["SUP_SUPPORT_ADMIN"] = "техникалық қолдау әкімшісі";
+$MESS["SUP_SUPPORT_STAFF_MEMBER"] = "техникалық қолдау қызметкері";
+$MESS["SUP_UNINSTALL_TITLE"] = "Техникалық қолдау модулін жою";
+$MESS["SUP_URL_PUBLIC"] = "Техникалық қолдау каталогы (#SITE_DIR# - сайт каталогы):";
+$MESS["SUP_WRONG_MAIN_VERSION"] = "Модульді орнату үшін ядроны #VER# нұсқасына жаңарту қажет";
+$MESS["SUP_YOU_CAN_SAVE_TABLES"] = "Егер сіз &quot;Кестелерді сақтау&quot; құсбелгісін орнатсаңыз, деректерді дерекқор кестелерінде сақтай аласыз";

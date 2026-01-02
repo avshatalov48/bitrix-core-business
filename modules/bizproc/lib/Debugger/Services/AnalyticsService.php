@@ -6,10 +6,10 @@ use Bitrix\Bizproc;
 
 class AnalyticsService extends Bizproc\Service\Analytics
 {
-	public function write(array $documentId, $action, $tag)
+	public function write(array $documentId, $eventName, $tool): void
 	{
-		$action = 'debug_' . $action;
+		$eventName = 'debug_' . $eventName;
 
-		parent::write($documentId, $action, $tag);
+		parent::write($documentId, $eventName, $tool);
 	}
 }

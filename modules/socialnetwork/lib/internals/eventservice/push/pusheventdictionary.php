@@ -20,6 +20,7 @@ class PushEventDictionary
 	public const EVENT_WORKGROUP_USER_ADD = 'workgroup_user_add';
 	public const EVENT_WORKGROUP_USER_UPDATE = 'workgroup_user_update';
 	public const EVENT_WORKGROUP_USER_DELETE = 'workgroup_user_delete';
+	public const EVENT_WORKGROUP_CONVERT = 'workgroup_convert';
 	public const EVENT_WORKGROUP_FAVORITES_CHANGED = 'workgroup_favorites_changed';
 	public const EVENT_WORKGROUP_PIN_CHANGED = 'workgroup_pin_changed';
 	public const EVENT_WORKGROUP_SUBSCRIBE_CHANGED = 'workgroup_subscribe_changed';
@@ -68,6 +69,8 @@ class PushEventDictionary
 			case EventDictionary::EVENT_SPACE_USER_ROLE_CHANGE:
 				$result = self::EVENT_SPACE_USER_ROLE_CHANGE;
 				break;
+			case EventDictionary::EVENT_WORKGROUP_CONVERT:
+				$result = self::EVENT_WORKGROUP_CONVERT;
 			default:
 		}
 

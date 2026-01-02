@@ -3,6 +3,30 @@ this.BX = this.BX || {};
 (function (exports,main_core,main_core_events) {
 	'use strict';
 
+	const Context = Object.freeze({
+	  B24: 'b24'
+	});
+	class Interceptor {
+	  static try(context, userId, node) {
+	    var _BX$Intranet, _BX$Intranet$User;
+	    if (context !== Context.B24) {
+	      return false;
+	    }
+	    if (!main_core.Type.isStringFilled(userId) || !main_core.Type.isNumber(Number(userId))) {
+	      return false;
+	    }
+	    if ((_BX$Intranet = BX.Intranet) != null && (_BX$Intranet$User = _BX$Intranet.User) != null && _BX$Intranet$User.UserMiniProfileManager) {
+	      BX.Intranet.User.UserMiniProfileManager.create({
+	        id: userId,
+	        userId: Number(userId),
+	        bindElement: node
+	      });
+	      return true;
+	    }
+	    return false;
+	  }
+	}
+
 	class Tooltip {
 	  static disable() {
 	    this.disabled = true;
@@ -25,6 +49,10 @@ this.BX = this.BX || {};
 
 	class TooltipBalloon {
 	  constructor(params) {
+	    this.handleClick = () => {
+	      this.hideTooltip();
+	      this.stopTrackMouse();
+	    };
 	    this.node = null;
 	    this.userId = null;
 	    this.loader = null;
@@ -84,18 +112,20 @@ this.BX = this.BX || {};
 	    if (this.tracking) {
 	      return;
 	    }
-	    const elCoords = BX.pos(this.node);
+	    this.elCoords = BX.pos(this.node);
 	    this.realAnchor = this.node;
-	    this.coordsLeft = elCoords.width < 40 ? elCoords.left - 35 : elCoords.left + 0;
-	    this.coordsTop = elCoords.top - 245; // 325
-	    this.anchorRight = elCoords.right;
-	    this.anchorTop = elCoords.top;
+	    this.coordsLeft = this.elCoords.width < 40 ? this.elCoords.left - 35 : this.elCoords.left + 0;
+	    this.coordsTop = this.elCoords.top - 245; // 325
+	    this.anchorRight = this.elCoords.right;
+	    this.anchorTop = this.elCoords.top;
 	    this.tracking = true;
 	    document.addEventListener('mousemove', this.trackMouseHandle);
 	    setTimeout(() => {
 	      this.tickTimer();
 	    }, 500);
 	    this.node.addEventListener('mouseout', this.stopTrackMouse.bind(this));
+	    this.node.removeEventListener('click', this.handleClick);
+	    this.node.addEventListener('click', this.handleClick);
 	  }
 	  stopTrackMouse() {
 	    if (!this.tracking) {
@@ -105,7 +135,7 @@ this.BX = this.BX || {};
 	    this.active = false;
 	    setTimeout(() => {
 	      this.hideTooltip();
-	    }, 500);
+	    }, 100);
 	    this.tracking = false;
 	  }
 	  trackMouse(e) {
@@ -144,7 +174,7 @@ this.BX = this.BX || {};
 	    }
 	    this.tracking++;
 	    if (this.active) {
-	      if (this.active.time + 5 /*0.5sec*/ <= this.tracking) {
+	      if (this.active.time + 3 /*0.3sec*/ <= this.tracking) {
 	        this.showTooltip();
 	      }
 	    }
@@ -356,7 +386,7 @@ this.BX = this.BX || {};
 	  adjustPosition() {
 	    const tooltipCoords = BX.pos(this.DIV);
 	    if (this.vMirror) {
-	      this.ROOT_DIV.style.top = `${parseInt(this.anchorTop + 13)}px`;
+	      this.ROOT_DIV.style.top = `${parseInt(this.anchorTop + this.elCoords.height)}px`;
 	    } else {
 	      this.ROOT_DIV.style.top = `${parseInt(this.anchorTop - tooltipCoords.height - 13 + 12)}px`; // 12 - bottom block
 	    }
@@ -400,13 +430,17 @@ this.BX = this.BX || {};
 	  if (main_core.Browser.isAndroid() || main_core.Browser.isIOS()) {
 	    return;
 	  }
-	  document.addEventListener('mouseover', e => {
+	  main_core.Event.bind(document, 'mouseover', e => {
 	    const node = e.target;
 	    if (!main_core.Type.isElementNode(node)) {
 	      return;
 	    }
 	    const userId = node.getAttribute('bx-tooltip-user-id');
 	    const loader = node.getAttribute('bx-tooltip-loader');
+	    const context = node.getAttribute('bx-tooltip-context');
+	    if (main_core.Type.isStringFilled(context) && Interceptor.try(context, userId, node)) {
+	      return;
+	    }
 	    let tooltipId = userId; // don't use integer value!
 
 	    if (main_core.Type.isStringFilled(loader)) {

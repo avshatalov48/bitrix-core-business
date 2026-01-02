@@ -1,7 +1,9 @@
 <?php
+
 namespace Bitrix\Landing\Site\Scope;
 
 use Bitrix\Landing\Block\BlockRepo;
+use Bitrix\Landing\Landing;
 use Bitrix\Landing\Role;
 use Bitrix\Landing\Manager;
 use Bitrix\Landing\Domain;
@@ -15,6 +17,14 @@ use Bitrix\Main\EventManager;
  */
 class Mainpage extends Scope
 {
+	private const ALLOWED_EXTENSIONS = [
+		'landing.widgetvue',
+		'landing_inline_video',
+		'landing_carousel',
+		'landing_jquery',
+		'landing_icon_fonts',
+	];
+
 	/**
 	 * Method for first time initialization scope.
 	 * @param array $params Additional params.
@@ -29,7 +39,7 @@ class Mainpage extends Scope
 		$eventManager->addEventHandler(
 			'landing',
 			'onBlockRepoSetFilters',
-			function(Event $event)
+			function (Event $event)
 			{
 				$result = new Entity\EventResult();
 				$result->modifyFields([
@@ -89,11 +99,11 @@ class Mainpage extends Scope
 	 */
 	public static function getExcludedHooks(): array
 	{
-		// todo: anything else?
 		return [
 			'B24BUTTON',
 			'COPYRIGHT',
 			'CSSBLOCK',
+			'COOKIES',
 			'FAVICON',
 			'GACOUNTER',
 			'GTM',
@@ -107,8 +117,10 @@ class Mainpage extends Scope
 			'ROBOTS',
 			'SETTINGS',
 			'SPEED',
+			'TRANSITION',
+			'THEMEFONTS',
+			'UP',
 			'YACOUNTER',
-			'COOKIES',
 		];
 	}
 
@@ -121,6 +133,7 @@ class Mainpage extends Scope
 	{
 		$allowedManifestKeys = [
 			'block',
+			'cards',
 			'nodes',
 			'style',
 			'assets',
@@ -128,7 +141,8 @@ class Mainpage extends Scope
 		];
 		$manifest = array_filter(
 			$manifest,
-			function ($key) use ($allowedManifestKeys) {
+			function ($key) use ($allowedManifestKeys)
+			{
 				return in_array(mb_strtolower($key), $allowedManifestKeys);
 			},
 			ARRAY_FILTER_USE_KEY
@@ -139,16 +153,12 @@ class Mainpage extends Scope
 		// not all assets allowed
 		if (isset($manifest['assets']))
 		{
-			$allowedExt = [
-				'landing.widgetvue',
-				'landing_inline_video',
-			];
 			$manifest['assets'] = [
 				'ext' => array_filter(
 					(array)$manifest['assets']['ext'],
-					function ($item) use ($allowedExt)
+					static function ($item)
 					{
-						return in_array(mb_strtolower($item), $allowedExt);
+						return in_array(mb_strtolower($item), self::ALLOWED_EXTENSIONS, true);
 					}
 				),
 			];
@@ -167,7 +177,8 @@ class Mainpage extends Scope
 			];
 			$manifest['block']['subtype'] = array_filter(
 				(array)$manifest['block']['subtype'],
-				function ($item) use ($allowedSubtypes) {
+				function ($item) use ($allowedSubtypes)
+				{
 					return in_array(mb_strtolower($item), $allowedSubtypes);
 				}
 			);
@@ -186,7 +197,8 @@ class Mainpage extends Scope
 			];
 			$manifest['callbacks'] = array_filter(
 				(array)$manifest['callbacks'],
-				function ($item) use ($allowedCallbacks) {
+				function ($item) use ($allowedCallbacks)
+				{
 					return in_array(mb_strtolower($item), $allowedCallbacks);
 				},
 				ARRAY_FILTER_USE_KEY
@@ -197,7 +209,7 @@ class Mainpage extends Scope
 				unset($manifest['callbacks']);
 			}
 		}
-		
+
 		//unset not allowed style
 		$allowedStyles = [
 			//for landing block
@@ -213,6 +225,12 @@ class Mainpage extends Scope
 			'margin-left',
 			'margin-right',
 			'text-align',
+			'font-size',
+			'font-family',
+			'font-weight',
+			'button',
+			'text-transform',
+			'container-max-width',
 			//for widget
 			'widget',
 			'widget-type',
@@ -260,5 +278,15 @@ class Mainpage extends Scope
 		}
 
 		return $manifest;
+	}
+
+	public static function isExtensionAllow(string $code): bool
+	{
+		if (Landing::getEditMode())
+		{
+			return true;
+		}
+
+		return in_array($code, self::ALLOWED_EXTENSIONS, true);
 	}
 }

@@ -1,10 +1,12 @@
-<?
-##############################################
-# Bitrix Site Manager Forum					 #
-# Copyright (c) 2002-2010 Bitrix			 #
-# https://www.bitrixsoft.com					 #
-# mailto:admin@bitrixsoft.com				 #
-##############################################
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/prolog.php");
 
@@ -319,7 +321,7 @@ if ($vote["COUNTER"] > 0)
 ?>
 <a name="tb"></a>
 
-<?echo ShowError($strError);?>
+<? ShowError($strError);?>
 <form name="form1" method="GET" action="<?=$APPLICATION->GetCurPage()?>?">
 <?
 $oFilter = new CAdminFilter(

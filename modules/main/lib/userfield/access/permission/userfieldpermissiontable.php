@@ -3,7 +3,8 @@
 namespace Bitrix\Main\UserField\Access\Permission;
 
 use Bitrix\Main\Access\Permission\AccessPermissionTable;
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Fields;
+use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\UserAccessTable;
@@ -42,23 +43,23 @@ class UserFieldPermissionTable extends AccessPermissionTable
 	public static function getMap()
 	{
 		return [
-			new Entity\IntegerField('ID', [
+			new Fields\IntegerField('ID', [
 				'autocomplete' => true,
 				'primary' => true
 			]),
-			new Entity\IntegerField('ENTITY_TYPE_ID', [
+			new Fields\IntegerField('ENTITY_TYPE_ID', [
 				'required' => true
 			]),
-			new Entity\IntegerField('USER_FIELD_ID', [
+			new Fields\IntegerField('USER_FIELD_ID', [
 				'required' => true
 			]),
-			new Entity\StringField('ACCESS_CODE', [
+			new Fields\StringField('ACCESS_CODE', [
 				'required' => true
 			]),
-			new Entity\StringField('PERMISSION_ID', [
+			new Fields\StringField('PERMISSION_ID', [
 				'required' => true
 			]),
-			new Entity\IntegerField('VALUE', [
+			new Fields\IntegerField('VALUE', [
 				'required' => true
 			]),
 			(new Reference(
@@ -131,7 +132,7 @@ class UserFieldPermissionTable extends AccessPermissionTable
 	 */
 	public static function getUserFieldsAccessCodes(int $entityTypeID): array
 	{
-		$query = new Entity\Query(self::getEntity());
+		$query = new Query(self::getEntity());
 		$query->addSelect('USER_FIELD.FIELD_NAME', 'FIELD_NAME');
 		$query->addSelect('ACCESS_CODE');
 		$query->addSelect('USER_ACCESS.USER_ID', 'USER_ID');

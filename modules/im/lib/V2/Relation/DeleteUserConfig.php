@@ -2,38 +2,26 @@
 
 namespace Bitrix\Im\V2\Relation;
 
-class DeleteUserConfig
+final class DeleteUserConfig
 {
+	public readonly bool $withMessage;
+	public readonly bool $skipRecent;
+	public readonly bool $withNotification;
+	public readonly bool $skipCheckReason;
+	public readonly bool $withoutRead;
+
 	public function __construct(
-		protected bool $withMessage = true,
-		protected bool $skipRecent = false,
-		protected bool $withNotification = true,
-		protected bool $skipCheckReason = false,
-		protected bool $withoutRead = false
-	){}
-
-	public function withNotification(): bool
+		bool $withMessage = true,
+		bool $skipRecent = false,
+		bool $withNotification = true,
+		bool $skipCheckReason = false,
+		bool $withoutRead = false
+	)
 	{
-		return $this->withNotification;
-	}
-
-	public function skipCheckReason(): bool
-	{
-		return $this->skipCheckReason;
-	}
-
-	public function withMessage(): bool
-	{
-		return $this->withMessage;
-	}
-
-	public function skipRecent(): bool
-	{
-		return $this->skipRecent;
-	}
-
-	public function withoutRead(): bool
-	{
-		return $this->withoutRead;
+		$this->withMessage = $withMessage;
+		$this->skipRecent = $skipRecent;
+		$this->withNotification = $withNotification;
+		$this->skipCheckReason = $skipCheckReason;
+		$this->withoutRead = $withoutRead;
 	}
 }

@@ -14,12 +14,13 @@ if (!(
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
-use Bitrix\Main\Context;
-use Bitrix\Main\Loader;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\StoreDocumentFileTable;
 use Bitrix\Currency\CurrencyManager;
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Web\Json;
 
 /** @global CMain $APPLICATION */
 global $APPLICATION;
@@ -111,6 +112,9 @@ switch ($action)
 			unset($fields);
 		}
 		unset($documentId, $allowModify);
+		$APPLICATION->RestartBuffer();
+		Header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
+		echo Json::encode([]);
 		break;
 	case 'GET_FORMATTED_SUM':
 		if (!Loader::includeModule('currency'))

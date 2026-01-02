@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_ADM_IMP_NO_DATA_FILE"] = "No data file has been loaded or selected. Cannot import.";
 $MESS["IBLOCK_ADM_IMP_NO_IBLOCK"] = "No information block has been selected. Cannot import.";
 $MESS["IBLOCK_ADM_IMP_NO_FILE_FORMAT"] = "Please set the data file format and properties.";
@@ -94,5 +94,4 @@ $MESS["IBLOCK_ADM_IMP_FG_CODE"] = "Mnemonic code";
 $MESS["IBLOCK_ADM_IMP_IMG_RESIZE"] = "Use Information Block Settings For Image Processing";
 $MESS["IBLOCK_ADM_IMP_PROP_PATH"] = "Path To Property Files";
 $MESS["IBLOCK_ADM_IMP_PROP_PATH_DESCR"] = "The full path from the document root will be formed using the pattern: \"&lt;path to property files&gt;/&lt;file name&gt;\".";
-$MESS["IBLOCK_ADM_IMP_NO_DATA_FILE_SIMPLE"] = "Cannot import data because no file was selected.";
-?>
+$MESS['IBLOCK_ADM_IMP_NO_DATA_FILE_SIMPLE'] = "Cannot import data because no file was selected.";

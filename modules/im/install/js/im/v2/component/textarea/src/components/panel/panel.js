@@ -6,7 +6,7 @@ import { ForwardPanel } from './components/forward-panel';
 import { ForwardEntityPanel } from './components/forward-entity-panel';
 import { MarketAppsPanel } from './components/market-apps-panel/market-apps-panel';
 
-import type { PanelContext } from 'im.v2.provider.service';
+import type { PanelContext } from 'im.v2.provider.service.sending';
 
 // @vue/component
 export const TextareaPanel = {

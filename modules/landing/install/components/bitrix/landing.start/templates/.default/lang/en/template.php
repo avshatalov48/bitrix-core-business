@@ -12,7 +12,6 @@ $MESS["LANDING_TPL_IMPORT_SITE_STORE"] = "Import online store";
 $MESS["LANDING_TPL_JS_PAY_TARIFF"] = "Migrate to commercial plan";
 $MESS["LANDING_TPL_JS_PAY_TARIFF_TITLE"] = "Plan restrictions";
 $MESS["LANDING_TPL_MENU_AGREEMENT"] = "Terms of Use";
-$MESS["LANDING_TPL_MENU_AI"] = "AI Settings";
 $MESS["LANDING_TPL_MENU_FORMS"] = "CRM forms";
 $MESS["LANDING_TPL_MENU_MARKETING"] = "Marketing";
 $MESS["LANDING_TPL_MENU_RIGHTS"] = "Access Permissions";

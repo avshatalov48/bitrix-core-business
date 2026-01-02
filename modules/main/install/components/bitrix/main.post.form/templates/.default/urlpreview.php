@@ -6,7 +6,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
  */
 global $APPLICATION;
 
-if(is_array($arParams["PROPERTIES"]))
+if (isset($arParams["PROPERTIES"]) && is_array($arParams["PROPERTIES"]))
 {
 	foreach($arParams["PROPERTIES"] as $val)
 	{

@@ -315,6 +315,10 @@ class BasketComponentHelper
 		{
 			return new Main\EventResult( Main\EventResult::SUCCESS, null, 'sale');
 		}
+		if ($basketItem->isBundleChild())
+		{
+			return new Main\EventResult( Main\EventResult::SUCCESS, null, 'sale');
+		}
 
 		/** @var \Bitrix\Sale\Basket $basket */
 		if (!($basket = $basketItem->getCollection())
@@ -367,8 +371,9 @@ class BasketComponentHelper
 
 			if ($updateSessionData)
 			{
-				static::clearFUserBasketPrice($fuserId, SITE_ID);
-				static::clearFUserBasketQuantity($fuserId, SITE_ID);
+				$siteId = $basket->getSiteId();
+				static::clearFUserBasketPrice($fuserId, $siteId);
+				static::clearFUserBasketQuantity($fuserId, $siteId);
 			}
 		}
 

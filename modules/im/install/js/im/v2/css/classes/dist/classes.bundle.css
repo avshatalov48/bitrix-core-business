@@ -1,3 +1,27 @@
+.bx-im-messenger__scope * {
+	box-sizing: border-box;
+}
+
+.bx-im-messenger__scope * {
+	box-sizing: border-box;
+}
+
+/* region Scrollbar styles */
+.bx-im-messenger__scope *::-webkit-scrollbar {
+	width:6px;
+}
+
+.bx-im-messenger__scope *::-webkit-scrollbar-thumb {
+	background-color: transparent;
+	border-radius: 32px;
+}
+
+.bx-im-messenger__scope *:hover::-webkit-scrollbar-thumb {
+	background-color: rgba(82, 92, 105, .2);
+	border-radius: 32px;
+}
+/* endregion Scrollbar styles */
+
 .bx-im-messenger__scope .--ellipsis {
 	display: block;
 	text-overflow: ellipsis;
@@ -21,4 +45,33 @@
 	overflow: hidden;
 	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
+}
+
+.bx-im-messenger__scope .--line-clamp-4 {
+	display: -webkit-box;
+	text-overflow: ellipsis;
+	word-break: break-word;
+	overflow: hidden;
+	-webkit-line-clamp: 4;
+	-webkit-box-orient: vertical;
+}
+
+.bx-im-messenger__scope .--brand-accent-with-icon {
+	position: relative;
+	margin: 0 1px;
+	padding-right: 15px;
+	color: var(--im-color-accent-main-primary);
+}
+
+.bx-im-messenger__scope .--brand-accent-with-icon::after {
+	box-sizing: border-box;
+	content: '';
+	position: absolute;
+	top: 4px;
+	width: 15px;
+	height: 15px;
+	padding: 0 1px;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='14' height='13' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.275 7.225h3.611V5.781H7.72V3.25H6.275v3.974z' fill='%23000'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M7 0a6.5 6.5 0 100 13A6.5 6.5 0 007 0zm0 11.556A5.056 5.056 0 117 1.444a5.056 5.056 0 010 10.111z' fill='%23000'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: center;
 }

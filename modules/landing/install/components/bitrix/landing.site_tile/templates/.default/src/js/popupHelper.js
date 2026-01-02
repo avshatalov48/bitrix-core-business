@@ -1,4 +1,4 @@
-import {Tag, Event, Loc} from 'main.core';
+import {Tag, Event, Dom, Loc} from 'main.core';
 import {EventEmitter} from "main.core.events";
 import 'ui.notification';
 
@@ -346,9 +346,9 @@ export default class PopupHelper
 			`;
 			Event.bind(buttOpen, 'click', () =>
 			{
-				// todo: loader?
 				if (this.indexEditUrl)
 				{
+					Dom.addClass(buttOpen, 'ui-btn-wait');
 					window.location.href = this.indexEditUrl;
 				}
 			});

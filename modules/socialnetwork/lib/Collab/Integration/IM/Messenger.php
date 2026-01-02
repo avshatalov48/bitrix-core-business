@@ -22,7 +22,7 @@ class Messenger
 		return \Bitrix\Im\V2\Service\Messenger::getInstance();
 	}
 
-	public static function getUpdateService(int $chatId, array $fields = []): ?UpdateService
+	public static function getUpdateService(int $chatId, array $fields = [], bool $collabChatOnly = false): ?UpdateService
 	{
 		if (!Loader::includeModule('im'))
 		{
@@ -30,7 +30,8 @@ class Messenger
 		}
 
 		$chat = static::getInstance()?->getChat($chatId);
-		if (!$chat instanceof CollabChat)
+
+		if ($collabChatOnly && !$chat instanceof CollabChat)
 		{
 			return null;
 		}
@@ -80,6 +81,6 @@ class Messenger
 			return;
 		}
 
-		static::getUpdateService($chatId, $fields)?->updateChat();
+		static::getUpdateService($chatId, $fields, true)?->updateChat();
 	}
 }

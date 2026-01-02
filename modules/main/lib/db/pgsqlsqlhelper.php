@@ -8,6 +8,7 @@ use Bitrix\Main\ORM\Fields\ScalarField;
 
 class PgsqlSqlHelper extends SqlHelper
 {
+	const FULLTEXT_MAXIMUM_LENGTH = 1000000;
 	/**
 	 * @inheritdoc
 	 */
@@ -77,6 +78,15 @@ class PgsqlSqlHelper extends SqlHelper
 		return "'" . pg_escape_bytea($value) . "'";
 		//return "E'\\\\x".bin2hex($value) . "'";
 		//return "decode('".bin2hex($value)."', 'hex')";
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function convertToFullText($value, $maxLength = 0)
+	{
+		$fulltextLength = $maxLength ? min($maxLength, static::FULLTEXT_MAXIMUM_LENGTH): static::FULLTEXT_MAXIMUM_LENGTH;
+		return "safe_text_for_tsvector('" . $this->forSql($value, $fulltextLength) . "')";
 	}
 
 	/**

@@ -106,7 +106,7 @@ if (!$templateData['BLOG']['BLOG_FROM_AJAX'])
 			"CONTENT" => '
 				<div id="vk_comments"></div>
 				<script>
-					BX.load([\'https://vk.com/js/api/openapi.js?142\'], function(){
+					BX.load([\'https://vk.ru/js/api/openapi.js?142\'], function(){
 						if (!!window.VK)
 						{
 							VK.init({

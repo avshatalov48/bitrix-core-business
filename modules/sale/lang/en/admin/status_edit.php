@@ -1,5 +1,5 @@
 <?php
-$MESS["ERROR_NO_NAME"] = "The status name is not provided for the language";
+$MESS['ERROR_NO_NAME'] = "The status name is not provided for the language";
 $MESS["SALE_CODE_LEN"] = "letter";
 $MESS["SALE_EDIT_RECORD"] = "Edit status #ID#";
 $MESS["SALE_NEW_RECORD"] = "New status";

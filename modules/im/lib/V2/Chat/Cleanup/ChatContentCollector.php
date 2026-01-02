@@ -7,8 +7,8 @@ namespace Bitrix\Im\V2\Chat\Cleanup;
 use Bitrix\Disk\File;
 use Bitrix\Disk\Folder;
 use Bitrix\Disk\SystemUser;
+use Bitrix\Im\Model\AnchorTable;
 use Bitrix\Im\Model\BlockUserTable;
-use Bitrix\Im\Model\BotChatTable;
 use Bitrix\Im\Model\ChatIndexTable;
 use Bitrix\Im\Model\ChatParamTable;
 use Bitrix\Im\Model\ChatTable;
@@ -33,7 +33,9 @@ use Bitrix\Im\Model\NoRelationPermissionDiskTable;
 use Bitrix\Im\Model\ReactionTable;
 use Bitrix\Im\Model\RecentTable;
 use Bitrix\Im\Model\RelationTable;
+use Bitrix\Im\V2\Anchor\DI\AnchorContainer;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Integration\HumanResources\Structure;
 use Bitrix\Im\V2\Message\CounterService;
 use Bitrix\Im\V2\Sync\Event;
 use Bitrix\Im\V2\Sync\Logger;
@@ -245,7 +247,7 @@ class ChatContentCollector
 	protected function writeSyncLog(): void
 	{
 		$userIds = $this->getChatMembers();
-		$chatType = Chat::getInstance($this->chatId)->getType();
+		$chat = Chat::getInstance($this->chatId);
 		$logger = Logger::getInstance();
 
 		foreach ($userIds as $userId)
@@ -253,7 +255,7 @@ class ChatContentCollector
 			$logger->add(
 				new Event(Event::COMPLETE_DELETE_EVENT, Event::CHAT_ENTITY, $this->chatId),
 				(int)$userId,
-				$chatType,
+				$chat,
 			);
 		}
 	}
@@ -289,6 +291,10 @@ class ChatContentCollector
 		$this->deleteByColumn(MessageUnreadTable::class, [$this->chatId], 'PARENT_ID');
 		$this->cleanupCounterCache();
 		$this->deleteByColumn(ChatIndexTable::class, [$this->chatId], 'CHAT_ID');
+		$this->deleteByColumn(AnchorTable::class, [$this->chatId], 'CHAT_ID');
+		$this->cleanupAnchorCache();
+
+		(new Structure($chat))->unlinkAll();
 
 		CPullStack::AddShared($arMessage);
 	}
@@ -298,6 +304,15 @@ class ChatContentCollector
 		foreach ($this->getChatMembers() as $userId)
 		{
 			CounterService::clearCache((int)$userId);
+		}
+	}
+
+	protected function cleanupAnchorCache(): void
+	{
+		$provider = AnchorContainer::getInstance()->getAnchorProvider();
+		foreach ($this->getChatMembers() as $userId)
+		{
+			$provider->cleanCache((int)$userId);
 		}
 	}
 
@@ -311,7 +326,6 @@ class ChatContentCollector
 	{
 		$this->deleteByColumn(ChatParamTable::class, [$this->chatId], 'CHAT_ID');
 		$this->deleteByColumn(ChatLastMessageTable::class, [$this->chatId], 'EXTERNAL_CHAT_ID');
-		$this->deleteByColumn(BotChatTable::class, [$this->chatId], 'CHAT_ID');
 		$this->deleteByColumn(BlockUserTable::class, [$this->chatId], 'CHAT_ID');
 
 		return false;

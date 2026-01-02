@@ -1,4 +1,4 @@
-import { CopilotRolesDialog } from 'im.v2.component.elements';
+import { CopilotRolesDialog } from 'im.v2.component.elements.copilot-roles-dialog';
 import { PromoManager } from 'im.v2.lib.promo';
 import { PromoId } from 'im.v2.const';
 
@@ -46,11 +46,10 @@ export const CopilotRole = {
 		},
 		canShowChangeRolePromo(): boolean
 		{
-			// we don't want to show change role promo if we are still showing first promo (add users to copilot chat)
-			const needToShowAddUsersToChatHint = PromoManager.getInstance().needToShow(PromoId.addUsersToCopilotChat);
+			const needShowAddUsersToChatHint = PromoManager.getInstance().needToShow(PromoId.addUsersToCopilotChat);
 			const needToShowChangeRolePromo = PromoManager.getInstance().needToShow(PromoId.changeRoleCopilot);
 
-			return !needToShowAddUsersToChatHint && needToShowChangeRolePromo;
+			return !needShowAddUsersToChatHint && needToShowChangeRolePromo;
 		},
 	},
 	mounted()

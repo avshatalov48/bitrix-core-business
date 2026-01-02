@@ -1,7 +1,7 @@
 import { Type, Loc, Cache } from 'main.core';
 import { Popup } from 'main.popup';
 import MessageBoxButtons from './messageboxbuttons';
-import 'ui.buttons';
+import { AirButtonStyle } from 'ui.buttons';
 
 /**
  * @namespace {BX.UI.Dialogs}
@@ -20,6 +20,7 @@ export default class MessageBox
 	buttons = [];
 	mediumButtonSize: false;
 	cacheable: false;
+	useAirDesign: boolean = false;
 
 	okCallback = null;
 	cancelCallback = null;
@@ -44,6 +45,7 @@ export default class MessageBox
 		this.setCancelCallback(options.onCancel);
 		this.setYesCallback(options.onYes);
 		this.setNoCallback(options.onNo);
+		this.useAirDesign = options.useAirDesign === true;
 
 		if (Type.isBoolean(options.mediumButtonSize))
 		{
@@ -54,7 +56,7 @@ export default class MessageBox
 			this.mediumButtonSize = true;
 		}
 
-		if (this.getTitle() !== null)
+		if (this.getTitle() !== null && Type.isUndefined(this.popupOptions.closeIcon))
 		{
 			this.popupOptions.closeIcon = true;
 		}
@@ -134,6 +136,7 @@ export default class MessageBox
 	 * BX.UI.Dialogs.MessageBox.confirm('Message', 'Title', () => {});
 	 * BX.UI.Dialogs.MessageBox.confirm('Message', 'Title', () => {}, 'Proceed', () => {});
 	 * BX.UI.Dialogs.MessageBox.confirm('Message', 'Title', () => {}, 'Proceed', () => {}, 'Cancel');
+	 * BX.UI.Dialogs.MessageBox.confirm('Message', 'Title', () => {}, 'Proceed', () => {}, 'Cancel', true);
 	 */
 	static confirm(message: string, ...args): MessageBox
 	{
@@ -142,16 +145,17 @@ export default class MessageBox
 		let okCaption = null;
 		let cancelCallback = null;
 		let cancelCaption = null;
+		let useAirDesign = false;
 
 		if (args.length > 0)
 		{
-			if (Type.isString(args[0]))
+			if (Type.isString(args[0]) || Type.isNull(args[0]))
 			{
-				[title, okCallback, okCaption, cancelCallback, cancelCaption] = args;
+				[title, okCallback, okCaption, cancelCallback, cancelCaption, useAirDesign] = args;
 			}
 			else
 			{
-				[okCallback, okCaption, cancelCallback, cancelCaption] = args;
+				[okCallback, okCaption, cancelCallback, cancelCaption, useAirDesign] = args;
 			}
 		}
 
@@ -160,6 +164,7 @@ export default class MessageBox
 			title,
 			okCaption,
 			cancelCaption,
+			useAirDesign,
 			onOk: okCallback,
 			onCancel: cancelCallback,
 			buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
@@ -203,9 +208,18 @@ export default class MessageBox
 	{
 		if (this.popupWindow === null)
 		{
+			let className = this.isMediumButtonSize()
+				? 'ui-message-box ui-message-box-medium-buttons'
+				: 'ui-message-box';
+
+			if (this.useAirDesign)
+			{
+				className += ' --air';
+			}
+
 			this.popupWindow = new Popup({
 				bindElement: null,
-				className: this.isMediumButtonSize() ? 'ui-message-box ui-message-box-medium-buttons' : 'ui-message-box',
+				className,
 				content: this.getMessage(),
 				titleBar: this.getTitle(),
 				minWidth: this.minWidth,
@@ -385,7 +399,8 @@ export default class MessageBox
 				text: Loc.getMessage('UI_MESSAGE_BOX_OK_CAPTION'),
 				events: {
 					click: this.handleButtonClick
-				}
+				},
+				useAirDesign: this.useAirDesign,
 			});
 		});
 	}
@@ -403,7 +418,9 @@ export default class MessageBox
 				text: Loc.getMessage('UI_MESSAGE_BOX_CANCEL_CAPTION'),
 				events: {
 					click: this.handleButtonClick
-				}
+				},
+				useAirDesign: this.useAirDesign,
+				style: AirButtonStyle.PLAIN,
 			});
 		});
 	}
@@ -422,7 +439,8 @@ export default class MessageBox
 				text: Loc.getMessage('UI_MESSAGE_BOX_YES_CAPTION'),
 				events: {
 					click: this.handleButtonClick
-				}
+				},
+				useAirDesign: this.useAirDesign,
 			});
 		});
 	}
@@ -441,7 +459,9 @@ export default class MessageBox
 				text: Loc.getMessage('UI_MESSAGE_BOX_NO_CAPTION'),
 				events: {
 					click: this.handleButtonClick
-				}
+				},
+				useAirDesign: this.useAirDesign,
+				style: AirButtonStyle.PLAIN,
 			});
 		});
 	}

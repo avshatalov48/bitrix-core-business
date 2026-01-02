@@ -226,8 +226,10 @@ Vue.component(config.templateRowName,
 				onProductChange(fields: {})
 				{
 					fields = Object.assign(
-						this.model.getCalculator().calculateBasePrice(fields.BASE_PRICE),
-						fields
+						Type.isUndefined(fields.BASE_PRICE)
+							? this.model.getCalculator().getFields()
+							: this.model.getCalculator().calculateBasePrice(fields.BASE_PRICE),
+						fields,
 					);
 
 					this.changeRowData(

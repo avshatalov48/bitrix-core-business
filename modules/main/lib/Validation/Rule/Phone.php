@@ -8,7 +8,7 @@ use Attribute;
 use Bitrix\Main\Localization\LocalizableMessageInterface;
 use Bitrix\Main\Validation\Validator\PhoneValidator;
 
-#[Attribute(Attribute::TARGET_PROPERTY)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Phone extends AbstractPropertyValidationAttribute
 {
 	public function __construct(

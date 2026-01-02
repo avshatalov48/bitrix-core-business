@@ -1,9 +1,9 @@
-import { hasDataTransferOnlyFiles } from 'ui.uploader.core';
+import { getFilesFromDataTransfer, hasDataTransferOnlyFiles } from 'ui.uploader.core';
 import { Event, Type, type JsonObject } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
 import { EventType } from 'im.v2.const';
-import { UploadingService } from 'im.v2.provider.service';
+import { MultiUploadingService, type MultiUploadingResult } from 'im.v2.provider.service.uploading';
 
 import { Height } from '../const/size';
 
@@ -120,26 +120,28 @@ export const DropArea = {
 		{
 			event.preventDefault();
 
-			const uploaderId = await this.getUploadingService().uploadFromDragAndDrop({
-				event,
+			const multiUploadingService: MultiUploadingService = this.getMultiUploadingService();
+			const multiUploadingResult: MultiUploadingResult = await multiUploadingService.upload({
+				files: await getFilesFromDataTransfer(event.dataTransfer),
 				dialogId: this.dialogId,
 				sendAsFile: false,
+				autoUpload: false,
 			});
 
-			if (Type.isStringFilled(uploaderId))
+			if (Type.isArrayFilled(multiUploadingResult.uploaderIds))
 			{
-				EventEmitter.emit(EventType.textarea.openUploadPreview, { uploaderId });
+				EventEmitter.emit(EventType.textarea.openUploadPreview, { multiUploadingResult });
 			}
 			this.showDropArea = false;
 		},
-		getUploadingService(): UploadingService
+		getMultiUploadingService(): MultiUploadingService
 		{
-			if (!this.uploadingService)
+			if (!this.multiUploadingService)
 			{
-				this.uploadingService = UploadingService.getInstance();
+				this.multiUploadingService = new MultiUploadingService();
 			}
 
-			return this.uploadingService;
+			return this.multiUploadingService;
 		},
 		loc(phraseCode: string): string
 		{

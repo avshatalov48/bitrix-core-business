@@ -35,10 +35,7 @@ export class ObserverManager
 				}
 
 				const messageIsFullyVisible = entry.isIntersecting && entry.intersectionRatio >= 0.99;
-				const messageTakesHalfOfViewport = entry.intersectionRect.height >= entry.rootBounds.height / 2.2;
-				// const messageIsBiggerThanViewport = entry.boundingClientRect.height + 20 > entry.rootBounds.height;
-				// const messageCountsAsVisible = messageIsBiggerThanViewport && messageTakesMostOfViewport;
-				if (messageIsFullyVisible || messageTakesHalfOfViewport)
+				if (messageIsFullyVisible || this.#isMessageBottomVisible(entry))
 				{
 					this.#sendVisibleEvent(messageId);
 				}
@@ -48,6 +45,20 @@ export class ObserverManager
 				}
 			});
 		}), { threshold: this.#getThreshold() });
+	}
+
+	#isMessageBottomVisible(entry: IntersectionObserverEntry): boolean
+	{
+		const wholeMessage = entry.boundingClientRect;
+		const visibleMessagePart = entry.intersectionRect;
+
+		if (visibleMessagePart.height === 0)
+		{
+			return false;
+		}
+
+		// +1 to offset browser floating point calculations
+		return wholeMessage.bottom <= visibleMessagePart.bottom + 1;
 	}
 
 	#sendVisibleEvent(messageId: number): void

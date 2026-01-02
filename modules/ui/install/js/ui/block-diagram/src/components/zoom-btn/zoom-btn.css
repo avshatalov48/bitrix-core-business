@@ -1,0 +1,24 @@
+.ui-block-diagram-control-btn__btn {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.ui-block-diagram-control-btn__icon {
+    min-width: 22px;
+    width: 22px;
+    min-height: 22px;
+    height: 22px;
+    background-color: var(--ui-color-gray-60);
+}
+
+.ui-block-diagram-control-btn__icon:hover {
+    background-color: var(--ui-color-palette-blue-50);
+}
+
+.ui-block-diagram-control-btn__btn:focus .ui-block-diagram-control-btn__icon {
+    background-color: var(--ui-color-palette-blue-50);
+}

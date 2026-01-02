@@ -2,11 +2,12 @@
 
 namespace Bitrix\Main\Numerator\Model;
 
-use Bitrix\Main\Entity\DataManager;
-use Bitrix\Main\Entity\DatetimeField;
-use Bitrix\Main\Entity\IntegerField;
-use Bitrix\Main\Entity\StringField;
-use Bitrix\Main\Entity\UpdateResult;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\DatetimeField;
+use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Main\ORM\Data\UpdateResult;
+use Bitrix\Main\ORM\Data\AddResult;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Numerator\Generator\Contract\Sequenceable;
@@ -160,7 +161,7 @@ class NumeratorTable extends DataManager
 	/**
 	 * @param $numeratorId
 	 * @param $numeratorFields
-	 * @return \Bitrix\Main\Entity\AddResult|UpdateResult
+	 * @return AddResult|UpdateResult
 	 * @throws SystemException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectException

@@ -6,18 +6,22 @@ use Bitrix\HumanResources\Enum\DepthLevel;
 use Bitrix\HumanResources\Service\Container;
 use Bitrix\Main\Access\AccessCode;
 use Bitrix\Main\Application;
-use Bitrix\Main\DI\ServiceLocator;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\ORM\Data\DeleteResult;
 use Bitrix\Main\ORM\Data\UpdateResult;
 use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Main\Result;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UI\AccessRights\DataProvider;
 use Bitrix\Socialnetwork\UserToGroupTable;
+use Bitrix\Ui\EntityForm\Dto\EntityEditorConfigDto;
 use Bitrix\UI\Form\EntityEditorConfigScope;
+use CAccess;
 use CUserOptions;
 
 /**
@@ -29,25 +33,36 @@ class Scope
 	protected const CODE_USER = 'U';
 	protected const CODE_PROJECT = 'SG';
 	protected const CODE_DEPARTMENT   = 'DR';
+	protected const CODE_STRUCTURE_DEPARTMENT = 'SNDR';
 
 	protected const TYPE_USER = 'user';
 	protected const TYPE_PROJECT = 'project';
 	protected const TYPE_DEPARTMENT = 'department';
+	protected const TYPE_STRUCTURE_NODE = 'structure-node';
 
-	protected $user;
-	protected static $instance = null;
+	protected static array $instances = [];
+	private static array $userScopeIdsCache = [];
 
-	/**
-	 * @return Scope
-	 */
-	public static function getInstance(): Scope
+	public function __construct(
+		private readonly int $userId,
+	)
 	{
-		if (self::$instance === null)
+	}
+
+	public static function getInstance(?int $userId = null): static
+	{
+		if ($userId === null || $userId <= 0)
+		{
+			$userId = (int)CurrentUser::get()->getId();
+		}
+
+		if (!isset(static::$instances[$userId]))
 		{
 			Loader::includeModule('ui');
-			self::$instance = ServiceLocator::getInstance()->get('ui.entityform.scope');
+			static::$instances[$userId] = new static($userId);
 		}
-		return self::$instance;
+
+		return static::$instances[$userId];
 	}
 
 	/**
@@ -78,32 +93,21 @@ class Scope
 		if (!isset($results[$key]))
 		{
 			$result = [];
-			$isAdminForEntity = $moduleId
-				&& (
-					($scopeAccess = ScopeAccess::getInstance($moduleId))
-					&& $scopeAccess->isAdminForEntityTypeId($entityTypeId)
-				);
+			$isAdminForEntity = $this->isAdminForEntity($entityTypeId, $moduleId);
 
-			if (!$isAdminForEntity)
-			{
-				$filter['@ID'] = $this->getScopesIdByUser();
-			}
-
-			$filter['@ENTITY_TYPE_ID'] = ($this->getEntityTypeIdMap()[$entityTypeId] ?? [$entityTypeId]);
-
-			if ($excludeEmptyAccessCode)
-			{
-				$filter['!=ACCESS_CODE'] = '';
-			}
+			$filter = ScopeListFilter::getInstance($moduleId)->prepareFilter($entityTypeId, $isAdminForEntity, $excludeEmptyAccessCode, $this);
 
 			if ($isAdminForEntity || !empty($filter['@ID']))
 			{
 				$scopes = EntityFormConfigTable::getList([
 					'select' => [
 						'ID',
+						'ENTITY_TYPE_ID',
 						'NAME',
 						'AUTO_APPLY_SCOPE',
 						'ACCESS_CODE' => '\Bitrix\Ui\EntityForm\EntityFormConfigAcTable:CONFIG.ACCESS_CODE',
+						'ON_ADD',
+						'ON_UPDATE',
 					],
 					'filter' => $filter,
 				]);
@@ -112,6 +116,9 @@ class Scope
 				{
 					$result[$scope['ID']]['NAME'] = HtmlFilter::encode($scope['NAME']);
 					$result[$scope['ID']]['AUTO_APPLY_SCOPE'] = $scope['AUTO_APPLY_SCOPE'];
+					$result[$scope['ID']]['ON_ADD'] = $scope['ON_ADD'];
+					$result[$scope['ID']]['ON_UPDATE'] = $scope['ON_UPDATE'];
+					$result[$scope['ID']]['ENTITY_TYPE_ID'] = $scope['ENTITY_TYPE_ID'];
 					if (
 						$loadMetadata
 						&& !isset($result[$scope['ID']]['ACCESS_CODES'][$scope['ACCESS_CODE']])
@@ -121,7 +128,7 @@ class Scope
 						$accessCode = new AccessCode($scope['ACCESS_CODE']);
 						$member = (new DataProvider())->getEntity(
 							$accessCode->getEntityType(),
-							$accessCode->getEntityId()
+							$accessCode->getEntityId(),
 						);
 						$result[$scope['ID']]['ACCESS_CODES'][$scope['ACCESS_CODE']] = $scope['ACCESS_CODE'];
 						$result[$scope['ID']]['MEMBERS'][$scope['ACCESS_CODE']] = $member->getMetaData();
@@ -138,7 +145,7 @@ class Scope
 	/**
 	 * This method must return entityTypeId values that correspond to a single CRM entity only.
 	 */
-	protected function getEntityTypeIdMap(): array
+	public function getEntityTypeIdMap(): array
 	{
 		return [
 			'lead_details' => ['lead_details', 'returning_lead_details'],
@@ -155,22 +162,19 @@ class Scope
 		return in_array($scopeId, $this->getScopesIdByUser());
 	}
 
-	/**
-	 * @return \CUser
-	 */
-	protected function getUser()
+	protected function getUserId(): int
 	{
-		if ($this->user === null)
-		{
-			global $USER;
-			$this->user = $USER;
-		}
-		return $this->user;
+		return $this->userId;
 	}
 
-	private function getScopesIdByUser(): array
+	public function getScopesIdByUser(): array
 	{
-		$accessCodes = $this->getUser()->GetAccessCodes();
+		if (isset(self::$userScopeIdsCache[$this->getUserId()]))
+		{
+			return self::$userScopeIdsCache[$this->getUserId()];
+		}
+
+		$accessCodes = $this->getCurrentUserAccessCodes();
 		$this->prepareAccessCodes($accessCodes);
 
 		$params = [
@@ -183,17 +187,11 @@ class Scope
 		];
 
 		$scopes = EntityFormConfigAcTable::getList($params)->fetchAll();
+		$scopesIds = array_unique(array_column($scopes, 'CONFIG_ID'));
 
-		$result = [];
-		if (count($scopes))
-		{
-			foreach ($scopes as $scope)
-			{
-				$result[] = $scope['CONFIG_ID'];
-			}
-		}
+		self::$userScopeIdsCache[$this->getUserId()] = $scopesIds;
 
-		return array_unique($result);
+		return self::$userScopeIdsCache[$this->getUserId()];
 	}
 
 	protected function prepareAccessCodes(array &$accessCodes): void
@@ -215,8 +213,9 @@ class Scope
 	{
 		if ($row = EntityFormConfigTable::getRowById($scopeId))
 		{
-			return (is_array($row['CONFIG']) ? $row['CONFIG'] : null);
+			return is_array($row['CONFIG']) ? $row['CONFIG'] : null;
 		}
+
 		return null;
 	}
 
@@ -247,7 +246,18 @@ class Scope
 	 */
 	private function removeById(int $id): DeleteResult
 	{
+		$scopeObject = EntityFormConfigTable::getById($id)->fetchObject();
+		if (!$scopeObject)
+		{
+			return (new DeleteResult())->addError(new Error('Configuration not found'));
+		}
+
 		$this->removeScopeMembers($id);
+
+		$scopeName = $this->getScopeName(EntityEditorConfigDto::fromEntityFormConfig($scopeObject));
+
+		$this->removeUsersScopeOptions($id, $scopeObject->getOptionCategory(), $scopeName);
+
 		return EntityFormConfigTable::delete($id);
 	}
 
@@ -255,23 +265,65 @@ class Scope
 	 * Set user option with config scope type and scopeId if selected custom scope
 	 * @param string $categoryName
 	 * @param string $guid
-	 * @param string $scope
+	 * @param string $configScopeType
 	 * @param int $userScopeId
 	 */
-	public function setScope(string $categoryName, string $guid, string $scope, int $userScopeId = 0): void
+	public function setScope(string $categoryName, string $guid, string $configScopeType, int $userScopeId = 0, ?int $userId = null): void
 	{
-		$this->setScopeToUser($categoryName, $guid, $scope, $userScopeId);
+		$this->setScopeWithName($categoryName, $guid, $configScopeType, $userScopeId, $userId);
+	}
+
+	public function setCreateScope(string $moduleId, string $categoryName, string $guid, string $configScopeType, int $userScopeId = 0): void
+	{
+		$scopeName = self::getScopeNameOnAdd($moduleId, $guid);
+
+		$this->setScopeWithName($categoryName, $guid, $configScopeType, $userScopeId, null, $scopeName);
+	}
+
+	public function setEditScope(string $moduleId, string $categoryName, string $guid, string $configScopeType, int $userScopeId = 0): void
+	{
+		$scopeName = self::getScopeNameOnUpdate($moduleId, $guid);
+
+		$this->setScopeWithName($categoryName, $guid, $configScopeType, $userScopeId, null, $scopeName);
+	}
+
+	private function setScopeWithName(
+		string $categoryName,
+		string $guid,
+		string $configScopeType,
+		int $userScopeId = 0,
+		?int $userId = null,
+		?string $scopeName = null,
+	): void
+	{
+		$scopeObject = EntityFormConfigTable::getById($userScopeId)->fetchObject();
+		if (!$scopeObject && $configScopeType === EntityEditorConfigScope::CUSTOM)
+		{
+			return;
+		}
+
+		$this->setScopeToUser(
+			new EntityEditorConfigDto(
+				$categoryName,
+				$guid,
+				$configScopeType,
+				$userScopeId,
+				$userId,
+				(bool)$scopeObject?->getOnAdd(),
+				(bool)$scopeObject?->getOnUpdate(),
+			),
+			$scopeName,
+		);
 	}
 
 	public function setScopeConfig(
-		string $category,
+		string $moduleId,
 		string $entityTypeId,
 		string $name,
 		array $accessCodes,
 		array $config,
-		array $params = []
-	)
-	{
+		array $params = [],
+	) {
 		if (empty($name))
 		{
 			$errors['name'] = new Error(Loc::getMessage('FIELD_REQUIRED'));
@@ -291,14 +343,22 @@ class Scope
 
 		$this->formatAccessCodes($accessCodes);
 
+		$canUseOnAddOunUpdateSegregation = ScopeAccess::getInstance($moduleId)->canUseOnAddOnUpdateSegregation();
+
+		$forceSetToUsers = ($params['forceSetToUsers'] ?? 'N') === 'Y';
+		$availableOnAdd = (!$canUseOnAddOunUpdateSegregation || ($params['availableOnAdd'] ?? 'N') === 'Y');
+		$availableOnUpdate = (!$canUseOnAddOunUpdateSegregation || ($params['availableOnUpdate'] ?? 'N') === 'Y');
+
 		$result = EntityFormConfigTable::add([
-			'CATEGORY' => $category,
+			'CATEGORY' => $moduleId,
 			'ENTITY_TYPE_ID' => $entityTypeId,
 			'NAME' => $name,
 			'CONFIG' => $config,
 			'COMMON' => ($params['common'] ?? 'Y'),
-			'AUTO_APPLY_SCOPE' => ($params['forceSetToUsers'] ?? 'N'),
-			'OPTION_CATEGORY' => $params['categoryName']
+			'AUTO_APPLY_SCOPE' => $forceSetToUsers,
+			'OPTION_CATEGORY' => $params['categoryName'],
+			'ON_ADD' => $availableOnAdd,
+			'ON_UPDATE' => $availableOnUpdate,
 		]);
 
 		if ($result->isSuccess())
@@ -312,19 +372,20 @@ class Scope
 				]);
 			}
 
-			$forceSetToUsers = ($params['forceSetToUsers'] ?? false);
-			if (mb_strtoupper($forceSetToUsers) === 'FALSE')
-			{
-				$forceSetToUsers = false;
-			}
-
 			Application::getInstance()->addBackgroundJob(
-				static fn() => Scope::getInstance()->forceSetScopeToUsers($accessCodes, [
-					'forceSetToUsers' => $forceSetToUsers,
-					'categoryName' => ($params['categoryName'] ?? ''),
-					'entityTypeId' => $entityTypeId,
-					'configId' => $configId,
-				])
+				static fn() => Scope::getInstance()->forceSetScopeToUsers(
+					new EntityEditorConfigDto(
+						$params['categoryName'] ?? '',
+						$entityTypeId,
+						EntityEditorConfigScope::CUSTOM,
+						$result->getId(),
+						null,
+							$availableOnAdd,
+							$availableOnUpdate,
+					),
+					$forceSetToUsers,
+					$accessCodes,
+				),
 			);
 
 			return $configId;
@@ -342,78 +403,81 @@ class Scope
 		{
 			if ($item['entityId'] === self::TYPE_USER)
 			{
-			$accessCodes[$key]['id'] = self::CODE_USER . (int)$accessCodes[$key]['id'];
+			$accessCodes[$key]['id'] = self::CODE_USER . (int)$item['id'];
 			}
 			elseif ($item['entityId'] === self::TYPE_DEPARTMENT)
 			{
-				$accessCodes[$key]['id'] = self::CODE_DEPARTMENT . (int)$accessCodes[$key]['id'];
+				$accessCodes[$key]['id'] = self::CODE_DEPARTMENT . (int)$item['id'];
 			}
 			elseif ($item['entityId'] === self::TYPE_PROJECT)
 			{
-				$accessCodes[$key]['id'] = self::CODE_PROJECT . (int)$accessCodes[$key]['id'];
+				$accessCodes[$key]['id'] = self::CODE_PROJECT . (int)$item['id'];
 			}
-			else{
+			elseif ($item['entityId'] === self::TYPE_STRUCTURE_NODE)
+			{
+				$accessCodes[$key]['id'] = self::CODE_STRUCTURE_DEPARTMENT . (int)$item['id'];
+			}
+			else
+			{
 				unset($accessCodes[$key]);
 			}
 		}
 	}
 
-	/**
-	 * @param array $accessCodes
-	 * @param array $params
-	 */
-	protected function forceSetScopeToUsers(array $accessCodes = [], array $params = []): void
+	protected function forceSetScopeToUsers(EntityEditorConfigDto $config, bool $forceSetToUsers, array $accessCodes = []): void
 	{
-		if ($params['forceSetToUsers'] && $params['categoryName'])
+		if ($forceSetToUsers && $config->getCategoryName())
 		{
 			$codes = [];
 			foreach ($accessCodes as $ac)
 			{
 				$codes[] = $ac['id'];
 			}
-			$this->setScopeByAccessCodes(
-				$params['categoryName'],
-				$params['entityTypeId'],
-				EntityEditorConfigScope::CUSTOM,
-				(int)$params['configId'],
-				$codes
-			);
+			$this->setScopeByAccessCodes($config, $codes);
 		}
 	}
 
-	/**
-	 * @param string $categoryName
-	 * @param string $guid
-	 * @param string $scope
-	 * @param int $userScopeId
-	 * @param int|null $userId
-	 */
-	protected function setScopeToUser(
-		string $categoryName,
-		string $guid,
-		string $scope,
-		int $userScopeId,
-		?int $userId = null
-	): void
+	protected function setScopeToUser(EntityEditorConfigDto $config, ?string $scopeName = null): void
 	{
-		$scope = (isset($scope) ? strtoupper($scope) : EntityEditorConfigScope::UNDEFINED);
+		$scope = $config->getConfigScopeType() !== null ? strtoupper($config->getConfigScopeType()) : EntityEditorConfigScope::UNDEFINED;
 
-		if (EntityEditorConfigScope::isDefined($scope))
+		if (!EntityEditorConfigScope::isDefined($scope))
 		{
-			if ($scope === EntityEditorConfigScope::CUSTOM && $userScopeId)
-			{
-				$value = [
-					'scope' => $scope,
-					'userScopeId' => $userScopeId,
-				];
-			}
-			else
-			{
-				$value = $scope;
-			}
+			return;
+		}
 
-			$userId = ($userId ?? false);
-			CUserOptions::SetOption($categoryName, "{$guid}_scope", $value, false, $userId);
+		if ($scope === EntityEditorConfigScope::CUSTOM && $config->getUserScopeId())
+		{
+			$value = $config->getOptionValue();
+		}
+		else
+		{
+			$value = $scope;
+		}
+
+		$scopeNamesToApply = [];
+		if ($scopeName)
+		{
+			$scopeNamesToApply[] = $scopeName;
+		}
+		else
+		{
+			if ($config->hasOnAdd())
+			{
+				$scopeNamesToApply[] = self::getScopeNameOnAdd($config->getModuleIdFromCategory(), $config->getEntityTypeId());
+			}
+			if ($config->hasOnUpdate())
+			{
+				$scopeNamesToApply[] = self::getScopeNameOnUpdate($config->getModuleIdFromCategory(), $config->getEntityTypeId());
+			}
+		}
+		$scopeNamesToApply = array_unique($scopeNamesToApply);
+
+		$userId = !is_null($config->getUserId()) ? $config->getUserId() : false;
+
+		foreach ($scopeNamesToApply as $scopeNameToApply)
+		{
+			CUserOptions::SetOption($config->getCategoryName(), $scopeNameToApply, $value, false, $userId);
 		}
 	}
 
@@ -424,31 +488,96 @@ class Scope
 		]);
 	}
 
-	public function updateScopeName(int $id, string $name): UpdateResult
+	public function updateScope(int $scopeId, array $fields): UpdateResult
 	{
-		return EntityFormConfigTable::update($id, [
-			'NAME' => $name,
-		]);
-	}
-
-	/**
-	 * @param int $configId
-	 * @param array $accessCodes
-	 * @return array
-	 */
-	public function updateScopeAccessCodes(int $configId, array $accessCodes = []): array
-	{
-		$this->removeScopeMembers($configId);
-
-		foreach ($accessCodes as $ac => $type)
+		$scopeObject = EntityFormConfigTable::getById($scopeId)->fetchObject();
+		if (!$scopeObject)
 		{
-			EntityFormConfigAcTable::add([
-				'ACCESS_CODE' => $ac,
-				'CONFIG_ID' => $configId,
-			]);
+			return (new UpdateResult())->addError(new Error('Configuration not found'));
 		}
 
-		return $this->getScopeMembers($configId);
+		$oldScopeName = $this->getScopeName(EntityEditorConfigDto::fromEntityFormConfig($scopeObject));
+
+		$canUseOnAddOunUpdateSegregation = ScopeAccess::getInstance($scopeObject->getCategory())->canUseOnAddOnUpdateSegregation();
+		if (isset($fields['ON_ADD']) && !$canUseOnAddOunUpdateSegregation)
+		{
+			$fields['ON_ADD'] = 'Y';
+		}
+		if (isset($fields['ON_UPDATE']) && !$canUseOnAddOunUpdateSegregation)
+		{
+			$fields['ON_UPDATE'] = 'Y';
+		}
+
+		$result =  EntityFormConfigTable::update($scopeId, $fields);
+
+		$optionCategory = $scopeObject->getOptionCategory();
+
+		$newScopeName = $this->getScopeName(
+			new EntityEditorConfigDto(
+				$optionCategory,
+				$scopeObject->getEntityTypeId(),
+				EntityEditorConfigScope::CUSTOM,
+				$scopeObject->getId(),
+				null,
+				$fields['ON_ADD'] === 'Y',
+				$fields['ON_UPDATE'] === 'Y',
+			),
+		);
+
+		if ($fields['AUTO_APPLY_SCOPE'] === 'Y')
+		{
+			Application::getInstance()->addBackgroundJob(static function() use ($scopeId, $optionCategory, $oldScopeName, $newScopeName) {
+				if ($oldScopeName !== $newScopeName)
+				{
+					Scope::getInstance()->removeUsersScopeOptions($scopeId, $optionCategory, $oldScopeName);
+				}
+				Scope::getInstance()->setScopeForEligibleUsers($scopeId);
+			});
+		}
+
+		return $result;
+	}
+
+	public function updateScopeAccessCodes(int $configId, array $accessCodes = []): array
+	{
+		$scopeObject = EntityFormConfigTable::getById($configId)->fetchObject();
+
+		if (!$scopeObject)
+		{
+			return [];
+		}
+
+		$this->removeScopeMembers($configId);
+		$this->addAccessCodes($configId, $accessCodes);
+
+		$scopeMembers = $this->getScopeMembers($configId);
+		if ($scopeObject->getAutoApplyScope())
+		{
+			Application::getInstance()->addBackgroundJob(
+				static fn() => Scope::getInstance()->setScopeByAccessCodes(
+					EntityEditorConfigDto::fromEntityFormConfig($scopeObject),
+					array_keys($accessCodes),
+				),
+			);
+		}
+
+		return $scopeMembers;
+	}
+
+	public function addAccessCodes(int $configId, array $accessCodes): Result
+	{
+		$accessCodeCollection = EntityFormConfigAcTable::createCollection();
+		foreach ($accessCodes as $accessCode => $type)
+		{
+			$accessCodeItem = EntityFormConfigAcTable::createObject()
+				->setAccessCode($accessCode)
+				->setConfigId($configId)
+			;
+
+			$accessCodeCollection->add($accessCodeItem);
+		}
+
+		return $accessCodeCollection->save(true);
 	}
 
 	/**
@@ -471,6 +600,7 @@ class Scope
 				$result[$accessCodeEntity['ACCESS_CODE']] = $member->getMetaData();
 			}
 		}
+
 		return $result;
 	}
 
@@ -487,51 +617,43 @@ class Scope
 		$connection->query(sprintf(
 			'DELETE FROM %s WHERE %s',
 			$connection->getSqlHelper()->quote($entity->getDBTableName()),
-			Query::buildFilterSql($entity, $filter)
+			Query::buildFilterSql($entity, $filter),
 		));
 	}
 
-	public function updateScopeAutoApplyScope(int $id, bool $autoApplyScope): UpdateResult
-	{
-		return EntityFormConfigTable::update($id, [
-			'AUTO_APPLY_SCOPE' => $autoApplyScope ? 'Y' : 'N',
-		]);
-	}
-
-	private function setScopeToDepartment(
-		string $categoryName,
-		string $guid,
-		string $scope,
-		int $userScopeId,
-		int $departmentId
-	): void
+	private function setScopeToDepartment(EntityEditorConfigDto $config, int $departmentId): void
 	{
 		$userIds = $this->getUserIdsByDepartment($departmentId);
 		foreach ($userIds as $userId)
 		{
-			$this->setScopeToUser($categoryName, $guid, $scope, $userScopeId, $userId);
+			$config->setUserId($userId);
+			$this->setScopeToUser($config);
 		}
 	}
 
-	private function setScopeToSocialGroup(
-		string $categoryName,
-		string $guid,
-		string $scope,
-		int $userScopeId,
-		int $socialGroupId
-	): void
+	private function setScopeToSocialGroup(EntityEditorConfigDto $config, int $socialGroupId): void
 	{
 		$userIds = $this->getUserIdsBySocialGroup($socialGroupId);
 		foreach ($userIds as $userId)
 		{
-			$this->setScopeToUser($categoryName, $guid, $scope, $userScopeId, $userId);
+			$config->setUserId($userId);
+			$this->setScopeToUser($config);
+		}
+	}
+
+	private function setScopeToStructureDepartment(EntityEditorConfigDto $config, mixed $structureDepartmentId): void
+	{
+		$userIds = $this->getUserIdsByStructureDepartment($structureDepartmentId);
+		foreach ($userIds as $userId)
+		{
+			$config->setUserId($userId);
+			$this->setScopeToUser($config);
 		}
 	}
 
 	public static function handleMemberAddedToDepartment(Event $event): void
 	{
-		Application::getInstance()->addBackgroundJob(static function() use ($event)
-		{
+		Application::getInstance()->addBackgroundJob(static function() use ($event) {
 			$member = $event->getParameter('member');
 
 			$memberId = $member->entityId;
@@ -539,28 +661,13 @@ class Scope
 			$scopeType = EntityEditorConfigScope::CUSTOM;
 			$scopes = Scope::getInstance()->getScopesByDepartment($departmentId, true);
 
-			$appliedEntities = [];
-			foreach ($scopes as $scope)
-			{
-				if (!in_array($scope->getEntityTypeId(), $appliedEntities))
-				{
-					$appliedEntities[] = $scope->getEntityTypeId();
-					Scope::getInstance()->setScopeToUser(
-						$scope->getOptionCategory(),
-						$scope->getEntityTypeId(),
-						$scopeType,
-						$scope->getId(),
-						$memberId
-					);
-				}
-			}
+			self::applyScopesToMember($scopes, $scopeType, $memberId);
 		});
 	}
 
 	public static function handleMemberAddedToSocialGroup(int $id, array $fields): void
 	{
-		Application::getInstance()->addBackgroundJob(static function() use ($id, $fields)
-		{
+		Application::getInstance()->addBackgroundJob(static function() use ($id, $fields) {
 			if (!\Bitrix\Main\Loader::includeModule('socialnetwork'))
 			{
 				return;
@@ -592,21 +699,7 @@ class Scope
 			$scopeType = EntityEditorConfigScope::CUSTOM;
 			$scopes = Scope::getInstance()->getScopesBySocialGroupId($socialGroupId, true);
 
-			$appliedEntities = [];
-			foreach ($scopes as $scope)
-			{
-				if (!in_array($scope->getEntityTypeId(), $appliedEntities))
-				{
-					$appliedEntities[] = $scope->getEntityTypeId();
-					Scope::getInstance()->setScopeToUser(
-						$scope->getOptionCategory(),
-						$scope->getEntityTypeId(),
-						$scopeType,
-						$scope->getId(),
-						$memberId
-					);
-				}
-			}
+			self::applyScopesToMember($scopes, $scopeType, $memberId);
 		});
 	}
 
@@ -649,37 +742,33 @@ class Scope
 			->setSelect(['ACCESS_CODE', 'CONFIG'])
 			->setFilter($filter)
 			->setOrder(['CONFIG.ID' => 'DESC'])
-			->fetchCollection();
+			->fetchCollection()
+		;
 
 		return $scopes->getConfigList();
 	}
 
 	public function setScopeForEligibleUsers(int $scopeId): void
 	{
-		$scope = EntityFormConfigTable::getById($scopeId)->fetchObject();
+		$scopeObject = EntityFormConfigTable::getById($scopeId)->fetchObject();
 
-		if (!$scope)
+		if (!$scopeObject)
 		{
 			return;
 		}
 
 		$accessCodes = $this->getScopeAccessCodesByScopeId($scopeId);
 
-		$this->setScopeByAccessCodes(
-			$scope->getOptionCategory(),
-			$scope->getEntityTypeId(),
-			EntityEditorConfigScope::CUSTOM,
-			$scopeId,
-			$accessCodes
-		);
+		$this->setScopeByAccessCodes(EntityEditorConfigDto::fromEntityFormConfig($scopeObject), $accessCodes);
 	}
 
-	private function getScopeAccessCodesByScopeId(int $scopeId): array
+	public function getScopeAccessCodesByScopeId(int $scopeId): array
 	{
 		$accessCodes = EntityFormConfigAcTable::query()
 			->setSelect(['ACCESS_CODE'])
 			->setFilter(['=CONFIG_ID' => $scopeId])
-			->fetchCollection();
+			->fetchCollection()
+		;
 		$result = [];
 		foreach ($accessCodes as $code)
 		{
@@ -689,49 +778,56 @@ class Scope
 		return $result;
 	}
 
-	private function setScopeByAccessCodes(
-		string $categoryName,
-		string $entityTypeId,
-		string $scope,
-		int    $scopeId,
-		array  $accessCodes
-	): void
+	public static function getScopeNameOnAdd(string $moduleId, string $entityTypeId): string
 	{
-		$userIdPattern = '/^U(\d+)$/';
-		$departmentIdPattern = '/^DR(\d+)$/';
-		$socialGroupIdPattern = '/^SG(\d+)$/';
+		return self::getScopeNameWithSuffix($moduleId, $entityTypeId, '_on_add');
+	}
+
+	public static function getScopeNameOnUpdate(string $moduleId, string $entityTypeId): string
+	{
+		return self::getScopeNameWithSuffix($moduleId, $entityTypeId, '_on_update');
+	}
+
+	private static function getScopeNameWithSuffix(string $moduleId, string $entityTypeId, string $suffix): string
+	{
+		$scopeName = $entityTypeId . '_scope';
+
+		try
+		{
+			if (!ScopeAccess::getInstance($moduleId)->canUseOnAddOnUpdateSegregation())
+			{
+				return $scopeName;
+			}
+		}
+		catch (ObjectNotFoundException $e)
+		{
+			return $scopeName;
+		}
+
+		return $scopeName . $suffix;
+	}
+
+	private function setScopeByAccessCodes(EntityEditorConfigDto $config, array $accessCodes): void
+	{
 		foreach ($accessCodes as $accessCode)
 		{
 			$matches = [];
-			if (preg_match($userIdPattern, $accessCode, $matches))
+			if (preg_match('/'. AccessCode::AC_USER . '/', $accessCode, $matches))
 			{
-				$this->setScopeToUser(
-					$categoryName,
-					$entityTypeId,
-					$scope,
-					$scopeId,
-					$matches[1]
-				);
+				$config->setUserId($matches[2]);
+				$this->setScopeToUser($config);
 			}
-			elseif (preg_match($departmentIdPattern, $accessCode, $matches))
+			elseif (preg_match('/'. AccessCode::AC_ALL_DEPARTMENT . '/', $accessCode, $matches))
 			{
-				$this->setScopeToDepartment(
-					$categoryName,
-					$entityTypeId,
-					$scope,
-					$scopeId,
-					$matches[1]
-				);
+				$this->setScopeToDepartment($config, $matches[2]);
 			}
-			elseif (preg_match($socialGroupIdPattern, $accessCode, $matches))
+			elseif (preg_match('/'. AccessCode::AC_SOCNETGROUP . '/', $accessCode, $matches))
 			{
-				$this->setScopeToSocialGroup(
-					$categoryName,
-					$entityTypeId,
-					$scope,
-					$scopeId,
-					$matches[1]
-				);
+				$this->setScopeToSocialGroup($config, $matches[2]);
+			}
+			elseif (preg_match('/'. AccessCode::AC_ALL_STRUCTURE_DEPARTMENT . '/', $accessCode, $matches))
+			{
+				$this->setScopeToStructureDepartment($config, $matches[2]);
 			}
 		}
 	}
@@ -743,7 +839,6 @@ class Scope
 			return [];
 		}
 
-
 		$userCollection = UserToGroupTable::query()
 			->setSelect(['USER_ID'])
 			->setFilter([
@@ -752,9 +847,10 @@ class Scope
 					UserToGroupTable::ROLE_MODERATOR,
 					UserToGroupTable::ROLE_USER,
 					UserToGroupTable::ROLE_OWNER,
-				]
+				],
 			])
-			->fetchCollection();
+			->fetchCollection()
+		;
 
 		$userIds = [];
 		foreach ($userCollection as $user)
@@ -767,14 +863,24 @@ class Scope
 
 	private function getUserIdsByDepartment(int $departmentId): array
 	{
+		return $this->getUserIdsByAccessCode($departmentId, 'DR');
+	}
+
+	private function getUserIdsByStructureDepartment(int $departmentId): array
+	{
+		return $this->getUserIdsByAccessCode($departmentId, 'SNDR');
+	}
+
+	private function getUserIdsByAccessCode(int $departmentId, string $code): array
+	{
 		$userIds = [];
-		if (!\Bitrix\Main\Loader::includeModule('humanresources'))
+		if (!\Bitrix\Main\Loader::includeModule('humanresources') || !in_array($code, ['DR', 'SNDR'], true))
 		{
 			return $userIds;
 		}
 
 		$hrServiceLocator = Container::instance();
-		$accessCode = 'DR' . $departmentId;
+		$accessCode = $code . $departmentId;
 		$node = $hrServiceLocator::getNodeRepository()->getByAccessCode($accessCode);
 		if (!$node)
 		{
@@ -788,5 +894,208 @@ class Scope
 		}
 
 		return $userIds;
+	}
+
+	private function getCurrentUserAccessCodes(): array
+	{
+		return CAccess::GetUserCodesArray($this->userId);
+	}
+
+	private static function applyScopesToMember(array $scopes, string $scopeType, $memberId): void
+	{
+		$appliedEntities = [];
+		/** @var EO_EntityFormConfig $scope */
+		foreach ($scopes as $scope)
+		{
+			if (in_array($scope->getEntityTypeId(), $appliedEntities, true))
+			{
+				continue;
+			}
+
+			$appliedEntities[] = $scope->getEntityTypeId();
+			self::getInstance()->setScopeToUser(
+				new EntityEditorConfigDto(
+					$scope->getOptionCategory(),
+					$scope->getEntityTypeId(),
+					$scopeType,
+					$scope->getId(),
+					$memberId,
+					$scope->getOnAdd(),
+					$scope->getOnUpdate(),
+				),
+			);
+		}
+	}
+
+	private function getScopeName(EntityEditorConfigDto $config): string
+	{
+		$scopeName = "{$config->getEntityTypeId()}_scope";
+
+		if ($config->hasOnAdd() && !$config->hasOnUpdate())
+		{
+			return self::getScopeNameOnAdd($config->getModuleIdFromCategory(), $config->getEntityTypeId());
+		}
+
+		if (!$config->hasOnAdd() && $config->hasOnUpdate())
+		{
+			return self::getScopeNameOnUpdate($config->getModuleIdFromCategory(), $config->getEntityTypeId());
+		}
+
+		if (!$config->hasOnAdd() && !$config->hasOnUpdate())
+		{
+			return "{$scopeName}_disabled";
+		}
+
+		return $scopeName;
+	}
+
+	private function removeUsersScopeOptions(int $configId, string $optionCategory, string $scopeName): void
+	{
+		$accessCodes = $this->getScopeAccessCodesByScopeId($configId);
+
+		$userIds = [];
+		foreach ($accessCodes as $accessCode)
+		{
+			$matches = [];
+			if (preg_match(AccessCode::AC_USER, $accessCode, $matches))
+			{
+				$userIds = [$matches[1]];
+			}
+			elseif (preg_match(AccessCode::AC_ALL_DEPARTMENT, $accessCode, $matches))
+			{
+				$userIds = $this->getUserIdsByDepartment($matches[1]);
+			}
+			elseif (preg_match(AccessCode::AC_SOCNETGROUP, $accessCode, $matches))
+			{
+				$userIds = $this->getUserIdsBySocialGroup($matches[1]);
+			}
+			elseif (preg_match(AccessCode::AC_ALL_STRUCTURE_DEPARTMENT, $accessCode, $matches))
+			{
+				$userIds = $this->getUserIdsByStructureDepartment($matches[1]);
+			}
+		}
+
+		foreach ($userIds as $userId)
+		{
+			CUserOptions::DeleteOption($optionCategory, $scopeName, false, $userId);
+		}
+	}
+
+	public function copyScope(int $scopeId, string $entityTypeId): null|int|array
+	{
+		$scope = $this->getById($scopeId);
+		if (!$scope)
+		{
+			return null;
+		}
+
+		$name = Loc::getMessage('UI_ENTITY_FORM_SCOPE_COPY', ['#NAME#' => $scope['NAME']]);
+
+		$params = [
+			'common' => $scope['COMMON'],
+			'forceSetToUsers' => $scope['AUTO_APPLY_SCOPE'],
+			'categoryName' => $scope['OPTION_CATEGORY'],
+			'availableOnAdd' => $scope['ON_ADD'],
+			'availableOnUpdate' => $scope['ON_UPDATE'],
+		];
+
+		$accessCodes = $this->getScopeAccessCodesByScopeId($scopeId);
+
+		$newAccessCodes = [];
+		foreach ($accessCodes as $code)
+		{
+			$newAccessCodes[] = $this->unpackAccessCode($code);
+		}
+
+		return $this->setScopeConfig(
+			$scope['CATEGORY'],
+			$entityTypeId,
+			$name,
+			$newAccessCodes,
+			$scope['CONFIG'],
+			$params,
+		);
+	}
+
+	private function unpackAccessCode(string $accessCode): ?array
+	{
+		if (str_starts_with($accessCode, self::CODE_USER))
+		{
+			return [
+				'entityId' => self::TYPE_USER,
+				'id' => str_replace(self::CODE_USER, '', $accessCode),
+			];
+		}
+		if (str_starts_with($accessCode, self::CODE_PROJECT))
+		{
+			return [
+				'entityId' => self::TYPE_PROJECT,
+				'id' => str_replace(self::CODE_PROJECT, '', $accessCode),
+			];
+		}
+		if (str_starts_with($accessCode, self::CODE_DEPARTMENT))
+		{
+			return [
+				'entityId' => self::TYPE_DEPARTMENT,
+				'id' => str_replace(self::CODE_DEPARTMENT, '', $accessCode),
+			];
+		}
+		if (str_starts_with($accessCode, self::CODE_STRUCTURE_DEPARTMENT))
+		{
+			return [
+				'entityId' => self::TYPE_STRUCTURE_NODE,
+				'id' => str_replace(self::CODE_STRUCTURE_DEPARTMENT, '', $accessCode),
+			];
+		}
+
+		return null;
+	}
+
+	public function getUserScopesEntityEditor(string $entityTypeId, ?string $moduleId): array
+	{
+		$result = [];
+
+		$isAdminForEntity = $this->isAdminForEntity($entityTypeId, $moduleId);
+
+		$filter = ScopeListFilter::getInstance($moduleId)->prepareEntityEditorFilter($entityTypeId, $isAdminForEntity, $this);
+
+		if (!$isAdminForEntity && empty($filter['@ID']))
+		{
+			return $result;
+		}
+
+		$scopes = EntityFormConfigTable::getList([
+			'select' => [
+				'ID',
+				'ENTITY_TYPE_ID',
+				'NAME',
+				'ACCESS_CODE' => '\Bitrix\Ui\EntityForm\EntityFormConfigAcTable:CONFIG.ACCESS_CODE',
+				'ON_ADD',
+				'ON_UPDATE',
+			],
+			'filter' => $filter,
+		]);
+
+		foreach ($scopes as $scope)
+		{
+			$result[$scope['ID']] = [
+				'NAME' => HtmlFilter::encode($scope['NAME']),
+				'AUTO_APPLY_SCOPE' => $scope['AUTO_APPLY_SCOPE'] ?? null,
+				'ON_ADD' => $scope['ON_ADD'],
+				'ON_UPDATE' => $scope['ON_UPDATE'],
+				'ENTITY_TYPE_ID' => $scope['ENTITY_TYPE_ID'],
+			];
+		}
+
+		return $result;
+	}
+
+	private function isAdminForEntity(string $entityTypeId, ?string $moduleId = null): bool
+	{
+		return $moduleId
+			&& (
+				($scopeAccess = ScopeAccess::getInstance($moduleId, $this->userId))
+				&& $scopeAccess->isAdminForEntityTypeId($entityTypeId)
+			);
 	}
 }

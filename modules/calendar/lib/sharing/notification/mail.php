@@ -15,7 +15,12 @@ class Mail extends Service
 
 	/**
 	 * @param string $to
+	 *
 	 * @return bool
+	 *
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
 	public function notifyAboutMeetingStatus(string $to): bool
 	{
@@ -23,6 +28,7 @@ class Mail extends Service
 		{
 			Sharing\SharingEventManager::setCanceledTimeOnSharedLink($this->event->getId());
 			Sharing\SharingEventManager::reSaveEventWithoutAttendeesExceptHostAndSharingLinkOwner($this->eventLink);
+
 			return $this->notifyAboutMeetingCancelled($to);
 		}
 
@@ -62,32 +68,44 @@ class Mail extends Service
 
 	public function notifyAboutMeetingCancelled(string $to): bool
 	{
+		if ($this->initiatorId === $this->eventLink->getHostId())
+		{
+			return false;
+		}
+
 		Sharing\Helper::setSiteLanguage();
 
-		$ownerName = $this->getOwner()['NAME'];
+		$ownerInfo = $this->getOwner();
+		$ownerName = (string)($ownerInfo['NAME'] ?? '');
 
-		$gender = $this->getOwner()['GENDER'];
-		$subject = Loc::getMessage('EC_CALENDAR_SHARING_MAIL_SUBJECT_CANCELLED', ['#NAME#' => $ownerName]);
-		if ($gender === 'M')
-		{
-			$subject = Loc::getMessage('EC_CALENDAR_SHARING_MAIL_SUBJECT_CANCELLED_M', ['#NAME#' => $ownerName]);
-		}
-		if ($gender === 'F')
-		{
-			$subject = Loc::getMessage('EC_CALENDAR_SHARING_MAIL_SUBJECT_CANCELLED_F', ['#NAME#' => $ownerName]);
-		}
+		$initiatorInfo = $this->getInitiator();
+		$initiatorName = (string)($initiatorInfo['NAME'] ?? '');
 
-		$mailParams = $this->getBaseMailParams($ownerName);
-
-		$arParams = [
+		$baseMailParams = $this->getBaseMailParams($ownerName);
+		$mailParams = [
 			'STATUS' => self::MEETING_STATUS_CANCELLED,
 			'CALENDAR_LINK' => $this->getCalendarLink(),
-			'WHO_CANCELLED' => $ownerName,
+			'WHO_CANCELLED' => $initiatorName,
 			'WHEN_CANCELLED' => $this->getWhenCancelled(),
 		];
-		$arParams = array_merge($arParams, $mailParams);
+		$mailParams = array_merge($mailParams, $baseMailParams);
 
-		return $this->sendMessage($to, $arParams, $subject);
+		$subject = $this->getCancelMeetingSubject($initiatorInfo);
+
+		return $this->sendMessage($to, $mailParams, $subject);
+	}
+
+	protected function getCancelMeetingSubject(array $initiatorInfo): string
+	{
+		$initiatorName = (string)($initiatorInfo['NAME'] ?? '');
+		$initiatorGender = (string)($initiatorInfo['GENDER'] ?? '');
+
+		if ($initiatorGender === 'F')
+		{
+			return Loc::getMessage('EC_CALENDAR_SHARING_MAIL_SUBJECT_CANCELLED_F', ['#NAME#' => $initiatorName]);
+		}
+
+		return Loc::getMessage('EC_CALENDAR_SHARING_MAIL_SUBJECT_CANCELLED_M', ['#NAME#' => $initiatorName]);
 	}
 
 	public function sendInviteLink(string $to): bool

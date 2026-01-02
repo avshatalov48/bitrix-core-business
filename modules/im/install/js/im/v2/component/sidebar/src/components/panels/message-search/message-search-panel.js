@@ -1,11 +1,11 @@
 import { Runtime } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
 import { Logger } from 'im.v2.lib.logger';
 import { EventType, SidebarDetailBlock } from 'im.v2.const';
-import { Loader } from 'im.v2.component.elements';
-import { EventEmitter } from 'main.core.events';
-import { MessageSearch } from '../../../classes/panels/search/message-search';
+import { Loader } from 'im.v2.component.elements.loader';
 
+import { MessageSearch } from '../../../classes/panels/search/message-search';
 import { SearchItem } from './search-item';
 import { SearchHeader } from './search-header';
 import { DateGroup } from '../../elements/date-group/date-group';

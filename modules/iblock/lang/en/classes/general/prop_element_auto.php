@@ -31,4 +31,4 @@ $MESS["BT_UT_EAUTOCOMPLETE_SETTING_TITLE"] = "Autocomplete Parameters";
 $MESS["BT_UT_EAUTOCOMPLETE_SETTING_VIEW"] = "UI Controls";
 $MESS["BT_UT_EAUTOCOMPLETE_VIEW_AUTO"] = "Autocomplete Text Box";
 $MESS["BT_UT_EAUTOCOMPLETE_VIEW_ELEMENT"] = "Autocomplete Text Box And Search Window";
-$MESS["BT_UT_EAUTOCOMPLETE_VIEW_TREE"] = "Autocomplete Text Box And List Box";
+$MESS['BT_UT_EAUTOCOMPLETE_VIEW_TREE'] = "Autocomplete Text Box And List Box";

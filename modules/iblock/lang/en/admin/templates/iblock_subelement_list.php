@@ -101,4 +101,4 @@ $MESS["IB_SE_L_GENERATE_ELEMENTS"] = "Generate SKU's";
 $MESS["IB_SE_L_REFRESH_ELEMENTS"] = "Refresh";
 $MESS["IB_SE_L_REFRESH_ELEMENTS_DESCR"] = "Refresh the SKU list";
 $MESS["IB_SE_L_REQUIRED_FIELDS_FIND"] = "SKU Generator cannot execute because there are information block fields that are set to be required. Make those fields optional to proceed.";
-$MESS["IB_SE_L_SHOW_PRICES_AFTER_COPY"] = "Please save the duplicated product before editing the SKU's.";
+$MESS['IB_SE_L_SHOW_PRICES_AFTER_COPY'] = "Please save the duplicated product before editing the SKU's.";

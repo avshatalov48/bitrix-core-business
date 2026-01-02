@@ -1,4 +1,5 @@
-import {MessengerPopup} from 'im.v2.component.elements';
+import {MessengerPopup} from 'im.v2.component.elements.popup';
+
 import {MarketShowMorePopupContent} from './market-show-more-popup-content';
 
 import '../../css/market-apps-panel/market-show-more-popup.css';

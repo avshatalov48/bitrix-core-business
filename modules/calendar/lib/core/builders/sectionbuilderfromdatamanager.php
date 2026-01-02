@@ -201,6 +201,12 @@ class SectionBuilderFromDataManager implements Builder
 			return false;
 		}
 
-		return (bool)Collab\Collabs::getInstance()->getCollabIfExists($this->getOwner()->getId());
+		$groupId = $this->getOwner()?->getId();
+		if (!$groupId)
+		{
+			return false;
+		}
+
+		return (bool)Collab\Collabs::getInstance()->getCollabIfExists($groupId);
 	}
 }

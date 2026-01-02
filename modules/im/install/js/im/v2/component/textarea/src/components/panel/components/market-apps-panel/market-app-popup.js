@@ -1,44 +1,45 @@
-import {Runtime} from 'main.core';
+import { Runtime } from 'main.core';
 
-import {MessengerPopup, Spinner, SpinnerSize} from 'im.v2.component.elements';
-import {MarketManager} from 'im.v2.lib.market';
+import { Spinner, SpinnerSize } from 'im.v2.component.elements.loader';
+import { MessengerPopup} from 'im.v2.component.elements.popup';
+import { MarketManager } from 'im.v2.lib.market';
 
 import '../../css/market-apps-panel/market-app-popup.css';
 
-import type {PopupOptions} from 'main.popup';
+import type { PopupOptions } from 'main.popup';
 
 // @vue/component
 export const MarketAppPopup = {
 	name: 'MarketAppPopup',
-	components: {MessengerPopup, Spinner},
+	components: { MessengerPopup, Spinner },
 	props:
 	{
 		bindElement: {
 			type: Object,
-			required: true
+			required: true,
 		},
 		entityId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		width: {
 			type: Number,
-			required: true
+			required: true,
 		},
 		height: {
 			type: Number,
-			required: true
+			required: true,
 		},
 		dialogId: {
 			type: String,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['close'],
 	data() {
 		return {
 			isLoading: true,
-			handleResult: true
+			handleResult: true,
 		};
 	},
 	computed:
@@ -51,13 +52,13 @@ export const MarketAppPopup = {
 				height: this.height,
 				bindElement: this.bindElement,
 				bindOptions: {
-					position: 'top'
+					position: 'top',
 				},
 				offsetTop: 0,
 				offsetLeft: 0,
-				padding: 0
+				padding: 0,
 			};
-		}
+		},
 	},
 	created()
 	{
@@ -81,7 +82,7 @@ export const MarketAppPopup = {
 		{
 			this.handleResult = false;
 			this.$emit('close');
-		}
+		},
 	},
 	template: `
 		<MessengerPopup
@@ -96,5 +97,5 @@ export const MarketAppPopup = {
 				<div ref="im-messenger-textarea-placement" class="bx-im-market-app-popup__placement-container"></div>
 			</div>
 		</MessengerPopup>
-	`
+	`,
 };

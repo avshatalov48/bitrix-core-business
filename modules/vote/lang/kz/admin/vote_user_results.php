@@ -1,0 +1,23 @@
+<?php
+$MESS["VOTE_CHANNEL"] = "Топ:";
+$MESS["VOTE_DATE"] = "Күні:";
+$MESS["VOTE_EDIT_USER"] = "Пайдаланушы профайлы";
+$MESS["VOTE_END_DATE"] = "Аяқталу күні:";
+$MESS["VOTE_ENLARGE"] = "Үлкейту";
+$MESS["VOTE_F_IP"] = "IP-мекенжай:";
+$MESS["VOTE_GUEST"] = "Келуші:";
+$MESS["VOTE_NOT_AUTHORIZED"] = "авторландырылмаған";
+$MESS["VOTE_NOT_FOUND"] = "Сауалнама табылмады";
+$MESS["VOTE_PAGE_TITLE"] = "# #ID# дауыс беру";
+$MESS["VOTE_PARAMS"] = "Параметрлер";
+$MESS["VOTE_PARAMS_TITE"] = "Параметрлерді баптау";
+$MESS["VOTE_RESULTS_LIST"] = "Сауалнама нәтижелері";
+$MESS["VOTE_RESULT_NOT_FOUND"] = "Дауыс беру нәтижесі табылмады";
+$MESS["VOTE_SESSION"] = "Сессия:";
+$MESS["VOTE_START_DATE"] = "Басталу күні:";
+$MESS["VOTE_USER_LIST"] = "Келушілер тізімі";
+$MESS["VOTE_VALID"] = "Жарамды:";
+$MESS["VOTE_VOTE"] = "Сауалнама:";
+$MESS["VOTE_VOTES"] = "Жалпы дауыстар саны:";
+$MESS["VOTE_VOTE_IS_ACTIVE"] = "Сауалнама <b>белсенді</b>";
+$MESS["VOTE_VOTE_IS_NOT_ACTIVE"] = "Сауалнама белсенсіз";

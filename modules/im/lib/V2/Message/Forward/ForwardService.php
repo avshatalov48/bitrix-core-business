@@ -5,6 +5,7 @@ namespace Bitrix\Im\V2\Message\Forward;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Entity\File\FileItem;
+use Bitrix\Im\V2\Entity\File\ParamCollection;
 use Bitrix\Im\V2\Integration\AI\RoleManager;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\MessageCollection;
@@ -142,16 +143,19 @@ class ForwardService
 		if ($forwardingMessage->getParams()->isSet(Message\Params::FILE_ID))
 		{
 			$newFileIds = [];
+			$copyFileMap = [];
 			foreach ($forwardingMessage->getFiles() as $file)
 			{
 				$copy = $file->getCopyToChat($this->toChat);
 				if ($copy instanceof FileItem)
 				{
 					$newFileIds[] = $copy->getId();
+					$copyFileMap[$file->getId()] = $copy->getId();
 					$diskFiles[] = $copy->getDiskFile();
 				}
 			}
 
+			ParamCollection::copyParams($copyFileMap);
 			$newParams[Message\Params::FILE_ID] = $newFileIds;
 		}
 

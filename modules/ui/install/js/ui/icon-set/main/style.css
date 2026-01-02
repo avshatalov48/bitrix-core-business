@@ -1,5 +1,3 @@
-@import "../icon-base.css";
-
 .ui-icon-set,
 .ui-icon-set__scope {
 	--ui-icon-set__path_person-location: url('/bitrix/js/ui/icon-set/main/images/person-location.svg');
@@ -68,6 +66,7 @@
 	--ui-icon-set__path_warning-circle: url('/bitrix/js/ui/icon-set/main/images/warning-circle.svg');
 	--ui-icon-set__path_info-circle: url('/bitrix/js/ui/icon-set/main/images/info-circle.svg');
 	--ui-icon-set__path_warning: url('/bitrix/js/ui/icon-set/main/images/warning.svg');
+	--ui-icon-set__path_warning-alarm: url('/bitrix/js/ui/icon-set/main/images/warning-alarm.svg');
 	--ui-icon-set__path_info: url('/bitrix/js/ui/icon-set/main/images/info.svg');
 	--ui-icon-set__path_help: url('/bitrix/js/ui/icon-set/main/images/help.svg');
 	--ui-icon-set__path_sms: url('/bitrix/js/ui/icon-set/main/images/sms.svg');
@@ -205,6 +204,7 @@
 	--ui-icon-set__path_b-24: url('/bitrix/js/ui/icon-set/main/images/b-24.svg');
 	--ui-icon-set__path_tag: url('/bitrix/js/ui/icon-set/main/images/tag.svg');
 	--ui-icon-set__path_speaker-mouthpiece: url('/bitrix/js/ui/icon-set/main/images/speaker-mouthpiece.svg');
+	--ui-icon-set__path_speaker-mouthpiece-plus: url('/bitrix/js/ui/icon-set/main/images/speaker-mouthpiece-plus.svg');
 	--ui-icon-set__path_opened-eye: url('/bitrix/js/ui/icon-set/main/images/opened-eye.svg');
 	--ui-icon-set__path_crossed-eye: url('/bitrix/js/ui/icon-set/main/images/crossed-eye.svg');
 	--ui-icon-set__path_links-3: url('/bitrix/js/ui/icon-set/main/images/links-3.svg');
@@ -780,6 +780,10 @@
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_warning);
 }
 
+.ui-icon-set.--warning-alarm {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_warning-alarm);
+}
+
 .ui-icon-set.--info {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_info);
 }
@@ -1322,6 +1326,10 @@
 
 .ui-icon-set.--speaker-mouthpiece {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_speaker-mouthpiece);
+}
+
+.ui-icon-set.--speaker-mouthpiece-plus {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_speaker-mouthpiece-plus);
 }
 
 .ui-icon-set.--opened-eye {

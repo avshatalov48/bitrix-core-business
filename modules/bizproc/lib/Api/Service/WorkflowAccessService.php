@@ -75,6 +75,16 @@ class WorkflowAccessService
 		);
 	}
 
+	public function canCreateWorkflow(array $complexDocumentType, int $userId, array $parameters = []): bool
+	{
+		return \CBPDocument::CanUserOperateDocumentType(
+			\CBPCanUserOperateOperation::CreateWorkflow,
+			$userId,
+			$complexDocumentType,
+			$parameters
+		);
+	}
+
 	public static function getViewAccessDeniedError(): \Bitrix\Bizproc\Error
 	{
 		return new \Bitrix\Bizproc\Error(Loc::getMessage(

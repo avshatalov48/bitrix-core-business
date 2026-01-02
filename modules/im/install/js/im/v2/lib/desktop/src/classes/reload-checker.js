@@ -1,9 +1,11 @@
 import { CallManager } from 'im.v2.lib.call';
+import { DesktopManager } from 'im.v2.lib.desktop';
 import { Logger } from 'im.v2.lib.logger';
 import { Utils } from 'im.v2.lib.utils';
 import { DesktopApi } from 'im.v2.lib.desktop-api';
 
 import { CheckUtils } from './check-utils';
+import { DesktopDataUpdater } from '../helpers/data-updater';
 
 const ONE_HOUR = 60 * 60 * 1000;
 
@@ -27,10 +29,20 @@ export class ReloadChecker
 	{
 		setInterval(async () => {
 			const isReloadNeeded = await this.#isReloadNeeded();
-			if (isReloadNeeded)
+
+			if (!isReloadNeeded)
 			{
-				this.#reloadWindow();
+				return;
 			}
+
+			if (!DesktopManager.getInstance().canReloadWindow())
+			{
+				await DesktopDataUpdater.reloadChatInfo();
+
+				return;
+			}
+
+			this.#reloadWindow();
 		}, ONE_HOUR);
 	}
 

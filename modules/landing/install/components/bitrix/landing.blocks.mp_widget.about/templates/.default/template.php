@@ -20,6 +20,9 @@ if (isset($arResult['BOSS']['LINK']))
 {
 	$bossLinkHrefAttr = 'href="' . $arResult['BOSS']['LINK'] . '"';
 }
+
+$text = \htmlspecialcharsbx($arResult['TEXT']);
+$text = str_replace('#TAG_BR#', '<br>', $text);
 ?>
 
 <div class="landing-widget-about" id="<?= $id ?>">
@@ -27,7 +30,7 @@ if (isset($arResult['BOSS']['LINK']))
 		<div class="landing-widget-about-top">
 			<div class="landing-widget-about-title"><?= \htmlspecialcharsbx($arResult['TITLE']) ?></div>
 			<div class="landing-widget-about-info">
-				<?= \htmlspecialcharsbx($arResult['TEXT']) ?>
+				<?= $text ?>
 			</div>
 		</div>
 		<div class="landing-widget-about-bottom">
@@ -96,7 +99,7 @@ if (isset($arResult['BOSS']['LINK']))
 			</div>
 		</div>
 		<div class="landing-widget-about-info">
-			<?= \htmlspecialcharsbx($arResult['TEXT']) ?>
+			<?= $text ?>
 		</div>
 		<div class="landing-widget-about-bottom">
 			<div class="landing-widget-about-bottom-inner">

@@ -9,15 +9,16 @@ use Bitrix\Calendar\Core\Section\Section;
 use Bitrix\Calendar\Core\Section\SectionMap;
 use Bitrix\Calendar\Internals\EO_SectionConnection;
 use Bitrix\Calendar\Internals\EventConnectionTable;
+use Bitrix\Calendar\Integration\Dav\ConnectionProvider;
 use Bitrix\Calendar\Internals\SectionConnectionTable;
 use Bitrix\Calendar\Sync\Builders\BuilderEventConnectionFromDM;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Connection\Server;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Util\Context;
-use Bitrix\Dav\Internals\DavConnectionTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Loader;
+use Bitrix\Main\LoaderException;
 use Bitrix\Main\ObjectException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM\Query\Query;
@@ -113,15 +114,11 @@ class FactoriesCollection extends Collection
 	 * @throws ArgumentException
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
-	 * @throws \Bitrix\Main\LoaderException
+	 * @throws LoaderException
 	 */
 	public static function createByUserId(int $userId, array $availableService = []): FactoriesCollection
 	{
 		$collection = [];
-		if (!Loader::includeModule('dav'))
-		{
-			return new self($collection);
-		}
 
 		if (!$availableService)
 		{
@@ -132,20 +129,19 @@ class FactoriesCollection extends Collection
 			];
 		}
 
-		$sectionConnection = DavConnectionTable::query()
-			->setSelect(['*'])
-			->where('ENTITY_ID', $userId)
-			->where('ENTITY_TYPE', 'user')
-			->where('IS_DELETED', 'N')
-			->whereIn('ACCOUNT_TYPE', $availableService)
-			->exec()
-		;
+		$connectionProvider = new ConnectionProvider();
+
+		$connections = $connectionProvider->getActiveConnections($userId, 'user', $availableService);
+
+		if (empty($connections))
+		{
+			return new self($collection);
+		}
+
 		$context = new Context([]);
 
-		while ($connectionDM = $sectionConnection->fetchObject())
+		foreach ($connections as $connection)
 		{
-			$connection = (new Sync\Builders\BuilderConnectionFromDM($connectionDM))->build();
-
 			$collection[] = FactoryBuilder::create(
 				$connection->getVendor()->getCode(),
 				$connection,
@@ -164,15 +160,24 @@ class FactoriesCollection extends Collection
 	 * @throws ArgumentException
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
-	 * @throws \Bitrix\Main\LoaderException
+	 * @throws LoaderException
 	 */
-	public static function createBySection(Section $section): FactoriesCollection
+	public static function createBySection(Section $section, array $availableServices = []): FactoriesCollection
 	{
 		$collection = [];
 
 		if (!Loader::includeModule('dav'))
 		{
 			return new self($collection);
+		}
+
+		if (!$availableServices)
+		{
+			$availableServices = [
+				Sync\Google\Factory::SERVICE_NAME,
+				Sync\Icloud\Factory::SERVICE_NAME,
+				Sync\Office365\Factory::SERVICE_NAME,
+			];
 		}
 
 		$links = SectionConnectionTable::query()
@@ -182,11 +187,7 @@ class FactoriesCollection extends Collection
 			])
 			->where('SECTION_ID', $section->getId())
 			->where('CONNECTION.IS_DELETED', 'N')
-			->whereIn('CONNECTION.ACCOUNT_TYPE', [
-				Sync\Google\Factory::SERVICE_NAME,
-				Sync\Icloud\Factory::SERVICE_NAME,
-				Sync\Office365\Factory::SERVICE_NAME,
-			])
+			->whereIn('CONNECTION.ACCOUNT_TYPE', $availableServices)
 			->exec()
 		;
 

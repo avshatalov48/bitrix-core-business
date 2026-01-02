@@ -25,3 +25,5 @@ if($arResult["OPTIONS"]["theme"] <> '')
 {
 	$APPLICATION->SetAdditionalCSS($templateFolder.'/themes/'.$arResult["OPTIONS"]["theme"].'/style.css');
 }
+
+\Bitrix\Main\UI\Extension::load('intranet.old-interface.form');

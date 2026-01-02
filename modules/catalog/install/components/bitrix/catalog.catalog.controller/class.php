@@ -1,22 +1,26 @@
 <?php
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
+use Bitrix\Catalog;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
-use Bitrix\Main;
-use Bitrix\Main\Grid\Export\ExcelExporter;
-use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Catalog;
 use Bitrix\Catalog\Url\InventoryBuilder;
 use Bitrix\Crm;
 use Bitrix\Iblock;
+use Bitrix\Main;
+use Bitrix\Main\ErrorableImplementation;
+use Bitrix\Main\Grid\Export\ExcelExporter;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
-class CatalogCatalogControllerComponent extends CBitrixComponent implements Main\Errorable
+class CatalogCatalogControllerComponent extends CBitrixComponent
 {
+	use ErrorableImplementation;
+
 	private const PAGE_INDEX = 'index';
 	private const PAGE_LIST = 'list';
 	private const PAGE_SECTION_LIST = 'section_list';
@@ -31,13 +35,11 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 	protected $errorCollection;
 
 	/** @var int */
-	protected $iblockId;
-	/** @var array */
-	protected $iblock;
+	protected int $iblockId;
 	/** @var string */
-	protected $iblockListMode;
+	protected string $iblockListMode;
 	/** @var bool */
-	protected $iblockListMixed;
+	protected bool $iblockListMixed;
 
 	/** @var string */
 	protected $pageId;
@@ -45,9 +47,9 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 	/** @var Crm\Product\Url\ProductBuilder */
 	protected $urlBuilder;
 
-	private $isIframe = false;
+	private bool $isIframe = false;
 
-	protected $config = [];
+	protected array $config = [];
 
 	/**
 	 * Base constructor.
@@ -83,8 +85,6 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 			$arParams['PATH_TO'] = [];
 		}
 
-
-
 		return parent::onPrepareComponentParams($arParams);
 	}
 
@@ -94,31 +94,6 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 	public function onIncludeComponentLang(): void
 	{
 		$this->includeComponentLang('class.php');
-	}
-
-	/**
-	 * @param string $code
-	 * @return Main\Error|null
-	 */
-	public function getErrorByCode($code)
-	{
-		return $this->errorCollection->getErrorByCode($code);
-	}
-
-	/**
-	 * @return Main\Error[]
-	 */
-	public function getErrors()
-	{
-		return $this->errorCollection->toArray();
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isExistErrors(): bool
-	{
-		return !$this->errorCollection->isEmpty();
 	}
 
 	/**
@@ -150,9 +125,10 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 	public function executeComponent()
 	{
 		$this->checkModules();
-		if ($this->isExistErrors())
+		if ($this->hasErrors())
 		{
 			$this->showErrors();
+
 			return;
 		}
 		if (!$this->checkInventoryManagementToolAvailability())
@@ -162,31 +138,31 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 			return;
 		}
 		$this->checkAccess();
-		if ($this->isExistErrors())
+		if ($this->hasErrors())
 		{
 			$this->includeComponentTemplate(self::PAGE_ERROR);
 
 			return;
 		}
 		$this->initConfig();
-		if ($this->isExistErrors())
+		if ($this->hasErrors())
 		{
 			$this->showErrors();
 
 			return;
 		}
 		$this->initUrlBuilder();
-		if ($this->isExistErrors())
+		if ($this->hasErrors())
 		{
 			$this->showErrors();
 
 			return;
 		}
 		$this->parseComponentVariables();
-		if ($this->isExistErrors())
+		if ($this->hasErrors())
 		{
 			$this->showErrors();
-			
+
 			return;
 		}
 		$this->initUiScope();
@@ -241,16 +217,27 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 		if ($iblockId === null)
 		{
 			$this->addErrorMessage(Loc::getMessage('CATALOG_CATALOG_CONTROLLER_ERR_CATALOG_PRODUCT_ABSENT'));
+
 			return;
 		}
-		$iblock = \CIBlock::GetArrayByID($iblockId);
-		if (empty($iblock) || !is_array($iblock))
+		$iblock = Iblock\IblockTable::getRow([
+			'select' => [
+				'ID',
+			],
+			'filter' => [
+				'=ID' => $iblockId,
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		]);
+		if ($iblock === null)
 		{
 			$this->addErrorMessage(Loc::getMessage('CATALOG_CATALOG_CONTROLLER_ERR_CATALOG_PRODUCT_ABSENT'));
+
 			return;
 		}
 		$this->iblockId = $iblockId;
-		$this->iblock = $iblock;
 		$this->isIframe = $this->request->get('IFRAME') === 'Y' && $this->request->get('IFRAME_TYPE') === 'SIDE_SLIDER';
 		$this->config['UI_CATALOG'] = Catalog\Config\State::isProductCardSliderEnabled();
 	}

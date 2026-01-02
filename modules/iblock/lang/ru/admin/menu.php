@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_MENU_ITYPE"] = "Типы инфоблоков";
 $MESS["IBLOCK_MENU_EXPORT"] = "Экспорт";
 $MESS["IBLOCK_MENU_EXPORT_ALT"] = "Экспорт данных в формат CSV";
@@ -18,4 +18,3 @@ $MESS["IBLOCK_MENU_ADMIN_TOOLS"] = "Инструменты";
 $MESS["IBLOCK_MENU_ADMIN_TOOLS_TITLE"] = "Инструменты";
 $MESS["IBLOCK_MENU_ADMIN_TOOLS_REDIRECT_IBLOCK_EXT"] = "Перейти к инфоблоку / разделу / элементу";
 $MESS["IBLOCK_MENU_ADMIN_TOOLS_REDIRECT_IBLOCK_TITLE_EXT"] = "Перейти на страницу списка элементов инфоблока / страницу редактирования раздела или элемента инфоблока";
-?>

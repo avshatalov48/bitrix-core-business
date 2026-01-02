@@ -1,0 +1,20 @@
+<?php
+$MESS["IBLOCK_ADM_HISTORY_BAD_ELEMENT"] = "Элемент табылмады немесе оған кіруге тыйым салынады.";
+$MESS["IBLOCK_ADM_HISTORY_BAD_IBLOCK"] = "Ақпараттық блок табылмады немесе оған кіруге тыйым салынды.";
+$MESS["IBLOCK_ADM_HISTORY_COMPARE"] = "Салыстыру";
+$MESS["IBLOCK_ADM_HISTORY_COMPARE_ALERT"] = "Салыстыру үшін екі құжатты таңдау керек.";
+$MESS["IBLOCK_ADM_HISTORY_CONFIRM_DEL"] = "Сіз бұл жазбаны жойғыңыз келетініне сенімдісіз бе?";
+$MESS["IBLOCK_ADM_HISTORY_DELETE"] = "Жою";
+$MESS["IBLOCK_ADM_HISTORY_DELETE_ALT"] = "Жазбаны жою";
+$MESS["IBLOCK_ADM_HISTORY_DELETE_ERROR"] = "# жазбасын жою қатесі";
+$MESS["IBLOCK_ADM_HISTORY_ORIGINAL"] = "Ағымдағы нұсқа";
+$MESS["IBLOCK_ADM_HISTORY_ORIGINAL_TITLE"] = "Элементтің ағымдағы нұсқасын көру үшін басыңыз";
+$MESS["IBLOCK_ADM_HISTORY_PAGER"] = "Жазбалар";
+$MESS["IBLOCK_ADM_HISTORY_RESTORE"] = "Қалпына келтіру";
+$MESS["IBLOCK_ADM_HISTORY_RESTORE_ALT"] = "Жазбаны қалпына келтіру";
+$MESS["IBLOCK_ADM_HISTORY_RESTORE_CONFIRM"] = "Сіз бұл жазбаны қалпына келтіргіңіз келетініне сенімдісіз бе?";
+$MESS["IBLOCK_ADM_HISTORY_RESTORE_ERROR"] = "# жазбасын қалпына келтіру қатесі";
+$MESS["IBLOCK_ADM_HISTORY_TITLE"] = "# #ID# жазбасының өзгерістер тарихы";
+$MESS["IBLOCK_ADM_HISTORY_UPDERR3"] = "Өзгерту қатесі: кіруге тыйым салынады";
+$MESS["IBLOCK_ADM_HISTORY_VIEW"] = "Қарау";
+$MESS['IBLOCK_ADM_HISTORY_VIEW_ALT'] = "Жазбаны қарау";

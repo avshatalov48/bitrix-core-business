@@ -1,19 +1,32 @@
 import { Loc } from 'main.core';
 import { Popup } from 'main.popup';
-
 import type { BaseEvent } from 'main.core.events';
+
+import { BIcon } from 'ui.icon-set.api.vue';
+import { Outline } from 'ui.icon-set.api.core';
+import 'ui.icon-set.outline';
 import type { BitrixVueComponentProps } from 'ui.vue3';
 
 import '../css/insert-into-text-button.css';
 
+// @vue/component
 export const InsertIntoTextButton: BitrixVueComponentProps = {
 	name: 'InsertIntoTextButton',
+	components: {
+		BIcon,
+	},
 	inject: ['emitter'],
 	props: {
 		item: {
 			type: Object,
-			default: {},
+			default: () => {},
 		},
+	},
+	setup(): Object
+	{
+		return {
+			Outline,
+		};
 	},
 	computed: {
 		isInserted(): boolean
@@ -22,11 +35,10 @@ export const InsertIntoTextButton: BitrixVueComponentProps = {
 		},
 	},
 	methods: {
-		click(): void
+		handleClick(): void
 		{
 			this.emitter.emit('onInsertIntoText', { item: this.item });
 		},
-
 		handleMouseEnter(event: MouseEvent): void
 		{
 			if (this.hintPopup)
@@ -42,9 +54,11 @@ export const InsertIntoTextButton: BitrixVueComponentProps = {
 				cacheable: false,
 				animation: 'fading-slide',
 				bindElement: targetNode,
+				targetContainer: document.body,
 				offsetTop: 0,
 				bindOptions: {
 					position: 'top',
+					forceBindPosition: true,
 				},
 				darkMode: true,
 				events: {
@@ -52,8 +66,8 @@ export const InsertIntoTextButton: BitrixVueComponentProps = {
 						this.hintPopup.destroy();
 						this.hintPopup = null;
 					},
-					onShow: (event: BaseEvent): void => {
-						const popup = event.getTarget();
+					onShow: (baseEvent: BaseEvent): void => {
+						const popup = baseEvent.getTarget();
 						const popupWidth = popup.getPopupContainer().offsetWidth;
 						const offsetLeft: number = (targetNodeWidth / 2) - (popupWidth / 2);
 						const angleShift: number = Popup.getOption('angleLeftOffset') - Popup.getOption('angleMinTop');
@@ -66,8 +80,7 @@ export const InsertIntoTextButton: BitrixVueComponentProps = {
 
 			this.hintPopup.show();
 		},
-
-		handleMouseLeave(event: Event): void
+		handleMouseLeave(): void
 		{
 			if (this.hintPopup)
 			{
@@ -76,14 +89,14 @@ export const InsertIntoTextButton: BitrixVueComponentProps = {
 			}
 		},
 	},
-	// language=Vue
 	template: `
-		<div 
+		<BIcon
 			class="ui-tile-uploader-insert-into-text-button"
-			:class="[{ '--inserted': isInserted }]"
-			@mouseenter="handleMouseEnter" 
-			@mouseleave="handleMouseLeave" 
-			@click="click"
-		></div>
+			:class="{ '--inserted': isInserted }"
+			:name="Outline.PROMPT_VAR"
+			@click="handleClick"
+			@mouseenter="handleMouseEnter"
+			@mouseleave="handleMouseLeave"
+		/>
 	`,
 };

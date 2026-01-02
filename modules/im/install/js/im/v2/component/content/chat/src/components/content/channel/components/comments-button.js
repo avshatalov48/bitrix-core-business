@@ -1,38 +1,30 @@
-import '../css/comments-button.css';
-
-import type { JsonObject } from 'main.core';
-import type { ImModelChat } from 'im.v2.model';
+import { FloatButton, FloatButtonIcon, FloatButtonColor } from 'im.v2.component.dialog.chat';
 
 // @vue/component
 export const CommentsButton = {
 	name: 'CommentsButton',
+	components: {
+		FloatButton,
+	},
 	props:
 	{
-		dialogId: {
-			type: String,
-			required: true,
-		},
 		counter: {
 			type: Number,
 			required: true,
 		},
 	},
-	data(): JsonObject
-	{
-		return {};
-	},
 	computed:
 	{
-		dialog(): ImModelChat
+		floatButtonProps(): { icon: string, color: string, counter: number }
 		{
-			return this.$store.getters['chats/get'](this.dialogId, true);
+			return {
+				icon: FloatButtonIcon.comment,
+				color: FloatButtonColor.success,
+				counter: this.counter,
+			};
 		},
 	},
 	template: `
-		<div class="bx-im-dialog-channel__comments-button">
-			<div class="bx-im-dialog-channel__comments-button_counter">
-				{{ counter }}
-			</div>
-		</div>
+		<FloatButton v-bind="floatButtonProps" />
 	`,
 };

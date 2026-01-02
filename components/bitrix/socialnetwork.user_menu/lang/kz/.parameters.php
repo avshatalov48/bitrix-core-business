@@ -1,0 +1,23 @@
+<?php
+$MESS["SONET_ID"] = "Пайдаланушы идентификаторы";
+$MESS["SONET_PAGE_VAR"] = "Парақша үшін айнымалының атауы";
+$MESS["SONET_PATH_TO_MESSAGES_INPUT"] = "Кіріс хабарламалары парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_MESSAGE_FORM"] = "Хабарламаларды жіберу парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_SEARCH"] = "Пайдаланушыларды іздеу парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER"] = "Пайдаланушы парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER_BLOG"] = "Пайдаланушы блогының парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER_CALENDAR"] = "Пайдаланушының күнтізбе парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER_EDIT"] = "Пайдаланушы бетін редакциялауға жол қалыбы";
+$MESS["SONET_PATH_TO_USER_FILES"] = "Пайдаланушы файлдарының парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER_FORUM"] = "Пайдаланушы форумының парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER_FRIENDS"] = "Пайдаланушының достар парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER_FRIENDS_ADD"] = "Достарға қосу парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER_FRIENDS_DELETE"] = "Достардан жою парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER_GROUPS"] = "Пайдаланушы топтары парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER_GROUPS_ADD"] = "Топтарды қосу парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER_PHOTO"] = "Пайдаланушының фотосурет парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER_TASKS"] = "Пайдаланушының тапсырмалар парақшасына жол қалыбы";
+$MESS["SONET_USER_PROPERTY_CONTACT"] = "Пайдаланушының байланыс ақпаратына арналған қосымша қасиеттер";
+$MESS["SONET_USER_PROPERTY_MAIN"] = "Пайдаланушының негізгі қосымша қасиеттері";
+$MESS["SONET_USER_PROPERTY_PERSONAL"] = "Пайдаланушыдағы жеке қосымша қасиеттер";
+$MESS["SONET_USER_VAR"] = "Пайдаланушы үшін айнымалының атауы";

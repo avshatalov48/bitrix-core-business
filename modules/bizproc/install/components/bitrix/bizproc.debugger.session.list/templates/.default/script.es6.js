@@ -45,11 +45,23 @@ class DebuggerSessionList
 	renameSession(sessionId: string): void
 	{
 		const grid = this.getGrid();
+		if (!grid)
+		{
+			return;
+		}
 
-		grid.getRows().getById(sessionId)?.select();
-		grid.getActionsPanel().getPanel().querySelector('#grid_edit_button > .edit').click();
-		grid.enableActionsPanel();
-		grid.getPinPanel().pinPanel(true);
+		const editButton = grid.getActionsPanel().getButtons()
+			.find((button) => {
+				return button.id === 'grid_edit_button_control';
+			});
+
+		if (editButton)
+		{
+			grid.getRows().getById(sessionId)?.select();
+			editButton.click();
+			grid.enableActionsPanel();
+			grid.getPinPanel().pinPanel(true);
+		}
 	}
 
 	deleteChosenSessions(): void

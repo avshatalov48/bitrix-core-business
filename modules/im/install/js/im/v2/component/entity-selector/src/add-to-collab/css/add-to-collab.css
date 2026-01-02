@@ -2,7 +2,7 @@
 	--im-add-to-collab__color_popup-title: var(--im-color-palette-black-base);
 	--im-add-to-collab__color_show-history: var(--im-color-palette-gray-90);
 	--im-add-to-collab__background-color_content: var(--im-color-collab-20);
-	--im-add-to-collab__background-color_icon: var(--im-color-palette-white-base);
+	--im-add-to-collab__background-color_icon: var(--im-color-collab-20);
 	--im-add-to-collab__background-color_invite-block: var(--im-color-palette-white-base);
 	--im-add-to-collab__color_copy-link-title: var(--im-color-palette-black-base);
 	--im-add-to-collab__background-color_description-title: var(--im-color-palette-black-solid);
@@ -13,6 +13,8 @@
 	--im-add-to-collab__text-decoration-color_helpdesk-link: rgba(var(--im-color-collab-70-rgb), 0.4);
 	--im-add-to-collab__text-decoration-color_helpdesk-link-hover: rgba(var(--im-color-collab-80-rgb), 0.4);
 	--im-add-to-collab__background-color_scroll: rgba(var(--im-color-palette-gray-90-rgb), 0.2);
+	--im-add-to-collab__color_invite-language-block: var(--im-color-palette-gray-50);
+	--im-add-to-collab__border-color_selected-language-title: rgba(var(--im-color-palette-gray-50-rgb), 0.28);
 
 	width: 400px;
 	height: 512px;
@@ -77,19 +79,17 @@
 
 .bx-im-add-to-collab__description {
 	display: flex;
-	align-items: center;
-	gap: 28px;
+	gap: 20px;
 	padding: 6px 12px 4px 16px;
 	margin-bottom: 22px;
 }
 
 .bx-im-add-to-collab__description_icon {
-	width: 62px;
-	height: 62px;
+	width: 82px;
+	height: 82px;
 	border-radius: var(--im-border-radius-2xl);
 	flex-shrink: 0;
 	background: var(--im-add-to-collab__background-color_icon) url('./images/collab-icon.svg') center;
-	box-shadow: 0 0 48px 0 rgba(var(--im-color-palette-white-base-rgb), 0.42), 0 1px 2px 0 rgba(var(--im-color-palette-black-solid-rgb), 0.05);
 }
 
 .bx-im-add-to-collab__description_content {
@@ -106,6 +106,7 @@
 
 .bx-im-add-to-collab__description_text {
 	font-size: var(--im-font-size-md);
+	line-height: 16px;
 	color: var(--im-add-to-collab__background-color_description-text);
 }
 
@@ -136,6 +137,7 @@
 }
 
 .bx-im-add-to-collab__helpdesk-link {
+	width: fit-content;
 	color: var(--im-add-to-collab__color_helpdesk-link);
 	text-decoration: underline dashed var(--im-add-to-collab__text-decoration-color_helpdesk-link);
 	text-underline-offset: 3px;
@@ -176,6 +178,88 @@
 	cursor: not-allowed;
 }
 
+/* region Invite language selector */
+
+.im-add-to-collab__invite-language-section_hint {
+	margin-left: 25px;
+}
+
+.bx-im-add-to-collab__invite-language-section {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+
+	margin: 22px 16px;
+
+	font-weight: var(--im-font-weight-normal);
+	font-size: var(--im-font-size-md);
+	color: var(--im-add-to-collab__color_invite-language-block);
+}
+
+.bx-im-add-to-collab__invite-language-section_title {
+	height: 19px;
+}
+
+.bx-im-add-to-collab__invite-language-section_language-selector {
+	border-radius: var(--ui-border-radius-xs);
+	padding-right: 2px !important;
+	margin-top: 7px;
+}
+
+.bx-im-add-to-collab__invite-language-section_language-selector .popup-window-content {
+	scrollbar-width: auto;
+}
+
+.bx-im-add-to-collab__invite-language-section_language-selector .popup-window-content::-webkit-scrollbar {
+	width: 4px;
+	height: 191px;
+}
+
+.bx-im-add-to-collab__invite-language-section_language-selector .popup-window-content::-webkit-scrollbar-button {
+	display: none;
+}
+
+.bx-im-add-to-collab__invite-language-section_language-selector .popup-window-content::-webkit-scrollbar-track {
+	background: rgba(var(--im-color-palette-gray-50-rgb), 0.1);
+	border-radius: 32px;
+}
+
+.bx-im-add-to-collab__invite-language-section_language-selector .popup-window-content::-webkit-scrollbar-thumb {
+	background: var(--im-color-palette-gray-50);
+	border-radius: 32px;
+}
+
+.bx-im-add-to-collab__language-selector_item:not(.menu-popup-item-accept) {
+	padding-left: 5px;
+}
+
+.bx-im-add-to-collab__invite-language-section_selected-language-block {
+	display: flex;
+	align-items: center;
+
+	cursor: pointer;
+}
+
+.bx-im-add-to-collab__selected-language-block_title {
+	height: 19px;
+	padding-bottom: 1px;
+	border-bottom: 1px dashed var(--im-add-to-collab__border-color_selected-language-title);
+}
+
+.bx-im-add-to-collab__selected-language-block_arrow {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	background: url('./images/arrow.svg') no-repeat center;
+	transition: transform 0.2s ease;
+	transform: rotate(0deg);
+}
+
+.bx-im-add-to-collab__selected-language-block_arrow.--open {
+	transform: rotate(180deg);
+}
+
+/* end region Invite language selector */
 /* region Scrollbar */
 
 .bx-im-add-to-collab__scope *::-webkit-scrollbar {

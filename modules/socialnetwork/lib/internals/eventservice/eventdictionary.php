@@ -22,7 +22,9 @@ class EventDictionary
 		EVENT_WORKGROUP_FAVORITES_CHANGED = 'onWorkgroupFavoritesChanged',
 		EVENT_WORKGROUP_PIN_CHANGED = 'onWorkgroupPinChanged',
 		EVENT_WORKGROUP_MEMBER_REQUEST_CONFIRM = 'onWorkgroupMemberRequestConfirm',
-		EVENT_WORKGROUP_SUBSCRIBE_CHANGED = 'onWorkgroupSubscribeChanged';
+		EVENT_WORKGROUP_SUBSCRIBE_CHANGED = 'onWorkgroupSubscribeChanged',
+		EVENT_WORKGROUP_CONVERT = 'onWorkgroupConvert'
+	;
 
 	public const
 		EVENT_SPACE_TASKS_COMMON = 'onSpaceTaskCommonEvent',
@@ -98,5 +100,6 @@ class EventDictionary
 		self::EVENT_WORKGROUP_PIN_CHANGED,
 		self::EVENT_WORKGROUP_MEMBER_REQUEST_CONFIRM,
 		self::EVENT_WORKGROUP_SUBSCRIBE_CHANGED,
+		self::EVENT_WORKGROUP_CONVERT,
 	];
 }

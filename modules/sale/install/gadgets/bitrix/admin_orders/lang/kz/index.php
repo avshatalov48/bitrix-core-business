@@ -1,0 +1,27 @@
+<?php
+$MESS["GD_ORDERS_ALL_ORDERS"] = "Барлық тапсырыстар";
+$MESS["GD_ORDERS_BEFORELASTMONTH"] = "Алдыңғы айда:";
+$MESS["GD_ORDERS_BEFORELASTWEEK"] = "Алдыңғы аптада:";
+$MESS["GD_ORDERS_BEFOREYESTERDAY"] = "Алдыңғы күні:";
+$MESS["GD_ORDERS_LASTMONTH"] = "Өткен айда:";
+$MESS["GD_ORDERS_LASTWEEK"] = "Өткен аптада:";
+$MESS["GD_ORDERS_NO"] = "Жоқ";
+$MESS["GD_ORDERS_NO_DATA"] = "Деректер жоқ.";
+$MESS["GD_ORDERS_ORDER_1"] = "Тапсырыс №";
+$MESS["GD_ORDERS_ORDER_ALLOW_DELIVERY"] = "Жеткізілімге";
+$MESS["GD_ORDERS_ORDER_CANCELED"] = "Жойылды";
+$MESS["GD_ORDERS_ORDER_ID"] = "ID";
+$MESS["GD_ORDERS_ORDER_PAID"] = "Төленген";
+$MESS["GD_ORDERS_ORDER_SUM"] = "Сома";
+$MESS["GD_ORDERS_ORDER_USER"] = "Сатып алушы";
+$MESS["GD_ORDERS_STATUS_1_ALLOW_DELIVERY"] = "Жеткізілімге";
+$MESS["GD_ORDERS_STATUS_1_CANCELED"] = "Жойылды";
+$MESS["GD_ORDERS_STATUS_1_CREATED"] = "Жасалды";
+$MESS["GD_ORDERS_STATUS_1_PAID"] = "Төленді";
+$MESS["GD_ORDERS_TAB_ORDERS"] = "Тапсырыстар";
+$MESS["GD_ORDERS_TAB_STATS"] = "Статистика";
+$MESS["GD_ORDERS_THISMONTH"] = "Осы айда:";
+$MESS["GD_ORDERS_THISWEEK"] = "Осы аптада:";
+$MESS["GD_ORDERS_TODAY"] = "Бүгін:";
+$MESS["GD_ORDERS_YES"] = "Иә";
+$MESS["GD_ORDERS_YESTERDAY"] = "Кеше:";

@@ -1,19 +1,18 @@
 <section class="landing-block g-pt-30 g-pb-30">
 	<div class="container">
 		<div class="text-uppercase text-center g-mb-70">
-			<h6 class="landing-block-node-title d-inline-block g-letter-spacing-0_5 g-font-weight-700 u-heading-v2-8-2--bottom g-brd-primary g-pb-8 g-mb-20">
+			<h6 class="landing-block-node-title d-inline-block g-letter-spacing-0_5 g-font-weight-700 u-heading-v2-8-2--bottom g-pb-8 g-mb-20 g-color g-border-color" style="--border-color: var(--primary);">
 				Our offers
 			</h6>
-			<div class="landing-block-node-text text-uppercase g-letter-spacing-3 mb-0">
-				<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor.
-					Vivamus a fringilla lorem, vel faucibus ante.</p>
+			<div class="landing-block-node-text text-uppercase g-letter-spacing-3 mb-0 g-color">
+				<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 			</div>
 		</div>
 
 		<div class="row landing-block-inner">
 			<div class="landing-block-node-card col-md-6 col-lg-4 g-mb-30">
 				<!-- Article -->
-				<article class="landing-block-node-card-container js-animation fadeInRight text-center g-theme-photography-bg-gray-dark-v2 g-color-white-opacity-0_5">
+				<article class="landing-block-node-card-container js-animation fadeInRight text-center g-theme-photography-bg-gray-dark-v2 g-color-white-opacity-0_5 g-height-100x d-flex flex-column">
 					<!-- Article Image -->
 					<img class="landing-block-node-card-img w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/370x200/img1.jpg"
 						 alt="">
@@ -31,7 +30,7 @@
 						</div>
 					</header>
 
-					<div class="landing-block-node-card-price g-font-weight-700 d-block g-color-white g-font-size-26 g-letter-spacing-5 text-uppercase">
+					<div class="landing-block-node-card-price g-font-weight-700 d-block g-color-white g-font-size-26 g-letter-spacing-5 text-uppercase g-mt-auto">
 						$100.00
 					</div>
 					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0 g-pt-20 text-uppercase">
@@ -60,7 +59,7 @@
 
 			<div class="landing-block-node-card col-md-6 col-lg-4 g-mb-30">
 				<!-- Article -->
-				<article class="landing-block-node-card-container js-animation fadeInRight text-center g-theme-photography-bg-gray-dark-v2 g-color-white-opacity-0_5">
+				<article class="landing-block-node-card-container js-animation fadeInRight text-center g-theme-photography-bg-gray-dark-v2 g-color-white-opacity-0_5 g-height-100x d-flex flex-column">
 					<!-- Article Image -->
 					<img class="landing-block-node-card-img w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/370x200/img2.jpg"
 						 alt="">
@@ -77,7 +76,7 @@
 						</div>
 					</header>
 
-					<div class="landing-block-node-card-price g-font-weight-700 d-block g-color-white g-font-size-26 g-letter-spacing-5 text-uppercase">
+					<div class="landing-block-node-card-price g-font-weight-700 d-block g-color-white g-font-size-26 g-letter-spacing-5 text-uppercase g-mt-auto">
 						$150.00
 					</div>
 					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0 g-pt-20 text-uppercase">
@@ -106,7 +105,7 @@
 
 			<div class="landing-block-node-card col-md-6 col-lg-4 g-mb-30">
 				<!-- Article -->
-				<article class="landing-block-node-card-container js-animation fadeInRight text-center g-theme-photography-bg-gray-dark-v2 g-color-white-opacity-0_5">
+				<article class="landing-block-node-card-container js-animation fadeInRight text-center g-theme-photography-bg-gray-dark-v2 g-color-white-opacity-0_5 g-height-100x d-flex flex-column">
 					<!-- Article Image -->
 					<img class="landing-block-node-card-img w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/370x200/img3.jpg"
 						 alt="">
@@ -124,7 +123,7 @@
 						</div>
 					</header>
 
-					<div class="landing-block-node-card-price g-font-weight-700 d-block g-color-white g-font-size-26 g-letter-spacing-5 text-uppercase">
+					<div class="landing-block-node-card-price g-font-weight-700 d-block g-color-white g-font-size-26 g-letter-spacing-5 text-uppercase g-mt-auto">
 						$200.00
 					</div>
 					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0 g-pt-20 text-uppercase">

@@ -26,6 +26,7 @@ use Bitrix\Socialnetwork\Collab\CollabFeature;
 use Bitrix\Socialnetwork\EO_WorkgroupPin;
 use Bitrix\Socialnetwork\FeatureTable;
 use Bitrix\Socialnetwork\FeaturePermTable;
+use Bitrix\Socialnetwork\Integration\Intranet\Settings;
 use Bitrix\Socialnetwork\Integration\Pull\PushService;
 use Bitrix\Socialnetwork\Integration\Pull;
 use Bitrix\Socialnetwork\WorkgroupPinTable;
@@ -359,7 +360,7 @@ class Workgroup
 		}
 
 		$cacheTTL = 3600 * 24 * 30;
-		$cacheDir = '/sonet/features_perms_v2/' . FeatureTable::FEATURE_ENTITY_TYPE_GROUP . '/list/' . (int)($userId / 1000);
+		$cacheDir = '/sonet/features_perms_v3/' . FeatureTable::FEATURE_ENTITY_TYPE_GROUP . '/list/' . $userId;
 		$cacheId = implode(' ', [ 'entities_list', $feature, $operation, $userId ]);
 
 		$cache = new \CPHPCache();
@@ -395,6 +396,11 @@ class Workgroup
 			)
 			{
 				$query->addFilter('!=CLOSED', 'Y');
+			}
+
+			if (\Bitrix\Socialnetwork\Integration\Extranet\User::isCollaber($userId))
+			{
+				$query->where('TYPE', Item\Workgroup\Type::Collab->value);
 			}
 
 			$query->addSelect('ID');
@@ -1000,7 +1006,7 @@ class Workgroup
 			'select' => ['ID', 'USER_ID'],
 			'filter' => [
 				'GROUP_ID' => $groupId,
-				'ROLE' => UserToGroupTable::ROLE_MODERATOR,
+				'=ROLE' => UserToGroupTable::ROLE_MODERATOR,
 			],
 		]);
 		while ($relation = $relationResult->fetch())
@@ -1749,11 +1755,7 @@ class Workgroup
 
 		if (self::checkEntityOption([ '!scrum' ], $entityOptions))
 		{
-			$isShouldShowCollabPreset = (
-				!($params['isFromFlowCreationForm'] ?? false)
-				&& CollabFeature::isOn()
-			);
-			if ($isShouldShowCollabPreset)
+			if (self::checkEntityOption(['!landing', '!flow'], $entityOptions))
 			{
 				$result['collab'] = [
 					'SORT' => $sort += 10,
@@ -1765,6 +1767,11 @@ class Workgroup
 					'SCRUM_PROJECT' => 'N',
 					'EXTERNAL' => 'Y',
 				];
+
+				if (!CollabFeature::isFeatureEnabledInPortalSettings())
+				{
+					$result['collab']['LIMIT_FEATURE'] = Settings::LIMIT_FEATURES['collab'];
+				}
 			}
 
 			$result['group'] = [
@@ -2314,37 +2321,37 @@ class Workgroup
 
 	public static function getAvatarTypes(): array
 	{
-		return array_merge(self::getDefaultAvatarTypes(), self::getColoredAvatarTypes());
+		return self::getDefaultAvatarTypes();
 	}
 
 	public static function getDefaultAvatarTypes(): array
 	{
 		return [
-			'folder' => [
+			Item\Workgroup\AvatarType::Folder->value => [
 				'sort' => 100,
 				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/folder.png',
 				'webCssClass' => 'folder',
 				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/folder.png',
 			],
-			'checks' => [
+			Item\Workgroup\AvatarType::Checks->value => [
 				'sort' => 200,
 				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/checks.png',
 				'webCssClass' => 'tasks',
 				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/checks.png',
 			],
-			'pie' => [
+			Item\Workgroup\AvatarType::Pie->value => [
 				'sort' => 300,
 				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/pie.png',
 				'webCssClass' => 'chart',
 				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/pie.png',
 			],
-			'bag' => [
+			Item\Workgroup\AvatarType::Bag->value => [
 				'sort' => 400,
 				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/bag.png',
 				'webCssClass' => 'briefcase',
 				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/bag.png',
 			],
-			'members' => [
+			Item\Workgroup\AvatarType::Members->value => [
 				'sort' => 500,
 				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/members.png',
 				'webCssClass' => 'group',

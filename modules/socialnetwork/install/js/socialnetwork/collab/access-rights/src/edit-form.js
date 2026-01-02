@@ -1,5 +1,4 @@
-import { ajax, Event, Loc, Tag, Text, Type } from 'main.core';
-import { BaseEvent, EventEmitter } from 'main.core.events';
+import { ajax, Loc, Type } from 'main.core';
 import { Params } from './access-rights';
 import { Form } from './form';
 
@@ -44,8 +43,9 @@ export class EditForm extends Form
 							},
 						},
 					);
+					const formData = this.#params?.formData ?? {};
 
-					return this.render(this.prepareFormData(data));
+					return this.render({ ...this.prepareFormData(data), ...formData });
 				}
 				catch (e)
 				{

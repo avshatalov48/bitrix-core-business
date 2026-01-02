@@ -1,4 +1,5 @@
 .bx-im-settings-checkbox__container {
+	display: flex;
 	height: 19px;
 }
 

@@ -2,10 +2,12 @@ import { Runtime, Type } from 'main.core';
 import { type ActionTree, BuilderModel, GetterTree, type MutationTree } from 'ui.vue3.vuex';
 import { ServiceLocator } from '../../service/service-locator';
 import { compileAliasKey } from '../../utils';
+import { AccessRightsInternalizer } from './transformation/internalizer/access-rights-internalizer';
 
 export type AccessRightsState = {
 	collection: AccessRightsCollection,
 	searchQuery: string,
+	deleted: Set<string>,
 }
 
 export type AccessRightsCollection = Map<string, AccessRightSection>;
@@ -19,6 +21,7 @@ export type AccessRightSection = {
 	rights: Map<string, AccessRightItem>,
 	isExpanded: boolean,
 	isShown: boolean,
+	action: ?AccessRightSectionAction,
 };
 
 export type AccessRightSectionIcon = {
@@ -26,10 +29,15 @@ export type AccessRightSectionIcon = {
 	bgColor: string, // hex or --ui-color-palette-* variable name
 };
 
+export type AccessRightSectionAction = {
+	buttonText: string,
+};
+
 export type AccessRightItem = {
 	id: string,
 	type: string,
 	title: string,
+	subtitle: ?string,
 	hint: ?string, // hint for row title in the title column
 	group: ?string, // id of parent item id
 	groupHead: boolean,
@@ -52,6 +60,14 @@ export type AccessRightItem = {
 	showAvatars?: boolean,
 	compactView?: boolean,
 	hintTitle: ?string, // title for 'already selected values' hint in multivariable and dependent-variables selector
+	dependentVariablesPopupHint: ?string, // hint in dependent-variables popup under all switchers
+
+	// clickable right with icon
+	iconClass: ?string,
+	isClickable: boolean,
+	isDeletable: boolean,
+	isNew: boolean,
+	isModified: boolean,
 };
 
 export type VariableCollection = Map<string, Variable>;
@@ -68,6 +84,7 @@ export type Variable = {
 	conflictsWith?: Set<string>,
 	requires?: Set<string>,
 	secondary: ?boolean, // switcher color and size for dependent-variables
+	hint: ?string,
 }
 
 export class AccessRightsModel extends BuilderModel
@@ -91,6 +108,7 @@ export class AccessRightsModel extends BuilderModel
 		return {
 			collection: Runtime.clone(this.#initialRights),
 			searchQuery: '',
+			deleted: new Set(),
 		};
 	}
 
@@ -99,6 +117,7 @@ export class AccessRightsModel extends BuilderModel
 		throw new Error('Cant create AccessRightSection. You are doing something wrong');
 	}
 
+	// eslint-disable-next-line max-lines-per-function
 	getGetters(): GetterTree<AccessRightsState>
 	{
 		return {
@@ -198,6 +217,25 @@ export class AccessRightsModel extends BuilderModel
 
 				return item.selectedVariablesAliases.get(key);
 			},
+			isModified: (state): boolean => {
+				if (state.deleted.size > 0)
+				{
+					return true;
+				}
+
+				for (const section: AccessRightSection of state.collection.values())
+				{
+					for (const rightItem: AccessRightItem of section.rights.values())
+					{
+						if (rightItem.isNew || rightItem.isModified)
+						{
+							return true;
+						}
+					}
+				}
+
+				return false;
+			},
 		};
 	}
 
@@ -246,6 +284,95 @@ export class AccessRightsModel extends BuilderModel
 			},
 			search: (store, payload): void => {
 				this.#searchAction(store, payload);
+			},
+			addRight: (store, { sectionCode, right }): void => {
+				if (!store.state.collection.has(sectionCode))
+				{
+					console.warn('ui.accessrights.v2: Adding right to section that doesn`t exists', { sectionCode });
+
+					return;
+				}
+
+				const section: AccessRightSection = store.state.collection.get(sectionCode);
+				if (section)
+				{
+					const internalRight: AccessRightItem = (new AccessRightsInternalizer()).internalizeExternalItem(right);
+					store.commit('expandSection', { sectionCode });
+					store.commit('addRight', { sectionCode, right: internalRight });
+				}
+			},
+			updateRightTitle: (store, { sectionCode, rightId, rightTitle }): void => {
+				if (!store.state.collection.has(sectionCode))
+				{
+					console.warn('ui.accessrights.v2: Updating right in section that doesn`t exists', { sectionCode });
+
+					return;
+				}
+
+				const section: AccessRightSection = store.state.collection.get(sectionCode);
+				if (!section.rights.has(rightId))
+				{
+					console.warn('ui.accessrights.v2: Updating right that doesn`t exists', { rightId });
+
+					return;
+				}
+
+				store.commit('expandSection', { sectionCode });
+				store.commit('setRightTitle', { sectionCode, rightId, title: rightTitle });
+			},
+			updateRightSubtitle: (store, { sectionCode, rightId, rightSubtitle }): void => {
+				if (!store.state.collection.has(sectionCode))
+				{
+					console.warn('ui.accessrights.v2: Updating right in section that doesn`t exists', { sectionCode });
+
+					return;
+				}
+				const section: AccessRightSection = store.state.collection.get(sectionCode);
+				if (!section.rights.has(rightId))
+				{
+					console.warn('ui.accessrights.v2: Updating right that doesn`t exists', { rightId });
+
+					return;
+				}
+
+				store.commit('expandSection', { sectionCode });
+				store.commit('setRightSubtitle', { sectionCode, rightId, subtitle: rightSubtitle });
+			},
+			deleteRight: (store, { sectionCode, rightId }): void => {
+				if (!store.state.collection.has(sectionCode))
+				{
+					console.warn('ui.accessrights.v2: Deleting right in section that doesn`t exists', { sectionCode });
+
+					return;
+				}
+				const section: AccessRightSection = store.state.collection.get(sectionCode);
+				if (!section.rights.has(rightId))
+				{
+					console.warn('ui.accessrights.v2: Deleting right that doesn`t exists', { rightId });
+
+					return;
+				}
+
+				store.commit('expandSection', { sectionCode });
+				store.commit('deleteRight', { sectionCode, rightId });
+			},
+			markRightAsModified: (store, { sectionCode, rightId, isModified }): void => {
+				if (!store.state.collection.has(sectionCode))
+				{
+					console.warn('ui.accessrights.v2: Updating right in section that doesn`t exists', { sectionCode });
+
+					return;
+				}
+				const section: AccessRightSection = store.state.collection.get(sectionCode);
+				if (!section.rights.has(rightId))
+				{
+					console.warn('ui.accessrights.v2: Updating right that doesn`t exists', { rightId });
+
+					return;
+				}
+
+				store.commit('expandSection', { sectionCode });
+				store.commit('markRightAsModified', { sectionCode, rightId, isModified });
 			},
 		};
 	}
@@ -305,9 +432,31 @@ export class AccessRightsModel extends BuilderModel
 		}
 	}
 
+	// eslint-disable-next-line max-lines-per-function
 	getMutations(): MutationTree<AccessRightsState>
 	{
 		return {
+			addRight: (state, { sectionCode, right }): void => {
+				const section = state.collection.get(sectionCode);
+				section.rights.set(right.id, right);
+			},
+			setRightTitle: (state, { sectionCode, rightId, title }): void => {
+				const section = state.collection.get(sectionCode);
+				section.rights.get(rightId).title = title;
+			},
+			setRightSubtitle: (state, { sectionCode, rightId, subtitle }): void => {
+				const section = state.collection.get(sectionCode);
+				section.rights.get(rightId).subtitle = subtitle;
+			},
+			deleteRight: (state, { sectionCode, rightId }): void => {
+				const section: AccessRightSection = state.collection.get(sectionCode);
+				section.rights.delete(rightId);
+				state.deleted.add(rightId);
+			},
+			markRightAsModified: (state, { sectionCode, rightId, isModified }): void => {
+				const section = state.collection.get(sectionCode);
+				section.rights.get(rightId).isModified = isModified;
+			},
 			toggleSection: (state, { sectionCode }): void => {
 				const section = state.collection.get(sectionCode);
 

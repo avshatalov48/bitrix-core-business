@@ -93,7 +93,7 @@ abstract class Stepper
 					$return[] = [
 						"moduleId" => $moduleId,
 						"class" => $classId,
-						"title" => $option["title"],
+						"title" => $option["title"] ?? '',
 						"steps" => $option["steps"],
 						"count" => $option["count"],
 					];

@@ -21,7 +21,13 @@ class CCalendarPlanner
 
 		// Config
 		if (!$config['id'])
-			$config['id'] = (isset($config['id']) && $config['id'] <> '') ? $config['id'] : 'bx_calendar_planner'.mb_substr(uniqid(mt_rand(), true), 0, 4);
+		{
+			$config['id'] = (isset($config['id']) && $config['id'] <> '')
+				? $config['id']
+				: 'bx_calendar_planner'
+				. mb_substr(uniqid(mt_rand(), true), 0, 4)
+			;
+		}
 
 		$APPLICATION->AddHeadScript('/bitrix/js/calendar/planner.js');
 		$APPLICATION->SetAdditionalCSS("/bitrix/js/calendar/planner.css");
@@ -44,7 +50,6 @@ class CCalendarPlanner
 						if (window.CalendarPlanner)
 						{
 							BX.Calendar.PlannerManager.planners[id] = new window.CalendarPlanner(config, initialParams);
-							//BX.Calendar.PlannerManager.planners[id] = new BX.Calendar.Planner(config, initialParams);
 						}
 					}
 				}
@@ -60,10 +65,10 @@ class CCalendarPlanner
 				);
 			});
 		</script>
-		<?
+		<?php
 	}
 
-	public static function prepareData($params = [])
+	public static function prepareData($params = []): array
 	{
 		$parentId = (int)($params['parent_id'] ?? null);
 		$entryId = (int)($params['entry_id'] ?? null);
@@ -154,6 +159,11 @@ class CCalendarPlanner
 
 		$from = $params['date_from'] ?? null;
 		$to = $params['date_to'] ?? null;
+
+		if (empty($from) || empty($to))
+		{
+			return $result;
+		}
 
 		$maxPlannerUsers = \CCalendar::GetMaxPlannerUsers();
 		$dontLoadAccessibility = $maxPlannerUsers > 0 && count($userIds) > $maxPlannerUsers;

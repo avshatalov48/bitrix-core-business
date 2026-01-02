@@ -7,6 +7,9 @@ this.BX.UI.Vue3 = this.BX.UI.Vue3 || {};
 
 	const escape = str => String(str).replaceAll(/[\\^$*+?.()|[\]{}]/g, '\\$&');
 	function getReplacementRegExp(placeholder) {
+	  if (isClosedPlaceholder(placeholder)) {
+	    return new RegExp(escape(placeholder), 'gmi');
+	  }
 	  const closePlaceholder = `${placeholder.slice(0, 1)}/${placeholder.slice(1)}`;
 	  return new RegExp(`${escape(placeholder)}.*?${escape(closePlaceholder)}`, 'gmi');
 	}
@@ -24,7 +27,13 @@ this.BX.UI.Vue3 = this.BX.UI.Vue3 || {};
 	  return items;
 	}
 	function unfoldTemplate(template, placeholder) {
+	  if (isClosedPlaceholder(placeholder)) {
+	    return '';
+	  }
 	  return template.slice(placeholder.length, template.length - placeholder.length - 1);
+	}
+	function isClosedPlaceholder(placeholder) {
+	  return placeholder.at(-2) === '/';
 	}
 
 	function makeRichLocChildren(text, templateItems, context) {
@@ -37,7 +46,7 @@ this.BX.UI.Vue3 = this.BX.UI.Vue3 || {};
 	    }
 	    if (item.index === index) {
 	      const placeholder = item.placeholder;
-	      const slotName = placeholder.slice(1, -1);
+	      const slotName = placeholder.match(/\[(.+?)\/?]/)[1];
 	      if (main_core.Type.isFunction(context.slots[slotName])) {
 	        children.push(context.slots[slotName]({
 	          text: unfoldTemplate(item.template, placeholder)

@@ -93,6 +93,36 @@ class FavoriteCollection extends BaseLinkCollection
 		return $links;
 	}
 
+	public static function getByMessages(MessageCollection $messages): self
+	{
+		$entities = LinkFavoriteTable::query()
+			->setSelect(['ID', 'CHAT_ID', 'AUTHOR_ID', 'DATE_CREATE', 'MESSAGE_ID'])
+			->whereIn('MESSAGE_ID', $messages->getIds())
+			->fetchCollection()
+		;
+
+		if ($entities === null)
+		{
+			return new static();
+		}
+
+		$links = static::initByEntityCollection($entities);
+
+		foreach ($links as $link)
+		{
+			$messageId = $link->getMessageId();
+
+			if (!isset($messageId))
+			{
+				continue;
+			}
+
+			$link->setEntity($messages[$messageId]);
+		}
+
+		return $links;
+	}
+
 	public function getMessageCollection(): MessageCollection
 	{
 		$messageCollection = new MessageCollection();

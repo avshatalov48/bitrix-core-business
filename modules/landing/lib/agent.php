@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Landing;
 
 use Bitrix\Landing\Internals\FileTable;
@@ -36,25 +37,13 @@ class Agent
 			return;
 		}
 
-		$funcName = __CLASS__ . '::' . $funcName . '(';
-		foreach ($params as $value)
-		{
-			if (is_int($value))
-			{
-				$funcName .= $value . ',';
-			}
-			else if (is_string($value))
-			{
-				$funcName .= '\'' . $value . '\'' . ',';
-			}
-		}
-		$funcName = trim($funcName, ',');
-		$funcName .= ');';
+		$funcName = self::createFunctionName($funcName, $params);
+
 		$res = \CAgent::getList(
 			[],
 			[
 				'MODULE_ID' => 'landing',
-				'NAME' => $funcName
+				'NAME' => $funcName,
 			]
 		);
 		if (!$res->fetch())
@@ -77,6 +66,50 @@ class Agent
 	}
 
 	/**
+	 * Tech method for delete existing unique agent.
+	 */
+	public static function deleteUniqueAgent(string $funcName, array $params = []): void
+	{
+		if (!method_exists(__CLASS__, $funcName))
+		{
+			return;
+		}
+
+		$funcName = self::createFunctionName($funcName, $params);
+		$res = \CAgent::getList(
+			[],
+			[
+				'MODULE_ID' => 'landing',
+				'NAME' => $funcName,
+			]
+		);
+		if ($agent = $res->fetch())
+		{
+			\CAgent::Delete((int)$agent['ID']);
+		}
+	}
+
+	private static function createFunctionName(string $funcName, array $params = []): string
+	{
+		$funcName = __CLASS__ . '::' . $funcName . '(';
+		foreach ($params as $value)
+		{
+			if (is_int($value))
+			{
+				$funcName .= $value . ',';
+			}
+			elseif (is_string($value))
+			{
+				$funcName .= '\'' . $value . '\'' . ',';
+			}
+		}
+		$funcName = trim($funcName, ',');
+		$funcName .= ');';
+
+		return $funcName;
+	}
+
+	/**
 	 * Agent to remove one not resolved domain. Removes agent if such domains not exists.
 	 * @return string
 	 */
@@ -87,8 +120,7 @@ class Agent
 		Rights::setGlobalOff();
 
 		// only custom domain
-		$filterDomains = array_map(function($domain)
-		{
+		$filterDomains = array_map(function ($domain) {
 			return '%.' . $domain;
 		}, Domain::B24_DOMAINS);
 		$filterDomains[] = '%' . Manager::getHttpHost();
@@ -96,15 +128,15 @@ class Agent
 		$customDomainExist = false;
 		$resDomain = Domain::getList([
 			'select' => [
-				'ID', 'DOMAIN', 'FAIL_COUNT'
+				'ID', 'DOMAIN', 'FAIL_COUNT',
 			],
 			'filter' => [
-				'!DOMAIN' => $filterDomains
+				'!DOMAIN' => $filterDomains,
 			],
 			'limit' => 5,
 			'order' => [
-				'DATE_MODIFY' => 'asc'
-			]
+				'DATE_MODIFY' => 'asc',
+			],
 		]);
 		while ($domain = $resDomain->fetch())
 		{
@@ -112,7 +144,7 @@ class Agent
 			if (Domain\Register::isDomainActive($domain['DOMAIN']))
 			{
 				Domain::update($domain['ID'], [
-					'FAIL_COUNT' => null
+					'FAIL_COUNT' => null,
 				])->isSuccess();
 			}
 			else
@@ -123,11 +155,11 @@ class Agent
 					// wee need site for randomize domain
 					$resSite = Site::getList([
 						'select' => [
-							'ID', 'DOMAIN_ID', 'DOMAIN_NAME' => 'DOMAIN.DOMAIN'
+							'ID', 'DOMAIN_ID', 'DOMAIN_NAME' => 'DOMAIN.DOMAIN',
 						],
 						'filter' => [
-							'DOMAIN_ID' => $domain['ID']
-						]
+							'DOMAIN_ID' => $domain['ID'],
+						],
 					]);
 					if ($rowSite = $resSite->fetch())
 					{
@@ -144,7 +176,7 @@ class Agent
 				else
 				{
 					Domain::update($domain['ID'], [
-						'FAIL_COUNT' => intval($domain['FAIL_COUNT']) + 1
+						'FAIL_COUNT' => intval($domain['FAIL_COUNT']) + 1,
 					])->isSuccess();
 				}
 			}
@@ -180,17 +212,18 @@ class Agent
 		$folders = [];
 		$res = Folder::getList([
 			'select' => [
-				'ID'
+				'ID',
 			],
 			'filter' => [
-				'PARENT_ID' => $folderId
-			]
+				'PARENT_ID' => $folderId,
+			],
 		]);
 		while ($row = $res->fetch())
 		{
 			$folders[] = $row['ID'];
 			$folders = array_merge($folders, self::getSubFolders($row['ID']));
 		}
+
 		return $folders;
 	}
 
@@ -204,8 +237,8 @@ class Agent
 		Rights::setGlobalOff();
 
 		$days = !is_null($days)
-				? $days
-				: (int) Manager::getOption('deleted_lifetime_days');
+			? $days
+			: (int)Manager::getOption('deleted_lifetime_days');
 
 		$date = new DateTime;
 		$date->add('-' . $days . ' days');
@@ -214,12 +247,12 @@ class Agent
 		$foldersToDelete = [-1];
 		$res = Folder::getList([
 			'select' => [
-				'ID'
+				'ID',
 			],
 			'filter' => [
 				'=DELETED' => 'Y',
-				'<DATE_MODIFY' => $date
-			]
+				'<DATE_MODIFY' => $date,
+			],
 		]);
 		while ($row = $res->fetch())
 		{
@@ -230,30 +263,30 @@ class Agent
 		// first delete landings
 		$res = Landing::getList([
 			'select' => [
-				'ID', 'FOLDER_ID'
+				'ID', 'FOLDER_ID',
 			],
 			'filter' => [
 				[
 					'LOGIC' => 'OR',
 					[
 						'=DELETED' => 'Y',
-						'<DATE_MODIFY' => $date
+						'<DATE_MODIFY' => $date,
 					],
 					[
 						'=SITE.DELETED' => 'Y',
-						'<SITE.DATE_MODIFY' => $date
+						'<SITE.DATE_MODIFY' => $date,
 					],
 					[
-						'FOLDER_ID' => $foldersToDelete
-					]
+						'FOLDER_ID' => $foldersToDelete,
+					],
 				],
 				'=DELETED' => ['Y', 'N'],
 				'=SITE.DELETED' => ['Y', 'N'],
-				'CHECK_PERMISSIONS' => 'N'
+				'CHECK_PERMISSIONS' => 'N',
 			],
 			'order' => [
-				'DATE_MODIFY' => 'desc'
-			]
+				'DATE_MODIFY' => 'desc',
+			],
 		]);
 		while ($row = $res->fetch())
 		{
@@ -273,16 +306,16 @@ class Agent
 		// then delete sites
 		$res = Site::getList([
 			'select' => [
-				'ID'
+				'ID',
 			],
 			'filter' => [
 				'=DELETED' => 'Y',
 				'<DATE_MODIFY' => $date,
-				'CHECK_PERMISSIONS' => 'N'
+				'CHECK_PERMISSIONS' => 'N',
 			],
 			'order' => [
-				'DATE_MODIFY' => 'desc'
-			]
+				'DATE_MODIFY' => 'desc',
+			],
 		]);
 		while ($row = $res->fetch())
 		{
@@ -320,7 +353,7 @@ class Agent
 
 		$newAgentName = __CLASS__ . '::' . __FUNCTION__ . '(' . ($days ?? '') . ');';
 
-		$days = $days ?: (int) Manager::getOption('history_lifetime_days');
+		$days = $days ?: (int)Manager::getOption('history_lifetime_days');
 		$date = new DateTime();
 		$date->add('-' . $days . ' days');
 
@@ -381,18 +414,18 @@ class Agent
 
 		$res = Internals\FileTable::getList([
 			'select' => [
-				'ID', 'FILE_ID'
+				'ID', 'FILE_ID',
 			],
 			'filter' => [
 				'>FILE_ID' => 0,
 				'=TEMP' => 'Y',
-				'<FILE.TIMESTAMP_X' => $dateTime->add('-60 minute')
-			]
+				'<FILE.TIMESTAMP_X' => $dateTime->add('-60 minute'),
+			],
 		]);
 		while ($row = $res->fetch())
 		{
 			Internals\FileTable::update($row['ID'], [
-				'FILE_ID' => -1 * $row['FILE_ID']
+				'FILE_ID' => -1 * $row['FILE_ID'],
 			]);
 		}
 
@@ -541,5 +574,21 @@ class Agent
 		{
 			Manager::clearCacheForSite($landing->getSiteId());
 		}
+	}
+
+	/**
+	 * Run copilot site generation
+	 * @param int $generationId
+	 * @return string
+	 */
+	public static function executeGeneration(int $generationId): string
+	{
+		$generation = new Copilot\Generation();
+		if ($generation->initById($generationId))
+		{
+			$generation->execute();
+		}
+
+		return '';
 	}
 }

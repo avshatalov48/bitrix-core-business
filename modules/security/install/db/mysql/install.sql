@@ -150,8 +150,8 @@ CREATE TABLE IF NOT EXISTS b_sec_xscan_results
 (
     `id` int NOT NULL AUTO_INCREMENT,
     `type` varchar(5) NOT NULL,
-    `src` varchar(255) NOT NULL,
-    `message` varchar(255) NOT NULL,
+    `src` TEXT NOT NULL,
+    `message` TEXT NOT NULL,
     `score` double NOT NULL,
     `mtime` DATETIME NULL,
     `ctime` DATETIME NULL,

@@ -40,7 +40,7 @@ $tagsFieldContainerId = "social-group-copy-group-tags-container";
 $isProject = $arResult["IS_PROJECT"];
 $isExtranet = $arResult["EXTRANET"];
 $isExtranetGroup = $arResult["IS_EXTRANET_GROUP"];
-$isExtranetInstalled = ($arResult["EXTRANET_INSTALLED"] ? "Y" : "N");
+$isAllowCreateExtranetGroup = ($arResult["IS_ALLOW_CREATE_EXTRANET_GROUP"] ? "Y" : "N");
 $isIntranetInstalled = ($arResult["INTRANET_INSTALLED"] ? "Y" : "N");
 $isLandingInstalled = ($arResult["LANDING_INSTALLED"] ? "Y" : "N");
 ?>
@@ -133,7 +133,7 @@ $APPLICATION->includeComponent(
 
 <div id="<?=$tagsFieldContainerId?>" class="<?=$customContainerClass?>">
 <?php
-$tags = explode(",", $arResult["GROUP"]["KEYWORDS"]);
+$tags = explode(",", ($arResult["GROUP"]["KEYWORDS"] ?? ''));
 $tags = array_map(
 	function ($tag)
 	{
@@ -172,7 +172,7 @@ $APPLICATION->includeComponent(
 			isProject: "<?=$isProject?>",
 			isExtranet: "<?=$isExtranet?>",
 			isExtranetGroup: "<?=$isExtranetGroup?>",
-			isExtranetInstalled: "<?=$isExtranetInstalled?>",
+			isAllowCreateExtranetGroup: "<?=$isAllowCreateExtranetGroup?>",
 			isIntranetInstalled: "<?=$isIntranetInstalled?>",
 			groupData: <?=Json::encode($arResult["GROUP"])?>,
 			imageFieldContainerId: "<?=$imageFieldContainerId?>",

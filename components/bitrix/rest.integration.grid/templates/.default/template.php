@@ -11,6 +11,7 @@
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 Loc ::loadMessages(__FILE__);
 
@@ -19,33 +20,23 @@ Loc ::loadMessages(__FILE__);
 	'ui.design-tokens',
 ]);
 
-$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
-$APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : '') . 'pagetitle-toolbar-field-view no-background crm-pagetitle-view');
 if ($arParams['SET_TITLE'])
 {
-	$APPLICATION->SetTitle(Loc::getMessage('REST_INTEGRATION_GRID_PAGE_TITLE'));
+	Toolbar::setTitle(Loc::getMessage('REST_INTEGRATION_GRID_PAGE_TITLE'));
 }
 
+Toolbar::addFilter([
+	'FILTER_ID' => $arParams['FILTER_NAME'],
+	'FILTER' => $arResult['FILTER'],
+	'GRID_ID' => $arParams['GRID_ID'],
+	'ENABLE_LIVE_SEARCH' => false,
+	'ENABLE_LABEL' => true,
+	'RESET_TO_DEFAULT_MODE' => true,
+	'THEME' => 'DEFAULT'
+]);
+Toolbar::deleteFavoriteStar();
+
 ?>
-<div class="filter-integration-grid pagetitle-container pagetitle-flexible-space">
-	<?
-	$APPLICATION->IncludeComponent(
-		'bitrix:main.ui.filter',
-		'',
-		array(
-			'FILTER_ID' => $arParams['FILTER_NAME'],
-			'FILTER' => $arResult['FILTER'],
-			'GRID_ID' => $arParams['GRID_ID'],
-			'ENABLE_LIVE_SEARCH' => false,
-			'ENABLE_LABEL' => true,
-			'RESET_TO_DEFAULT_MODE' => true,
-			'THEME' => 'DEFAULT'
-		),
-		$component,
-		array('HIDE_ICONS' => true)
-	);
-	?>
-</div>
 <div>
 	<? $APPLICATION -> IncludeComponent(
 		'bitrix:main.ui.grid',

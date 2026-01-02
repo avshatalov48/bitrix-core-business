@@ -3,6 +3,7 @@
 namespace Bitrix\Calendar\Sync\Office365;
 
 use Bitrix\Calendar\Core\Base\BaseException;
+use Bitrix\Calendar\Sync\Dictionary;
 use Bitrix\Main;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Entities\SyncEvent;
@@ -30,16 +31,18 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 	}
 
 	/**
-	 * @param Sync\Entities\SyncEventMap $syncEventMap
-	 * @param SyncSectionMap $syncSectionMap
-	 *
-	 * @return Result
-	 *
 	 * @throws BaseException
 	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\LoaderException
+	 * @throws Main\ObjectException
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 * @throws Sync\Exceptions\ApiException
+	 * @throws Sync\Exceptions\AuthException
+	 * @throws Sync\Exceptions\ConflictException
+	 * @throws Sync\Exceptions\NotFoundException
+	 * @throws Sync\Exceptions\RemoteAccountException
 	 */
 	public function export(
 		Sync\Entities\SyncEventMap $syncEventMap,
@@ -54,6 +57,11 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 		/** @var SyncEvent $syncEvent */
 		foreach ($syncEventMap as $syncEvent)
 		{
+			if ($syncEvent->getAction() === Dictionary::SYNC_EVENT_ACTION['delete'])
+			{
+				$this->deleteEvent($syncEvent, $syncSectionMap);
+			}
+
 			if (
 				$syncEvent->getEventConnection()
 				&& ($syncEvent->getEvent()->getVersion() === $syncEvent->getEventConnection()->getVersion())
@@ -101,16 +109,12 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 	}
 
 	/**
-	 * @param SyncEvent $syncEvent
-	 * @param SyncSectionMap $syncSectionMap
-	 *
-	 * @return void
-	 *
-	 * @throws Sync\Exceptions\ApiException
 	 * @throws BaseException
 	 * @throws Main\ArgumentException
+	 * @throws Main\LoaderException
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
+	 * @throws Sync\Exceptions\ApiException
 	 */
 	private function saveSingle(SyncEvent $syncEvent, SyncSectionMap $syncSectionMap)
 	{
@@ -190,14 +194,18 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 	}
 
 	/**
-	 * @param SyncEvent $syncEvent
-	 * @param SyncSectionMap $syncSectionMap
-	 *
-	 * @return void
-	 *
+	 * @throws BaseException
 	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\LoaderException
+	 * @throws Main\ObjectException
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
+	 * @throws Sync\Exceptions\ApiException
+	 * @throws Sync\Exceptions\AuthException
+	 * @throws Sync\Exceptions\ConflictException
+	 * @throws Sync\Exceptions\NotFoundException
+	 * @throws Sync\Exceptions\RemoteAccountException
 	 */
 	private function saveRecurrence(SyncEvent $syncEvent, SyncSectionMap $syncSectionMap)
 	{
@@ -222,6 +230,44 @@ class OutgoingEventManager extends AbstractManager implements OutgoingEventManag
 				$syncEvent,
 				$syncSection->getSectionConnection(),
 				$context
+			);
+		}
+	}
+
+	/**
+	 * @throws BaseException
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\LoaderException
+	 * @throws Sync\Exceptions\ApiException
+	 * @throws Sync\Exceptions\AuthException
+	 * @throws Sync\Exceptions\ConflictException
+	 * @throws Sync\Exceptions\NotFoundException
+	 * @throws Sync\Exceptions\RemoteAccountException
+	 */
+	private function deleteEvent(SyncEvent $syncEvent, SyncSectionMap $syncSectionMap): void
+	{
+		$syncSection = $this->getSyncSection(
+			$syncSectionMap,
+			$syncEvent->getEvent()->getSection()->getId()
+		);
+
+		if (!$syncSection)
+		{
+			return;
+		}
+
+		$context = (new Sync\Util\EventContext())->setSectionConnection($syncSection->getSectionConnection());
+
+		$eventConnection = $syncEvent->getEventConnection();
+
+		if ($eventConnection && $eventConnection->getVendorEventId())
+		{
+			$context->setEventConnection($eventConnection);
+
+			$this->eventManager->delete(
+				$syncEvent->getEvent(),
+				$context,
 			);
 		}
 	}

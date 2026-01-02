@@ -1,0 +1,23 @@
+<?php
+$MESS["SALE_BASE_PRESET_ACTIVE_PERIOD"] = "Белсенділік кезеңі";
+$MESS["SALE_BASE_PRESET_CALENDAR_PERIOD_EMPTY"] = "Шектеусіз";
+$MESS["SALE_BASE_PRESET_CALENDAR_PERIOD_INTERVAL"] = "Аралық";
+$MESS["SALE_BASE_PRESET_DISCOUNT_EDIT_ERR_ADD"] = "Жеңілдік ережесін қосу кезіндегі қате";
+$MESS["SALE_BASE_PRESET_DISCOUNT_EDIT_ERR_UPDATE"] = "Жеңілдік ережесін жаңарту кезіндегі қате";
+$MESS["SALE_BASE_PRESET_DISCOUNT_VALUE_LABEL"] = "Жеңілдік";
+$MESS["SALE_BASE_PRESET_ERROR_EMPTY_LID"] = "Сайт көрсетілмеген";
+$MESS["SALE_BASE_PRESET_ERROR_EMPTY_NAME"] = "Жеңілдіктің атауы көрсетілмеген";
+$MESS["SALE_BASE_PRESET_ERROR_EMPTY_PRIORITY"] = "Қолдану басымдығы көрсетілмеген";
+$MESS["SALE_BASE_PRESET_ERROR_EMPTY_USER_GROUPS"] = "Пайдаланушылар тобы көрсетілмеген";
+$MESS["SALE_BASE_PRESET_FINAL_OK"] = "\"#NAME#\" жеңілдігі сәтті сақталды.";
+$MESS["SALE_BASE_PRESET_LAST_DISCOUNT_LABEL"] = "Ережелерді одан әрі қолдануды тоқтату";
+$MESS["SALE_BASE_PRESET_LAST_LEVEL_DISCOUNT_LABEL"] = "Басымдықтардың ағымдағы деңгейінде жеңілдіктерді қолдануды тоқтату";
+$MESS["SALE_BASE_PRESET_ORDERAMOUNT_FIELD_NAME"] = "Жеңілдік атауы";
+$MESS["SALE_BASE_PRESET_ORDERAMOUNT_FIELD_PRIORITY"] = "Қолдану басымдығы";
+$MESS["SALE_BASE_PRESET_ORDERAMOUNT_FIELD_SORT"] = "Басымдық деңгейінде сұрыптау индексі";
+$MESS["SALE_BASE_PRESET_ORDERAMOUNT_LID"] = "Жеңілдік қолданылатын сайт";
+$MESS["SALE_BASE_PRESET_ORDERAMOUNT_USER_GROUPS"] = "Ереже қолданылатын пайдаланушылар топтары";
+$MESS["SALE_HANDLERS_DISCOUNTPRESET_ERROR_EMPTY_VALUE_MSGVER_1"] = "Жеңілдік көлемі көрсетілмеген";
+$MESS["SHD_BT_SALE_ACT_GROUP_BASKET_SELECT_CUR_ALL"] = "Тауарлардың жалпы сомасына #CUR#";
+$MESS["SHD_BT_SALE_ACT_GROUP_BASKET_SELECT_CUR_EACH"] = "Әр тауарға #CUR#";
+$MESS["SHD_BT_SALE_ACT_GROUP_BASKET_SELECT_PERCENT"] = "%";

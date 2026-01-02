@@ -1,7 +1,11 @@
 <?php
 namespace Bitrix\Report\VisualConstructor;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Report\VisualConstructor\Entity\Widget;
+use Bitrix\UI\Buttons\Button;
+use Bitrix\UI\Buttons\Color;
+use Bitrix\UI\Buttons\Size;
 
 /**
  * Special form class wor widget configurations.
@@ -65,20 +69,33 @@ class WidgetForm extends Form
 
 		$buttonsContainer = new Fields\Div();
 		$buttonsContainer->addClass('report-widget-configuration-form-action-buttons-container');
-		$saveButton = new Fields\Button('widgetSaveConfigurations_' . $widget->getGId());
-		$saveButton->addDataAttribute('type', 'save-button');
-		$saveButton->addClass('ui-btn');
-		$saveButton->addClass('ui-btn-md');
-		$saveButton->addClass('ui-btn-success');
-		$saveButton->setLabel($saveButtonTitle);
 
+		$saveButton = null;
+		$cancelButton = null;
+		if (Loader::includeModule('ui'))
+		{
+			$saveButton = Button::create([
+				'size' => Size::MEDIUM,
+				'color' => Color::SUCCESS,
+				'text' => $saveButtonTitle,
+				'dataset' => [
+					'type' => 'save-button',
+				],
+				'air' => true,
+			]);
+			$saveButton->addAttribute('id', 'widgetSaveConfigurations_' . $widget->getGId());
 
-		$cancelButton = new Fields\Button('widgetCancelConfigurations_' . $widget->getGId());
-		$cancelButton->addDataAttribute('type', 'cancel-button');
-		$cancelButton->addClass('ui-btn');
-		$cancelButton->addClass('ui-btn-md');
-		$cancelButton->addClass('ui-btn-link');
-		$cancelButton->setLabel(Loc::getMessage('SAVE_WIDGET_CONFIG_CANCEL_BUTTON'));
+			$cancelButton = Button::create([
+				'size' => Size::MEDIUM,
+				'color' => Color::LINK,
+				'text' => Loc::getMessage('SAVE_WIDGET_CONFIG_CANCEL_BUTTON'),
+				'dataset' => [
+					'type' => 'cancel-button',
+				],
+				'air' => true,
+			]);
+			$cancelButton->addAttribute('id', 'widgetCancelConfigurations_' . $widget->getGId());
+		}
 
 		$checkBoxContainer = new Fields\Div();
 		$checkBoxContainer->addClass('report-configuration-footer-right-container');
@@ -88,8 +105,14 @@ class WidgetForm extends Form
 
 		$form->add($footerContainer->start());
 			$form->add($buttonsContainer->start());
-				$form->add($saveButton);
-				$form->add($cancelButton);
+				if ($saveButton)
+				{
+					$form->add(new Fields\Html($saveButton->render(false)));
+				}
+				if ($cancelButton)
+				{
+					$form->add(new Fields\Html($cancelButton->render(false)));
+				}
 			$form->add($buttonsContainer->end());
 			$form->add($checkBoxContainer->start());
 				$form->add($isPatternCheckBox);

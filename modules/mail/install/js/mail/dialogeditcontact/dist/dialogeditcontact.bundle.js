@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Mail = this.BX.Mail || {};
 (function (exports,main_core,mail_sidepanelwrapper,ui_dialogs_messagebox,mail_avatar,main_core_events) {

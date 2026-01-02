@@ -30,7 +30,9 @@
 .ui-counter {
 	display: inline-flex;
 	align-items: center;
-	font: var(--ui-counter-font-weight) var(--ui-counter-font-size)/var(--ui-counter-current-size) var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-size: var(--ui-counter-font-size);
+	line-height: var(--ui-counter-current-size);
 	font-weight: var(--ui-font-weight-regular, 400);
 	position: relative;
 }

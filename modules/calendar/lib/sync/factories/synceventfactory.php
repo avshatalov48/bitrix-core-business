@@ -185,7 +185,6 @@ class SyncEventFactory
 			])
 			->where('OWNER_ID', $userId)
 			->where('CAL_TYPE', Dictionary::CALENDAR_TYPE['user'])
-			->where('DELETED', 'N')
 			->where('DATE_TO_TS_UTC', '>', $timestamp)
 			->where(Query::filter()
 					 ->logic('or')
@@ -218,6 +217,11 @@ class SyncEventFactory
 			$event = (new EventBuilderFromEntityObject($eventDM))->build();
 			$syncEvent->setEvent($event);
 
+			if ($event->isDeleted())
+			{
+				$action = Sync\Dictionary::SYNC_EVENT_ACTION['success'];
+			}
+
 			/** @var EO_SectionConnection $sectionConnectionDM */
 			if ($eventConnectionDM = $eventDM->get('EVENT_CONNECTION'))
 			{
@@ -231,6 +235,10 @@ class SyncEventFactory
 				)
 				{
 					$action = $eventConnection->getLastSyncStatus();
+				}
+				elseif ($event->isDeleted())
+				{
+					$action = Sync\Dictionary::SYNC_EVENT_ACTION['delete'];
 				}
 				elseif ($event->getVersion() > $eventConnection->getVersion())
 				{
@@ -246,7 +254,7 @@ class SyncEventFactory
 			{
 				$syncEvent->setAction($action);
 				/** @var SyncEvent $masterEvent */
-				$masterEvent = $map->getItem($event->getUid());
+				$masterEvent = $map->getItem($event->getRecurrenceId());
 				if ($masterEvent)
 				{
 					if (
@@ -262,14 +270,14 @@ class SyncEventFactory
 					continue;
 				}
 
-				$impatientSyncEventInstanceList[$event->getUid()][] = $syncEvent;
+				$impatientSyncEventInstanceList[$event->getRecurrenceId()][] = $syncEvent;
 			}
 			else
 			{
-				if ($instanceList = ($impatientSyncEventInstanceList[$event->getUid()] ?? null))
+				if ($instanceList = ($impatientSyncEventInstanceList[$event->getId()] ?? null))
 				{
 					$syncEvent->addInstanceList($instanceList);
-					unset($impatientSyncEventInstanceList[$event->getUid()]);
+					unset($impatientSyncEventInstanceList[$event->getId()]);
 					if (
 						$syncEvent->getAction() !== Sync\Dictionary::SYNC_EVENT_ACTION['success']
 						&& $this->hasCandidatesForUpdate($instanceList)
@@ -279,7 +287,7 @@ class SyncEventFactory
 					}
 				}
 				$syncEvent->setAction($action);
-				$map->add($syncEvent, $event->getUid());
+				$map->add($syncEvent, $event->getId());
 			}
 		}
 

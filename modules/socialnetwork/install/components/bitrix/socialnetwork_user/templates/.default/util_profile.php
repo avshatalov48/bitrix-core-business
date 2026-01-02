@@ -2,13 +2,13 @@
 <?
 if (
 	!defined("SITE_TEMPLATE_ID")
-	|| SITE_TEMPLATE_ID != "bitrix24"
+	|| (SITE_TEMPLATE_ID != "bitrix24" && SITE_TEMPLATE_ID !== 'air')
 )
 {
 	?><?
 	$arUserProfileResult = $APPLICATION->IncludeComponent(
 		"bitrix:socialnetwork.user_profile",
-		"short", 
+		"short",
 		Array(
 			"PATH_TO_USER" => $arResult["PATH_TO_USER"],
 			"PATH_TO_USER_EDIT" => $arResult["PATH_TO_USER_PROFILE_EDIT"],
@@ -27,7 +27,7 @@ if (
 			"PAGE_VAR" => $arResult["ALIASES"]["page"],
 			"USER_VAR" => $arResult["ALIASES"]["user_id"],
 			"SET_NAV_CHAIN" => "N",
-			"SET_TITLE" => "N", 
+			"SET_TITLE" => "N",
 			"USER_PROPERTY_MAIN" => $arResult["USER_PROPERTY_MAIN"],
 			"USER_PROPERTY_CONTACT" => $arResult["USER_PROPERTY_CONTACT"],
 			"USER_PROPERTY_PERSONAL" => $arResult["USER_PROPERTY_PERSONAL"],
@@ -38,15 +38,14 @@ if (
 			"SHORT_FORM" => "Y",
 			"ITEMS_COUNT" => $arParams["ITEM_MAIN_COUNT"],
 			"ID" => $arResult["VARIABLES"]["user_id"],
-			"PATH_TO_GROUP_REQUEST_GROUP_SEARCH" => $arResult["PATH_TO_GROUP_REQUEST_GROUP_SEARCH"], 
-			"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"], 
+			"PATH_TO_GROUP_REQUEST_GROUP_SEARCH" => $arResult["PATH_TO_GROUP_REQUEST_GROUP_SEARCH"],
+			"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
 			"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 			"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 			"PATH_TO_VIDEO_CALL" => $arResult["PATH_TO_VIDEO_CALL"],
 		),
 		$component,
-		array("HIDE_ICONS" => "Y") 
+		array("HIDE_ICONS" => "Y")
 	);
 	?><?
 }
-?>

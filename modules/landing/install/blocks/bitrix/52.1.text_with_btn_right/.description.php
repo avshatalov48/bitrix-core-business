@@ -51,16 +51,7 @@ return [
 		'.landing-block-node-button' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_52_TEXT_WITH_BTN_RIGHT-BTN'),
 			'type' => [
-				//button
-				'button-color',
-				'button-type',
-				'button-size',
-				'button-padding',
-				'border-radius',
-				'color',
-				'color-hover',
-				'font-family',
-				'text-transform',
+				'button',
 			],
 		],
 		'.landing-block-node-button-container' => [

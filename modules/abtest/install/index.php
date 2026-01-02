@@ -1,10 +1,13 @@
 <?php
 
-includeModuleLangFile(__FILE__);
 if (class_exists('abtest'))
+{
 	return;
+}
 
-class ABTest extends CModule
+includeModuleLangFile(__FILE__);
+
+class abtest extends CModule
 {
 	var $MODULE_ID = 'abtest';
 	var $MODULE_VERSION;
@@ -31,12 +34,12 @@ class ABTest extends CModule
 
 	function doInstall()
 	{
-		global $DB, $APPLICATION;
+		global $APPLICATION;
 
 		$this->installFiles();
 		$this->installDB();
 
-		$GLOBALS['APPLICATION']->includeAdminFile(
+		$APPLICATION->includeAdminFile(
 			getMessage('ABTEST_INSTALL_TITLE'),
 			$_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/abtest/install/step1.php'
 		);
@@ -47,16 +50,16 @@ class ABTest extends CModule
 		global $DB, $APPLICATION;
 		$connection = \Bitrix\Main\Application::getConnection();
 
-		$this->errors = false;
+		$errors = [];
 		if (!$DB->TableExists('b_abtest'))
 		{
 			$createTestTemplates = true;
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/abtest/install/db/' . $connection->getType() . '/install.sql');
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/abtest/install/db/' . $connection->getType() . '/install.sql');
 		}
 
-		if ($this->errors !== false)
+		if (!empty($errors))
 		{
-			$APPLICATION->throwException(implode('', $this->errors));
+			$APPLICATION->throwException(implode('', $errors));
 
 			return false;
 		}
@@ -144,15 +147,10 @@ class ABTest extends CModule
 				$test['PORTION']  = 30;
 				$test['SORT']     = $sort;
 
-				Bitrix\ABTest\ABTestTable::add($test);
+				\Bitrix\ABTest\ABTestTable::add($test);
 			}
 		}
 
-		return true;
-	}
-
-	function installEvents()
-	{
 		return true;
 	}
 
@@ -179,14 +177,14 @@ class ABTest extends CModule
 
 	function doUninstall()
 	{
-		global $DOCUMENT_ROOT, $APPLICATION, $step;
+		global $APPLICATION, $step;
 
 		$step = intval($step);
 		if ($step < 2)
 		{
 			$APPLICATION->includeAdminFile(
 				getMessage('ABTEST_UNINSTALL_TITLE'),
-				$DOCUMENT_ROOT . '/bitrix/modules/abtest/install/unstep1.php'
+				$_SERVER["DOCUMENT_ROOT"] . '/bitrix/modules/abtest/install/unstep1.php'
 			);
 		}
 		elseif ($step == 2)
@@ -195,28 +193,28 @@ class ABTest extends CModule
 			$this->uninstallFiles();
 			$APPLICATION->includeAdminFile(
 				getMessage('ABTEST_UNINSTALL_TITLE'),
-				$DOCUMENT_ROOT . '/bitrix/modules/abtest/install/unstep2.php'
+				$_SERVER["DOCUMENT_ROOT"] . '/bitrix/modules/abtest/install/unstep2.php'
 			);
 		}
 	}
 
 	function uninstallDB($arParams = array())
 	{
-		global $APPLICATION, $DB, $errors;
+		global $APPLICATION, $DB;
 		$connection = \Bitrix\Main\Application::getConnection();
 
-		$this->errors = false;
+		$errors = [];
 
 		if (!$arParams['savedata'])
 		{
-			$this->errors = $DB->runSQLBatch(
+			$errors = $DB->runSQLBatch(
 				$_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/abtest/install/db/' . $connection->getType() . '/uninstall.sql'
 			);
 		}
 
-		if ($this->errors !== false)
+		if (!empty($errors))
 		{
-			$APPLICATION->throwException(implode('', $this->errors));
+			$APPLICATION->throwException(implode('', $errors));
 
 			return false;
 		}
@@ -236,11 +234,6 @@ class ABTest extends CModule
 		return true;
 	}
 
-	function uninstallEvents()
-	{
-		return true;
-	}
-
 	function uninstallFiles()
 	{
 		deleteDirFiles(
@@ -250,5 +243,4 @@ class ABTest extends CModule
 
 		return true;
 	}
-
 }

@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core,main_date,main_popup,ui_dialogs_messagebox) {
+(function (exports,main_core,main_date,main_popup,ui_alerts,ui_dialogs_messagebox) {
 	'use strict';
 
 	let _ = t => t,
@@ -8,7 +8,7 @@ this.BX = this.BX || {};
 	  _t2;
 	class Util {
 	  static parseTime(str) {
-	    const date = Util.parseDate1(`${BX.date.format(Util.getDateFormat(), new Date())} ${str}`, false);
+	    const date = Util.parseDate1(`${main_date.DateTimeFormat.format(Util.getDateFormat(), new Date())} ${str}`, false);
 	    return date ? {
 	      h: date.getHours(),
 	      m: date.getMinutes()
@@ -115,19 +115,19 @@ this.BX = this.BX || {};
 	      day = new Date();
 	      day.setHours(hours, minutes, 0);
 	    }
-	    return BX.date.format(Util.getTimeFormatShort(), day.getTime() / 1000);
+	    return main_date.DateTimeFormat.format(Util.getTimeFormatShort(), day.getTime() / 1000);
 	  }
 	  static formatDate(timestamp) {
 	    if (main_core.Type.isDate(timestamp)) {
 	      timestamp = timestamp.getTime();
 	    }
-	    return BX.date.format(Util.getDateFormat(), timestamp / 1000);
+	    return main_date.DateTimeFormat.format(Util.getDateFormat(), timestamp / 1000);
 	  }
 	  static formatDateTime(timestamp) {
 	    if (main_core.Type.isDate(timestamp)) {
 	      timestamp = timestamp.getTime();
 	    }
-	    return BX.date.format(Util.getDateTimeFormat(), timestamp / 1000);
+	    return main_date.DateTimeFormat.format(Util.getDateTimeFormat(), timestamp / 1000);
 	  }
 	  static formatTimeInterval(from, to) {
 	    const formattedFrom = main_date.DateTimeFormat.format(Util.getTimeFormatShort(), from.getTime() / 1000);
@@ -155,7 +155,7 @@ this.BX = this.BX || {};
 	        format += ' Y';
 	      }
 	    }
-	    return BX.date.format([['today', 'today'], ['tommorow', 'tommorow'], ['yesterday', 'yesterday'], ['', format]], date);
+	    return main_date.DateTimeFormat.format([['today', 'today'], ['tommorow', 'tommorow'], ['yesterday', 'yesterday'], ['', format]], date);
 	  }
 	  static formatDayMonthShortTime(timestamp) {
 	    return `
@@ -313,13 +313,13 @@ this.BX = this.BX || {};
 	  static showFieldError(message, wrap, options) {
 	    if (main_core.Type.isDomNode(wrap) && main_core.Type.isString(message) && message !== '') {
 	      main_core.Dom.remove(wrap.querySelector('.ui-alert'));
-	      const alert = new BX.UI.Alert({
-	        color: BX.UI.Alert.Color.DANGER,
-	        icon: BX.UI.Alert.Icon.DANGER,
+	      const alert = new ui_alerts.Alert({
+	        color: ui_alerts.Alert.Color.DANGER,
+	        icon: ui_alerts.Alert.Icon.DANGER,
 	        text: message
 	      });
 	      const alertWrap = alert.getContainer();
-	      wrap.appendChild(alertWrap);
+	      main_core.Dom.append(alertWrap, wrap);
 	      return alertWrap;
 	    }
 	  }
@@ -353,8 +353,8 @@ this.BX = this.BX || {};
 	        Util.TIME_FORMAT = BX.util.trim(Util.getDateTimeFormat().slice(Util.getDateFormat().length));
 	        Util.TIME_FORMAT_BX = BX.util.trim(main_core.Loc.getMessage('FORMAT_DATETIME').slice(main_core.Loc.getMessage('FORMAT_DATE').length));
 	      } else {
-	        Util.TIME_FORMAT_BX = BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS';
-	        Util.TIME_FORMAT = BX.date.convertBitrixFormat(BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS');
+	        Util.TIME_FORMAT_BX = main_date.DateTimeFormat.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS';
+	        Util.TIME_FORMAT = main_date.DateTimeFormat.convertBitrixFormat(BX.Main.DateTimeFormat.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS');
 	      }
 	    }
 	    return Util.TIME_FORMAT;
@@ -470,11 +470,58 @@ this.BX = this.BX || {};
 	    }
 	    return this.config.work_time_end;
 	  }
+	  static isReadOnlyMode() {
+	    var _this$getCalendarCont;
+	    const readOnly = (_this$getCalendarCont = this.getCalendarContext().util) == null ? void 0 : _this$getCalendarCont.config.readOnly;
+	    if (readOnly === undefined) {
+	      const sectionList = this.getCalendarContext().sectionManager.getSectionListForEdit();
+	      if (!sectionList || sectionList.length === 0) {
+	        return true;
+	      }
+	    }
+	    return Boolean(readOnly);
+	  }
+	  static hasFullAccess() {
+	    var _this$getCalendarCont2, _this$getCalendarCont3, _this$getCalendarCont4;
+	    return Boolean((_this$getCalendarCont2 = this.getCalendarContext().util) == null ? void 0 : (_this$getCalendarCont3 = _this$getCalendarCont2.config) == null ? void 0 : (_this$getCalendarCont4 = _this$getCalendarCont3.perm) == null ? void 0 : _this$getCalendarCont4.access);
+	  }
+	  static getSettings() {
+	    var _this$getCalendarCont5;
+	    return (_this$getCalendarCont5 = this.getCalendarContext().util) == null ? void 0 : _this$getCalendarCont5.config.settings;
+	  }
+	  static hasLocationAccess() {
+	    var _this$getCalendarCont6, _this$getCalendarCont7;
+	    return ((_this$getCalendarCont6 = this.getCalendarContext()) == null ? void 0 : (_this$getCalendarCont7 = _this$getCalendarCont6.util) == null ? void 0 : _this$getCalendarCont7.config.locationAccess) || false;
+	  }
+	  static isCollabFeatureEnabled() {
+	    var _this$getCalendarCont8, _this$getCalendarCont9;
+	    return ((_this$getCalendarCont8 = this.getCalendarContext()) == null ? void 0 : (_this$getCalendarCont9 = _this$getCalendarCont8.util) == null ? void 0 : _this$getCalendarCont9.config.isCollabFeatureEnabled) || true;
+	  }
+	  static userIsOwner() {
+	    var _this$getCalendarCont10;
+	    return (_this$getCalendarCont10 = this.getCalendarContext().util) == null ? void 0 : _this$getCalendarCont10.userIsOwner();
+	  }
+	  static isExtranet() {
+	    var _this$getCalendarCont11;
+	    return (_this$getCalendarCont11 = this.getCalendarContext().util) == null ? void 0 : _this$getCalendarCont11.isExtranetUser();
+	  }
 	  static checkEmailLimitationPopup() {
 	    return !this.getEventWithEmailGuestEnabled();
 	  }
 	  static isEventWithEmailGuestAllowed() {
 	    return this.getEventWithEmailGuestEnabled();
+	  }
+	  static setTimezoneList(value) {
+	    Util.timzezoneList = value;
+	  }
+	  static getTimezoneList() {
+	    return Util.timzezoneList;
+	  }
+	  static setAbsenceAvailable(value) {
+	    Util.absenceAvailable = value;
+	  }
+	  static getAbsenceAvailable() {
+	    return Util.absenceAvailable;
 	  }
 	  static setEventWithEmailGuestEnabled(value) {
 	    Util.eventWithEmailGuestEnabled = value;
@@ -487,6 +534,12 @@ this.BX = this.BX || {};
 	  }
 	  static isProjectFeatureEnabled() {
 	    return Util.projectFeatureEnabled;
+	  }
+	  static setIsBitrix24Template(value) {
+	    Util.isBitrix24Template = value;
+	  }
+	  static getIsBitrix24Template() {
+	    return Util.isBitrix24Template;
 	  }
 	  static setCurrentView(calendarView = null) {
 	    Util.currentCalendarView = calendarView;
@@ -740,5 +793,5 @@ this.BX = this.BX || {};
 
 	exports.Util = Util;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX.Main,BX.Main,BX.UI.Dialogs));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX.Main,BX.Main,BX.UI,BX.UI.Dialogs));
 //# sourceMappingURL=util.bundle.js.map

@@ -1,7 +1,17 @@
 import { Text, Loc, Dom, Event, Type } from 'main.core';
-import { FileType } from 'im.v2.const';
 
+import { FileType, FileViewerContext } from 'im.v2.const';
+
+import type { JsonObject } from 'main.core';
 import type { ImModelFile } from 'im.v2.model';
+
+type ViewerDataAttributes = Object<string, boolean | string | number | null>;
+
+type ViewerParams = {
+	viewerAttributes: JsonObject,
+	previewImageSrc: string,
+	context: $Values<typeof FileViewerContext>
+}
 
 export const FileUtil = {
 	getFileExtension(fileName: string): string
@@ -101,6 +111,11 @@ export const FileUtil = {
 			case 'plist':
 				icon = 'set';
 				break;
+
+			case 'board':
+				icon = 'board';
+				break;
+
 			default:
 				icon = 'empty';
 		}
@@ -143,6 +158,7 @@ export const FileUtil = {
 
 			case 'mp3':
 			case 'ogg':
+			case 'm4a':
 				type = FileType.audio;
 				break;
 			default:
@@ -208,21 +224,31 @@ export const FileUtil = {
 
 		return `${firstPart}${DELIMITER}${secondPart}.${extension}`;
 	},
-
-	getViewerDataAttributes(viewerAttributes): Object
+	getViewerDataAttributes({ viewerAttributes, previewImageSrc, context }: ViewerParams): ViewerDataAttributes
 	{
+		const dataAttributes = {};
+
 		if (!viewerAttributes)
 		{
-			return {};
+			return dataAttributes;
 		}
 
-		const dataAttributes = {
-			'data-viewer': true,
-		};
-
 		Object.entries(viewerAttributes).forEach(([key, value]) => {
-			dataAttributes[`data-${Text.toKebabCase(key)}`] = value;
+			dataAttributes[`data-${Text.toKebabCase(key)}`] = value === null ? '' : value;
 		});
+
+		// it should be the same link, which we use in src attribute in <img> or <video> tag
+		if (previewImageSrc)
+		{
+			dataAttributes['data-viewer-preview'] = previewImageSrc;
+		}
+
+		if (context)
+		{
+			dataAttributes['data-viewer-group-by'] = `${context}${dataAttributes['data-viewer-group-by']}`;
+		}
+
+		dataAttributes['data-viewer'] = '';
 
 		return dataAttributes;
 	},
@@ -313,5 +339,39 @@ export const FileUtil = {
 
 		downloadFileWithDelay(0);
 		Dom.remove(a);
+	},
+
+	getViewerDataForImageSrc({
+		src,
+		viewerGroupBy,
+		objectId = null,
+		context = FileViewerContext.dialog,
+		actions = '[]',
+		title = '',
+		viewer = null,
+	}: {
+		src: string;
+		viewerGroupBy: string;
+		objectId: string;
+		context: string;
+		actions: string;
+		title: string;
+		viewer: boolean | null;
+	}): JsonObject {
+		const defaultAttributes = {
+			viewerAttributes: {
+				actions,
+				objectId,
+				src,
+				title,
+				viewer,
+				viewerGroupBy,
+				viewerType: 'image',
+			},
+			previewImageSrc: src,
+			context,
+		};
+
+		return this.getViewerDataAttributes(defaultAttributes);
 	},
 };

@@ -1,7 +1,7 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 
-<?=ShowError($arResult["ERROR_MESSAGE"]);?>
-<?=ShowNote($arResult["OK_MESSAGE"]);?>
+<? ShowError($arResult["ERROR_MESSAGE"]); ?>
+<? ShowNote($arResult["OK_MESSAGE"]); ?>
 
 <?if (!empty($arResult["QUESTIONS"])):?>
 

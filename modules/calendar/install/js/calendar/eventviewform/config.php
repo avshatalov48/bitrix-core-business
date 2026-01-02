@@ -22,6 +22,7 @@ return [
 		'main.core.events',
 		'calendar.sectionmanager',
 		'viewer',
+		'main.date',
 		'calendar.entityrelation',
 		'ui.avatar',
 	],

@@ -52,7 +52,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 					{{/SHOW_LOADING}}
 					<div class="basket-items-list-item-removed-container">
 						<div>
-							<?=Loc::getMessage('SBB_GOOD_CAP')?> <strong>{{NAME}}</strong> <?=Loc::getMessage('SBB_BASKET_ITEM_DELETED')?>.
+							<?= Loc::getMessage('SBB_BASKET_ITEM_DELETED_MSGVER_1', ['#NAME#' => '<strong>{{NAME}}</strong>']) ?>
 						</div>
 						<div class="basket-items-list-item-removed-block">
 							<a href="javascript:void(0)" data-entity="basket-item-restore-button">
@@ -351,7 +351,13 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 						</div>
 
 						<div class="basket-item-price-title">
-							<?=Loc::getMessage('SBB_BASKET_ITEM_PRICE_FOR')?> {{MEASURE_RATIO}} {{MEASURE_TEXT}}
+							<?= Loc::getMessage(
+								'SBB_BASKET_ITEM_PRICE_FOR_MSGVER_1',
+								[
+									'#MEASURE_RATIO#' => '{{MEASURE_RATIO}}',
+									'#MEASURE_TEXT#' => '{{MEASURE_TEXT}}',
+								],
+							); ?>
 						</div>
 						{{#SHOW_LOADING}}
 							<div class="basket-items-list-item-overlay"></div>
@@ -421,10 +427,12 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 
 						{{#SHOW_DISCOUNT_PRICE}}
 							<div class="basket-item-price-difference">
-								<?=Loc::getMessage('SBB_BASKET_ITEM_ECONOMY')?>
-								<span id="basket-item-sum-price-difference-{{ID}}" style="white-space: nowrap;">
-									{{{SUM_DISCOUNT_PRICE_FORMATED}}}
-								</span>
+								<?= Loc::getMessage(
+									'SBB_BASKET_ITEM_ECONOMY_MSGVER_1',
+									[
+										'#DISCOUNT_PRICE_FORMATED#' => '<span id="basket-item-sum-price-difference-{{ID}}" style="white-space: nowrap;">{{{SUM_DISCOUNT_PRICE_FORMATED}}}</span>',
+									],
+								) ?>
 							</div>
 						{{/SHOW_DISCOUNT_PRICE}}
 						{{#SHOW_LOADING}}

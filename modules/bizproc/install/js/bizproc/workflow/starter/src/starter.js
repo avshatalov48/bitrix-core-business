@@ -1,4 +1,4 @@
-import { Type, Loc, Text, Uri } from 'main.core';
+import { Type, Loc, Text, Uri, Runtime } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { Dialog } from 'ui.entity-selector';
 import 'ui.notification';
@@ -174,25 +174,23 @@ export class Starter extends EventEmitter
 
 	#showTemplatesSlider(callback: ?Function = null): void
 	{
-		const sliderOptions = {
-			width: 970,
-			cacheable: false,
-			events: {
-				onCloseComplete: Type.isFunction(callback) ? callback : () => {},
-			},
-		};
+		Runtime
+			.loadExtension('bizproc.router')
+			.then(({ Router }) => {
+				const options = {
+					requestMethod: 'get',
+					requestParams: {
+						signedDocumentType: this.#signedDocumentType,
+						signedDocumentId: this.#signedDocumentId,
+					},
+					events: {
+						onCloseComplete: Type.isFunction(callback) ? callback : () => {},
+					},
+				};
 
-		const componentParams = {
-			signedDocumentType: this.#signedDocumentType,
-			signedDocumentId: this.#signedDocumentId,
-		};
-
-		const url = BX.Uri.addParam(
-			'/bitrix/components/bitrix/bizproc.workflow.start.list/',
-			componentParams,
-		);
-
-		BX.SidePanel.Instance.open(url, sliderOptions);
+				Router.openWorkflowStartList(options);
+			})
+			.catch((e) => console.error(e));
 	}
 
 	// compatibility

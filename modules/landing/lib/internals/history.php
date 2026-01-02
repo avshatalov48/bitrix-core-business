@@ -7,6 +7,22 @@ use \Bitrix\Main\Entity;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class HistoryTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_History_Query query()
+ * @method static EO_History_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_History_Result getById($id)
+ * @method static EO_History_Result getList(array $parameters = [])
+ * @method static EO_History_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_History createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_History_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_History wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_History_Collection wakeUpCollection($rows)
+ */
 class HistoryTable extends Entity\DataManager
 {
 	/**

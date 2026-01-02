@@ -8,7 +8,6 @@ import {FormCompilationType} from '../../types/form-compilation-type';
 import {FormHelpdeskCode} from '../../types/form-helpdesk-code';
 import {ajax, Event, Tag, Dom, Loc, Type} from 'main.core';
 import {Loader} from 'main.loader';
-import {Label, LabelColor} from 'ui.label';
 import {MessageCard} from 'ui.messagecard';
 import 'ui.vue.components.hint';
 import 'ui.notification';
@@ -25,11 +24,6 @@ Vue.component(config.templatePanelCompilation,
 	},
 	created()
 	{
-		this.newLabel = new Label({
-			text: this.localize.CATALOG_FORM_COMPILATION_PRODUCT_NEW_LABEL,
-			color: LabelColor.PRIMARY,
-			fill: true
-		});
 		this.popup = null;
 		this.compilationLink = null;
 
@@ -68,7 +62,6 @@ Vue.component(config.templatePanelCompilation,
 	},
 	mounted()
 	{
-		this.$refs.label.appendChild(this.newLabel.render());
 		this.$refs.message.appendChild(this.message.getLayout());
 	},
 	data()
@@ -257,10 +250,6 @@ Vue.component(config.templatePanelCompilation,
 		{
 			creationStorePopup.close();
 		},
-		onNewLabelClick(event: BaseEvent)
-		{
-			event.preventDefault();
-		},
 		onLabelClick()
 		{
 			if (this.compilationOptions.isLimitedStore)
@@ -337,7 +326,6 @@ Vue.component(config.templatePanelCompilation,
 								<span class="ui-hint-icon"></span>
 							</div>
 						</div>
-						<div ref="label" @click="onNewLabelClick"></div>
 						<div class="tariff-lock" v-if="compilationOptions.isLimitedStore"></div>
 					</label>
 				</div>

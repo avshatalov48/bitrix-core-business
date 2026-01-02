@@ -1,8 +1,8 @@
 <?php
-$MESS["BCL_BACKUP_DO_BACKUP"] = "Create backup";
-$MESS["BCL_BACKUP_FILE_NAME"] = "File name";
-$MESS["BCL_BACKUP_FILE_SIZE"] = "File size";
-$MESS["BCL_BACKUP_NOTE"] = "
+$MESS['BCL_BACKUP_DO_BACKUP'] = "Create backup";
+$MESS['BCL_BACKUP_FILE_NAME'] = "File name";
+$MESS['BCL_BACKUP_FILE_SIZE'] = "File size";
+$MESS['BCL_BACKUP_NOTE'] = "
 <p>
 Creating backups in cloud storage is available to all editions of Bitrix Site Manager; different <a target=\"_blank\" href=\"https://www.bitrixsoft.com/products/cms/features/cdn.php\">cloud space</a> is reserved for different editions. Saving backups to cloud storage is only available to websites running under an active and valid license.
 </p>
@@ -16,5 +16,5 @@ A backup copy is encrypted using password you will have to provide when creating
 Cloud storage conditions and terms may be changed without prior notice.
 </p>
 ";
-$MESS["BCL_BACKUP_TITLE"] = "Backups";
-$MESS["BCL_BACKUP_USAGE"] = "Space used: #USAGE# of #QUOTA#.";
+$MESS['BCL_BACKUP_TITLE'] = "Backups";
+$MESS['BCL_BACKUP_USAGE'] = "Space used: #USAGE# of #QUOTA#.";

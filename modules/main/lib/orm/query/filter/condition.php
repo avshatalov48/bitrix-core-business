@@ -127,7 +127,14 @@ class Condition
 	 */
 	public function getDefinition()
 	{
-		return $this->getColumn();
+		$definition = $this->getColumn();
+
+		if ($definition instanceof ColumnExpression)
+		{
+			$definition = $definition->getDefinition();
+		}
+
+		return $definition;
 	}
 
 	/**

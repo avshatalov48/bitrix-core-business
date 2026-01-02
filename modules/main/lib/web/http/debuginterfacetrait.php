@@ -13,7 +13,7 @@ use Bitrix\Main\Web\HttpDebug;
 
 trait DebugInterfaceTrait
 {
-	protected int $debugLevel = HttpDebug::CONNECT | HttpDebug::REQUEST_HEADERS | HttpDebug::RESPONSE_HEADERS;
+	protected int $debugLevel = HttpDebug::DEFAULT;
 
 	/**
 	 * Sets debug level using HttpDebug::* constants.

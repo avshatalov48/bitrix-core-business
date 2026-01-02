@@ -4,6 +4,8 @@ module.exports = {
 	namespace: 'BX',
 	namespaceFunction: null,
 	adjustConfigPhp: false,
+	browserslist: true,
+	transformClasses: true,
 	concat: {
 		js: [
 			'../src/internal/wrap-start.js',

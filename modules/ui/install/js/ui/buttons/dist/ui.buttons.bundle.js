@@ -1,7 +1,83 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core_events,main_popup,main_core) {
+(function (exports,ui_designTokens_air,ui_iconSet_api_core,ui_buttons,main_core_events,main_popup,ui_switcher,main_core,ui_cnt) {
 	'use strict';
+
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _counter = /*#__PURE__*/new WeakMap();
+	let ButtonCounter = /*#__PURE__*/function () {
+	  function ButtonCounter(options) {
+	    var _options$color, _options$style, _options$size;
+	    babelHelpers.classCallCheck(this, ButtonCounter);
+	    _classPrivateFieldInitSpec(this, _counter, {
+	      writable: true,
+	      value: void 0
+	    });
+	    this.validateOptions(options);
+	    babelHelpers.classPrivateFieldSet(this, _counter, new ui_cnt.Counter({
+	      color: (_options$color = options.color) !== null && _options$color !== void 0 ? _options$color : ui_cnt.CounterColor.DANGER,
+	      style: (_options$style = options.style) !== null && _options$style !== void 0 ? _options$style : ui_cnt.CounterStyle.FILLED_ALERT,
+	      size: (_options$size = options.size) !== null && _options$size !== void 0 ? _options$size : ui_cnt.CounterSize.MEDIUM,
+	      value: options.value,
+	      maxValue: options.maxValue,
+	      usePercentSymbol: options.useSymbolPercent,
+	      useAirDesign: true
+	    }));
+	  }
+	  babelHelpers.createClass(ButtonCounter, [{
+	    key: "render",
+	    value: function render() {
+	      return babelHelpers.classPrivateFieldGet(this, _counter).render();
+	    }
+	  }, {
+	    key: "getValue",
+	    value: function getValue() {
+	      return babelHelpers.classPrivateFieldGet(this, _counter).getValue();
+	    }
+	  }, {
+	    key: "setValue",
+	    value: function setValue(value) {
+	      babelHelpers.classPrivateFieldGet(this, _counter).update(value);
+	    }
+	  }, {
+	    key: "setColor",
+	    value: function setColor(color) {
+	      babelHelpers.classPrivateFieldGet(this, _counter).setColor(color);
+	    }
+	  }, {
+	    key: "validateOptions",
+	    value: function validateOptions(options) {
+	      // todo add implementation
+	    }
+	  }]);
+	  return ButtonCounter;
+	}();
+
+	/**
+	 * @namespace {BX.UI}
+	 */
+	let ButtonSize = function ButtonSize() {
+	  babelHelpers.classCallCheck(this, ButtonSize);
+	};
+	babelHelpers.defineProperty(ButtonSize, "EXTRA_LARGE", 'ui-btn-xl');
+	babelHelpers.defineProperty(ButtonSize, "LARGE", 'ui-btn-lg');
+	babelHelpers.defineProperty(ButtonSize, "MEDIUM", 'ui-btn-md');
+	babelHelpers.defineProperty(ButtonSize, "SMALL", 'ui-btn-sm');
+	babelHelpers.defineProperty(ButtonSize, "EXTRA_SMALL", 'ui-btn-xs');
+	babelHelpers.defineProperty(ButtonSize, "EXTRA_EXTRA_SMALL", 'ui-btn-xss');
+
+	const getCounterSize = buttonSize => {
+	  var _ButtonSize$EXTRA_EXT;
+	  return (_ButtonSize$EXTRA_EXT = {
+	    [ButtonSize.EXTRA_EXTRA_SMALL]: ui_buttons.ButtonCounterSize.SMALL,
+	    [ButtonSize.EXTRA_SMALL]: ui_buttons.ButtonCounterSize.SMALL,
+	    [ButtonSize.SMALL]: ui_buttons.ButtonCounterSize.SMALL,
+	    [ButtonSize.MEDIUM]: ui_buttons.ButtonCounterSize.MEDIUM,
+	    [ButtonSize.LARGE]: ui_buttons.ButtonCounterSize.LARGE,
+	    [ButtonSize.EXTRA_LARGE]: ui_buttons.ButtonCounterSize.LARGE
+	  }[buttonSize]) !== null && _ButtonSize$EXTRA_EXT !== void 0 ? _ButtonSize$EXTRA_EXT : ui_buttons.ButtonCounterSize.MEDIUM;
+	};
 
 	/**
 	 * @namespace {BX.UI}
@@ -24,12 +100,53 @@ this.BX = this.BX || {};
 	  _t5,
 	  _t6,
 	  _t7,
-	  _t8;
-	let BaseButton = /*#__PURE__*/function () {
-	  function BaseButton(options) {
-	    babelHelpers.classCallCheck(this, BaseButton);
-	    options = main_core.Type.isPlainObject(options) ? options : {};
-	    this.options = Object.assign(this.getDefaultOptions(), options);
+	  _t8,
+	  _t9;
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _useAirDesign = /*#__PURE__*/new WeakMap();
+	var _leftCounter = /*#__PURE__*/new WeakMap();
+	var _rightCounter = /*#__PURE__*/new WeakMap();
+	var _leftCounterContainer = /*#__PURE__*/new WeakMap();
+	var _rightCounterContainer = /*#__PURE__*/new WeakMap();
+	var _removeLeftCounter = /*#__PURE__*/new WeakSet();
+	var _removeRightCounter = /*#__PURE__*/new WeakSet();
+	var _handleEvent = /*#__PURE__*/new WeakMap();
+	let BaseButton$$1 = /*#__PURE__*/function () {
+	  function BaseButton$$1(options) {
+	    babelHelpers.classCallCheck(this, BaseButton$$1);
+	    _classPrivateMethodInitSpec(this, _removeRightCounter);
+	    _classPrivateMethodInitSpec(this, _removeLeftCounter);
+	    _classPrivateFieldInitSpec$1(this, _useAirDesign, {
+	      writable: true,
+	      value: false
+	    });
+	    _classPrivateFieldInitSpec$1(this, _leftCounter, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$1(this, _rightCounter, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$1(this, _leftCounterContainer, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$1(this, _rightCounterContainer, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$1(this, _handleEvent, {
+	      writable: true,
+	      value: event => {
+	        var _this$events$event$ty;
+	        (_this$events$event$ty = this.events[event.type]) === null || _this$events$event$ty === void 0 ? void 0 : _this$events$event$ty.call(this, this, event);
+	      }
+	    });
+	    this.options = Object.assign(this.getDefaultOptions(), main_core.Type.isPlainObject(options) ? options : {});
 
 	    /**
 	     * 'buttonNode', 'textNode' and counterNode options use only in ButtonManager.createFromNode
@@ -48,12 +165,12 @@ this.BX = this.BX || {};
 	    }
 	    this.baseClass = main_core.Type.isStringFilled(this.options.baseClass) ? this.options.baseClass : '';
 	    this.disabled = false;
-	    this.handleEvent = this.handleEvent.bind(this);
 	    this.init(); // needs to initialize private properties in derived classes.
 
 	    if (this.options.disabled === true) {
 	      this.setDisabled();
 	    }
+	    this.setAirDesign(this.options.useAirDesign === true);
 	    this.setText(this.options.text);
 	    this.setCounter(this.options.counter);
 	    this.setProps(this.options.props);
@@ -61,6 +178,20 @@ this.BX = this.BX || {};
 	    this.addClass(this.options.className);
 	    this.setLink(this.options.link);
 	    this.setMaxWidth(this.options.maxWidth);
+	    if (this.hasAirDesign()) {
+	      if (this.options.leftCounter) {
+	        this.setLeftCounter({
+	          ...this.options.leftCounter,
+	          size: getCounterSize(this.options.size)
+	        });
+	      }
+	      if (this.options.rightCounter) {
+	        this.setRightCounter({
+	          ...this.options.rightCounter,
+	          size: getCounterSize(this.options.size)
+	        });
+	      }
+	    }
 	    this.bindEvent('click', this.options.onclick);
 	    this.bindEvents(this.options.events);
 	  }
@@ -68,10 +199,21 @@ this.BX = this.BX || {};
 	  /**
 	   * @protected
 	   */
-	  babelHelpers.createClass(BaseButton, [{
+	  babelHelpers.createClass(BaseButton$$1, [{
 	    key: "init",
 	    value: function init() {
 	      // needs to initialize private properties in derived classes.
+	    }
+	  }, {
+	    key: "setAirDesign",
+	    value: function setAirDesign(use) {
+	      babelHelpers.classPrivateFieldSet(this, _useAirDesign, use === true);
+	      main_core.Dom.toggleClass(this.getContainer(), '--air', babelHelpers.classPrivateFieldGet(this, _useAirDesign));
+	    }
+	  }, {
+	    key: "hasAirDesign",
+	    value: function hasAirDesign() {
+	      return babelHelpers.classPrivateFieldGet(this, _useAirDesign);
 	    }
 	    /**
 	     * @protected
@@ -81,127 +223,168 @@ this.BX = this.BX || {};
 	    value: function getDefaultOptions() {
 	      return {};
 	    }
-	    /**
-	     * @public
-	     * @return {HTMLElement}
-	     */
 	  }, {
 	    key: "render",
 	    value: function render() {
 	      return this.getContainer();
 	    }
-	    /**
-	     * @public
-	     * @param {HTMLElement} node
-	     * @return {?HTMLElement}
-	     */
 	  }, {
 	    key: "renderTo",
 	    value: function renderTo(node) {
-	      if (main_core.Type.isDomNode(node)) {
-	        return node.appendChild(this.getContainer());
-	      }
-	      return null;
+	      main_core.Dom.append(this.getContainer(), node);
+	      return this.getContainer();
 	    }
-	    /**
-	     * @public
-	     * @return {HTMLElement}
-	     */
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      if (this.button !== null) {
-	        return this.button;
-	      }
-	      switch (this.getTag()) {
-	        case ButtonTag.BUTTON:
-	        default:
-	          this.button = main_core.Tag.render(_t || (_t = _`<button class="${0}"></button>`), this.getBaseClass());
-	          break;
-	        case ButtonTag.INPUT:
-	          this.button = main_core.Tag.render(_t2 || (_t2 = _`<input class="${0}" type="button">`), this.getBaseClass());
-	          break;
-	        case ButtonTag.LINK:
-	          this.button = main_core.Tag.render(_t3 || (_t3 = _`<a class="${0}" href=""></a>`), this.getBaseClass());
-	          break;
-	        case ButtonTag.SUBMIT:
-	          this.button = main_core.Tag.render(_t4 || (_t4 = _`<input class="${0}" type="submit">`), this.getBaseClass());
-	          break;
-	        case ButtonTag.DIV:
-	          this.button = main_core.Tag.render(_t5 || (_t5 = _`<div class="${0}"></div>`), this.getBaseClass());
-	          break;
-	        case ButtonTag.SPAN:
-	          this.button = main_core.Tag.render(_t6 || (_t6 = _`<span class="${0}"></span>`), this.getBaseClass());
-	          break;
-	      }
+	      var _this$button, _ButtonTag$LINK$Butto, _ButtonTag$LINK$Butto2, _ButtonTag$LINK$Butto3;
+	      (_this$button = this.button) !== null && _this$button !== void 0 ? _this$button : this.button = (_ButtonTag$LINK$Butto = (_ButtonTag$LINK$Butto2 = (_ButtonTag$LINK$Butto3 = {
+	        [ButtonTag.LINK]: () => main_core.Tag.render(_t || (_t = _`<a class="${0}" href=""></a>`), this.getBaseClass()),
+	        [ButtonTag.INPUT]: () => main_core.Tag.render(_t2 || (_t2 = _`<input class="${0}" type="button">`), this.getBaseClass()),
+	        [ButtonTag.SUBMIT]: () => main_core.Tag.render(_t3 || (_t3 = _`<input class="${0}" type="submit">`), this.getBaseClass()),
+	        [ButtonTag.DIV]: () => main_core.Tag.render(_t4 || (_t4 = _`<div class="${0}"></div>`), this.getBaseClass())
+	      })[this.getTag()]) === null || _ButtonTag$LINK$Butto2 === void 0 ? void 0 : _ButtonTag$LINK$Butto2.call(_ButtonTag$LINK$Butto3)) !== null && _ButtonTag$LINK$Butto !== void 0 ? _ButtonTag$LINK$Butto : main_core.Tag.render(_t5 || (_t5 = _`<button class="${0}"></button>`), this.getBaseClass());
 	      return this.button;
 	    }
 	    /**
 	     * @protected
-	     * @return {string}
 	     */
 	  }, {
 	    key: "getBaseClass",
 	    value: function getBaseClass() {
 	      return this.baseClass;
 	    }
-	    /**
-	     * @public
-	     * @param {string} text
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setText",
 	    value: function setText(text) {
-	      if (main_core.Type.isString(text)) {
-	        this.text = text;
-	        if (this.isInputType()) {
-	          this.getContainer().value = text;
-	        } else if (text.length > 0) {
-	          if (this.textNode === null) {
-	            this.textNode = main_core.Tag.render(_t7 || (_t7 = _`<span class="ui-btn-text"></span>`));
-	          }
-	          if (!this.textNode.parentNode) {
-	            main_core.Dom.prepend(this.textNode, this.getContainer());
-	          }
-	          this.textNode.textContent = text;
-	        } else {
-	          if (this.textNode !== null) {
-	            main_core.Dom.remove(this.textNode);
-	          }
+	      if (!main_core.Type.isString(text) && !this.hasAirDesign()) {
+	        return this;
+	      }
+	      this.text = text || '';
+	      if (this.isInputType()) {
+	        this.getContainer().value = this.text;
+	      } else if (this.text.length > 0 || this.hasAirDesign()) {
+	        var _this$textNode$queryS;
+	        if (this.textNode === null) {
+	          this.textNode = main_core.Tag.render(_t6 || (_t6 = _`<span class="ui-btn-text"><span class="ui-btn-text-inner"></span></span>`));
 	        }
+	        if (!this.textNode.parentNode) {
+	          main_core.Dom.prepend(this.textNode, this.getContainer());
+	        }
+	        const textContentNode = (_this$textNode$queryS = this.textNode.querySelector('.ui-btn-text-inner')) !== null && _this$textNode$queryS !== void 0 ? _this$textNode$queryS : this.textNode;
+	        textContentNode.textContent = text;
+	      } else if (this.textNode !== null) {
+	        main_core.Dom.remove(this.textNode);
 	      }
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @return {string}
-	     */
+	  }, {
+	    key: "getTextContainer",
+	    value: function getTextContainer() {
+	      return this.textNode;
+	    }
 	  }, {
 	    key: "getText",
 	    value: function getText() {
 	      return this.text;
 	    }
 	    /**
+	     * Use for buttons with air option
+	     * Use only to create or delete a counter. Update counter value via getLeftCounter() method.
 	     *
-	     * @param {number | string} counter
-	     * @return {this}
+	     * @param options Object | null Object for creating. null for deleting.
 	     */
 	  }, {
+	    key: "setLeftCounter",
+	    value: function setLeftCounter(options) {
+	      if (this.hasAirDesign() === false) {
+	        console.warn('Left counter works only with air buttons. Use setLeftCounter or useAirDesign option in constructor.');
+	        return this;
+	      }
+	      if (!options) {
+	        _classPrivateMethodGet(this, _removeLeftCounter, _removeLeftCounter2).call(this);
+	        return this;
+	      }
+	      if (babelHelpers.classPrivateFieldGet(this, _leftCounter)) {
+	        return this;
+	      }
+	      _classPrivateMethodGet(this, _removeLeftCounter, _removeLeftCounter2).call(this);
+	      babelHelpers.classPrivateFieldSet(this, _leftCounter, new ButtonCounter({
+	        ...options,
+	        size: main_core.Type.isString(options.size) ? options.size : ui_cnt.CounterSize.MEDIUM
+	      }));
+	      if (this.textNode) {
+	        babelHelpers.classPrivateFieldSet(this, _leftCounterContainer, main_core.Tag.render(_t7 || (_t7 = _`
+				<div class="ui-btn-left-counter">
+					${0}
+				</div>
+			`), babelHelpers.classPrivateFieldGet(this, _leftCounter).render()));
+	        main_core.Dom.prepend(babelHelpers.classPrivateFieldGet(this, _leftCounterContainer), this.textNode);
+	        main_core.Dom.addClass(this.getContainer(), '--with-left-counter');
+	      }
+	      return this;
+	    }
+	    /**
+	     * Use for buttons with air option
+	     * Use only to create or delete a counter. Update counter value via getRightCounter() method.
+	     *
+	     * @param options Object | null Object for creating. null for deleting.
+	     */
+	  }, {
+	    key: "setRightCounter",
+	    value: function setRightCounter(options) {
+	      if (this.hasAirDesign() === false) {
+	        console.warn('Right counter works only with air buttons. Use setRightCounter or useAirDesign option in constructor.');
+	        return this;
+	      }
+	      if (!options) {
+	        _classPrivateMethodGet(this, _removeRightCounter, _removeRightCounter2).call(this);
+	        return this;
+	      }
+	      _classPrivateMethodGet(this, _removeRightCounter, _removeRightCounter2).call(this);
+	      babelHelpers.classPrivateFieldSet(this, _rightCounter, new ButtonCounter({
+	        ...options,
+	        size: main_core.Type.isString(options.size) ? options.size : ui_cnt.CounterSize.MEDIUM
+	      }));
+	      if (this.textNode) {
+	        babelHelpers.classPrivateFieldSet(this, _rightCounterContainer, main_core.Tag.render(_t8 || (_t8 = _`
+				<div class="ui-btn-right-counter">${0}</div>
+			`), babelHelpers.classPrivateFieldGet(this, _rightCounter).render()));
+	        main_core.Dom.append(babelHelpers.classPrivateFieldGet(this, _rightCounterContainer), this.textNode);
+	        main_core.Dom.addClass(this.getContainer(), '--with-right-counter');
+	      }
+	      return this;
+	    }
+	  }, {
+	    key: "getLeftCounter",
+	    value: function getLeftCounter() {
+	      return babelHelpers.classPrivateFieldGet(this, _leftCounter);
+	    }
+	  }, {
+	    key: "getRightCounter",
+	    value: function getRightCounter() {
+	      return babelHelpers.classPrivateFieldGet(this, _rightCounter);
+	    }
+	  }, {
 	    key: "setCounter",
+	    /**
+	     * use for old buttons (without useAirTheme option)
+	     */
 	    value: function setCounter(counter) {
 	      if ([0, '0', '', null, false].includes(counter)) {
-	        if (this.counterNode !== null) {
-	          main_core.Dom.remove(this.counterNode);
-	          this.counterNode = null;
-	        }
+	        main_core.Dom.remove(this.counterNode);
+	        this.counterNode = null;
 	        this.counter = null;
 	      } else if (main_core.Type.isNumber(counter) && counter > 0 || main_core.Type.isStringFilled(counter)) {
+	        if (this.hasAirDesign()) {
+	          console.warn('Use setCounter or counter option only for not air buttons. For fir buttons use setLeftCounter or setRightCounter methods or leftCounter or rightCounter options.');
+	          return this;
+	        }
 	        if (this.isInputType()) {
 	          throw new Error('BX.UI.Button: an input button cannot have a counter.');
 	        }
 	        if (this.counterNode === null) {
-	          this.counterNode = main_core.Tag.render(_t8 || (_t8 = _`<span class="ui-btn-counter"></span>`));
+	          this.counterNode = main_core.Tag.render(_t9 || (_t9 = _`<span class="ui-btn-counter"></span>`));
 	          main_core.Dom.append(this.counterNode, this.getContainer());
 	        }
 	        this.counter = counter;
@@ -209,24 +392,15 @@ this.BX = this.BX || {};
 	      }
 	      return this;
 	    }
-	    /**
-	     *
-	     * @return {number | string | null}
-	     */
 	  }, {
 	    key: "getCounter",
 	    value: function getCounter() {
 	      return this.counter;
 	    }
-	    /**
-	     *
-	     * @param {string} link
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setLink",
 	    value: function setLink(link) {
-	      if (main_core.Type.isString(link)) {
+	      if (main_core.Type.isStringFilled(link)) {
 	        if (this.getTag() !== ButtonTag.LINK) {
 	          throw new Error('BX.UI.Button: only an anchor button tag supports a link.');
 	        }
@@ -234,10 +408,6 @@ this.BX = this.BX || {};
 	      }
 	      return this;
 	    }
-	    /**
-	     *
-	     * @return {string}
-	     */
 	  }, {
 	    key: "getLink",
 	    value: function getLink() {
@@ -246,13 +416,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "setMaxWidth",
 	    value: function setMaxWidth(maxWidth) {
-	      if (main_core.Type.isNumber(maxWidth) && maxWidth > 0) {
-	        this.maxWidth = maxWidth;
-	        this.getContainer().style.maxWidth = `${maxWidth}px`;
-	      } else if (maxWidth === null) {
-	        this.getContainer().style.removeProperty('max-width');
-	        this.maxWidth = null;
-	      }
+	      this.maxWidth = maxWidth > 0 ? maxWidth : null;
+	      main_core.Dom.style(this.getContainer(), 'max-width', maxWidth > 0 ? `${maxWidth}px` : null);
 	      return this;
 	    }
 	  }, {
@@ -260,239 +425,141 @@ this.BX = this.BX || {};
 	    value: function getMaxWidth() {
 	      return this.maxWidth;
 	    }
-	    /**
-	     * @public
-	     * @return {ButtonTag}
-	     */
 	  }, {
 	    key: "getTag",
 	    value: function getTag() {
 	      return this.tag;
 	    }
-	    /**
-	     * @public
-	     * @param {object.<string, string>} props
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setProps",
 	    value: function setProps(props) {
-	      if (!main_core.Type.isPlainObject(props)) {
-	        return this;
-	      }
-	      for (let propName in props) {
-	        const propValue = props[propName];
-	        main_core.Dom.attr(this.getContainer(), propName, propValue);
+	      if (main_core.Type.isPlainObject(props)) {
+	        main_core.Dom.attr(this.getContainer(), props);
 	      }
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @return {object.<string, string>}
-	     */
 	  }, {
 	    key: "getProps",
 	    value: function getProps() {
-	      const attrs = this.getContainer().attributes;
-	      const result = {};
 	      const reserved = this.isInputType() ? ['class', 'type'] : ['class'];
-	      for (let i = 0; i < attrs.length; i++) {
-	        const {
-	          name,
-	          value
-	        } = attrs[i];
-	        if (reserved.includes(name) || name.startsWith('data-')) {
-	          continue;
-	        }
-	        result[name] = value;
-	      }
-	      return result;
+	      return [...this.getContainer().attributes].filter(({
+	        name
+	      }) => !reserved.includes(name) && !name.startsWith('data-')).reduce((props, {
+	        name,
+	        value
+	      }) => ({
+	        ...props,
+	        [name]: value
+	      }), {});
 	    }
-	    /**
-	     * @public
-	     * @param {object.<string, string>} props
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setDataSet",
 	    value: function setDataSet(props) {
 	      if (!main_core.Type.isPlainObject(props)) {
 	        return this;
 	      }
-	      for (let propName in props) {
-	        const propValue = props[propName];
-	        if (propValue === null) {
-	          delete this.getDataSet()[propName];
-	        } else {
-	          this.getDataSet()[propName] = propValue;
+	      Object.entries(props).forEach(([property, value]) => {
+	        this.getDataSet()[property] = value;
+	        if (value === null) {
+	          delete this.getDataSet()[property];
 	        }
-	      }
+	      });
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @return {DOMStringMap}
-	     */
 	  }, {
 	    key: "getDataSet",
 	    value: function getDataSet() {
 	      return this.getContainer().dataset;
 	    }
-	    /**
-	     * @public
-	     * @param {string} className
-	     * @return {this}
-	     */
 	  }, {
 	    key: "addClass",
 	    value: function addClass(className) {
-	      if (main_core.Type.isStringFilled(className)) {
-	        main_core.Dom.addClass(this.getContainer(), className);
-	      }
+	      main_core.Dom.addClass(this.getContainer(), className);
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @param {string} className
-	     * @return {this}
-	     */
 	  }, {
 	    key: "removeClass",
 	    value: function removeClass(className) {
-	      if (main_core.Type.isStringFilled(className)) {
-	        main_core.Dom.removeClass(this.getContainer(), className);
-	      }
+	      main_core.Dom.removeClass(this.getContainer(), className);
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setDisabled",
-	    value: function setDisabled(flag) {
-	      if (flag === false) {
-	        this.disabled = false;
-	        this.setProps({
-	          disabled: null
-	        });
-	      } else {
-	        this.disabled = true;
-	        this.setProps({
-	          disabled: true
-	        });
-	      }
+	    value: function setDisabled(disabled = true) {
+	      this.disabled = disabled;
+	      this.setProps({
+	        disabled: disabled ? true : null
+	      });
 	      return this;
 	    }
-	    /**
-	     *
-	     * @return {boolean}
-	     */
 	  }, {
 	    key: "isDisabled",
 	    value: function isDisabled() {
 	      return this.disabled;
 	    }
-	    /**
-	     * @public
-	     * @return {boolean}
-	     */
 	  }, {
 	    key: "isInputType",
 	    value: function isInputType() {
-	      return this.getTag() === ButtonTag.SUBMIT || this.getTag() === ButtonTag.INPUT;
+	      return [ButtonTag.SUBMIT, ButtonTag.INPUT].includes(this.getTag());
 	    }
-	    /**
-	     * @public
-	     * @param {object.<string, function>} events
-	     * @return {this}
-	     */
 	  }, {
 	    key: "bindEvents",
 	    value: function bindEvents(events) {
 	      if (main_core.Type.isPlainObject(events)) {
-	        for (let eventName in events) {
-	          const fn = events[eventName];
-	          this.bindEvent(eventName, fn);
-	        }
+	        Object.entries(events).forEach(([name, handler]) => this.bindEvent(name, handler));
 	      }
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @param {string[]} events
-	     * @return {this}
-	     */
 	  }, {
 	    key: "unbindEvents",
 	    value: function unbindEvents(events) {
 	      if (main_core.Type.isArray(events)) {
-	        events.forEach(eventName => {
-	          this.unbindEvent(eventName);
-	        });
+	        events.forEach(eventName => this.unbindEvent(eventName));
 	      }
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @param {string} eventName
-	     * @param {function} fn
-	     * @return {this}
-	     */
 	  }, {
 	    key: "bindEvent",
 	    value: function bindEvent(eventName, fn) {
 	      if (main_core.Type.isStringFilled(eventName) && main_core.Type.isFunction(fn)) {
 	        this.unbindEvent(eventName);
 	        this.events[eventName] = fn;
-	        main_core.Event.bind(this.getContainer(), eventName, this.handleEvent);
+	        main_core.Event.bind(this.getContainer(), eventName, babelHelpers.classPrivateFieldGet(this, _handleEvent));
 	      }
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @param {string} eventName
-	     * @return {this}
-	     */
 	  }, {
 	    key: "unbindEvent",
 	    value: function unbindEvent(eventName) {
 	      if (this.events[eventName]) {
 	        delete this.events[eventName];
-	        main_core.Event.unbind(this.getContainer(), eventName, this.handleEvent);
+	        main_core.Event.unbind(this.getContainer(), eventName, babelHelpers.classPrivateFieldGet(this, _handleEvent));
 	      }
 	      return this;
 	    }
-	    /**
-	     * @private
-	     * @param {MouseEvent} event
-	     */
 	  }, {
-	    key: "handleEvent",
-	    value: function handleEvent(event) {
-	      const eventName = event.type;
-	      if (this.events[eventName]) {
-	        const fn = this.events[eventName];
-	        fn.call(this, this, event);
-	      }
-	    }
+	    key: "isEnumValue",
 	    /**
 	     * @protected
 	     */
-	  }, {
-	    key: "isEnumValue",
 	    value: function isEnumValue(value, enumeration) {
-	      for (let code in enumeration) {
-	        if (enumeration[code] === value) {
-	          return true;
-	        }
-	      }
-	      return false;
+	      return Object.values(enumeration).includes(value);
 	    }
 	  }]);
-	  return BaseButton;
+	  return BaseButton$$1;
 	}();
+	function _removeLeftCounter2() {
+	  main_core.Dom.remove(babelHelpers.classPrivateFieldGet(this, _leftCounterContainer));
+	  main_core.Dom.removeClass(this.getContainer(), '--with-left-counter');
+	  babelHelpers.classPrivateFieldSet(this, _leftCounterContainer, null);
+	  babelHelpers.classPrivateFieldSet(this, _leftCounter, null);
+	}
+	function _removeRightCounter2() {
+	  main_core.Dom.remove(babelHelpers.classPrivateFieldGet(this, _rightCounterContainer));
+	  main_core.Dom.removeClass(this.getContainer(), '--with-right-counter');
+	  babelHelpers.classPrivateFieldSet(this, _rightCounterContainer, null);
+	  babelHelpers.classPrivateFieldSet(this, _rightCounter, null);
+	}
 
 	/**
 	 * @namespace {BX.UI}
@@ -524,23 +591,13 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	let ButtonSize = function ButtonSize() {
-	  babelHelpers.classCallCheck(this, ButtonSize);
-	};
-	babelHelpers.defineProperty(ButtonSize, "LARGE", 'ui-btn-lg');
-	babelHelpers.defineProperty(ButtonSize, "MEDIUM", 'ui-btn-md');
-	babelHelpers.defineProperty(ButtonSize, "SMALL", 'ui-btn-sm');
-	babelHelpers.defineProperty(ButtonSize, "EXTRA_SMALL", 'ui-btn-xs');
-
-	/**
-	 * @namespace {BX.UI}
-	 */
 	let ButtonIcon = function ButtonIcon() {
 	  babelHelpers.classCallCheck(this, ButtonIcon);
 	};
 	babelHelpers.defineProperty(ButtonIcon, "UNFOLLOW", 'ui-btn-icon-unfollow');
 	babelHelpers.defineProperty(ButtonIcon, "FOLLOW", 'ui-btn-icon-follow');
 	babelHelpers.defineProperty(ButtonIcon, "ADD", 'ui-btn-icon-add');
+	babelHelpers.defineProperty(ButtonIcon, "ADD_M", 'ui-btn-icon-add-m');
 	babelHelpers.defineProperty(ButtonIcon, "STOP", 'ui-btn-icon-stop');
 	babelHelpers.defineProperty(ButtonIcon, "START", 'ui-btn-icon-start');
 	babelHelpers.defineProperty(ButtonIcon, "PAUSE", 'ui-btn-icon-pause');
@@ -561,7 +618,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonIcon, "BACK", 'ui-btn-icon-back');
 	babelHelpers.defineProperty(ButtonIcon, "REMOVE", 'ui-btn-icon-remove');
 	babelHelpers.defineProperty(ButtonIcon, "DOWNLOAD", 'ui-btn-icon-download');
-	babelHelpers.defineProperty(ButtonIcon, "DOTS", 'ui-btn-icon-ui-btn-icon-dots');
+	babelHelpers.defineProperty(ButtonIcon, "DOTS", 'ui-btn-icon-dots');
 	babelHelpers.defineProperty(ButtonIcon, "DONE", 'ui-btn-icon-done');
 	babelHelpers.defineProperty(ButtonIcon, "CANCEL", 'ui-btn-icon-cancel');
 	babelHelpers.defineProperty(ButtonIcon, "DISK", 'ui-btn-icon-disk');
@@ -596,6 +653,22 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonIcon, "COPY", 'ui-btn-icon-copy');
 	babelHelpers.defineProperty(ButtonIcon, "AI", 'ui-btn-icon-ai ui-icon-set__scope');
 	babelHelpers.defineProperty(ButtonIcon, "BUSINESS_NEW", 'ui-btn-icon-business-new');
+	babelHelpers.defineProperty(ButtonIcon, "OUTLINE_ADD", 'ui-btn-icon-outline-add');
+	babelHelpers.defineProperty(ButtonIcon, "HELP", 'ui-btn-icon-help');
+	babelHelpers.defineProperty(ButtonIcon, "CHECK", 'ui-btn-icon-check');
+	babelHelpers.defineProperty(ButtonIcon, "CHEVRON_LEFT_S", 'ui-btn-icon-chevron-left-s');
+	babelHelpers.defineProperty(ButtonIcon, "CHEVRON_RIGHT_S", 'ui-btn-icon-chevron-right-s');
+	babelHelpers.defineProperty(ButtonIcon, "REFRESH", 'ui-btn-icon-refresh');
+	babelHelpers.defineProperty(ButtonIcon, "APPS", 'ui-btn-icon-apps');
+	babelHelpers.defineProperty(ButtonIcon, "IMAGE", 'ui-btn-icon-image');
+	babelHelpers.defineProperty(ButtonIcon, "CITY", 'ui-btn-icon-city');
+	babelHelpers.defineProperty(ButtonIcon, "TWO_PERSONS", 'ui-btn-icon-two-persons');
+	babelHelpers.defineProperty(ButtonIcon, "COPILOT", 'ui-btn-icon-copilot');
+	babelHelpers.defineProperty(ButtonIcon, "RELOAD", 'ui-btn-icon-reload');
+	babelHelpers.defineProperty(ButtonIcon, "WORKFLOW", 'ui-btn-icon-workflow');
+	babelHelpers.defineProperty(ButtonIcon, "PERSON", 'ui-btn-icon-person');
+	babelHelpers.defineProperty(ButtonIcon, "WORKFLOW_STOP", 'ui-btn-icon-workflow-stop');
+	babelHelpers.defineProperty(ButtonIcon, "MARKET", 'ui-btn-icon-market');
 
 	/**
 	 * @namespace {BX.UI}
@@ -625,14 +698,58 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
+	let AirButtonStyle = function AirButtonStyle() {
+	  babelHelpers.classCallCheck(this, AirButtonStyle);
+	};
+	babelHelpers.defineProperty(AirButtonStyle, "FILLED", '--style-filled');
+	babelHelpers.defineProperty(AirButtonStyle, "TINTED", '--style-tinted');
+	babelHelpers.defineProperty(AirButtonStyle, "TINTED_ALERT", '--style-tinted-alert');
+	babelHelpers.defineProperty(AirButtonStyle, "OUTLINE_ACCENT_1", '--style-outline-accent-1');
+	babelHelpers.defineProperty(AirButtonStyle, "OUTLINE_ACCENT_2", '--style-outline-accent-2');
+	babelHelpers.defineProperty(AirButtonStyle, "OUTLINE", '--style-outline');
+	babelHelpers.defineProperty(AirButtonStyle, "OUTLINE_NO_ACCENT", '--style-outline-no-accent');
+	babelHelpers.defineProperty(AirButtonStyle, "PLAIN_ACCENT", '--style-plain-accent');
+	babelHelpers.defineProperty(AirButtonStyle, "PLAIN", '--style-plain');
+	babelHelpers.defineProperty(AirButtonStyle, "PLAIN_NO_ACCENT", '--style-plain-no-accent');
+	babelHelpers.defineProperty(AirButtonStyle, "SELECTION", '--style-selection');
+	babelHelpers.defineProperty(AirButtonStyle, "FILLED_COPILOT", '--style-filled-copilot');
+	babelHelpers.defineProperty(AirButtonStyle, "FILLED_SUCCESS", '--style-filled-success');
+	babelHelpers.defineProperty(AirButtonStyle, "FILLED_ALERT", '--style-filled-alert');
+	babelHelpers.defineProperty(AirButtonStyle, "FILLED_BOOST", '--style-filled-boost');
+
+	let _$1 = t => t,
+	  _t$1;
+	function _classPrivateFieldInitSpec$2(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _style = /*#__PURE__*/new WeakMap();
+	var _isWide = /*#__PURE__*/new WeakMap();
+	var _layout = /*#__PURE__*/new WeakMap();
+	/**
+	 * @namespace {BX.UI}
+	 */
 	let Button = /*#__PURE__*/function (_BaseButton) {
 	  babelHelpers.inherits(Button, _BaseButton);
 	  function Button(options) {
+	    var _options$className, _this$options$dependO;
 	    var _this;
 	    babelHelpers.classCallCheck(this, Button);
-	    options = main_core.Type.isPlainObject(options) ? options : {};
-	    options.baseClass = main_core.Type.isStringFilled(options.baseClass) ? options.baseClass : Button.BASE_CLASS;
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Button).call(this, options));
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Button).call(this, {
+	      dependOnTheme: (_options$className = options.className) === null || _options$className === void 0 ? void 0 : _options$className.includes(ButtonStyle.DEPEND_ON_THEME),
+	      ...(main_core.Type.isPlainObject(options) ? options : {}),
+	      baseClass: main_core.Type.isStringFilled(options === null || options === void 0 ? void 0 : options.baseClass) ? options.baseClass : Button.BASE_CLASS
+	    }));
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _style, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _isWide, {
+	      writable: true,
+	      value: false
+	    });
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _layout, {
+	      writable: true,
+	      value: {}
+	    });
 	    _this.isDependOnTheme = null;
 	    _this.size = null;
 	    _this.color = null;
@@ -643,229 +760,179 @@ this.BX = this.BX || {};
 	    _this.menuWindow = null;
 	    _this.handleMenuClick = _this.handleMenuClick.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.handleMenuClose = _this.handleMenuClose.bind(babelHelpers.assertThisInitialized(_this));
-	    _this.setDependOnTheme(_this.options.dependOnTheme);
+	    _this.setDependOnTheme((_this$options$dependO = _this.options.dependOnTheme) !== null && _this$options$dependO !== void 0 ? _this$options$dependO : false);
 	    _this.setSize(_this.options.size);
 	    _this.setColor(_this.options.color);
-	    _this.setIcon(_this.options.icon);
+	    _this.setIcon(_this.options.icon, _this.options.iconPosition || 'left');
 	    _this.setState(_this.options.state);
 	    _this.setId(_this.options.id);
 	    _this.setMenu(_this.options.menu);
 	    _this.setContext(_this.options.context);
-	    _this.options.noCaps && _this.setNoCaps();
-	    _this.options.round && _this.setRound();
+	    _this.setWide(_this.options.wide === true);
+	    _this.setLeftCorners(_this.options.removeLeftCorners !== true);
+	    _this.setRightCorners(_this.options.removeRightCorners !== true);
+	    if (_this.options.collapsedIcon) {
+	      _this.setCollapsedIcon(_this.options.collapsedIcon);
+	    }
+	    if (_this.hasAirDesign()) {
+	      _this.setStyle(_this.options.style || AirButtonStyle.FILLED);
+	      _this.setNoCaps(true);
+	      if (!_this.text && !(babelHelpers.assertThisInitialized(_this) instanceof ui_buttons.SplitButton)) {
+	        _this.setCollapsed(true);
+	      }
+	    }
+	    if (_this.options.noCaps) {
+	      _this.setNoCaps();
+	    }
+	    if (_this.options.round) {
+	      _this.setRound();
+	    }
 	    if (_this.options.dropdown || _this.getMenuWindow() && _this.options.dropdown !== false) {
 	      _this.setDropdown();
 	    }
 	    return _this;
 	  }
 	  babelHelpers.createClass(Button, [{
+	    key: "setText",
+	    value: function setText(text) {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(Button.prototype), "setText", this).call(this, text);
+	      if (this.hasAirDesign()) {
+	        main_core.Dom.toggleClass(this.getContainer(), ButtonStyle.COLLAPSED, !this.text);
+	      }
+	      return this;
+	    }
+	  }, {
 	    key: "setSize",
-	    /**
-	     * @public
-	     * @param {ButtonSize|null} size
-	     * @return {this}
-	     */
 	    value: function setSize(size) {
 	      return this.setProperty('size', size, ButtonSize);
 	    }
-	    /**
-	     * @public
-	     * @return {?ButtonSize}
-	     */
 	  }, {
 	    key: "getSize",
 	    value: function getSize() {
 	      return this.size;
 	    }
-	    /**
-	     * @public
-	     * @param {ButtonColor|null} color
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setColor",
 	    value: function setColor(color) {
 	      return this.setProperty('color', color, ButtonColor);
 	    }
-	    /**
-	     * @public
-	     * @return {?ButtonSize}
-	     */
 	  }, {
 	    key: "getColor",
 	    value: function getColor() {
 	      return this.color;
 	    }
-	    /**
-	     * @public
-	     * @param {?ButtonIcon} icon
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setIcon",
-	    value: function setIcon(icon) {
+	    value: function setIcon(icon, iconPosition = 'left') {
+	      var _left$right$iconPosit;
+	      if (icon && !icon.startsWith('ui-btn-icon')) {
+	        var _babelHelpers$classPr;
+	        (_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(this, _layout).icon) === null || _babelHelpers$classPr === void 0 ? void 0 : _babelHelpers$classPr.remove();
+	        babelHelpers.classPrivateFieldGet(this, _layout).icon = new ui_iconSet_api_core.Icon({
+	          icon
+	        }).render();
+	        main_core.Dom.addClass(this.getContainer(), '--with-icon');
+	        main_core.Dom.prepend(babelHelpers.classPrivateFieldGet(this, _layout).icon, this.getContainer());
+	        return this;
+	      }
 	      this.setProperty('icon', icon, ButtonIcon);
+	      const iconClass = (_left$right$iconPosit = {
+	        left: '--with-left-icon',
+	        right: '--with-right-icon'
+	      }[iconPosition]) !== null && _left$right$iconPosit !== void 0 ? _left$right$iconPosit : '';
+	      main_core.Dom.removeClass(this.getContainer(), '--with-icon');
+	      main_core.Dom.toggleClass(this.getContainer(), ['ui-icon-set__scope', iconClass], Boolean(icon));
 	      if (this.isInputType() && this.getIcon() !== null) {
 	        throw new Error('BX.UI.Button: Input type button cannot have an icon.');
 	      }
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @return {?ButtonIcon}
-	     */
+	  }, {
+	    key: "setCollapsedIcon",
+	    value: function setCollapsedIcon(icon) {
+	      this.setProperty('icon', icon, ButtonIcon);
+	      main_core.Dom.toggleClass(this.getContainer(), ['ui-icon-set__scope', '--with-collapsed-icon'], Boolean(icon));
+	    }
 	  }, {
 	    key: "getIcon",
 	    value: function getIcon() {
 	      return this.icon;
 	    }
-	    /**
-	     * @public
-	     * @param {ButtonState|null} state
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setState",
 	    value: function setState(state) {
 	      return this.setProperty('state', state, ButtonState);
 	    }
-	    /**
-	     * @public
-	     * @return {?ButtonState}
-	     */
 	  }, {
 	    key: "getState",
 	    value: function getState() {
 	      return this.state;
 	    }
-	    /**
-	     * @public
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setNoCaps",
-	    value: function setNoCaps(flag) {
-	      if (flag === false) {
-	        main_core.Dom.removeClass(this.getContainer(), ButtonStyle.NO_CAPS);
-	      } else {
-	        main_core.Dom.addClass(this.getContainer(), ButtonStyle.NO_CAPS);
-	      }
+	    value: function setNoCaps(noCaps = true) {
+	      main_core.Dom.toggleClass(this.getContainer(), ButtonStyle.NO_CAPS, noCaps);
 	      return this;
 	    }
-	    /**
-	     *
-	     * @return {boolean}
-	     */
 	  }, {
 	    key: "isNoCaps",
 	    value: function isNoCaps() {
 	      return main_core.Dom.hasClass(this.getContainer(), ButtonStyle.NO_CAPS);
 	    }
-	    /**
-	     * @public
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setRound",
-	    value: function setRound(flag) {
-	      if (flag === false) {
-	        main_core.Dom.removeClass(this.getContainer(), ButtonStyle.ROUND);
-	      } else {
-	        main_core.Dom.addClass(this.getContainer(), ButtonStyle.ROUND);
-	      }
+	    value: function setRound(round = true) {
+	      main_core.Dom.toggleClass(this.getContainer(), ButtonStyle.ROUND, round);
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @return {boolean}
-	     */
 	  }, {
 	    key: "isRound",
 	    value: function isRound() {
 	      return main_core.Dom.hasClass(this.getContainer(), ButtonStyle.ROUND);
 	    }
-	    /**
-	     * @public
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setDependOnTheme",
-	    value: function setDependOnTheme(flag) {
-	      if (flag === true) {
-	        main_core.Dom.addClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME);
-	      } else if (flag === false) {
-	        main_core.Dom.removeClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME);
-	      }
+	    value: function setDependOnTheme(dependOnTheme = true) {
+	      main_core.Dom.toggleClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME, dependOnTheme);
 	      return this;
 	    }
-	    /**
-	     *
-	     * @return {boolean}
-	     */
-	  }, {
-	    key: "isDependOnTheme",
-	    value: function isDependOnTheme() {
-	      if (flag === false) {
-	        main_core.Dom.removeClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME);
-	      } else {
-	        main_core.Dom.addClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME);
-	      }
-	      return this;
-	    }
-	    /**
-	     *
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setDropdown",
-	    value: function setDropdown(flag) {
-	      if (flag === false) {
-	        main_core.Dom.removeClass(this.getContainer(), ButtonStyle.DROPDOWN);
-	      } else {
-	        main_core.Dom.addClass(this.getContainer(), ButtonStyle.DROPDOWN);
-	      }
+	    value: function setDropdown(dropdown = true) {
+	      main_core.Dom.toggleClass(this.getContainer(), ButtonStyle.DROPDOWN, dropdown);
 	      return this;
 	    }
-	    /**
-	     *
-	     * @return {boolean}
-	     */
 	  }, {
 	    key: "isDropdown",
 	    value: function isDropdown() {
 	      return main_core.Dom.hasClass(this.getContainer(), ButtonStyle.DROPDOWN);
 	    }
-	    /**
-	     *
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setCollapsed",
-	    value: function setCollapsed(flag) {
-	      if (flag === false) {
-	        main_core.Dom.removeClass(this.getContainer(), ButtonStyle.COLLAPSED);
-	      } else {
-	        main_core.Dom.addClass(this.getContainer(), ButtonStyle.COLLAPSED);
-	      }
+	    value: function setCollapsed(collapsed = true) {
+	      const isAirWithoutText = this.hasAirDesign() && !this.getText();
+	      main_core.Dom.toggleClass(this.getContainer(), ButtonStyle.COLLAPSED, collapsed || isAirWithoutText);
 	      return this;
 	    }
-	    /**
-	     *
-	     * @return {boolean}
-	     */
 	  }, {
 	    key: "isCollapsed",
 	    value: function isCollapsed() {
 	      return main_core.Dom.hasClass(this.getContainer(), ButtonStyle.COLLAPSED);
+	    } // works only with air buttons
+	  }, {
+	    key: "setLeftCorners",
+	    value: function setLeftCorners(withLeftCorners = true) {
+	      main_core.Dom.toggleClass(this.getContainer(), '--remove-left-corners', !withLeftCorners);
+	      return this;
+	    } // works only with air buttons
+	  }, {
+	    key: "setRightCorners",
+	    value: function setRightCorners(withRightCorners = true) {
+	      main_core.Dom.toggleClass(this.getContainer(), '--remove-right-corners', !withRightCorners);
+	      return this;
 	    }
 	    /**
 	     * @protected
-	     * @param {MenuOptions|false} options
 	     */
 	  }, {
 	    key: "setMenu",
@@ -888,19 +955,11 @@ this.BX = this.BX || {};
 	      }
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @return {HTMLElement}
-	     */
 	  }, {
 	    key: "getMenuBindElement",
 	    value: function getMenuBindElement() {
 	      return this.getContainer();
 	    }
-	    /**
-	     * @public
-	     * @return {HTMLElement}
-	     */
 	  }, {
 	    key: "getMenuClickElement",
 	    value: function getMenuClickElement() {
@@ -908,13 +967,24 @@ this.BX = this.BX || {};
 	    }
 	    /**
 	     * @protected
-	     * @param {MouseEvent} event
 	     */
 	  }, {
 	    key: "handleMenuClick",
 	    value: function handleMenuClick(event) {
 	      this.getMenuWindow().show();
 	      this.setActive(this.getMenuWindow().getPopupWindow().isShown());
+	    }
+	  }, {
+	    key: "setAirDesign",
+	    value: function setAirDesign(use) {
+	      var _this$getContainer;
+	      babelHelpers.get(babelHelpers.getPrototypeOf(Button.prototype), "setAirDesign", this).call(this, use);
+	      const isButtonInOldFormat = !((_this$getContainer = this.getContainer()) !== null && _this$getContainer !== void 0 && _this$getContainer.querySelector('.ui-btn-text-inner'));
+	      if (this.hasAirDesign() && isButtonInOldFormat) {
+	        main_core.Dom.remove(this.textNode);
+	        this.textNode = null;
+	        this.setText(this.getText());
+	      }
 	    }
 	    /**
 	     * @protected
@@ -924,20 +994,11 @@ this.BX = this.BX || {};
 	    value: function handleMenuClose() {
 	      this.setActive(false);
 	    }
-	    /**
-	     * @public
-	     * @return {Menu}
-	     */
 	  }, {
 	    key: "getMenuWindow",
 	    value: function getMenuWindow() {
 	      return this.menuWindow;
 	    }
-	    /**
-	     * @public
-	     * @param {string|null} id
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setId",
 	    value: function setId(id) {
@@ -946,129 +1007,66 @@ this.BX = this.BX || {};
 	      }
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @return {?string}
-	     */
 	  }, {
 	    key: "getId",
 	    value: function getId() {
 	      return this.id;
 	    }
-	    /**
-	     * @public
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setActive",
-	    value: function setActive(flag) {
-	      return this.setState(flag === false ? null : ButtonState.ACTIVE);
+	    value: function setActive(active = true) {
+	      return this.setState(active ? ButtonState.ACTIVE : null);
 	    }
-	    /**
-	     * @public
-	     * @return {boolean}
-	     */
 	  }, {
 	    key: "isActive",
 	    value: function isActive() {
 	      return this.getState() === ButtonState.ACTIVE;
 	    }
-	    /**
-	     * @public
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setHovered",
-	    value: function setHovered(flag) {
-	      return this.setState(flag === false ? null : ButtonState.HOVER);
+	    value: function setHovered(hovered = true) {
+	      return this.setState(hovered ? ButtonState.HOVER : null);
 	    }
-	    /**
-	     * @public
-	     * @return {boolean}
-	     */
 	  }, {
 	    key: "isHover",
 	    value: function isHover() {
 	      return this.getState() === ButtonState.HOVER;
 	    }
-	    /**
-	     * @public
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setDisabled",
-	    value: function setDisabled(flag) {
-	      this.setState(flag === false ? null : ButtonState.DISABLED);
-	      babelHelpers.get(babelHelpers.getPrototypeOf(Button.prototype), "setDisabled", this).call(this, flag);
+	    value: function setDisabled(disabled = true) {
+	      this.setState(disabled ? ButtonState.DISABLED : null);
+	      babelHelpers.get(babelHelpers.getPrototypeOf(Button.prototype), "setDisabled", this).call(this, disabled);
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @return {boolean}
-	     */
 	  }, {
 	    key: "isDisabled",
 	    value: function isDisabled() {
 	      return this.getState() === ButtonState.DISABLED;
 	    }
-	    /**
-	     * @public
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setWaiting",
-	    value: function setWaiting(flag) {
-	      if (flag === false) {
-	        this.setState(null);
-	        this.setProps({
-	          disabled: null
-	        });
-	      } else {
-	        this.setState(ButtonState.WAITING);
-	        this.setProps({
-	          disabled: true
-	        });
-	      }
+	    value: function setWaiting(waiting = true) {
+	      this.setState(waiting ? ButtonState.WAITING : null);
+	      this.setProps({
+	        disabled: waiting ? true : null
+	      });
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @return {boolean}
-	     */
 	  }, {
 	    key: "isWaiting",
 	    value: function isWaiting() {
 	      return this.getState() === ButtonState.WAITING;
 	    }
-	    /**
-	     * @public
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setClocking",
-	    value: function setClocking(flag) {
-	      if (flag === false) {
-	        this.setState(null);
-	        this.setProps({
-	          disabled: null
-	        });
-	      } else {
-	        this.setState(ButtonState.CLOCKING);
-	        this.setProps({
-	          disabled: true
-	        });
-	      }
+	    value: function setClocking(clocking = true) {
+	      this.setState(clocking ? ButtonState.CLOCKING : null);
+	      this.setProps({
+	        disabled: clocking ? true : null
+	      });
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @return {boolean}
-	     */
 	  }, {
 	    key: "isClocking",
 	    value: function isClocking() {
@@ -1090,10 +1088,6 @@ this.BX = this.BX || {};
 	      }
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @param {*} context
-	     */
 	  }, {
 	    key: "setContext",
 	    value: function setContext(context) {
@@ -1102,18 +1096,86 @@ this.BX = this.BX || {};
 	      }
 	      return this;
 	    }
-	    /**
-	     *
-	     * @return {*}
-	     */
 	  }, {
 	    key: "getContext",
 	    value: function getContext() {
 	      return this.context;
 	    }
+	  }, {
+	    key: "setWide",
+	    value: function setWide(isWide) {
+	      babelHelpers.classPrivateFieldSet(this, _isWide, isWide === true);
+	      main_core.Dom.toggleClass(this.getContainer(), '--wide', babelHelpers.classPrivateFieldGet(this, _isWide));
+	      return this;
+	    }
+	  }, {
+	    key: "isWide",
+	    value: function isWide() {
+	      return babelHelpers.classPrivateFieldGet(this, _isWide);
+	    } // This method works only with useAirDesign: true option
+	  }, {
+	    key: "setStyle",
+	    value: function setStyle(style) {
+	      if (this.hasAirDesign() === false) {
+	        console.warn('Style option works only with air buttons.');
+	        return;
+	      }
+	      if (Object.values(AirButtonStyle).includes(style) === false) {
+	        console.warn('Undefined style option. Use value from AirButtonStyle');
+	        return;
+	      }
+	      main_core.Dom.removeClass(this.getContainer(), babelHelpers.classPrivateFieldGet(this, _style));
+	      main_core.Dom.addClass(this.getContainer(), style);
+	      babelHelpers.classPrivateFieldSet(this, _style, style);
+	    }
+	  }, {
+	    key: "getStyle",
+	    value: function getStyle() {
+	      return babelHelpers.classPrivateFieldGet(this, _style);
+	    }
+	  }, {
+	    key: "setLeftCounter",
+	    value: function setLeftCounter(options) {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(Button.prototype), "setLeftCounter", this).call(this, this.prepareCounterOptions(options));
+	      return this;
+	    }
+	  }, {
+	    key: "setRightCounter",
+	    value: function setRightCounter(options) {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(Button.prototype), "setRightCounter", this).call(this, this.prepareCounterOptions(options));
+	      return this;
+	    }
+	    /**
+	     * @protected
+	     */
+	  }, {
+	    key: "prepareCounterOptions",
+	    value: function prepareCounterOptions(options) {
+	      if (!options) {
+	        return null;
+	      }
+	      return {
+	        ...options,
+	        ...(this.getSize() ? {
+	          size: this.getSize()
+	        } : {})
+	      };
+	    }
+	  }, {
+	    key: "startShimmer",
+	    value: function startShimmer() {
+	      const highlighter = main_core.Tag.render(_t$1 || (_t$1 = _$1`<span class="ui-button__shimmer"></span>`));
+	      main_core.Dom.append(highlighter, this.getContainer());
+	    }
+	  }, {
+	    key: "stopShimmer",
+	    value: function stopShimmer() {
+	      const highlighter = this.getContainer().querySelector('.ui-button__shimmer');
+	      main_core.Dom.remove(highlighter);
+	    }
 	  }]);
 	  return Button;
-	}(BaseButton);
+	}(BaseButton$$1);
 	babelHelpers.defineProperty(Button, "BASE_CLASS", 'ui-btn');
 	babelHelpers.defineProperty(Button, "Size", ButtonSize);
 	babelHelpers.defineProperty(Button, "Color", ButtonColor);
@@ -1121,6 +1183,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(Button, "Icon", ButtonIcon);
 	babelHelpers.defineProperty(Button, "Tag", ButtonTag);
 	babelHelpers.defineProperty(Button, "Style", ButtonStyle);
+	babelHelpers.defineProperty(Button, "AirStyle", AirButtonStyle);
 
 	/**
 	 * @namespace {BX.UI}
@@ -1149,7 +1212,13 @@ this.BX = this.BX || {};
 	};
 	babelHelpers.defineProperty(SplitSubButtonType, "MAIN", 'ui-btn-main');
 	babelHelpers.defineProperty(SplitSubButtonType, "MENU", 'ui-btn-menu');
+	babelHelpers.defineProperty(SplitSubButtonType, "SWITCHER", 'ui-btn-switcher');
 
+	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$3(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _renderSwitcher = /*#__PURE__*/new WeakSet();
+	var _initSwitcher = /*#__PURE__*/new WeakSet();
 	/**
 	 * @namespace {BX.UI}
 	 */
@@ -1160,7 +1229,20 @@ this.BX = this.BX || {};
 	    babelHelpers.classCallCheck(this, SplitSubButton);
 	    options = main_core.Type.isPlainObject(options) ? options : {};
 	    options.baseClass = options.buttonType === SplitSubButtonType.MAIN ? SplitSubButtonType.MAIN : SplitSubButtonType.MENU;
+	    if (options.buttonType === SplitSubButtonType.SWITCHER) {
+	      options.baseClass += ' --switcher';
+	    }
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SplitSubButton).call(this, options));
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _initSwitcher);
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _renderSwitcher);
+	    if (_this.isSwitcherButton()) {
+	      const additionalSwitcherOptions = main_core.Type.isPlainObject(_this.options.switcherOptions) ? _this.options.switcherOptions : {};
+	      _classPrivateMethodGet$1(babelHelpers.assertThisInitialized(_this), _initSwitcher, _initSwitcher2).call(babelHelpers.assertThisInitialized(_this), {
+	        ...additionalSwitcherOptions,
+	        size: _this.options.switcherOptions.size,
+	        useAirDesign: _this.options.switcherOptions.useAirDesign === true
+	      });
+	    }
 	    if (_this.isInputType()) {
 	      throw new Error('BX.UI.SplitSubButton: Split button cannot be an input tag.');
 	    }
@@ -1201,12 +1283,22 @@ this.BX = this.BX || {};
 	      return this.buttonType === SplitSubButtonType.MENU;
 	    }
 	  }, {
+	    key: "isSwitcherButton",
+	    value: function isSwitcherButton() {
+	      return this.buttonType === SplitSubButtonType.SWITCHER;
+	    }
+	  }, {
 	    key: "setText",
 	    value: function setText(text) {
 	      if (main_core.Type.isString(text) && this.isMenuButton()) {
 	        throw new Error('BX.UI.SplitButton: a menu button doesn\'t support a text caption.');
 	      }
 	      return babelHelpers.get(babelHelpers.getPrototypeOf(SplitSubButton.prototype), "setText", this).call(this, text);
+	    }
+	  }, {
+	    key: "getSwitcher",
+	    value: function getSwitcher() {
+	      return this.switcher;
 	    }
 	    /**
 	     * @public
@@ -1244,6 +1336,10 @@ this.BX = this.BX || {};
 	    key: "setDisabled",
 	    value: function setDisabled(flag) {
 	      this.toggleState(flag, SplitButtonState.DISABLED, SplitButtonState.MAIN_DISABLED, SplitButtonState.MENU_DISABLED);
+	      if (flag) {
+	        var _this$getSwitcher;
+	        (_this$getSwitcher = this.getSwitcher()) === null || _this$getSwitcher === void 0 ? void 0 : _this$getSwitcher.disable();
+	      }
 	      babelHelpers.get(babelHelpers.getPrototypeOf(SplitSubButton.prototype), "setDisabled", this).call(this, flag);
 	      return this;
 	    }
@@ -1303,12 +1399,44 @@ this.BX = this.BX || {};
 	    }
 	  }]);
 	  return SplitSubButton;
-	}(BaseButton);
+	}(BaseButton$$1);
+	function _renderSwitcher2(container) {
+	  var _this$switcher;
+	  main_core.Dom.clean(container);
+	  return (_this$switcher = this.switcher) === null || _this$switcher === void 0 ? void 0 : _this$switcher.renderTo(container);
+	}
+	function _initSwitcher2(switcherOptions = {}) {
+	  if (switcherOptions.node) {
+	    this.switcher = new ui_switcher.Switcher({
+	      node: switcherOptions.node,
+	      checked: main_core.Dom.hasClass(switcherOptions.node, ui_switcher.Switcher.classNameOff) === false
+	    });
+	    return;
+	  }
+	  this.switcher = new ui_switcher.Switcher({
+	    size: ui_switcher.SwitcherSize.medium,
+	    color: ui_switcher.SwitcherColor.green,
+	    style: ui_switcher.AirSwitcherStyle.FILLED,
+	    ...switcherOptions
+	  });
+	  _classPrivateMethodGet$1(this, _renderSwitcher, _renderSwitcher2).call(this, this.getContainer(), switcherOptions);
+	}
 	babelHelpers.defineProperty(SplitSubButton, "Type", SplitSubButtonType);
 
-	let _$1 = t => t,
-	  _t$1;
+	const switcherSizeByButton = Object.freeze({
+	  [ButtonSize.EXTRA_LARGE]: ui_switcher.SwitcherSize.large,
+	  [ButtonSize.LARGE]: ui_switcher.SwitcherSize.medium,
+	  [ButtonSize.MEDIUM]: ui_switcher.SwitcherSize.small,
+	  [ButtonSize.SMALL]: ui_switcher.SwitcherSize.extraSmall,
+	  [ButtonSize.EXTRA_SMALL]: ui_switcher.SwitcherSize.extraSmall,
+	  [ButtonSize.EXTRA_EXTRA_SMALL]: ui_switcher.SwitcherSize.extraExtraSmall
+	});
+	const getSwitcherSizeByButtonSize = buttonSize => {
+	  return switcherSizeByButton[buttonSize];
+	};
 
+	let _$2 = t => t,
+	  _t$2;
 	/**
 	 * @namespace {BX.UI}
 	 */
@@ -1317,8 +1445,6 @@ this.BX = this.BX || {};
 	  function SplitButton(options) {
 	    babelHelpers.classCallCheck(this, SplitButton);
 	    options = main_core.Type.isPlainObject(options) ? options : {};
-	    // delete options.round;
-
 	    if (main_core.Type.isStringFilled(options.link)) {
 	      options.mainButton = main_core.Type.isPlainObject(options.mainButton) ? options.mainButton : {};
 	      options.mainButton.link = options.link;
@@ -1337,51 +1463,72 @@ this.BX = this.BX || {};
 	      mainOptions.splitButton = this;
 	      menuOptions.buttonType = SplitSubButtonType.MENU;
 	      menuOptions.splitButton = this;
-	      this.mainButton = new SplitSubButton(mainOptions);
+	      this.mainButton = new SplitSubButton({
+	        ...mainOptions,
+	        useAirDesign: this.options.useAirDesign,
+	        style: this.options.style
+	      });
 	      this.menuButton = new SplitSubButton(menuOptions);
 	      this.menuTarget = SplitSubButtonType.MAIN;
 	      if (this.options.menuTarget === SplitSubButtonType.MENU) {
 	        this.menuTarget = SplitSubButtonType.MENU;
 	      }
+	      if (main_core.Type.isPlainObject(this.options.switcher) || this.options.switcher === true) {
+	        const addSwitcherOptions = main_core.Type.isPlainObject(this.options.switcher) ? this.options.switcher : {};
+	        const buttonSize = main_core.Type.isStringFilled(this.options.size) ? this.options.size : ButtonSize.MEDIUM;
+	        this.switcherButton = new SplitSubButton({
+	          buttonType: SplitSubButtonType.SWITCHER,
+	          splitButton: this,
+	          switcherOptions: {
+	            ...addSwitcherOptions,
+	            disabled: this.options.disabled,
+	            size: getSwitcherSizeByButtonSize(buttonSize),
+	            useAirDesign: this.options.useAirDesign === true
+	          }
+	        });
+	      }
 	      babelHelpers.get(babelHelpers.getPrototypeOf(SplitButton.prototype), "init", this).call(this);
 	    }
 	  }, {
 	    key: "getContainer",
-	    /**
-	     * @public
-	     * @return {HTMLElement}
-	     */
 	    value: function getContainer() {
-	      if (this.button === null) {
-	        this.button = main_core.Tag.render(_t$1 || (_t$1 = _$1`
-				<div class="${0}">${0}</div>
-			`), this.getBaseClass(), [this.getMainButton().getContainer(), this.getMenuButton().getContainer()]);
-	      }
+	      var _this$button, _this$getSwitcherButt;
+	      (_this$button = this.button) !== null && _this$button !== void 0 ? _this$button : this.button = main_core.Tag.render(_t$2 || (_t$2 = _$2`
+			<div class="${0}">
+				${0}
+				${0}
+			</div>
+		`), this.getBaseClass(), this.getMainButton().getContainer(), ((_this$getSwitcherButt = this.getSwitcherButton()) !== null && _this$getSwitcherButt !== void 0 ? _this$getSwitcherButt : this.getMenuButton()).getContainer());
 	      return this.button;
 	    }
-	    /**
-	     * @public
-	     * @return {SplitSubButton}
-	     */
 	  }, {
 	    key: "getMainButton",
 	    value: function getMainButton() {
 	      return this.mainButton;
 	    }
-	    /**
-	     * @public
-	     * @return {SplitSubButton}
-	     */
 	  }, {
 	    key: "getMenuButton",
 	    value: function getMenuButton() {
 	      return this.menuButton;
 	    }
-	    /**
-	     * @public
-	     * @param {string} text
-	     * @return {this}
-	     */
+	  }, {
+	    key: "getSwitcherButton",
+	    value: function getSwitcherButton() {
+	      return this.switcherButton;
+	    }
+	  }, {
+	    key: "getSwitcher",
+	    value: function getSwitcher() {
+	      var _this$getSwitcherButt2;
+	      return (_this$getSwitcherButt2 = this.getSwitcherButton()) === null || _this$getSwitcherButt2 === void 0 ? void 0 : _this$getSwitcherButt2.getSwitcher();
+	    }
+	  }, {
+	    key: "setAirDesign",
+	    value: function setAirDesign(use) {
+	      var _this$getSwitcher;
+	      babelHelpers.get(babelHelpers.getPrototypeOf(SplitButton.prototype), "setAirDesign", this).call(this, use);
+	      (_this$getSwitcher = this.getSwitcher()) === null || _this$getSwitcher === void 0 ? void 0 : _this$getSwitcher.setAirDesign(use);
+	    }
 	  }, {
 	    key: "setText",
 	    value: function setText(text) {
@@ -1390,92 +1537,71 @@ this.BX = this.BX || {};
 	      }
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @return {string}
-	     */
 	  }, {
 	    key: "getText",
 	    value: function getText() {
 	      return this.getMainButton().getText();
 	    }
-	    /**
-	     *
-	     * @param {number | string} counter
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setCounter",
 	    value: function setCounter(counter) {
 	      return this.getMainButton().setCounter(counter);
+	    } // use only with air buttons
+	  }, {
+	    key: "setLeftCounter",
+	    value: function setLeftCounter(options) {
+	      this.getMainButton().setLeftCounter(this.prepareCounterOptions(options));
+	      return this;
+	    } // use only with air buttons
+	  }, {
+	    key: "setRightCounter",
+	    value: function setRightCounter(options) {
+	      this.getMainButton().setRightCounter(this.prepareCounterOptions(options));
+	      return this;
 	    }
-	    /**
-	     *
-	     * @return {number | string | null}
-	     */
 	  }, {
 	    key: "getCounter",
 	    value: function getCounter() {
 	      return this.getMainButton().getCounter();
 	    }
-	    /**
-	     *
-	     * @param {string} link
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setLink",
 	    value: function setLink(link) {
 	      return this.getMainButton().setLink(link);
 	    }
-	    /**
-	     *
-	     * @return {string}
-	     */
 	  }, {
 	    key: "getLink",
 	    value: function getLink() {
 	      return this.getMainButton().getLink();
 	    }
-	    /**
-	     * @public
-	     * @param {SplitButtonState|null} state
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setState",
 	    value: function setState(state) {
 	      return this.setProperty('state', state, SplitButtonState);
 	    }
-	    /**
-	     * @public
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setDisabled",
-	    value: function setDisabled(flag) {
-	      this.setState(flag === false ? null : ButtonState.DISABLED);
-	      this.getMainButton().setDisabled(flag);
-	      this.getMenuButton().setDisabled(flag);
+	    value: function setDisabled(disabled = true) {
+	      var _this$getMenuButton, _this$getSwitcherButt3;
+	      this.setState(disabled ? ButtonState.DISABLED : null);
+	      this.getMainButton().setDisabled(disabled);
+	      (_this$getMenuButton = this.getMenuButton()) === null || _this$getMenuButton === void 0 ? void 0 : _this$getMenuButton.setDisabled(disabled);
+	      (_this$getSwitcherButt3 = this.getSwitcherButton()) === null || _this$getSwitcherButt3 === void 0 ? void 0 : _this$getSwitcherButt3.setDisabled(disabled);
 	      return this;
 	    }
 	    /**
 	     * @protected
-	     * @return {HTMLElement}
 	     */
 	  }, {
 	    key: "getMenuBindElement",
 	    value: function getMenuBindElement() {
 	      if (this.getMenuTarget() === SplitSubButtonType.MENU) {
 	        return this.getMenuButton().getContainer();
-	      } else {
-	        return this.getContainer();
 	      }
+	      return this.getContainer();
 	    }
 	    /**
 	     * @protected
-	     * @param {MouseEvent} event
 	     */
 	  }, {
 	    key: "handleMenuClick",
@@ -1494,36 +1620,22 @@ this.BX = this.BX || {};
 	    }
 	    /**
 	     * @protected
-	     * @return {HTMLElement}
 	     */
 	  }, {
 	    key: "getMenuClickElement",
 	    value: function getMenuClickElement() {
 	      return this.getMenuButton().getContainer();
 	    }
-	    /**
-	     * @public
-	     * @return {SplitSubButtonType}
-	     */
 	  }, {
 	    key: "getMenuTarget",
 	    value: function getMenuTarget() {
 	      return this.menuTarget;
 	    }
-	    /**
-	     *
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
 	  }, {
 	    key: "setDropdown",
-	    value: function setDropdown(flag) {
+	    value: function setDropdown(dropdown = true) {
 	      return this;
 	    }
-	    /**
-	     * @public
-	     * @return {boolean}
-	     */
 	  }, {
 	    key: "isDropdown",
 	    value: function isDropdown() {
@@ -1535,15 +1647,16 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(SplitButton, "BASE_CLASS", 'ui-btn-split');
 	babelHelpers.defineProperty(SplitButton, "State", SplitButtonState);
 
-	let _$2 = t => t,
-	  _t$2;
+	let _$3 = t => t,
+	  _t$3,
+	  _t2$1;
 	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
 	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
-	let ButtonManager = /*#__PURE__*/function () {
-	  function ButtonManager() {
-	    babelHelpers.classCallCheck(this, ButtonManager);
+	let ButtonManager$$1 = /*#__PURE__*/function () {
+	  function ButtonManager$$1() {
+	    babelHelpers.classCallCheck(this, ButtonManager$$1);
 	  }
-	  babelHelpers.createClass(ButtonManager, null, [{
+	  babelHelpers.createClass(ButtonManager$$1, null, [{
 	    key: "createFromNode",
 	    /**
 	     * @public
@@ -1562,6 +1675,7 @@ this.BX = this.BX || {};
 	      let text = null;
 	      let textNode = null;
 	      let counterNode = null;
+	      let switcherNode = null;
 	      let disabled = false;
 	      let mainButtonOptions = {};
 	      let menuButtonOptions = {};
@@ -1574,11 +1688,11 @@ this.BX = this.BX || {};
 	        if (!menuButton) {
 	          throw new Error('BX.UI.ButtonManager.createFromNode: a split button doesn\'t have a menu button.');
 	        }
-	        const mainButtonTag = _classStaticPrivateMethodGet(this, ButtonManager, _getTag).call(this, mainButton);
+	        const mainButtonTag = _classStaticPrivateMethodGet(this, ButtonManager$$1, _getTag).call(this, mainButton);
 	        if (mainButtonTag === ButtonTag.INPUT || mainButtonTag === ButtonTag.SUBMIT) {
 	          text = mainButton.value;
 	        } else {
-	          [textNode, counterNode] = _classStaticPrivateMethodGet(this, ButtonManager, _getTextNode).call(this, mainButton);
+	          [textNode, counterNode] = _classStaticPrivateMethodGet(this, ButtonManager$$1, _getTextNode).call(this, mainButton);
 	          text = textNode.textContent;
 	        }
 	        disabled = main_core.Dom.hasClass(node, SplitButtonState.DISABLED);
@@ -1590,14 +1704,15 @@ this.BX = this.BX || {};
 	          disabled: main_core.Dom.hasClass(node, SplitButtonState.MAIN_DISABLED)
 	        };
 	        menuButtonOptions = {
-	          tag: _classStaticPrivateMethodGet(this, ButtonManager, _getTag).call(this, menuButton),
+	          tag: _classStaticPrivateMethodGet(this, ButtonManager$$1, _getTag).call(this, menuButton),
 	          buttonNode: menuButton,
 	          textNode: null,
 	          counterNode: null,
 	          disabled: main_core.Dom.hasClass(node, SplitButtonState.MENU_DISABLED)
 	        };
+	        switcherNode = menuButton.querySelector(`.${ui_switcher.Switcher.className}`) || null;
 	      } else {
-	        tag = _classStaticPrivateMethodGet(this, ButtonManager, _getTag).call(this, node);
+	        tag = _classStaticPrivateMethodGet(this, ButtonManager$$1, _getTag).call(this, node);
 	        if (tag === null) {
 	          throw new Error('BX.UI.ButtonManager.createFromNode: "node" must be a button, link or input.');
 	        }
@@ -1605,28 +1720,56 @@ this.BX = this.BX || {};
 	        if (tag === ButtonTag.INPUT || tag === ButtonTag.SUBMIT) {
 	          text = node.value;
 	        } else {
-	          [textNode, counterNode] = _classStaticPrivateMethodGet(this, ButtonManager, _getTextNode).call(this, node);
-	          text = textNode.textContent;
+	          [textNode, counterNode] = _classStaticPrivateMethodGet(this, ButtonManager$$1, _getTextNode).call(this, node);
+	          text = _classStaticPrivateMethodGet(this, ButtonManager$$1, _getTextNodeValue).call(this, textNode);
 	        }
 	      }
+	      const useAirDesign = main_core.Dom.hasClass(node, '--air');
 	      const options = {
+	        useAirDesign,
 	        id: node.dataset.btnUniqid,
 	        buttonNode: node,
 	        textNode: isSplitButton ? null : textNode,
 	        counterNode: isSplitButton ? null : counterNode,
-	        counter: _classStaticPrivateMethodGet(this, ButtonManager, _getCounter).call(this, counterNode),
+	        counter: _classStaticPrivateMethodGet(this, ButtonManager$$1, _getCounter).call(this, counterNode),
 	        tag,
 	        text,
 	        disabled,
 	        mainButton: mainButtonOptions,
 	        menuButton: menuButtonOptions,
-	        size: _classStaticPrivateMethodGet(this, ButtonManager, _getEnumProp).call(this, node, ButtonSize),
-	        color: _classStaticPrivateMethodGet(this, ButtonManager, _getEnumProp).call(this, node, ButtonColor),
-	        icon: _classStaticPrivateMethodGet(this, ButtonManager, _getEnumProp).call(this, node, ButtonIcon),
-	        state: _classStaticPrivateMethodGet(this, ButtonManager, _getEnumProp).call(this, node, isSplitButton ? SplitButtonState : ButtonState),
+	        size: _classStaticPrivateMethodGet(this, ButtonManager$$1, _getEnumProp).call(this, node, ButtonSize),
+	        color: _classStaticPrivateMethodGet(this, ButtonManager$$1, _getEnumProp).call(this, node, ButtonColor),
+	        state: _classStaticPrivateMethodGet(this, ButtonManager$$1, _getEnumProp).call(this, node, isSplitButton ? SplitButtonState : ButtonState),
 	        noCaps: main_core.Dom.hasClass(node, ButtonStyle.NO_CAPS),
-	        round: main_core.Dom.hasClass(node, ButtonStyle.ROUND)
+	        round: main_core.Dom.hasClass(node, ButtonStyle.ROUND),
+	        dependOnTheme: main_core.Dom.hasClass(node, ButtonStyle.DEPEND_ON_THEME),
+	        style: _classStaticPrivateMethodGet(this, ButtonManager$$1, _getEnumProp).call(this, node, AirButtonStyle),
+	        switcher: isSplitButton ? {
+	          node: switcherNode
+	        } : null
 	      };
+	      if (main_core.Dom.hasClass(node, '--with-collapsed-icon') && _classStaticPrivateMethodGet(this, ButtonManager$$1, _getEnumProp).call(this, node, ButtonIcon)) {
+	        options.collapsedIcon = _classStaticPrivateMethodGet(this, ButtonManager$$1, _getEnumProp).call(this, node, ButtonIcon);
+	      } else if (_classStaticPrivateMethodGet(this, ButtonManager$$1, _getEnumProp).call(this, node, ButtonIcon)) {
+	        options.icon = _classStaticPrivateMethodGet(this, ButtonManager$$1, _getEnumProp).call(this, node, ButtonIcon);
+	      }
+	      if (useAirDesign) {
+	        options.counterNode = undefined;
+	        if (_classStaticPrivateMethodGet(this, ButtonManager$$1, _getCounter).call(this, counterNode)) {
+	          var _counterNode;
+	          options.rightCounter = {
+	            value: _classStaticPrivateMethodGet(this, ButtonManager$$1, _getCounter).call(this, counterNode),
+	            style: _classStaticPrivateMethodGet(this, ButtonManager$$1, _getCounterStyle).call(this, counterNode)
+	          };
+	          options.counterNode = undefined;
+	          options.counter = undefined;
+	          if (main_core.Dom.hasClass((_counterNode = counterNode) === null || _counterNode === void 0 ? void 0 : _counterNode.parentElement, 'ui-btn-right-counter')) {
+	            var _counterNode2;
+	            main_core.Dom.remove((_counterNode2 = counterNode) === null || _counterNode2 === void 0 ? void 0 : _counterNode2.parentElement);
+	          }
+	          main_core.Dom.remove(counterNode);
+	        }
+	      }
 	      const nodeOptions = main_core.Dom.attr(node, 'data-json-options') || {};
 	      if (main_core.Dom.hasClass(node, ButtonStyle.DROPDOWN)) {
 	        options.dropdown = true;
@@ -1634,15 +1777,15 @@ this.BX = this.BX || {};
 	        options.dropdown = false;
 	      }
 	      if (nodeOptions.onclick) {
-	        options.onclick = _classStaticPrivateMethodGet(this, ButtonManager, _convertEventHandler).call(this, nodeOptions.onclick);
+	        options.onclick = _classStaticPrivateMethodGet(this, ButtonManager$$1, _convertEventHandler).call(this, nodeOptions.onclick);
 	      }
 	      if (main_core.Type.isPlainObject(nodeOptions.events)) {
 	        options.events = nodeOptions.events;
-	        _classStaticPrivateMethodGet(this, ButtonManager, _convertEvents).call(this, options.events);
+	        _classStaticPrivateMethodGet(this, ButtonManager$$1, _convertEvents).call(this, options.events);
 	      }
 	      if (main_core.Type.isPlainObject(nodeOptions.menu)) {
 	        options.menu = nodeOptions.menu;
-	        _classStaticPrivateMethodGet(this, ButtonManager, _convertMenuEvents).call(this, options.menu.items);
+	        _classStaticPrivateMethodGet(this, ButtonManager$$1, _convertMenuEvents).call(this, options.menu.items);
 	      }
 	      ['mainButton', 'menuButton'].forEach(button => {
 	        if (!main_core.Type.isPlainObject(nodeOptions[button])) {
@@ -1650,9 +1793,9 @@ this.BX = this.BX || {};
 	        }
 	        options[button] = main_core.Runtime.merge(options[button], nodeOptions[button]);
 	        if (options[button].onclick) {
-	          options[button].onclick = _classStaticPrivateMethodGet(this, ButtonManager, _convertEventHandler).call(this, options[button].onclick);
+	          options[button].onclick = _classStaticPrivateMethodGet(this, ButtonManager$$1, _convertEventHandler).call(this, options[button].onclick);
 	        }
-	        _classStaticPrivateMethodGet(this, ButtonManager, _convertEvents).call(this, options[button].events);
+	        _classStaticPrivateMethodGet(this, ButtonManager$$1, _convertEvents).call(this, options[button].events);
 	      });
 	      if (main_core.Type.isStringFilled(nodeOptions.menuTarget)) {
 	        options.menuTarget = nodeOptions.menuTarget;
@@ -1681,11 +1824,12 @@ this.BX = this.BX || {};
 	     * @return {null|*}
 	     */
 	    value: function getByUniqid(uniqId) {
-	      const toolbar = BX.UI.ToolbarManager.getDefaultToolbar();
+	      const ToolbarManager = main_core.Reflection.getClass('BX.UI.ToolbarManager');
+	      const toolbar = ToolbarManager === null || ToolbarManager === void 0 ? void 0 : ToolbarManager.getDefaultToolbar();
 	      return toolbar ? toolbar.getButton(uniqId) : null;
 	    }
 	  }]);
-	  return ButtonManager;
+	  return ButtonManager$$1;
 	}();
 	function _getTag(node) {
 	  if (node.nodeName === 'A') {
@@ -1701,12 +1845,17 @@ this.BX = this.BX || {};
 	}
 	function _getTextNode(node) {
 	  let textNode = node.querySelector('.ui-btn-text');
-	  const counterNode = node.querySelector('.ui-btn-counter');
+	  const counterNode = node.querySelector('.ui-btn-counter') || node.querySelector('.ui-counter');
+	  const isAirButton = main_core.Dom.hasClass(node, '--air');
 	  if (!textNode) {
 	    if (counterNode) {
 	      main_core.Dom.remove(counterNode);
 	    }
-	    textNode = main_core.Tag.render(_t$2 || (_t$2 = _$2`<span class="ui-btn-text">${0}</span>`), node.innerHTML.trim());
+	    if (isAirButton) {
+	      textNode = main_core.Tag.render(_t$3 || (_t$3 = _$3`<span class="ui-btn-text">${0}</span>`), _classStaticPrivateMethodGet(this, ButtonManager$$1, _getTextNodeValue).call(this, textNode));
+	    } else {
+	      textNode = main_core.Tag.render(_t2$1 || (_t2$1 = _$3`<span class="ui-btn-text">${0}</span>`), node.innerHTML.trim());
+	    }
 	    main_core.Dom.clean(node);
 	    main_core.Dom.append(textNode, node);
 	    if (counterNode) {
@@ -1716,12 +1865,25 @@ this.BX = this.BX || {};
 	  return [textNode, counterNode];
 	}
 	function _getCounter(counterNode) {
+	  if (main_core.Type.isDomNode(counterNode) && main_core.Dom.hasClass(counterNode, ui_cnt.Counter.BaseClassname)) {
+	    var _counterNode$querySel;
+	    const textContent = (_counterNode$querySel = counterNode.querySelector('.ui-counter__value')) === null || _counterNode$querySel === void 0 ? void 0 : _counterNode$querySel.innerText;
+	    const dataAttributeValue = main_core.Dom.attr(counterNode, 'data-value');
+	    const counter = Number(dataAttributeValue || textContent);
+	    return main_core.Type.isNumber(counter) ? counter : textContent;
+	  }
 	  if (main_core.Type.isDomNode(counterNode)) {
 	    const textContent = counterNode.textContent;
 	    const counter = Number(textContent);
 	    return main_core.Type.isNumber(counter) ? counter : textContent;
 	  }
 	  return null;
+	}
+	function _getCounterStyle(counterNode) {
+	  if (!main_core.Type.isDomNode(counterNode)) {
+	    return null;
+	  }
+	  return _classStaticPrivateMethodGet(this, ButtonManager$$1, _getEnumProp).call(this, counterNode, ui_cnt.CounterStyle);
 	}
 	function _getEnumProp(node, enumeration) {
 	  for (let key in enumeration) {
@@ -1752,7 +1914,7 @@ this.BX = this.BX || {};
 	      if (args[0] instanceof main_core_events.BaseEvent) {
 	        event = args[0];
 	      } else {
-	        if (args[0] instanceof BaseButton) {
+	        if (args[0] instanceof BaseButton$$1) {
 	          event = new main_core_events.BaseEvent({
 	            data: {
 	              button: args[0],
@@ -1794,7 +1956,7 @@ this.BX = this.BX || {};
 	function _convertEvents(events) {
 	  if (main_core.Type.isPlainObject(events)) {
 	    for (let [eventName, eventFn] of Object.entries(events)) {
-	      events[eventName] = _classStaticPrivateMethodGet(this, ButtonManager, _convertEventHandler).call(this, eventFn);
+	      events[eventName] = _classStaticPrivateMethodGet(this, ButtonManager$$1, _convertEventHandler).call(this, eventFn);
 	    }
 	  }
 	}
@@ -1804,15 +1966,31 @@ this.BX = this.BX || {};
 	  }
 	  items.forEach(item => {
 	    if (item.onclick) {
-	      item.onclick = _classStaticPrivateMethodGet(this, ButtonManager, _convertEventHandler).call(this, item.onclick);
+	      item.onclick = _classStaticPrivateMethodGet(this, ButtonManager$$1, _convertEventHandler).call(this, item.onclick);
 	    }
 	    if (item.events) {
-	      _classStaticPrivateMethodGet(this, ButtonManager, _convertEvents).call(this, item.events);
+	      _classStaticPrivateMethodGet(this, ButtonManager$$1, _convertEvents).call(this, item.events);
 	    }
 	    if (main_core.Type.isArray(item.items)) {
-	      _classStaticPrivateMethodGet(this, ButtonManager, _convertMenuEvents).call(this, item.items);
+	      _classStaticPrivateMethodGet(this, ButtonManager$$1, _convertMenuEvents).call(this, item.items);
 	    }
 	  });
+	}
+	function _getTextNodeValue(target) {
+	  if (!target) {
+	    return '';
+	  }
+	  if (target.querySelector('.ui-btn-text-inner')) {
+	    var _target$querySelector;
+	    return ((_target$querySelector = target.querySelector('.ui-btn-text-inner')) === null || _target$querySelector === void 0 ? void 0 : _target$querySelector.textContent) || '';
+	  }
+	  const childNodes = target.childNodes;
+	  for (const node of childNodes) {
+	    if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
+	      return node.textContent.trim();
+	    }
+	  }
+	  return '';
 	}
 
 	/**
@@ -2147,17 +2325,21 @@ this.BX = this.BX || {};
 	  return SendSplitButton;
 	}(SplitButton);
 
+	exports.ButtonCounterColor = ui_cnt.CounterColor;
+	exports.ButtonCounterSize = ui_cnt.CounterSize;
+	exports.ButtonCounterStyle = ui_cnt.CounterStyle;
 	exports.IButton = IButton;
-	exports.BaseButton = BaseButton;
+	exports.BaseButton = BaseButton$$1;
 	exports.Button = Button;
 	exports.SplitButton = SplitButton;
 	exports.SplitSubButton = SplitSubButton;
-	exports.ButtonManager = ButtonManager;
+	exports.ButtonManager = ButtonManager$$1;
 	exports.ButtonIcon = ButtonIcon;
 	exports.ButtonSize = ButtonSize;
 	exports.ButtonState = ButtonState;
 	exports.ButtonColor = ButtonColor;
 	exports.ButtonStyle = ButtonStyle;
+	exports.AirButtonStyle = AirButtonStyle;
 	exports.ButtonTag = ButtonTag;
 	exports.SplitButtonState = SplitButtonState;
 	exports.SplitSubButtonType = SplitSubButtonType;
@@ -2176,6 +2358,7 @@ this.BX = this.BX || {};
 	exports.CreateSplitButton = CreateSplitButton;
 	exports.SaveSplitButton = SaveSplitButton;
 	exports.SendSplitButton = SendSplitButton;
+	exports.ButtonCounter = ButtonCounter;
 
-}((this.BX.UI = this.BX.UI || {}),BX.Event,BX.Main,BX));
+}((this.BX.UI = this.BX.UI || {}),BX,BX.UI.IconSet,BX.UI,BX.Event,BX.Main,BX.UI,BX,BX.UI));
 //# sourceMappingURL=ui.buttons.bundle.js.map

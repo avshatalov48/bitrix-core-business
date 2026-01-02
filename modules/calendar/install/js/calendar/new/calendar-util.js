@@ -25,8 +25,8 @@
 
 		this.DATE_FORMAT_BX = BX.message("FORMAT_DATE");
 		this.DATETIME_FORMAT_BX = BX.message("FORMAT_DATETIME");
-		this.DATE_FORMAT = BX.date.convertBitrixFormat(BX.message("FORMAT_DATE"));
-		this.DATETIME_FORMAT = BX.date.convertBitrixFormat(BX.message("FORMAT_DATETIME"));
+		this.DATE_FORMAT = BX.Main.DateTimeFormat.convertBitrixFormat(BX.message("FORMAT_DATE"));
+		this.DATETIME_FORMAT = BX.Main.DateTimeFormat.convertBitrixFormat(BX.message("FORMAT_DATETIME"));
 		if ((this.DATETIME_FORMAT_BX.substr(0, this.DATE_FORMAT_BX.length) === this.DATE_FORMAT_BX))
 		{
 			this.TIME_FORMAT = BX.util.trim(this.DATETIME_FORMAT.substr(this.DATE_FORMAT.length));
@@ -35,7 +35,7 @@
 		else
 		{
 			this.TIME_FORMAT_BX = BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS';
-			this.TIME_FORMAT = BX.date.convertBitrixFormat(BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS');
+			this.TIME_FORMAT = BX.Main.DateTimeFormat.convertBitrixFormat(BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS');
 		}
 		this.TIME_FORMAT_SHORT_BX = this.TIME_FORMAT_BX.replace(':SS', '');
 		this.TIME_FORMAT_SHORT = this.TIME_FORMAT.replace(':s', '');
@@ -252,19 +252,19 @@
 		{
 			if (BX.type.isDate(timestamp))
 				timestamp = timestamp.getTime();
-			return BX.date.format(this.DATE_FORMAT, timestamp / 1000);
+			return BX.Main.DateTimeFormat.format(this.DATE_FORMAT, timestamp / 1000);
 		},
 
 		formatDateTime: function(timestamp)
 		{
 			if (BX.type.isDate(timestamp))
 				timestamp = timestamp.getTime();
-			return BX.date.format(this.DATETIME_FORMAT, timestamp / 1000);
+			return BX.Main.DateTimeFormat.format(this.DATETIME_FORMAT, timestamp / 1000);
 		},
 
 		formatDateUsable: function(date, showYear)
 		{
-			var format = BX.date.convertBitrixFormat(BX.message('FORMAT_DATE'));
+			var format = BX.Main.DateTimeFormat.convertBitrixFormat(BX.message('FORMAT_DATE'));
 			if (BX.message('LANGUAGE_ID') == 'ru' || BX.message('LANGUAGE_ID')  == 'ua')
 			{
 				format = 'j F';
@@ -277,7 +277,7 @@
 				}
 			}
 
-			return BX.date.format([
+			return BX.Main.DateTimeFormat.format([
 				["today", "today"],
 				["tommorow", "tommorow"],
 				["yesterday", "yesterday"],
@@ -287,7 +287,7 @@
 
 		parseTime: function(str)
 		{
-			var date = this.parseDate(BX.date.format(this.DATE_FORMAT, new Date()) + ' ' + str, false);
+			var date = this.parseDate(BX.Main.DateTimeFormat.format(this.DATE_FORMAT, new Date()) + ' ' + str, false);
 			return date ? {
 				h: date.getHours(),
 				m: date.getMinutes()
@@ -506,7 +506,7 @@
 			{
 				timestamp += this.dayLength;
 			}
-			weekNumber = BX.date.format('W', timestamp / 1000);
+			weekNumber = BX.Main.DateTimeFormat.format('W', timestamp / 1000);
 			return weekNumber;
 		},
 
@@ -656,7 +656,7 @@
 		{
 			var date = new Date();
 			date.setFullYear(origDate.getFullYear(), origDate.getMonth(), 1);
-			return parseInt(BX.date.format('W', origDate.getTime() / 1000)) - parseInt(BX.date.format('W', date.getTime() / 1000));
+			return parseInt(BX.Main.DateTimeFormat.format('W', origDate.getTime() / 1000)) - parseInt(BX.Main.DateTimeFormat.format('W', date.getTime() / 1000));
 		},
 
 		getSimpleTimeList: function()

@@ -9,6 +9,7 @@ use Bitrix\Main\ORM\EntityError;
 use Bitrix\Main\ORM\Event;
 use Bitrix\Main\ORM\Fields\FieldError;
 use Bitrix\Main\Result;
+use Bitrix\Main\ORM\Data\AddStrategy;
 use Bitrix\Main\Type\DateTime;
 
 
@@ -57,8 +58,9 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Forum\EO_User wakeUpObject($row)
  * @method static \Bitrix\Forum\EO_User_Collection wakeUpCollection($rows)
  */
-class UserTable extends Main\Entity\DataManager
+class UserTable extends Main\ORM\Data\DataManager
 {
+	use AddStrategy\Trait\MergeByDefaultTrait;
 	/**
 	 * Returns DB table name for entity
 	 *
@@ -84,7 +86,8 @@ class UserTable extends Main\Entity\DataManager
 			),
 			'USER_ID' => array(
 				'data_type' => 'integer',
-				'required' => true
+				'required' => true,
+				'unique' => true,
 			),
 			'USER' => array(
 				'data_type' => 'Bitrix\Main\UserTable',
@@ -382,7 +385,7 @@ class User implements \ArrayAccess {
 		return $this;
 	}
 
-	public function setLocation(int $forumId = 0, int $topicId = 0)
+	public function setLocation(int $forumId = 0, int $topicId = 0): void
 	{
 		global $USER;
 		if (!($USER instanceof \CUser && $this->getId() === $USER->GetID()))
@@ -390,14 +393,11 @@ class User implements \ArrayAccess {
 			return;
 		}
 
-		$connection = Main\Application::getConnection();
-		$helper = $connection->getSqlHelper();
+		$helper = Main\Application::getConnection()->getSqlHelper();
 
-		$primaryFields = [
-			'USER_ID' => $this->getId(),
-			'PHPSESSID' => $this->getSessId()
-		];
 		$fields = [
+			'USER_ID' => $this->getId(),
+			'PHPSESSID' => $this->getSessId(),
 			'SHOW_NAME' => $this->getName(),
 			'IP_ADDRESS' => Main\Service\GeoIp\Manager::getRealIp(),
 			'LAST_VISIT' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction()),
@@ -406,21 +406,7 @@ class User implements \ArrayAccess {
 			'TOPIC_ID' => $topicId,
 		];
 
-		if ($this->getId() > 0)
-		{
-			$fields['PHPSESSID'] = $primaryFields['PHPSESSID'];
-		}
-
-		$merge = $helper->prepareMerge(
-			'b_forum_stat',
-			array_keys($primaryFields),
-			$primaryFields + $fields,
-			$fields
-		);
-		if ($merge[0] != '')
-		{
-			$connection->query($merge[0]);
-		}
+		ForumStatTable::upsert($fields);
 	}
 
 	public function isLocked()
@@ -515,7 +501,7 @@ class User implements \ArrayAccess {
 			return;
 		}
 
-		$this->data["NUM_POSTS"]++;
+		$this->data["NUM_POSTS"] = empty($this->data["NUM_POSTS"]) ? 1 : $this->data["NUM_POSTS"] + 1;
 		$this->data["POINTS"] = \CForumUser::GetUserPoints($this->getId(), array("INCREMENT" => $this->data["NUM_POSTS"]));
 		$this->data["LAST_POST"] = $message["ID"];
 		$this->save([
@@ -564,11 +550,9 @@ class User implements \ArrayAccess {
 			return null;
 		}
 
-		try
-		{
-			$topic = Topic::getById($topicId);
-		}
-		catch (Main\ObjectNotFoundException $e)
+		$topic = Topic::getById($topicId);
+
+		if (empty($topic))
 		{
 			return null;
 		}
@@ -785,7 +769,7 @@ class User implements \ArrayAccess {
 		}
 	}
 
-	private function save(array $fields)
+	private function save(array $fields): Main\Result
 	{
 		$result = new Result();
 
@@ -796,7 +780,7 @@ class User implements \ArrayAccess {
 
 		if ($this->forumUserId > 0)
 		{
-			$result = User::update($this->forumUserId, $fields);
+			$result = static::update($this->forumUserId, $fields);
 		}
 		else
 		{
@@ -804,9 +788,10 @@ class User implements \ArrayAccess {
 			{
 				$fields['NUM_POSTS'] = 1;
 			}
-			$fields = ['USER_ID' => $this->getId()] + $fields + $this->data;
-			unset($fields['ID']);
-			$result = User::add($fields);
+			$data = ['USER_ID' => $this->getId()] + $fields + $this->data;
+			unset($data['ID']);
+
+			$result = static::add($data);
 			if ($result->isSuccess())
 			{
 				$res = $result->getPrimary();
@@ -817,6 +802,7 @@ class User implements \ArrayAccess {
 				$this->forumUserId = $res;
 			}
 		}
+
 		return $result;
 	}
 

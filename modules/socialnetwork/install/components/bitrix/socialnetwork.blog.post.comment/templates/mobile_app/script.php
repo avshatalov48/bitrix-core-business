@@ -69,7 +69,8 @@ $APPLICATION->IncludeComponent("bitrix:main.post.form",
 			$arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_DOC"],
 
 		),
-		"SMILES" => array("VALUE" => $arSmiles)
+		"SMILES" => array("VALUE" => $arSmiles),
+        'ATTRIBUTES' => $arParams['ATTRIBUTES'],
 	),
 	false,
 	array("HIDE_ICONS" => "Y")

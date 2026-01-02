@@ -490,7 +490,7 @@ class PayPalHandler
 			}
 			else
 			{
-				$this->prePaymentSetting['SERVER_NAME'] = \COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
+				$this->prePaymentSetting['SERVER_NAME'] = \COption::GetOptionString("main", "server_name");
 			}
 		}
 

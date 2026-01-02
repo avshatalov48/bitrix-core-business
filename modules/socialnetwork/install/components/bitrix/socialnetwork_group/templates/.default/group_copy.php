@@ -14,6 +14,8 @@ use Bitrix\Socialnetwork\ComponentHelper;
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
+\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
+
 $pageId = "group_copy";
 
 include("util_group_menu.php");
@@ -42,5 +44,6 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.group_copy',
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => $componentParameters,
+		'USE_UI_TOOLBAR' => 'Y',
 	]
 );

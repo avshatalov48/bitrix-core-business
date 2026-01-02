@@ -94,11 +94,13 @@ if (!$component->request('landing_mode')):
 	?>
 	<div class="landing-ui-panel landing-ui-panel-top">
 		<div class="landing-ui-panel-top-logo">
-			<a href="<?= SITE_DIR;?>" data-slider-ignore-autobinding="true"><?
+			<a class="landing-ui-panel-top-logo-link" href="<?= SITE_DIR;?>" data-slider-ignore-autobinding="true"><?
 				?><span class="landing-ui-panel-top-logo-text"><?= \htmlspecialcharsbx($b24Title);?></span><?
 				if ($b24Logo != 'N'):
-					?><span class="landing-ui-panel-top-logo-color"><?= Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24');?></span><?
-				endif;?>
+					?>
+					<span class="landing-ui-panel-top-logo-color"><?= Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24');?></span>
+					<span class="landing-ui-panel-top-logo-icon fa fa-clock-three"></span>
+				<? endif;?>
 			</a>
 		</div>
 		<div class="landing-ui-panel-top-devices">

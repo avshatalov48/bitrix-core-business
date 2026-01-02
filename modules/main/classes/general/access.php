@@ -351,6 +351,12 @@ class CAccess
 			}
 		}
 
+		if (empty($arFilter))
+		{
+			// nobody wants chat codes and there are plenty of them
+			$arWhere[] = "provider_id <> 'imchat'";
+		}
+
 		$sWhere = '';
 		if (!empty($arWhere))
 		{

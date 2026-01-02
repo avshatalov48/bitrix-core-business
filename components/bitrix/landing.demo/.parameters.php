@@ -53,7 +53,7 @@ $arComponentParameters = Array(
 			'TYPE' => 'STRING'
 		),
 		'SKIP_REMOTE' => array(
-			'NAME' => getMessage('LANDING_CMP_PAR_SKIP_REMOTE'),
+			'NAME' => getMessage('LANDING_CMP_PAR_SKIP_REMOTE_MSGVER_1'),
 			'TYPE' => 'CHECKBOX'
 		),
 	)

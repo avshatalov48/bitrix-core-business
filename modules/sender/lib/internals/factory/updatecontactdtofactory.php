@@ -3,6 +3,8 @@
 namespace Bitrix\Sender\Internals\Factory;
 
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Sender\Internals\Dto\UpdateBlacklistDTO;
+use Bitrix\Sender\Internals\Dto\UpdateContact;
 use Bitrix\Sender\Internals\Dto\UpdateContactDTO;
 use Bitrix\Sender\Recipient\Type;
 use Bitrix\Sender\Recipient\Normalizer;
@@ -31,9 +33,9 @@ class UpdateContactDtoFactory
 	 * @param string $code Code
 	 * @param string|null $name Name
 	 *
-	 * @return UpdateContactDTO|null
+	 * @return UpdateContact|null
 	 */
-	public function make(string $code, ?string $name): ?UpdateContactDTO
+	public function make(string $code, ?string $name): ?UpdateContact
 	{
 		$typeId = Type::detect($code);
 		if (!$typeId)
@@ -47,14 +49,21 @@ class UpdateContactDtoFactory
 			return null;
 		}
 
-		$item = new UpdateContactDTO();
+		$item = $this->createDto();
 		$item->typeId = $typeId;
 		$item->code = $code;
 		$item->dateInsert = $this->date;
 		$item->dateUpdate = $this->date;
 		$item->name = $name;
-		$item->blacklisted = $this->blacklisted;
 
 		return $item;
+	}
+
+	/**
+	 * @return UpdateContact
+	 */
+	public function createDto(): UpdateContact
+	{
+		return $this->blacklisted ? new UpdateBlacklistDTO() : new UpdateContactDTO();
 	}
 }

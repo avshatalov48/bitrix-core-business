@@ -33,6 +33,17 @@ abstract class ProfitHandler extends BaseHandler
 		return $fields;
 	}
 
+	protected function preparePrice(float $value, string $currency): float
+	{
+		$reportCurrency = $this->getBaseCurrency();
+		if (!$reportCurrency)
+		{
+			return $value;
+		}
+
+		return \CCurrencyRates::convertCurrency($value, $currency, $reportCurrency);
+	}
+
 	protected function getBaseCurrency(): ?string
 	{
 		if (!Loader::includeModule('currency'))

@@ -50,6 +50,17 @@ return [
 			'bizproc.debugger.service.analyticsService' => [
 				'className' => '\\Bitrix\\Bizproc\\Debugger\\Services\\AnalyticsService',
 			],
+			'bizproc.workflow.state.repository.mapper' => [
+				'className' => '\\Bitrix\\Bizproc\\Internal\\Repository\\Mapper\\WorkflowStateMapper',
+			],
+			'bizproc.workflow.state.repository' => [
+				'className' => '\\Bitrix\\Bizproc\\Internal\\Repository\\WorkflowStateRepository\\WorkflowStateRepository',
+				'constructorParams' => static function() {
+					return [
+						\Bitrix\Bizproc\Internal\Container::getWorkflowStatRepositoryMapper(),
+					];
+				},
+			],
 		]
 	],
 	'ui.entity-selector' => [

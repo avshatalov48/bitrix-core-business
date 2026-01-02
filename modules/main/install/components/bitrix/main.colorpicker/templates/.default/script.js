@@ -126,9 +126,7 @@ BXColorPicker.prototype.OnClick = function (e, pEl)
 
 BXColorPicker.prototype.Open = function ()
 {
-	var
-		pos = BX.align(this.pWnd, 240, 130),
-		_this = this;
+	var _this = this;
 
 	//this.pLEditor.oPrevRange = this.pLEditor.GetSelectionRange();
 	BX.bind(window, "keypress", window['bx_colpic_keypress_' + this.fid]);
@@ -136,6 +134,9 @@ BXColorPicker.prototype.Open = function ()
 	//pOverlay.onclick = function(){_this.Close()};
 
 	this.pColCont.style.display = 'block';
+
+	const pos = BX.align(this.pWnd, this.pColCont.offsetWidth, this.pColCont.offsetHeight);
+
 	this.pColCont.style.top = pos.top + 'px';
 	this.pColCont.style.left = pos.left + 'px';
 

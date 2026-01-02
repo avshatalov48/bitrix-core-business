@@ -31,6 +31,20 @@ class FiredUserProvider extends UserProvider
 			$this->options['referenceClass'] = $options['referenceClass'];
 		}
 
+		if (isset($options['referenceAdditionalFilter']) && is_array($options['referenceAdditionalFilter']))
+		{
+			$this->options['referenceAdditionalFilter'] = $options['referenceAdditionalFilter'];
+		}
+
+		if (isset($options['referenceFieldName']) && is_string($options['referenceFieldName']))
+		{
+			$this->options['referenceFieldName'] = $options['referenceFieldName'];
+		}
+		else
+		{
+			$this->options['referenceFieldName'] = 'ASSIGNED_BY_ID';
+		}
+
 		$this->options['module'] = (
 		(isset($options['module']) && is_string($options['module']))
 			? $options['module']
@@ -60,18 +74,33 @@ class FiredUserProvider extends UserProvider
 			 * If a referenceClass is not null,
 			 * then we reduce the list of fired users only have reference in the referenceClass entity
 			 */
-			$fieldName = Application::getConnection()->getSqlHelper()->quote($options['fieldName']);
+			$sqlHelper = Application::getConnection()->getSqlHelper();
+			$fieldName = $sqlHelper->quote($options['fieldName']);
 			$tableName = mb_strtolower($query->getEntity()->getCode());
+
+			$preparedWhere = [];
+			$referenceAdditionalFilter = $options['referenceAdditionalFilter'] ?? [];
+			$referenceClassTableName = $options['referenceClass']::getTableName();
+			foreach ($referenceAdditionalFilter as $filterFieldName => $filterFieldValue)
+			{
+				$preparedWhere[] = $sqlHelper->prepareAssignment(
+					$referenceClassTableName,
+					$filterFieldName,
+					$filterFieldValue,
+				);
+			}
+
+			$where = array_merge(["{$fieldName} = {$tableName}.ID"], $preparedWhere);
 
 			$query->whereExists(new SqlExpression(
 				"SELECT 1 FROM "
 				. $options['referenceClass']::getTableName()
-				. " WHERE {$fieldName} = {$tableName}.ID"
+				. " WHERE " . implode(' AND ', $where)
 			));
 
 			$derivedTableQuery = $options['referenceClass']::query()
-				->addSelect('ASSIGNED_BY_ID')
-				->addGroup('ASSIGNED_BY_ID')
+				->addSelect($options['referenceFieldName'])
+				->addGroup($options['referenceFieldName'])
 			;
 			$entity = \Bitrix\Main\ORM\Entity::getInstanceByQuery($derivedTableQuery);
 
@@ -80,7 +109,7 @@ class FiredUserProvider extends UserProvider
 				(new \Bitrix\Main\ORM\Fields\Relations\Reference(
 					'ASSIGNED_BY_ID',
 					$entity,
-					\Bitrix\Main\ORM\Query\Join::on('this.ID', 'ref.ASSIGNED_BY_ID')
+					\Bitrix\Main\ORM\Query\Join::on('this.ID', 'ref.' . $options['referenceFieldName'])
 				))->configureJoinType(\Bitrix\Main\ORM\Query\Join::TYPE_INNER)
 			);
 		}
@@ -141,9 +170,7 @@ class FiredUserProvider extends UserProvider
 				'icon' => [
 					'default' => $icon,
 					'selected' => str_replace('ABB1B8', 'fff', $icon),
-					//'default' => '/bitrix/js/socialnetwork/entity-selector/images/project-tab-icon.svg',
-					//'selected' => '/bitrix/js/socialnetwork/entity-selector/images/project-tab-icon-selected.svg'
-				]
+				],
 			]);
 
 			$footerOptions = [

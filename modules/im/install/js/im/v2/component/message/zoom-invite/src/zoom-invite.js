@@ -2,7 +2,7 @@ import { BitrixVue } from 'ui.vue3';
 
 import { Utils } from 'im.v2.lib.utils';
 
-import { CallInviteMessage } from '../../call-invite/src/call-invite';
+import { CallInviteMessage } from 'im.v2.component.message.call-invite';
 
 // @vue/component
 export const ZoomInviteMessage = BitrixVue.cloneComponent(CallInviteMessage, {

@@ -181,6 +181,11 @@ abstract class Request
 		return $response;
 	}
 
+	public function getProxyUrl(): string
+	{
+		return '';
+	}
+
 	/**
 	 * Query.
 	 *

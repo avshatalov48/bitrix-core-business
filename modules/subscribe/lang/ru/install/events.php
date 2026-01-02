@@ -1,14 +1,14 @@
-<?
-$MESS ['SUBSCRIBE_CONFIRM_NAME'] = "Подтверждение подписки";
-$MESS ['SUBSCRIBE_CONFIRM_DESC'] = "#ID# - идентификатор подписки
+<?php
+$MESS['SUBSCRIBE_CONFIRM_NAME'] = "Подтверждение подписки";
+$MESS['SUBSCRIBE_CONFIRM_DESC'] = "#ID# - идентификатор подписки
 #EMAIL# - адрес подписки
 #CONFIRM_CODE# - код подтверждения
 #SUBSCR_SECTION# - раздел, где находится страница редактирования подписки (задается в настройках)
 #USER_NAME# - имя подписчика (может отсутствовать)
 #DATE_SUBSCR# - дата добавления/изменения адреса
 ";
-$MESS ['SUBSCRIBE_CONFIRM_SUBJECT'] = "#SITE_NAME#: Подтверждение подписки";
-$MESS ['SUBSCRIBE_CONFIRM_MESSAGE'] = "Информационное сообщение сайта #SITE_NAME#
+$MESS['SUBSCRIBE_CONFIRM_SUBJECT'] = "#SITE_NAME#: Подтверждение подписки";
+$MESS['SUBSCRIBE_CONFIRM_MESSAGE'] = "Информационное сообщение сайта #SITE_NAME#
 ------------------------------------------
 
 Здравствуйте,
@@ -46,4 +46,3 @@ http://#SERVER_NAME##SUBSCR_SECTION#subscr_edit.php?ID=#ID#&CONFIRM_CODE=#CONFIR
 
 Сообщение сгенерировано автоматически.
 ";
-?>

@@ -1,0 +1,12 @@
+<?php
+$MESS["DOCUMENT_GRID_BUTTON_BACK"] = "Артқа";
+$MESS["DOCUMENT_GRID_CANCEL"] = "Болдырмау";
+$MESS["DOCUMENT_GRID_CONTINUE"] = "Жалғастыру";
+$MESS["DOCUMENT_GRID_DOCUMENT_CANCEL_BATCH_SELECTED_CONTENT"] = "Болдырмау кезінде тек ағымдағы қалдықтар мен өзіндік құн түзетіледі. #HELP_LINK#";
+$MESS["DOCUMENT_GRID_DOCUMENT_CANCEL_BATCH_SELECTED_CONTENT_LINK"] = "Толығырақ";
+$MESS["DOCUMENT_GRID_DOCUMENT_CANCEL_BUTTON_CONFIRM"] = "Иә, болдырмау";
+$MESS["DOCUMENT_GRID_DOCUMENT_CANCEL_CONTENT_2"] = "Осы құжаттың өткізуді болдырмау керек пе?";
+$MESS["DOCUMENT_GRID_DOCUMENT_CONDUCT_BUTTON_CONFIRM"] = "Иә, өткізу";
+$MESS["DOCUMENT_GRID_DOCUMENT_CONDUCT_CONTENT_2"] = "Бұл құжатты өткізу керек пе?";
+$MESS["DOCUMENT_GRID_DOCUMENT_DELETE_BUTTON_CONFIRM"] = "Иә, жою";
+$MESS["DOCUMENT_GRID_DOCUMENT_DELETE_CONTENT_2"] = "Бұл құжатты жою керек пе?";

@@ -2,7 +2,7 @@ import { Core } from 'im.v2.application.core';
 import { UserManager } from 'im.v2.lib.user';
 import { SearchEntityIdTypes } from 'im.v2.const';
 
-import type { ImRecentProviderItem } from './types/recent-provider-item';
+import type { ImRecentProviderItem } from './types/types';
 
 export class StoreUpdater
 {
@@ -20,19 +20,9 @@ export class StoreUpdater
 		const { users, chats } = this.#prepareDataForModels(items);
 
 		return Promise.all([
-			this.updateUsers(users),
-			this.#updateChats(chats),
+			this.#userManager.setUsersToModel(users),
+			this.#store.dispatch('chats/set', chats),
 		]);
-	}
-
-	updateUsers(users): Promise
-	{
-		return this.#userManager.setUsersToModel(users);
-	}
-
-	#updateChats(dialogues): Promise
-	{
-		return this.#store.dispatch('chats/set', dialogues);
 	}
 
 	#prepareDataForModels(items: ImRecentProviderItem[]): { users: Object[], chats: Object[] }
@@ -43,17 +33,21 @@ export class StoreUpdater
 		};
 
 		items.forEach((item) => {
-			const itemData = item.customData;
+			const chatData = item.customData.chat;
 
 			if (item.entityType === SearchEntityIdTypes.imUser)
 			{
-				result.users.push(itemData);
+				result.users.push(item.customData.user);
 			}
 
 			if (item.entityType === SearchEntityIdTypes.chat)
 			{
+				const isUser = Boolean(item.customData.user);
+				const userData = isUser ? UserManager.getDialogForUser(item.customData.user) : {};
+
 				result.chats.push({
-					...itemData,
+					...chatData,
+					...userData,
 					dialogId: item.id,
 				});
 			}

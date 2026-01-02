@@ -25,7 +25,7 @@ class AccountVkontakte extends \Bitrix\Seo\Analytics\Account implements IRequest
 
 	public function getList()
 	{
-		// https://vk.com/dev/ads.getAccounts
+		// https://vk.ru/dev/ads.getAccounts
 
 		$result =  $this->getRequest()->send([
 			'method' => 'GET',
@@ -65,7 +65,7 @@ class AccountVkontakte extends \Bitrix\Seo\Analytics\Account implements IRequest
 			return array(
 				'ID' => $data['ID'],
 				'NAME' => $data['FIRST_NAME'] . ' ' . $data['LAST_NAME'],
-				'LINK' => 'https://vk.com/' . $data['SCREEN_NAME'],
+				'LINK' => 'https://vk.ru/' . $data['SCREEN_NAME'],
 				'PICTURE' => $data['PHOTO_50'],
 			);
 		}
@@ -461,7 +461,7 @@ class AccountVkontakte extends \Bitrix\Seo\Analytics\Account implements IRequest
 			if($post['post_type'] == 'post_ads' && isset($post['attachments']) && is_array($post['attachments']) && count($post['attachments']) == 1)
 			{
 				$attachment = reset($post['attachments']);
-				if($attachment['type'] != 'link' || mb_strpos($attachment['link']['url'], 'vk.com') !== false)
+				if($attachment['type'] != 'link' || mb_strpos($attachment['link']['url'], 'vk.ru') !== false)
 				{
 					continue;
 				}

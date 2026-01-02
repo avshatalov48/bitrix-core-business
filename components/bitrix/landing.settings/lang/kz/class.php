@@ -1,0 +1,14 @@
+<?php
+$MESS["LANDING_SITE_SETTINGS_CATALOG_EDIT"] = "Каталог баптаулары";
+$MESS["LANDING_SITE_SETTINGS_LANDING_DESIGN"] = "Парақша дизайны";
+$MESS["LANDING_SITE_SETTINGS_LANDING_EDIT"] = "Парақша баптаулары";
+$MESS["LANDING_SITE_SETTINGS_SITE_DESIGN"] = "Сайттың дизайны";
+$MESS["LANDING_SITE_SETTINGS_SITE_DESIGN_GROUP"] = "Білім қорының дизайны";
+$MESS["LANDING_SITE_SETTINGS_SITE_DESIGN_KNOWLEDGE"] = "Білім қорының дизайны";
+$MESS["LANDING_SITE_SETTINGS_SITE_DESIGN_PAGE"] = "Сайттың дизайны";
+$MESS["LANDING_SITE_SETTINGS_SITE_DESIGN_STORE"] = "Дүкен дизайны";
+$MESS["LANDING_SITE_SETTINGS_SITE_EDIT"] = "Сайт баптаулары";
+$MESS["LANDING_SITE_SETTINGS_SITE_EDIT_GROUP"] = "Білім қорының баптаулары";
+$MESS["LANDING_SITE_SETTINGS_SITE_EDIT_KNOWLEDGE"] = "Білім қорының баптаулары";
+$MESS["LANDING_SITE_SETTINGS_SITE_EDIT_PAGE"] = "Сайт баптаулары";
+$MESS["LANDING_SITE_SETTINGS_SITE_EDIT_STORE"] = "Дүкен баптаулары";

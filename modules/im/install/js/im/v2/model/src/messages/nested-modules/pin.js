@@ -23,10 +23,16 @@ export class PinModel extends BuilderModel
 				{
 					return [];
 				}
-
-				return [...state.collection[chatId]].map(pinnedMessageId => {
-					return Core.getStore().getters['messages/getById'](pinnedMessageId);
+				const result = [];
+				[...state.collection[chatId]].forEach((pinnedMessageId) => {
+					const message = Core.getStore().getters['messages/getById'](pinnedMessageId);
+					if (message)
+					{
+						result.push(message);
+					}
 				});
+
+				return result;
 			},
 			isPinned: (state: PinState) => (payload: {chatId: number, messageId: number}): boolean =>
 			{

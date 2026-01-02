@@ -15,11 +15,9 @@ use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\StoreProductTable;
 use Bitrix\Catalog\Url\AdminPage\CatalogBuilder;
 use Bitrix\Catalog\Url\ShopBuilder;
-use Bitrix\Crm\Order\Import\Instagram;
 use Bitrix\Iblock;
 use Bitrix\Iblock\Grid\Column\ElementPropertyProvider;
 use Bitrix\Iblock\Grid\RowType;
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\Grid\Export\ExcelExporter;
 use Bitrix\Main\Grid\Settings;
@@ -450,15 +448,6 @@ class CatalogProductGridComponent extends \CBitrixComponent
 	protected function allowEditPrice(): bool
 	{
 		return $this->accessController->check(ActionDictionary::ACTION_PRICE_EDIT);
-	}
-
-	protected function allowInstagramImport(): bool
-	{
-		return
-			Loader::includeModule('crm')
-			&& Instagram::isAvailable()
-			&& $this->accessController->check(ActionDictionary::ACTION_CATALOG_IMPORT_EXECUTION)
-		;
 	}
 
 	protected function allowExcelExport(): bool
@@ -1501,15 +1490,6 @@ class CatalogProductGridComponent extends \CBitrixComponent
 				{
 					$menuItems = $this->getCreateButtonMenuItemsForOldCard();
 				}
-			}
-
-			if ($this->allowInstagramImport())
-			{
-				$menuItems[] = [
-					'text' => Loc::getMessage('CATALOG_PRODUCT_GRID_CMP_TOOLBAR_BUTTONS_IMPORT_INSTAGRAM_TEXT'),
-					'title' => Loc::getMessage('CATALOG_PRODUCT_GRID_CMP_TOOLBAR_BUTTONS_IMPORT_INSTAGRAM_TITLE'),
-					'href' => Option::get('crm', 'path_to_order_import_instagram'),
-				];
 			}
 
 			if (empty($menuItems))

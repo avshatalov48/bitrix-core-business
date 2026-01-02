@@ -23,7 +23,8 @@ if ($_REQUEST['IFRAME'] === 'Y' && $_REQUEST['IFRAME_TYPE'] == 'SIDE_SLIDER')
 			'POPUP_COMPONENT_NAME' => 'bitrix:bizproc.globalfield.edit',
 			'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 			'POPUP_COMPONENT_PARAMS' => $componentParams,
-		]
+			"USE_UI_TOOLBAR" => "Y",
+		],
 	);
 }
 else

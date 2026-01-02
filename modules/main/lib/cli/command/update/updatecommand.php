@@ -13,7 +13,7 @@ abstract class UpdateCommand extends Command
 	protected UpdaterService $updater;
 	protected SymfonyStyle $io;
 
-	protected function execute(InputInterface $input, OutputInterface $output)
+	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
 		$this->updater = new UpdaterService();
 		$this->io = new SymfonyStyle($input, $output);

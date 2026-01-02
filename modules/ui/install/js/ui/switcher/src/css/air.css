@@ -1,0 +1,138 @@
+.ui-switcher.--air {
+	--ui-switcher-width: 30px;
+	--ui-switcher-height: 15px;
+	--ui-switcher-bg: var(--ui-color-design-filled-bg);
+	--ui-switcher-off-bg: var(--ui-color-base-6);
+	--ui-switcher-cursor-size: 11px;
+	--ui-switcher-cursor-bg: var(--ui-color-base-white-fixed);
+	--ui-switcher-off-cursor-translate: 2px;
+	--ui-switcher-on-cursor-translate: calc(var(--ui-switcher-width) - var(--ui-switcher-cursor-size) - var(--ui-switcher-off-cursor-translate));
+
+	width: var(--ui-switcher-width);
+	height: var(--ui-switcher-height);
+	background-color: var(--ui-switcher-bg);
+	border-radius: 512px;
+}
+
+/* SIZE */
+.ui-switcher.--air.ui-switcher-size-xss {
+	--ui-switcher-width: 19px;
+	--ui-switcher-height: 10px;
+	--ui-switcher-cursor-size: 6px;
+	--ui-switcher-off-cursor-translate: 2px;
+}
+
+.ui-switcher.--air.ui-switcher-size-xs {
+	--ui-switcher-width: 23px;
+	--ui-switcher-height: 12px;
+	--ui-switcher-cursor-size: 8px;
+	--ui-switcher-off-cursor-translate: 2px;
+}
+
+.ui-switcher.--air.ui-switcher-size-sm {
+	--ui-switcher-width: 27px;
+	--ui-switcher-height: 14px;
+	--ui-switcher-cursor-size: 10px;
+	--ui-switcher-off-cursor-translate: 2px;
+}
+
+.ui-switcher.--air.ui-switcher-size-md {
+	--ui-switcher-width: 30px;
+	--ui-switcher-height: 15px;
+	--ui-switcher-cursor-size: 11px;
+	--ui-switcher-off-cursor-translate: 2px;
+}
+
+.ui-switcher.--air.ui-switcher-size-lg {
+	--ui-switcher-width: 40px;
+	--ui-switcher-height: 19px;
+	--ui-switcher-cursor-size: 15px;
+	--ui-switcher-off-cursor-translate: 2px;
+}
+
+.ui-switcher.--air.ui-switcher-size-xl {
+	--ui-switcher-width: 51px;
+	--ui-switcher-height: 25px;
+	--ui-switcher-cursor-size: 19px;
+	--ui-switcher-off-cursor-translate: 3px;
+}
+
+/* STYLE */
+.ui-switcher.--air,
+.ui-switcher.--air.--style-filled {
+	--ui-switcher-bg: var(--ui-color-design-filled-bg);
+	--ui-switcher-off-bg: var(--ui-color-base-6);
+	--ui-switcher-cursor-bg: var(--ui-color-design-filled-content);
+}
+
+.ui-switcher.--air.--style-tinted {
+	--ui-switcher-bg: var(--ui-color-design-tinted-a1-bg);
+	--ui-switcher-off-bg: var(--ui-color-base-7);
+	--ui-switcher-cursor-bg: var(--ui-color-design-tinted-a1-content);
+}
+
+.ui-switcher.--air,
+.ui-switcher.--air.ui-switcher-size-xss,
+.ui-switcher.--air.ui-switcher-size-xs,
+.ui-switcher.--air.ui-switcher-size-sm,
+.ui-switcher.--air.ui-switcher-size-md,
+.ui-switcher.--air.ui-switcher-size-l,
+.ui-switcher.--air.ui-switcher-size-xl {
+	width: var(--ui-switcher-width);
+	height: var(--ui-switcher-height);
+}
+
+.ui-switcher.--air.ui-switcher-off {
+	--ui-switcher-bg: var(--ui-switcher-off-bg);
+}
+
+.ui-switcher.--air .ui-switcher-enabled,
+.ui-switcher.--air.ui-switcher-size-xss .ui-switcher-enabled,
+.ui-switcher.--air.ui-switcher-size-xs .ui-switcher-enabled,
+.ui-switcher.--air.ui-switcher-size-sm .ui-switcher-enabled,
+.ui-switcher.--air.ui-switcher-size-md .ui-switcher-enabled,
+.ui-switcher.--air.ui-switcher-size-l .ui-switcher-enabled,
+.ui-switcher.--air.ui-switcher-size-xl .ui-switcher-enabled,
+.ui-switcher.--air .ui-switcher-disabled,
+.ui-switcher.--air.ui-switcher-size-xss .ui-switcher-disabled,
+.ui-switcher.--air.ui-switcher-size-xs .ui-switcher-disabled,
+.ui-switcher.--air.ui-switcher-size-sm .ui-switcher-disabled,
+.ui-switcher.--air.ui-switcher-size-md .ui-switcher-disabled,
+.ui-switcher.--air.ui-switcher-size-l .ui-switcher-disabled,
+.ui-switcher.--air.ui-switcher-size-xl .ui-switcher-disabled {
+	font-size: 0;
+	padding: 0;
+}
+
+.ui-switcher.--air .ui-switcher-enabled,
+.ui-switcher.--air .ui-switcher-disabled {
+	background-color: var(--ui-switcher-bg);
+}
+
+.ui-switcher.--air.ui-switcher-lock {
+	--ui-switcher-bg: var(--ui-color-base-7);
+	--ui-switcher-cursor-bg: var(--ui-color-base-6);
+
+	opacity: 1;
+	cursor: not-allowed;
+}
+
+.ui-switcher.--air .ui-switcher-cursor,
+.ui-switcher.--air.ui-switcher-size-xss .ui-switcher-cursor,
+.ui-switcher.--air.ui-switcher-size-xs .ui-switcher-cursor,
+.ui-switcher.--air.ui-switcher-size-sm .ui-switcher-cursor,
+.ui-switcher.--air.ui-switcher-size-md .ui-switcher-cursor,
+.ui-switcher.--air.ui-switcher-size-l .ui-switcher-cursor,
+.ui-switcher.--air.ui-switcher-size-xl .ui-switcher-cursor {
+	width: var(--ui-switcher-cursor-size);
+	height: var(--ui-switcher-cursor-size);
+	top: 50%;
+	left: 0;
+	transform: translate(var(--ui-switcher-on-cursor-translate), -50%);
+	background-color: var(--ui-switcher-cursor-bg);
+	box-shadow: none;
+}
+
+.ui-switcher.--air.ui-switcher-off .ui-switcher-cursor {
+	transform: translate(var(--ui-switcher-off-cursor-translate), -50%);
+}

@@ -6,9 +6,6 @@ $MESS["IM_CREATE_CHANNEL_USER_SELECTOR_ADD_MEMBERS"] = "Добавить под�
 $MESS["IM_CREATE_CHAT_CONFIRM"] = "Создать чат";
 $MESS["IM_CREATE_CONFERENCE_CONFIRM"] = "Создать конференцию";
 $MESS["IM_CREATE_CHANNEL_CONFIRM"] = "Создать канал";
-$MESS["IM_CREATE_CHAT_ERROR"] = "Произошла ошибка при создании чата";
-$MESS["IM_UPDATE_CHAT_ERROR"] = "Не удалось сохранить изменения";
-$MESS["IM_CREATE_CHAT_CONFERENCE_PASSWORD_ERROR"] = "Введите корректный пароль";
 
 $MESS["IM_CREATE_CHANNEL_DESCRIPTION_PLACEHOLDER_V3"] = "Расскажите, о чём ваш канал";
 $MESS["IM_CREATE_CHANNEL_DESCRIPTION_TITLE"] = "Описание канала";
@@ -26,5 +23,3 @@ $MESS["IM_CREATE_COLLAB_CONFIRM"] = "Создать коллабу";
 $MESS["IM_CREATE_COLLAB_BANNER_TITLE"] = "[learn-more]Коллаба[/learn-more] — пространство для совместной работы с внешними командами и клиентами";
 $MESS["IM_CREATE_COLLAB_BANNER_TEXT_1"] = "Создайте коллабу, чтобы усилить команду и быстрее получать впечатляющие результаты. В коллабе уже есть чат, звонки, файлы, задачи, календарь. Никаких лишних людей — только участники проекта. Вся история коммуникаций сохраняется в компании.";
 $MESS["IM_CREATE_COLLAB_BANNER_TEXT_2"] = "Пригласить участников можно сразу после создания коллабы. [learn-more]Подробнее[/learn-more]";
-$MESS["IM_CREATE_COLLAB_ERROR_EMPTY_NAME"] = "Укажите название коллабы";
-$MESS["IM_CREATE_COLLAB_ERROR_DUPLICATE_NAME"] = "Коллаба с таким названием уже есть";

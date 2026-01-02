@@ -1,0 +1,22 @@
+<?php
+$MESS["IBLOCK_TYPE_ADMIN_ADD"] = "Жаңа түрді қосу";
+$MESS["IBLOCK_TYPE_ADMIN_ADD_HINT"] = "Ақпараттық блоктың жаңа түрін қосу";
+$MESS["IBLOCK_TYPE_ADMIN_COL_EDIT_AFT"] = "Редакциялау нысаны бар файл";
+$MESS["IBLOCK_TYPE_ADMIN_COL_EDIT_BEF"] = "Модификацияға арналған файл";
+$MESS["IBLOCK_TYPE_ADMIN_COL_NAME"] = "Атауы";
+$MESS["IBLOCK_TYPE_ADMIN_COL_RSS"] = "RSS-ке экспорттау";
+$MESS["IBLOCK_TYPE_ADMIN_COL_SECT"] = "Бөлімдерді қамтиды";
+$MESS["IBLOCK_TYPE_ADMIN_COL_SORT"] = "Сұрыптау";
+$MESS["IBLOCK_TYPE_ADMIN_DEL_CONF"] = "Назар аударыңыз! Түрі және осы түрдегі барлық ақпараттық блоктар жойылады! Жалғастыру керек пе?";
+$MESS["IBLOCK_TYPE_ADMIN_ERR_DEL"] = "Түрін жою қатесі";
+$MESS["IBLOCK_TYPE_ADMIN_ERR_SAVE"] = "Түрді сақтау қатесі";
+$MESS["IBLOCK_TYPE_ADMIN_FILTER_ID"] = "ID түрі";
+$MESS["IBLOCK_TYPE_ADMIN_IB"] = "Ақпараттық блоктар";
+$MESS["IBLOCK_TYPE_ADMIN_NAV"] = "Түрлер";
+$MESS["IBLOCK_TYPE_ADMIN_TITLE"] = "Ақпараттық блоктардың түрлері";
+$MESS["MAIN_ADMIN_LIST_CHECKED"] = "Белгіленген:";
+$MESS["MAIN_ADMIN_LIST_DELETE"] = "жою";
+$MESS["MAIN_ADMIN_LIST_FILTER_1ST"] = "Іздеу үшін жол енгізіңіз";
+$MESS["MAIN_ADMIN_LIST_SELECTED"] = "Таңдалған:";
+$MESS["MAIN_ADMIN_MENU_DELETE"] = "Жою";
+$MESS['MAIN_ADMIN_MENU_EDIT'] = "Өзгерту";

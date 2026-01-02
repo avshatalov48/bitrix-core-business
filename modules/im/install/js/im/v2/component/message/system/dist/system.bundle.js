@@ -11,7 +11,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  name: 'SystemMessage',
 	  components: {
 	    BaseMessage: im_v2_component_message_base.BaseMessage,
-	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent
+	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
+	    MessageKeyboard: im_v2_component_message_elements.MessageKeyboard
 	  },
 	  props: {
 	    item: {
@@ -33,6 +34,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    canSetReactions() {
 	      return main_core.Type.isNumber(this.message.id);
+	    },
+	    hasKeyboard() {
+	      return this.message.keyboard.length > 0;
 	    }
 	  },
 	  template: `
@@ -46,6 +50,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<div class="bx-im-message-system__container">
 				<DefaultMessageContent :item="item" :dialogId="dialogId" />
 			</div>
+			<template #after-message v-if="hasKeyboard">
+				<MessageKeyboard :item="item" :dialogId="dialogId" />
+			</template>
 		</BaseMessage>
 	`
 	};

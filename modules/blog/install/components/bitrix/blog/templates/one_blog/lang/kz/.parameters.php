@@ -1,0 +1,26 @@
+<?php
+$MESS["BC_DO_NOT_SHOW_MENU"] = "Блогтың жоғарғы мәзірін көрсетпеу";
+$MESS["BC_DO_NOT_SHOW_SIDEBAR"] = "Блогтың оң жақ бағанын көрсетпеу";
+$MESS["BC_NAME_TEMPLATE"] = "Атты көрсету";
+$MESS["BC_NAME_TEMPLATE_DEFAULT"] = "#NOBR##LAST_NAME# #NAME##/NOBR#";
+$MESS["BC_PATH_TO_CONPANY_DEPARTMENT"] = "Бөлімше парақшасына жол қалыбы";
+$MESS["BC_PATH_TO_MESSAGES_CHAT"] = "Пайдаланушымен чатқа жол қалыбы";
+$MESS["BC_PATH_TO_SONET_USER_PROFILE"] = "Әлеуметтік желіде пайдаланушының парақшасына сілтеме қалыбы";
+$MESS["BC_PATH_TO_VIDEO_CALL"] = "Бейнеқоңырау парақшасы";
+$MESS["BC_SHARE_HIDE"] = "Әлеуметтік бетбелгілер панелін әдепкі бойынша ашпау";
+$MESS["BC_SHARE_SHORTEN_URL_KEY"] = "bit.ly үшін кілт";
+$MESS["BC_SHARE_SHORTEN_URL_LOGIN"] = "bit.ly үшін логин";
+$MESS["BC_SHARE_SYSTEM"] = "Қолданылатын әлеуметтік бетбелгілер мен желілер";
+$MESS["BC_SHARE_TEMPLATE"] = "Әлеуметтік бетбелгілер панелінің компонентінің қалыбы";
+$MESS["BC_SHOW_LOGIN"] = "Егер аты көрсетілмесе, логинді көрсету";
+$MESS["BC_USE_SHARE"] = "Әлеуметтік бетбелгілер панелін көрсету";
+$MESS["BLG_THEME"] = "Қалыптар тақырыбы";
+$MESS["BLG_THEME_BLUE"] = "Көк";
+$MESS["BLG_THEME_GREEN"] = "Жасыл";
+$MESS["BLG_THEME_ORANGE"] = "Қызыл-сары";
+$MESS["BLG_THEME_RED"] = "Қызыл";
+$MESS["BLG_THEME_RED2"] = "Қызыл қарапайым";
+$MESS["B_SEO_USER"] = "Пайдаланушы профилінің сілтемесін іздеу боттары арқылы индекстеуге тыйым салу";
+$MESS["B_SHOW_NAVIGATION"] = "Блогтар бойынша навигация жолын көрсету";
+$MESS["ONE_BLOG_BLOG_URL"] = "Блогтың символикалық атауы";
+$MESS["USER_PROPERTY_NAME"] = "Қосымша қасиеттері бар бетбелгі атауы";

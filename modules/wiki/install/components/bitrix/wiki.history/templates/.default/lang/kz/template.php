@@ -1,0 +1,25 @@
+<?php
+$MESS["DIFF_WITH"] = "Салыстыру";
+$MESS["NAV_TITLE"] = "Нұсқалар тарихы";
+$MESS["WIKI_ALL"] = "Барлық ";
+$MESS["WIKI_COLUMN_AUTHOR"] = "Автор";
+$MESS["WIKI_COLUMN_DATE_CREATE"] = "Құрылған күні";
+$MESS["WIKI_CURR_VERSION"] = "Ағымдағы нұсқамен салыстыру";
+$MESS["WIKI_CURR_VERSION_TITLE"] = "Ағымдағы құжат нұсқасын осы нұсқамен салыстыру";
+$MESS["WIKI_DELETE_CURR_VERSION"] = "Нұсқаны жою";
+$MESS["WIKI_DELETE_CURR_VERSION_DELETE"] = "Жою";
+$MESS["WIKI_DELETE_CURR_VERSION_DELETE_CONFIRM"] = "Жойғыңыз келетініне сенімдісіз бе?";
+$MESS["WIKI_DELETE_CURR_VERSION_TITLE"] = "Нұсқаны жою";
+$MESS["WIKI_DIFF_VERSION"] = "Таңдалған нұсқаларды салыстыру";
+$MESS["WIKI_DISCUSSION"] = "Талқылау ";
+$MESS["WIKI_DISCUSSION_TITLE"] = "Талқылау ";
+$MESS["WIKI_HISTORY_NOT_FIND"] = "Тарих табылмады";
+$MESS["WIKI_MODIFY_COMMENT"] = "Өзгеріске қатысты пікір";
+$MESS["WIKI_PREV_VERSION"] = "Алдыңғы нұсқасымен салыстыру";
+$MESS["WIKI_PREV_VERSION_TITLE"] = "Бұл нұсқаны алдыңғы нұсқамен салыстыру.";
+$MESS["WIKI_RECOVER"] = "Қалпына келтіру";
+$MESS["WIKI_RECOVER_TITLE"] = "Осы нұсқаны ағымдағы ету";
+$MESS["WIKI_SELECT_DIFF"] = "Салыстыру үшін белгілеу";
+$MESS["WIKI_VERSION"] = "Қарау";
+$MESS["WIKI_VERSION_FROM"] = "Қарау";
+$MESS["WIKI_VERSION_TITLE"] = "Осы нұсқаны қарау";

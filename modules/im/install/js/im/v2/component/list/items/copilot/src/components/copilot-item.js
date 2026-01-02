@@ -2,10 +2,12 @@ import 'main.date';
 
 import { Core } from 'im.v2.application.core';
 import { Settings, Layout } from 'im.v2.const';
-import { ChatAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { InputActionIndicator } from 'im.v2.component.list.items.elements.input-action-indicator';
+import { ChatTitle } from 'im.v2.component.elements.chat-title';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
+import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 
 import { MessageText } from './message-text';
-import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 
 import '../css/copilot-item.css';
 
@@ -15,7 +17,7 @@ import type { ImModelRecentItem, ImModelChat, ImModelMessage } from 'im.v2.model
 // @vue/component
 export const CopilotItem = {
 	name: 'CopilotItem',
-	components: { ChatAvatar, ChatTitle, MessageText },
+	components: { ChatAvatar, ChatTitle, MessageText, InputActionIndicator },
 	props:
 	{
 		item: {
@@ -56,7 +58,7 @@ export const CopilotItem = {
 		},
 		isChatSelected(): boolean
 		{
-			if (this.layout.name !== Layout.copilot.name)
+			if (this.layout.name !== Layout.copilot)
 			{
 				return false;
 			}
@@ -71,9 +73,9 @@ export const CopilotItem = {
 
 			return Boolean(isMuted);
 		},
-		isSomeoneTyping(): boolean
+		hasActiveInputAction(): boolean
 		{
-			return this.dialog.writingList.length > 0;
+			return this.$store.getters['chats/inputActions/isChatActive'](this.recentItem.dialogId);
 		},
 		showLastMessage(): boolean
 		{
@@ -82,6 +84,10 @@ export const CopilotItem = {
 		showPinnedIcon(): boolean
 		{
 			return this.recentItem.pinned && this.dialog.counter === 0 && !this.recentItem.unread;
+		},
+		showUnreadWithoutCounter(): boolean
+		{
+			return this.recentItem.unread && this.dialog.counter === 0;
 		},
 		showCounter(): boolean
 		{
@@ -124,7 +130,7 @@ export const CopilotItem = {
 							:withSpecialTypes="false"
 							:size="AvatarSize.XL"
 						/>
-						<div v-if="isSomeoneTyping" class="bx-im-list-copilot-item__avatar_typing"></div>
+						<InputActionIndicator v-if="hasActiveInputAction" />
 					</div>
 				</div>
 				<div class="bx-im-list-copilot-item__content_container">
@@ -142,6 +148,7 @@ export const CopilotItem = {
 								<div v-else-if="showCounter" :class="{'--muted': isChatMuted}" class="bx-im-list-copilot-item__counter_number">
 									{{ formattedCounter }}
 								</div>
+								<div v-else-if="showUnreadWithoutCounter" class="bx-im-list-copilot-item__counter_number --no-counter"></div>
 							</div>
 						</div>
 					</div>

@@ -6,6 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Integration\UI\EntitySelector\Config;
 use Bitrix\Socialnetwork\Integration\UI\EntitySelector\ProjectProvider;
 use Bitrix\Socialnetwork\Integration\UI\EntitySelector\UserProvider;
 
@@ -134,6 +135,46 @@ $userOptions = [
 	]
 ];
 
+$projectOptions = [
+	'dynamicLoad' => true,
+	'dynamicSearch' => true,
+	'itemOptions' => [
+		'default' => [
+			'avatar' => Config::getProjectAvatarTypes()['default'],
+			'link' => ProjectProvider::getProjectUrl().'card/',
+			'linkTitle' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECT_LINK_TITLE'),
+			'supertitle' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECT_SUPER_TITLE')
+		],
+		'extranet' => [
+			'avatar' => Config::getProjectAvatarTypes()['extranet'],
+			'textColor' => '#ca8600',
+			'badges' => [
+				[
+					'title' =>  Loc::getMessage('SOCNET_ENTITY_SELECTOR_EXTRANET_BADGE'),
+					'textColor' => '#bb8412',
+					'bgColor' => '#fff599',
+				]
+			],
+		],
+		'collab' => [
+			'avatar' => Config::getProjectAvatarTypes()['collab'],
+			'textColor' => '#00a94e',
+			'supertitle' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_COLLAB_SUPER_TITLE'),
+			'link' => '',
+		],
+	],
+	'tagOptions' => [
+		'default' => [
+			'textColor' => '#207976',
+			'bgColor' => '#ade7e4',
+		],
+		'extranet' => [
+			'textColor' => '#a9750f',
+			'bgColor' => '#ffec91',
+		]
+	]
+];
+
 return [
 	'css' => 'dist/sonet-entity-selector.bundle.css',
 	'js' => 'dist/sonet-entity-selector.bundle.js',
@@ -155,45 +196,20 @@ return [
 			],
 			[
 				'id' => 'project',
-				'options' => [
-					'dynamicLoad' => true,
-					'dynamicSearch' => true,
-					'itemOptions' => [
-						'default' => [
-							'avatar' => '/bitrix/js/socialnetwork/entity-selector/src/images/project.svg',
-							'link' => ProjectProvider::getProjectUrl().'card/',
-							'linkTitle' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECT_LINK_TITLE'),
-							'supertitle' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECT_SUPER_TITLE')
-						],
-						'extranet' => [
-							'avatar' => '/bitrix/js/socialnetwork/entity-selector/src/images/extranet-project.svg',
-							'textColor' => '#ca8600',
-							'badges' => [
-								[
-									'title' =>  Loc::getMessage('SOCNET_ENTITY_SELECTOR_EXTRANET_BADGE'),
-									'textColor' => '#bb8412',
-									'bgColor' => '#fff599',
-								]
+				'options' => $projectOptions,
+			],
+			[
+				'id' => 'project-access-codes',
+				'options' => array_replace_recursive(
+					$projectOptions,
+					[
+						'itemOptions' => [
+							'default' => [
+								'link' => '',
 							],
 						],
-						'collab' => [
-							'avatar' => '/bitrix/js/socialnetwork/entity-selector/src/images/collab-project.svg',
-							'textColor' => '#00a94e',
-							'supertitle' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_COLLAB_SUPER_TITLE'),
-							'link' => '',
-						],
 					],
-					'tagOptions' => [
-						'default' => [
-							'textColor' => '#207976',
-							'bgColor' => '#ade7e4',
-						],
-						'extranet' => [
-							'textColor' => '#a9750f',
-							'bgColor' => '#ffec91',
-						]
-					]
-				]
+				),
 			],
 			[
 				'id' => 'meta-user',

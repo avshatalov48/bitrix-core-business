@@ -1,0 +1,21 @@
+<?php
+$MESS["BT_MOD_SALE_BASKET_ERR_CURRENCY_ABSENT"] = "Баға валютасы көрсетілмеген";
+$MESS["BT_MOD_SALE_BASKET_ERR_FUSER_ID_ABSENT"] = "Себет пайдаланушысының ID көрсетілмеген";
+$MESS["BT_MOD_SALE_BASKET_ERR_ID_ABSENT"] = "Себет элементінің ID көрсетілмеген";
+$MESS["BT_MOD_SALE_BASKET_ERR_NAME_ABSENT"] = "Тауардың атауы бос";
+$MESS["BT_MOD_SALE_BASKET_ERR_PRODUCT_ID_ABSENT"] = "Тауар коды көрсетілмеген";
+$MESS["BT_MOD_SALE_BASKET_ERR_SITE_ID_ABSENT"] = "Сайт көрсетілмеген";
+$MESS["BT_STORE_WRONG_BARCODE"] = "##STORE_ID# қоймасы үшін \"#PRODUCT_NAME#\" тауарының дұрыс емес штрихкоды көрсетілген.";
+$MESS["DDCT_AUTO_DEDUCT_BARCODE_MULTI"] = "Автоматты жөнелтуді орындау мүмкін болмады. ##PRODUCT_ID# тауарын қолдан жөнелту керек.";
+$MESS["DDCT_AUTO_DEDUCT_WRONG_STORES_QUANTITY"] = "Авттматты жөнелтуді орындау мүмкін емес: қоймалардың саны 1-ге тең емес және әдепкі жөнелту қоймасы көрсетілмеген.";
+$MESS["SKGB_DEDUCT_ERROR"] = "#MESSAGE#";
+$MESS["SKGB_NO_CURRENCY"] = "#ID# коды бар валюта табылмады";
+$MESS["SKGB_NO_ORDER"] = "#ID# коды бар тапсырыс табылмады";
+$MESS["SKGB_NO_SITE"] = "#ID# коды бар сайт табылмады";
+$MESS["SKGB_PARAM_SITE_ERROR"] = "DoCalculateOrder әдісін шақырту қатесі - сайттың коды көрсетілмеген";
+$MESS["SKGB_PARAM_SK_ERROR"] = "DoCalculateOrder әдісін шақырту қатесі - себеттің коды дұрыс емес";
+$MESS["SKGB_RESERVE_ERROR"] = "Резервтеу қатесі. #MESSAGE#";
+$MESS["SKGB_SHOPPING_CART_EMPTY"] = "Себет бос";
+$MESS["STOF_ERROR_REG"] = "Жаңа пайдаланушыны тіркеу қатесі";
+$MESS["SU_ANONYMOUS_USER_CREATE"] = "Анонимді пайдаланушыны құру қатесі.#ERROR#";
+$MESS["SU_ANONYMOUS_USER_NAME"] = "Анонимді пайдаланушы";

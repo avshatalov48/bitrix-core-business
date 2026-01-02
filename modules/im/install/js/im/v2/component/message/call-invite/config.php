@@ -13,7 +13,7 @@ return [
 		'im.v2.lib.call',
 		'im.v2.lib.permission',
 		'main.core',
-		'im.v2.component.elements',
+		'im.v2.component.elements.button',
 		'im.v2.component.message.base',
 		'im.v2.component.message.elements',
 		'im.v2.lib.utils',

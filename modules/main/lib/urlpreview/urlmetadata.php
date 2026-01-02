@@ -3,9 +3,10 @@
 namespace Bitrix\Main\UrlPreview;
 
 use Bitrix\Main;
-use Bitrix\Main\Entity;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\ORM\Event;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields;
 
 /**
  * Class UrlMetadataTable
@@ -23,7 +24,7 @@ use Bitrix\Main\ORM\Event;
  * @method static \Bitrix\Main\UrlPreview\EO_UrlMetadata wakeUpObject($row)
  * @method static \Bitrix\Main\UrlPreview\EO_UrlMetadata_Collection wakeUpCollection($rows)
  */
-class UrlMetadataTable extends Entity\DataManager
+class UrlMetadataTable extends DataManager
 {
 	const TYPE_STATIC = 'S';
 	const TYPE_DYNAMIC = 'D';
@@ -48,37 +49,37 @@ class UrlMetadataTable extends Entity\DataManager
 	public static function getMap()
 	{
 		return array(
-			'ID' => new Entity\IntegerField('ID', array(
+			'ID' => new Fields\IntegerField('ID', array(
 				'primary' => true,
 				'autocomplete' => true,
 			)),
-			'URL' => new Entity\StringField('URL', array(
+			'URL' => new Fields\StringField('URL', array(
 				'required' => true,
 			)),
-			'TYPE' => new Entity\StringField('TYPE', array(
+			'TYPE' => new Fields\StringField('TYPE', array(
 				'required' => true,
 			)),
-			'TITLE' => new Entity\StringField('TITLE', [
+			'TITLE' => new Fields\StringField('TITLE', [
 				'save_data_modification' => [Emoji::class, 'getSaveModificator'],
 				'fetch_data_modification' => [Emoji::class, 'getFetchModificator'],
 			]),
-			'DESCRIPTION' => new Entity\TextField('DESCRIPTION', [
+			'DESCRIPTION' => new Fields\TextField('DESCRIPTION', [
 				'save_data_modification' => [Emoji::class, 'getSaveModificator'],
 				'fetch_data_modification' => [Emoji::class, 'getFetchModificator'],
 			]),
-			'IMAGE_ID' => new Entity\IntegerField('IMAGE_ID'),
-			'IMAGE' => new Entity\StringField('IMAGE'),
-			'EMBED' => new Entity\TextField('EMBED', [
+			'IMAGE_ID' => new Fields\IntegerField('IMAGE_ID'),
+			'IMAGE' => new Fields\StringField('IMAGE'),
+			'EMBED' => new Fields\TextField('EMBED', [
 				'save_data_modification' => [Emoji::class, 'getSaveModificator'],
 				'fetch_data_modification' => [Emoji::class, 'getFetchModificator'],
 			]),
-			'EXTRA' => new Entity\TextField('EXTRA', array(
+			'EXTRA' => new Fields\TextField('EXTRA', array(
 				'serialized' => true,
 			)),
-			'DATE_INSERT' => new Entity\DatetimeField('DATE_INSERT', array(
+			'DATE_INSERT' => new Fields\DatetimeField('DATE_INSERT', array(
 				'default_value' => new Main\Type\DateTime(),
 			)),
-			'DATE_EXPIRE' => new Entity\DatetimeField('DATE_EXPIRE')
+			'DATE_EXPIRE' => new Fields\DatetimeField('DATE_EXPIRE')
 		);
 	}
 

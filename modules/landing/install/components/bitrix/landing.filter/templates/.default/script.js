@@ -1,99 +1,280 @@
-var landingAjaxSend = false;
-var scriptIsLoaded = false;
-
-BX.ready(function()
+;(function ()
 {
-	var createFolderEl = BX('landing-create-folder');
-	var recycleBin = BX('landing-recycle-bin');
-	var folderGrid = BX('grid-tile-inner');
+	'use strict';
 
-	if (scriptIsLoaded)
+	BX.namespace('BX.Landing.Component.Filter');
+
+	BX.Landing.Component.Filter.filterId = null;
+	BX.Landing.Component.Filter.canCreateFolder = false;
+	BX.Landing.Component.Filter.createButton = null;
+	BX.Landing.Component.Filter.createFolderButton = null;
+	BX.Landing.Component.Filter.settingsButtons = null;
+	BX.Landing.Component.Filter.ajaxPath = null;
+	BX.Landing.Component.Filter.ajaxSend = false;
+
+	BX.Landing.Component.Filter = function (params)
 	{
-		return;
-	}
-
-	scriptIsLoaded = true;
-
-	// recycle bin
-	BX.bind(
-		recycleBin,
-		'click',
-		function()
+		if (params.filterId !== undefined)
 		{
-			var filterManager = BX.Main.filterManager.getById(landingFilterId),
-				filterApi = filterManager.getApi(),
-				currValues = filterManager.getFilterFieldsValues();
-
-			if (currValues.DELETED === 'Y')
-			{
-				currValues.DELETED = '';
-			}
-			else
-			{
-				currValues.DELETED = 'Y';
-			}
-			filterApi.setFields(currValues);
-			filterApi.apply();
+			BX.Landing.Component.Filter.filterId = params.filterId;
 		}
-	);
 
-	// apply filter
-	var landingFilterCallback = function()
+		if (BX.Type.isBoolean(params.canCreateFolder))
+		{
+			BX.Landing.Component.Filter.canCreateFolder = params.canCreateFolder;
+		}
+
+		const toolbar = BX.UI.ToolbarManager.getDefaultToolbar();
+		if (toolbar && BX.Type.isString(params.landingCreateButtonId))
+		{
+			BX.Landing.Component.Filter.createButton = toolbar.getButton(params.landingCreateButtonId);
+		}
+
+		if (toolbar && BX.Type.isString(params.landingCreateFolderButtonId))
+		{
+			BX.Landing.Component.Filter.createFolderButton = toolbar.getButton(params.landingCreateFolderButtonId);
+		}
+
+		if (params.landingSettingsButtons !== undefined)
+		{
+			BX.Landing.Component.Filter.settingsButtons = params.landingSettingsButtons;
+		}
+
+		if (params.landingAjaxPath !== undefined)
+		{
+			BX.Landing.Component.Filter.ajaxPath = params.landingAjaxPath;
+		}
+
+		if (
+			params.landingShowSiteAIPopup !== undefined
+			&& BX.Type.isBoolean(params.landingShowSiteAIPopup)
+			&& BX.Landing.Component.Filter.createButton
+		)
+		{
+			BX.Runtime.loadExtension([
+				'ai.copilot-promo-popup',
+				'ui.banner-dispatcher',
+				'landing.metrika',
+			])
+				.then((exports) => {
+					const createButton = BX.Landing.Component.Filter.createButton.button;
+					const { CopilotPromoPopup, BannerDispatcher, Metrika } = exports;
+					BannerDispatcher.high.toQueue((onDone) => {
+						const metrika = new Metrika(true);
+						metrika.sendData({
+							category: 'site',
+							event: 'creating_scenario_hint_show',
+							type: 'standart',
+						});
+
+						const popup = CopilotPromoPopup.createByPresetId({
+							presetId: CopilotPromoPopup.Preset.SITE_WITH_COPILOT,
+							targetOptions: createButton,
+							angleOptions: {
+								position: CopilotPromoPopup.AnglePosition.TOP,
+								offset: createButton.offsetWidth / 2 + 25,
+							},
+						});
+						popup.subscribe(CopilotPromoPopup.PromoVideoPopupEvents.HIDE, () => onDone());
+						popup.show();
+						BX.userOptions.save('landing', 'site-ai-popup', 'isShow', 'Y');
+					});
+				})
+				.catch(() => {});
+		}
+
+		BX.addCustomEvent('BX.Main.Filter:apply', BX.delegate(BX.Landing.Component.Filter.onFilterCallback));
+		BX.addCustomEvent('BX.Landing.Filter:apply', BX.delegate(BX.Landing.Component.Filter.onFilterCallback));
+
+		// force creating folder item to correctly BX.Landing.TileGrid init
+		if (BX.Landing.Component.Filter.canCreateFolder)
+		{
+			BX.Landing.Component.Filter.getFolderCard();
+		}
+	};
+
+	BX.Landing.Component.Filter.onRecycleBinClick = () =>
 	{
-		if (landingAjaxSend)
+		if (BX.Landing.Component.Filter.filterId === null)
 		{
 			return;
 		}
-		landingAjaxSend = true;
 
-		var workArea = BX('workarea-content');
+		const filterManager = BX.Main.filterManager.getById(BX.Landing.Component.Filter.filterId);
+		const filterApi = filterManager.getApi();
+		const currValues = filterManager.getFilterFieldsValues();
+		if (currValues.DELETED === 'Y')
+		{
+			currValues.DELETED = '';
+		}
+		else
+		{
+			currValues.DELETED = 'Y';
+		}
 
-		var loaderContainer = BX.create('div',{
-			attrs:{className:'landing-filter-loading'}
+		filterApi.setFields(currValues);
+		filterApi.apply();
+	};
+
+	BX.Landing.Component.Filter.onFilterCallback = (id, data, filter) =>
+	{
+		if (BX.Landing.Component.Filter.ajaxPath === null)
+		{
+			return;
+		}
+
+		if (BX.Landing.Component.Filter.ajaxSend)
+		{
+			return;
+		}
+		BX.Landing.Component.Filter.ajaxSend = true;
+
+		if (filter)
+		{
+			const currValues = filter.getFilterFieldsValues();
+			if (currValues.DELETED === 'Y')
+			{
+				BX.Landing.Component.Filter.createButton?.setDisabled(true);
+				BX.Landing.Component.Filter.createFolderButton?.setDisabled(true);
+			}
+			else
+			{
+				BX.Landing.Component.Filter.createButton?.setDisabled(false);
+				BX.Landing.Component.Filter.createFolderButton?.setDisabled(false);
+			}
+		}
+
+		const workArea = BX('workarea-content') || BX('air-workarea-content');
+		const loaderContainer = BX.create('div', {
+			attrs: {
+				className: 'landing-filter-loading',
+			},
 		});
 		document.body.appendChild(loaderContainer);
 
-		var loader = new BX.Loader({size: 130, color: '#bfc3c8'});
+		const loader = new BX.Loader({size: 130, color: '#bfc3c8'});
 		loader.show(loaderContainer);
 
 		BX.ajax({
 			method: 'POST',
 			dataType: 'html',
-			url: landingAjaxPath,
-			onsuccess: function(data)
+			url: BX.Landing.Component.Filter.ajaxPath,
+			onsuccess: function (data)
 			{
-				landingAjaxSend = false;
+				BX.Landing.Component.Filter.ajaxSend = false;
 				loader.hide();
 				loaderContainer.classList.add('landing-filter-loading-hide');
 				workArea.innerHTML = data;
-			}
+			},
 		});
 	};
 
-	BX.addCustomEvent('BX.Main.Filter:apply', BX.delegate(landingFilterCallback));
-	BX.addCustomEvent('BX.Landing.Filter:apply', BX.delegate(landingFilterCallback));
+	BX.Landing.Component.Filter.onSettingsClick = (button) => {
+		if (BX.Landing.Component.Filter.settingsButtons === null)
+		{
+			return;
+		}
 
-	// create folder
-	if (createFolderEl)
-	{
-		var createFolderText = BX.create('input', {
-			props: {
-				type: 'text',
+		const lastLocation = top.location.toString();
+		const events = {
+			onClose: () =>
+			{
+				if (window['landingSettingsSaved'] === true)
+				{
+					top.location = lastLocation;
+				}
+
+				if (BX.PopupMenu.getCurrentMenu())
+				{
+					BX.PopupMenu.getCurrentMenu().close();
+				}
+			},
+		};
+
+		const landingSettingsButtons = BX.Landing.Component.Filter.settingsButtons;
+		if (landingSettingsButtons.length === 1)
+		{
+			const item = landingSettingsButtons[0];
+			const skipSlider = item.dataset && item.dataset.skipSlider === true;
+			if (!skipSlider)
+			{
+				BX.SidePanel.Instance.open(item.href, {
+					allowChangeHistory: false,
+					events,
+				});
 			}
-		});
+		}
+		else
+		{
+			for (let i = 0, c = landingSettingsButtons.length; i < c; i++)
+			{
+				landingSettingsButtons[i].onclick = (event, item) =>
+				{
+					const skipSlider = item && item.dataset && item.dataset.skipSlider === true;
+					if (!skipSlider)
+					{
+						BX.SidePanel.Instance.open(item.href, {
+							allowChangeHistory: false,
+							events,
+						});
 
-		var folderCreating = false;
+						BX.PreventDefault(event);
+					}
+					BX.PopupMenu.getMenuById('landing-menu-settings').close();
+				};
+			}
 
-		function ajaxAddFolder() {
+			let menu = BX.PopupMenu.getMenuById('landing-menu-settings');
+			if (!menu)
+			{
+				menu = BX.Main.MenuManager.create({
+					id: 'landing-menu-settings',
+					bindElement: button.button,
+					autoHide: true,
+					zIndex: 1200,
+					offsetLeft: 20,
+					angle: true,
+					closeByEsc: true,
+					items: landingSettingsButtons,
+				});
+			}
+			if (menu)
+			{
+				menu.show();
+			}
+		}
+		BX.PreventDefault(event);
+	};
 
-			if (folderCreating) {
+	BX.Landing.Component.Filter.onFolderCreateClick = (button) =>
+	{
+		if (!BX.Landing.Component.Filter.canCreateFolder)
+		{
+			return;
+		}
+
+		const createFolderEl = button.button;
+		if (!createFolderEl)
+		{
+			return;
+		}
+
+		const folderCard = BX.Landing.Component.Filter.getFolderCard();
+		const createFolderText = BX.Landing.Component.Filter.getFolderText();
+
+		let folderCreating = false;
+
+		function ajaxAddFolder()
+		{
+			if (folderCreating)
+			{
 				return;
 			}
 
 			folderCreating = true;
 
 			BX.ajax({
-				url: '/bitrix/tools/landing/ajax.php?' + '' +
+				url: '/bitrix/tools/landing/ajax.php?' +
 					'action=Site::addFolder&' +
 					'type=' + BX.data(createFolderEl, 'type'),
 				method: 'POST',
@@ -102,13 +283,13 @@ BX.ready(function()
 						siteId: BX.data(createFolderEl, 'siteId'),
 						fields: {
 							TITLE: createFolderText.value,
-							PARENT_ID: BX.data(createFolderEl, 'folderId')
-						}
+							PARENT_ID: BX.data(createFolderEl, 'folderId'),
+						},
 					},
-					sessid: BX.message('bitrix_sessid')
+					sessid: BX.message('bitrix_sessid'),
 				},
 				dataType: 'json',
-				onsuccess: function(data)
+				onsuccess: function (data)
 				{
 					if (
 						typeof data.type !== 'undefined' &&
@@ -121,9 +302,9 @@ BX.ready(function()
 							msg.show({
 								content: data.result[0].error_description,
 								confirm: 'OK',
-								type: 'alert'
+								type: 'alert',
 							}).then(
-								function()
+								function ()
 								{
 									folderCreating = false;
 
@@ -136,7 +317,7 @@ BX.ready(function()
 									{
 										BX.fireEvent(createFolderEl, 'click');
 									}
-								}
+								},
 							);
 						}
 						else
@@ -145,210 +326,118 @@ BX.ready(function()
 						}
 					}
 				},
-				onfailure: function(error)
+				onfailure: function (error)
 				{
 					folderCreating = false;
-				}
+				},
 			});
 		}
 
-		createFolderText.addEventListener('keydown', function(event) {
+		createFolderText.addEventListener('keydown', function (event)
+		{
 			if (event.keyCode === 13)
 			{
 				ajaxAddFolder();
 			}
-		})
+		});
 
-		createFolderText.addEventListener('blur', function() {
+		createFolderText.addEventListener('blur', function ()
+		{
 			if (createFolderText.value.length !== 0)
 			{
 				ajaxAddFolder();
 			}
 		});
 
-		var folderCard = BX.create('div', {
+		BX.style(folderCard, 'display', 'block');
+		BX.focus(createFolderText);
+	};
+	BX.Landing.Component.Filter.folderCard = null;
+	BX.Landing.Component.Filter.getFolderCard = () =>
+	{
+		if (BX.Landing.Component.Filter.folderCard)
+		{
+			return BX.Landing.Component.Filter.folderCard;
+		}
+
+		const createFolderText = BX.Landing.Component.Filter.getFolderText();
+
+		const folderCard = BX.create('div', {
 			props: {
-				className: 'landing-item landing-item-folder'
+				className: 'landing-item landing-item-folder',
 			},
 			children: [
 				BX.create('div', {
 					props: {
-						className: 'landing-title'
+						className: 'landing-title',
 					},
 					children: [
 						BX.create('div', {
 							props: {
-								className: 'landing-title-wrap'
+								className: 'landing-title-wrap',
 							},
 							children: [
 								BX.create('div', {
 									props: {
-										className: 'landing-title-overflow --create-folder-input'
+										className: 'landing-title-overflow --create-folder-input',
 									},
 									children: [
 										createFolderText,
-									]
+									],
 								}),
-							]
+							],
 						}),
-					]
+					],
 				}),
 				BX.create('div', {
 					props: {
-						className: 'landing-item-cover'
+						className: 'landing-item-cover',
 					},
 					children: [
 						BX.create('div', {
 							props: {
-								className: 'landing-item-preview'
+								className: 'landing-item-preview',
 							},
 						}),
 						BX.create('div', {
 							props: {
-								className: 'landing-item-folder-corner'
+								className: 'landing-item-folder-corner',
 							},
 							children: [
 								BX.create('div', {
 									props: {
-										className: 'landing-item-folder-dropdown'
+										className: 'landing-item-folder-dropdown',
 									},
 								}),
-							]
+							],
 						}),
-					]
+					],
 				}),
-			]
+			],
 		});
-		folderCard.style.display = 'none';
 
-		BX.insertAfter(folderCard, document.body.querySelector(".landing-folder-placeholder"))
+		BX.style(folderCard, 'display', 'none');
+		BX.Landing.Component.Filter.folderCard = folderCard;
+		BX.insertAfter(folderCard, document.body.querySelector(".landing-folder-placeholder"));
 
-		BX.bind(
-			createFolderEl,
-			'click',
-			function()
-			{
-				if (!folderCard.prepareNode)
-				{
-					BX.insertAfter(folderCard, document.body.querySelector(".landing-folder-placeholder"))
-				}
-				if (BX.hasClass(createFolderEl, 'ui-btn-disabled'))
-				{
-					return;
-				}
-
-				folderCard.style.display = 'block';
-				BX.focus(createFolderText);
-			}
-		);
-	}
-
-	// settings button
-	var onSettingsClick = function(event) {
-		if (!Array.isArray(landingSettingsButtons))
-		{
-			return;
-		}
-		var lastLocation = top.location.toString();
-		var events = {
-			onClose: function()
-			{
-				if (window['landingSettingsSaved'] === true)
-				{
-					top.location = lastLocation;
-				}
-				if (BX.PopupMenu.getCurrentMenu())
-				{
-					BX.PopupMenu.getCurrentMenu().close();
-				}
-			}
-		};
-		if (landingSettingsButtons.length === 1)
-		{
-			var skipSlider =
-				landingSettingsButtons[0]['dataset'] && landingSettingsButtons[0]['dataset']['skipSlider'] === true
-			;
-
-			if (!skipSlider)
-			{
-				BX.SidePanel.Instance.open(landingSettingsButtons[0]['href'], {
-					allowChangeHistory: false,
-					events: events
-				});
-			}
-		}
-		else
-		{
-			for (var i = 0, c = landingSettingsButtons.length; i < c; i++)
-			{
-				landingSettingsButtons[i]['onclick'] = function(event, item)
-				{
-					var skipSlider = item && item.dataset && item.dataset.skipSlider === true;
-					if (!skipSlider)
-					{
-						BX.SidePanel.Instance.open(item.href, {
-							allowChangeHistory: false,
-							events: events
-						});
-
-						BX.PreventDefault(event);
-					}
-					BX.PopupMenu.getMenuById('landing-menu-settings').close();
-				};
-			}
-			var menu = (
-				BX.PopupMenu.getMenuById('landing-menu-settings') ||
-				BX.Main.MenuManager.create({
-					id: 'landing-menu-settings',
-					bindElement: event.currentTarget,
-					autoHide: true,
-					zIndex: 1200,
-					offsetLeft: 20,
-					angle: true,
-					closeByEsc: true,
-					items: landingSettingsButtons
-				})
-			);
-			menu.show();
-		}
-		BX.PreventDefault(event);
+		return folderCard;
 	};
-	if (BX('landing-menu-settings'))
+	BX.Landing.Component.Filter.folderText = null;
+	BX.Landing.Component.Filter.getFolderText = () =>
 	{
-		BX('landing-menu-settings').addEventListener(
-			'click',
-			BX.proxy(onSettingsClick, BX('landing-menu-settings'))
-		);
-	}
-
-	// create buttons
-	var onCreateActionsClick = function(event) {
-		if (BX.hasClass(BX('landing-create-element'), 'ui-btn-disabled'))
+		if (BX.Landing.Component.Filter.folderText)
 		{
-			BX.PreventDefault(event);
-			return;
+			return BX.Landing.Component.Filter.folderText;
 		}
-		var menu = (
-			BX.PopupMenu.getMenuById('landing-menu-action') ||
-			BX.Main.MenuManager.create({
-				id: 'landing-menu-action',
-				bindElement: event.currentTarget,
-				autoHide: true,
-				zIndex: 1200,
-				offsetLeft: 20,
-				angle: true,
-				closeByEsc: true,
-				items: landingCreateButtons || []
-			})
-		);
-		menu.show();
-		BX.PreventDefault(event);
+
+		const createFolderText = BX.create('input', {
+			props: {
+				type: 'text',
+			},
+		});
+
+		BX.Landing.Component.Filter.folderText = createFolderText;
+
+		return createFolderText;
 	};
-	if (BX('landing-menu-actions'))
-	{
-		BX('landing-menu-actions').addEventListener(
-			'click',
-			BX.proxy(onCreateActionsClick, BX('landing-menu-actions'))
-		);
-	}
-});
+})();

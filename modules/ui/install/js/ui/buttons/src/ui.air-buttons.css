@@ -1,0 +1,955 @@
+.ui-btn.--air,
+.ui-btn-split.--air,
+.ui-btn-split.--air .ui-btn-menu,
+.ui-btn-split.--air .ui-btn-main {
+	--ui-btn-background: #868d95;
+	--ui-btn-background-hover: color-mix(in srgb, var(--ui-btn-background) 100%, var(--ui-color-bg-state-hover-default-hex) var(--ui-color-bg-state-hover-default-opacity));
+	--ui-btn-background-active: color-mix(in srgb, var(--ui-btn-background) 100%, var(--ui-color-bg-state-click-default-hex) var(--ui-color-bg-state-click-default-opacity));
+	--ui-btn-background-gradient: linear-gradient(180deg, var(--ui-btn-background) 0%, var(--ui-btn-background) 100%);
+	--ui-btn-background-gradient-hover: linear-gradient(180deg, var(--ui-btn-background-hover) 0%, var(--ui-btn-background-hover) 100%);
+	--ui-btn-background-gradient-active: linear-gradient(180deg, var(--ui-btn-background-active) 0%, var(--ui-btn-background-active) 100%);
+}
+
+.ui-btn-split.--air .ui-btn-main,
+.ui-btn-split.--air .ui-btn-menu {
+	--ui-btn-background: transparent;
+}
+
+.ui-btn.--air,
+.ui-btn-split.--air {
+	/* custom */
+	/*--ui-btn-custom-background: var(--ui-btn-custom-background, none);*/
+	/*size*/
+	--ui-btn-size-xss: 20px;
+	--ui-btn-size-xs: 24px;
+	--ui-btn-size-sm: 28px;
+	--ui-btn-size-md: 34px;
+	--ui-btn-size-lg: 38px;
+	--ui-btn-size-xl: 46px;
+
+	--ui-btn-letter-spacing: -0.05;
+
+	/*default param*/
+	--ui-btn-icon-size: 20px;
+
+	--ui-btn-title-comensation: -1px;
+	--ui-btn-padding: 0 var(--ui-btn-padding-right) 0 var(--ui-btn-padding-left);
+	--ui-btn-min-width: 80px;
+	--ui-btn-border-color: var(--ui-btn-border-color);
+	--ui-btn-border-color-hover: color-mix(in srgb, var(--ui-btn-border-color) 100%, var(--ui-color-bg-state-hover-default-hex) var(--ui-color-bg-state-hover-default-opacity));
+	--ui-btn-border-color-active: color-mix(in srgb, var(--ui-btn-border-color) 100%, var(--ui-color-bg-state-click-default-hex) var(--ui-color-bg-state-click-default-opacity));
+	--ui-btn-border-width: 0px;
+	--ui-btn-border: var(--ui-btn-border-width) solid var(--ui-btn-border-color);
+	--ui-btn-opacity-after: var(--ui-opacity-30);
+	--ui-btn-colors-after-bg: var(--ui-color-on-primary);
+	--ui-btn-colors-before-bg: var(--ui-color-on-primary);
+	--ui-btn-color: var(--ui-color-on-primary);
+	--ui-btn-color-hover: var(--ui-btn-color);
+	--ui-btn-color-active: var(--ui-btn-color);
+	--ui-btn-box-shadow: none;
+	--ui-btn-box-shadow-hover: none;
+	--ui-btn-box-shadow-active: none;
+	--ui-btn-text-shadow: none;
+	--ui-btn-text-shadow-hover: none;
+	--ui-btn-text-shadow-active: none;
+	--ui-btn-margin-left: 12px;
+	/**/
+	--ui-btn-clock-white: url(../images/ui-loader-clock-white.svg);
+	--ui-btn-clock-black: url(../images/ui-loader-clock-black.svg);
+	--ui-btn-wait-white: url(../images/ui-loader-wait-white.svg);
+	--ui-btn-wait-black: url(../images/ui-loader-wait-black.svg);
+	--ui-btn-spinner: url(../images/ui-loading-spinner.svg);
+}
+
+.ui-btn.--wide {
+	width: 100%;
+}
+
+.ui-btn.--air.--remove-left-corners {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+.ui-btn.--air.--remove-right-corners {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+.ui-btn.--air,
+.ui-btn-split.--air .ui-btn-main,
+.ui-btn-split.--air .ui-btn-menu,
+.ui-btn-split.--air .ui-btn-extra {
+	transition-duration: 0s;
+	font-family: var(--ui-font-family-primary);
+	border-radius: var(--ui-btn-radius);
+}
+
+.ui-btn.--air,
+.ui-btn-split.--air,
+.ui-btn-split.--air .ui-btn-main,
+.ui-btn-split.--air .ui-btn-menu {
+	color: var(--ui-btn-color);
+	border-color: var(--ui-btn-border-color);
+}
+
+.ui-btn.--air,
+.ui-btn.--air.--with-left-icon,
+.ui-btn-split.--air,
+.ui-btn-split.--air.--with-left-icon {
+	background-image: none;
+	background-repeat: unset;
+	background-position: unset;
+	background-size: unset;
+	background: var(--ui-btn-background-gradient), var(--ui-btn-custom-background, none);
+}
+
+.ui-btn.--air:hover:not([disabled]),
+.ui-btn.--air:hover:not(.ui-btn-disabled),
+.ui-btn.--air.ui-btn-hover:not([disabled]),
+.ui-btn.--air.ui-btn-hover:not(.ui-btn-disabled),
+.ui-btn.--air:focus:not([disabled]),
+.ui-btn.--air:focus:not(.ui-btn-disabled),
+.ui-btn.--air.ui-btn-focus:not([disabled]),
+.ui-btn.--air.ui-btn-focus:not(.ui-btn-disabled) {
+	background: var(--ui-btn-background-gradient-hover), var(--ui-btn-custom-background, none);
+	border-color: var(--ui-btn-border-color-hover);
+}
+
+.ui-btn.--air:active:not([disabled]),
+.ui-btn.--air.ui-btn-active:not([disabled]),
+.ui-btn.--air:active:not(.ui-btn-disabled),
+.ui-btn.--air.ui-btn-active:not(.ui-btn-disabled),
+.ui-btn.--air:active:hover:not(.ui-btn-disabled),
+.ui-btn.--air.ui-btn-active:hover:not(.ui-btn-disabled) {
+	background: var(--ui-btn-background-gradient-active), var(--ui-btn-custom-background, none);
+	border-color: var(--ui-btn-border-color-active);
+}
+
+.ui-btn-split.--air .ui-btn-main {
+	border-right: none;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+.ui-btn-split.--air .ui-btn-menu {
+	border-left: none;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+.ui-btn.--air,
+.ui-btn.--air[class*="ui-btn-icon-"],
+.ui-btn.--air[class*="ui-btn-icon-"]:not(.--with-collapsed-icon),
+.ui-btn-split.--air .ui-btn-main,
+.ui-btn-split.--air[class*="ui-btn-icon-"] .ui-btn-main,
+.ui-btn-split.--air[class*="ui-btn-icon-"]:not(.--with-collapsed-icon) .ui-btn-main {
+	margin-left: 0;
+	font-weight: var(--ui-btn-font-weight);
+	font-size: var(--ui-btn-font-size);
+	line-height: var(--ui-btn-height);
+	padding-left: var(--ui-btn-padding-left);
+	padding-right: var(--ui-btn-padding-right);
+}
+
+.ui-btn.--air ~ .ui-btn.--air,
+.ui-btn.--air ~ .ui-btn-split.--air,
+.ui-btn.--air ~ .ui-ctl.--air,
+.ui-btn-split.--air ~ .ui-btn-split.--air,
+.ui-btn-split.--air ~ .ui-btn.--air,
+.ui-btn-split.--air ~ .ui-ctl.--air,
+.ui-ctl.--air ~ .ui-btn.--air,
+.ui-ctl.--air ~ .ui-btn-split.--air,
+.ui-ctl.--air ~ .ui-ctl.--air {
+	margin-left: 0;
+}
+
+.ui-btn-split.--air:not(.ui-btn-dropdown),
+.ui-btn-split.--air .ui-btn-menu:not(.ui-btn-dropdown) {
+	content: none;
+}
+
+.ui-btn.--air:hover,
+.ui-btn.--air:focus,
+a.ui-btn.--air:focus,
+.ui-btn.--air .ui-btn-main:hover,
+.ui-btn.--air .ui-btn-main:focus,
+.ui-btn.--air .ui-btn-extra:hover,
+.ui-btn.--air .ui-btn-menu:not(.--switcher):hover,
+.ui-btn.--air.ui-btn-hover,
+.ui-btn.--air.ui-btn-hover .ui-btn-main,
+.ui-btn.--air.ui-btn-hover .ui-btn-extra,
+.ui-btn.--air.ui-btn-hover .ui-btn-menu,
+.ui-btn.--air.ui-btn-main-hover .ui-btn-main,
+.ui-btn.--air.ui-btn-extra-hover .ui-btn-extra,
+.ui-btn.--air.ui-btn-menu-hover .ui-btn-menu {
+	border-color: var(--ui-btn-border-color-hover);
+	background: var(--ui-btn-background-gradient-hover);
+	color: var(--ui-btn-color-hover);
+}
+
+.ui-btn.--air:active,
+a.ui-btn.--air:focus,
+a.ui-btn-split.--air:focus,
+.ui-btn-split.--air .ui-btn-main:active,
+.ui-btn-split.--air .ui-btn-menu:not(.--switcher):active,
+.ui-btn-split.--air .ui-btn-extra:active,
+.ui-btn-wait.ui-btn.--air,
+.ui-btn-wait.ui-btn.--air .ui-btn-main,
+.ui-btn-clock.ui-btn.--air,
+.ui-btn.ui-btn-clock.--air .ui-btn-main,
+.ui-btn-active.ui-btn.--air,
+.ui-btn.--air.ui-btn-active .ui-btn-main,
+.ui-btn.--air.ui-btn-active .ui-btn-menu,
+.ui-btn.--air.ui-btn-active .ui-btn-extra,
+.ui-btn-main-active.--air .ui-btn-main,
+.ui-btn-menu-active.--air .ui-btn-menu,
+.ui-btn-extra-active.--air .ui-btn-extra,
+.ui-btn-wait.ui-btn.--air:hover,
+.ui-btn-wait.--air .ui-btn-main:hover,
+.ui-btn-clock.ui-btn.--air:hover,
+.ui-btn-clock.--air .ui-btn-main:hover,
+.ui-btn-active.--air.ui-btn:hover,
+.ui-btn-active.--air .ui-btn-main:hover,
+.ui-btn-active.--air .ui-btn-menu:not(.--switcher):hover,
+.ui-btn-active.--air .ui-btn-extra:hover,
+.ui-btn-main-active.--air .ui-btn-main:hover,
+.ui-btn-menu-active.--air .ui-btn-menu:not(.--switcher):hover,
+.ui-btn-extra-active.--air .ui-btn-extra:hover {
+	outline: none;
+	border-color: var(--ui-btn-border-color-active);
+	background: var(--ui-btn-background-gradient-active);
+	color: var(--ui-btn-color-active);
+}
+
+/*region Size*/
+
+.ui-btn.--air.ui-btn-xl,
+.ui-btn-split.--air.ui-btn-xl,
+.ui-btn-split.--air.ui-btn-xl .ui-btn-main,
+.ui-btn-split.--air.ui-btn-xl .ui-btn-menu {
+	--ui-btn-padding-right: 23px;
+	--ui-btn-padding-left: 23px;
+	--ui-btn-icon-compensation: 8px;
+	--ui-btn-radius: var(--ui-border-radius-md);
+	--ui-btn-font-size: var(--ui-font-size-xl);
+	--ui-btn-icon-size: 28px;
+	--ui-btn-icon-space: 4px;
+	--ui-btn-dropdown-icon-size: 22px;
+	--ui-btn-dropdown-icon-inline-space: 6px;
+	--ui-btn-dropdown-icon-compensation: 6px;
+	--ui-btn-height: var(--ui-btn-size-xl);
+	--ui-btn-wait-icon-size: 24px;
+	--ui-btn-split-divider-height: 26px;
+	--ui--btn-width-with-only-icon: var(--ui-btn-height);
+	--ui-btn-corner-counter-inline-shift: 13px;
+	--ui-btn-counter-inline-space: 8px;
+}
+
+.ui-btn-split.--air.ui-btn-xl .ui-btn-menu.--switcher {
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+/* default button size */
+.ui-btn.--air.ui-btn-lg,
+.ui-btn-split.--air.ui-btn-lg,
+.ui-btn-split.--air.ui-btn-lg .ui-btn-main,
+.ui-btn-split.--air.ui-btn-lg .ui-btn-menu {
+	--ui-btn-padding-right: 17px;
+	--ui-btn-padding-left: 17px;
+	--ui-btn-icon-compensation: 10px;
+	--ui-btn-radius: var(--ui-border-radius-md);
+	--ui-btn-font-size: var(--ui-font-size-lg);
+	--ui-btn-icon-size: 28px;
+	--ui-btn-icon-space: 4px;
+	--ui-btn-dropdown-icon-size: 20px;
+	--ui-btn-dropdown-icon-inline-space: 6px;
+	--ui-btn-dropdown-icon-compensation: 6px;
+	--ui-btn-height: var(--ui-btn-size-lg);
+	--ui-btn-wait-icon-size: 22px;
+	--ui-btn-split-divider-height: 22px;
+	--ui-btn-letter-spacing: -0.1px;
+	--ui--btn-width-with-only-icon: var(--ui-btn-height);
+	--ui-btn-corner-counter-inline-shift: 12px;
+	--ui-btn-counter-inline-space: 8px;
+}
+
+.ui-btn-split.--air.ui-btn-lg .ui-btn-menu.--switcher {
+	padding-left: 12px;
+	padding-right: 12px;
+}
+
+.ui-btn.--air,
+.ui-btn-split.--air,
+.ui-btn-split.--air .ui-btn-main,
+.ui-btn-split.--air .ui-btn-menu,
+.ui-btn.--air.ui-btn-md,
+.ui-btn-split.--air.ui-btn-md,
+.ui-btn-split.--air.ui-btn-md .ui-btn-main,
+.ui-btn-split.--air.ui-btn-md .ui-btn-menu {
+	--ui-btn-padding-right: 13px;
+	--ui-btn-padding-left: 13px;
+	--ui-btn-icon-compensation: 6px;
+	--ui-btn-radius: var(--ui-border-radius-md);
+	--ui-btn-font-size: var(--ui-font-size-md);
+	--ui-btn-font-weight: var(--ui-font-weight-medium);
+	--ui-btn-icon-size: 24px;
+	--ui-btn-icon-space: 2px;
+	--ui-btn-dropdown-icon-size: 18px;
+	--ui-btn-dropdown-icon-inline-space: 4px;
+	--ui-btn-dropdown-icon-compensation: 4px;
+	--ui-btn-height: var(--ui-btn-size-md);
+	--ui-btn-wait-icon-size: 20px;
+	--ui-btn-split-divider-height: 18px;
+	--ui--btn-width-with-only-icon: var(--ui-btn-height);
+	--ui-btn-corner-counter-inline-shift: 13px;
+	--ui-btn-counter-inline-space: 6px;
+}
+
+.ui-btn-split.--air.ui-btn-md .ui-btn-menu.--switcher {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.ui-btn.--air.ui-btn-sm,
+.ui-btn-split.--air.ui-btn-sm,
+.ui-btn-split.--air.ui-btn-sm .ui-btn-main,
+.ui-btn-split.--air.ui-btn-sm .ui-btn-menu {
+	--ui-btn-padding-right: 9px;
+	--ui-btn-padding-left: 9px;
+	--ui-btn-icon-compensation: 4px;
+	--ui-btn-radius: var(--ui-border-radius-sm);
+	--ui-btn-font-size: var(--ui-font-size-sm);
+	--ui-btn-font-weight: var(--ui-font-weight-normal);
+	--ui-btn-icon-size: 20px;
+	--ui-btn-icon-space: 4px;
+	--ui-btn-dropdown-icon-size: 16px;
+	--ui-btn-dropdown-icon-inline-space: 3px;
+	--ui-btn-dropdown-icon-compensation: 3px;
+	--ui-btn-height: var(--ui-btn-size-sm);
+	--ui-btn-wait-icon-size: 16px;
+	--ui-btn-letter-spacing: -0.15px;
+	--ui-btn-split-divider-height: 14px;
+	--ui--btn-width-with-only-icon: 34px;
+	--ui-btn-corner-counter-inline-shift: 13px;
+	--ui-btn-counter-inline-space: 6px;
+}
+
+.ui-btn-split.--air.ui-btn-sm .ui-btn-menu.--switcher {
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+.ui-btn.--air.ui-btn-xs,
+.ui-btn-split.--air.ui-btn-xs,
+.ui-btn-split.--air.ui-btn-xs .ui-btn-main,
+.ui-btn-split.--air.ui-btn-xs .ui-btn-menu {
+	--ui-btn-padding-right: 7px;
+	--ui-btn-padding-left: 7px;
+	--ui-btn-icon-compensation: 2px;
+	--ui-btn-radius: var(--ui-border-radius-xs);
+	--ui-btn-font-size: var(--ui-font-size-xs);
+	--ui-btn-font-weight: var(--ui-font-weight-normal);
+	--ui-btn-icon-size: 14px;
+	--ui-btn-icon-space: 4px;
+	--ui-btn-dropdown-icon-size: 14px;
+	--ui-btn-dropdown-icon-inline-space: 4px;
+	--ui-btn-dropdown-icon-compensation: 2px;
+	--ui-btn-height: var(--ui-btn-size-xs);
+	--ui-btn-wait-icon-size: 14px;
+	--ui-btn-letter-spacing: -0.1px;
+	--ui-btn-split-divider-height: 12px;
+	--ui--btn-width-with-only-icon: 28px;
+	--ui-btn-corner-counter-inline-shift: 11px;
+	--ui-btn-counter-inline-space: 6px;
+}
+
+.ui-btn-split.--air.ui-btn-xs .ui-btn-menu.--switcher {
+	padding-left: 6px;
+	padding-right: 6px;
+}
+
+.ui-btn.--air.ui-btn-xss,
+.ui-btn-split.--air.ui-btn-xss,
+.ui-btn-split.--air.ui-btn-xss .ui-btn-main,
+.ui-btn-split.--air.ui-btn-xss .ui-btn-menu {
+	--ui-btn-padding-right: 7px;
+	--ui-btn-padding-left: 8px;
+	--ui-btn-icon-compensation: 5px;
+	--ui-btn-radius: 5px;
+	--ui-btn-font-size: var(--ui-font-size-4xs);
+	--ui-btn-font-weight: var(--ui-font-weight-normal);
+	--ui-btn-icon-size: 14px;
+	--ui-btn-icon-space: 4px;
+	--ui-btn-dropdown-icon-size: 12px;
+	--ui-btn-dropdown-icon-inline-space: 2px;
+	--ui-btn-dropdown-icon-compensation: 2px;
+	--ui-btn-height: var(--ui-btn-size-xss);
+	--ui-btn-wait-icon-size: 12px;
+	--ui--btn-width-with-only-icon: 24px;
+	--ui-btn-corner-counter-inline-shift: 10px;
+	--ui-btn-letter-spacing: 0.1px;
+	--ui-btn-split-divider-height: 10px;
+	--ui-btn-counter-inline-space: 6px;
+}
+
+.ui-btn-split.--air.ui-btn-xss .ui-btn-menu.--switcher {
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+.ui-btn.--air.--with-right-icon,
+.ui-btn.--air.--with-right-icon[class*="ui-btn-icon-"],
+.ui-btn-dropdown.--air,
+.ui-btn-split.--air .ui-btn-main,
+.ui-btn-split.--air.--with-right-icon[class*="ui-btn-icon-"] .ui-btn-main,
+.ui-btn.--air.--with-right-counter {
+	padding-right: calc(var(--ui-btn-padding-right) + 1px);
+}
+
+.ui-btn.--air.--with-right-icon:not(.--with-left-icon),
+.ui-btn.ui-btn-lg.--air.--with-right-icon:not(.--with-left-icon),
+.ui-btn-split.--air.--with-right-icon:not(.--with-left-icon) .ui-btn-main,
+.ui-btn-split.ui-btn-lg.--air.--with-right-icon:not(.--with-left-icon) .ui-btn-main {
+	padding-left: var(--ui-btn-padding-left);
+}
+
+.ui-btn.--air.--with-left-icon,
+.ui-btn.ui-btn-lg.--air.--with-left-icon,
+.ui-btn.--air.--with-left-icon[class*="ui-btn-icon-"],
+.ui-btn.--air.--with-left-counter,
+.ui-btn-split.--air.--with-left-icon .ui-btn-main,
+.ui-btn-split.--air.--with-left-icon[class*="ui-btn-icon-"] .ui-btn-main,
+.ui-btn-split.--air.--with-left-counter .ui-btn-main {
+	padding-left: calc(var(--ui-btn-padding-left) + 1px);
+}
+
+.ui-btn.--air:not(.--with-left-icon):not(.--with-right-icon):not(.--with-icon),
+.ui-btn-split.--air:not(.--with-left-icon):not(.--with-right-icon) .ui-btn-main {
+	--ui-btn-icon-compensation: 0px;
+}
+
+.ui-btn.--air:not(.ui-btn-dropdown) {
+	--ui-btn-dropdown-icon-compensation: 0px;
+}
+
+.ui-btn.--air.--with-left-icon[class*="ui-btn-icon-"],
+.ui-btn.--air.--with-icon,
+.ui-btn.ui-btn-lg.--air.--with-left-icon[class*="ui-btn-icon-"],
+.ui-btn-split.--air.--with-left-icon[class*="ui-btn-icon-"] .ui-btn-main,
+.ui-btn-split.ui-btn-lg.--air.--with-left-icon[class*="ui-btn-icon-"] .ui-btn-main {
+	padding-left: calc(var(--ui-btn-padding-left) - var(--ui-btn-icon-compensation));
+}
+
+.ui-btn.--air.--with-right-icon[class*="ui-btn-icon-"],
+.ui-btn-split.--air.--with-right-icon[class*="ui-btn-icon-"] .ui-btn-main {
+	padding-right: calc(var(--ui-btn-padding-right) - var(--ui-btn-icon-compensation));
+}
+
+.ui-btn.--air.ui-btn-dropdown {
+	padding-right: calc(var(--ui-btn-padding-right) - var(--ui-btn-dropdown-icon-compensation));
+}
+
+/*endregion*/
+
+/* default button color */
+.ui-btn.--air,
+.ui-btn-split.--air,
+.ui-btn.--air.--style-filled,
+.ui-btn-split.--air.--style-filled {
+	--ui-btn-background: var(--ui-color-design-filled-bg);
+	--ui-btn-border-color: var(--ui-color-design-filled-stroke);
+	--ui-btn-border-width: var(--ui-design-filled-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-filled-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-filled-content-divider);
+}
+
+.ui-btn.--air.--style-tinted,
+.ui-btn-split.--air.--style-tinted {
+	--ui-btn-background: var(--ui-color-design-tinted-bg);
+	--ui-btn-border-color: var(--ui-color-design-tinted-stroke);
+	--ui-btn-border-width: var(--ui-design-tinted-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-tinted-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-tinted-content-divider);
+}
+
+.ui-btn.--air.--style-tinted-alert,
+.ui-btn-split.--air.--style-tinted-alert {
+	--ui-btn-background: var(--ui-color-design-tinted-alert-bg);
+	--ui-btn-border-color: var(--ui-color-design-tinted-alert-stroke);
+	--ui-btn-border-width: var(--ui-design-tinted-alert-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-tinted-alert-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-tinted-alert-content-divider);
+}
+
+.ui-btn.--air.--style-outline-accent-1,
+.ui-btn-split.--air.--style-outline-accent-1 {
+	--ui-btn-background: var(--ui-color-design-outline-a1-bg);
+	--ui-btn-border-color: var(--ui-color-design-outline-a1-stroke);
+	--ui-btn-border-width: var(--ui-design-outline-a1-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-outline-a1-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-outline-a1-content-divider);
+}
+
+.ui-btn.--air.--style-outline-accent-2,
+.ui-btn-split.--air.--style-outline-accent-2 {
+	--ui-btn-background: var(--ui-color-design-outline-a2-bg);
+	--ui-btn-border-color: var(--ui-color-design-outline-a2-stroke);
+	--ui-btn-border-width: var(--ui-design-outline-a2-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-outline-a2-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-outline-a2-content-divider);
+}
+
+.ui-btn.--air.--style-outline,
+.ui-btn-split.--air.--style-outline {
+	--ui-btn-background: var(--ui-color-design-outline-bg);
+	--ui-btn-border-color: var(--ui-color-design-outline-stroke);
+	--ui-btn-border-width: var(--ui-design-outline-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-outline-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-outline-content-divider);
+}
+
+.ui-btn.--air.--style-outline-no-accent,
+.ui-btn-split.--air.--style-outline-no-accent {
+	--ui-btn-background: var(--ui-color-design-outline-na-bg);
+	--ui-btn-border-color: var(--ui-color-design-outline-na-stroke);
+	--ui-btn-border-width: var(--ui-design-outline-na-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-outline-na-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-outline-na-content-divider);
+}
+
+.ui-btn.--air.--style-plain-accent,
+.ui-btn-split.--air.--style-plain-accent {
+	--ui-btn-background: var(--ui-color-design-plain-a-bg);
+	--ui-btn-border-color: var(--ui-color-design-plain-a-stroke);
+	--ui-btn-border-width: var(--ui-design-plain-a-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-plain-a-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-plain-a-content-divider);
+}
+
+.ui-btn.--air.--style-plain,
+.ui-btn-split.--air.--style-plain {
+	--ui-btn-background: var(--ui-color-design-plain-bg);
+	--ui-btn-border-color: var(--ui-color-design-plain-stroke);
+	--ui-btn-border-width: var(--ui-design-plain-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-plain-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-plain-content-divider);
+}
+
+.ui-btn.--air.--style-plain-no-accent,
+.ui-btn-split.--air.--style-plain-no-accent {
+	--ui-btn-background: var(--ui-color-design-plain-na-bg);
+	--ui-btn-border-color: var(--ui-color-design-plain-na-stroke);
+	--ui-btn-border-width: var(--ui-design-plain-na-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-plain-na-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-plain-na-content-divider);
+}
+
+.ui-btn.--air.--style-selection,
+.ui-btn-split.--air.--style-selection {
+	--ui-btn-background: var(--ui-color-design-selection-bg);
+	--ui-btn-border-color: var(--ui-color-design-selection-stroke);
+	--ui-btn-border-width: var(--ui-design-selection-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-selection-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-selection-content-divider);
+}
+
+.ui-btn.--air.--style-filled-copilot,
+.ui-btn-split.--air.--style-filled-copilot {
+	--ui-btn-background: var(--ui-color-design-filled-copilot-bg);
+	--ui-btn-border-color: var(--ui-color-design-filled-copilot-stroke);
+	--ui-btn-border-width: var(--ui-design-filled-copilot-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-filled-copilot-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-filled-copilot-content-divider);
+}
+
+.ui-btn.--air.--style-filled-success,
+.ui-btn-split.--air.--style-filled-success {
+	--ui-btn-background: var(--ui-color-design-filled-success-bg);
+	--ui-btn-border-color: var(--ui-color-design-filled-success-stroke);
+	--ui-btn-border-width: var(--ui-design-filled-success-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-filled-success-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-filled-success-content-divider);
+}
+
+.ui-btn.--air.--style-filled-alert,
+.ui-btn-split.--air.--style-filled-alert {
+	--ui-btn-background: var(--ui-color-design-filled-alert-bg);
+	--ui-btn-border-color: var(--ui-color-design-filled-alert-stroke);
+	--ui-btn-border-width: var(--ui-design-filled-success-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-filled-alert-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-filled-alert-content-divider);
+}
+
+.ui-btn.--air.--style-filled-boost,
+.ui-btn-split.--air.--style-filled-boost {
+	--ui-btn-background-gradient: radial-gradient(110.42% 110.42% at -10.42% 31.25%, var(--ui-color-design-filled-boost-bg-gradient-1) 0%, var(--ui-color-design-filled-boost-bg-gradient-2) 58.65%, var(--ui-color-design-filled-boost-bg-gradient-3) 100%);
+	--ui-btn-border-color: var(--ui-color-design-filled-boost-stroke);
+	--ui-btn-border-width: var(--ui-design-filled-boost-stroke-weight);
+	--ui-btn-color: var(--ui-color-design-filled-boost-content);
+	--ui-btn-split-divider-color: var(--ui-color-design-filled-boost-content-divider);
+}
+
+.ui-btn.--air.--style-filled-boost {
+	--hover-color-1: color-mix(in srgb, var(--ui-color-design-filled-boost-bg-gradient-1) 100%, var(--ui-color-bg-state-hover-default-hex) var(--ui-color-bg-state-hover-default-opacity));
+	--hover-color-2: color-mix(in srgb, var(--ui-color-design-filled-boost-bg-gradient-2) 100%, var(--ui-color-bg-state-hover-default-hex) var(--ui-color-bg-state-hover-default-opacity));
+	--hover-color-3: color-mix(in srgb, var(--ui-color-design-filled-boost-bg-gradient-3) 100%, var(--ui-color-bg-state-hover-default-hex) var(--ui-color-bg-state-hover-default-opacity));
+
+	--active-color-1: color-mix(in srgb, var(--ui-color-design-filled-boost-bg-gradient-1) 100%, var(--ui-color-bg-state-click-default-hex) var(--ui-color-bg-state-click-default-opacity));
+	--active-color-2: color-mix(in srgb, var(--ui-color-design-filled-boost-bg-gradient-2) 100%, var(--ui-color-bg-state-click-default-hex) var(--ui-color-bg-state-click-default-opacity));
+	--active-color-3: color-mix(in srgb, var(--ui-color-design-filled-boost-bg-gradient-3) 100%, var(--ui-color-bg-state-click-default-hex) var(--ui-color-bg-state-click-default-opacity));
+
+	--ui-btn-background-gradient-hover: radial-gradient(110.42% 110.42% at -10.42% 31.25%, var(--hover-color-1) 0%, var(--hover-color-2) 58.65%, var(--hover-color-3) 100%);
+	--ui-btn-background-gradient-active: radial-gradient(110.42% 110.42% at -10.42% 31.25%, var(--active-color-1) 0%, var(--active-color-2) 58.65%, var(--active-color-3) 100%);
+}
+
+.ui-btn-split.--air .ui-btn-menu::before {
+	content: '';
+	position: relative;
+	left: 1px;
+	top: auto;
+	margin: 0;
+	padding: 0;
+	width: var(--ui-btn-dropdown-icon-size);
+	height: var(--ui-btn-dropdown-icon-size);
+	border: none;
+	mask-image: url(./images/outline-icons/chevron-down-l.svg);
+	mask-position: center center;
+	mask-repeat: no-repeat;
+	mask-size: contain;
+	background-color: var(--ui-btn-color);
+}
+
+.ui-btn-split.--air .ui-btn-menu.--switcher::before {
+	content: none;
+}
+
+.ui-btn.--air[disabled]:not(.ui-btn-wait):not(.ui-btn-clock),
+.ui-btn-disabled.--air:not(.ui-btn-wait):not(.ui-btn-clock),
+.ui-btn-split.--air[disabled]:not(.ui-btn-wait):not(.ui-btn-clock) .ui-btn-main,
+.ui-btn-split.--air.ui-btn-disabled:not(.ui-btn-wait):not(.ui-btn-clock) .ui-btn-main,
+.ui-btn-split.--air[disabled]:not(.ui-btn-wait):not(.ui-btn-clock) .ui-btn-menu,
+.ui-btn-split.--air.ui-btn-disabled:not(.ui-btn-wait):not(.ui-btn-clock) .ui-btn-menu {
+	--ui-btn-background: var(--ui-color-design-disabled-bg);
+	--ui-btn-background-gradient: linear-gradient(180deg, var(--ui-btn-background) 0%, var(--ui-btn-background) 100%);
+	--ui-btn-border-color: var(--ui-color-design-disabled-stroke);
+	--ui-btn-color: var(--ui-color-design-disabled-content);
+
+	opacity: 1;
+}
+
+.ui-btn.--air.ui-btn-disabled,
+.ui-btn.--air.ui-btn-disabled:hover,
+.ui-btn.--air.ui-btn-disabled:active,
+.ui-btn.--air[disabled],
+.ui-btn.--air[disabled]:hover,
+.ui-btn.--air[disabled]:active {
+	background: var(--ui-btn-background-gradient);
+	border-color: var(--ui-btn-border-color);
+}
+
+.ui-btn-split[disabled].--air .ui-btn-main,
+.ui-btn-split[disabled].--air .ui-btn-main:hover,
+.ui-btn-split[disabled].--air .ui-btn-main:active,
+.ui-btn-split[disabled].--air .ui-btn-menu,
+.ui-btn-split[disabled].--air .ui-btn-menu:hover,
+.ui-btn-split[disabled].--air .ui-btn-menu:active,
+.ui-btn-split.ui-btn-disabled.--air .ui-btn-main,
+.ui-btn-split.ui-btn-disabled.--air .ui-btn-main:hover,
+.ui-btn-split.ui-btn-disabled.--air .ui-btn-main:active,
+.ui-btn-split.ui-btn-disabled.--air .ui-btn-menu,
+.ui-btn-split.ui-btn-disabled.--air .ui-btn-menu:hover,
+.ui-btn-split.ui-btn-disabled.--air .ui-btn-menu:active {
+	opacity: initial;
+	cursor: not-allowed;
+	background: var(--ui-btn-background-gradient), var(--ui-btn-custom-background, none);
+	border-color: var(--ui-btn-border-color);
+}
+
+.ui-btn.--air:not(.ui-btn-dropdown)::after,
+.ui-btn-split.--air:not(.ui-btn-dropdown) .ui-btn-main::after,
+.ui-btn-split.--air.ui-btn-collapsed:not(.ui-btn-dropdown) .ui-btn-main:after {
+	display: none;
+}
+
+/*.ui-btn.--air.--with-left-icon:not(.ui-btn-dropdown)::after,*/
+/*.ui-btn-split.--air.--with-left-icon:not(.ui-btn-dropdown) .ui-btn-main::after {*/
+/*	display: none;*/
+/*}*/
+
+.ui-btn.--air.--with-left-icon .ui-btn-text::before,
+.ui-btn.--air.--with-right-icon .ui-btn-text::after,
+.ui-btn.--air.--with-collapsed-icon .ui-btn-text::before,
+.ui-btn-split.--air.--with-left-icon .ui-btn-main .ui-btn-text::before,
+.ui-btn-split.--air.--with-right-icon .ui-btn-main .ui-btn-text::after,
+.ui-btn-split.--air.--with-collapsed-icon .ui-btn-main .ui-btn-text::before {
+	content: '';
+	position: relative;
+	top: 0;
+	display: inline-block;
+	width: var(--ui-btn-icon-size);
+	min-width: var(--ui-btn-icon-size);
+	height: var(--ui-btn-icon-size);
+	background-color: var(--ui-btn-color);
+	mask-image: var(--ui-btn-icon);
+	mask-repeat: no-repeat;
+	mask-size: contain;
+	mask-position: center center;
+	vertical-align: middle;
+}
+
+.ui-btn.--air.--with-left-icon .ui-btn-text::before,
+.ui-btn-split.--air.--with-left-icon .ui-btn-main .ui-btn-text::before {
+	margin-right: var(--ui-btn-icon-space);
+}
+
+.ui-btn.--air.--with-right-icon .ui-btn-text::after,
+.ui-btn-split.--air.--with-right-icon .ui-btn-main .ui-btn-text::after {
+	margin-left: var(--ui-btn-icon-space);
+}
+
+.ui-btn.--air.--with-collapsed-icon .ui-btn-text::before,
+.ui-btn-split.--air.--with-collapsed-icon .ui-btn-main .ui-btn-text::before {
+	display: none;
+}
+
+.ui-btn.ui-btn-dropdown.--air::after {
+	content: '';
+	position: relative;
+	display: inline-block;
+	top: auto;
+	left: auto;
+	width: var(--ui-btn-dropdown-icon-size);
+	min-width: var(--ui-btn-dropdown-icon-size);
+	height: var(--ui-btn-dropdown-icon-size);
+	margin-left: var(--ui-btn-dropdown-icon-inline-space);
+	mask-image: url(./images/outline-icons/chevron-down-l.svg);
+	mask-position: center center;
+	mask-repeat: no-repeat;
+	mask-size: contain;
+	background: var(--ui-btn-color);
+	transform: none;
+	transition: none;
+}
+
+.ui-btn-dropdown.--air:not(.ui-btn-wait)::before,
+.ui-btn-dropdown.--air:not(.ui-btn-clock)::before,
+.ui-btn-dropdown.--air:not(.ui-btn-wait) .ui-btn-main::before,
+.ui-btn-dropdown.--air:not(.ui-btn-clock) .ui-btn-main::before{
+	content: none;
+}
+
+.ui-btn-dropdown.--with-right-icon.--air::after {
+	margin-left: calc((var(--ui-btn-dropdown-icon-inline-space) - var(--ui-btn-icon-compensation)));
+}
+
+.ui-btn.--air .ui-btn-text,
+.ui-btn-split.--air .ui-btn-main .ui-btn-text {
+	height: var(--ui-btn-height);
+	max-width: 100%;
+	display: inline-flex;
+	align-items: center;
+	overflow: unset;
+	white-space: unset;
+	text-overflow: unset;
+	letter-spacing: var(--ui-btn-letter-spacing);
+}
+
+.ui-btn.--air .ui-btn-text-inner,
+.ui-btn-split.--air .ui-btn-main .ui-btn-text-inner {
+	overflow: hidden;
+	max-width: 100%;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	display: inline-block;
+	margin-top: var(--ui-btn-title-comensation);
+}
+
+.ui-btn.--air.ui-btn-dropdown .ui-btn-text {
+	max-width: calc(100% - var(--ui-btn-dropdown-icon-size));
+}
+
+.ui-btn-wait.--air[disabled],
+.ui-btn-clock.--air[disabled],
+.ui-btn-split.--air[disabled] .ui-btn-main,
+.ui-btn-split.--air[disabled] .ui-btn-menu,
+.ui-btn-split.--air[disabled] .ui-btn-main,
+.ui-btn-split.--air[disabled] .ui-btn-menu,
+.ui-btn-split.--air.ui-btn-disabled .ui-btn-main,
+.ui-btn-split.--air.ui-btn-disabled .ui-btn-menu {
+	opacity: 1;
+}
+
+.ui-btn.--air.ui-btn-wait,
+.ui-btn-wait.--air .ui-btn-main,
+.ui-btn.--air.ui-btn-clock,
+.ui-btn-clock.--air .ui-btn-main {
+	background: var(--ui-btn-background-gradient);
+}
+
+.ui-btn.ui-btn-wait.--air::before,
+.ui-btn.ui-btn-clock.--air::before,
+.ui-btn-split.ui-btn-wait.--air .ui-btn-main::before,
+.ui-btn-split.ui-btn-clock.--air .ui-btn-main::before {
+	content: '';
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: auto;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	transform: none;
+	background-color: var(--ui-btn-color);
+	mask-size: var(--ui-btn-wait-icon-size);
+	mask-position: center center;
+	mask-repeat: no-repeat;
+	border: none;
+}
+
+.ui-btn.ui-btn-wait.--air::before,
+.ui-btn-split.ui-btn-wait.--air .ui-btn-main::before {
+	mask-image: var(--ui-btn-wait-loader);
+}
+
+.ui-btn.ui-btn-clock.--air::before,
+.ui-btn-split.ui-btn-clock.--air .ui-btn-main::before {
+	mask-image: var(--ui-btn-clock-loader);
+}
+
+.ui-btn-wait.--air .ui-btn-text,
+.ui-btn-clock.--air .ui-btn-text {
+	color: transparent;
+}
+
+.ui-btn-wait.--air .ui-btn-text::before,
+.ui-btn-clock.--air .ui-btn-text::before,
+.ui-btn-wait.--air::after,
+.ui-btn-clock.--air::after,
+.ui-btn-wait.--air .ui-btn-text::after,
+.ui-btn-clock.--air .ui-btn-text::after,
+.ui-btn-wait.--air:not(.ui-btn-collapsed) .ui-btn-left-counter,
+.ui-btn-clock.--air:not(.ui-btn-collapsed) .ui-btn-left-counter,
+.ui-btn-wait.--air:not(.ui-btn-collapsed) .ui-btn-right-counter,
+.ui-btn-clock.--air:not(.ui-btn-collapsed) .ui-btn-right-counter {
+	opacity: 0;
+}
+
+.ui-btn-split.--air .ui-btn-menu {
+	min-width: var(--ui-btn-height);
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+}
+
+.ui-btn-split.--air .ui-btn-menu::after {
+	height: var(--ui-btn-split-divider-height);
+	top: auto;
+	bottom: auto;
+	background: var(--ui-btn-split-divider-color);
+	opacity: 1;
+}
+
+.ui-btn-split.--air {
+	padding-right: 0;
+}
+
+.ui-btn-split.--air .ui-btn-menu {
+	position: relative;
+	top: auto;
+	left: auto;
+}
+
+.ui-btn.--air .ui-btn-left-counter,
+.ui-btn.--air .ui-btn-right-counter,
+.ui-btn-split.--air .ui-btn-main .ui-btn-left-counter,
+.ui-btn-split.--air .ui-btn-main .ui-btn-right-counter {
+	display: inline-flex;
+	height: var(--ui-btn-height);
+	vertical-align: top;
+}
+
+.ui-btn-left-counter {
+	margin-right: var(--ui-btn-counter-inline-space);
+}
+
+.ui-btn-right-counter {
+	margin-left: var(--ui-btn-counter-inline-space);
+}
+
+.ui-btn.--air.ui-btn-collapsed,
+.ui-btn-split.--air.ui-btn-collapsed .ui-btn-main {
+	--ui-btn-padding-right: 0px;
+	--ui-btn-padding-left: 0px;
+
+	width: var(--ui--btn-width-with-only-icon);
+	min-width: var(--ui--btn-width-with-only-icon);
+}
+
+.ui-btn.--air.ui-btn-collapsed .ui-btn-text,
+.ui-btn-split.--air.ui-btn-collapsed .ui-btn-main .ui-btn-text {
+	font-size: 0;
+}
+
+.ui-btn.--air.ui-btn-collapsed .ui-btn-right-counter,
+.ui-btn.--air.ui-btn-collapsed .ui-btn-left-counter {
+	position: absolute;
+	top: 3px;
+	margin-left: 0;
+	margin-right: 0;
+	pointer-events: none;
+}
+
+.ui-btn.--air.ui-btn-collapsed .ui-btn-left-counter {
+	transform: translate(-100%, -50%);
+	left: var(--ui-btn-corner-counter-inline-shift);
+}
+
+.ui-btn.--air.ui-btn-collapsed .ui-btn-right-counter {
+	transform: translate(100%, -50%);
+	right: var(--ui-btn-corner-counter-inline-shift);
+}
+
+.ui-btn.--air.--with-left-icon.ui-btn-collapsed .ui-btn-text::before,
+.ui-btn.--air.--with-icon.ui-btn-collapsed,
+.ui-btn.--air.--with-right-icon.ui-btn-collapsed .ui-btn-text::after,
+.ui-btn.--air.--with-collapsed-icon.ui-btn-collapsed .ui-btn-text::before,
+.ui-btn-split.--air.--with-left-icon.ui-btn-collapsed .ui-btn-main .ui-btn-text::before,
+.ui-btn-split.--air.--with-right-icon.ui-btn-collapsed .ui-btn-main .ui-btn-text::after,
+.ui-btn-split.--air.--with-collapsed-icon.ui-btn-collapsed .ui-btn-main .ui-btn-text::before {
+	--ui-btn-icon-space: 0px;
+}
+
+.ui-btn.--air.--with-collapsed-icon.ui-btn-collapsed .ui-btn-text::before,
+.ui-btn-split.--air.--with-collapsed-icon.ui-btn-collapsed .ui-btn-main .ui-btn-text::before {
+	display: inline-block;
+}
+
+.ui-btn.--air.--with-left-icon.ui-btn-collapsed .ui-btn-text::before,
+.ui-btn.--air.--with-right-icon.ui-btn-collapsed .ui-btn-text::after,
+.ui-btn.--air.--with-collapsed-icon.ui-btn-collapsed .ui-btn-text::before,
+.ui-btn-split.--air.--with-left-icon.ui-btn-collapsed .ui-btn-main .ui-btn-text::before,
+.ui-btn-split.--air.--with-right-icon.ui-btn-collapsed .ui-btn-main .ui-btn-text::after,
+.ui-btn-split.--air.--with-collapsed-icon.ui-btn-collapsed .ui-btn-main .ui-btn-text::before {
+	top: 0;
+}
+
+.ui-btn-left-counter-inner {
+	display: inline-flex;
+}
+
+.ui-btn .ui-icon-set {
+	--ui-icon-set__icon-size: var(--ui-btn-icon-size);
+	--ui-icon-set__icon-color: var(--ui-btn-color);
+	margin-right: var(--ui-btn-icon-space);
+	transition: none;
+}
+
+.ui-btn-ai-waiting .ui-icon-set,
+.ui-btn-clock .ui-icon-set,
+.ui-btn-wait .ui-icon-set {
+	opacity: 0;
+}

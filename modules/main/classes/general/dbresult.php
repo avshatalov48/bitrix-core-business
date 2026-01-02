@@ -96,7 +96,6 @@ abstract class CAllDBResult
 	public function __sleep()
 	{
 		return [
-			'result',
 			'arResult',
 			'arReplacedAliases',
 			'arResultAdd',

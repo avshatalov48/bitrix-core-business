@@ -97,7 +97,7 @@ $arResult['bVarsFromForm'] = (
 		&& $arResult["needShow"]
 	)
 );
-$arResult['tabActive'] = ($arResult['bVarsFromForm'] ? $_REQUEST["changePostFormTab"] : "message");
+$arResult['tabActive'] = ($arResult['bVarsFromForm'] ? ($_REQUEST["changePostFormTab"] ?? null) : "message");
 
 $arResult['tabs'] = [];
 $gratCurrentUsersList = $arResult['selectedGratitudeEntities'] = [];

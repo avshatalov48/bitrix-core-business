@@ -26,5 +26,5 @@ $MESS["BPCGDOC_WAIT"] = "wait...";
 $MESS["BPCGDOC_WI_B24_LIMITS_MESSAGE"] = "Some of the entities on your portal run more than two simultaneous workflows. A restriction of maximum two simultaneous workflows per entity will soon be introduced. It is recommended that you alter the logic of your workflows. [URL=https://helpdesk.bitrix24.com/open/4838471/]Learn more[/URL]";
 $MESS["BPCGDOC_WI_LOCKED_NOTICE_MESSAGE"] = "Some of the workflows you have started (#CNT#) errored out or completed incorrectly.
 [URL=#PATH#]View these workflows[/URL].";
-$MESS["BPCGDOC_WI_LOCKED_NOTICE_TITLE"] = "Portal assistant";
+$MESS["BPCGDOC_WI_LOCKED_NOTICE_TITLE_MSGVER_1"] = "System notification";
 $MESS["BPCGDOC_YES"] = "Yes";

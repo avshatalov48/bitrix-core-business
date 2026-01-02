@@ -9,4 +9,7 @@ return [
 	'lib/hook/page/copyright_notranslate.php' => [
 		'languages' => ['ru']
 	],
+	'install/components/bitrix/landing.site_edit/lang/ru/class_notranslate.php' => [
+		'languages' => ['ru', 'en']
+	],
 ];

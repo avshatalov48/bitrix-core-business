@@ -20,6 +20,8 @@ return [
 			'extra' => [
 				'editable' => [
 					'SHOW_COUPONS' => [],
+					'USE_CUSTOM_ADDITIONAL_MESSAGES' => [],
+					'MESS_REGION_REFERENCE' => [],
 				],
 			],
 		],

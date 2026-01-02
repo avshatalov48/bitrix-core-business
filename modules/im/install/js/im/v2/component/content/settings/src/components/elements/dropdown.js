@@ -1,4 +1,4 @@
-import { Dropdown } from 'im.v2.component.elements';
+import { Dropdown } from 'im.v2.component.elements.dropdown';
 
 import './css/dropdown.css';
 
@@ -18,10 +18,6 @@ export const DropdownOption = {
 		},
 	},
 	emits: ['change'],
-	data()
-	{
-		return {};
-	},
 	template: `
 		<div class="bx-im-settings-dropdown__container bx-im-settings-section-content__block_option">
 			<div class="bx-im-settings-dropdown__label">{{ text }}</div>

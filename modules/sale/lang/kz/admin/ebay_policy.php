@@ -1,0 +1,19 @@
+<?php
+$MESS["SALE_ACCESS_DENIED"] = "Қолжетімділікке тыйым салынған";
+$MESS["SALE_EBAY_DEFAULT"] = "Әдепкі бойынша саясаттар";
+$MESS["SALE_EBAY_NOT_MAPPED"] = "сәйкестік орнатылмаған";
+$MESS["SALE_EBAY_SETTINGS_SAVED"] = "Баптаулар сақталды";
+$MESS["SALE_EBAY_SITE"] = "Сайт";
+$MESS["SALE_EBAY_TAB_DEFAULT"] = "Баптаулар";
+$MESS["SALE_EBAY_TAB_DEFAULT_TITLE"] = "Жалпы баптаулар";
+$MESS["SALE_EBAY_TAB_PAYMENT"] = "Төлем";
+$MESS["SALE_EBAY_TAB_PAYMENT_TITLE"] = "Төлем саясатына сәйкестікті орнату";
+$MESS["SALE_EBAY_TAB_POLICY_PAYMENT"] = "Төлем";
+$MESS["SALE_EBAY_TAB_POLICY_RETURN"] = "Қайтару";
+$MESS["SALE_EBAY_TAB_POLICY_SHIPPING"] = "Жеткізу";
+$MESS["SALE_EBAY_TAB_POLICY_URL"] = "URL";
+$MESS["SALE_EBAY_TAB_RETURN"] = "Қайтару";
+$MESS["SALE_EBAY_TAB_SHIPPING"] = "Жеткізу";
+$MESS["SALE_EBAY_TAB_SHIPPING_TITLE"] = "Жеткізу саясатына сәйкестікті баптау";
+$MESS["SALE_EBAY_TITLE"] = "\"Ebay\" саясаттарын баптау";
+$MESS["SALE_MODULE_NOT_INSTALLED"] = "\"Интернет-дүкен\" модулі орнатылмаған";

@@ -33,3 +33,4 @@ $MESS["LANDING_FIELDS_LIST_FIELD_PRODUCTS_TITLE2"] = "Product list";
 $MESS["LANDING_FIELDS_LIST_FIELD_SEPARATOR_TITLE"] = "Separator";
 $MESS["LANDING_FIELDS_SELECT_PRODUCTS_BUTTON_TITLE"] = "Add products";
 $MESS["LANDING_FIELDS_SELECT_SEPARATOR_BUTTON_TITLE"] = "Add separator";
+$MESS["LANDING_PHONE_FIELD_AHA_MOMENT_REGION_CODE"] = "You may opt to add the country code field. Users won't have to enter it manually which will reduce errors.";

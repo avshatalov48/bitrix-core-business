@@ -2,7 +2,7 @@
 	var BX = window.BX;
 	if (BX["Vote"])
 		return;
-	var actionUrl = (window["app"] ? BX.message("SITE_DIR") + "mobile/?mobile_action=vote" : "/bitrix/tools/vote/uf.php");
+	var actionUrl = (window.BXMobileApp ? BX.message("SITE_DIR") + "mobile/?mobile_action=vote" : "/bitrix/tools/vote/uf.php");
 
 	BX.Vote = (function() {
 		var d = function(node, params) {
@@ -35,7 +35,7 @@
 				i = BX.findChild(answer, {"tagName" : "A", attribute : {"data-bx-vote-result" : "counter"}}, true);
 				if (i)
 				{
-					if (window["app"])
+					if (window.BXMobileApp)
 					{
 						BX.bind(answer, "click", BX.proxy(this.checkMobileUsers, this));
 					}
@@ -56,7 +56,7 @@
 				}
 			}, this);
 
-			if (window["app"])
+			if (window.BXMobileApp)
 			{
 				app.onCustomEvent('onPullExtendWatch', {id: 'VOTE_' + this.voteId});
 				BX.addCustomEvent('onPull-vote', this.onPullEvent);

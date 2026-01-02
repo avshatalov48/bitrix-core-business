@@ -1,10 +1,11 @@
-<?
-##############################################
-# Bitrix Site Manager Forum					 #
-# Copyright (c) 2002-2019 Bitrix			 #
-# https://www.bitrixsoft.com					 #
-# mailto:admin@bitrixsoft.com				 #
-##############################################
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
 
 global $APPLICATION;
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");

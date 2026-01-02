@@ -175,7 +175,7 @@ BX.rest.AppLayout.set(
 <?
 if($arParams['PLACEMENT'] !== \Bitrix\Rest\PlacementTable::PLACEMENT_DEFAULT):
 ?>
-BX.rest.AppLayout.get('<?=$arResult['APP_SID']?>').denyInterface(['setTitle', 'setScroll', 'reloadWindow']);
+BX.rest.AppLayout.get('<?=$arResult['APP_SID']?>').denyInterface(['setTitle']);
 <?
 endif;
 if($arParams['POPUP']):

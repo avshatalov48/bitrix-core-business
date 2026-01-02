@@ -1,0 +1,20 @@
+<?php
+$MESS["SALE_PS_DESCRIPTION_APPROVED"] = "Төленген";
+$MESS["SALE_PS_DESCRIPTION_CANCELED"] = "Жойылды";
+$MESS["SALE_PS_DESCRIPTION_DECLINED"] = "Қабылданбады";
+$MESS["SALE_PS_DESCRIPTION_DELAYED"] = "Төлемді растауды күтуде";
+$MESS["SALE_PS_DESCRIPTION_INPROCESS"] = "Орындалуда";
+$MESS["SALE_PS_DESCRIPTION_PARTIALAPPROVED"] = "Ішінара төленген";
+$MESS["SALE_PS_DESCRIPTION_PARTIALCCANCELED"] = "Ішінара жойылды";
+$MESS["SALE_PS_DESCRIPTION_PARTIALDELAYED"] = "Ішінара расталған";
+$MESS["SALE_PS_DESCRIPTION_TIMEOUT"] = "Уақыт өткеннен кейін жабық";
+$MESS["SALE_PS_MESSAGE_APPROVED"] = "Осы тапсырыс бойынша төлем операциясы сәтті аяқталды";
+$MESS["SALE_PS_MESSAGE_CANCELED"] = "Төлемнің толық сомасы жойылды";
+$MESS["SALE_PS_MESSAGE_DECLINED"] = "Төлем сәтсіз аяқталды";
+$MESS["SALE_PS_MESSAGE_DELAYED"] = "Осы тапсырыс бойынша төлем операциясы екі сатылы механизм бойынша сәтті аяқталды";
+$MESS["SALE_PS_MESSAGE_ERROR_CONNECT_PAY_SYS"] = "Көмекшінің жауабын өңдеу қатесі";
+$MESS["SALE_PS_MESSAGE_INPROCESS"] = "Тапсырыс жасалды";
+$MESS["SALE_PS_MESSAGE_PARTIALAPPROVED"] = "Төлем операциясы тапсырыс сомасының бір бөлігіне жүргізілді (пайдаланылмайды)";
+$MESS["SALE_PS_MESSAGE_PARTIALCCANCELED"] = "Төлем сомасының бір бөлігі жойылды";
+$MESS["SALE_PS_MESSAGE_PARTIALDELAYED"] = "Төлемді растау төлем сомасының бір бөлігіне жасалды";
+$MESS["SALE_PS_MESSAGE_TIMEOUT"] = "Тапсырыс тайм-аут бойынша аяқталды";

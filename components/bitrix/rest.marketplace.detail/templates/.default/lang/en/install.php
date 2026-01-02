@@ -13,4 +13,4 @@ $MESS["BX24_APP_INSTALL_PRIVACY_LINK"] = "https://www.bitrix24.com/privacy/";
 $MESS["BX24_APP_INSTALL_PRIVACY_TEXT"] = "I have read and agree with the <a href=\"#LINK#\" target=\"_blank\">Privacy Policy</a>";
 $MESS["BX24_APP_INSTALL_RIGHTS"] = "The application requests permissions for:";
 $MESS["BX24_APP_INSTALL_SUCCESS"] = "The application has been installed. <a href='#LINK#'>Open</a>";
-$MESS["BX24_APP_INSTALL_TERMS_OF_SERVICE_TEXT_2"] = "By installing or downloading apps or solutions, you agree to the <a href=\"#LINK#\" target=\"_blank\">Bitrix24.Market Terms of Use</a>";
+$MESS["BX24_APP_INSTALL_TERMS_OF_SERVICE_TEXT_2_MSGVER_1"] = "By installing or downloading apps or solutions, you agree to the <a href=\"#LINK#\" target=\"_blank\">Bitrix24 Market Terms of Use</a>";

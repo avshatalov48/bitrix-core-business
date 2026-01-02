@@ -1,0 +1,6 @@
+<?php
+$MESS["SN_SPACES_DISCUSSIONS_COMPOSITION_GENERAL_SPACES_NAME"] = "Ортақ кеңістік";
+$MESS["SN_SPACES_SCRUM_ACTION_INCLUDE_MODULE_ERROR"] = "Қажетті модульдерді қосу мүмкін болмады";
+$MESS["SN_SPACES_SCRUM_VIEW_ACTIVE_SPRINT"] = "Белсенді спринт";
+$MESS["SN_SPACES_SCRUM_VIEW_COMPLETED_SPRINT"] = "Аяқталған спринт";
+$MESS["SN_SPACES_SCRUM_VIEW_PLAN"] = "Жоспарлау";

@@ -6,6 +6,16 @@
 	display:none;
 }*/
 
+.pagetitle-toolbar-field-view.pagetitle-mail-view  #uiToolbarContainer{
+	min-width: 800px;
+}
+
+.mail-list-settings-menu-popup-toggle {
+	margin-left: 12px;
+	min-width: 39px;
+	min-width: var(--ui-btn-height);
+}
+
 .mail-msg-list-actionpanel-container {
 	display: block;
 	position: relative;
@@ -20,7 +30,8 @@
 
 .mail-msg-counter-wrapper {
 	display: flex;
-	min-height: 50px;
+	margin-bottom: 10px;
+	/*min-height: 50px;*/
 }
 
 .mail-counter-toolbar {
@@ -465,7 +476,7 @@
 }
 
 .mail-msg-list-grid .main-grid-row-head .main-grid-cell-head {
-	height: 55px;
+	height: 75px;
 	border-bottom: 27px solid transparent;
 	background: transparent;
 }
@@ -519,7 +530,6 @@
 }
 
 .mail-progress {
-    background-color: ghostwhite;
 	/*the padding slider 20px*/
 	left: -20px;
 	width: calc(100% + 20px);

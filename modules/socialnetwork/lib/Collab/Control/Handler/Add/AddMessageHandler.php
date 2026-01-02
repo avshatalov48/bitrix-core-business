@@ -17,7 +17,7 @@ class AddMessageHandler implements AddHandlerInterface
 	{
 		ActionMessageFactory::getInstance()
 			->getActionMessage(ActionType::CreateCollab, $entity->getId(), $command->getInitiatorId())
-			->runAction();
+			->send();
 
 		return new HandlerResult();
 	}

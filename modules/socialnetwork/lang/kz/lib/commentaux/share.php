@@ -1,0 +1,4 @@
+<?php
+$MESS["SONET_COMMENTAUX_SHARE_HIDDEN"] = "Жасырын алушы";
+$MESS["SONET_COMMENTAUX_SHARE_TEXT"] = "Жаңа алушы: #SHARE_LIST#";
+$MESS["SONET_COMMENTAUX_SHARE_TEXT_1"] = "Жаңа алушылар: #SHARE_LIST#";

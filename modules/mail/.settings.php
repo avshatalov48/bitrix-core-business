@@ -5,6 +5,7 @@ use Bitrix\Mail\Integration\UI\EntitySelector\MailCrmRecipientProvider;
 use Bitrix\Mail\Integration\UI\EntitySelector\MailUserRecipientAppearanceFilter;
 use Bitrix\Mail\Integration\UI\EntitySelector\MailCrmRecipientAppearanceFilter;
 
+
 return array(
 	'controllers' => array(
 		'value' => array(
@@ -61,7 +62,7 @@ return array(
 						'className' => MailCrmRecipientProvider::class,
 					],
 				],
-			]
+			],
 		],
 		'readonly' => true,
 	],

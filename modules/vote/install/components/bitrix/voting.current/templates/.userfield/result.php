@@ -5,6 +5,7 @@ $params = $APPLICATION->IncludeComponent(
 	".default",
 	Array(
 		"VOTE_ID" => $arResult["VOTE_ID"],
+		"WITH_HIDDEN" => "Y",
 		"PERMISSION" => $arParams["PERMISSION"],
 		"VOTE_ALL_RESULTS" => "N",
 		"NEED_SORT" => "N",

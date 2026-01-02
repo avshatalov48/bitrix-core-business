@@ -79,12 +79,14 @@ BXUrlPreview.prototype.attachUrlPreview = function(params)
 		data: requestParams,
 		onsuccess: function(data)
 		{
-			if(data.length > 0)
+			if (data.length > 0)
 			{
 				var tempDiv = document.createElement('div');
 				var oldStyles = this.element.style.cssText;
 				tempDiv.innerHTML = data;
-				var newElement = tempDiv.firstElementChild;
+				var newElement = tempDiv.getElementsByClassName('urlpreview')[0]
+					?? tempDiv.firstElementChild
+				;
 
 				this.element.parentNode.replaceChild(newElement, this.element);
 				this.element = newElement;
@@ -92,7 +94,7 @@ BXUrlPreview.prototype.attachUrlPreview = function(params)
 				this.element.style.removeProperty('display');
 				this.init();
 			}
-		}.bind(this)
+		}.bind(this),
 	});
 };
 

@@ -16,6 +16,7 @@
 .ui-switcher-disabled {
 	display: inline-block;
 	position: absolute;
+	left: 0;
 	width: 100%;
 	height: 100%;
 	color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-40));
@@ -46,13 +47,14 @@
 
 .ui-switcher-cursor {
 	position: absolute;
-	top: 3px;
+	top: 50%;
+	left: 0;
 	width: 16px;
 	height: 16px;
 	border-radius: 50%;
 	background: var(--ui-color-background-primary);
 	box-shadow: 0 1px 1px rgba(0, 0, 0, .09);
-	transform: translate(33px, 0);
+	transform: translate(33px, -50%);
 	transition: transform .2s ease-out;
 	z-index: 3;
 }
@@ -86,7 +88,7 @@
 }
 
 .ui-switcher-size-xs .ui-switcher-cursor {
-	top: 2px;
+	/*top: 2px;*/
 	width: 9px;
 	height: 9px;
 }
@@ -98,7 +100,7 @@
 }
 
 .ui-switcher-size-xs .ui-switcher-cursor {
-	transform: translate(12px, 0);
+	transform: translate(12px, -50%);
 }
 
 .ui-switcher-size-sm.ui-switcher {
@@ -128,7 +130,7 @@
 }
 
 .ui-switcher-size-sm .ui-switcher-cursor {
-	transform: translate(27px, 0);
+	transform: translate(27px, -50%);
 }
 
 /* COLORS */
@@ -140,7 +142,7 @@
 }
 
 .ui-switcher-off .ui-switcher-cursor {
-	transform: translate(4px, 0);
+	transform: translate(4px, -50%);
 }
 
 .ui-switcher-off .ui-switcher-disabled {
@@ -156,3 +158,142 @@
 	cursor: not-allowed;
 }
 /* endregion */
+
+.ui-switcher.--air {
+	--ui-switcher-width: 30px;
+	--ui-switcher-height: 15px;
+	--ui-switcher-bg: var(--ui-color-design-filled-bg);
+	--ui-switcher-off-bg: var(--ui-color-base-6);
+	--ui-switcher-cursor-size: 11px;
+	--ui-switcher-cursor-bg: var(--ui-color-base-white-fixed);
+	--ui-switcher-off-cursor-translate: 2px;
+	--ui-switcher-on-cursor-translate: calc(var(--ui-switcher-width) - var(--ui-switcher-cursor-size) - var(--ui-switcher-off-cursor-translate));
+
+	width: var(--ui-switcher-width);
+	height: var(--ui-switcher-height);
+	background-color: var(--ui-switcher-bg);
+	border-radius: 512px;
+}
+
+/* SIZE */
+.ui-switcher.--air.ui-switcher-size-xss {
+	--ui-switcher-width: 19px;
+	--ui-switcher-height: 10px;
+	--ui-switcher-cursor-size: 6px;
+	--ui-switcher-off-cursor-translate: 2px;
+}
+
+.ui-switcher.--air.ui-switcher-size-xs {
+	--ui-switcher-width: 23px;
+	--ui-switcher-height: 12px;
+	--ui-switcher-cursor-size: 8px;
+	--ui-switcher-off-cursor-translate: 2px;
+}
+
+.ui-switcher.--air.ui-switcher-size-sm {
+	--ui-switcher-width: 27px;
+	--ui-switcher-height: 14px;
+	--ui-switcher-cursor-size: 10px;
+	--ui-switcher-off-cursor-translate: 2px;
+}
+
+.ui-switcher.--air.ui-switcher-size-md {
+	--ui-switcher-width: 30px;
+	--ui-switcher-height: 15px;
+	--ui-switcher-cursor-size: 11px;
+	--ui-switcher-off-cursor-translate: 2px;
+}
+
+.ui-switcher.--air.ui-switcher-size-lg {
+	--ui-switcher-width: 40px;
+	--ui-switcher-height: 19px;
+	--ui-switcher-cursor-size: 15px;
+	--ui-switcher-off-cursor-translate: 2px;
+}
+
+.ui-switcher.--air.ui-switcher-size-xl {
+	--ui-switcher-width: 51px;
+	--ui-switcher-height: 25px;
+	--ui-switcher-cursor-size: 19px;
+	--ui-switcher-off-cursor-translate: 3px;
+}
+
+/* STYLE */
+.ui-switcher.--air,
+.ui-switcher.--air.--style-filled {
+	--ui-switcher-bg: var(--ui-color-design-filled-bg);
+	--ui-switcher-off-bg: var(--ui-color-base-6);
+	--ui-switcher-cursor-bg: var(--ui-color-design-filled-content);
+}
+
+.ui-switcher.--air.--style-tinted {
+	--ui-switcher-bg: var(--ui-color-design-tinted-a1-bg);
+	--ui-switcher-off-bg: var(--ui-color-base-7);
+	--ui-switcher-cursor-bg: var(--ui-color-design-tinted-a1-content);
+}
+
+.ui-switcher.--air,
+.ui-switcher.--air.ui-switcher-size-xss,
+.ui-switcher.--air.ui-switcher-size-xs,
+.ui-switcher.--air.ui-switcher-size-sm,
+.ui-switcher.--air.ui-switcher-size-md,
+.ui-switcher.--air.ui-switcher-size-l,
+.ui-switcher.--air.ui-switcher-size-xl {
+	width: var(--ui-switcher-width);
+	height: var(--ui-switcher-height);
+}
+
+.ui-switcher.--air.ui-switcher-off {
+	--ui-switcher-bg: var(--ui-switcher-off-bg);
+}
+
+.ui-switcher.--air .ui-switcher-enabled,
+.ui-switcher.--air.ui-switcher-size-xss .ui-switcher-enabled,
+.ui-switcher.--air.ui-switcher-size-xs .ui-switcher-enabled,
+.ui-switcher.--air.ui-switcher-size-sm .ui-switcher-enabled,
+.ui-switcher.--air.ui-switcher-size-md .ui-switcher-enabled,
+.ui-switcher.--air.ui-switcher-size-l .ui-switcher-enabled,
+.ui-switcher.--air.ui-switcher-size-xl .ui-switcher-enabled,
+.ui-switcher.--air .ui-switcher-disabled,
+.ui-switcher.--air.ui-switcher-size-xss .ui-switcher-disabled,
+.ui-switcher.--air.ui-switcher-size-xs .ui-switcher-disabled,
+.ui-switcher.--air.ui-switcher-size-sm .ui-switcher-disabled,
+.ui-switcher.--air.ui-switcher-size-md .ui-switcher-disabled,
+.ui-switcher.--air.ui-switcher-size-l .ui-switcher-disabled,
+.ui-switcher.--air.ui-switcher-size-xl .ui-switcher-disabled {
+	font-size: 0;
+	padding: 0;
+}
+
+.ui-switcher.--air .ui-switcher-enabled,
+.ui-switcher.--air .ui-switcher-disabled {
+	background-color: var(--ui-switcher-bg);
+}
+
+.ui-switcher.--air.ui-switcher-lock {
+	--ui-switcher-bg: var(--ui-color-base-7);
+	--ui-switcher-cursor-bg: var(--ui-color-base-6);
+
+	opacity: 1;
+	cursor: not-allowed;
+}
+
+.ui-switcher.--air .ui-switcher-cursor,
+.ui-switcher.--air.ui-switcher-size-xss .ui-switcher-cursor,
+.ui-switcher.--air.ui-switcher-size-xs .ui-switcher-cursor,
+.ui-switcher.--air.ui-switcher-size-sm .ui-switcher-cursor,
+.ui-switcher.--air.ui-switcher-size-md .ui-switcher-cursor,
+.ui-switcher.--air.ui-switcher-size-l .ui-switcher-cursor,
+.ui-switcher.--air.ui-switcher-size-xl .ui-switcher-cursor {
+	width: var(--ui-switcher-cursor-size);
+	height: var(--ui-switcher-cursor-size);
+	top: 50%;
+	left: 0;
+	transform: translate(var(--ui-switcher-on-cursor-translate), -50%);
+	background-color: var(--ui-switcher-cursor-bg);
+	box-shadow: none;
+}
+
+.ui-switcher.--air.ui-switcher-off .ui-switcher-cursor {
+	transform: translate(var(--ui-switcher-off-cursor-translate), -50%);
+}

@@ -1,0 +1,23 @@
+<?php
+$MESS["SECURITY_HOSTS_ACTIVE"] = "Шектеу";
+$MESS["SECURITY_HOSTS_ANY_HOST"] = "Берілген шектеулер мағынасыз, өйткені олар кездейсоқ хостты бұғаттамайды";
+$MESS["SECURITY_HOSTS_EMPTY_HOST_ACTION"] = "Қайта бағыттау мекенжайы көрсетілмеген";
+$MESS["SECURITY_HOSTS_HOSTS_LIST"] = "Рұқсат етілген хосттар/домендер тізімі";
+$MESS["SECURITY_HOSTS_HOSTS_LIST_EXAMPLE"] = "(мысалы: example.com www.example.com)";
+$MESS["SECURITY_HOSTS_INVALID_HOST_ACTION"] = "Қайта бағыттау мекенжайы дұрыс емес, дұрыс мысал: http://example.com";
+$MESS["SECURITY_HOSTS_LOGGING"] = "Логтеу";
+$MESS["SECURITY_HOSTS_MAIN_TAB"] = "Параметрлер";
+$MESS["SECURITY_HOSTS_MAIN_TAB_TITLE"] = "Шектеулерді баптау";
+$MESS["SECURITY_HOSTS_NOTE"] = "Хост/доменді шектеу Host HTTP-тақырыпатының өзгеруіне жол бермейді.";
+$MESS["SECURITY_HOSTS_OFF"] = "Шектеу өшірулі";
+$MESS["SECURITY_HOSTS_ON"] = "Шектеу қосулы";
+$MESS["SECURITY_HOSTS_REACTION"] = "Белсенді реакция";
+$MESS["SECURITY_HOSTS_REACTION_REDIRECT"] = "Қайта бағыттау";
+$MESS["SECURITY_HOSTS_REACTION_REDIRECT_HOST"] = "Қайта бағыттау мекенжайы";
+$MESS["SECURITY_HOSTS_REACTION_STOP"] = "Қолжетімділікке тыйым салу";
+$MESS["SECURITY_HOSTS_SAVE_ERROR"] = "Сақтау қатесі";
+$MESS["SECURITY_HOSTS_SAVE_UNKNOWN_ERROR"] = "Жүйелік қате: #CODE#";
+$MESS["SECURITY_HOSTS_SELF_BLOCK"] = "Берілген шектеулер ағымдағы хостты бұғаттайды";
+$MESS["SECURITY_HOSTS_TITLE"] = "Хосттар/домендер";
+$MESS["SECURITY_HOST_EMPTY_ACTION"] = "Белсенді реакция таңдалмаған";
+$MESS["SECURITY_HOST_EMPTY_HOSTS"] = "Рұқсат етілген хосттар/домендер тізімі бос";

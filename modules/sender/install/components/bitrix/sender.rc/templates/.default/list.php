@@ -9,7 +9,7 @@ global $APPLICATION;
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
 	'',
-	array(
+	[
 		'POPUP_COMPONENT_NAME' => 'bitrix:sender.rc.list',
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => [
@@ -21,5 +21,6 @@ $APPLICATION->IncludeComponent(
 			'PATH_TO_TIME' => $arResult['PATH_TO_TIME'] ?? '',
 			'PATH_TO_STAT' => $arResult['PATH_TO_STAT'] ?? '',
 		],
-	)
+		"USE_UI_TOOLBAR" => "Y",
+	]
 );

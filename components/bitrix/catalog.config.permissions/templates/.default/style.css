@@ -35,3 +35,13 @@
 .bx-catalog-letter-field-input {
 	width: 100%;
 }
+
+.ui-access-rights-v2-section-head {
+	width: 350px;
+	max-width: 350px;
+	min-width: 350px;
+}
+
+.ui-toolbar {
+	justify-content: space-between;
+}

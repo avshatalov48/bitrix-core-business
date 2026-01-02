@@ -11,7 +11,7 @@ class RequestVkontakte extends ProxyRequest
 
 	protected function directQuery(array $params = array())
 	{
-		$url = 'https://api.vk.com/method/';
+		$url = 'https://api.vk.ru/method/';
 		$url .= $params['endpoint'];
 
 		$clientParameters = is_array($params['fields']) ? $params['fields'] : array();

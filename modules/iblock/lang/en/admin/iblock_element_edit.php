@@ -109,4 +109,4 @@ $MESS["IBLOCK_SECTION"] = "Link (multiple):";
 $MESS["IBLOCK_TCATALOG"] = "Commercial catalog";
 $MESS["IBLOCK_UPPER_LEVEL"] = "Upper level";
 $MESS["IBLOCK_WRONG_SESSION"] = "Your session has expired. Please save your document again.";
-$MESS["IBLOCK_WRONG_WF_STATUS"] = "Invalid status";
+$MESS['IBLOCK_WRONG_WF_STATUS'] = "Invalid status";

@@ -157,10 +157,9 @@ class RestMarketplaceInstallComponent extends CBitrixComponent
 
 		if (
 			Loader::IncludeModule('bitrix24')
-			&& !in_array(\CBitrix24::getLicensePrefix(), array('ru', 'ua', 'kz', 'by'))
 		)
 		{
-			$result['TERMS_OF_SERVICE_LINK'] = Loc::getMessage('REST_MARKETPLACE_TERMS_OF_SERVICE_LINK');
+			$result['TERMS_OF_SERVICE_LINK'] = (string)\Bitrix\Rest\Infrastructure\Market\MarketUrl::createByDefault()->getTermsUrl();
 		}
 
 		$result['IS_HTTPS'] = Context::getCurrent()->getRequest()->isHttps();

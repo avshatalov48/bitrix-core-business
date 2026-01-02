@@ -58,17 +58,6 @@ class SiteSpeed
 	}
 
 	/**
-	 * @return bool
-	 */
-	public static function isRussianSiteManager()
-	{
-		return (
-			Directory::isDirectoryExists(Application::getDocumentRoot()."/bitrix/modules/main/lang/ru")
-			|| Directory::isDirectoryExists(Application::getDocumentRoot()."/bitrix/modules/main/lang/ua")
-		);
-	}
-
-	/**
 	 * @param $siteId
 	 * @return bool
 	 * @throws \Bitrix\Main\ArgumentException
@@ -125,6 +114,6 @@ class SiteSpeed
 
 	public static function isOn()
 	{
-		return self::isRussianSiteManager() && self::canGatherStat();
+		return false;
 	}
 }

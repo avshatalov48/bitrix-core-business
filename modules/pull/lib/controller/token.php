@@ -10,13 +10,18 @@ class Token extends Engine\Controller
 {
 	function removeAction(string $token)
 	{
-		$tokenData = PushTable::getList([
-			"filter" => [
-				"LOGIC" => "OR",
-				"=DEVICE_TOKEN" => $token,
-				"=VOIP_TOKEN" => $token,
-			]
-		])->fetch();
+		$tokenData = PushTable
+			::query()
+			->addSelect('ID')
+			->where('DEVICE_TOKEN', $token)
+			->unionAll(
+				PushTable
+					::query()
+					->addSelect('ID')
+					->where('VOIP_TOKEN', $token)
+			)->fetch()
+		;
+
 
 		if (!$tokenData)
 		{
@@ -34,12 +39,12 @@ class Token extends Engine\Controller
 	public function configureActions()
 	{
 		$result = parent::configureActions();
-		$result['remove'] = array(
-			'-prefilters' => array(
+		$result['remove'] = [
+			'-prefilters' => [
 				Engine\ActionFilter\Csrf::class,
 				Engine\ActionFilter\Authentication::class,
-			)
-		);
+			],
+		];
 		return $result;
 	}
 }

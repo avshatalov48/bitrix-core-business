@@ -112,6 +112,19 @@ abstract class SqlHelper
 	}
 
 	/**
+	 * Returns full text safe data representation.
+	 *
+	 * @param string $value Value to be cut to safe full text length.
+	 * @param integer $maxLength Limits string length if set.
+	 *
+	 * @return string
+	 */
+	public function convertToFullText($value, $maxLength = 0)
+	{
+		return "'" . $this->forSql($value, $maxLength) . "'";
+	}
+
+	/**
 	 * Returns function for getting current time.
 	 *
 	 * @return string

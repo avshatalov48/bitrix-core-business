@@ -42,7 +42,7 @@ class ActionMessageBuffer
 
 			$factory
 				->getActionMessage(ActionType::from($action), (int)$collabId, (int)$senderId)
-				->runAction($recipients, $parameters);
+				->send($recipients, $parameters);
 		}
 
 		static::$stack = [];

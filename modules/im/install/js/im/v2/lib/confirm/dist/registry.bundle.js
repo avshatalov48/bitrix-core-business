@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_popup,ui_dialogs_messagebox,ui_lottie,im_v2_lib_channel,main_core,im_v2_application_core,im_v2_const) {
+(function (exports,main_popup,ui_dialogs_messagebox,im_v2_lib_channel,im_v2_application_core,im_v2_const,main_core) {
 	'use strict';
 
 	const MESSENGER_CLASS = 'bx-im-messenger__scope';
@@ -31,6 +31,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      message: text,
 	      modal: true,
 	      buttons: ui_dialogs_messagebox.MessageBoxButtons.YES_CANCEL,
+	      popupOptions: {
+	        closeByEsc: true
+	      },
 	      onYes: messageBox => {
 	        resolve(true);
 	        messageBox.close();
@@ -209,6 +212,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    title: main_core.Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_POST_TITLE'),
 	    text: main_core.Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_POST_TEXT'),
 	    firstButtonCaption: main_core.Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_POST_TEXT_CONFIRM')
+	  });
+	};
+	const showDeleteMessagesConfirm = title => {
+	  return showTwoButtonConfirm({
+	    title,
+	    firstButtonCaption: main_core.Loc.getMessage('IM_LIB_CONFIRM_DELETE_MESSAGES_TITLE')
 	  });
 	};
 
@@ -6815,7 +6824,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  w: w
 	};
 
-	const showDownloadAllFilesConfirm = () => {
+	const showDownloadAllFilesConfirm = async () => {
 	  const HELPDESK_ARTICLE_CODE = '23597750';
 	  const articleLink = `BX.Helper?.show('redirect=detail&code=${HELPDESK_ARTICLE_CODE}')`;
 	  const text = main_core.Loc.getMessage('IM_LIB_DOWNLOAD_ALL_FILES_TEXT', {
@@ -6832,7 +6841,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  const contentContainer = main_core.Dom.create('div', {
 	    children: [subTitle, animationContainer]
 	  });
-	  ui_lottie.Lottie.loadAnimation({
+	  const {
+	    Lottie
+	  } = await main_core.Runtime.loadExtension('ui.lottie');
+	  Lottie.loadAnimation({
 	    animationData: DownloadAllPermissionAnimation,
 	    container: animationContainer,
 	    renderer: 'svg',
@@ -6892,6 +6904,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return chat.type === im_v2_const.ChatType.collab;
 	};
 
+	const showCloseWithActiveCallConfirm = () => {
+	  return showTwoButtonConfirm({
+	    title: main_core.Loc.getMessage('IM_LIB_CONFIRM_ACTIVE_CALL_CONFIRM')
+	  });
+	};
+
 	exports.showDeleteChatConfirm = showDeleteChatConfirm;
 	exports.showLeaveChatConfirm = showLeaveChatConfirm;
 	exports.showExitUpdateChatConfirm = showExitUpdateChatConfirm;
@@ -6899,9 +6917,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.showDesktopConfirm = showDesktopConfirm;
 	exports.showDesktopDeleteConfirm = showDesktopDeleteConfirm;
 	exports.showDeleteChannelPostConfirm = showDeleteChannelPostConfirm;
+	exports.showDeleteMessagesConfirm = showDeleteMessagesConfirm;
 	exports.showDownloadAllFilesConfirm = showDownloadAllFilesConfirm;
 	exports.showNotificationsModeSwitchConfirm = showNotificationsModeSwitchConfirm;
 	exports.showKickUserConfirm = showKickUserConfirm;
+	exports.showCloseWithActiveCallConfirm = showCloseWithActiveCallConfirm;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Main,BX.UI.Dialogs,BX.UI,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Main,BX.UI.Dialogs,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX));
 //# sourceMappingURL=registry.bundle.js.map

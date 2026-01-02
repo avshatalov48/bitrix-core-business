@@ -1,0 +1,22 @@
+<?php
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_ALWAYS_ADD_DEAL"] = "Белсенді лид немесе мәміле болса да, әрқашан мәміле жасау";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_ALWAYS_ADD_HINT"] = "Егер баптау орнатылмаған болса, онда<br> байланыстың немесе компанияның белсенді лиді немесе мәмілесі бар-жоғын тексеру жүргізіледі.";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_ALWAYS_ADD_LEAD"] = "Белсенді лид немесе мәміле болса да, әрқашан лид жасау";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_ASSIGNED_BY"] = "Кезек";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_ASSIGNED_BY_HINT"] = "Құрылған лидтерді өңдейтін<br>жауапты қызметкерлерді көрсетіңіз.";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_CHECK_WORK_TIME"] = "Жұмыс күні басталып, үзіліс белгіленбегендерді жауапты етіп тағайындау";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_CHECK_WORK_TIME_HINT"] = "Егер кезекте күні басталмағандар немесе үзіліс жасағандар ғана болса, онда бірінші кезекте тұрғандар алынады.";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_COMMENT"] = "Менеджерге арналған тапсырма";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_COMMENT_HINT"] = "Қайталанатын лидтер мен мәмілелерді өңдеу кезінде <br>менеджері орындауы керек<br> тапсырма мәтінін жазыңыз";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_CREATE_FROM_PREVIOUS"] = "Алдыңғы мәміледен тапсырыс жасау";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_DEAL_CATEGORY_ID"] = "Мәмілелер бағыты";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_DEAL_CATEGORY_ID_LAST"] = "Соңғы мәміледен орнату";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_DEAL_DAYS_AGO"] = "Тапсырыс неше күн бұрын жасалған";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_LINK_DEAL_WITH_RESPONSIBLE"] = "Жауапты болып бұрын клиентпен жұмыс істеген менеджер тағайындалады";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_LINK_LEAD_WITH_RESPONSIBLE"] = "Жауапты болып бұрын клиентпен жұмыс істеген менеджер тағайындалады";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_TITLE_DEAL"] = "Құрылатын мәміленің атауы";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_TITLE_DEAL_DEF"] = "%date% -дан мәміле";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_TITLE_LEAD"] = "Құрылатын лидтің атауы";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_TITLE_LEAD_DEF"] = "%date% -дан қайталау лиді";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_NAME_DEAL"] = "Қайталанған мәмілелер";
+$MESS["SENDER_INTEGRATION_CRM_RC_MESSAGE_NAME_LEAD"] = "Қайталанған лидтер";

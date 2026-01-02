@@ -35,112 +35,100 @@ if (!empty($arResult['COUNTERS']))
 
 \Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 // todo oh
+$counterClassAir = defined('AIR_SITE_TEMPLATE') ? '--air' : '';
 ?>
 
 <?php if($arParams['ENTITY_TYPE'] === 'workgroup_list'): ?>
 
-<div class="<?= implode(' ', $classList) ?>">
-	<div class="sonet-interface-toolbar">
-		<div
-			class="sonet-interface-toolbar--item --visible"
-			style="opacity: 0.7;"
-			data-hint="<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_HINT') ?>"
-			data-hint-no-icon
-			data-hint-center
-		>
-			<div class="ui-counter-panel ui-counter-panel__scope">
+	<div
+		class="ui-counter-panel ui-counter-panel__scope --visible <?= $counterClassAir ?>"
+		style="opacity: 0.7;"
+		data-hint="<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_HINT') ?>"
+		data-hint-no-icon
+		data-hint-center
+	>
+		<div class="ui-counter-panel__item-head">
+			<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_MY') . ':' ?>
+		</div>
 
-				<div class="ui-counter-panel__item --string --without-separator">
-					<div class="ui-counter-panel__item-title">
-						<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_MY') . ':' ?>
-					</div>
+		<div class="ui-counter-panel__item">
+			<div class="ui-counter-panel__item-value">
+				<div class="ui-counter ui-counter-md ui-counter-gray">
+					<div class="ui-counter-inner">0</div>
 				</div>
-
-				<div class="ui-counter-panel__item-separator --invisible"></div>
-
-				<div class="ui-counter-panel__item --without-separator">
-					<div class="ui-counter-panel__item-value">
-						<div class="ui-counter ui-counter-md ui-counter-theme">
-							<div class="ui-counter-inner">0</div>
-						</div>
-					</div>
-					<div class="ui-counter-panel__item-title">
-						<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_OVERDUE') ?>
-					</div>
-					<div class="ui-counter-panel__item-cross"><i></i></div>
-				</div>
-
-				<div class="ui-counter-panel__item-separator --invisible"></div>
-
-				<div class="ui-counter-panel__item">
-					<div class="ui-counter-panel__item-value">
-						<div class="ui-counter ui-counter-md ui-counter-theme">
-							<div class="ui-counter-inner">0</div>
-						</div>
-					</div>
-					<div class="ui-counter-panel__item-title">
-						<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_COMMUNICATIONS') ?>
-					</div>
-					<div class="ui-counter-panel__item-cross"><i></i></div>
-				</div>
-
-				<div class="ui-counter-panel__item --string --without-separator">
-					<div class="ui-counter-panel__item-title">
-						<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_OTHER') . ':' ?>
-					</div>
-				</div>
-
-				<div class="ui-counter-panel__item-separator --invisible"></div>
-
-				<div class="ui-counter-panel__item --without-separator">
-					<div class="ui-counter-panel__item-value">
-						<div class="ui-counter ui-counter-md ui-counter-theme">
-							<div class="ui-counter-inner">0</div>
-						</div>
-					</div>
-					<div class="ui-counter-panel__item-title">
-						<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_OVERDUE') ?>
-					</div>
-					<div class="ui-counter-panel__item-cross"><i></i></div>
-				</div>
-
-				<div class="ui-counter-panel__item-separator --invisible"></div>
-
-				<div class="ui-counter-panel__item">
-					<div class="ui-counter-panel__item-value">
-						<div class="ui-counter ui-counter-md ui-counter-theme">
-							<div class="ui-counter-inner">0</div>
-						</div>
-					</div>
-					<div class="ui-counter-panel__item-title">
-						<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_COMMUNICATIONS') ?>
-					</div>
-					<div class="ui-counter-panel__item-cross"><i></i></div>
-				</div>
-
-				<div class="ui-counter-panel__item-separator"></div>
-
-				<div class="ui-counter-panel__item --string">
-					<div class="ui-counter-panel__item-title">
-						<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_READ_ALL') ?>
-					</div>
-				</div>
-
+			</div>
+			<div class="ui-counter-panel__item-title">
+				<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_OVERDUE') ?>
+			</div>
+			<div class="ui-counter-panel__item-cross">
+				<i></i>
 			</div>
 		</div>
-	</div>
-</div>
 
-<?php else: ?>
+		<div class="ui-counter-panel__item-separator"></div>
 
-<div class="<?= implode(' ', $classList) ?>">
-	<div class="sonet-interface-toolbar">
-		<div class="sonet-interface-toolbar--item --visible" data-role="sonet-counters-container">
-			<div></div>
+		<div class="ui-counter-panel__item">
+			<div class="ui-counter-panel__item-value">
+				<div class="ui-counter ui-counter-md ui-counter-gray">
+					<div class="ui-counter-inner">0</div>
+				</div>
+			</div>
+			<div class="ui-counter-panel__item-title">
+				<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_COMMUNICATIONS') ?>
+			</div>
+			<div class="ui-counter-panel__item-cross">
+				<i></i>
+			</div>
 		</div>
-	</div>
-</div>
 
+		<div class="ui-counter-panel__item-separator"></div>
+
+		<div class="ui-counter-panel__item-head">
+			<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_OTHER') . ':' ?>
+		</div>
+
+		<div class="ui-counter-panel__item">
+			<div class="ui-counter-panel__item-value">
+				<div class="ui-counter ui-counter-md ui-counter-gray">
+					<div class="ui-counter-inner">0</div>
+				</div>
+			</div>
+			<div class="ui-counter-panel__item-title">
+				<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_OVERDUE') ?>
+			</div>
+			<div class="ui-counter-panel__item-cross">
+				<i></i>
+			</div>
+		</div>
+
+		<div class="ui-counter-panel__item-separator"></div>
+
+		<div class="ui-counter-panel__item">
+			<div class="ui-counter-panel__item-value">
+				<div class="ui-counter ui-counter-md ui-counter-gray">
+					<div class="ui-counter-inner">0</div>
+				</div>
+			</div>
+			<div class="ui-counter-panel__item-title">
+				<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_COMMUNICATIONS') ?>
+			</div>
+			<div class="ui-counter-panel__item-cross">
+				<i></i>
+			</div>
+		</div>
+
+		<div class="ui-counter-panel__item-separator"></div>
+
+		<div class="ui-counter-panel__item --string --locked --collapsed">
+			<div class="ui-counter-panel__item-collapsed-icon ui-icon-set__scope --icon-chat-check"></div>
+			<div class="ui-counter-panel__item-title">
+				<?= Loc::getMessage('SONET_SIC_COUNTER_TEMPLATE_READ_ALL') ?>
+			</div>
+		</div>
+
+	</div>
+<?php else: ?>
+	<div data-role="sonet-counters-container"></div>
 <?php endif;?>
 
 <script>

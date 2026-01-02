@@ -14,9 +14,9 @@
 }
 
 .ui-selector-search {
-	padding-bottom: 19px;
-	margin: 19px 16px 0;
-	border-bottom: 1px solid rgba(82, 92, 105, 0.1);
+	padding-bottom: 8px;
+	margin: 16px 18px 0;
+	border-bottom: none;
 }
 
 .ui-selector-popup-animation-show {
@@ -27,16 +27,19 @@
 .ui-selector-popup-animation-close {
 	animation: ui-selector-popup-animation-close 200ms;
 	animation-fill-mode: both;
+	pointer-events: none;
 }
 
 @keyframes ui-selector-popup-animation-show {
 	0% {
 		opacity: 0;
 		transform: translate3d(0, 25px, 0);
+		pointer-events: none;
 	}
 	100% {
 		opacity: 1;
 		transform: translate3d(0, 0px, 0);
+		pointer-events: all;
 	}
 }
 
@@ -52,7 +55,7 @@
 }
 
 .ui-selector-header-container {
-	font-size: 14px;
+	font-size: var(--ui-font-size-md);
 }
 
 .ui-selector-header {
@@ -90,29 +93,33 @@
 	align-items: center;
 	display: flex;
 	height: 54px;
-	background-color: #eaf9fe;
+	background-color: var(--ui-color-accent-soft-blue-2);
 	padding: 0 18px;
 	overflow: hidden;
+	font-size: var(--ui-font-size-sm);
 	white-space: nowrap;
-	color: #525c69;
+	color: var(--ui-color-base-1);
 	border-radius: 0 0 var(--popup-window-border-radius) var(--popup-window-border-radius);
 }
 
 .ui-selector-footer-conjunction {
-	margin-left: 10px;
-	margin-right: 10px;
+	color: var(--ui-color-base-2);
+	margin-left: 4px;
+	margin-right: 4px;
 }
 
-.ui-selector-footer .ui-selector-footer-link {
-	color: #525c69;
-	font-size: 14px;
+.ui-selector-footer .ui-selector-footer-link,
+.ui-selector-footer .ui-selector-footer-link-text {
 	border-bottom: 1px dashed rgba(82, 92, 105, 0.27);
 	cursor: pointer;
 	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	text-overflow: ellipsis;
 }
 
-.ui-selector-footer .ui-selector-footer-link:hover {
-	color: #333333;
+.ui-selector-footer .ui-selector-footer-link:hover,
+.ui-selector-footer .ui-selector-footer-link-with-icon:hover .ui-selector-footer-link-text {
 	border-bottom-color: rgba(82, 92, 105, 0.8);
 }
 
@@ -122,11 +129,27 @@
 }
 
 .ui-selector-footer .ui-selector-footer-link-add:before {
+	content: "";
 	position: absolute;
-	left: -31px;
+	left: -34px;
 	top: -4px;
 	width: 24px;
 	height: 24px;
-	background-image: url(images/footer-link-add-icon.svg);
-	content: "";
+	background-color: var(--ui-color-accent-main-primary);
+	border-radius: 50%;
+	background-image: url(images/footer-link-add-icon.svg?1);
+}
+
+.ui-selector-footer .ui-selector-footer-link-with-icon {
+	display: inline-flex;
+	align-items: center;
+	cursor: pointer;
+}
+
+.ui-selector-footer .ui-selector-footer-link-icon {
+	display: flex;
+	width: 20px;
+	height: 20px;
+	--ui-icon-set__icon-size: 20px;
+	--ui-icon-set__icon-color: var(--ui-color-base-1);
 }

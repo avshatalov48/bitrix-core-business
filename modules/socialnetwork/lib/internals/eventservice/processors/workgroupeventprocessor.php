@@ -25,6 +25,7 @@ class WorkGroupEventProcessor
 			EventDictionary::EVENT_WORKGROUP_USER_ADD,
 			EventDictionary::EVENT_WORKGROUP_USER_UPDATE,
 			EventDictionary::EVENT_WORKGROUP_USER_DELETE,
+			EventDictionary::EVENT_WORKGROUP_CONVERT,
 		];
 
 		$addedEventTypes = [

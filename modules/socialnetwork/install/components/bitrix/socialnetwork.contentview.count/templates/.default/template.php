@@ -18,7 +18,7 @@ if ($arResult['AVAILABLE'])
 	{
 		echo (isset($arResult["CONTENT_VIEW_CNT"]) ? $arResult["CONTENT_VIEW_CNT"] : 0);
 	}
-	elseif (SITE_TEMPLATE_ID === 'bitrix24')
+	elseif (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 	{
 		?><span class="tariff-lock" onclick="B24.licenseInfoPopup.show('contentViewCounter', '<?=htmlspecialcharsbx(GetMessageJS("SCVC_TEMPLATE_LICENSE_TITLE2"))?>', '<?=htmlspecialcharsbx(GetMessageJS("SCVC_TEMPLATE_LICENSE_TEXT2"))?>')"></span><?
 	}
@@ -28,7 +28,7 @@ if ($arResult['AVAILABLE'])
 if ($arResult['AVAILABLE'])
 {
 	?><span class="bx-contentview-wrap-block" id="bx-contentview-cnt-popup-cont-<?=htmlspecialcharsbx($arResult['CONTENT_ID'])?>" style="display:none;"><?
-		?><span class="bx-contentview-popup-name-new contentview-name"><?
+		?><span class="bx-contentview-popup-name-link contentview-name"><?
 			?><?=GetMessage("SCVC_TEMPLATE_POPUP_TITLE")?><?
 		?></span><?
 		?><span class="bx-contentview-popup-outer"><span class="bx-contentview-popup"><?
@@ -47,5 +47,3 @@ if ($arResult['AVAILABLE'])
 	});
 	</script><?
 }
-
-

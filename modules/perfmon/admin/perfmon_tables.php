@@ -50,7 +50,8 @@ if (
 }
 
 $tables = $lAdmin->GroupAction();
-if (isset($_REQUEST['action']) && $tables && $RIGHT >= 'W')
+$action = $lAdmin->GetAction();
+if ($action && $tables && $RIGHT >= 'W')
 {
 	if ($lAdmin->IsGroupActionToAll())
 	{
@@ -61,19 +62,6 @@ if (isset($_REQUEST['action']) && $tables && $RIGHT >= 'W')
 		}
 	}
 
-	foreach ($engines as $id => $ar)
-	{
-		if ($_REQUEST['action'] === 'convert_to_' . $id)
-		{
-			$_REQUEST['action'] = 'convert';
-			$request['to'] = $id;
-			break;
-		}
-	}
-
-	$to = mb_strtoupper($request['to']);
-
-	$action = $lAdmin->GetAction();
 	foreach ($tables as $table_name)
 	{
 		$table_name = (string) $table_name;
@@ -95,19 +83,25 @@ if (isset($_REQUEST['action']) && $tables && $RIGHT >= 'W')
 
 		switch ($action)
 		{
-		case 'convert':
+		case 'convert_to_MYISAM':
 			try
 			{
-				if ($to !== mb_strtoupper($status['Engine']))
+				if (mb_strtoupper($status['Engine']) !== 'MYISAM')
 				{
-					if ($to === 'MYISAM')
-					{
-						$connection->query('alter table ' . $sqlHelper->quote($table_name) . ' ENGINE = MyISAM');
-					}
-					elseif ($to === 'INNODB')
-					{
-						$connection->query('alter table ' . $sqlHelper->quote($table_name) . ' ENGINE = InnoDB');
-					}
+					$connection->query('alter table ' . $sqlHelper->quote($table_name) . ' ENGINE = MyISAM');
+				}
+			}
+			catch (\Bitrix\Main\DB\SqlQueryException $e)
+			{
+				$lAdmin->AddGroupError($e, $table_name);
+			}
+			break;
+		case 'convert_to_INNODB':
+			try
+			{
+				if (mb_strtoupper($status['Engine']) !== 'INNODB')
+				{
+					$connection->query('alter table ' . $sqlHelper->quote($table_name) . ' ENGINE = InnoDB');
 				}
 			}
 			catch (\Bitrix\Main\DB\SqlQueryException $e)
@@ -539,6 +533,7 @@ if (isset($_REQUEST['action']) && $tables && $RIGHT >= 'W')
 			echo '<hr>';
 			echo '<pre>';
 			echo '&lt;', '?', "php\n";
+			echo "\n";
 			echo 'namespace Bitrix\\' . $moduleNamespace . ";\n";
 			echo "\n";
 			foreach ($aliases as $row)
@@ -595,6 +590,7 @@ if (isset($_REQUEST['action']) && $tables && $RIGHT >= 'W')
 				echo "\t}\n";
 			}
 			echo "}\n";
+			echo "\n";
 			echo '</pre>';
 			echo 'File: /bitrix/modules/' . $moduleName . '/lang/ru/lib/' . mb_strtolower($className) . 'table.php';
 			echo '<hr>';
@@ -604,6 +600,7 @@ if (isset($_REQUEST['action']) && $tables && $RIGHT >= 'W')
 			{
 				echo "\$MESS['" . $messageId . "'] = \"" . EscapePHPString($messageText) . "\";\n";
 			}
+			echo "\n";
 			echo '</pre>';
 			break;
 		}
@@ -692,7 +689,7 @@ $generateOrm = Main\Config\Option::get('perfmon', 'enable_tablet_generator') ===
 
 while ($result = $data->GetNext())
 {
-	$row =& $lAdmin->AddRow($result['TABLE_NAME'], $result);
+	$row = $lAdmin->AddRow($result['TABLE_NAME'], $result);
 	$row->AddViewField('TABLE_NAME', '<a class="table_name" data-table-name="' . $result['TABLE_NAME'] . '" href="perfmon_table.php?lang=' . LANGUAGE_ID . (isset($request->getQueryList()['connection']) ? '&amp;connection=' . urlencode($connectionName) : '') . '&amp;table_name=' . urlencode($result['TABLE_NAME']) . '">' . $result['TABLE_NAME'] . '</a>');
 	$row->AddViewField('BYTES', CFile::FormatSize($result['BYTES']));
 	$row->AddViewField('BYTES_INDEX', CFile::FormatSize($result['BYTES_INDEX']));
@@ -833,7 +830,7 @@ if ($strLastTables !== '')
 		$j = 0;
 		while ($result = $data->Fetch())
 		{
-			$row =& $lAdmin2->AddRow($j++, $result);
+			$row = $lAdmin2->AddRow($j++, $result);
 			foreach ($result as $key => $value)
 			{
 				$row->AddViewField($key, $value);

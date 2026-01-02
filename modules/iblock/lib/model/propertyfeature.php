@@ -1,29 +1,29 @@
 <?php
+
 namespace Bitrix\Iblock\Model;
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\Result;
 use Bitrix\Iblock;
-
-Loc::loadMessages(__FILE__);
 
 class PropertyFeature
 {
-	const EVENT_ID_FEATURE_LIST = 'OnPropertyFeatureBuildList'; // event name for build feature list
+	public const EVENT_ID_FEATURE_LIST = 'OnPropertyFeatureBuildList'; // event name for build feature list
 
-	const FEATURE_ID_LIST_PAGE_SHOW = 'LIST_PAGE_SHOW'; // show property in element list
-	const FEATURE_ID_DETAIL_PAGE_SHOW = 'DETAIL_PAGE_SHOW'; // detail page show property
+	public const FEATURE_ID_LIST_PAGE_SHOW = 'LIST_PAGE_SHOW'; // show property in element list
+	public const FEATURE_ID_DETAIL_PAGE_SHOW = 'DETAIL_PAGE_SHOW'; // detail page show property
 
 	/**
 	 * Add features for new property. Do not check features in database.
 	 *
 	 * @param int $propertyId	Property id.
 	 * @param array $features	Feature list.
-	 * @return Main\Entity\Result
+	 * @return Result
 	 */
-	public static function addFeatures($propertyId, array $features): Main\Entity\Result
+	public static function addFeatures($propertyId, array $features): Result
 	{
-		$result = new Main\Entity\Result();
+		$result = new Result();
 
 		$propertyId = (int)$propertyId;
 		if ($propertyId <= 0)
@@ -74,11 +74,11 @@ class PropertyFeature
 	 *
 	 * @param int $propertyId	Property id.
 	 * @param array $features	Feature list.
-	 * @return Main\Entity\Result
+	 * @return Result
 	 */
-	public static function updateFeatures($propertyId, array $features): Main\Entity\Result
+	public static function updateFeatures($propertyId, array $features): Result
 	{
-		$result = new Main\Entity\Result();
+		$result = new Result();
 
 		$propertyId = (int)$propertyId;
 		if ($propertyId <= 0)
@@ -148,11 +148,11 @@ class PropertyFeature
 	 *
 	 * @param int $propertyId	Property id.
 	 * @param array $features	Feature list.
-	 * @return Main\Entity\Result
+	 * @return Result
 	 */
-	public static function setFeatures($propertyId, array $features): Main\Entity\Result
+	public static function setFeatures($propertyId, array $features): Result
 	{
-		$result = new Main\Entity\Result();
+		$result = new Result();
 
 		$propertyId = (int)$propertyId;
 		if ($propertyId <= 0)

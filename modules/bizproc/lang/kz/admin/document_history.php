@@ -1,0 +1,20 @@
+<?php
+$MESS["BPADH_AUTHOR"] = "Автор";
+$MESS["BPADH_DELETE_DOC"] = "Жазбаны жою";
+$MESS["BPADH_DELETE_DOC_CONFIRM"] = "Бұл жазбаны жойғыңыз келетініне сенімдісіз бе?";
+$MESS["BPADH_ERROR"] = "Қате";
+$MESS["BPADH_F_AUTHOR"] = "Автор";
+$MESS["BPADH_F_AUTHOR_ANY"] = "кез келген";
+$MESS["BPADH_F_MODIFIED"] = "Өзгертілді";
+$MESS["BPADH_MODIFIED"] = "Өзгертілді";
+$MESS["BPADH_NAME"] = "Атауы";
+$MESS["BPADH_NO_DOC_ID"] = "Құжат коды көрсетілмеген";
+$MESS["BPADH_NO_ENTITY"] = "Құжаттың мәні көрсетілмеген";
+$MESS["BPADH_NO_PERMS"] = "Сізде осы құжаттың тарихына қол жеткізуге құқығыңыз жоқ";
+$MESS["BPADH_RECOVERY_DOC"] = "Құжатты қалпына келтіру";
+$MESS["BPADH_RECOVERY_DOC_CONFIRM"] = "Осы жазбадан құжатты қалпына келтіргіңіз келетініне сенімдісіз бе?";
+$MESS["BPADH_RECOVERY_ERROR"] = "Тарихтан жазбаны қалпына келтіру мүмкін болмады";
+$MESS["BPADH_RECOVERY_SUCCESS"] = "Жазба тарихтан сәтті қалпына келтірілді";
+$MESS["BPADH_TITLE"] = "Құжат тарихы";
+$MESS["BPADH_USER_PROFILE"] = "Пайдаланушы профилі";
+$MESS["BPADH_VIEW_DOC"] = "Құжатты қарау";

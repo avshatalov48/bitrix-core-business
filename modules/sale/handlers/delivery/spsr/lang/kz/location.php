@@ -1,0 +1,22 @@
+<?php
+$MESS["SALE_DLV_SRV_SPSR_AUT"] = "АВТ";
+$MESS["SALE_DLV_SRV_SPSR_AUTONOMOUS"] = "АВТОНОМДЫ";
+$MESS["SALE_DLV_SRV_SPSR_LOC_CHECK_MAPPED"] = "Біз қай орналасу сәйкестендірілгенін тексерудеміз";
+$MESS["SALE_DLV_SRV_SPSR_LOC_CSV"] = "CSV файлындағы кодтар бойынша орналасуларды сәйкестендірудеміз";
+$MESS["SALE_DLV_SRV_SPSR_LOC_EX_CHUV_1"] = "Чуваш респ.";
+$MESS["SALE_DLV_SRV_SPSR_LOC_EX_CHUV_2"] = "ЧУВАШ РЕСПУБЛИКАСЫ";
+$MESS["SALE_DLV_SRV_SPSR_LOC_EX_EAO_1"] = "Еврей авт.обл. ";
+$MESS["SALE_DLV_SRV_SPSR_LOC_EX_EAO_2"] = "ЕВРЕЙ АВТОНОМИЯЛЫҚ ОБЛЫСЫ";
+$MESS["SALE_DLV_SRV_SPSR_LOC_EX_HM_1"] = "Ханты - Мансийск автономиялық округі-Югра";
+$MESS["SALE_DLV_SRV_SPSR_LOC_EX_HM_2"] = "ХАНТЫ-МАНСИЙСК АВТОНОМИЯЛЫҚ ОКРУГІ";
+$MESS["SALE_DLV_SRV_SPSR_LOC_EX_KR_1"] = "Крым респ.";
+$MESS["SALE_DLV_SRV_SPSR_LOC_EX_KR_2"] = "КРЫМ";
+$MESS["SALE_DLV_SRV_SPSR_LOC_INST_ERROR"] = "СПСР орналасу кодтарының сәйкестігін орнату қатесі";
+$MESS["SALE_DLV_SRV_SPSR_LOC_MAP_BY_NAME"] = "Атаулар бойынша орналасуды сәйкестендірудеміз";
+$MESS["SALE_DLV_SRV_SPSR_LOC_MAP_FINISHED"] = "Орналасуларды сәйкестендіру аяқталды";
+$MESS["SALE_DLV_SRV_SPSR_LOC_MAP_STAGE_ERROR"] = "Орналасуларды сәйкестендірудің белгісіз кезеңі";
+$MESS["SALE_DLV_SRV_SPSR_LOC_NORM"] = "Орналасу атауларын қалыпқа келтірудеміз";
+$MESS["SALE_DLV_SRV_SPSR_REPUBLIC"] = "РЕСПУБЛИКАСЫ";
+$MESS["SALE_DLV_SRV_SPSR_RESP"] = "РЕСП";
+$MESS["SALE_DLV_SRV_SPSR_RUSSIA"] = "Ресей";
+$MESS["SALE_DLV_SRV_SPSR_TMP_TBL_ERROR"] = "СПСР орналасуын уақыт кестесіне сақтау қатесі";

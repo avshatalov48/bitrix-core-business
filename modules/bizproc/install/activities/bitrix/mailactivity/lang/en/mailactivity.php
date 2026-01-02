@@ -1,11 +1,7 @@
 <?php
-$MESS["BPMA_ATTACHMENT"] = "Attachments";
 $MESS["BPMA_ATTACHMENT_1"] = "Files";
-$MESS["BPMA_ATTACHMENT_DISK"] = "Drive files";
 $MESS["BPMA_ATTACHMENT_DISK_1"] = "Drive";
-$MESS["BPMA_ATTACHMENT_FILE"] = "Files";
 $MESS["BPMA_ATTACHMENT_FILE_1"] = "Item fields";
-$MESS["BPMA_ATTACHMENT_TYPE"] = "Attachment type";
 $MESS["BPMA_ATTACHMENT_TYPE_1"] = "Source";
 $MESS["BPMA_EMPTY_PROP1"] = "The 'Sender' parameter is missing.";
 $MESS["BPMA_EMPTY_PROP2"] = "The 'Recipient' parameter is missing.";

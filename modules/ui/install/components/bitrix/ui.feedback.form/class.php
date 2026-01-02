@@ -46,8 +46,8 @@ class UiFeedbackForm extends CBitrixComponent
 			$feedbackForm->setPortalUri($this->arParams['PORTAL_URI']);
 		}
 
-		$this->arResult['FORM'] = $feedbackForm->getFormParams();
-		if (!$this->arResult['FORM'])
+		$this->arResult['FORM'] = $feedbackForm->getCurrentForm();
+		if (!isset($this->arResult['FORM']))
 		{
 			return;
 		}
@@ -56,8 +56,17 @@ class UiFeedbackForm extends CBitrixComponent
 		$this->arResult['PORTAL_URI'] = $feedbackForm->getPortalUri();
 		$this->arResult['JS_OBJECT_PARAMS'] = $feedbackForm->getJsObjectParams();
 
-		$this->arParams['VIEW_TARGET'] = array_key_exists('VIEW_TARGET', $this->arParams) ? $this->arParams['VIEW_TARGET'] : 'pagetitle';
+		$this->arParams['VIEW_TARGET'] =
+			array_key_exists('VIEW_TARGET', $this->arParams)
+				? $this->arParams['VIEW_TARGET']
+				: 'pagetitle'
+		;
 
-		$this->includeComponentTemplate();
+		$template = '';
+		if (($this->arParams['INLINE'] ?? false) === true)
+		{
+			$template = 'inline';
+		}
+		$this->includeComponentTemplate($template);
 	}
 }

@@ -84,10 +84,10 @@ if (isset($_POST['download-files']))
 	\Bitrix\Main\Application::getInstance()->end();
 }
 
-$grid_options = new Bitrix\Main\Grid\Options('report_list');
+$grid_options = new Bitrix\Main\Grid\Options('xscan_report_list');
 $nav_params = $grid_options->GetNavParams();
 
-$nav = new \Bitrix\Main\UI\PageNavigation("report_list");
+$nav = new \Bitrix\Main\UI\PageNavigation("xscan_report_list");
 $nav->allowAllRecords(false)
 	->setPageSize($nav_params['nPageSize'])
 ;
@@ -100,7 +100,7 @@ if (isset($_GET['clear_nav']) && $_GET['clear_nav'] == 'Y')
 }
 elseif (isset($_GET['grid_action']) && $_GET['grid_action'] === 'more' && $_GET['grid_id'] === $grid_options->getId())
 {
-	$nav->setCurrentPage($_GET['report_list']);
+	$nav->setCurrentPage($_GET['xscan_report_list']);
 }
 elseif (isset($_GET['grid_action']) && $_GET['grid_action'] === 'pagination')
 {
@@ -129,7 +129,7 @@ $start_path = rtrim($start_path, '/');
 				BX.SidePanel.Instance.close();
 			} else if (BX('alert_msg')) {
 				BX('alert_msg').innerHTML = result;
-				GridRenew();
+				renew_grid();
 			} else {
 				window.close();
 			}
@@ -319,7 +319,7 @@ if (!isset($_REQUEST['grid_action']))
 				</div>
 
 				<div class="ui-form-content">
-					<button type="submit" onclick="Start();" id="start_button"
+					<button type="submit" onclick="strart_scan();" id="start_button"
 							class="ui-btn ui-btn-primary"><?= GetMessage("BITRIX_XSCAN_START_SCAN") ?></button>
 				</div>
 			</div>
@@ -337,11 +337,11 @@ if (!isset($_REQUEST['grid_action']))
 
 		function xscan_download(files)
 		{
-			var gridObject = BX.Main.gridManager.getById("report_list");
+			var gridObject = BX.Main.gridManager.getById("xscan_report_list");
 			var grid = gridObject.instance
 			var selectedIds = grid.getRows().getSelectedIds();
 
-			var checkboxAll = document.getElementById('actallrows_report_list')
+			var checkboxAll = document.getElementById('actallrows_xscan_report_list')
 			var inputCheckbox = document.getElementById('download-checkbox')
 			if (checkboxAll.checked) {
 				inputCheckbox.value = true
@@ -359,11 +359,11 @@ if (!isset($_REQUEST['grid_action']))
 
 		function xscan_hide_files(files)
 		{
-			var gridObject = BX.Main.gridManager.getById("report_list");
+			var gridObject = BX.Main.gridManager.getById("xscan_report_list");
 			var grid = gridObject.instance
 			var selectedIds = grid.getRows().getSelectedIds();
 
-			var checkboxAll = document.getElementById('actallrows_report_list')
+			var checkboxAll = document.getElementById('actallrows_xscan_report_list')
 			BX.ajax.runAction('security.xscan.hidefiles',
 				{
 					data: {
@@ -371,31 +371,43 @@ if (!isset($_REQUEST['grid_action']))
 						all: checkboxAll.checked == true
 					}
 				}
-			).then(function (response) {GridRenew();});
+			).then(function (response) {renew_grid();});
 
 		return true;
 		}
 
-		function Start()
+		function strart_scan()
 		{
 			BX('start_button').classList.add('ui-btn-wait');
 			BX('start_button').disabled = true;
 			BX('alert_msg').innerHTML = '';
-			go('Y');
+			scan('Y');
 		}
 
-		function GridRenew()
+		function renew_grid()
 		{
-			var gridObject = BX.Main.gridManager.getById("report_list");
+			var gridObject = BX.Main.gridManager.getById("xscan_report_list");
 
 			if (gridObject.hasOwnProperty('instance')) {
 				gridObject.instance.reloadTable('POST', {});
 			}
 		}
 
-		function go(clean = 'N', progress = 0, total = 0, break_point = '')
+		xhrObject = null;
+
+		function onerror(progress, total, break_point){
+			if (xhrObject && xhrObject.getResponseHeader('xscan-bp')) {
+				bp = xhrObject.getResponseHeader('xscan-bp');
+				renew_grid();
+				BX.ajax.runAction('security.xscan.addError', { data: {file: bp }}).then(function (response) {
+					scan('N', progress, total, break_point);
+				});
+			}
+		}
+
+		function scan(clean = 'N', progress = 0, total = 0, break_point = '')
 		{
-			BX.ajax({
+			BX.ajax.promise({
 				url: '/bitrix/services/main/ajax.php?action=security.xscan.scan',
 				method: 'POST',
 				data: {
@@ -406,10 +418,21 @@ if (!isset($_REQUEST['grid_action']))
 					break_point: break_point,
 					start_path: BX('start_path').value,
 				},
-				onsuccess: function (result) {
-					result = JSON.parse(result);
-					result = result.data;
-					GridRenew();
+				onrequeststart: function (xhr) {
+					xhrObject = xhr;
+				}
+			}).then(
+				function (result) {
+					try {
+						result = JSON.parse(result);
+						result = result.data;
+					}
+					catch (e){
+						return onerror(progress, total, break_point);
+					}
+
+
+					renew_grid();
 					if (result['error']) {
 						BX('alert_msg').innerHTML = result['error'];
 					}
@@ -425,22 +448,16 @@ if (!isset($_REQUEST['grid_action']))
 							BX('progress').innerHTML = result['progress'];
 						}
 
-						go('N', result['progress'], result['total'], result['break_point']);
+						scan('N', result['progress'], result['total'], result['break_point']);
 					} else {
 						BX('start_button').classList.remove('ui-btn-wait');
 						BX('start_button').disabled = false;
 						BX('progress_bar').style.display = 'none';
 					}
-				},
-				onfailure: function (err, status, conf) {
-					if (conf && conf.xhr && conf.xhr.getResponseHeader('xscan-bp')) {
-						bp = conf.xhr.getResponseHeader('xscan-bp');
-						GridRenew();
-						BX.ajax.runAction('security.xscan.addError', { data: {file: bp }}).then(function (response) {
-							go('N', progress, total, break_point);
-						});
-					}
 				}
+
+			).catch( function(err) {
+				onerror(progress, total, break_point);
 			});
 		}
 
@@ -452,10 +469,14 @@ if (!isset($_REQUEST['grid_action']))
 							".*action=showfile&file=.*",
 						],
 						loader: "xscan",
-
-						options: {
-							animationDuration: 1,
-							cacheable: false
+						handler: function (event, link){
+							if (document.getSelection().toString() == ''){
+								BX.SidePanel.Instance.open(link.url, {
+									animationDuration: 1,
+									cacheable: false
+								})
+							}
+							event.preventDefault();
 						}
 					}
 				]
@@ -467,7 +488,7 @@ if (!isset($_REQUEST['grid_action']))
 			if (a.eventId == 'xscan-grid') {
 				result = a.data.result;
 				BX('alert_msg').innerHTML = result;
-				GridRenew();
+				renew_grid();
 			}
 		}
 
@@ -495,8 +516,8 @@ if (!isset($_REQUEST['grid_action']))
 		"bitrix:main.ui.filter",
 		"",
 		[
-			"FILTER_ID" => 'report_filter',
-			"GRID_ID" => 'report_list',
+			"FILTER_ID" => 'xscan_report_filter',
+			"GRID_ID" => 'xscan_report_list',
 			"FILTER" => [
 				[
 					"id" => "mtime",
@@ -521,6 +542,7 @@ if (!isset($_REQUEST['grid_action']))
 						'no_prolog' => 'no_prolog',
 						'obfuscator' => 'obfuscator',
 						'lang' => 'lang',
+						'included' => 'included',
 						'hidden' => 'hidden',
 						'random_name' => 'random_name',
 						'marketplace' => 'marketplace',
@@ -584,7 +606,7 @@ $APPLICATION->IncludeComponent(
 	'bitrix:main.ui.grid',
 	'',
 	[
-		'GRID_ID' => 'report_list',
+		'GRID_ID' => 'xscan_report_list',
 		'COLUMNS' => [
 			['id' => 'ID', 'name' => 'id', 'sort' => 'ID', 'default' => true],
 			['id' => 'FILE_NAME', 'name' => GetMessage("BITRIX_XSCAN_NAME"), 'default' => true],

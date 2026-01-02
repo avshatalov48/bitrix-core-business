@@ -1,0 +1,1 @@
+{"version":3,"file":"highlighter.bundle.map.js","names":["this","BX","UI","exports","System"],"sources":["highlighter.bundle.js"],"mappings":"AACAA,KAAKC,GAAKD,KAAKC,IAAM,CAAC,EACtBD,KAAKC,GAAGC,GAAKF,KAAKC,GAAGC,IAAM,CAAC,GAC3B,SAAUC,GACV,YAID,EALA,CAKGH,KAAKC,GAAGC,GAAGE,OAASJ,KAAKC,GAAGC,GAAGE,QAAU,CAAC","ignoreList":[]}

@@ -13,6 +13,9 @@ class CPullChannel
 
 	private const CACHE_TABLE = "b_pull_channel";
 
+	// cache key is calculated with the `getLockKey` method
+	private static array $staticCache = [];
+
 	public static function GetNewChannelId($suffix = '')
 	{
 		global $APPLICATION;
@@ -46,19 +49,33 @@ class CPullChannel
 		{
 			return false;
 		}
+		if ($userId && !self::isUserActive($userId))
+		{
+			return false;
+		}
+
 		$channelType = (string)$channelType ?: self::TYPE_PRIVATE;
 		$lockId = self::getLockKey($userId, $channelType);
 
-		$arResult = static::getInternal($userId, $channelType);
-		if ($arResult && intval($arResult['DATE_CREATE']) + self::CHANNEL_TTL > time())
+		$cached = self::$staticCache[$lockId];
+		if ($cached && !self::isExpired($cached['CHANNEL_DT']))
 		{
-			return [
+			return $cached;
+		}
+
+		$arResult = static::getInternal($userId, $channelType);
+		if ($arResult && !self::isExpired($arResult['DATE_CREATE']))
+		{
+			$result = [
 				'CHANNEL_ID' => $arResult['CHANNEL_ID'],
 				'CHANNEL_PUBLIC_ID' => $arResult['CHANNEL_PUBLIC_ID'],
 				'CHANNEL_TYPE' => $arResult['CHANNEL_TYPE'],
 				'CHANNEL_DT' => $arResult['DATE_CREATE'],
 				'LAST_ID' => $arResult['LAST_ID'],
 			];
+			self::$staticCache[$lockId] = $result;
+
+			return $result;
 		}
 
 		$connection = \Bitrix\Main\Application::getConnection();
@@ -71,24 +88,19 @@ class CPullChannel
 
 		// try reading once again, because DB state could be changed in a concurrent process
 		$arResult = static::getInternal($userId, $channelType);
-		if ($arResult && intval($arResult['DATE_CREATE']) + self::CHANNEL_TTL > time())
+		if ($arResult && !self::isExpired($arResult['DATE_CREATE']))
 		{
 			$connection->unlock($lockId);
-
-			return [
+			$result = [
 				'CHANNEL_ID' => $arResult['CHANNEL_ID'],
 				'CHANNEL_PUBLIC_ID' => $arResult['CHANNEL_PUBLIC_ID'],
 				'CHANNEL_TYPE' => $arResult['CHANNEL_TYPE'],
 				'CHANNEL_DT' => $arResult['DATE_CREATE'],
 				'LAST_ID' => $arResult['LAST_ID'],
 			];
-		}
+			self::$staticCache[$lockId] = $result;
 
-		if ($userId && !self::isUserActive($userId))
-		{
-			$connection->unlock($lockId);
-
-			return false;
+			return $result;
 		}
 
 		$channelId = self::GetNewChannelId();
@@ -114,13 +126,16 @@ class CPullChannel
 			self::sendChannelExpired($userId, $channelType, $arResult['CHANNEL_ID'], $channelId);
 		}
 
-		return [
+		$result = [
 			'CHANNEL_ID' => $channelId,
 			'CHANNEL_PUBLIC_ID' => $publicChannelId,
 			'CHANNEL_TYPE' => $channelType,
 			'CHANNEL_DT' => time(),
 			'LAST_ID' => 0,
 		];
+		self::$staticCache[$lockId] = $result;
+
+		return $result;
 	}
 
 	private static function getInternal(int $userId, $channelType = self::TYPE_PRIVATE)
@@ -154,6 +169,11 @@ class CPullChannel
 		;
 
 		return $userData && $userData['ACTIVE'] === 'Y';
+	}
+
+	private static function isExpired(int $timestamp): bool
+	{
+		return $timestamp + self::CHANNEL_TTL <= time();
 	}
 
 	public static function SignChannel($channelId)

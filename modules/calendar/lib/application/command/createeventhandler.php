@@ -11,6 +11,8 @@ use Bitrix\Calendar\Core\Builders\EventBuilderFromArray;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Core\Mappers\Factory;
+use Bitrix\Calendar\Core\Role\Role;
+use Bitrix\Calendar\Core\Role\User;
 use Bitrix\Calendar\Core\Section\Section;
 use Bitrix\Calendar\Event\Event\AfterCalendarEventCreated;
 use Bitrix\Calendar\Integration\Intranet\UserService;
@@ -44,6 +46,18 @@ class CreateEventHandler implements CommandHandler
 
 		// convert array into domain Event
 		$event = (new EventBuilderFromArray($this->getEventFields($command, $section)))->build();
+
+		/*
+		if the event is created in a user calendar and the owner of the calendar is not the current user,
+		then we need to add the owner of the calendar to the list of attendees (if he is not already there)
+		and make the event a meeting
+		*/
+		if ($this->checkShouldAddOwnerToEvent($event, $section->getOwner()))
+		{
+			$event->getAttendeesCollection()?->addAttendee($section->getOwner()?->getId());
+			$event->setIsMeeting(true);
+		}
+
 		if ($event->isOpenEvent())
 		{
 			$event->setAttendeesCollection(null);
@@ -197,10 +211,15 @@ class CreateEventHandler implements CommandHandler
 	}
 
 	/**
+	 * @param Factory $mapperFactory
+	 * @param CreateEventCommand $command
+	 *
+	 * @return Section
 	 * @throws ExtranetPermissionDenied
 	 * @throws SectionNotFound
+	 * @throws \Bitrix\Main\ArgumentException
 	 */
-	public function getSection(Factory $mapperFactory, CreateEventCommand $command): Section
+	private function getSection(Factory $mapperFactory, CreateEventCommand $command): Section
 	{
 		/** @var Section $section */
 		$section = $mapperFactory->getSection()->getById($command->getSectionId());
@@ -215,5 +234,25 @@ class CreateEventHandler implements CommandHandler
 		}
 
 		return $section;
+	}
+
+	/**
+	 * @param Event $event
+	 * @param Role|null $owner
+	 *
+	 * @return bool
+	 */
+	private function checkShouldAddOwnerToEvent(
+		Event $event,
+		?Role $owner
+	): bool
+	{
+		return $owner
+			&& $owner->getId() !== null
+			&& $owner->getType() === User::TYPE
+			&& $event->getEventHost()?->getId() !== null
+			&& $owner->getId() !== $event->getEventHost()?->getId()
+			&& $event->getAttendeesCollection()?->hasAttendeeId($owner->getId())
+		;
 	}
 }

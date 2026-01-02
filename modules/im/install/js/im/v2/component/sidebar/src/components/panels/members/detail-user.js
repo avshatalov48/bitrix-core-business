@@ -1,7 +1,9 @@
-import { ChatAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { ChatTitle } from 'im.v2.component.elements.chat-title';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 import { Utils } from 'im.v2.lib.utils';
+import { CopilotManager } from 'im.v2.lib.copilot';
 
-import type { ImModelBot, ImModelUser } from 'im.v2.model';
+import type { ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const DetailUser = {
@@ -38,7 +40,7 @@ export const DetailUser = {
 		{
 			if (this.isCopilot)
 			{
-				return this.$store.getters['copilot/getProvider'];
+				return (new CopilotManager()).getAIModelName(this.dialogId);
 			}
 
 			return this.$store.getters['users/getPosition'](this.dialogId);
@@ -53,13 +55,7 @@ export const DetailUser = {
 		},
 		needContextMenu(): boolean
 		{
-			const bot: ImModelBot = this.$store.getters['users/bots/getByUserId'](this.dialogId);
-			if (!bot)
-			{
-				return true;
-			}
-
-			return bot.code !== 'copilot';
+			return !this.isAiAssistant && !this.isCopilot;
 		},
 		isCopilot(): boolean
 		{
@@ -70,6 +66,10 @@ export const DetailUser = {
 		hasLink(): boolean
 		{
 			return !this.isCopilot;
+		},
+		isAiAssistant(): boolean
+		{
+			return this.$store.getters['users/bots/isAiAssistant'](this.dialogId);
 		},
 	},
 	methods:

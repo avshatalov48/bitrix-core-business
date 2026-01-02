@@ -2,6 +2,7 @@
 
 namespace Bitrix\Bizproc\Controller;
 
+use Bitrix\Bizproc\Api\Request\WorkflowStateService\GetEfficiencyDataRequest;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
@@ -16,23 +17,6 @@ use Bitrix\Bizproc;
 class Workflow extends Base
 {
 	private const PAGE_SIZE = 20;
-
-	private function getWorkflowEfficiency(int $currentDuration, ?int $averageDuration): string
-	{
-		if (null === $averageDuration)
-		{
-			return 'first';
-		}
-		if ($currentDuration < $averageDuration)
-		{
-			return 'fast';
-		}
-		if ($currentDuration < ($averageDuration + 259200)) // трое суток
-		{
-			return  'slow';
-		}
-		return  'stopped';
-	}
 
 	public function getTimelineAction(string $workflowId): ?array
 	{
@@ -73,14 +57,24 @@ class Workflow extends Base
 		$data['users'] = $response->getUserViews();
 		$duration = $workflowStateService->getAverageWorkflowDuration(
 			new GetAverageWorkflowDurationRequest($workflowState->getWorkflowTemplateId())
-		)->getAverageDuration();
+		)->getRoundedAverageDuration();
+		$executionTime = $workflowStateService->getExecutionTime(
+			new Bizproc\Api\Request\WorkflowStateService\GetExecutionTimeRequest(
+				workflowId: $workflowState->getId(),
+				workflowStarted: $workflowState->getStarted(),
+				workflowModified: $workflowState->getModified()
+			)
+		)->getRoundedExecutionTime();
+		$efficiencyData = $workflowStateService->getEfficiencyData(
+			new GetEfficiencyDataRequest(
+				executionTime: $executionTime ?? 0,
+				averageDuration: $duration
+			)
+		);
 
 		$data['stats'] = [
-			'averageDuration' => $duration,
-			'efficiency' => $this->getWorkflowEfficiency(
-				$timeline->getExecutionTime() ?? 0,
-				$duration
-			),
+			'averageDuration' => $efficiencyData->getAverageDuration(),
+			'efficiency' => $efficiencyData->getEfficiency(),
 		];
 
 		$data['biMenu'] = $this->getBiMenu($workflowState->getWorkflowTemplateId());

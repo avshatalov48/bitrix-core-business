@@ -32,11 +32,10 @@ $arErrorCodes = [
 	256 => 'E_USER_ERROR',
 	512 => 'E_USER_WARNING',
 	1024 => 'E_USER_NOTICE',
-	2048 => 'E_STRICT',
 	4096 => 'E_RECOVERABLE_ERROR',
 	8192 => 'E_DEPRECATED',
 	16384 => 'E_USER_DEPRECATED',
-	6143 => 'E_ALL',
+	30719 => 'E_ALL',
 ];
 
 $sTableID = 'tbl_perfmon_error_list';

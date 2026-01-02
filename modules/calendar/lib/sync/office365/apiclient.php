@@ -11,7 +11,7 @@ use Bitrix\Calendar\Sync\Internals\ContextInterface;
 use Bitrix\Calendar\Sync\Internals\HasContextTrait;
 use Bitrix\Calendar\Sync\Exceptions\ConflictException;
 use Bitrix\Calendar\Sync\Exceptions\NotFoundException;
-use Bitrix\Calendar\Sync\Util\RequestLogger;
+use Bitrix\Calendar\Synchronization\Internal\Service\Logger\RequestLogger;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
@@ -26,7 +26,7 @@ class ApiClient
 
 	/** @var HttpClient */
 	protected HttpClient $httpClient;
-	/** @var RequestLogger */
+
 	protected RequestLogger $logger;
 
 	/**

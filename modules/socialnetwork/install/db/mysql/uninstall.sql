@@ -48,3 +48,4 @@ DROP TABLE if exists b_sonet_space_live_watch;
 DROP TABLE if exists b_sonet_event_queue;
 DROP TABLE if exists b_sonet_collab_option;
 DROP TABLE if exists b_sonet_collab_log;
+DROP TABLE if exists b_sonet_onboarding_queue;

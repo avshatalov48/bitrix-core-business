@@ -79,6 +79,7 @@ if (isset($_GET['sort_type']) && in_array($_GET['sort_type'], array('ASC', 'DESC
 }
 
 // pagen
+$perPage = 0;
 if (isset($arParams['ROWS_PER_PAGE']) && $arParams['ROWS_PER_PAGE']>0)
 {
 	$pagenId = isset($arParams['PAGEN_ID']) && trim($arParams['PAGEN_ID']) != '' ? trim($arParams['PAGEN_ID']) : 'page';
@@ -140,14 +141,13 @@ while ($row = $result->fetch())
 {
 	foreach ($row as $k => $v)
 	{
-		$arUserField = $fields[$k];
-
-		if ($k == 'ID')
+		if ($k === 'ID')
 		{
 			$tableColumns['ID'] = true;
 			continue;
 		}
-		if ($arUserField['SHOW_IN_LIST'] != 'Y')
+		$arUserField = $fields[$k];
+		if ($arUserField['SHOW_IN_LIST'] !== 'Y')
 		{
 			continue;
 		}

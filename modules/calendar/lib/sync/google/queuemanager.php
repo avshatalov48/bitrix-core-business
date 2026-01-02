@@ -31,60 +31,6 @@ class QueueManager
 	public static function checkNotSendEvents(int $lastHandledId = 0): ?string
 	{
 		return true;
-
-		if (!CCalendar::isGoogleApiEnabled())
-		{
-			return null;
-		}
-
-		$eventsDb = self::getEventsDb($lastHandledId);
-
-		if ($eventsDb === false)
-		{
-			return "\\Bitrix\\Calendar\\Sync\\Google\\QueueManager::checkNotSendEvents();";
-		}
-
-		$lastHandledId = 0;
-		while ($event = $eventsDb->Fetch())
-		{
-			$lastHandledId = $event['ID'];
-
-			if (GoogleApiPush::isAuthError($event['LAST_RESULT']))
-			{
-				continue;
-			}
-
-			$event = self::prepareEvent($event);
-
-			switch ($event['SYNC_STATUS'])
-			{
-				case Dictionary::SYNC_STATUS['create']:
-					self::createEvent($event);
-					break;
-				case Dictionary::SYNC_STATUS['update']:
-					self::updateEvent($event);
-					break;
-				case Dictionary::SYNC_STATUS['delete']:
-					self::deleteEvent($event);
-					break;
-				case Dictionary::SYNC_STATUS['instance']:
-					self::createInstance($event);
-					break;
-				case Dictionary::SYNC_STATUS['parent']:
-					self::updateParents($event);
-					break;
-				case Dictionary::SYNC_STATUS['next']:
-					self::updateNextEvents($event);
-					break;
-				case Dictionary::SYNC_STATUS['undefined']:
-					self::detectEventType($event);
-					break;
-				default:
-					self::detectEventType($event);
-			}
-		}
-
-		return "\\Bitrix\\Calendar\\Sync\\Google\\QueueManager::checkNotSendEvents(" . $lastHandledId . ");";
 	}
 
 	public static function checkIncompleteSync()
@@ -302,8 +248,8 @@ class QueueManager
 			. " INNER JOIN b_calendar_section s ON e.SECTION_ID = s.ID"
 			. " INNER JOIN b_dav_connections c ON c.ID = s.CAL_DAV_CON"
 			. " WHERE e.SYNC_STATUS <> 'success'"
-				. " AND e.ID > ".$lastHandledId
-				. " AND s.EXTERNAL_TYPE IN ('local', 'google')"
+			. " AND e.ID > ".$lastHandledId
+			. " AND s.EXTERNAL_TYPE IN ('local', 'google')"
 			. " ORDER BY e.ID ASC"
 			. " LIMIT 10"
 			. ";"

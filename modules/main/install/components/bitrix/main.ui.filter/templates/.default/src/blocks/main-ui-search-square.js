@@ -26,7 +26,8 @@
 			mix: mix,
 			attrs: {
 				'data-item': 'item' in data ? JSON.stringify(data.item) : '',
-				'title': title
+				'title': title,
+				'tabindex': '-1',
 			},
 			content: [
 				{

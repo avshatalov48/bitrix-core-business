@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2024 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Web\Http\Curl;
@@ -17,6 +17,8 @@ use Bitrix\Main\Web\Uri;
 
 class Handler extends Http\Handler
 {
+	protected static ?\CurlHandle $sharedHandle = null;
+
 	protected \CurlHandle $handle;
 	protected $logFileHandle;
 
@@ -27,16 +29,32 @@ class Handler extends Http\Handler
 	 */
 	public function __construct(RequestInterface $request, Http\ResponseBuilderInterface $responseBuilder, array $options = [])
 	{
-		Http\Handler::__construct($request, $responseBuilder, $options);
+		parent::__construct($request, $responseBuilder, $options);
 
-		$this->handle = curl_init();
+		if ($this->async)
+		{
+			// multihandle
+			$this->handle = curl_init();
+		}
+		else
+		{
+			// one shared handle for sync requests
+			if (static::$sharedHandle === null)
+			{
+				static::$sharedHandle = curl_init();
+			}
+			$this->handle = static::$sharedHandle;
+		}
 
 		$this->setOptions($options);
 	}
 
 	public function __destruct()
 	{
-		curl_close($this->handle);
+		if ($this->async)
+		{
+			curl_close($this->handle);
+		}
 
 		if (is_resource($this->logFileHandle))
 		{
@@ -130,6 +148,11 @@ class Handler extends Http\Handler
 			$curlOptions[CURLOPT_VERBOSE] = true;
 		}
 
+		if (!$this->async)
+		{
+			// shared handle
+			curl_reset($this->handle);
+		}
 		curl_setopt_array($this->handle, $curlOptions);
 	}
 
@@ -153,7 +176,7 @@ class Handler extends Http\Handler
 		if ($data === "\r\n")
 		{
 			// got all headers
-			$this->log("\n<<<RESPONSE\n" . $this->responseHeaders . "\n", HttpDebug::RESPONSE_HEADERS);
+			$this->log("\n<<<RESPONSE\n{headers}\n", HttpDebug::RESPONSE_HEADERS, ['headers' => $this->responseHeaders]);
 
 			// build the response for the next stage
 			$this->response = $this->responseBuilder->createFromString($this->responseHeaders);
@@ -220,12 +243,12 @@ class Handler extends Http\Handler
 			$logUri = new Uri((string)$this->request->getUri());
 			$logUri->convertToUnicode();
 
-			$this->log("***CONNECT to " . $logUri . "\n", HttpDebug::CONNECT);
+			$this->log("***CONNECT to {uri}\n", HttpDebug::CONNECT, ['uri' => $logUri]);
 
 			$request = $this->request->getMethod() . ' ' . $this->request->getRequestTarget() . ' HTTP/' . $this->request->getProtocolVersion() . "\n"
 				. implode("\n", $headers) . "\n";
 
-			$this->log(">>>REQUEST\n" . $request, HttpDebug::REQUEST_HEADERS);
+			$this->log(">>>REQUEST\n{request}", HttpDebug::REQUEST_HEADERS, ['request' => $request]);
 		}
 
 		return $headers;
@@ -237,5 +260,62 @@ class Handler extends Http\Handler
 	public function getHandle(): \CurlHandle
 	{
 		return $this->handle;
+	}
+
+	protected function getDiagnostics(): array
+	{
+		$stat = curl_getinfo($this->handle);
+
+		$handshake = 0.0;
+		if ($this->request->getUri()->getScheme() === 'https')
+		{
+			$handshake = round((float)curl_getinfo($this->handle, CURLINFO_APPCONNECT_TIME), 6);
+		}
+
+		return [
+			'connect' => round($stat['connect_time'] ?? 0.0, 6),
+			'handshake' => $handshake,
+			'request' => round($stat['pretransfer_time'] ?? 0.0, 6),
+			'total' => round($stat['total_time'] ?? 0.0, 6),
+		];
+	}
+
+	public function execute(): Http\Response
+	{
+		$fetchBody = true;
+		try
+		{
+			$status = curl_exec($this->handle);
+		}
+		catch (SkipBodyException)
+		{
+			$fetchBody = false;
+		}
+
+		if ($status !== false)
+		{
+			if ($fetchBody)
+			{
+				if ($this->debugLevel & HttpDebug::RESPONSE_BODY)
+				{
+					$this->log($this->response->getBody(), HttpDebug::RESPONSE_BODY);
+				}
+
+				// need to ajust the response headers (PSR-18)
+				$this->response->adjustHeaders();
+			}
+
+			$this->logDiagnostics();
+
+			return $this->response;
+		}
+		else
+		{
+			$error = curl_error($this->handle);
+
+			$this->getLogger()?->error($error . "\n");
+
+			throw new Http\NetworkException($this->request, $error);
+		}
 	}
 }

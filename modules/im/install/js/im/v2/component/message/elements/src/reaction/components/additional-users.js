@@ -1,27 +1,29 @@
-import {Core} from 'im.v2.application.core';
-import {UserListPopup} from 'im.v2.component.elements';
+import { Core } from 'im.v2.application.core';
+import { UserListPopup } from 'im.v2.component.elements.user-list-popup';
 
-import {UserService} from '../classes/user-service';
+import { UserService } from '../classes/user-service';
+
+import type { JsonObject } from 'main.core';
 
 // @vue/component
 export const AdditionalUsers = {
-	components: {UserListPopup},
+	components: { UserListPopup },
 	props: {
 		messageId: {
 			type: [String, Number],
-			required: true
+			required: true,
 		},
 		reaction: {
 			type: String,
-			required: true
+			required: true,
 		},
 		show: {
 			type: Boolean,
-			required: true
+			required: true,
 		},
 		bindElement: {
 			type: Object,
-			required: true
+			required: true,
 		},
 		contextDialogId: {
 			type: String,
@@ -29,12 +31,12 @@ export const AdditionalUsers = {
 		},
 	},
 	emits: ['close'],
-	data()
+	data(): JsonObject
 	{
 		return {
 			showPopup: false,
 			loadingAdditionalUsers: false,
-			additionalUsers: []
+			additionalUsers: [],
 		};
 	},
 	watch:
@@ -46,7 +48,7 @@ export const AdditionalUsers = {
 				this.showPopup = true;
 				this.loadUsers();
 			}
-		}
+		},
 	},
 	methods:
 	{
@@ -54,7 +56,7 @@ export const AdditionalUsers = {
 		{
 			this.loadingAdditionalUsers = true;
 			this.getUserService().loadReactionUsers(this.messageId, this.reaction)
-				.then(userIds => {
+				.then((userIds) => {
 					this.additionalUsers = userIds;
 					this.loadingAdditionalUsers = false;
 				})
@@ -71,7 +73,7 @@ export const AdditionalUsers = {
 		{
 			const firstViewerId = this.dialog.lastMessageViews.firstViewer.userId;
 
-			return userIds.filter(userId => {
+			return userIds.filter((userId) => {
 				return userId !== Core.getUserId() && userId !== firstViewerId;
 			});
 		},
@@ -98,5 +100,5 @@ export const AdditionalUsers = {
 			:forceTop="true"
 			@close="onPopupClose"
 		/>
-	`
+	`,
 };

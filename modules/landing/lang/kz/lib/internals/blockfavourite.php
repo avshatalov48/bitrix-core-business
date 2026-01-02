@@ -1,0 +1,4 @@
+<?php
+$MESS["LANDING_TABLE_BLOCK_FAVOURITE_FIELD_CODE"] = "Блоктың символдық коды";
+$MESS["LANDING_TABLE_BLOCK_FAVOURITE_FIELD_DATE_CREATE"] = "Блокты қосу күні";
+$MESS["LANDING_TABLE_BLOCK_FAVOURITE_FIELD_USER_ID"] = "Пайдаланушы идентификаторы";

@@ -35,7 +35,7 @@ class MemberEntities extends BaseController
 			}
 		}
 
-		$departments = Converter::convertFromFinderCodes((new Structure($chat))->getChatDepartments());
+		$departments = Converter::convertFromFinderCodes((new Structure($chat))->getNodesAccessCodes());
 		foreach ($departments as $key => $department)
 		{
 			if (is_numeric($department[1]))

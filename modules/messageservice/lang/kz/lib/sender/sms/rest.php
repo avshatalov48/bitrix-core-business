@@ -1,0 +1,6 @@
+<?php
+$MESS["MESSAGESERVICE_SENDER_SMS_REST_ERROR_APP_NOT_FOUND"] = "Жіберуге арналған қосымша тіркелмеген немесе жойылған";
+$MESS["MESSAGESERVICE_SENDER_SMS_REST_ERROR_CAN_USE"] = "REST API арқылы жіберу қызметі қолжетімсіз.";
+$MESS["MESSAGESERVICE_SENDER_SMS_REST_ERROR_PAYMENT_ALLOW"] = "Қосымша төленбеген";
+$MESS["MESSAGESERVICE_SENDER_SMS_REST_ERROR_SESSION"] = "REST сессиясы бұғатталған";
+$MESS["MESSAGESERVICE_SENDER_SMS_REST_NAME"] = "REST API арқылы SMS";

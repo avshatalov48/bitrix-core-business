@@ -1,0 +1,25 @@
+<?php
+$MESS["CDEN_DELETE_DISCOUNT"] = "Купонды жою";
+$MESS["CDEN_DELETE_DISCOUNT_CONFIRM"] = "Бұл купонды жойғыңыз келетініне сенімдісіз бе?";
+$MESS["CDEN_NEW_DISCOUNT"] = "Жаңа купонды қосу";
+$MESS["CDEN_TAB_DISCOUNT"] = "Купон";
+$MESS["CDEN_TAB_DISCOUNT_DESCR"] = "Купон параметрлері";
+$MESS["DDSC_CPN_DATE"] = "Купонды қолдану күні";
+$MESS["DSC_ACTIVE"] = "Белсенділік";
+$MESS["DSC_ADD_DISCOUNT"] = "Жеңілдікті қосу";
+$MESS["DSC_COUPON_TYPE"] = "Купон түрі";
+$MESS["DSC_CPN_CODE"] = "Купон коды";
+$MESS["DSC_CPN_DESCRIPTION"] = "Түсініктеме";
+$MESS["DSC_CPN_DISC"] = "Жеңілдік";
+$MESS["DSC_CPN_ERR_ADD"] = "Купонды қосу кезінде қате";
+$MESS["DSC_CPN_ERR_CODE"] = "Купон коды көрсетілмеген.";
+$MESS["DSC_CPN_ERR_DISC"] = "Купон жеңілдігі көрсетілмеген.";
+$MESS["DSC_CPN_ERR_UPDATE"] = "#ID# кодты купонды өзгерту кезінде қате";
+$MESS["DSC_CPN_GEN"] = "Кодты генерациялау";
+$MESS["DSC_CPN_ONE_ORDER_NOTE"] = "Назар аударыңыз! Бір тапсырыс купоны әр тапсырыс позициясының бағасына бөлек қолданылады!<br>Мысал ретінде мына жағдайды қарастырайық: 1000 рубль жеңілдік үшін бір тапсырыс купоны. Тапсырыста үш позиция бар: бағасы 300, 500 және 1100 рубль. Жеңілдік тек бір позицияға қолданылады - бағасы 1100 рубльдік.";
+$MESS["DSC_ERR_COUPON_GENERATE"] = "Купонды жасау қателігі";
+$MESS["DSC_ORDER"] = "Тапсырыстың барлық тауарларына қолданылады";
+$MESS["DSC_TIME"] = "Бір реттік";
+$MESS["DSC_TITLE_ADD"] = "Жаңа купонды қосылды";
+$MESS["DSC_TITLE_UPDATE"] = "#ID# коды бар купон параметрлерін өзгерту";
+$MESS["DSC_TO_LIST"] = "Купондар тізімі";

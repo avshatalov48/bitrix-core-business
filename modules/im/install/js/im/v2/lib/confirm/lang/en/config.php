@@ -3,6 +3,7 @@ $MESS["IM_LIB_CONFIRM_DELETE_COLLAB_TEXT"] = "This will delete the collab includ
 $MESS["IM_LIB_CONFIRM_DELETE_COLLAB_TITLE"] = "Delete collab";
 $MESS["IM_LIB_CONFIRM_DELETE_DESKTOP"] = "Are you sure you want to remove Bitrix24 from the list? #BR# It acts as a fast switch between your Bitrix24s helping you to keep on top of your notifications.";
 $MESS["IM_LIB_CONFIRM_DELETE_DESKTOP_CONFIRM"] = "Yes, remove";
+$MESS["IM_LIB_CONFIRM_DELETE_MESSAGES_TITLE"] = "Delete";
 $MESS["IM_LIB_CONFIRM_LEAVE_CHANNEL_TEXT"] = "Do you want to unsubscribe from the channel?";
 $MESS["IM_LIB_CONFIRM_LEAVE_CHANNEL_YES"] = "Yes";
 $MESS["IM_LIB_CONFIRM_LEAVE_CHAT_MSGVER_1"] = "Do you want to leave the chat?";
@@ -36,3 +37,5 @@ $MESS["IM_LIB_EXIT_DELETE_CHAT_TITLE"] = "Delete chat";
 $MESS["IM_LIB_EXIT_UPDATE_CHANNEL_TITLE"] = "Do you want to save the changes and proceed to managing the subscribers?";
 $MESS["IM_LIB_EXIT_UPDATE_CHAT_TEXT_CONFIRM"] = "Yes";
 $MESS["IM_LIB_EXIT_UPDATE_CHAT_TITLE"] = "Do you want to save the changes and proceed to managing the chat members?";
+$MESS["IM_LIB_CONFIRM_ACTIVE_CALL_CONFIRM"] = "Are you sure you want to close the page? Your call will disconnect if you close the page.";
+

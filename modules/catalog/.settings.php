@@ -96,7 +96,9 @@ return [
 					],
 				],
 			],
-			'extensions' => ['catalog.entity-selector'],
+			'extensions' => [
+				'catalog.entity-selector',
+			],
 		],
 		'readonly' => true,
 	],

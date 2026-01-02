@@ -1,5 +1,10 @@
 <?php
 
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Component\BaseForm;
@@ -23,11 +28,6 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UI\PageNavigation;
-
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
-{
-	die();
-}
 
 class CatalogProductVariationGridComponent
 	extends \CBitrixComponent
@@ -254,8 +254,15 @@ class CatalogProductVariationGridComponent
 								$copyItemMap[$sku->getHash()] = $copyItem->getId();
 								$fields = $copyItem->getFields();
 								unset(
-									$fields['ID'], $fields['IBLOCK_ID'], $fields['PREVIEW_PICTURE'],
-									$fields['DETAIL_PICTURE'], $fields['QUANTITY'], $fields['QUANTITY_RESERVED']
+									$fields['ID'],
+									$fields['IBLOCK_ID'],
+									$fields['XML_ID'],
+									$fields['PREVIEW_PICTURE'],
+									$fields['DETAIL_PICTURE'],
+									$fields['QUANTITY'],
+									$fields['QUANTITY_RESERVED'],
+									$fields['DATE_CREATE'],
+									$fields['CREATED_BY'],
 								);
 
 								$sku->setFields($fields);
@@ -482,27 +489,6 @@ class CatalogProductVariationGridComponent
 			if ((string)$id === $rawId)
 			{
 				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private function hasSkuProperties(\Bitrix\Catalog\v2\Sku\SkuCollection $skuCollection): bool
-	{
-		foreach ($skuCollection as $sku)
-		{
-			foreach ($sku->getPropertyCollection() as $property)
-			{
-				if ((int)$property->getId() === $sku->getIblockInfo()->getSkuPropertyId())
-				{
-					continue;
-				}
-
-				if (!$property->getPropertyValueCollection()->isEmpty())
-				{
-					return true;
-				}
 			}
 		}
 
@@ -944,7 +930,7 @@ class CatalogProductVariationGridComponent
 		return $this->getVariationLink(0);
 	}
 
-	private function canHaveSku()
+	private function canHaveSku(): bool
 	{
 		$iblockInfo = ServiceContainer::getIblockInfo($this->getIblockId());
 
@@ -1103,11 +1089,10 @@ class CatalogProductVariationGridComponent
 		);
 	}
 
-	private function getReservedDealsSliderLink()
+	private function getReservedDealsSliderLink(): bool|string
 	{
 		$sliderUrl = \CComponentEngine::makeComponentPath('bitrix:catalog.productcard.reserved.deal.list');
-		$sliderUrl = getLocalPath('components'.$sliderUrl.'/slider.php');
 
-		return $sliderUrl;
+		return getLocalPath('components'.$sliderUrl.'/slider.php');
 	}
 }

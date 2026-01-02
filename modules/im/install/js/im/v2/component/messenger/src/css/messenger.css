@@ -1,7 +1,3 @@
-.bx-im-messenger__scope * {
-	box-sizing: border-box;
-}
-
 .bx-im-messenger__slider {
 	height: 100%;
 }
@@ -11,27 +7,6 @@
 	height: 100%;
 	display: flex;
 	box-sizing: border-box;
-	overflow: hidden;
-}
-
-.bx-im-messenger__container * {
-	box-sizing: border-box;
-}
-
-.bx-im-messenger__container *::-webkit-scrollbar {
-	width:6px;
-}
-.bx-im-messenger__container *::-webkit-scrollbar-thumb {
-	background-color: transparent;
-	border-radius: 32px;
-}
-.bx-im-messenger__container *:hover::-webkit-scrollbar-thumb {
-	background-color: rgba(82, 92, 105, .2);
-	border-radius: 32px;
-}
-
-.bx-im-messenger__container.--desktop {
-	height: 100vh;
 	overflow: hidden;
 }
 
@@ -46,6 +21,12 @@
 	border-top-left-radius: var(--im-border-radius-sm);
 	border-bottom-left-radius: var(--im-border-radius-sm);
 	overflow: hidden;
+}
+
+/* in embedded mode border-radius is controlled by template */
+#messenger-embedded-application .bx-im-messenger__layout_container {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
 }
 
 .bx-im-messenger__layout_content {
@@ -68,7 +49,6 @@
 .bx-im-messenger__content_container {
 	flex: 1;
 	min-width: 0;
-	background-color: #fff;
 	position: relative;
 	overflow: hidden;
 }
@@ -97,20 +77,4 @@
 	width: 1px;
 	height: 1px;
 	overflow: hidden;
-}
-
-.bx-im-messenger__call_container {
-}
-
-.bx-im-messenger__call_container .bx-messenger-call-overlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	z-index: 200;
-}
-
-.bx-im-messenger__call_container .bx-messenger-call-overlay.bx-messenger-call-overlay-folded {
-	display: none;
 }

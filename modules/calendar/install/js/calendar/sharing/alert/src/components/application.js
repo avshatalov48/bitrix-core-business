@@ -4,7 +4,7 @@ export const Application = {
 	props: {
 		link: {
 			type: Object,
-			default: null
+			default: null,
 		},
 	},
 	name: 'Application',
@@ -15,10 +15,8 @@ export const Application = {
 		};
 	},
 	created()
-	{
-	},
-	methods: {
-	},
+	{},
+	methods: {},
 	template: `
 		<div class="calendar-sharing-alert-container">
 			<div class="calendar-sharing-alert-info">
@@ -32,5 +30,5 @@ export const Application = {
 				</div>
 			</div>
 		</div>
-	`
+	`,
 };

@@ -1,6 +1,5 @@
 <?php
 
-/*patchlimitationmutatormark1*/
 CModule::AddAutoloadClasses(
 	"fileman",
 	array(
@@ -24,7 +23,6 @@ IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/lang.ph
 include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin_tools.php");
 include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/fileman.php");
 include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/properties.php");
-/*patchlimitationmutatormark2*/
 
 CJSCore::RegisterExt('file_input', array(
 	'js' => '/bitrix/js/fileman/core_file_input.js',

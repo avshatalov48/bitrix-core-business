@@ -786,30 +786,34 @@ class CPosting
 
 			foreach ($arFiles as $arFile)
 			{
-				if ($post_arr['CHARSET'] <> '')
-				{
-					$from_charset = $post_arr['MSG_CHARSET'] ?: SITE_CHARSET;
-					$file_name = Encoding::convertEncoding($arFile['ORIGINAL_NAME'], $from_charset, $post_arr['CHARSET']);
-				}
-				else
-				{
-					$file_name = $arFile['ORIGINAL_NAME'];
-				}
-
-				$sBody .=
-					$eol . '--' . $sBoundary . $eol
-					. 'Content-Type: ' . $arFile['CONTENT_TYPE'] . '; name="' . $file_name . '"' . $eol
-					. 'Content-Transfer-Encoding: base64' . $eol
-					. 'Content-Disposition: attachment; filename="' . CMailTools::EncodeHeaderFrom($file_name, $post_arr['CHARSET']) . '"' . $eol . $eol;
-
 				$arTempFile = CFile::MakeFileArray($arFile['ID']);
-				$sBody .= chunk_split(
-					base64_encode(
-						file_get_contents($arTempFile['tmp_name'])
-					),
-					72,
-					$eol
-				);
+				if (is_array($arTempFile) && $arTempFile['tmp_name'])
+				{
+					if ($post_arr['CHARSET'] <> '')
+					{
+						$from_charset = $post_arr['MSG_CHARSET'] ?: SITE_CHARSET;
+						$file_name = Encoding::convertEncoding($arFile['ORIGINAL_NAME'], $from_charset, $post_arr['CHARSET']);
+					}
+					else
+					{
+						$file_name = $arFile['ORIGINAL_NAME'];
+					}
+
+					$sBody .= $eol
+						. '--' . $sBoundary . $eol
+						. 'Content-Type: ' . $arFile['CONTENT_TYPE'] . '; name="' . $file_name . '"' . $eol
+						. 'Content-Transfer-Encoding: base64' . $eol
+						. 'Content-Disposition: attachment; filename="' . CMailTools::EncodeHeaderFrom($file_name, $post_arr['CHARSET']) . '"' . $eol
+						. $eol
+						. chunk_split(
+							base64_encode(
+								file_get_contents($arTempFile['tmp_name'])
+							),
+							72,
+							$eol
+						)
+					;
+				}
 			}
 		}
 

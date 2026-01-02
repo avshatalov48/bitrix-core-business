@@ -1,44 +1,75 @@
+import { Text, Runtime } from 'main.core';
+
 import { Logger } from 'im.v2.lib.logger';
+import { Utils } from 'im.v2.lib.utils';
 
 import type { JsonObject } from 'main.core';
 
-const ApplicationLauncher = (app: string, params: JsonObject = {}) => {
-	let application = app;
-	const name = app.toString();
+export { ChatEmbeddedApplication } from './const';
+export type { ChatEmbeddedApplicationType, ChatEmbeddedApplicationInstance } from './const';
 
-	application = application.slice(0, 1).toUpperCase() + application.slice(1);
+const RESERVED_NAMES = new Set(['Launch', 'Core']);
 
-	if (application === 'Launch' || application === 'Core' || application.endsWith('Application'))
+type LaunchParams = JsonObject & { embedded: boolean };
+
+export const Launch = async (applicationName: string, params: LaunchParams = {}): Promise => {
+	const { embedded = false } = params;
+
+	if (!validateApplicationName(applicationName))
 	{
-		Logger.error('BX.Messenger.Application.Launch: specified name is forbidden.');
+		Logger.error('BX.Messenger.Application.Launch: specified name is forbidden');
 
 		return Promise.reject();
 	}
 
-	const launch = (): Promise => {
-		try
-		{
-			BX.Messenger.v2.Application[name] = new BX.Messenger.v2.Application[`${application}Application`](params);
-
-			return BX.Messenger.v2.Application[name].ready();
-		}
-		catch (error)
-		{
-			const errorMessage = `BX.Messenger.Application.Launch: application "${application}" is not initialized.`;
-			Logger.error(errorMessage, error);
-
-			return Promise.reject(errorMessage);
-		}
-	};
-
-	if (!BX.Messenger.v2.Application[`${application}Application`] && BX?.Runtime?.loadExtension)
+	if (!isApplicationLoaded(applicationName))
 	{
-		const loadExtension = `im.v2.application.${application.toString().toLowerCase()}`;
-
-		return BX.Runtime.loadExtension(loadExtension).then(() => launch());
+		await loadExtension(applicationName, embedded);
 	}
 
-	return launch();
+	const capitalizedName = Text.capitalize(applicationName);
+	const className = `${capitalizedName}Application`;
+
+	const preparedApplicationName = prepareApplicationName(applicationName, embedded);
+	try
+	{
+		BX.Messenger.v2.Application[preparedApplicationName] = new BX.Messenger.v2.Application[className](params);
+
+		return BX.Messenger.v2.Application[preparedApplicationName].ready();
+	}
+	catch (error)
+	{
+		const errorMessage = `BX.Messenger.Application.Launch: application "${capitalizedName}" is not initialized.`;
+		Logger.error(errorMessage, error);
+
+		return Promise.reject(errorMessage);
+	}
 };
 
-export { ApplicationLauncher as Launch };
+const validateApplicationName = (applicationName: string): boolean => {
+	const capitalizedName = Text.capitalize(applicationName);
+
+	return !RESERVED_NAMES.has(capitalizedName) && !capitalizedName.endsWith('Application');
+};
+
+const isApplicationLoaded = (applicationName: string): boolean => {
+	const capitalizedName = Text.capitalize(applicationName);
+	const className = `${capitalizedName}Application`;
+
+	return Boolean(BX.Messenger.v2.Application[className]);
+};
+
+const loadExtension = async (applicationName: string, embedded: boolean) => {
+	const extensionName = embedded ? `im.v2.application.integration.${applicationName}` : `im.v2.application.${applicationName}`;
+
+	return Runtime?.loadExtension(extensionName);
+};
+
+const prepareApplicationName = (applicationName: string, embedded: boolean): string => {
+	if (embedded)
+	{
+		return `${applicationName}_${Utils.text.getUuidV4()}`;
+	}
+
+	return applicationName;
+};

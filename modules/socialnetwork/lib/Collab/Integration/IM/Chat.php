@@ -84,4 +84,15 @@ class Chat
 
 		return $result;
 	}
+
+	public static function updateMessagesAutoDelete(int $chatId, int $delay): Result
+	{
+		if (!Loader::includeModule('im'))
+		{
+			return new Result();
+		}
+
+		$chat = V2\Chat::getInstance($chatId);
+		return V2\Message\Delete\DisappearService::disappearChat($chat, $delay);
+	}
 }

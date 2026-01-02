@@ -9,6 +9,8 @@ use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc\Debugger;
 
+use Bitrix\Bizproc\Internal\Service\LatestRobots\RobotVersionIndexer;
+
 Main\UI\Extension::load('ui.alerts');
 
 Loc::loadMessages(__FILE__);
@@ -325,6 +327,15 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 			$log = $tracker->getLog(array_keys($statusList));
 		}
 
+		try
+		{
+			(new RobotVersionIndexer())->ensureFreshIndex();
+		}
+		catch (Exception)
+		{
+
+		}
+
 		$availableRobots = \Bitrix\Bizproc\Automation\Engine\Template::getAvailableRobots($documentType);
 
 		$triggers = [];
@@ -370,6 +381,8 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 				&& $this->arParams['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'] === 'Y'
 			),
 			'IS_WORKTIME_AVAILABLE' => \CBPHelper::isWorkTimeAvailable(),
+
+			'NEW_ENTITIES_BUTTON_SHOW_HINT' => $this->shouldShowNewEntitiesButtonHint(),
 		];
 
 		$this->prepareDelayMinLimitResult();
@@ -518,5 +531,18 @@ HTML;
 			}
 		}
 		return $list;
+	}
+
+	private function shouldShowNewEntitiesButtonHint(): bool
+	{
+		$optionCategory = 'bizproc';
+		$optionName = 'view_date_automation-new-entities-button-hint';
+
+		if (CUserOptions::getOption($optionCategory, $optionName))
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

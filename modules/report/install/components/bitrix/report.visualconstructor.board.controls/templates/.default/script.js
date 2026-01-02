@@ -32,17 +32,35 @@
 		},
 		handleConfigurationButtonClick: function()
 		{
+			if (this.confirmationPopup)
+			{
+				return;
+			}
 
-			this.confirmationPopup = new BX.PopupWindow('visualconstructor-dashboard-configuration-popup',  this.configurationButton, {
-				title: 'Select Row Layout',
-				noAllPaddings: true,
+			this.confirmationPopup = new BX.Main.Menu({
+				id: 'visualconstructor-dashboard-configuration-popup',
+				bindElement: this.configurationButton,
 				closeByEsc: true,
 				autoHide: true,
-				content: this.getConfigurationButtonLayout()
+				cacheable: false,
+				items: [
+					{
+						text: this.getToggleBoardTitle(),
+						onclick: this.toggleBoard.bind(this),
+					},
+					{
+						text: this.getDemoModeToggleButtonTitle(),
+						onclick: this.toggleDemoMode.bind(this),
+					},
+				],
+				events: {
+					onPopupClose: () => {
+						this.confirmationPopup = null;
+					},
+				},
 			});
 
 			this.confirmationPopup.show();
-
 		},
 
 		handlePopupButtonClick: function ()
@@ -90,52 +108,6 @@
 		closeSlider: function()
 		{
 			this.addFormSlider.closeAll();
-		},
-		getConfigurationButtonLayout: function()
-		{
-			var menuPoints = [];
-			menuPoints.push(BX.create('div', {
-				attrs: {
-					className: 'visualconsructor-configuration-popup-item'
-				},
-				children: [
-					BX.create('div', {
-						text: this.getToggleBoardTitle(),
-						attrs: {
-							className: 'visualconsructor-configuration-popup-item-text'
-						}
-					})
-				],
-				events: {
-					click: BX.delegate(this.toggleBoard, this)
-				}
-			}));
-			if (this.demoToggle)
-			{
-				menuPoints.push(BX.create('div', {
-					attrs: {
-						className: 'visualconsructor-configuration-popup-item'
-					},
-					children: [
-						BX.create('div', {
-							text: this.getDemoModeToggleButtonTitle(),
-							attrs: {
-								className: 'visualconsructor-configuration-popup-item-text'
-							}
-						})
-					],
-					events: {
-						click: BX.delegate(this.toggleDemoMode, this)
-					}
-				}));
-			}
-
-			return BX.create('div', {
-				attrs: {
-					className: 'visualconsructor-configuration-popup-container'
-				},
-				children: menuPoints
-			});
 		},
 		getToggleBoardTitle: function()
 		{

@@ -108,9 +108,12 @@ class SiteInstructionStep extends \CWizardStep
 
 		$this->setFormFields();
 
-		$instructionLink = "https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=103&LESSON_ID=287";
-		$instructionVmLink = "https://dev.1c-bitrix.ru/learning/course/?COURSE_ID=37&LESSON_ID=8849";
-		if (!in_array($this->component->getLanguageId(), ["ru", "ua"]))
+		if (Application::getInstance()->getLicense()->getRegion() === 'ru')
+		{
+			$instructionLink = "https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=103&LESSON_ID=287";
+			$instructionVmLink = "https://dev.1c-bitrix.ru/learning/course/?COURSE_ID=37&LESSON_ID=8849";
+		}
+		else
 		{
 			$instructionLink = "https://training.bitrix24.com/support/training/course/?COURSE_ID=68&LESSON_ID=6217";
 			$instructionVmLink = "https://training.bitrix24.com/support/training/course/?COURSE_ID=113&LESSON_ID=9579";

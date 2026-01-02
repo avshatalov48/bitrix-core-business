@@ -1,7 +1,6 @@
 import { WidgetOptions } from './internal/types';
 import { Logger } from './logger';
-import { Backend } from 'landing.backend';
-import { Loc, Text, Type, Dom, Event } from 'main.core';
+import { Dom, Event, Loc, Text, Type, ajax as Ajax } from 'main.core';
 
 import './css/style.css';
 
@@ -96,10 +95,45 @@ export class WidgetVue
 		;
 	}
 
-	#getFrameContent(): Promise<string>
+	async #getFrameContent(): Promise<string>
 	{
 		let content = '';
 
+		const core = await this.#getCoreConfigs();
+		content += this.#parseExtensionConfig(core.data);
+
+		const assets = await this.#getAssetsConfigs();
+		content += this.#parseExtensionConfig(assets.data);
+
+		content += this.#parseExtensionConfig({
+			lang_additional: this.#lang,
+		});
+		if (this.#style)
+		{
+			content += `<link rel="stylesheet" href="${this.#style}">`;
+		}
+
+		const engineParams = await this.#getEngineParams();
+
+		const appInit = `
+			<script>
+				BX.ready(function() {
+					(new BX.Landing.WidgetVue.Engine(
+						${JSON.stringify(engineParams)},
+					)).render();
+				});
+			</script>
+
+			<div id="${this.#uniqueId}">${this.#template}</div>
+		`;
+
+		content += appInit;
+
+		return content;
+	}
+
+	async #getEngineParams(): Promise<Object>
+	{
 		const engineParams = {
 			id: this.#uniqueId,
 			origin: window.location.origin,
@@ -107,103 +141,53 @@ export class WidgetVue
 			clickable: this.#clickable,
 		};
 
-		return this.#getCoreConfigs()
-			.then((core) => {
-				content += this.#parseExtensionConfig(core);
-				content += this.#parseExtensionConfig({
-					lang_additional: this.#lang,
-				});
-
-				if (this.#style)
+		if (this.#appAllowedByTariff)
+		{
+			if (this.#useDemoData)
+			{
+				if (!this.#demoData)
 				{
-					content += `<link rel="stylesheet" href="${this.#style}">`;
+					this.#logger.log('Widget haven\'t demo data and can be render correctly');
 				}
 
-				return this.#getAssetsConfigs();
-			})
-
-			.then((assets) => {
-				content += this.#parseExtensionConfig(assets);
-
-				if (!this.#appAllowedByTariff)
+				engineParams.data = this.#demoData || {};
+			}
+			else
+			{
+				try
 				{
-					throw new Error(Loc.getMessage('LANDING_WIDGETVUE_ERROR_PAYMENT'));
+					engineParams.data = await this.#fetchData();
 				}
-
-				if (this.#useDemoData)
+				catch (error)
 				{
-					if (!this.#demoData)
-					{
-						this.#logger.log('Widget haven\'t demo data and can be render correctly');
-					}
-
-					return this.#demoData || {};
+					engineParams.error = error.message || 'error';
 				}
+			}
+		}
+		else
+		{
+			engineParams.error = Loc.getMessage('LANDING_WIDGETVUE_ERROR_PAYMENT_MSGVER_1');
+		}
 
-				return this.#fetchData();
-			})
-
-			.then((data) => {
-				engineParams.data = data;
-			})
-
-			.catch((error) => {
-				engineParams.error = error.message || 'error';
-			})
-
-			.then(() => {
-				const appInit = `
-					<script>
-						BX.ready(function() {
-							(new BX.Landing.WidgetVue.Engine(
-								${JSON.stringify(engineParams)}
-							)).render();
-						});
-					</script>
-
-					<div id="${this.#uniqueId}">${this.#template}</div>
-				`;
-
-				content += appInit;
-
-				return content;
-			})
-		;
+		return engineParams;
 	}
 
-	#getCoreConfigs(): Promise<Object>
+	async #getCoreConfigs(): Promise<Object>
 	{
-		const extCodes = [
-			'main.core',
-			'ui.design-tokens',
-		];
-		const tplCodes = [
-			'bitrix24',
-		];
-
-		return Backend.getInstance()
-			.action(
-				'Block::getAssetsConfig',
-				{
-					extCodes,
-					tplCodes,
-				},
-			)
-		;
+		return Ajax.runAction('landing.vibe.getCoreConfig');
 	}
 
-	#getAssetsConfigs(): Promise<Object>
+	async #getAssetsConfigs(): Promise<Object>
 	{
 		const extCodes = [
 			'landing.widgetvue.engine',
 		];
 
-		return Backend.getInstance()
-			.action(
-				'Block::getAssetsConfig',
-				{ extCodes },
-			)
-		;
+		return Ajax.runAction('landing.vibe.getAssetsConfig', {
+			data: {
+				extCodes,
+			},
+		});
 	}
 
 	#parseExtensionConfig(ext: Object): string
@@ -241,15 +225,14 @@ export class WidgetVue
 			return Promise.resolve(this.#demoData || {});
 		}
 
-		return Backend.getInstance()
-			.action('RepoWidget::fetchData', {
+		return Ajax.runAction('landing.vibe.fetchData', {
+			data: {
 				blockId: this.#blockId,
 				params,
-			})
-
+			},
+		})
 			.then((jsonData) => {
-				let data = {};
-				data = JSON.parse(jsonData);
+				const data = JSON.parse(jsonData.data || []);
 				if (data.error)
 				{
 					throw new Error(data.error);
@@ -258,31 +241,29 @@ export class WidgetVue
 				return data;
 			})
 
-			.catch((error) => {
+			.catch((fail) => {
 				const logMessages = [`Fetch data error!\nWidget ID: ${this.#blockId}`];
 				if (Object.keys(params) > 0)
 				{
 					logMessages.push('\nFetch request params:', params);
 				}
 
-				if (Type.isString(error))
+				if (Type.isString(fail))
 				{
-					logMessages.push(`\nError in JSON data: ${error}`);
+					logMessages.push(`\nError in JSON data: ${fail}`);
 				}
-
-				else if (Type.isObject(error))
+				else if (
+					Type.isObject(fail)
+					&& 'errors' in fail
+					&& Type.isArray(fail.errors)
+				)
 				{
-					if (error instanceof Error && error.message)
-					{
-						logMessages.push(`\nJavaScript error: ${error.message}`);
-					}
-					else if (error.result && Type.isArray(error.result) && error.result.length > 0)
-					{
-						logMessages.push('\nError from backend:');
-						error.result.forEach((e) => {
-							logMessages.push(e);
-						});
-					}
+					fail.errors.forEach(error => {
+						if (error.message !== undefined)
+						{
+							logMessages.push(`\nJavaScript error: ${error.message}`);
+						}
+					});
 				}
 
 				this.#logger.log(...logMessages);
@@ -328,11 +309,11 @@ export class WidgetVue
 			{
 				this.#fetchData(event.data.params)
 					.then((data) => {
-						this.#message('setData', { data }, event.source);
+						this.#message('setData', {data}, event.source);
 					})
 
 					.catch((error) => {
-						this.#message('setError', { error }, event.source);
+						this.#message('setError', {error}, event.source);
 					})
 				;
 			}

@@ -57,6 +57,7 @@ $MESS["LANDING_BLOCK_STYLE_BACKGROUND_HOVER"] = "Фон при наведени�
 $MESS["LANDING_BLOCK_STYLE_COLOR_HOVER"] = "Цвет при наведении";
 $MESS["LANDING_BLOCK_STYLE_BACKGROUND_OVERLAY"] = "Цвет наложения";
 $MESS["LANDING_BLOCK_STYLE_BUTTON_COLOR"] = "Цвет кнопки";
+$MESS["LANDING_BLOCK_STYLE_BUTTON_COLOR_HOVER"] = "Цвет кнопки при наведении";
 $MESS["LANDING_BLOCK_STYLE_ANIMATION"] = "Анимация появления";
 $MESS["LANDING_BLOCK_STYLE_ANIMATION_NONE"] = "Без анимации";
 $MESS["LANDING_BLOCK_STYLE_BG_COLOR_BEFORE"] = "Цвет элемента";
@@ -125,6 +126,7 @@ $MESS["LANDING_BLOCK_STYLE-CONTENT_CONTAINER"] = "Ширина контента"
 $MESS["LANDING_BLOCK_STYLE-TEXT_CONTAINER_FULL"] = "На весь экран";
 $MESS["LANDING_BLOCK_STYLE-TEXT_CONTAINER_CONTAINER"] = "Стандартная";
 $MESS["LANDING_BLOCK_STYLE-TEXT_CONTAINER_MINI"] = "Уменьшенная";
+$MESS["LANDING_BLOCK_STYLE-TEXT_CONTAINER_MAXI"] = "Увеличенная";
 
 $MESS["LANDING_BLOCK_BUTTON_SIZE"] = "Размер кнопки";
 $MESS["LANDING_BLOCK_BUTTON_STYLE"] = "Стиль кнопки";
@@ -150,3 +152,7 @@ $MESS["LANDING_BLOCK_STYLE_WIDGET_TYPE_BASIC"] = "Обычный";
 $MESS["LANDING_BLOCK_STYLE_WIDGET_TYPE_ROUNDED"] = "Скругление и отступы";
 $MESS["LANDING_BLOCK_STYLE_WIDGET_TYPE_ROUNDED_TOP"] = "Скругление и верхний отступ";
 $MESS["LANDING_BLOCK_STYLE_WIDGET_TYPE_ROUNDED_BOTTOM"] = "Скругление и нижний отступ";
+
+$MESS["LANDING_BLOCK_STYLE_DISPLAY_ELEMENT"] = "Отображение элемента";
+$MESS["LANDING_BLOCK_STYLE_DISPLAY_ELEMENT_SHOW"] = "Показать";
+$MESS["LANDING_BLOCK_STYLE_DISPLAY_ELEMENT_HIDE"] = "Скрыть";

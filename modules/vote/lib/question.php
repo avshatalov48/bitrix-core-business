@@ -32,9 +32,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Question_Query query()
- * @method static EO_Question_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Question_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Question_Result getById($id)
- * @method static EO_Question_Result getList(array $parameters = array())
+ * @method static EO_Question_Result getList(array $parameters = [])
  * @method static EO_Question_Entity getEntity()
  * @method static \Bitrix\Vote\EO_Question createObject($setDefaultValues = true)
  * @method static \Bitrix\Vote\EO_Question_Collection createCollection()
@@ -91,7 +91,9 @@ class QuestionTable extends Entity\DataManager
 			),
 			'QUESTION' => array(
 				'data_type' => 'text',
-				'title' => Loc::getMessage('V_TABLE_FIELD_QUESTION')
+				'title' => Loc::getMessage('V_TABLE_FIELD_QUESTION'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'QUESTION_TYPE' => array(
 				'data_type' => 'enum',

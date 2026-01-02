@@ -1,0 +1,24 @@
+<?php
+$MESS["BPAR_PD_TASK_BUTTON_CANCEL_MESSAGE_MSGVER_1"] = "Тапсырмадағы ауытқу батырмасының мәтіні";
+$MESS["BPRIA_PD_CANCEL_TYPE"] = "Ауытқу түрі";
+$MESS["BPRIA_PD_CANCEL_TYPE_ALL"] = "Барлық қызметкер";
+$MESS["BPRIA_PD_CANCEL_TYPE_ANY"] = "Кез-келген қызметкер";
+$MESS["BPRIA_PD_SAVE_VARIABLES"] = "Бас тартқан жағдайда мәндерді сақтау";
+$MESS["BPRIOA_ACT_APPROVE_TRACK"] = "#PERSON# пайдаланушы #COMMENT# қосымша ақпаратты енгізді ";
+$MESS["BPRIOA_ACT_BUTTON1"] = "Сақтау";
+$MESS["BPRIOA_ACT_BUTTON2"] = "Қабылдамау";
+$MESS["BPRIOA_ACT_CANCEL_TRACK"] = "#PERSON# пайдаланушы #COMMENT# қосымша ақпаратты енгізуді болдырмады ";
+$MESS["BPRIOA_ACT_COMMENT"] = "Пікір";
+$MESS["BPRIOA_ACT_COMMENT_ERROR"] = "Өріс толтырылмаған: #COMMENT_LABEL#";
+$MESS["BPRIOA_ACT_INFO"] = "Қосымша ақпаратты күту";
+$MESS["BPRIOA_ACT_PROP_EMPTY1"] = "Пайдаланушылар' қасиеті көрсетілмеген.";
+$MESS["BPRIOA_ACT_PROP_EMPTY2"] = "Бірде-бір өріс көрсетілмеген.";
+$MESS["BPRIOA_ACT_PROP_EMPTY4"] = "Атауы' қасиеті көрсетілмеген.";
+$MESS["BPRIOA_ACT_TRACK1"] = "Қосымша ақпаратты #VAL# беруі тиіс";
+$MESS["BPRIOA_ARGUMENT_NULL"] = "#PARAM#' міндетті мәні толтырылмаған";
+$MESS["BPRIOA_LOG_COMMENTS"] = "Пікір";
+$MESS["BPSFA_COMMENT_REQUIRED_YA_1"] = "Бекіту кезінде";
+$MESS["BPSFA_COMMENT_REQUIRED_YR_1"] = "Қабылдамау кезінде";
+$MESS["BPSFA_PD_CANCEL"] = "Болдырмау";
+$MESS["BPSFA_PD_NO"] = "Жоқ";
+$MESS["BPSFA_PD_YES"] = "Иә";

@@ -42,21 +42,9 @@ class AttendeesDescription
 		return trim($description);
 	}
 
-	/**
-	 * @param array $attendeesCodes
-	 * @param string|null $description
-	 * @param int|null $parentId
-	 *
-	 * @return string
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
 	public function addAttendeesToDescription(array $attendeesCodes, ?string $description, ?int $parentId): string
 	{
-		$result = $this->prepareUserNames($attendeesCodes, $parentId)
-			. ';'
-		;
+		$result = $this->prepareUserNames($attendeesCodes, $parentId) . ';';
 
 		if ($description)
 		{
@@ -71,9 +59,6 @@ class AttendeesDescription
 	 * @param int|null $parentId
 	 *
 	 * @return string
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	private function prepareUserNames(array $codes, ?int $parentId): string
 	{
@@ -99,10 +84,10 @@ class AttendeesDescription
 		foreach ($users as $user)
 		{
 			$userName = $user['FORMATTED_NAME'];
-			
+
 			$attendees[] = $userName;
 		}
-		
+
 		if (!empty($attendees))
 		{
 			$result .= Loc::getMessage('CAL_SYNC_UTIL_ATTENDEES', false, $this->languageId)
@@ -110,26 +95,21 @@ class AttendeesDescription
 				. implode(', ', $attendees)
 			;
 		}
-		
+
 		return $result;
 	}
 
-	/**
-	 * @param int $eventId
-	 *
-	 * @return array
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
 	private function getUsersMeetingStatus(int $eventId): array
 	{
 		$result = [];
+
+		/** @noinspection PhpUnhandledExceptionInspection */
 		$events = EventTable::query()
 			->setSelect(['OWNER_ID', 'MEETING_STATUS'])
 			->where('PARENT_ID', $eventId)
 			->exec()
 		;
+
 		while ($event = $events->fetchObject())
 		{
 			$result[$event->getOwnerId()] = $event->getMeetingStatus();

@@ -1,8 +1,9 @@
-import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
+import { Core } from 'im.v2.application.core';
+import { ChatAvatar, ChatAvatarType, AvatarSize } from 'im.v2.component.elements.avatar';
 import { ActionByRole, ChatType } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { Utils } from 'im.v2.lib.utils';
-import { ChatService } from 'im.v2.provider.service';
+import { ChatService } from 'im.v2.provider.service.chat';
 
 import type { ImModelChat } from 'im.v2.model';
 
@@ -33,9 +34,21 @@ export const HeaderAvatar = {
 		{
 			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.avatar, this.dialogId);
 		},
+		isNotes(): boolean
+		{
+			return this.$store.getters['chats/isNotes'](this.dialogId);
+		},
 		userLink(): string
 		{
 			return Utils.user.getProfileLink(this.dialogId);
+		},
+		avatarType(): string
+		{
+			return this.isNotes ? ChatAvatarType.notes : '';
+		},
+		needProfileLink(): boolean
+		{
+			return this.isUser && !this.isNotes;
 		},
 	},
 	methods:
@@ -78,10 +91,14 @@ export const HeaderAvatar = {
 	// language=Vue
 	template: `
 		<div class="bx-im-chat-header__avatar" :class="{'--can-change': canChangeAvatar}" @click="onAvatarClick">
-			<a v-if="isUser" :href="userLink" target="_blank">
-				<ChatAvatar :avatarDialogId="dialogId" :contextDialogId="dialogId" :size="AvatarSize.L" />
+			<a v-if="needProfileLink" :href="userLink" target="_blank">
+				<ChatAvatar
+					:avatarDialogId="dialogId"
+					:contextDialogId="dialogId"
+					:size="AvatarSize.L"
+				/>
 			</a>
-			<ChatAvatar v-else :avatarDialogId="dialogId" :contextDialogId="dialogId" :size="AvatarSize.L" />
+			<ChatAvatar v-else :avatarDialogId="dialogId" :contextDialogId="dialogId" :size="AvatarSize.L" :customType="avatarType" />
 		</div>
 		<input
 			type="file"

@@ -620,6 +620,10 @@ class Params extends Registry
 				$prepareResult = $item->prepareFields();
 				if ($prepareResult->isSuccess())
 				{
+					if ($prepareResult->getData()['SKIP_SAVE'] ?? false)
+					{
+						continue;
+					}
 					if ($item->isChanged())
 					{
 						$dataEntityCollection->add($item->getDataEntity());
@@ -649,6 +653,10 @@ class Params extends Registry
 						$prepareResult = $subItem->prepareFields();
 						if ($prepareResult->isSuccess())
 						{
+							if ($prepareResult->getData()['SKIP_SAVE'] ?? false)
+							{
+								continue;
+							}
 							if ($subItem->isChanged())
 							{
 								$dataEntityCollection->add($subItem->getDataEntity());
@@ -916,6 +924,21 @@ class Params extends Registry
 		return $this;
 	}
 
+	public function clear(): self
+	{
+		$keysToUnset = [];
+		foreach ($this as $paramName => $param)
+		{
+			$keysToUnset[$paramName] = $paramName;
+		}
+		$this->unsetByKeys($keysToUnset);
+
+		$this->droppedItems = [];
+		$this->isLoaded = true;
+
+		return $this;
+	}
+
 	/**
 	 * @param string $offset
 	 * @return void
@@ -958,7 +981,10 @@ class Params extends Registry
 		$result = [];
 		foreach ($this as $paramName => $param)
 		{
-			$result[$paramName] = $param->toRestFormat();
+			if ($param->hasValue())
+			{
+				$result[$paramName] = $param->toRestFormat();
+			}
 		}
 
 		return $result;

@@ -450,7 +450,7 @@ abstract class EntityPropertyValue extends CollectableEntity
 
 		if ($property)
 		{
-			if (is_array($property['SETTINGS']))
+			if (isset($property['SETTINGS']) && is_array($property['SETTINGS']))
 			{
 				$property += $property['SETTINGS'];
 				unset ($property['SETTINGS']);

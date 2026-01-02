@@ -63,7 +63,6 @@ class LandingBlocksMainpageWidgetNewEmployees extends LandingBlocksMainpageWidge
 				'ID' => '1',
 				'NAME' => Loc::getMessage('LANDING_WIDGET_NEW_EMPLOYEES_CLASS_NAME_1'),
 				'LAST_NAME' => '',
-				'SECOND_NAME' => '',
 				'DATE_REGISTER' => $this->convertDateFormat('15.07.2018 15:00:00', 'dmy'),
 				'PERSONAL_PHOTO_PATH' => 'https://cdn.bitrix24.site/bitrix/images/landing/widget/new_employees/1.png',
 				'WORK_POSITION' => Loc::getMessage('LANDING_WIDGET_NEW_EMPLOYEES_CLASS_WORK_POSITION_1'),
@@ -72,7 +71,6 @@ class LandingBlocksMainpageWidgetNewEmployees extends LandingBlocksMainpageWidge
 				'ID' => '2',
 				'NAME' => Loc::getMessage('LANDING_WIDGET_NEW_EMPLOYEES_CLASS_NAME_2'),
 				'LAST_NAME' => '',
-				'SECOND_NAME' => '',
 				'DATE_REGISTER' => $this->convertDateFormat('22.03.2020 15:00:00', 'dmy'),
 				'PERSONAL_PHOTO_PATH' => 'https://cdn.bitrix24.site/bitrix/images/landing/widget/new_employees/2.png',
 				'WORK_POSITION' => Loc::getMessage('LANDING_WIDGET_NEW_EMPLOYEES_CLASS_WORK_POSITION_2'),
@@ -81,7 +79,6 @@ class LandingBlocksMainpageWidgetNewEmployees extends LandingBlocksMainpageWidge
 				'ID' => '3',
 				'NAME' => Loc::getMessage('LANDING_WIDGET_NEW_EMPLOYEES_CLASS_NAME_3'),
 				'LAST_NAME' => '',
-				'SECOND_NAME' => '',
 				'DATE_REGISTER' => $this->convertDateFormat('05.11.2019 15:00:00', 'dmy'),
 				'PERSONAL_PHOTO_PATH' => 'https://cdn.bitrix24.site/bitrix/images/landing/widget/new_employees/3.png',
 				'WORK_POSITION' => Loc::getMessage('LANDING_WIDGET_NEW_EMPLOYEES_CLASS_WORK_POSITION_3'),
@@ -90,7 +87,6 @@ class LandingBlocksMainpageWidgetNewEmployees extends LandingBlocksMainpageWidge
 				'ID' => '4',
 				'NAME' => Loc::getMessage('LANDING_WIDGET_NEW_EMPLOYEES_CLASS_NAME_4'),
 				'LAST_NAME' => '',
-				'SECOND_NAME' => '',
 				'DATE_REGISTER' => $this->convertDateFormat('18.01.2021 15:00:00', 'dmy'),
 				'PERSONAL_PHOTO_PATH' => 'https://cdn.bitrix24.site/bitrix/images/landing/widget/new_employees/4.png',
 				'WORK_POSITION' => Loc::getMessage('LANDING_WIDGET_NEW_EMPLOYEES_CLASS_WORK_POSITION_4'),
@@ -99,7 +95,6 @@ class LandingBlocksMainpageWidgetNewEmployees extends LandingBlocksMainpageWidge
 				'ID' => '5',
 				'NAME' => Loc::getMessage('LANDING_WIDGET_NEW_EMPLOYEES_CLASS_NAME_5'),
 				'LAST_NAME' => '',
-				'SECOND_NAME' => '',
 				'DATE_REGISTER' => $this->convertDateFormat('29.08.2017 15:00:00', 'dmy'),
 				'PERSONAL_PHOTO_PATH' => 'https://cdn.bitrix24.site/bitrix/images/landing/widget/new_employees/5.png',
 				'WORK_POSITION' => Loc::getMessage('LANDING_WIDGET_NEW_EMPLOYEES_CLASS_WORK_POSITION_5'),
@@ -108,7 +103,6 @@ class LandingBlocksMainpageWidgetNewEmployees extends LandingBlocksMainpageWidge
 				'ID' => '6',
 				'NAME' => Loc::getMessage('LANDING_WIDGET_NEW_EMPLOYEES_CLASS_NAME_6'),
 				'LAST_NAME' => '',
-				'SECOND_NAME' => '',
 				'DATE_REGISTER' => $this->convertDateFormat('12.06.2022 15:00:00', 'dmy'),
 				'PERSONAL_PHOTO_PATH' => 'https://cdn.bitrix24.site/bitrix/images/landing/widget/new_employees/6.png',
 				'WORK_POSITION' => Loc::getMessage('LANDING_WIDGET_NEW_EMPLOYEES_CLASS_WORK_POSITION_6'),
@@ -122,10 +116,10 @@ class LandingBlocksMainpageWidgetNewEmployees extends LandingBlocksMainpageWidge
 			'ID',
 			'NAME',
 			'LAST_NAME',
-			'SECOND_NAME',
 			'DATE_REGISTER',
 			'PERSONAL_PHOTO',
 			'WORK_POSITION',
+			'CONFIRM_CODE',
 		];
 		$arNavParams = [
 			'nTopCount' => self::USER_AMOUNT,
@@ -150,11 +144,14 @@ class LandingBlocksMainpageWidgetNewEmployees extends LandingBlocksMainpageWidge
 		$count = 0;
 		while ($arUser = $dbUsers->GetNext())
 		{
+			if (isset($arUser['CONFIRM_CODE']) && $arUser['CONFIRM_CODE'] !== "")
+			{
+				continue;
+			}
 			$users[$count]['ID'] = $arUser['ID'];
-			$users[$count]['NAME'] = $arUser['NAME'];
-			$users[$count]['LAST_NAME'] = $arUser['LAST_NAME'];
-			$users[$count]['SECOND_NAME'] = $arUser['SECOND_NAME'];
-			$users[$count]['DATE_REGISTER'] = substr($arUser['DATE_REGISTER'], 0, 10);
+			$users[$count]['NAME'] = $arUser['~NAME'];
+			$users[$count]['LAST_NAME'] = $arUser['~LAST_NAME'];
+			$users[$count]['DATE_REGISTER'] = substr($arUser['~DATE_REGISTER'], 0, 10);
 			$users[$count]['PERSONAL_PHOTO'] = $arUser['PERSONAL_PHOTO'];
 			$resizeFile = \CFile::ResizeImageGet(
 				$arUser['PERSONAL_PHOTO'],
@@ -162,7 +159,7 @@ class LandingBlocksMainpageWidgetNewEmployees extends LandingBlocksMainpageWidge
 				BX_RESIZE_IMAGE_EXACT
 			);
 			$users[$count]['PERSONAL_PHOTO_PATH'] = $resizeFile['src'];
-			$users[$count]['WORK_POSITION'] = $arUser['WORK_POSITION'];
+			$users[$count]['WORK_POSITION'] = $arUser['~WORK_POSITION'];
 
 			$count++;
 		}

@@ -5,6 +5,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Web\Uri;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 /** @var CMain $APPLICATION */
 /** @var array $arParams */
@@ -12,6 +13,11 @@ use Bitrix\Main\Web\Uri;
 
 CUtil::InitJSCore(["popup"]);
 Extension::load(['sidepanel', 'ui.forms', 'ui.design-tokens']);
+
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] === 'Y')
+{
+	Toolbar::deleteFavoriteStar();
+}
 
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '') . 'no-all-paddings no-background user-consent-content-modifier');

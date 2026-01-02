@@ -1,7 +1,7 @@
 import { Store } from 'ui.vue3.vuex';
 
 import { Core } from 'im.v2.application.core';
-import { DiskService } from 'im.v2.provider.service';
+import { DiskService } from 'im.v2.provider.service.disk';
 
 import type { ImModelSidebarFileItem } from 'im.v2.model';
 
@@ -15,14 +15,14 @@ export class FileManager
 		this.diskService = new DiskService();
 	}
 
-	delete(sidebarFile: ImModelSidebarFileItem)
+	delete(sidebarFile: ImModelSidebarFileItem): void
 	{
-		this.store.dispatch('sidebar/files/delete', {
+		void this.store.dispatch('sidebar/files/delete', {
 			dialogId: sidebarFile.chatId,
 			id: sidebarFile.id,
 		});
 
-		this.diskService.delete({ chatId: sidebarFile.chatId, fileId: sidebarFile.fileId });
+		void this.diskService.delete({ chatId: sidebarFile.chatId, fileId: sidebarFile.fileId });
 	}
 
 	saveOnDisk(fileIds: number[]): Promise

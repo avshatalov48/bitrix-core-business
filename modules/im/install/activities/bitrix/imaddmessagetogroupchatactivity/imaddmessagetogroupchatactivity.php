@@ -7,8 +7,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+
 use Bitrix\Bizproc;
+
 use Bitrix\Im\Integration\Bizproc\Message;
+
+use Bitrix\Crm\Integration\Analytics\Dictionary;
 
 /**
  * @property $ChatId
@@ -50,6 +54,7 @@ class CBPImAddMessageToGroupChatActivity extends CBPActivity
 		}
 
 		$chatId = $this->getChatId();
+		$documentType = $this->getDocumentType();
 		$from = $this->getFromMember();
 
 		if ($this->workflow->isDebug())
@@ -94,8 +99,8 @@ class CBPImAddMessageToGroupChatActivity extends CBPActivity
 		{
 			return $this->closeWithError(implode(', ', $formatResult->getErrorMessages()));
 		}
-		$result = CIMChat::AddMessage($formatResult->getData());
 
+		$result = CIMChat::AddMessage($formatResult->getData());
 		if ($result === false)
 		{
 			global $APPLICATION;
@@ -107,6 +112,18 @@ class CBPImAddMessageToGroupChatActivity extends CBPActivity
 			}
 
 			return CBPActivityExecutionStatus::Closed;
+		}
+
+		if (
+			Loader::includeModule('crm')
+			&& method_exists(CCrmBizProcHelper::class, 'sendOperationsAnalytics')
+		)
+		{
+			\CCrmBizProcHelper::sendOperationsAnalytics(
+				Dictionary::EVENT_ENTITY_SOCIAL,
+				$this,
+				$documentType[2] ?? '',
+			);
 		}
 
 		return CBPActivityExecutionStatus::Closed;

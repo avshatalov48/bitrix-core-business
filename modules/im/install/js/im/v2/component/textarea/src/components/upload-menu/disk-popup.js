@@ -1,8 +1,9 @@
-import {ajax} from 'main.core';
+import 'file_dialog';
+import { ajax } from 'main.core';
 
 const FILE_DIALOG_ID = 'im-file-dialog';
 
-/* eslint-disable bitrix-rules/no-bx */
+/* eslint-disable @bitrix24/bitrix24-rules/no-bx */
 // @vue/component
 export const DiskPopup = {
 	name: 'DiskPopup',
@@ -43,13 +44,13 @@ export const DiskPopup = {
 			}
 
 			BX.DiskFileDialog.obCallback[name] = {
-				'saveButton': (tab, path, selected) => {
-					this.$emit('diskFileSelect', {files: selected});
+				saveButton: (tab, path, selected) => {
+					this.$emit('diskFileSelect', { files: selected });
 				},
-				'popupDestroy': () => {
+				popupDestroy: () => {
 					this.unsubscribeEvents();
 					this.$emit('close');
-				}
+				},
 			};
 
 			BX.DiskFileDialog.openDialog(name);
@@ -63,7 +64,7 @@ export const DiskPopup = {
 
 			BX.DiskFileDialog.target[name] = link.replace(
 				'/bitrix/tools/disk/uf.php',
-				'/bitrix/components/bitrix/im.messenger/file.ajax.php'
+				'/bitrix/components/bitrix/im.messenger/file.ajax.php',
 			);
 		},
 		open()
@@ -76,5 +77,5 @@ export const DiskPopup = {
 			});
 		},
 	},
-	template: `<template></template>`
+	template: '<template></template>',
 };

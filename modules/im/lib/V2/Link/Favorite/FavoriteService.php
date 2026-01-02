@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Link\Favorite;
 
+use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Im\Model\LinkFavoriteTable;
 use Bitrix\Im\V2\Common\ContextCustomer;
@@ -93,6 +94,37 @@ class FavoriteService
 		$result = new Result();
 
 		$favoriteMessages = FavoriteCollection::getByMessage($message);
+
+		if ($favoriteMessages === null || $favoriteMessages->count() === 0)
+		{
+			return $result;
+		}
+
+		$deleteResult = $favoriteMessages->delete();
+
+		if (!$deleteResult->isSuccess())
+		{
+			return $result->addErrors($deleteResult->getErrors());
+		}
+
+		/** @var FavoriteItem $favoriteMessage */
+		foreach ($favoriteMessages as $favoriteMessage)
+		{
+			$pushRecipient = ['RECIPIENT' => [$favoriteMessage->getAuthorId()]];
+			Push::getInstance()
+				->setContext($this->context)
+				->sendIdOnly($favoriteMessage,static::DELETE_FAVORITE_MESSAGE_EVENT, $pushRecipient)
+			;
+		}
+
+		return $result;
+	}
+
+	public function unmarkMessagesAsFavoriteForAll(MessageCollection $messages): Result
+	{
+		$result = new Result();
+
+		$favoriteMessages = FavoriteCollection::getByMessages($messages);
 
 		if ($favoriteMessages === null || $favoriteMessages->count() === 0)
 		{

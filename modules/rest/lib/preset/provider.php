@@ -10,6 +10,8 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Rest\APAuth\PermissionTable;
+use Bitrix\Rest\Engine\Access\HoldEntity;
+use Bitrix\Rest\Enum\Integration\ElementCodeType;
 use Bitrix\Rest\Lang;
 use Bitrix\Rest\PlacementLangTable;
 use Bitrix\Rest\Preset\Data\Element;
@@ -31,8 +33,10 @@ use Bitrix\Im\Bot;
  */
 class Provider
 {
-	public const URI_METHOD_INFO = 'https://util.bitrixsoft.com/example_b24/redirect.php';
-	public const URI_EXAMPLE_DOWNLOAD = 'https://util.bitrixsoft.com/example_b24/';
+	/** @deprecated */
+	public const URI_METHOD_INFO = '';
+	/** @deprecated */
+	public const URI_EXAMPLE_DOWNLOAD = '';
 	public const APP_MODE_SERVER = 'SERVER';
 	public const APP_MODE_ZIP = 'ZIP';
 
@@ -62,7 +66,9 @@ class Provider
 					'APP_ID',
 					'BOT_ID',
 					'PASSWORD_ID',
-					'USER_ID'
+					'USER_ID',
+					'ELEMENT_CODE',
+					'PASS' => 'PASSWORD.PASSWORD'
 				],
 				'limit' => 1
 			]
@@ -165,6 +171,14 @@ class Provider
 					if (!$res->isSuccess())
 					{
 						$errorList[] = $res->getErrorMessages();
+					}
+					else if (ElementCodeType::IN_WEBHOOK->value === $integration['ELEMENT_CODE'])
+					{
+						if (HoldEntity::is(HoldEntity::TYPE_WEBHOOK, $integration['PASS']))
+						{
+							HoldEntity::delete(HoldEntity::TYPE_WEBHOOK, $integration['PASS']);
+							HoldEntity::checkBlockCode(HoldEntity::TYPE_WEBHOOK);
+						}
 					}
 				}
 			}

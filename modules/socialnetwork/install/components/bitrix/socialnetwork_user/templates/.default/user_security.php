@@ -15,7 +15,7 @@ $path = CHTTP::urlAddParams($path, array("otp" => "Y"));
 
 if (
 	\Bitrix\Main\ModuleManager::isModuleInstalled("intranet")
-	&& SITE_TEMPLATE_ID == "bitrix24"
+	&& (SITE_TEMPLATE_ID == "bitrix24" || SITE_TEMPLATE_ID === 'air')
 	&& \Bitrix\Main\Context::getCurrent()->getRequest()->get('IFRAME') === 'Y'
 )
 {
@@ -38,4 +38,3 @@ else
 		"SUCCESSFUL_URL" => $path
 	));
 }
-?>

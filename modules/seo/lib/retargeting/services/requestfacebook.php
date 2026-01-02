@@ -3,6 +3,7 @@
 namespace Bitrix\Seo\Retargeting\Services;
 
 use Bitrix\Main\Web\Json;
+use Bitrix\Seo\Service;
 use Bitrix\Seo\Retargeting\ProxyRequest;
 
 class RequestFacebook extends ProxyRequest
@@ -71,5 +72,10 @@ class RequestFacebook extends ProxyRequest
 		{
 			return $result;
 		}
+	}
+
+	public function getProxyUrl(): string
+	{
+		return $this->getServiceUrl(Service::SERVICE_URL);
 	}
 }

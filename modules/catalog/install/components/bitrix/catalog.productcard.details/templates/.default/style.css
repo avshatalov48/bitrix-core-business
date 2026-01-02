@@ -17,6 +17,7 @@
 	line-height: var(--ui-font-line-height-md, 1.4);
 	margin-top: 3px;
 	padding-right: 20px;
+	padding-bottom: 5px;
 	position: relative;
 	cursor: pointer;
 }

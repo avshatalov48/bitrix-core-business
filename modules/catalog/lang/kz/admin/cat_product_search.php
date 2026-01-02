@@ -1,0 +1,27 @@
+<?php
+$MESS["SPS_ACT"] = "Белс.";
+$MESS["SPS_ACTIVE"] = "Белсенді";
+$MESS["SPS_ANY"] = "кез келген";
+$MESS["SPS_CATALOG"] = "Каталог";
+$MESS["SPS_CHANGER"] = "Кім өзгертті";
+$MESS["SPS_CLOSE"] = "Жабу";
+$MESS["SPS_DESCR"] = "Сипаттама";
+$MESS["SPS_ID_FROM_TO"] = "бастапқы және соңғы";
+$MESS["SPS_INCLUDING_SUBS"] = "Кіші бөлімдерді қоса алғанда";
+$MESS["SPS_NAME"] = "Атауы";
+$MESS["SPS_NO"] = "Жоқ";
+$MESS["SPS_NO_PERMS"] = "Бұл каталогты қарау үшін жеткілікті құқықтар жоқ";
+$MESS["SPS_SEARCH_TITLE"] = "Тауарларды таңдау";
+$MESS["SPS_SECTION"] = "Бөлім";
+$MESS["SPS_SELECT"] = "Таңдау";
+$MESS["SPS_SET"] = "Орнату";
+$MESS["SPS_STATUS"] = "Мәртебе";
+$MESS["SPS_TIMESTAMP"] = "Өзгерту күні";
+$MESS["SPS_TOP_LEVEL"] = "Жоғарғы деңгей";
+$MESS["SPS_UNSET"] = "Қалпына келтіру";
+$MESS["SPS_YES"] = "Иә";
+$MESS["prod_search_cancel"] = "Болдырмау";
+$MESS["prod_search_cancel_title"] = "Барлық жазбаларды көрсету";
+$MESS["prod_search_find"] = "Табу";
+$MESS["prod_search_find_title"] = "Жазбаларды іздеу шарты бойынша табу";
+$MESS["sale_prod_search_nav"] = "Тауарлар";

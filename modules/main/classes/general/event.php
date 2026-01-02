@@ -1,17 +1,15 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2020 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 use Bitrix\Main\Mail;
 
-/**
- * @deprecated
- */
-class CAllEvent
+class CEvent
 {
 	public static $EVENT_SITE_PARAMS = [];
 
@@ -30,49 +28,37 @@ class CAllEvent
 		return Mail\EventManager::cleanUpAgent();
 	}
 
-	public static function SendImmediate($event, $lid, $arFields, $Duplicate = "Y", $message_id = "", $files = array(), $languageId = '', array $filesContent = [])
+	public static function SendImmediate($event, $lid, $arFields, $Duplicate = "Y", $message_id = "", $files = [], $languageId = '', array $filesContent = [])
 	{
-		foreach(GetModuleEvents("main", "OnBeforeEventAdd", true) as $arEvent)
-			if(ExecuteModuleEventEx($arEvent, array(&$event, &$lid, &$arFields, &$message_id, &$files, &$languageId)) === false)
-				return false;
-
-		if(!is_array($arFields))
-		{
-			$arFields = array();
-		}
-
-		$arLocalFields = array(
+		$arLocalFields = [
 			"EVENT_NAME" => $event,
 			"C_FIELDS" => $arFields,
-			"LID" => (is_array($lid)? implode(",", $lid) : $lid),
-			"DUPLICATE" => ($Duplicate != "N"? "Y" : "N"),
-			"MESSAGE_ID" => (intval($message_id) > 0? intval($message_id): ""),
+			"LID" => $lid,
+			"DUPLICATE" => ($Duplicate != "N" ? "Y" : "N"),
+			"MESSAGE_ID" => (intval($message_id) > 0 ? intval($message_id) : ""),
 			"DATE_INSERT" => GetTime(time(), "FULL"),
 			"FILE" => $files,
-			"LANGUAGE_ID" => ($languageId == ''? LANGUAGE_ID : $languageId),
+			"LANGUAGE_ID" => ($languageId == '' ? LANGUAGE_ID : $languageId),
 			"ID" => "0",
 			"FILES_CONTENT" => $filesContent,
-		);
+		];
 
-		return Mail\Event::sendImmediate($arLocalFields);
+		$result = Mail\Event::sendImmediate($arLocalFields);
+
+		return $result === Mail\Event::SEND_RESULT_NONE ? false : $result;
 	}
 
-	public static function Send($event, $lid, $arFields, $Duplicate = "Y", $message_id="", $files=array(), $languageId = '')
+	public static function Send($event, $lid, $arFields, $Duplicate = "Y", $message_id = "", $files = [], $languageId = '')
 	{
-		foreach(GetModuleEvents("main", "OnBeforeEventAdd", true) as $arEvent)
-			if(ExecuteModuleEventEx($arEvent, array(&$event, &$lid, &$arFields, &$message_id, &$files, &$languageId)) === false)
-				return false;
-
-		$arLocalFields = array(
+		$arLocalFields = [
 			"EVENT_NAME" => $event,
 			"C_FIELDS" => $arFields,
-			"LID" => (is_array($lid)? implode(",", $lid) : $lid),
-			"DUPLICATE" => ($Duplicate != "N"? "Y" : "N"),
+			"LID" => $lid,
+			"DUPLICATE" => ($Duplicate != "N" ? "Y" : "N"),
+			"MESSAGE_ID" => (intval($message_id) > 0 ? intval($message_id) : ""),
 			"FILE" => $files,
-			"LANGUAGE_ID" => ($languageId == ''? LANGUAGE_ID : $languageId),
-		);
-		if(intval($message_id) > 0)
-			$arLocalFields["MESSAGE_ID"] = intval($message_id);
+			"LANGUAGE_ID" => ($languageId == '' ? LANGUAGE_ID : $languageId),
+		];
 
 		$result = Mail\Event::send($arLocalFields);
 
@@ -86,16 +72,18 @@ class CAllEvent
 
 	public static function fieldencode($s)
 	{
-		if(is_array($s))
+		if (is_array($s))
 		{
 			$ret_val = '';
-			foreach($s as $v)
-				$ret_val .= ($ret_val <> ''? ', ':'').CEvent::fieldencode($v);
+			foreach ($s as $v)
+			{
+				$ret_val .= ($ret_val <> '' ? ', ' : '') . CEvent::fieldencode($v);
+			}
 		}
 		else
 		{
 			$ret_val = str_replace("%", "%2", $s);
-			$ret_val = str_replace("&","%1", $ret_val);
+			$ret_val = str_replace("&", "%1", $ret_val);
 			$ret_val = str_replace("=", "%3", $ret_val);
 		}
 		return $ret_val;
@@ -104,8 +92,8 @@ class CAllEvent
 	public static function ExtractMailFields($str)
 	{
 		$ar = explode("&", $str);
-		$newar = array();
-		foreach($ar as $val)
+		$newar = [];
+		foreach ($ar as $val)
 		{
 			$val = str_replace("%1", "&", $val);
 			$tar = explode("=", $val);
@@ -115,54 +103,60 @@ class CAllEvent
 			$val = str_replace("%3", "=", $val);
 			$key = str_replace("%2", "%", $key);
 			$val = str_replace("%2", "%", $val);
-			if($key != "")
+			if ($key != "")
+			{
 				$newar[$key] = $val;
+			}
 		}
 		return $newar;
 	}
 
 	public static function GetSiteFieldsArray($site_id)
 	{
-		if($site_id !== false && isset(static::$EVENT_SITE_PARAMS[$site_id]))
+		if ($site_id !== false && isset(static::$EVENT_SITE_PARAMS[$site_id]))
+		{
 			return static::$EVENT_SITE_PARAMS[$site_id];
+		}
 
 		$SITE_NAME = COption::GetOptionString("main", "site_name", $GLOBALS["SERVER_NAME"]);
 		$SERVER_NAME = COption::GetOptionString("main", "server_name", $GLOBALS["SERVER_NAME"]);
-		$DEFAULT_EMAIL_FROM = COption::GetOptionString("main", "email_from", "admin@".$GLOBALS["SERVER_NAME"]);
+		$DEFAULT_EMAIL_FROM = COption::GetOptionString("main", "email_from", "admin@" . $GLOBALS["SERVER_NAME"]);
 
-		if($site_id <> '')
+		if ($site_id <> '')
 		{
 			$dbSite = CSite::GetByID($site_id);
-			if($arSite = $dbSite->Fetch())
+			if ($arSite = $dbSite->Fetch())
 			{
-				static::$EVENT_SITE_PARAMS[$site_id] = array(
-					"SITE_NAME" => ($arSite["SITE_NAME"]<>''? $arSite["SITE_NAME"] : $SITE_NAME),
-					"SERVER_NAME" => ($arSite["SERVER_NAME"]<>''? $arSite["SERVER_NAME"] : $SERVER_NAME),
-					"DEFAULT_EMAIL_FROM" => ($arSite["EMAIL"]<>''? $arSite["EMAIL"] : $DEFAULT_EMAIL_FROM),
+				static::$EVENT_SITE_PARAMS[$site_id] = [
+					"SITE_NAME" => ($arSite["SITE_NAME"] <> '' ? $arSite["SITE_NAME"] : $SITE_NAME),
+					"SERVER_NAME" => ($arSite["SERVER_NAME"] <> '' ? $arSite["SERVER_NAME"] : $SERVER_NAME),
+					"DEFAULT_EMAIL_FROM" => ($arSite["EMAIL"] <> '' ? $arSite["EMAIL"] : $DEFAULT_EMAIL_FROM),
 					"SITE_ID" => $arSite['ID'],
 					"SITE_DIR" => $arSite['DIR'],
-				);
+				];
 				return static::$EVENT_SITE_PARAMS[$site_id];
 			}
 		}
 
-		return array(
+		return [
 			"SITE_NAME" => $SITE_NAME,
 			"SERVER_NAME" => $SERVER_NAME,
-			"DEFAULT_EMAIL_FROM" => $DEFAULT_EMAIL_FROM
-		);
+			"DEFAULT_EMAIL_FROM" => $DEFAULT_EMAIL_FROM,
+		];
 	}
 
-	public static function ReplaceTemplate($str, $ar, $bNewLineToBreak=false)
+	public static function ReplaceTemplate($str, $ar, $bNewLineToBreak = false)
 	{
 		$str = str_replace("%", "%2", $str);
-		foreach($ar as $key=>$val)
+		foreach ($ar as $key => $val)
 		{
-			if($bNewLineToBreak && !str_contains($val, "<"))
+			if ($bNewLineToBreak && !str_contains($val, "<"))
+			{
 				$val = nl2br($val);
+			}
 			$val = str_replace("%", "%2", $val);
 			$val = str_replace("#", "%1", $val);
-			$str = str_replace("#".$key."#", $val, $str);
+			$str = str_replace("#" . $key . "#", $val, $str);
 		}
 		$str = str_replace("%1", "#", $str);
 		$str = str_replace("%2", "%", $str);
@@ -215,7 +209,7 @@ class CAllEvent
 	 */
 	public static function HandleEvent($arEvent)
 	{
-		if(isset($arEvent['C_FIELDS']))
+		if (isset($arEvent['C_FIELDS']))
 		{
 			$arEvent['FIELDS'] = $arEvent['C_FIELDS'];
 			unset($arEvent['C_FIELDS']);
@@ -223,8 +217,4 @@ class CAllEvent
 
 		return Mail\Event::handleEvent($arEvent);
 	}
-}
-
-class CEvent extends CAllEvent
-{
 }

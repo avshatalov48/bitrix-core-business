@@ -703,16 +703,10 @@ abstract class BaseForm
 					{
 						$controlId = $description['name'] . '_uploader';
 
-						$additionalValues[$descriptionData['view']] = '';
-						$additionalValues[$descriptionData['viewList']]['SINGLE'] = '';
-						$additionalValues[$descriptionData['viewList']]['MULTIPLE'] = '';
-
-						if (!empty($value))
-						{
-							$additionalValues[$descriptionData['view']] = $this->getFilePropertyViewHtml($description, $value, $controlId);
-							$additionalValues[$descriptionData['viewList']]['SINGLE'] = $this->getFilePropertyViewHtml($description, is_array($value) ? $value[0] ?? null : $value, $controlId, false);
-							$additionalValues[$descriptionData['viewList']]['MULTIPLE'] = $this->getFilePropertyViewHtml($description, is_array($value) ? $value : [$value], $controlId, true);
-						}
+						// for empty value fill as empty string - need for component extensions
+						$additionalValues[$descriptionData['view']] = $this->getFilePropertyViewHtml($description, $value, $controlId);
+						$additionalValues[$descriptionData['viewList']]['SINGLE'] = $this->getFilePropertyViewHtml($description, is_array($value) ? $value[0] ?? null : $value, $controlId, false);
+						$additionalValues[$descriptionData['viewList']]['MULTIPLE'] = $this->getFilePropertyViewHtml($description, is_array($value) ? $value : [$value], $controlId, true);
 
 						$additionalValues[$descriptionData['edit']] = $this->getFilePropertyEditHtml($description, $value, $controlId);
 						$additionalValues[$descriptionData['editList']]['SINGLE'] = $this->getFilePropertyEditHtml($description, is_array($value) ? $value[0] ?? null : $value, $controlId, false);
@@ -2289,16 +2283,19 @@ abstract class BaseForm
 		$cid = FileInputUtility::instance()->registerControl('', $controlId);
 		$signer = new \Bitrix\Main\Security\Sign\Signer();
 		$signature = $signer->getSignature($cid, 'main.file.input');
-		if (is_array($value))
+		if (!empty($value))
 		{
-			foreach ($value as $elementOfValue)
+			if (is_array($value))
 			{
-				FileInputUtility::instance()->registerFile($cid, $elementOfValue);
+				foreach ($value as $elementOfValue)
+				{
+					FileInputUtility::instance()->registerFile($cid, $elementOfValue);
+				}
 			}
-		}
-		else
-		{
-			FileInputUtility::instance()->registerFile($cid, $value);
+			else
+			{
+				FileInputUtility::instance()->registerFile($cid, $value);
+			}
 		}
 
 		if ($multipleForList === null)
@@ -2318,9 +2315,18 @@ abstract class BaseForm
 			[
 				'userField' => [
 					'ID' => $description['settings']['ID'],
-					'VALUE' => $value,
-					'USER_TYPE_ID' => 'file',
+					'ENTITY_ID' => ProductTable::USER_FIELD_ENTITY_ID,
+					'FIELD_NAME' => $description['name'],
+					'USER_TYPE_ID' => UserField\Types\FileType::USER_TYPE_ID,
+					'XML_ID' => $description['settings']['XML_ID'],
+					'SORT' => $description['settings']['SORT'],
 					'MULTIPLE' => $multiple,
+					'MANDATORY' => $description['settings']['IS_REQUIRED'],
+					'SHOW_FILTER' => $description['settings']['FILTRABLE'],
+					'SHOW_IN_LIST' => 'Y',
+					'EDIT_IN_LIST' => 'Y',
+					'IS_SEARCHABLE' => $description['settings']['SEARCHABLE'],
+					'VALUE' => $value,
 				],
 				'additionalParameters' => [
 					'mode' => 'main.view',
@@ -2334,6 +2340,13 @@ abstract class BaseForm
 				],
 			]
 		);
+
+		if (empty($value))
+		{
+			ob_end_clean();
+
+			return '';
+		}
 
 		return ob_get_clean();
 	}
@@ -2577,22 +2590,17 @@ abstract class BaseForm
 
 	protected function getDefaultVat(): array
 	{
-		$emptyVat = null;
 		$iblockVatId = $this->entity->getIblockInfo()->getVatId();
 
 		foreach ($this->getVats() as $vat)
 		{
-			if ($vat['EXCLUDE_VAT'] === 'Y')
-			{
-				$emptyVat = $vat;
-			}
-
 			if ((int)$vat['ID'] === $iblockVatId)
 			{
 				$vat['NAME'] = Loc::getMessage(
-					"CATALOG_C_F_DEFAULT",
+					'CATALOG_C_F_DEFAULT',
 					['#VALUE#' => htmlspecialcharsbx($vat['NAME'])]
 				);
+
 				return $vat;
 			}
 		}
@@ -2602,9 +2610,9 @@ abstract class BaseForm
 			'RATE' => null,
 			'EXCLUDE_VAT' => null,
 			'NAME' => Loc::getMessage(
-				"CATALOG_C_F_DEFAULT",
-				['#VALUE#' => Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED")]
-			)
+				'CATALOG_C_F_DEFAULT',
+				['#VALUE#' => Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED')]
+			),
 		];
 	}
 

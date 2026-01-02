@@ -2,6 +2,7 @@
 
 use Bitrix\Mail\Internals\UserSignatureTable;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -15,6 +16,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	'ui.alerts',
 	'ui.notification',
 ]);
+
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] === 'Y')
+{
+	Toolbar::deleteFavoriteStar();
+}
 
 $bodyClass = $APPLICATION->getPageProperty('BodyClass', false);
 $APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, 'pagetitle-toolbar-field-view pagetitle-mail-view')));

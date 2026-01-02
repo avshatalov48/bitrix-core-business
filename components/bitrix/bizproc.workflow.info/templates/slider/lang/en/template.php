@@ -1,4 +1,5 @@
 <?php
+$MESS["BPWFI_SLIDER_ARGUMENT_NULL"] = "The field '#PARAM#' is required.";
 $MESS["BPWFI_SLIDER_BANNER_BODY"] = "Leave your comments and discuss the workflow with the participants.";
 $MESS["BPWFI_SLIDER_BANNER_TITLE"] = "There are no comments to this workflow";
 $MESS["BPWFI_SLIDER_BUTTON_DELEGATE"] = "Delegate";
@@ -12,8 +13,12 @@ $MESS["BPWFI_SLIDER_DISCUSSION_TITLE"] = "Workflow discussion";
 $MESS["BPWFI_SLIDER_DISCUSSION_ZERO_COMMENTS_COUNT"] = "There are no comments to this workflow.";
 $MESS["BPWFI_SLIDER_DOCUMENT"] = "Workflow element";
 $MESS["BPWFI_SLIDER_FIELDS_TITLE"] = "Assignment parameters (required)";
+$MESS["BPWFI_SLIDER_MODIFIED"] = "Last updated";
 $MESS["BPWFI_SLIDER_NAME"] = "Name";
+$MESS["BPWFI_SLIDER_NOT_MY_PROCESS"] = "You are viewing #USER#'s workflow.";
 $MESS["BPWFI_SLIDER_NOT_MY_TASK"] = "You are viewing #USER#'s assignment";
+$MESS["BPWFI_SLIDER_PROCESS"] = "Workflow";
+$MESS["BPWFI_SLIDER_STATUS"] = "Status";
 $MESS["BPWFI_SLIDER_TASK"] = "Assignment";
 $MESS["BPWFI_SLIDER_TIMELINE_MSGVER_1"] = "Journal";
 $MESS["BPWFI_SLIDER_TYPE"] = "Workflow type";

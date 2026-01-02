@@ -1,4 +1,6 @@
 <?php
+$MESS["LANDING_SITE_TILE_COPILOT_GENERATED_TEXT"] = "CoPilot is creating your site now";
+$MESS["LANDING_SITE_TILE_COPILOT_LABEL"] = "Created with CoPilot";
 $MESS["LANDING_SITE_TILE_CREATE_DOMAIN_NAME"] = "Come up with a catchy site address";
 $MESS["LANDING_SITE_TILE_DELETE_ALERT_MESSAGE"] = "Do you really want to delete it?";
 $MESS["LANDING_SITE_TILE_DELETE_ALERT_TITLE"] = "Attention!";
@@ -36,6 +38,12 @@ $MESS["LANDING_SITE_TILE_NOT_PUBLISHED_MSG_STORE"] = "The online store is not pu
 $MESS["LANDING_SITE_TILE_NOT_PUBLISHED_TITLE"] = "View site";
 $MESS["LANDING_SITE_TILE_NOT_PUBLISHED_TITLE_STORE"] = "View online store";
 $MESS["LANDING_SITE_TILE_OPEN"] = "Open";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_BUTTON"] = "Create a site";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_DESCRIPTION"] = "If required and not active, trial mode will be activated <br> when you click the \"Create a site\" button.";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_1"] = "Describe your requirements";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_2"] = "The AI will create site design, images and texts";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_3"] = "Your site will be ready in a couple minutes";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_TITLE"] = "<div class=\"landing-site_title-popup-title-node\">The AI will create your site</div> <div class=\"landing-site_title-popup-title-node-2\">in 3 simple steps</div>";
 $MESS["LANDING_SITE_TILE_POPUP_COPY_LINK"] = "Copy link";
 $MESS["LANDING_SITE_TILE_POPUP_COPY_LINK_COMPLETE"] = "Link copied.";
 $MESS["LANDING_SITE_TILE_POPUP_CREATE_TEST_ORDER"] = "Place a test order";

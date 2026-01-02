@@ -1,5 +1,10 @@
 <?php
 
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 use Bitrix\Calendar\OpenEvents\Component\Toolbar;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
@@ -18,7 +23,7 @@ global $APPLICATION;
 $bodyClass = $APPLICATION->getPageProperty('BodyClass') || '';
 $APPLICATION->SetPageProperty(
 	'BodyClass',
-	$bodyClass . ' no-all-paddings display-absolute top-menu-mode calendar-open-events__pagetitle-view',
+	$bodyClass . ' no-all-paddings display-absolute top-menu-mode calendar-open-events__pagetitle-view no-footer',
 );
 
 $APPLICATION->SetTitle(Loc::getMessage('CALENDAR_OPEN_EVENTS'));

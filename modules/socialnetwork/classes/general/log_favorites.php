@@ -25,11 +25,18 @@ class CAllSocNetLogFavorites
 		$pool = \Bitrix\Main\Application::getInstance()->getConnectionPool();
 		$pool->useMasterOnly(true);
 
+		$connection = \Bitrix\Main\Application::getConnection();
+
 		$result = false;
 		if (!$arRes = $dbRes->Fetch())
 		{
-			$strSQL = "INSERT INTO b_sonet_log_favorites (USER_ID, LOG_ID) VALUES(".$user_id.", ".$log_id.")";
-			if ($DB->Query($strSQL))
+			$strSQL = $connection->getSqlHelper()->getInsertIgnore(
+				'b_sonet_log_favorites',
+				' (USER_ID, LOG_ID) ',
+				"VALUES(" . $user_id . ", " . $log_id . ")"
+			);
+
+			if ($connection->query($strSQL))
 				$result = "Y";
 			else
 				$APPLICATION->ThrowException(GetMessage("SONET_LF_CANNOT_INSERT"), "CANNOT_INSERT");

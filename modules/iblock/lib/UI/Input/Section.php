@@ -2,16 +2,29 @@
 
 namespace Bitrix\Iblock\UI\Input;
 
+use Bitrix\Iblock\Integration\UI\EntitySelector\IblockPropertySectionProvider;
+use Bitrix\Iblock\PropertyTable;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type;
 use Bitrix\Main\UI;
-use Bitrix\Iblock;
-use Bitrix\Iblock\Integration\UI\EntitySelector\IblockPropertySectionProvider;
+use Bitrix\Main\Web\Json;
 
 class Section
 {
+	protected static bool $uiIncluded;
+
 	public static function renderSelector(array $property, array|int|string|null $values, array $config): string
 	{
+		if (!isset(self::$uiIncluded))
+		{
+			self::$uiIncluded = Loader::includeModule('ui');
+		}
+		if (!self::$uiIncluded)
+		{
+			return '';
+		}
+
 		$rowId = trim((string)($config['ROW_ID'] ?? ''));
 		$fieldName = trim((string)($config['FIELD_NAME'] ?? ''));
 		if ($fieldName === '')
@@ -19,7 +32,7 @@ class Section
 			return '';
 		}
 
-		if (($property['PROPERTY_TYPE'] ?? '') !== Iblock\PropertyTable::TYPE_SECTION)
+		if (($property['PROPERTY_TYPE'] ?? '') !== PropertyTable::TYPE_SECTION)
 		{
 			return '';
 		}
@@ -56,37 +69,52 @@ class Section
 			$config['CHANGE_EVENTS'] = is_string($config['CHANGE_EVENTS']) ? [$config['CHANGE_EVENTS']] : [];
 		}
 
-		$config = \CUtil::PhpToJSObject(
-			[
-				'containerId' => $containerId,
-				'fieldName' => $fieldName . ($multiple ? '[]' : ''),
-				'multiple' => $multiple,
-				'collectionType' => 'int',
-				'selectedItems' => $values,
-				'iblockId' => (int)($property['LINK_IBLOCK_ID'] ?? 0),
-				'userType' => (string)($property['USER_TYPE'] ?? ''),
-				'entityId' => $config['ENTITY_ID'],
-				'searchMessages' => [
-					'title' => $config['SEARCH_TITLE'],
-					'subtitle' => $config['SEARCH_SUBTITLE'],
-				],
-				'changeEvents' => $config['CHANGE_EVENTS'],
-			],
-			false,
-			true,
-			true
-		);
+		$entityValues = [];
+		foreach ($values as $value)
+		{
+			$entityValues[] = [
+				$config['ENTITY_ID'],
+				$value,
+			];
+		}
 
-		UI\Extension::load('iblock.field-selector');
+		$entities = [
+			[
+				'id' => $config['ENTITY_ID'],
+				'dynamicLoad' => true,
+				'dynamicSearch' => true,
+				'options'=> [
+					'iblockId' => (int)($property['LINK_IBLOCK_ID'] ?? 0),
+					'propertyType' => (string)($property['USER_TYPE'] ?? ''),
+				],
+			]
+		];
+
+		$config = Json::encode([
+			'containerId' => $containerId,
+			'fieldName' => $fieldName . ($multiple ? '[]' : ''),
+			'multiple' => $multiple,
+			'collectionType' => 'int',
+			'selectedItems' => $entityValues,
+			'entities' => $entities,
+			'searchMessages' => [
+				'title' => $config['SEARCH_TITLE'],
+				'subtitle' => $config['SEARCH_SUBTITLE'],
+			],
+			'changeEvents' => $config['CHANGE_EVENTS'],
+		]);
+
+		UI\Extension::load('ui.field-selector');
 
 		return <<<HTML
 			<div id="$containerId"></div>
 			<script>
 			(function() {
-				const selector = new BX.Iblock.FieldSelector($config);
+				const selector = new BX.UI.FieldSelector($config);
 				selector.render();
 			})();
 			</script>
-HTML;
+			HTML
+		;
 	}
 }

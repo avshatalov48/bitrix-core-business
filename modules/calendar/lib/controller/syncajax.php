@@ -3,6 +3,7 @@ namespace Bitrix\Calendar\Controller;
 
 use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Model\TypeModel;
+use Bitrix\Calendar\Access\SyncAccessController;
 use Bitrix\Calendar\Access\TypeAccessController;
 use Bitrix\Calendar\Controller\Filter\RestrictExternalUser;
 use Bitrix\Calendar\Core\Role\Helper;
@@ -12,7 +13,11 @@ use Bitrix\Calendar\Internals\Counter\Event\EventDictionary;
 use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Sync\ICloud;
+use Bitrix\Calendar\Synchronization\Public\Command\Common;
+use Bitrix\Calendar\Synchronization\Public\Command\Common\Office365\CreateConnectionCommand;
+use Bitrix\Calendar\Synchronization\Public\Service\SynchronizationFeature;
 use Bitrix\Calendar\Util;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
 use Bitrix\Main\HttpApplication;
 use Bitrix\Main\HttpResponse;
@@ -57,6 +62,18 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 	public function removeConnectionAction($connectionId, $removeCalendars)
 	{
 		$userId = \CCalendar::GetUserId();
+
+		if (
+			!SyncAccessController::can(
+				$userId,
+				ActionDictionary::ACTION_SYNC_DELETE,
+				$connectionId,
+			)
+		)
+		{
+			return false;
+		}
+
 		\CCalendar::setOwnerId($userId);
 		\CCalendar::RemoveConnection(['id' => (int)$connectionId, 'del_calendars' => $removeCalendars === 'Y']);
 		CounterService::addEvent(EventDictionary::SYNC_CHANGED, ['user_ids' => [$userId]]);
@@ -131,6 +148,22 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 			return $response;
 		}
 
+		if (SynchronizationFeature::isOn())
+		{
+			$command = new Common\Google\CreateConnectionCommand(\CCalendar::GetCurUserId());
+
+			$result = $command->run();
+
+			if (!$result->isSuccess())
+			{
+				$this->addErrors($result->getErrors());
+
+				return $response;
+			}
+
+			return $result->getData();
+		}
+
 		return (new Google\StartSynchronizationManager(\CCalendar::GetCurUserId()))->synchronize();
 	}
 
@@ -158,6 +191,15 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 			];
 		}
 
+		if (SynchronizationFeature::isOn())
+		{
+			$command = new CreateConnectionCommand(\CCalendar::GetUserId());
+
+			$result = $command->run();
+
+			return $result->getData();
+		}
+
 		$owner = Helper::getRole(\CCalendar::GetUserId(), User::TYPE);
 
 		return (new Sync\Office365\StartSyncController($owner))->synchronize();
@@ -166,18 +208,16 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 	/**
 	 * @param string|null $appleId
 	 * @param string|null $appPassword
-	 * @return array|string[]
+	 *
+	 * @return string[]
+	 *
 	 * @throws LoaderException
 	 * @throws \Bitrix\Main\Access\Exception\UnknownActionException
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
+	 * @throws \Bitrix\Main\Command\Exception\CommandException
+	 * @throws \Bitrix\Main\Command\Exception\CommandValidationException
 	 */
-	public function createIcloudConnectionAction(?string $appleId, ?string $appPassword)
+	public function createIcloudConnectionAction(?string $appleId, ?string $appPassword): array
 	{
-		$appleId = trim($appleId);
-		$appPassword = trim($appPassword);
-
 		if (!Loader::includeModule('dav'))
 		{
 			$this->addError(new Error(Loc::getMessage('EC_SYNCAJAX_DAV_REQUIRED')));
@@ -187,8 +227,10 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 				'message' => Loc::getMessage('EC_SYNCAJAX_DAV_REQUIRED'),
 			];
 		}
+
 		$typeModel = TypeModel::createFromXmlId(User::TYPE);
 		$accessController = new TypeAccessController(\CCalendar::GetUserId());
+
 		if (!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel, []))
 		{
 			$this->addError(new Error('Access Denied'));
@@ -198,6 +240,10 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 				'message' => 'Access Denied',
 			];
 		}
+
+		$appleId = trim($appleId);
+		$appPassword = trim($appPassword);
+
 		if (!preg_match("/[a-z]{4}-[a-z]{4}-[a-z]{4}-[a-z]{4}/", $appPassword))
 		{
 			$this->addError(new Error('Incorrect app password'));
@@ -208,7 +254,29 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 			];
 		}
 
+		if (SynchronizationFeature::isOn())
+		{
+			$userId = \CCalendar::GetCurUserId();
+
+			$command = new Common\ICloud\CreateConnectionCommand($userId, $appleId, $appPassword);
+
+			$result = $command->run();
+
+			if (!$result->isSuccess())
+			{
+				$this->addErrors($result->getErrors());
+
+				return [
+					'status' => 'error',
+					'message' => Loc::getMessage('EC_SYNCALAX_ICLOUD_WRONG_AUTH'),
+				];
+			}
+
+			return $result->getData();
+		}
+
 		$connectionId = (new Icloud\VendorSyncManager())->initConnection($appleId, $appPassword);
+
 		if (!$connectionId)
 		{
 			$this->addError(new Error(Loc::getMessage('EC_SYNCALAX_ICLOUD_WRONG_AUTH')));
@@ -225,7 +293,16 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 		];
 	}
 
-	public function syncIcloudConnectionAction($connectionId)
+	/**
+	 * @param $connectionId
+	 *
+	 * @return string[]
+	 *
+	 * @throws LoaderException
+	 * @throws \Bitrix\Main\Command\Exception\CommandException
+	 * @throws \Bitrix\Main\Command\Exception\CommandValidationException
+	 */
+	public function syncIcloudConnectionAction($connectionId): array
 	{
 		if (!Loader::includeModule('dav'))
 		{
@@ -235,6 +312,41 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 				'status' => 'error',
 				'message' => Loc::getMessage('EC_SYNCAJAX_DAV_REQUIRED'),
 			];
+		}
+
+		if (SynchronizationFeature::isOn())
+		{
+			$userId = \CCalendar::GetCurUserId();
+
+			if (
+				!SyncAccessController::can(
+					$userId,
+					ActionDictionary::ACTION_SYNC_RUN,
+					$connectionId,
+				)
+			)
+			{
+				return [
+					'status' => 'error',
+					'message' => 'Access Denied',
+				];
+			}
+
+			$command = new Common\ICloud\SynchronizeConnectionCommand($userId, $connectionId);
+
+			$result = $command->run();
+
+			if (!$result->isSuccess())
+			{
+				$this->addErrors($result->getErrors());
+
+				return [
+					'status' => 'error',
+					'message' => 'Error while trying to synchronize events',
+				];
+			}
+
+			return $result->getData();
 		}
 
 		$result = (new Icloud\VendorSyncManager())->syncIcloudConnection($connectionId);

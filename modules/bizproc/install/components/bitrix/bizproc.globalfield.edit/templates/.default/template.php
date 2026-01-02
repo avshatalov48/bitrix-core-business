@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main\Localization\Loc;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -20,12 +22,6 @@ CUtil::InitJSCore(['bp_field_type', 'date']);
 	'bizproc.globals',
 ]);
 ?>
-
-<?php $this->SetViewTarget('inside_pagetitle') ?>
-	<button class="ui-btn ui-btn-light-border" onclick="top.BX.Helper.show('redirect=detail&code=14922854');">
-		<?= GetMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_HEPL') ?>
-	</button>
-<?php $this->EndViewTarget() ?>
 
 <form id="bizproc.globalfield.edit-form">
 	<div class="ui-form">

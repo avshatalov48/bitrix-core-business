@@ -1,0 +1,26 @@
+<?php
+$MESS["BPSFA_PD_CANCEL"] = "Болдырмау";
+$MESS["BPSFA_PD_CANCEL_HINT"] = "Сақтамай шығу";
+$MESS["BPSFA_PD_DELETE"] = "Жою";
+$MESS["BPSFA_PD_EMPTY_NAME"] = "Өрістің коды көрсетілмеген";
+$MESS["BPSFA_PD_EMPTY_TITLE"] = "Өрістің атауы көрсетілмеген";
+$MESS["BPSFA_PD_FIELD"] = "Өріс";
+$MESS["BPSFA_PD_FIELDS"] = "Өрістер";
+$MESS["BPSFA_PD_F_ADD"] = "Өрісті қосу...";
+$MESS["BPSFA_PD_F_DEF"] = "Мән әдепкі бойынша";
+$MESS["BPSFA_PD_F_DESCR"] = "Сипаттама";
+$MESS["BPSFA_PD_F_MULT"] = "Көптік";
+$MESS["BPSFA_PD_F_NAME"] = "Код";
+$MESS["BPSFA_PD_F_REQ"] = "Міндетті";
+$MESS["BPSFA_PD_F_TITLE"] = "Атауы";
+$MESS["BPSFA_PD_F_TYPE"] = "Түрі";
+$MESS["BPSFA_PD_F_VLIST"] = "Мәндер тізімі";
+$MESS["BPSFA_PD_F_VLIST_HINT"] = "(жаңа жолдағы әрбір нұсқа, егер нұсқаның мәні атауынан өзгеше болса, оны атаудың алдында шаршы жақшаға алыңыз, мысалы, [v1]1-нұсқа)";
+$MESS["BPSFA_PD_NO"] = "Жоқ";
+$MESS["BPSFA_PD_SAVE"] = "Сақтау";
+$MESS["BPSFA_PD_SAVE_HINT"] = "Өрісті сақтау";
+$MESS["BPSFA_PD_TIMEOUT_LIMIT"] = "Күтудің ең қысқа кезеңі";
+$MESS["BPSFA_PD_WRONG_NAME"] = "Өріс кодында тек латын әріптері мен сандар қоданылады және саннан басталмауы керек";
+$MESS["BPSFA_PD_YES"] = "Иә";
+$MESS["BP_WF_DOWN"] = "Төмен";
+$MESS["BP_WF_UP"] = "Жоғары";

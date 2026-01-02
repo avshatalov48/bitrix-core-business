@@ -17,36 +17,8 @@ use Bitrix\Main\Localization\Loc;
 
 /** @var \Bitrix\MessageService\Sender\Sms\Ednaru $sender */
 $sender = $arResult['sender'];
-if ($sender->isRegistered())
-{
-	?><div id="messageservice_toolbar" class="pagetitle-container pagetitle-align-right-container">
-	<div class="webform-small-button webform-small-button-transparent webform-cogwheel">
-		<span class="webform-button-icon"></span>
-	</div>
-	<script>
-		BX.ready(
-			function ()
-			{
-				BX.MessageService.ToolBar.create(
-					"messageservice_toolbar",
-					{
-						"containerId": "messageservice_toolbar",
-						"items": [{
-							'TEXT': '<?=CUtil::JSEscape(Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTIONS"))?>',
-							'ONCLICK': 'BX.MessageService.ConfigSenderSms&&BX.MessageService.ConfigSenderSms.clearOptions?BX.MessageService.ConfigSenderSms.clearOptions():null;'
-						}],
-						"menuButtonClassName": "webform-cogwheel"
-					}
-				);
-			}
-		);
-	</script>
-	</div><?
-	if (!defined('ADMIN_SECTION'))
-	{
-		$this->EndViewTarget();
-	}
-}
+
+include 'toolbar.php';
 ?>
 <div class="sms-settings">
 	<h2 class="sms-settings-title"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE")?></h2>

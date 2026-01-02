@@ -31,13 +31,15 @@ class ValidationError extends Error
 
 	public function setCode(int|string $code): static
 	{
-		$this->code = $code;
+		if (!empty($this->code))
+		{
+			$this->code = $code . '.' . $this->getCode();
+		}
+		else
+		{
+			$this->code = $code;
+		}
 
 		return $this;
-	}
-
-	public function hasCode(): bool
-	{
-		return !empty($this->code);
 	}
 }

@@ -5,9 +5,6 @@ namespace Bitrix\Calendar\Sync\Managers;
 use Bitrix\Calendar\Core;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Factories\FactoryBase;
-use Bitrix\Main\ArgumentException;
-use Bitrix\Main\ObjectNotFoundException;
-use Exception;
 
 class ImportSectionManager
 {
@@ -16,9 +13,6 @@ class ImportSectionManager
 
 	/**
 	 * @param FactoryBase $factory
-	 * @param Core\Base\Map $syncSectionCollection
-	 *
-	 * @throws ObjectNotFoundException
 	 */
 	public function __construct(FactoryBase $factory)
 	{
@@ -53,16 +47,19 @@ class ImportSectionManager
 
 	public function getSyncToken(): ?string
 	{
+		// @todo No usages?
 		return $this->importManager->getSyncToken();
 	}
 
 	public function getEtag(): ?string
 	{
+		// @todo No usages?
 		return $this->importManager->getEtag();
 	}
 
 	public function getStatus(): ?string
 	{
+		// @todo No usages?
 		return $this->importManager->getStatus();
 	}
 }

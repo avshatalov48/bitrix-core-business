@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
 this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
@@ -72,13 +73,11 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
         },
         getPropertiesShort: function getPropertiesShort() {
           var properties = [];
-
           for (var propertyId in this.items) {
             if (main_core.Type.isStringFilled(this.items[propertyId].value)) {
               properties.push(this.items[propertyId].value);
             }
           }
-
           return properties.join(', ');
         }
       },
@@ -91,7 +90,6 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
               return variant.value === item.value && variant.propertyId === item.id;
             }).name;
           }
-
           return item.value;
         }
       },

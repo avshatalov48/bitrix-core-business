@@ -30,6 +30,7 @@ type ManagerOptions = {
 	isSetSyncGoogleSettings: boolean,
 	isSetSyncOffice365Settings: boolean,
 	payAttentionToNewSharingFeature: boolean,
+	useAirDesign: boolean,
 };
 
 export default class Manager extends EventEmitter
@@ -66,6 +67,7 @@ export default class Manager extends EventEmitter
 		this.refreshDebounce = Runtime.debounce(this.refresh, this.REFRESH_DELAY, this);
 		this.refreshContentDebounce = Runtime.debounce(this.refreshContent, this.REFRESH_CONTENT_DELAY, this);
 		this.payAttentionToNewSharingFeature = options.payAttentionToNewSharingFeature;
+		this.useAirDesign = options.useAirDesign;
 
 		this.init();
 		this.subscribeOnEvent();
@@ -88,7 +90,7 @@ export default class Manager extends EventEmitter
 		window.addEventListener('message', (event) => {
 			if (event.data.title === 'googleOAuthSuccess')
 			{
-				window.location.reload()
+				window.location.reload();
 			}
 		});
 	}
@@ -103,6 +105,7 @@ export default class Manager extends EventEmitter
 			isGoogleApplicationRefused: this.isGoogleApplicationRefused,
 			counters: this.syncInfo.counters ?? {},
 			payAttentionToNewSharingFeature: this.payAttentionToNewSharingFeature,
+			useAirDesign: this.useAirDesign,
 		});
 		this.syncButton.show();
 

@@ -133,7 +133,7 @@ export class FilePlugin extends BasePlugin
 
 					// [FILE ID=5b87ba3b-edb1-49df-a840-50d17b6c3e8c.fbbdd477d5ff19d61...a875e731fa89cfd1e1]
 					// [FILE ID=14194]
-					const serverFileId = node.getAttribute('id');
+					let serverFileId = node.getAttribute('id');
 					const createTextNode = () => {
 						return { node: $createTextNode(node.toString()) };
 					};
@@ -151,6 +151,11 @@ export class FilePlugin extends BasePlugin
 					if (info === null)
 					{
 						return createTextNode();
+					}
+
+					if (info.serverFileId.toString() !== serverFileId.toString())
+					{
+						serverFileId = info.serverFileId.toString();
 					}
 
 					const fileType = this.getFileType(info);
@@ -274,7 +279,23 @@ export class FilePlugin extends BasePlugin
 	{
 		if (Type.isStringFilled(serverFileId) || Type.isNumber(serverFileId))
 		{
-			return this.#files.get(serverFileId.toString()) || null;
+			const file = this.#files.get(serverFileId.toString()) || null;
+
+			if (file)
+			{
+				return file;
+			}
+
+			for (const item of this.#files.values())
+			{
+				if (
+					item.serverFileId.toString() === serverFileId.toString()
+					|| (item.customData?.objectId && `n${item.customData.objectId.toString()}` === serverFileId.toString())
+				)
+				{
+					return item;
+				}
+			}
 		}
 
 		return null;

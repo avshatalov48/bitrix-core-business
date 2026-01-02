@@ -10,8 +10,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Landing\Assets;
 use Bitrix\Landing\Manager;
+use Bitrix\Landing\Mainpage;
 use Bitrix\Landing\Rights;
-use Bitrix\Landing\Site\Type;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
@@ -24,42 +24,30 @@ $this->setFrameMode(true);
 
 // assets
 $assets = Assets\Manager::getInstance();
+Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.mainpage.pub/templates/.default/bootstrap-mainpage.css');
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.mainpage.pub/templates/.default/style-widgets.css');
 
+$isAnalyticsEnabled = false;
 if (isset($arResult['LANDING']))
 {
 	/** @var \Bitrix\Landing\Landing $landing */
 	$landing = $arResult['LANDING'];
 	$b24Installed = \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24');
+	$isAnalyticsEnabled = $b24Installed;
 	$masterFrame = $component->request('master') == 'Y' && Rights::hasAccessForSite(
 		$landing->getSiteId(), Rights::ACCESS_TYPES['edit']
 	);
 }
 else
 {
-	// todo: print error no landing
-}
 
-if ($arParams['TYPE'] !== Type::SCOPE_CODE_MAINPAGE)
-{
-	$arResult['ERRORS'][] = 'Incorrect type';
+	// todo: print error no landing
 }
 ?>
 
 <?php
-if (Loader::includeModule('bitrix24'))
-{
-	$available = Bitrix\Bitrix24\Feature::isFeatureEnabled("main_page");
-}
-else
-{
-	// do not change this condition! Need for preview.bitrix24.site
-	$available =
-		class_exists('CBXFeatures')
-		&& CBXFeatures::IsFeatureEnabled('main_page')
-	;
-}
-if (!$available)
+$isFeatureAvailable = Mainpage\Manager::isFeatureEnable() || Mainpage\Manager::isFreeTariffMode();
+if (!$isFeatureAvailable || !Mainpage\Manager::isAvailable())
 {
 ?>
 	<div class="landing-mainpage-disabled-container">
@@ -82,16 +70,11 @@ Manager::setPageView(
 	'no-all-paddings landing-tile no-background'
 );
 
-if ($arResult['ERRORS'])
-{
-	include 'error.php';
-	return;
-}
-
 if (Loader::includeModule('intranet'))
 {
 	$publisher = new Intranet\MainPage\Publisher();
 	$isPublished =	$publisher->isPublished();
+	$settingLink = (new Bitrix\Intranet\Site\FirstPage\MainFirstPage())->getSettingsPath();
 }
 else
 {
@@ -108,21 +91,20 @@ if (!$isPublished)
 {
 	$extensions[] = 'ui.alerts';
 }
-if ($b24Installed)
+if ($isAnalyticsEnabled)
 {
 	$extensions[] = 'landing.metrika';
 }
 
 Extension::load($extensions);
+?>
 
-$viewMode = 'view';
-$publicModeInit = '
+<script>
 	BX.namespace("BX.Landing");
-	BX.Landing.getMode = () => "' . $viewMode . '";
-';
-$assets->addString(
-	"<script>{$publicModeInit}</script>",
-);
+	BX.Landing.getMode = () => "view";
+</script>
+
+<?php
 
 // check frame parameter outside the frame
 if ($component->request('IFRAME'))
@@ -152,7 +134,7 @@ if ($component->request('IFRAME'))
 	<div class="ui-alert ui-alert-warning ui-alert-icon-info ui-alert-close-animate">
 		<span class="ui-alert-message"><?= Loc::getMessage('LANDING_TPL_MAINPAGE_ALERT_TEXT'); ?>
 			<?php if (Manager::isAdmin()): ?>
-				<?= Loc::getMessage('LANDING_TPL_MAINPAGE_ALERT_TEXT_ADMIN'); ?>
+				<?= Loc::getMessage('LANDING_TPL_MAINPAGE_ALERT_TEXT_ADMIN_MSGVER_1', ['#LINK#' => $settingLink ?? '#']);?>
 			<?php endif; ?>
 		</span>
 		<span class="ui-alert-close-btn" onclick="this.parentNode.style.display = 'none';"></span>
@@ -160,6 +142,7 @@ if ($component->request('IFRAME'))
 <?php endif;?>
 
 <?php
+
 // shop master frame
 if ($masterFrame)
 {
@@ -170,39 +153,6 @@ if ($masterFrame)
 	echo '<style>.b24-widget-button-wrapper, .catalog-cart-block {display: none;}</style>';
 }
 
-if ($arResult['SEARCH_RESULT_QUERY'])
-{
-	if (!$component->isAjax())
-	{
-		?>
-		<script>
-			BX.ready(function() {
-				void new BX.Landing.Pub.SearchResult();
-			});
-		</script>
-		<?php
-	}
-}
-
-if ($component->request('ts'))
-{
-	?>
-	<script>
-		BX.ready(function() {
-			void new BX.Landing.Pub.TimeStamp();
-		});
-	</script>
-	<?php
-}
-
-?>
-<script>
-	BX.ready(function() {
-		void new BX.Landing.Mainpage.Public();
-	});
-</script>
-<?php
-
 // todo: after creating page from market - check TPL_ID. Need .landing-main wrapper or own container
 // @see \Bitrix\Landing\Landing::applyTemplate
 
@@ -212,43 +162,26 @@ $landing->view([
 ]);
 
 Manager::setPageTitle(Loc::getMessage('LANDING_TPL_MAINPAGE_TITLE'));
-
-$viewMode = $component->isPreviewMode() ? 'preview' : 'view';
+Manager::initAssets($landing->getId());
 ?>
-<?php if ($viewMode === 'preview' && $component->request('scrollTo')):?>
-<script>
-	const scrollToElementId = '<?= CUtil::JSEscape(htmlspecialcharsbx($component->request('scrollTo')))?>';
-	const scrollToElement = document.getElementById(scrollToElementId);
 
-	if (scrollToElement)
-	{
-		scrollToElement.scrollIntoView();
-	}
+<script>
+	BX.ready(function() {
+		void new BX.Landing.Mainpage.Public();
+
+		<?php if ($isAnalyticsEnabled): ?>
+			void new BX.Landing.Pub.Analytics({
+				isPublished: <?= $isPublished ? 'true' : 'false' ?>,
+				templateCode: '<?= $landing->getCode() ?>',
+			});
+		<?php endif; ?>
+
+		void new BX.Landing.Pub.Pseudolinks();
+	});
 </script>
-<?php elseif ($viewMode === 'preview'):?>
+
 <style>
 	[data-b24-crm-hello-cont] {
 		display: none;
 	}
 </style>
-<script>
-	BX.ready(function() {
-		void new BX.Landing.Pub.Analytics();
-	});
-</script>
-<script>
-	BX.ready(function() {
-		void new BX.Landing.Pub.Pseudolinks();
-	});
-</script>
-<?php endif;?>
-
-<?php if ($b24Installed):?>
-<script>
-	(function()
-	{
-		new BX.Landing.Metrika();
-	})();
-</script>
-<?php endif;?>
-

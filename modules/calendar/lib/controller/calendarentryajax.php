@@ -444,7 +444,10 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 
 		if ($id)
 		{
-			$eventModel = \CCalendarEvent::getEventModelForPermissionCheck($id, [], $userId);
+			$eventModel = \CCalendarEvent::getEventModelForPermissionCheck(
+				eventId: $id,
+				userId: $userId
+			);
 		}
 		else
 		{
@@ -1066,7 +1069,10 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		$accessController = new EventAccessController($userId);
 		$hasAccess = $accessController->check(
 			ActionDictionary::ACTION_EVENT_VIEW_FULL,
-			\CCalendarEvent::getEventModelForPermissionCheck($eventId, [], $userId)
+			\CCalendarEvent::getEventModelForPermissionCheck(
+				eventId: $eventId,
+				userId: $userId
+			)
 		);
 		if (!$hasAccess)
 		{

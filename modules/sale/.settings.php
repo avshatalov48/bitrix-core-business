@@ -38,4 +38,17 @@ return array(
 			]
 		],
 	],
+	'ui.entity-selector' => [
+		'value' => [
+			'entities' => [
+				[
+					'entityId' => 'sale-user',
+					'provider' => [
+						'moduleId' => 'sale',
+						'className' => \Bitrix\Sale\Integration\UI\EntitySelector\SaleUserProvider::class,
+					],
+				],
+			],
+		],
+	],
 );

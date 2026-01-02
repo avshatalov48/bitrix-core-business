@@ -17,6 +17,7 @@ use Bitrix\Rest\Preset\Provider;
 use Bitrix\Main\SystemException;
 use Bitrix\Rest\Url\DevOps;
 use Bitrix\Rest\Analytic;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 Loc::loadMessages(__FILE__);
 
@@ -103,7 +104,7 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 			!$isAdmin
 			&&
 			(
-				$presetData['ADMIN_ONLY'] === 'Y'
+				($presetData['ADMIN_ONLY'] ?? 'N') === 'Y'
 				|| $presetData['OPTIONS']['WIDGET_NEEDED'] !== 'D'
 				|| $presetData['OPTIONS']['APPLICATION_NEEDED'] !== 'D'
 			)
@@ -141,12 +142,12 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 			{
 				$result['QUERY_NEEDED'] = $presetData['OPTIONS']['QUERY_NEEDED'] ?? null;
 				$result['ERROR_MESSAGE'][] = Loc::getMessage(
-					'REST_INTEGRATION_EDIT_ATTENTION_USES_WEBHOOK',
+					'REST_INTEGRATION_EDIT_ATTENTION_USES_WEBHOOK_MSGVER_1',
 					[
-						'#URL#' =>
-							'<a href="'.\Bitrix\UI\Util::getArticleUrlByCode('12337906').'" >'
-							. Loc::getMessage('REST_INTEGRATION_EDIT_ATTENTION_USES_WEBHOOK_URL_MESSAGE')
-							. '</a>'
+						'[strong]' => '<strong>',
+						'[/strong]' => '</strong>',
+						'[article_link]' => '<a href="'.\Bitrix\UI\Util::getArticleUrlByCode('12337906').'" >',
+						'[/article_link]' => '</a>'
 					]
 				);
 			}
@@ -282,8 +283,10 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 		$result['IS_NEW_OPEN'] = $this->request->getPost('NEW_OPEN') === 'Y';
 
 		$result['LANG_LIST'] = $this->getLanguageList();
-		$result['URI_METHOD_INFO'] = Provider::URI_METHOD_INFO . '?lang=' . $lang . '&method=';
-		$result['URI_EXAMPLE_DOWNLOAD'] = Provider::URI_EXAMPLE_DOWNLOAD . '?encode=' . SITE_CHARSET . '&type=';
+		$exampleUri = Application::getInstance()->getLicense()->getDomainStoreLicense() . '/example_b24/';
+
+		$result['URI_METHOD_INFO'] = $exampleUri . 'redirect.php?lang=' . $lang . '&method=';
+		$result['URI_EXAMPLE_DOWNLOAD'] = $exampleUri . '?encode=' . SITE_CHARSET . '&type=';
 
 		if (
 				(
@@ -297,6 +300,11 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 		)
 		{
 			$result['ERROR_MESSAGE'][] = Loc::getMessage('REST_INTEGRATION_EDIT_HOLD_DUE_TO_OVERLOAD');
+		}
+
+		if ($this->arParams['IFRAME'])
+		{
+			Toolbar::addEditableTitle();
 		}
 
 		$this->arResult = $result;
@@ -483,7 +491,7 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 		if (!empty($code))
 		{
 			$presetData = Element::get($code);
-			if (!empty($presetData['OPTIONS']))
+			if (!empty($presetData['OPTIONS']) && $presetData['ACTIVE'] === 'Y')
 			{
 				$saveData = [
 					'ELEMENT_CODE' => $presetData['ELEMENT_CODE'],

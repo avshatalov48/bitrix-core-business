@@ -15,6 +15,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
+use Bitrix\Socialnetwork\Helper\Feature;
 
 UI\Extension::load([
 	'ui.design-tokens',
@@ -26,9 +27,10 @@ UI\Extension::load([
 	'ui.hint',
 	'ui.entity-selector',
 	'socialnetwork.common',
-	'intranet_theme_picker',
 	'ui.lottie',
 	'im.public.iframe',
+	'socialnetwork.limit',
+	'intranet.theme-picker',
 ]);
 
 $messages = Loc::loadLanguageFile(__FILE__);
@@ -160,6 +162,9 @@ else
 						focus: '<?= CUtil::JSEscape(\Bitrix\Main\Context::getCurrent()->getRequest()->get('focus')) ?>',
 						culture: <?= CUtil::phpToJSObject($arResult['culture']) ?>,
 						currentUserType: '<?= CUtil::JSEscape($arResult['currentUserType']) ?>',
+						isScrumForm: <?=($arParams['PROJECT_OPTIONS']['scrum'] ?? '0') === '1' ? 'true' : 'false'?>,
+						isScrumTrialEnabled: <?= Feature::isFeatureEnabledByTrial(Feature::SCRUM_CREATE) ? 'true' : 'false' ?>,
+						isProjectsTrialEnabled: <?= Feature::isFeatureEnabledByTrial(Feature::PROJECTS_GROUPS) ? 'true' : 'false' ?>,
 					});
 				}
 			);

@@ -222,6 +222,11 @@
 	z-index: 9;
 }
 
+.bitrix24-light-theme .main-kanban-column:before,
+.bitrix24-dark-theme .main-kanban-column:before {
+	border-left: 1px dashed rgba(255,255,255,.55);
+}
+
 .main-kanban-column:first-child:before {
 	left: 0;
 }
@@ -327,6 +332,10 @@
 	opacity: .7;
 	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-regular, 400);
+}
+
+.main-kanban-column.--auto-pagination .main-kanban-column-total-item {
+	display: none;
 }
 
 .main-kanban-column-title-dark .main-kanban-column-total-item,
@@ -1046,6 +1055,10 @@
 	background-size: 10px 10px;
 	-webkit-border-radius: 100%;
 	border-radius: 100%;
+}
+
+.bitrix24-light-theme .main-kanban-column-add-item-button:before {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%23fff%22%20fill-rule%3D%22evenodd%22%20d%3D%22M109%2C16%20L109%2C12%20L107%2C12%20L107%2C16%20L103%2C16%20L103%2C18%20L107%2C18%20L107%2C22%20L109%2C22%20L109%2C18%20L113%2C18%20L113%2C16%20L109%2C16%20Z%22%20transform%3D%22translate%28-103%20-12%29%22%20opacity%3D%22.943%22/%3E%0A%3C/svg%3E');
 }
 
 .main-kanban-column-add-item-button-text {

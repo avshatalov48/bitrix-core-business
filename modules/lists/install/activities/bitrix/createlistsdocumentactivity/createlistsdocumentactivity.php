@@ -5,7 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use Bitrix\Bizproc\Result\ResultDto;
+use Bitrix\Crm\Integration\Analytics\Dictionary;
 use Bitrix\Main\Localization\Loc;
 
 CBPRuntime::getRuntime()->includeActivityFile('CreateDocumentActivity');
@@ -101,6 +101,23 @@ class CBPCreateListsDocumentActivity extends CBPCreateDocumentActivity
 		)
 		{
 			$this->fixResult($this->makeResultFromId($this->ElementId));
+		}
+
+		if (
+			($this->getDocumentType()[0] === 'crm')
+			&& $this->ElementId
+			&& \Bitrix\Main\Loader::includeModule("crm")
+		)
+		{
+			if (method_exists(\CCrmBizProcHelper::class, 'sendOperationsAnalytics'))
+			{
+				// Send Operations Analytics
+				\CCrmBizProcHelper::sendOperationsAnalytics(
+					Dictionary::EVENT_ENTITY_CREATE,
+					$this,
+					'list_element',
+				);
+			}
 		}
 
 		if ($this->workflow->isDebug())

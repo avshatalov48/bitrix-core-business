@@ -148,7 +148,8 @@ if ($arParams['SHOW_EDIT_PANEL'] === 'Y')
 			</div>
 			<div class="landing-pub-top-panel-right">
 				<div class="landing-pub-top-panel-unique-view">
-					<div class="ui-btn ui-btn-xs ui-btn-icon-eye-opened ui-btn-link ui-btn-light">
+					<div class="ui-icon-set --person"></div>
+					<div>
 						<?= View::getNumberUniqueViews($landing->getId())?>
 					</div>
 					<div class="landing-pub-top-panel-unique-view-popup hide">
@@ -156,6 +157,12 @@ if ($arParams['SHOW_EDIT_PANEL'] === 'Y')
 							<?= $component->getMessageType('LANDING_TPL_VIEWS')?>
 						</div>
 						<div class="landing-pub-top-panel-unique-view-popup-item-container"></div>
+					</div>
+				</div>
+				<div class="landing-pub-top-panel-total-view">
+					<div class="ui-icon-set --opened-eye"></div>
+					<div>
+						<?= View::getNumberTotalViews($landing->getId())?>
 					</div>
 				</div>
 				<?php if($arResult['CAN_EDIT'] === 'Y'): ?>

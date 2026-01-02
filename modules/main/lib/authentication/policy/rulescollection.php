@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Authentication\Policy;
@@ -33,6 +33,7 @@ use Bitrix\Main\Localization\Loc;
  * @method getPasswordCheckWeak()
  * @method getPasswordCheckPolicy()
  * @method getPasswordChangeDays()
+ * @method getPasswordMinChangeDays()
  * @method getPasswordUniqueCount()
  * @method getLoginAttempts()
  * @method getBlockLoginAttempts()
@@ -67,6 +68,7 @@ class RulesCollection extends Type\Dictionary
 			'PASSWORD_CHECK_WEAK' => new BooleanRule(Loc::getMessage('GP_PASSWORD_CHECK_WEAK')),
 			'PASSWORD_CHECK_POLICY' => new BooleanRule(Loc::getMessage('GP_PASSWORD_CHECK_POLICY')),
 			'PASSWORD_CHANGE_DAYS' => new LesserPositiveRule(Loc::getMessage('GP_PASSWORD_CHANGE_DAYS')),
+			'PASSWORD_MIN_CHANGE_DAYS' => new GreaterRule(Loc::getMessage('GP_PASSWORD_MIN_CHANGE_DAYS')),
 			'PASSWORD_UNIQUE_COUNT' => new GreaterRule(Loc::getMessage('GP_PASSWORD_UNIQUE_COUNT')),
 			'LOGIN_ATTEMPTS' => new LesserPositiveRule(Loc::getMessage('GP_LOGIN_ATTEMPTS')),
 			'BLOCK_LOGIN_ATTEMPTS' => new LesserPositiveRule(Loc::getMessage('GP_BLOCK_LOGIN_ATTEMPTS')),
@@ -120,6 +122,7 @@ class RulesCollection extends Type\Dictionary
 			$policy['PASSWORD_PUNCTUATION']->assignValue(true);
 			$policy['PASSWORD_CHECK_POLICY']->assignValue(true);
 			$policy['PASSWORD_CHANGE_DAYS']->assignValue(90);
+			$policy['PASSWORD_MIN_CHANGE_DAYS']->assignValue(1);
 			$policy['PASSWORD_UNIQUE_COUNT']->assignValue(3);
 			$policy['LOGIN_ATTEMPTS']->assignValue(3);
 		}

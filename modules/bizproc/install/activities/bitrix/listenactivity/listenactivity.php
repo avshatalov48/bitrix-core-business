@@ -40,9 +40,10 @@ class CBPListenActivity extends CBPCompositeActivity implements IBPActivityEvent
 	{
 		for ($i = 0, $s = count($this->arActivities); $i < $s; $i++)
 		{
+			/** @var CBPEventDrivenActivity $eventDriven */
 			$eventDriven = $this->arActivities[$i];
 
-			$activity = $eventDriven->GetEventActivity();
+			$activity = $eventDriven->getEventActivity();
 			if ($activity === null)
 			{
 				continue;

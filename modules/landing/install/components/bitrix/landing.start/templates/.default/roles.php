@@ -6,17 +6,29 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 
 use \Bitrix\Main\Localization\Loc;
 Loc::loadMessages(__FILE__);
-?>
 
-<?$APPLICATION->IncludeComponent(
-	'bitrix:landing.roles',
-	'.default',
-	array(
-		'PAGE_URL_ROLE_EDIT' => $arParams['PAGE_URL_ROLE_EDIT'],
-		'TYPE' => $arParams['TYPE']
-	),
-	$component
-);?>
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var \CMain $APPLICATION */
+/** @var \CBitrixComponent $component */
+
+$APPLICATION->includeComponent(
+	'bitrix:ui.sidepanel.wrapper',
+	'',
+	[
+		'POPUP_COMPONENT_NAME' => 'bitrix:landing.roles',
+		'POPUP_COMPONENT_TEMPLATE_NAME' => '.default',
+		'POPUP_COMPONENT_PARAMS' => [
+			'PAGE_URL_ROLE_EDIT' => $arParams['PAGE_URL_ROLE_EDIT'],
+			'TYPE' => $arParams['TYPE'],
+		],
+		'POPUP_COMPONENT_PARENT' =>$component,
+		'USE_PADDING' => true,
+		'USE_UI_TOOLBAR' => 'Y',
+		'PAGE_MODE' => true,
+	]
+);
+?>
 
 <?if (!$arResult['CHECK_FEATURE_PERM']):?>
 	<script>

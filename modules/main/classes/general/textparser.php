@@ -1692,6 +1692,11 @@ class CTextParser
 				return $text;
 			}
 			$value = intval($value > $count ? ($count - 1) : $value);
+			if (!isset($this->arFontSize[$value]))
+			{
+				return $text;
+			}
+
 			//compatibility with old percent values
 			$size = (is_numeric($this->arFontSize[$value])? $this->arFontSize[$value] . '%' : $this->arFontSize[$value]);
 			return '<span class="bx-font" style="font-size:' . $size . ';">' . $text . '</span>';

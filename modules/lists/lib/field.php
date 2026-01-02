@@ -1496,33 +1496,48 @@ class Field
 		}
 		else
 		{
-			$result = array(
+			$result = [
 				'id' => $field['FIELD_ID'],
 				'name' => $field['NAME'],
-				'required' => $field['IS_REQUIRED'] == 'Y' ? true : false,
+				'required' => $field['IS_REQUIRED'] === 'Y',
 				'type' => 'textarea',
-				'show' => $field['SHOW']
-			);
-			if($field['SETTINGS']['USE_EDITOR'] == 'Y')
+				'show' => $field['SHOW'],
+			];
+			if(($field['SETTINGS']['USE_EDITOR'] ?? 'N') === 'Y')
 			{
-				$params = array('width' => '100%', 'height' => '200px');
-				$match = array();
-				if(preg_match('/\s*(\d+)\s*(px|%|)/', $field['SETTINGS']['WIDTH'], $match) && ($match[1] > 0))
-					$params['width'] = $match[1].$match[2];
-				if(preg_match('/\s*(\d+)\s*(px|%|)/', $field['SETTINGS']['HEIGHT'], $match) && ($match[1] > 0))
-					$params['height'] = $match[1].$match[2];
+				$params = ['width' => '100%', 'height' => '200px'];
+				$match = [];
+				if(
+					preg_match('/\s*(\d+)\s*(px|%|)/', $field['SETTINGS']['WIDTH'] ?? '', $match)
+					&& ($match[1] > 0)
+				)
+				{
+					$params['width'] = $match[1] . $match[2];
+				}
+				if(
+					preg_match('/\s*(\d+)\s*(px|%|)/', $field['SETTINGS']['HEIGHT'] ?? '', $match)
+					&& ($match[1] > 0)
+				)
+				{
+					$params['height'] = $match[1] . $match[2];
+				}
 				$result['type'] = 'custom';
 				$result['params'] = $params;
 				$result['value'] = self::renderHtmlEditor(
-					$field['FIELD_ID'], $field['FIELD_ID'], $params, $field['VALUE']);
+					$field['FIELD_ID'], $field['FIELD_ID'], $params, $field['VALUE']
+				);
 			}
 			else
 			{
-				$params = array('style' => '');
-				if(preg_match('/\s*(\d+)\s*(px|%|)/', $field['SETTINGS']['WIDTH'], $match) && ($match[1] > 0))
-					$params['style'] .= 'width:'.$match[1].'px;';
-				if(preg_match('/\s*(\d+)\s*(px|%|)/', $field['SETTINGS']['HEIGHT'], $match) && ($match[1] > 0))
-					$params['style'] .= 'height:'.$match[1].'px;';
+				$params = ['style' => ''];
+				if(preg_match('/\s*(\d+)\s*(px|%|)/', $field['SETTINGS']['WIDTH'] ?? '', $match) && ($match[1] > 0))
+				{
+					$params['style'] .= 'width:' . $match[1] . 'px;';
+				}
+				if(preg_match('/\s*(\d+)\s*(px|%|)/', $field['SETTINGS']['HEIGHT'] ?? '', $match) && ($match[1] > 0))
+				{
+					$params['style'] .= 'height:' . $match[1] . 'px;';
+				}
 				$result['params'] = $params;
 			}
 		}

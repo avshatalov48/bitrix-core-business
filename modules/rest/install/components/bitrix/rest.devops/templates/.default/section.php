@@ -24,5 +24,6 @@ $APPLICATION->IncludeComponent(
 		'USE_PADDING' => false,
 		'PAGE_MODE'=> false,
 		'PAGE_MODE_OFF_BACK_URL' =>	$arResult['PATH_TO_INDEX'],
+		'USE_UI_TOOLBAR' => 'Y',
 	)
 );

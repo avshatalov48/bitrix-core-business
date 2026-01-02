@@ -2,6 +2,7 @@
 
 namespace Bitrix\Landing\Assets;
 
+use Bitrix\Landing\Site\Type;
 use \Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main;
@@ -151,13 +152,12 @@ class Manager
 			self::REGISTERED_KEY_CODE => $code,
 			self::REGISTERED_KEY_LOCATION => $location,
 		];
-		
-		if($code !== 'main.core' && $code !== 'core')
+
+		if ($code !== 'main.core' && $code !== 'core')
 		{
 			\CJSCore::markExtensionLoaded($code);
 		}
 	}
-
 
 	/**
 	 * Recursive (by 'rel' key) adding assets in WP packege
@@ -200,14 +200,22 @@ class Manager
 		// get data from CJSCore
 		if ($ext = \CJSCore::getExtInfo($code))
 		{
+			if (!Type::isExtensionAllow($code))
+			{
+				return;
+			}
 			$asset = $ext;
 		}
-		else if ($ext = Extension::getConfig($code))
+		elseif ($ext = Extension::getConfig($code))
 		{
+			if (!Type::isExtensionAllow($code))
+			{
+				return;
+			}
 			$asset = $ext;
 		}
 		// if name - it path
-		else if ($type = self::detectType($code))
+		elseif ($type = self::detectType($code))
 		{
 			$asset = [$type => [$code]];
 		}
@@ -242,7 +250,6 @@ class Manager
 
 		return true;
 	}
-
 
 	/**
 	 * Get parts of asset and add them in pack
@@ -286,7 +293,7 @@ class Manager
 							$this->resources->addString($this->createStringFromPath($path, $type));
 						}
 						// todo: check is file exist
-						else if (self::detectType($path))
+						elseif (self::detectType($path))
 						{
 							$this->resources->add($path, $type, $location);
 						}
@@ -354,7 +361,6 @@ class Manager
 
 		return $externalLink;
 	}
-
 
 	/**
 	 * Detect type by path.

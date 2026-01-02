@@ -206,9 +206,14 @@ BX.UserContentView.sendViewAreaData = function()
 			data: {
 				params: {
 					viewXMLIdList: this.toSendList,
-					context: this.context
-				}
-			}
+					context: this.context,
+				},
+			},
+			analyticsLabel: !!this.mobile ? {
+				tool: 'feed',
+				category: 'posts_operations',
+				event: 'post_read',
+			} : null,
 		}).then(function(response) {
 			this.ajaxSent = false;
 			this.failedAjaxCounter = 0;
@@ -685,13 +690,25 @@ BX.UserContentView.Counter.prototype.list = function(params)
 				: ''
 			;
 
+			let userNodeTag = 'div';
+			let userNodeAttributes = {};
+			let userNameClass = 'bx-contentview-popup-name';
+
+			const isPublicModeUser = data.items[i].PUBLIC_MODE ?? true;
+			if (isPublicModeUser)
+			{
+				userNodeTag = 'a';
+				userNameClass = 'bx-contentview-popup-name-link';
+				userNodeAttributes = {
+					href: data.items[i].URL,
+					target: '_blank',
+					title: data.items[i].DATE_VIEW_FORMATTED,
+				};
+			}
+
 			this.popupContent.appendChild(
-				BX.create('A', {
-					attrs: {
-						href: data.items[i]['URL'],
-						target: '_blank',
-						title: data.items[i]['DATE_VIEW_FORMATTED'],
-					},
+				BX.create(userNodeTag, {
+					attrs: userNodeAttributes,
 					props: {
 						className: 'bx-contentview-popup-img' + (
 							!!data.items[i]['TYPE']
@@ -715,7 +732,7 @@ BX.UserContentView.Counter.prototype.list = function(params)
 						}),
 						BX.create('SPAN', {
 							props: {
-								className: `bx-contentview-popup-name-new ${userTypeClass}`,
+								className: `${userNameClass} ${userTypeClass}`,
 							},
 							html: data.items[i]['FULL_NAME'],
 						})
@@ -729,7 +746,7 @@ BX.UserContentView.Counter.prototype.list = function(params)
 			BX.cleanNode(this.hiddenCountNode, true);
 			this.hiddenCountNode = BX.create('SPAN', {
 				props: {
-					className: 'bx-contentview-popup-name-new contentview-counter-hidden',
+					className: 'bx-contentview-popup-name contentview-counter-hidden',
 				},
 				html: BX.message('SONET_CONTENTVIEW_JS_HIDDEN_COUNT').replace('#CNT#', data.hiddenCount),
 			});

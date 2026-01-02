@@ -1,7 +1,8 @@
 import { Text } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
-import { ChatAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { ChatTitle } from 'im.v2.component.elements.chat-title';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 import { EventType } from 'im.v2.const';
 import { Parser } from 'im.v2.lib.parser';
 import { highlightText } from 'im.v2.lib.text-highlighter';

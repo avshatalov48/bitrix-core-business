@@ -1,0 +1,10 @@
+.bx-im-notes-avatar__container {
+	--im-notes-avatar__background-color_primary: var(--im-color-palette-blue-50);
+
+	background-color: var(--im-notes-avatar__background-color_primary);
+	background-image: url("./images/notes-avatar.svg");
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: 75% 75%;
+	border-radius: 50%;
+}

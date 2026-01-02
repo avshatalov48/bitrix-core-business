@@ -15,6 +15,8 @@ Loc::loadMessages(__FILE__);
 /** @deprecated */
 class CSaleOrderProps
 {
+	private static array $arUsers = [];
+
 	/*
 	 * Checks order properties' values on the basis of order properties' restrictions
 	 *
@@ -30,7 +32,7 @@ class CSaleOrderProps
 		if (!is_array($arOrderPropsValues))
 			$arOrderPropsValues = array();
 
-		$arUser = null;
+		$arUser = self::$arUsers[$arOrder['USER_ID']] ?? null;
 
 		$arFilter = [
 			"=PERSON_TYPE_ID" => $arOrder["PERSON_TYPE_ID"],
@@ -102,13 +104,29 @@ class CSaleOrderProps
 					{
 						if ($arUser == null)
 						{
-							$dbUser = CUser::GetList("ID", "desc", array("ID_EQUAL_EXACT" => $arOrder["USER_ID"]));
+							$dbUser = CUser::GetList(
+								'ID',
+								'desc',
+								['ID_EQUAL_EXACT' => $arOrder['USER_ID']],
+								[
+									'FIELDS' => ['EMAIL', 'NAME', 'LAST_NAME'],
+								],
+							);
 							$arUser = $dbUser->Fetch();
+							self::$arUsers[$arOrder['USER_ID']] = $arUser;
 						}
-						if ($arOrderProp["IS_EMAIL"] == "Y")
-							$curVal = is_array($arUser) ? $arUser["EMAIL"] : "";
-						elseif ($arOrderProp["IS_PAYER"] == "Y")
-							$curVal = is_array($arUser) ? $arUser["NAME"].($arUser["NAME"] == '' || $arUser["LAST_NAME"] == '' ? "" : " ").$arUser["LAST_NAME"] : "";
+						if ($arOrderProp['IS_EMAIL'] === 'Y')
+						{
+							$curVal = is_array($arUser) ? $arUser['EMAIL'] : '';
+						}
+						elseif ($arOrderProp['IS_PAYER'] === 'Y')
+						{
+							$curVal =
+								is_array($arUser)
+									? $arUser['NAME'].($arUser['NAME'] == '' || $arUser['LAST_NAME'] == '' ? '' : ' ') . $arUser['LAST_NAME']
+									: ''
+							;
+						}
 					}
 				}
 			}

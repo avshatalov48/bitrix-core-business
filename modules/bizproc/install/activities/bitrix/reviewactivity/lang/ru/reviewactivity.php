@@ -1,6 +1,6 @@
 <?php
 
-$MESS ['BPAR_ACT_COMMENT'] = "Комментарий";
+$MESS ['BPAR_ACT_COMMENT_1'] = "Пояснение";
 $MESS ['BPAR_ACT_INFO'] = "Ознакомлено #PERCENT#% (#REVIEWED# из #TOTAL#)";
 $MESS ['BPAR_ACT_BUTTON2'] = "Ознакомлен";
 $MESS ['BPAR_ACT_REVIEWED'] = "Ознакомление с документом завершено.";
@@ -11,3 +11,5 @@ $MESS ['BPAR_ACT_PROP_EMPTY4'] = "Свойство 'Название' не ук�
 $MESS ['BPAA_ACT_APPROVERS_NONE'] = "нет";
 $MESS ['BPAA_ACT_NO_ACTION'] = "Неверно указано действие";
 $MESS ['BPAA_ACT_COMMENT_ERROR'] = "Не заполнено поле: #COMMENT_LABEL#";
+$MESS ['BPAR_ACT_COMMENT_REQUIRED_TO_APPROVE'] = "Обязательно при утверждении";
+$MESS ['BPAR_ACT_COMMENT_REQUIRED_TO_REJECT'] = "Обязательно при отклонении";

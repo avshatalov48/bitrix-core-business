@@ -1,109 +1,38 @@
-import { MarketItem } from './component/market-item';
-import { MarketList } from './component/market-list';
 import { MarketExpiredPopup } from './popup/market-expired-popup';
-import { ajax, Extension, Loc } from 'main.core';
+import { Extension } from 'main.core';
+import type { PopupConfig } from './type/popup-config';
+import { PopupFactory } from './popup/popup-factory';
 import './style.css';
-import { FinalMarketExpiredPopup } from './popup/final-market-expired-popup';
-import { WarningMarketExpiredPopup } from './popup/warning-market-expired-popup';
-import { Analytic } from './analytic';
+import type { MarketExpiredCurtain } from './curtain/market-expired-curtain';
+import { CurtainFactory } from './curtain/curtain-factory';
+import CurtainPage from './type/curtain-page';
 
 export {
-	MarketItem,
-	MarketList,
-	WarningMarketExpiredPopup,
-	FinalMarketExpiredPopup,
-};
-
-const POPUPS = {
-	WARNING: WarningMarketExpiredPopup,
-	FINAL: FinalMarketExpiredPopup,
+	CurtainPage,
 };
 
 export class MarketExpired
 {
-	static async getPopup(): ?MarketExpiredPopup
+	config: PopupConfig;
+
+	constructor(config: PopupConfig)
 	{
-		const getMarketListFromResponse = (response, moreLink, title, onClick): ?MarketList => {
-			if (!response || !response.data)
-			{
-				return null;
-			}
+		this.config = config;
+	}
 
-			const { items, count } = response.data;
-			const marketList = [];
+	static async getPopup(config: PopupConfig = null): ?MarketExpiredPopup
+	{
+		const popupConfig = config ?? Extension.getSettings('rest.market-expired');
+		const manager = new PopupFactory(popupConfig);
 
-			if (items.length === 0 || count < 1)
-			{
-				return null;
-			}
+		return manager.createPopup();
+	}
 
-			Object.values(items).forEach((item) => {
-				marketList.push(new MarketItem({
-					name: item.name,
-					icon: item.icon,
-				}));
-			});
+	static getCurtain(curtainPage: CurtainPage, config: PopupConfig = null): ?MarketExpiredCurtain
+	{
+		const curtainConfig = config ?? Extension.getSettings('rest.market-expired');
+		const manager = new CurtainFactory(curtainConfig);
 
-			return new MarketList({
-				title,
-				count,
-				items: marketList,
-				link: moreLink,
-				onClick,
-			});
-		};
-
-		const options = Extension.getSettings('rest.market-expired');
-		let popup = null;
-
-		await Promise.all([
-			ajax.runAction('rest.integration.getApplicationList', { data: { limit: 3 } }),
-			ajax.runAction('rest.integration.getIntegrationList', { data: { limit: 3 } }),
-		]).then(([appsResponse, integrationsResponse]) => {
-			const analytic = new Analytic({
-				withDiscount: options.withDiscount,
-				popupType: options.type,
-			});
-
-			const appList = getMarketListFromResponse(
-				appsResponse,
-				'/market/installed/',
-				Loc.getMessage('REST_MARKET_EXPIRED_POPUP_MARKET_LIST_TITLE_APPS'),
-				() => {
-					analytic.sendClickButton('view_all_apps');
-				},
-			);
-			const integrationList = getMarketListFromResponse(
-				integrationsResponse,
-				'/devops/list/',
-				Loc.getMessage('REST_MARKET_EXPIRED_POPUP_MARKET_LIST_TITLE_INTEGRATIONS'),
-				() => {
-					analytic.sendClickButton('view_all_integrations');
-				},
-			);
-
-			if (appList || integrationList)
-			{
-				const PopupClass = POPUPS[options.type];
-
-				if (PopupClass)
-				{
-					popup = new PopupClass({
-						transitionPeriodEndDate: options.transitionPeriodEndDate,
-						appList,
-						integrationList,
-						marketSubscriptionUrl: options.marketSubscriptionUrl,
-						withDiscount: options.withDiscount,
-						withDemo: options.withDemo,
-						olWidgetCode: options.olWidgetCode,
-						analytic,
-					});
-				}
-			}
-		}).catch((error) => {
-			console.log(error);
-		});
-
-		return popup;
+		return manager.createCurtain(curtainPage);
 	}
 }

@@ -265,6 +265,7 @@ export class FieldsPanel extends Content
 					.forEach(([categoryId, category]) => {
 						if (
 							categoryId !== 'CATALOG'
+							&& category !== 'BOOKING'
 							&& categoryId !== 'ACTIVITY'
 							&& categoryId !== 'INVOICE'
 						)
@@ -511,11 +512,9 @@ export class FieldsPanel extends Content
 		}
 
 		button.activate();
+		const activatedCategoryId = button.id;
 
-		const hideCreateButton = this.getAllowedTypes().every((type) => {
-			return Type.isPlainObject(type);
-		});
-		if (Type.isArrayFilled(this.getAllowedTypes()) && hideCreateButton)
+		if (this.shouldHideCreateButton(activatedCategoryId))
 		{
 			this.hideCreateFieldButton();
 		}
@@ -532,6 +531,23 @@ export class FieldsPanel extends Content
 			const form = this.createFieldsListForm(button.id);
 			this.appendForm(form);
 		}
+	}
+
+	shouldHideCreateButton(activatedCategoryId: string): boolean
+	{
+		const categoriesWithoutCreateButton = ['BOOKING'];
+		const hideCreateButtonForCategory = categoriesWithoutCreateButton.includes(activatedCategoryId);
+
+		if (hideCreateButtonForCategory)
+		{
+			return true;
+		}
+
+		const hideCreateButton = this.getAllowedTypes().every((type) => {
+			return Type.isPlainObject(type);
+		});
+
+		return Type.isArrayFilled(this.getAllowedTypes()) && hideCreateButton;
 	}
 
 	getFilteredFieldsTree(): {[key: string]: any}

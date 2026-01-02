@@ -1,6 +1,5 @@
 <?php
 
-use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Grid\Editor\Types;
 use Bitrix\Main\Grid\Panel;
 use Bitrix\Main\Grid\Context;
@@ -10,6 +9,10 @@ use Bitrix\Main\Security;
 use Bitrix\Main\UI\Filter;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Main\Web\Json;
+use Bitrix\UI\Toolbar\ButtonLocation;
+use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 
 class CAdminUiList extends CAdminList
 {
@@ -586,7 +589,7 @@ class CAdminUiList extends CAdminList
 		if ($this->currentPreset)
 		{
 			$options = new Filter\Options($this->table_id, $this->filterPresets);
-			$options->setFilterSettings($this->currentPreset["id"], $this->currentPreset, true, false);
+			$options->setFilterSettings($this->currentPreset["id"] ?? '', $this->currentPreset, true, false);
 			$options->save();
 		}
 
@@ -597,44 +600,16 @@ class CAdminUiList extends CAdminList
 
 		if ($this->getPublicModeState())
 		{
-			ob_start();
-			?>
-				<div class="pagetitle-container pagetitle-flexible-space">
-					<?
-					$APPLICATION->includeComponent(
-						"bitrix:main.ui.filter",
-						"",
-						$filterParams,
-						false,
-						array("HIDE_ICONS" => true)
-					);
-					?>
-				</div>
-			<?
-			$APPLICATION->AddViewContent("inside_pagetitle", ob_get_clean(), 600);
+			\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($filterParams);
 		}
 		else
 		{
 			\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 			$APPLICATION->SetAdditionalCSS('/bitrix/css/main/grid/webform-button.css');
-			?>
-			<div class="adm-toolbar-panel-container">
-				<div class="adm-toolbar-panel-flexible-space">
-					<?
-					$APPLICATION->includeComponent(
-						"bitrix:main.ui.filter",
-						"",
-						$filterParams,
-						false,
-						array("HIDE_ICONS" => true)
-					);
-					?>
-				</div>
-				<?
-				$this->ShowContext();
-				?>
-			</div>
-			<?
+			\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($filterParams);
+			\Bitrix\UI\Toolbar\Facade\Toolbar::hideTitle();
+			$APPLICATION->IncludeComponent('bitrix:ui.toolbar', 'admin');
+			$this->ShowContext();
 		}
 
 		$this->createFilterSelectorHandlers($filterFields);
@@ -1864,7 +1839,7 @@ class CAdminUiResult extends CAdminResult
 
 	/**
 	 * @param string $tableId
-	 * @param string $className Bitrix\Main\Entity\DataManager class name.
+	 * @param string $className DataManager class name.
 	 * @param array $getListParams
 	 */
 	public static function setNavParams($tableId, $className, &$getListParams)
@@ -1890,10 +1865,10 @@ class CAdminUiResult extends CAdminResult
 			if (class_exists($className))
 			{
 				/**
-				 * @var Bitrix\Main\Entity\DataManager $className
+				 * @var DataManager $className
 				 */
-				$countQuery = new Bitrix\Main\Entity\Query($className::getEntity());
-				$countQuery->addSelect(new Bitrix\Main\Entity\ExpressionField("CNT", "COUNT(1)"));
+				$countQuery = new Query($className::getEntity());
+				$countQuery->addSelect(new ExpressionField("CNT", "COUNT(1)"));
 				$countQuery->setFilter($getListParams["filter"]);
 				$totalCount = $countQuery->setLimit(null)->setOffset(null)->exec()->fetch();
 				unset($countQuery);
@@ -2007,42 +1982,19 @@ class CAdminUiContextMenu extends CAdminContextMenu
 
 		if ($this->isPublicMode)
 		{
-			global $APPLICATION;
-			ob_start();
-			?><div
-				class="pagetitle-container pagetitle-align-right-container"
-				style="margin-right: 12px"
-			><?php
-				$this->showBaseButton();
-			?></div><?php
-			if (!$this->isShownFilterContext)
-			{
-				?><div class="pagetitle-container pagetitle-flexible-space"></div><?php
-			}
-			$APPLICATION->AddViewContent("inside_pagetitle", ob_get_clean());
-
-			ob_start();
-			?><div class="pagetitle-container pagetitle-align-right-container"><?php
-				$this->showActionButton();
-			?></div><?php
-			$APPLICATION->AddViewContent("inside_pagetitle", ob_get_clean(), 700);
-		}
-		elseif ($this->isShownFilterContext)
-		{
-			?><div class="adm-toolbar-panel-align-right"><?php
-				$this->showActionButton();
-				$this->showBaseButton();
-			?></div><?php
+			$this->showBaseButton(ButtonLocation::AFTER_TITLE);
+			$this->showActionButton();
 		}
 		else
 		{
-			?><div class="adm-toolbar-panel-container">
-				<div class="adm-toolbar-panel-flexible-space"></div>
-				<div class="adm-toolbar-panel-align-right"><?php
-					$this->showActionButton();
-					$this->showBaseButton();
-				?></div>
-			</div><?php
+			$this->showActionButton();
+			$this->showBaseButton();
+			if (!$this->isShownFilterContext)
+			{
+				global $APPLICATION;
+				\Bitrix\UI\Toolbar\Facade\Toolbar::hideTitle();
+				$APPLICATION->IncludeComponent('bitrix:ui.toolbar', 'admin');
+			}
 		}
 	}
 
@@ -2052,79 +2004,81 @@ class CAdminUiContextMenu extends CAdminContextMenu
 		{
 			if ($this->isPublicMode)
 			{
-				$menuUrl = "BX.adminList.showPublicMenu(this, ".HtmlFilter::encode(
-					CAdminPopup::PhpToJavaScript($this->additional_items)).");";
+				$menuUrl = 'BX.adminList.showPublicMenu(this.getContainer(), ' .
+					CAdminPopup::PhpToJavaScript($this->additional_items) . ');';
 			}
 			else
 			{
-				$menuUrl = "BX.adminList.ShowMenu(this, ".HtmlFilter::encode(
-					CAdminPopup::PhpToJavaScript($this->additional_items)).");";
+				$menuUrl = 'BX.adminList.ShowMenu(this.getContainer(), ' .
+					CAdminPopup::PhpToJavaScript($this->additional_items) . ');';
 			}
 
-			?>
-			<button class="ui-btn ui-btn-light-border ui-btn-themes ui-btn-icon-setting" onclick="
-				<?=$menuUrl?>"></button>
-			<?
+			$button = new \Bitrix\UI\Buttons\SettingsButton([
+				'click' => new \Bitrix\UI\Buttons\JsCode($menuUrl),
+			]);
+			\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($button);
 		}
 	}
 
-	private function showBaseButton()
+	private function showBaseButton(string $location = ButtonLocation::RIGHT)
 	{
 		if (!empty($this->items))
 		{
 			$items = $this->items;
 			$firstItem = array_shift($items);
-			if (!empty($firstItem["MENU"]))
+			if (!empty($firstItem['MENU']))
 			{
-				$items = array_merge($items, $firstItem["MENU"]);
+				$items = array_merge($items, $firstItem['MENU']);
 			}
 			if ($this->isPublicMode)
 			{
-				$menuUrl = "BX.adminList.showPublicMenu(this, ".HtmlFilter::encode(
-					CAdminPopup::PhpToJavaScript($items)).");";
+				$menuUrl = 'BX.adminList.showPublicMenu(this.getContainer(), ' .
+					CAdminPopup::PhpToJavaScript($items) . ');';
 			}
 			else
 			{
-				$menuUrl = "BX.adminList.ShowMenu(this, ".HtmlFilter::encode(
-					CAdminPopup::PhpToJavaScript($items)).");";
+				$menuUrl = 'BX.adminList.ShowMenu(this.getContainer(), ' .
+					CAdminPopup::PhpToJavaScript($items) . ');';
 			}
-			$buttonId = !empty($firstItem["ID"]) ? "id=\"" . $firstItem["ID"] . "\"" : "";
-			if (!empty($items)):?>
-				<? if (!empty($firstItem["ONCLICK"])): ?>
-					<div class="ui-btn-split ui-btn-primary">
-						<button <?=$buttonId?> onclick="<?=HtmlFilter::encode($firstItem["ONCLICK"])?>" class="ui-btn-main">
-							<?=HtmlFilter::encode($firstItem["TEXT"])?>
-						</button>
-						<button onclick="<?=$menuUrl?>" class="ui-btn-extra"></button>
-					</div>
-				<? else: ?>
-					<? if (isset($firstItem["DISABLE"])): ?>
-						<div class="ui-btn-split ui-btn-primary">
-							<button <?=$buttonId?> onclick="<?=$menuUrl?>" class="ui-btn-main">
-								<?=HtmlFilter::encode($firstItem["TEXT"])?>
-							</button>
-							<button onclick="<?=$menuUrl?>" class="ui-btn-extra"></button>
-						</div>
-					<? else: ?>
-						<div class="ui-btn-split ui-btn-primary">
-							<a <?=$buttonId?> href="<?=HtmlFilter::encode($firstItem["LINK"] ?? '')?>" class="ui-btn-main">
-								<?=HtmlFilter::encode($firstItem["TEXT"])?>
-							</a>
-							<button onclick="<?=$menuUrl?>" class="ui-btn-extra"></button>
-						</div>
-					<? endif; ?>
-				<? endif; ?>
-			<? else:?>
-				<? if (!empty($firstItem["ONCLICK"])): ?>
-					<button <?=$buttonId?> class="ui-btn ui-btn-primary" onclick="<?=HtmlFilter::encode($firstItem["ONCLICK"])?>">
-						<?=HtmlFilter::encode($firstItem["TEXT"])?>
-					</button>
-				<? else: ?>
-					<a <?=$buttonId?> class="ui-btn ui-btn-primary" href="<?=HtmlFilter::encode($firstItem["LINK"])?>">
-						<?=HtmlFilter::encode($firstItem["TEXT"])?>
-					</a>
-				<? endif; ?>
-			<?endif;
+
+			$buttonParams = [
+				'color' => \Bitrix\UI\Buttons\Color::PRIMARY,
+				'id' => !empty($firstItem['ID']) ? $firstItem['ID'] : null,
+				'text' => $firstItem['TEXT'],
+			];
+			if (!empty($items))
+			{
+				if (!empty($firstItem['ONCLICK']))
+				{
+					$buttonParams['mainButton']['click'] = new \Bitrix\UI\Buttons\JsCode($firstItem['ONCLICK']);
+				}
+				else
+				{
+					if (isset($firstItem['DISABLE']))
+					{
+						$buttonParams['mainButton']['click'] = new \Bitrix\UI\Buttons\JsCode($menuUrl);
+					}
+					else
+					{
+						$buttonParams['mainButton']['link'] = $firstItem['LINK'];
+					}
+				}
+				$buttonParams['menuButton']['click'] = new \Bitrix\UI\Buttons\JsCode($menuUrl);
+				$button = new Bitrix\UI\Buttons\Split\Button($buttonParams);
+			}
+			else
+			{
+				if (!empty($firstItem['ONCLICK']))
+				{
+					$buttonParams['click'] = new \Bitrix\UI\Buttons\JsCode($firstItem['ONCLICK']);
+				}
+				else
+				{
+					$buttonParams['link'] = $firstItem['LINK'];
+				}
+				$button = new \Bitrix\UI\Buttons\Button($buttonParams);
+			}
+			\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($button, $location);
 		}
 	}
 }

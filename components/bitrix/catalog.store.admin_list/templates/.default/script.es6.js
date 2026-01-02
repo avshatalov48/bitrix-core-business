@@ -18,7 +18,7 @@ class Grid
 
 	static openStoreSlider(id = 0)
 	{
-		var url = '/shop/documents-stores/details/'+parseInt(id)+'/';
+		const url = `/shop/documents-stores/details/${parseInt(id, 10)}/`;
 
 		BX.SidePanel.Instance.open(
 			url,
@@ -27,16 +27,21 @@ class Grid
 				cacheable: false,
 				width: 500,
 				events: {
-					onClose: function(event)
+					onClose(event)
 					{
-						var grid = BX.Main.gridManager.getInstanceById(Grid.gridId);
-						if(grid)
+						if (!BX.Main.gridManager)
+						{
+							return;
+						}
+
+						const grid = BX.Main.gridManager.getInstanceById(Grid.gridId);
+						if (grid)
 						{
 							grid.reload();
 						}
-					}
-				}
-			}
+					},
+				},
+			},
 		);
 	}
 
@@ -56,8 +61,8 @@ class Grid
 			item.options.href,
 			{
 				allowChangeHistory: false,
-				cacheable: false
-			}
+				cacheable: false,
+			},
 		);
 	}
 }

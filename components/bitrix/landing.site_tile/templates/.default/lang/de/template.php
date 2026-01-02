@@ -1,4 +1,6 @@
 <?php
+$MESS["LANDING_SITE_TILE_COPILOT_GENERATED_TEXT"] = "CoPilot erstellt jetzt Ihre Website";
+$MESS["LANDING_SITE_TILE_COPILOT_LABEL"] = "Erstellt mit CoPilot";
 $MESS["LANDING_SITE_TILE_CREATE_DOMAIN_NAME"] = "Definieren Sie eine griffige Website-Adresse";
 $MESS["LANDING_SITE_TILE_DELETE_ALERT_MESSAGE"] = "Möchten Sie das wirklich löschen?";
 $MESS["LANDING_SITE_TILE_DELETE_ALERT_TITLE"] = "Achtung!";
@@ -36,6 +38,12 @@ $MESS["LANDING_SITE_TILE_NOT_PUBLISHED_MSG_STORE"] = "Dieser Onlineshop wurde no
 $MESS["LANDING_SITE_TILE_NOT_PUBLISHED_TITLE"] = "Website anzeigen";
 $MESS["LANDING_SITE_TILE_NOT_PUBLISHED_TITLE_STORE"] = "Onlineshop anzeigen";
 $MESS["LANDING_SITE_TILE_OPEN"] = "Öffnen";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_BUTTON"] = "Eine Website erstellen";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_DESCRIPTION"] = "Wenn erforderlich und nicht aktiv, wird die Testversion <br> aktiviert, wenn Sie auf die Schaltfläche <br> \"Eine Website erstellen\" klicken.";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_1"] = "Beschreiben Sie Ihre Anforderungen";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_2"] = "Die KI erstellt das Website-Design, erzeugt Bilder und Texte";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_3"] = "Ihre Website wird in einigen Minuten fertig sein";
+$MESS["LANDING_SITE_TILE_POPUP_COPILOT_TITLE"] = "<div class=\"landing-site_title-popup-title-node\">Die KI erstellt Ihre Website</div> <div class=\"landing-site_title-popup-title-node-2\">in 3 einfachen Schritten:</div>";
 $MESS["LANDING_SITE_TILE_POPUP_COPY_LINK"] = "Link kopieren";
 $MESS["LANDING_SITE_TILE_POPUP_COPY_LINK_COMPLETE"] = "Link kopiert.";
 $MESS["LANDING_SITE_TILE_POPUP_CREATE_TEST_ORDER"] = "Machen Sie eine Testbestellung";

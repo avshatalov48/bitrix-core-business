@@ -46,10 +46,7 @@ abstract class Collection implements IteratorAggregate, Countable
 	{
 		$this->collection[] = $item;
 
-		if ($this->generator)
-		{
-			$this->generator->send($item);
-		}
+		$this->generator?->send($item);
 
 		return $this;
 	}
@@ -60,7 +57,6 @@ abstract class Collection implements IteratorAggregate, Countable
 	 */
 	public function addItems(array $items): Collection
 	{
-
 		$this->collection = array_merge($this->collection, $items);
 
 		return $this;
@@ -88,8 +84,6 @@ abstract class Collection implements IteratorAggregate, Countable
 
 	/**
 	 * @return mixed
-	 *
-	 * @throws BaseException
 	 */
 	public function fetch()
 	{

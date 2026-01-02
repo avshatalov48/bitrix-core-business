@@ -21,10 +21,11 @@ abstract class Event
 	protected ?string $p4 = null;
 	protected ?string $p5 = null;
 
-	public function __construct(string $eventName, Chat $chat)
+	public function __construct(string $eventName, Chat $chat, int $userId)
 	{
 		$this->chat = $chat;
 		$this->event = new AnalyticsEvent($eventName, $this->getTool(), $this->getCategory($eventName));
+		$this->event->setUserId($userId);
 		$this->setDefaultParams();
 	}
 
@@ -42,7 +43,7 @@ abstract class Event
 		return $this;
 	}
 
-	protected function convertUnderscore(string $string): string
+	public static function convertUnderscore(string $string): string
 	{
 		return (new Converter(Converter::TO_CAMEL | Converter::LC_FIRST))->process($string);
 	}

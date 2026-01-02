@@ -1,12 +1,14 @@
 <?php
 
+/**
+ * @global CMain $APPLICATION
+ * @global CUser $USER
+ */
+
 define("STOP_STATISTICS", true);
 define("BX_SECURITY_SHOW_MESSAGE", true);
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-
-global $APPLICATION;
-global $USER;
+require_once $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php";
 
 if (!check_bitrix_sessid() || !$USER->IsAuthorized() || $_SERVER['REQUEST_METHOD'] != "POST")
 {
@@ -120,9 +122,6 @@ if (isset($_POST["type"]) && $_POST["type"] == "desktop")
 	}
 	else
 	{
-		$GLOBALS["APPLICATION"]->SetTitle(GetMessage("CMDESKTOP_ADMIN_SETTINGS_DIALOG_TITLE"));
-		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-
 		?>
 		<script>
 			BX.ready(function()
@@ -168,8 +167,6 @@ if (isset($_POST["type"]) && $_POST["type"] == "desktop")
 		</form>
 		</div>
 		<?php
-
-		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	}
 }
 elseif (isset($_POST["type"]) && $_POST["type"] == "gadget")

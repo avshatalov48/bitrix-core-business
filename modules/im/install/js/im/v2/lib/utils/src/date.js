@@ -59,4 +59,21 @@ export const DateUtil = {
 			&& firstDate.getDate() === secondDate.getDate()
 			&& firstDate.getHours() === secondDate.getHours();
 	},
+
+	formatMediaDurationTime(seconds: number): string
+	{
+		const padZero = (num: number): string => {
+			return num.toString().padStart(2, '0');
+		};
+
+		const hours = Math.floor(seconds / 3600);
+		const minutes = Math.floor((seconds % 3600) / 60);
+		const remainingSeconds = Math.floor(seconds % 60);
+
+		const formattedHours = hours > 0 ? `${hours}:` : '';
+		const formattedMinutes = hours > 0 ? padZero(minutes) : minutes.toString();
+		const formattedSeconds = padZero(remainingSeconds);
+
+		return `${formattedHours}${formattedMinutes}:${formattedSeconds}`;
+	},
 };

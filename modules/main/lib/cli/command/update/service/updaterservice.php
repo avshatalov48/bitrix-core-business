@@ -138,9 +138,13 @@ class UpdaterService
 				return $result->addError(new Error($error));
 			}
 
+			\CUpdateClient::logUpdates($updateDescription["DATA"]["#"]["ITEM"]);
+
 			\CUpdateClient::finalizeModuleUpdate($updateDescription["DATA"]["#"]["ITEM"]);
 
 			$io->writeln('Done!');
+
+			Option::set('main', 'update_system_update_time', time());
 		}
 	}
 
@@ -356,6 +360,11 @@ class UpdaterService
 					{
 						$itemsUpdated[$item["@"]["ID"]] = $item["@"]["NAME"];
 					}
+				}
+
+				foreach ($itemsUpdated as $key => $value)
+				{
+					\CUpdateClient::AddMessage2Log("Updated: {$key}" . ($value != '' ? " ({$value})" : ""), "UPD_SUCCESS");
 				}
 
 				\CUpdateClient::finalizeLanguageUpdate($itemsUpdated);

@@ -1,0 +1,23 @@
+<?php
+$MESS["SONET_EXT_ERROR_SESSION"] = "Сіздің сессияңыз аяқталды. Тағы да қайталап көріңіз.";
+$MESS["SONET_EXT_LIVEFEED_CREATE_TASK_ERROR_GET_DATA"] = "Міндетті құру үшін деректерді алу мүмкін болмады";
+$MESS["SONET_EXT_LIVEFEED_CREATE_TASK_FAILURE_TITLE"] = "Қате";
+$MESS["SONET_EXT_LIVEFEED_CREATE_TASK_SUCCESS_TITLE"] = "Міндет құрылды";
+$MESS["SONET_EXT_LIVEFEED_CREATE_TASK_VIEW"] = "Қарау";
+$MESS["SONET_EXT_LIVEFEED_CREATE_TASK_WAIT"] = "Күте тұрыңыз...";
+$MESS["SONET_EXT_LIVEFEED_DELETE_SUCCESS"] = "Жазба жойылды";
+$MESS["SONET_EXT_LIVEFEED_FOLLOW_TITLE_N"] = "Қадағалау";
+$MESS["SONET_EXT_LIVEFEED_FOLLOW_TITLE_Y"] = "Қадағаламау";
+$MESS["SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N"] = "Таңдаулыға қосу";
+$MESS["SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y"] = "Таңдаулыдан алып тастау";
+$MESS["SONET_EXT_LIVEFEED_MENU_TITLE_PINNED_N"] = "Бекіту";
+$MESS["SONET_EXT_LIVEFEED_MENU_TITLE_PINNED_Y"] = "Бекітуден шығару";
+$MESS["SONET_EXT_LIVEFEED_PINNED_CANCEL_BUTTON"] = "болдырмау";
+$MESS["SONET_EXT_LIVEFEED_PINNED_CANCEL_DESCRIPTION"] = "Ол қазір лентаның жоғарғы жағында.";
+$MESS["SONET_EXT_LIVEFEED_PINNED_CANCEL_TITLE"] = "Пост бекітілді.";
+$MESS["SONET_EXT_LIVEFEED_PIN_TITLE_N"] = "Бекіту";
+$MESS["SONET_EXT_LIVEFEED_PIN_TITLE_Y"] = "Бекітуден шығару";
+$MESS["SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_BUTTON_CANCEL"] = "Болдырмау";
+$MESS["SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_BUTTON_SUBMIT"] = "Жалғастыру";
+$MESS["SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_DESCRIPTION"] = "Хабарлама мобильді қосымшада жасалды. Өкінішті, оны осында редакциялаған кезде барлық пішімдеу жойылады.";
+$MESS["SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_TITLE"] = "Хабарламаны редакциялау";

@@ -162,7 +162,10 @@ class CStoplist extends CAllStopList
 
 			if ($arParams===false)
 			{
-				$ip = explode(".", $_SERVER["REMOTE_ADDR"]);
+				if (!empty($_SERVER["REMOTE_ADDR"]))
+				{
+					$ip = explode(".", $_SERVER["REMOTE_ADDR"]);
+				}
 				$user_agent = trim($_SERVER["HTTP_USER_AGENT"] ?? '');
 				$url_from = $_SERVER["HTTP_REFERER"] ?? '';
 				$url_to = __GetFullRequestUri();

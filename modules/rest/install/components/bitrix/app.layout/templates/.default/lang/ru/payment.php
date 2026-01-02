@@ -1,6 +1,8 @@
 <?php
 $MESS["REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE_2"] = "Подписка на Маркет закончилась";
-$MESS["REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE_APP"] = "Для использования приложения \"#APP_NAME#\" купите подписку на Битрикс24.Маркет Плюс или активируйте бесплатный демо-период Битрикс24.Маркет Плюс на 15 дней.";
+$MESS["REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE_2_MSGVER_1"] = "Подписка на Маркетплейс закончилась";
+$MESS["REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE_APP_MSGVER_2"] = "Для использования приложения \"#APP_NAME#\" купите подписку на Битрикс24 Маркет Плюс или активируйте бесплатный демо-период Битрикс24.Маркет Плюс на 15 дней.";
+$MESS["REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE_APP_MSGVER_1"] = "Для использования приложения \"#APP_NAME#\" купите подписку на Маркетплейс или активируйте бесплатный демо-период Маркетплейс на 15 дней.";
 $MESS["REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_APP"] = "Оплаченный период использования \"#APP_NAME#\" закончился";
 $MESS["REST_APP_LAYOUT_PAYMENT_ACCESS_BTN_BUY_SUBSCRIBE"] = "Продлить подписку";
 $MESS["REST_APP_LAYOUT_PAYMENT_ACCESS_BTN_BUY_SUBSCRIBE_NEW"] = "Купить подписку";

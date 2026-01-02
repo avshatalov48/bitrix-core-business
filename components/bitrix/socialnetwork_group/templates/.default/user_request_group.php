@@ -14,6 +14,8 @@ use Bitrix\Socialnetwork\ComponentHelper;
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
+\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
+
 $componentParameters = [
 	"PATH_TO_USER" => $arParams["PATH_TO_USER"],
 	"PATH_TO_GROUP" => $arResult["PATH_TO_GROUP"],
@@ -57,5 +59,6 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.user_request_group',
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => $componentParameters,
+		'USE_UI_TOOLBAR' => 'Y',
 	)
 );

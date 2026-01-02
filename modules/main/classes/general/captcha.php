@@ -7,45 +7,33 @@ class CCaptcha
 {
 	var $imageWidth = 180;
 	var $imageHeight = 40;
-
 	var $codeLength = 5;
-
 	var $ttfFilesPath = "/bitrix/modules/main/fonts";
-	var $arTTFFiles = array("font.ttf");
-
+	var $arTTFFiles = ["font.ttf"];
 	var $textAngleFrom = -20;
 	var $textAngleTo = 20;
 	var $textStartX = 7;
 	var $textDistanceFrom = 27;
 	var $textDistanceTo = 32;
 	var $textFontSize = 20;
-
 	var $bTransparentText = true;
 	var $transparentTextPercent = 10;
-
-	var $arTextColor = array(array(0, 100), array(0, 100), array(0, 100));
-
-	var $arBGColor = array(array(255, 255), array(255, 255), array(255, 255));
+	var $arTextColor = [[0, 100], [0, 100], [0, 100]];
+	var $arBGColor = [[255, 255], [255, 255], [255, 255]];
 	var $arRealBGColor = false;
-
 	var $numEllipses = 100;
-	var $arEllipseColor = array(array(127, 255), array(127, 255), array(127, 255));
-
+	var $arEllipseColor = [[127, 255], [127, 255], [127, 255]];
 	var $numLines = 20;
-	var $arLineColor = array(array(110, 250), array(110, 250), array(110, 250));
+	var $arLineColor = [[110, 250], [110, 250], [110, 250]];
 	var $bLinesOverText = false;
-
-	var $arBorderColor = array(0, 0, 0);
-
+	var $arBorderColor = [0, 0, 0];
 	var $bWaveTransformation = false;
 	var $bEmptyText = false;
-
-	var $arChars = array(
-			'A','B','C','D','E','F','G','H','J','K','L','M',
-			'N','P','Q','R','S','T'/*,'U'*//*,'V'*/,'W','X','Y','Z',
-			'2','3','4','5','6','7','8','9'
-		);//'1','I','O','0'
-
+	var $arChars = [
+		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M',
+		'N', 'P', 'Q', 'R', 'S', 'T'/*,'U'*//*,'V'*/, 'W', 'X', 'Y', 'Z',
+		'2', '3', '4', '5', '6', '7', '8', '9',
+	];//'1','I','O','0'
 	var $image;
 	var $code;
 	var $codeCrypt;
@@ -102,8 +90,8 @@ class CCaptcha
 		);
 
 		$strChars = COption::GetOptionString("main", "CAPTCHA_letters", "ABCDEFGHJKLMNPQRSTWXYZ23456789");
-		$arChars = array();
-		for($i = 0, $n = mb_strlen($strChars); $i < $n; $i++)
+		$arChars = [];
+		for ($i = 0, $n = mb_strlen($strChars); $i < $n; $i++)
 		{
 			$arChars[] = mb_substr($strChars, $i, 1);
 		}
@@ -117,10 +105,14 @@ class CCaptcha
 		$height = intval($height);
 
 		if ($width > 0)
+		{
 			$this->imageWidth = $width;
+		}
 
 		if ($height > 0)
+		{
 			$this->imageHeight = $height;
+		}
 	}
 
 	function SetCodeLength($length)
@@ -128,7 +120,9 @@ class CCaptcha
 		$length = intval($length);
 
 		if ($length > 0)
+		{
 			$this->codeLength = $length;
+		}
 	}
 
 	function SetTTFFontsPath($ttfFilesPath)
@@ -136,9 +130,11 @@ class CCaptcha
 		if ($ttfFilesPath <> '')
 		{
 			$filename = trim(str_replace("\\", "/", trim($ttfFilesPath)), "/");
-			$FILE_NAME = rel2abs($_SERVER["DOCUMENT_ROOT"], "/".$filename);
-			if(mb_strlen($FILE_NAME) > 1 && is_dir($_SERVER["DOCUMENT_ROOT"].$FILE_NAME))
+			$FILE_NAME = rel2abs($_SERVER["DOCUMENT_ROOT"], "/" . $filename);
+			if (mb_strlen($FILE_NAME) > 1 && is_dir($_SERVER["DOCUMENT_ROOT"] . $FILE_NAME))
+			{
 				$this->ttfFilesPath = $FILE_NAME;
+			}
 		}
 	}
 
@@ -150,7 +146,9 @@ class CCaptcha
 	function SetTTFFonts($arFonts)
 	{
 		if (!is_array($arFonts) || empty($arFonts))
-			$arFonts = array();
+		{
+			$arFonts = [];
+		}
 
 		$this->arTTFFiles = $arFonts;
 	}
@@ -168,16 +166,24 @@ class CCaptcha
 		$this->textAngleTo = $angleTo;
 
 		if ($startX > 0)
+		{
 			$this->textStartX = $startX;
+		}
 
 		if ($distanceFrom <> 0)
+		{
 			$this->textDistanceFrom = $distanceFrom;
+		}
 
 		if ($distanceTo <> 0)
+		{
 			$this->textDistanceTo = $distanceTo;
+		}
 
 		if ($fontSize > 0)
+		{
 			$this->textFontSize = $fontSize;
+		}
 	}
 
 	function SetTextTransparent($bTransparentText, $transparentTextPercent = 10)
@@ -189,22 +195,28 @@ class CCaptcha
 	function SetColor($arColor)
 	{
 		if (!is_array($arColor) || count($arColor) != 3)
+		{
 			return false;
+		}
 
-		$arNewColor = array();
+		$arNewColor = [];
 		$bCorrectColor = true;
 
 		for ($i = 0; $i < 3; $i++)
 		{
 			if (!is_array($arColor[$i]))
-				$arColor[$i] = array($arColor[$i]);
+			{
+				$arColor[$i] = [$arColor[$i]];
+			}
 
 			for ($j = 0; $j < 2; $j++)
 			{
 				if ($j > 0)
 				{
 					if (!array_key_exists($j, $arColor[$i]))
+					{
 						$arColor[$i][$j] = $arColor[$i][$j - 1];
+					}
 				}
 
 				$arColor[$i][$j] = intval($arColor[$i][$j]);
@@ -226,12 +238,16 @@ class CCaptcha
 				$arNewColor[$i][$j] = $arColor[$i][$j];
 
 				if ($j > 0)
+				{
 					break;
+				}
 			}
 		}
 
 		if ($bCorrectColor)
+		{
 			return $arNewColor;
+		}
 
 		return false;
 	}
@@ -247,13 +263,13 @@ class CCaptcha
 
 	function SetBGColorRGB($color_1, $color_2)
 	{
-		if(preg_match("/^[0-9A-Fa-f]{6}$/", $color_1) && preg_match("/^[0-9A-Fa-f]{6}$/", $color_1))
+		if (preg_match("/^[0-9A-Fa-f]{6}$/", $color_1) && preg_match("/^[0-9A-Fa-f]{6}$/", $color_1))
 		{
-			$arColor = array(
-				array(hexdec(mb_substr($color_1, 0, 2)), hexdec(mb_substr($color_2, 0, 2))),
-				array(hexdec(mb_substr($color_1, 2, 2)), hexdec(mb_substr($color_2, 2, 2))),
-				array(hexdec(mb_substr($color_1, 4, 2)), hexdec(mb_substr($color_2, 4, 2))),
-			);
+			$arColor = [
+				[hexdec(mb_substr($color_1, 0, 2)), hexdec(mb_substr($color_2, 0, 2))],
+				[hexdec(mb_substr($color_1, 2, 2)), hexdec(mb_substr($color_2, 2, 2))],
+				[hexdec(mb_substr($color_1, 4, 2)), hexdec(mb_substr($color_2, 4, 2))],
+			];
 			$this->SetBGColor($arColor);
 		}
 	}
@@ -261,18 +277,20 @@ class CCaptcha
 	function SetTextColor($arColor)
 	{
 		if ($arNewColor = $this->SetColor($arColor))
+		{
 			$this->arTextColor = $arNewColor;
+		}
 	}
 
 	function SetTextColorRGB($color_1, $color_2)
 	{
-		if(preg_match("/^[0-9A-Fa-f]{6}$/", $color_1) && preg_match("/^[0-9A-Fa-f]{6}$/", $color_1))
+		if (preg_match("/^[0-9A-Fa-f]{6}$/", $color_1) && preg_match("/^[0-9A-Fa-f]{6}$/", $color_1))
 		{
-			$arColor = array(
-				array(hexdec(mb_substr($color_1, 0, 2)), hexdec(mb_substr($color_2, 0, 2))),
-				array(hexdec(mb_substr($color_1, 2, 2)), hexdec(mb_substr($color_2, 2, 2))),
-				array(hexdec(mb_substr($color_1, 4, 2)), hexdec(mb_substr($color_2, 4, 2))),
-			);
+			$arColor = [
+				[hexdec(mb_substr($color_1, 0, 2)), hexdec(mb_substr($color_2, 0, 2))],
+				[hexdec(mb_substr($color_1, 2, 2)), hexdec(mb_substr($color_2, 2, 2))],
+				[hexdec(mb_substr($color_1, 4, 2)), hexdec(mb_substr($color_2, 4, 2))],
+			];
 			$this->SetTextColor($arColor);
 		}
 	}
@@ -280,18 +298,20 @@ class CCaptcha
 	function SetEllipseColor($arColor)
 	{
 		if ($arNewColor = $this->SetColor($arColor))
+		{
 			$this->arEllipseColor = $arNewColor;
+		}
 	}
 
 	function SetEllipseColorRGB($color_1, $color_2)
 	{
-		if(preg_match("/^[0-9A-Fa-f]{6}$/", $color_1) && preg_match("/^[0-9A-Fa-f]{6}$/", $color_1))
+		if (preg_match("/^[0-9A-Fa-f]{6}$/", $color_1) && preg_match("/^[0-9A-Fa-f]{6}$/", $color_1))
 		{
-			$arColor = array(
-				array(hexdec(mb_substr($color_1, 0, 2)), hexdec(mb_substr($color_2, 0, 2))),
-				array(hexdec(mb_substr($color_1, 2, 2)), hexdec(mb_substr($color_2, 2, 2))),
-				array(hexdec(mb_substr($color_1, 4, 2)), hexdec(mb_substr($color_2, 4, 2))),
-			);
+			$arColor = [
+				[hexdec(mb_substr($color_1, 0, 2)), hexdec(mb_substr($color_2, 0, 2))],
+				[hexdec(mb_substr($color_1, 2, 2)), hexdec(mb_substr($color_2, 2, 2))],
+				[hexdec(mb_substr($color_1, 4, 2)), hexdec(mb_substr($color_2, 4, 2))],
+			];
 			$this->SetEllipseColor($arColor);
 		}
 	}
@@ -299,18 +319,20 @@ class CCaptcha
 	function SetLineColor($arColor)
 	{
 		if ($arNewColor = $this->SetColor($arColor))
+		{
 			$this->arLineColor = $arNewColor;
+		}
 	}
 
 	function SetLineColorRGB($color_1, $color_2)
 	{
-		if(preg_match("/^[0-9A-Fa-f]{6}$/", $color_1) && preg_match("/^[0-9A-Fa-f]{6}$/", $color_1))
+		if (preg_match("/^[0-9A-Fa-f]{6}$/", $color_1) && preg_match("/^[0-9A-Fa-f]{6}$/", $color_1))
 		{
-			$arColor = array(
-				array(hexdec(mb_substr($color_1, 0, 2)), hexdec(mb_substr($color_2, 0, 2))),
-				array(hexdec(mb_substr($color_1, 2, 2)), hexdec(mb_substr($color_2, 2, 2))),
-				array(hexdec(mb_substr($color_1, 4, 2)), hexdec(mb_substr($color_2, 4, 2))),
-			);
+			$arColor = [
+				[hexdec(mb_substr($color_1, 0, 2)), hexdec(mb_substr($color_2, 0, 2))],
+				[hexdec(mb_substr($color_1, 2, 2)), hexdec(mb_substr($color_2, 2, 2))],
+				[hexdec(mb_substr($color_1, 4, 2)), hexdec(mb_substr($color_2, 4, 2))],
+			];
 			$this->SetLineColor($arColor);
 		}
 	}
@@ -318,18 +340,20 @@ class CCaptcha
 	function SetBorderColor($arColor)
 	{
 		if ($arNewColor = $this->SetColor($arColor))
+		{
 			$this->arBorderColor = $arNewColor;
+		}
 	}
 
 	function SetBorderColorRGB($color)
 	{
-		if(preg_match("/^[0-9A-Fa-f]{6}$/", $color))
+		if (preg_match("/^[0-9A-Fa-f]{6}$/", $color))
 		{
-			$arColor = array(
+			$arColor = [
 				hexdec(mb_substr($color, 0, 2)),
 				hexdec(mb_substr($color, 2, 2)),
 				hexdec(mb_substr($color, 4, 2)),
-			);
+			];
 			$this->SetBorderColor($arColor);
 		}
 	}
@@ -352,7 +376,9 @@ class CCaptcha
 	function SetCodeChars($arChars)
 	{
 		if (is_array($arChars) && !empty($arChars))
+		{
 			$this->arChars = $arChars;
+		}
 	}
 
 	function SetWaveTransformation($bWaveTransformation)
@@ -368,7 +394,7 @@ class CCaptcha
 	/* UTIL */
 	function GetColor($arColor)
 	{
-		$arResult = array();
+		$arResult = [];
 		for ($i = 0, $n = count($arColor); $i < $n; $i++)
 		{
 			$arResult[$i] = round(rand($arColor[$i][0], $arColor[$i][1]));
@@ -378,12 +404,16 @@ class CCaptcha
 
 	function InitImage($width = false, $height = false)
 	{
-		if(!$width)
+		if (!$width)
+		{
 			$width = $this->imageWidth;
-		if(!$height)
+		}
+		if (!$height)
+		{
 			$height = $this->imageHeight;
+		}
 		$image = imagecreatetruecolor($width, $height);
-		if(!$this->arRealBGColor)
+		if (!$this->arRealBGColor)
 		{
 			$this->arRealBGColor = $this->GetColor($this->arBGColor);
 		}
@@ -399,24 +429,28 @@ class CCaptcha
 		$this->DrawEllipses();
 
 		if (!$this->bLinesOverText)
+		{
 			$this->DrawLines();
+		}
 
 		$this->DrawText();
 
 		if ($this->bLinesOverText)
+		{
 			$this->DrawLines();
+		}
 
-		if($this->bWaveTransformation)
+		if ($this->bWaveTransformation)
 		{
 			$this->Wave();
 		}
 
 		$arBorderColor = $this->GetColor($this->arBorderColor);
 		$borderColor = imagecolorallocate($this->image, $arBorderColor[0], $arBorderColor[1], $arBorderColor[2]);
-		imageline($this->image, 0, 0, $this->imageWidth-1, 0, $borderColor);
-		imageline($this->image, 0, 0, 0, $this->imageHeight-1, $borderColor);
-		imageline($this->image, $this->imageWidth-1, 0, $this->imageWidth-1, $this->imageHeight-1, $borderColor);
-		imageline($this->image, 0, $this->imageHeight-1, $this->imageWidth-1, $this->imageHeight-1, $borderColor);
+		imageline($this->image, 0, 0, $this->imageWidth - 1, 0, $borderColor);
+		imageline($this->image, 0, 0, 0, $this->imageHeight - 1, $borderColor);
+		imageline($this->image, $this->imageWidth - 1, 0, $this->imageWidth - 1, $this->imageHeight - 1, $borderColor);
+		imageline($this->image, 0, $this->imageHeight - 1, $this->imageWidth - 1, $this->imageHeight - 1, $borderColor);
 	}
 
 	function CreateImageError($arMsg)
@@ -425,7 +459,9 @@ class CCaptcha
 		$textColor = imagecolorallocate($this->image, 255, 255, 255);
 
 		if (!is_array($arMsg))
-			$arMsg = array($arMsg);
+		{
+			$arMsg = [$arMsg];
+		}
 
 		$bTextOut = false;
 		$y = 5;
@@ -471,15 +507,15 @@ class CCaptcha
 		$width = $this->imageWidth;
 		$width_1 = $width - 1;
 
-		for($x = 0; $x < $width; $x++)
+		for ($x = 0; $x < $width; $x++)
 		{
-			for($y = 0; $y < $height; $y++)
+			for ($y = 0; $y < $height; $y++)
 			{
 				// координаты пикселя-первообраза.
-				$sx = $x + ( sin($x * $rand1 + $rand5) + sin($y * $rand3 + $rand6) ) * $rand9;
-				$sy = $y + ( sin($x * $rand2 + $rand7) + sin($y * $rand4 + $rand8) ) * $rand10;
+				$sx = $x + (sin($x * $rand1 + $rand5) + sin($y * $rand3 + $rand6)) * $rand9;
+				$sy = $y + (sin($x * $rand2 + $rand7) + sin($y * $rand4 + $rand8)) * $rand10;
 
-				if($sx < 0 || $sy < 0 || $sx >= $width_1 || $sy >= $height_1)
+				if ($sx < 0 || $sy < 0 || $sx >= $width_1 || $sy >= $height_1)
 				{
 					// первообраз за пределами изображения
 				}
@@ -491,17 +527,17 @@ class CCaptcha
 					$color_g = ($rgb >> 8) & 0xFF;
 					$color_b = $rgb & 0xFF;
 
-					$rgb = imagecolorat($img, $sx+1, $sy);
+					$rgb = imagecolorat($img, $sx + 1, $sy);
 					$color_x_r = ($rgb >> 16) & 0xFF;
 					$color_x_g = ($rgb >> 8) & 0xFF;
 					$color_x_b = $rgb & 0xFF;
 
-					$rgb = imagecolorat($img, $sx, $sy+1);
+					$rgb = imagecolorat($img, $sx, $sy + 1);
 					$color_y_r = ($rgb >> 16) & 0xFF;
 					$color_y_g = ($rgb >> 8) & 0xFF;
 					$color_y_b = $rgb & 0xFF;
 
-					$rgb = imagecolorat($img, $sx+1, $sy+1);
+					$rgb = imagecolorat($img, $sx + 1, $sy + 1);
 					$color_xy_r = ($rgb >> 16) & 0xFF;
 					$color_xy_g = ($rgb >> 8) & 0xFF;
 					$color_xy_b = $rgb & 0xFF;
@@ -513,23 +549,23 @@ class CCaptcha
 				$frsy1 = 1 - $frsy;
 				// вычисление цвета нового пикселя как пропорции от цвета основного пикселя и его соседей
 				$i11 = $frsx1 * $frsy1;
-				$i01 = $frsx  * $frsy1;
-				$i10 = $frsx1 * $frsy ;
-				$i00 = $frsx  * $frsy ;
-				$red = floor(	$color_r    * $i11 +
-						$color_x_r  * $i01 +
-						$color_y_r  * $i10 +
-						$color_xy_r * $i00
+				$i01 = $frsx * $frsy1;
+				$i10 = $frsx1 * $frsy;
+				$i00 = $frsx * $frsy;
+				$red = floor($color_r * $i11 +
+					$color_x_r * $i01 +
+					$color_y_r * $i10 +
+					$color_xy_r * $i00
 				);
-				$green = floor(	$color_g    * $i11 +
-						$color_x_g  * $i01 +
-						$color_y_g  * $i10 +
-						$color_xy_g * $i00
+				$green = floor($color_g * $i11 +
+					$color_x_g * $i01 +
+					$color_y_g * $i10 +
+					$color_xy_g * $i00
 				);
-				$blue = floor(	$color_b    * $i11 +
-						$color_x_b  * $i01 +
-						$color_y_b  * $i10 +
-						$color_xy_b * $i00
+				$blue = floor($color_b * $i11 +
+					$color_x_b * $i01 +
+					$color_y_b * $i10 +
+					$color_xy_b * $i00
 				);
 				imagesetpixel($img2, $x, $y, imagecolorallocate($img2, $red, $green, $blue));
 			}
@@ -539,8 +575,8 @@ class CCaptcha
 
 	function EmptyText()
 	{
-		$sx = imagesx($this->image)-1;
-		$sy = imagesy($this->image)-1;
+		$sx = imagesx($this->image) - 1;
+		$sy = imagesy($this->image) - 1;
 
 		$backup = imagecreatetruecolor($sx, $sy);
 		imagealphablending($backup, false);
@@ -549,36 +585,40 @@ class CCaptcha
 		$white = imagecolorallocate($this->image, 255, 255, 255);
 		$bgColor = imagecolorallocate($this->image, $this->arRealBGColor[0], $this->arRealBGColor[1], $this->arRealBGColor[2]);
 
-		for($x = 1; $x < $sx; $x++)
-		for($y = 1; $y < $sy; $y++)
+		for ($x = 1; $x < $sx; $x++)
 		{
-			$c1 = imagecolorat($backup, $x-1, $y);
-			if($c1 != $white && $c1 != $bgColor)
+			for ($y = 1; $y < $sy; $y++)
 			{
-				$c2 = imagecolorat($backup, $x+1, $y);
-				if($c1 == $c2)
+				$c1 = imagecolorat($backup, $x - 1, $y);
+				if ($c1 != $white && $c1 != $bgColor)
 				{
-					$c3 = imagecolorat($backup, $x, $y-1);
-					if($c2 == $c3)
+					$c2 = imagecolorat($backup, $x + 1, $y);
+					if ($c1 == $c2)
 					{
-						$c4 = imagecolorat($backup, $x, $y+1);
-						if($c3 == $c4)
-							imagesetpixel($this->image, $x, $y, $bgColor);
+						$c3 = imagecolorat($backup, $x, $y - 1);
+						if ($c2 == $c3)
+						{
+							$c4 = imagecolorat($backup, $x, $y + 1);
+							if ($c3 == $c4)
+							{
+								imagesetpixel($this->image, $x, $y, $bgColor);
+							}
+						}
 					}
 				}
 			}
 		}
 
-		if(function_exists('imageconvolution'))
+		if (function_exists('imageconvolution'))
 		{
-			$gaussian = array(array(1.0, 1.0, 1.0), array(1.0, 7.0, 1.0), array(1.0, 1.0, 1.0));
+			$gaussian = [[1.0, 1.0, 1.0], [1.0, 7.0, 1.0], [1.0, 1.0, 1.0]];
 			imageconvolution($this->image, $gaussian, 15, 0);
 
-			$mask = array(
-				array( -0.1, -0.1, -0.1),
-				array( -0.1,  1.8, -0.1),
-				array( -0.1, -0.1, -0.1)
-			);
+			$mask = [
+				[-0.1, -0.1, -0.1],
+				[-0.1, 1.8, -0.1],
+				[-0.1, -0.1, -0.1],
+			];
 			imageconvolution($this->image, $mask, 1, 0);
 		}
 	}
@@ -599,18 +639,18 @@ class CCaptcha
 
 		$bPrecise = $this->textDistanceFrom < 0 && $this->textDistanceTo < 0;
 
-		if($bPrecise)
+		if ($bPrecise)
 		{
 			//We'll need inversed color to draw on background
 			$bg_color_hex = $this->arRealBGColor[0] << 16 | $this->arRealBGColor[1] << 8 | $this->arRealBGColor[2];
-			$not_bg_color = array(
+			$not_bg_color = [
 				(!$bg_color_hex >> 16) & 0xFF,
 				(!$bg_color_hex >> 8) & 0xFF,
-				(!$bg_color_hex) & 0xFF
-			);
+				(!$bg_color_hex) & 0xFF,
+			];
 		}
 
-		$arPos = array();
+		$arPos = [];
 		$x = 0;
 
 		for ($i = 0; $i < $this->codeLength; $i++)
@@ -618,7 +658,7 @@ class CCaptcha
 			$char = mb_substr($this->code, $i, 1);
 			$utf = $char;
 
-			$ttfFile = $_SERVER["DOCUMENT_ROOT"].$this->ttfFilesPath."/".$this->arTTFFiles[rand(1, count($this->arTTFFiles)) - 1];
+			$ttfFile = $_SERVER["DOCUMENT_ROOT"] . $this->ttfFilesPath . "/" . $this->arTTFFiles[rand(1, count($this->arTTFFiles)) - 1];
 			$angle = rand($this->textAngleFrom, $this->textAngleTo);
 
 			$bounds = imagettfbbox($this->textFontSize, $angle, $ttfFile, $utf);
@@ -626,13 +666,13 @@ class CCaptcha
 			$height = max($bounds[1], $bounds[3], $bounds[5], $bounds[7]) - min($bounds[1], $bounds[3], $bounds[5], $bounds[7]);
 			$width = max($bounds[0], $bounds[2], $bounds[4], $bounds[6]) - min($bounds[0], $bounds[2], $bounds[4], $bounds[6]);
 
-			$y = $height + rand(0, ($this->imageHeight-$height)*0.9);
+			$y = $height + rand(0, ($this->imageHeight - $height) * 0.9);
 
-			$arLeftBounds = array();
-			$arRightBounds = array();
+			$arLeftBounds = [];
+			$arRightBounds = [];
 			$dx = 0;
 
-			if($bPrecise)
+			if ($bPrecise)
 			{
 				//Now for precise positioning we need to draw characred and define its borders
 				$img = $this->InitImage($width, $this->imageHeight);
@@ -640,13 +680,13 @@ class CCaptcha
 				$dx = -min($bounds[0], $bounds[2], $bounds[4], $bounds[6]);
 				imagettftext($img, $this->textFontSize, $angle, $dx, $y, $tmp, $ttfFile, $utf);
 
-				for($yy=0; $yy < $this->imageHeight; $yy++)
+				for ($yy = 0; $yy < $this->imageHeight; $yy++)
 				{
 					$arLeftBounds[$yy] = 0;
-					for($xx=0; $xx < $width; $xx++)
+					for ($xx = 0; $xx < $width; $xx++)
 					{
 						$rgb = imagecolorat($img, $xx, $yy);
-						if($rgb !== $bg_color_hex)
+						if ($rgb !== $bg_color_hex)
 						{
 							$arLeftBounds[$yy] = $xx;
 							break;
@@ -654,14 +694,14 @@ class CCaptcha
 					}
 
 					$arRightBounds[$yy] = 0;
-					if($arLeftBounds[$yy] > 0)
+					if ($arLeftBounds[$yy] > 0)
 					{
-						for($xx=$width; $xx > 0; $xx--)
+						for ($xx = $width; $xx > 0; $xx--)
 						{
-							$rgb = imagecolorat($img, $xx-1, $yy);
-							if($rgb !== $bg_color_hex)
+							$rgb = imagecolorat($img, $xx - 1, $yy);
+							if ($rgb !== $bg_color_hex)
 							{
-								$arRightBounds[$yy] = $xx-1;
+								$arRightBounds[$yy] = $xx - 1;
 								break;
 							}
 						}
@@ -671,19 +711,23 @@ class CCaptcha
 				imagedestroy($img);
 			}
 
-			if($i > 0)
+			if ($i > 0)
 			{
-				if($bPrecise)
+				if ($bPrecise)
 				{
-					$arDX = array();
-					for($yy=0; $yy < $this->imageHeight; $yy++)
+					$arDX = [];
+					for ($yy = 0; $yy < $this->imageHeight; $yy++)
 					{
-						if($arPos[$i-1][6][$yy] > 0 && $arLeftBounds[$yy] > 0)
-							$arDX[$yy] = ($arPos[$i-1][6][$yy] - $arPos[$i-1][7])-($arLeftBounds[$yy]-$dx);
+						if ($arPos[$i - 1][6][$yy] > 0 && $arLeftBounds[$yy] > 0)
+						{
+							$arDX[$yy] = ($arPos[$i - 1][6][$yy] - $arPos[$i - 1][7]) - ($arLeftBounds[$yy] - $dx);
+						}
 						else
-							$arDX[$yy] = $arPos[$i-1][5][$yy] - $arPos[$i-1][7];
+						{
+							$arDX[$yy] = $arPos[$i - 1][5][$yy] - $arPos[$i - 1][7];
+						}
 					}
-					$x += max($arDX)+(rand($this->textDistanceFrom, $this->textDistanceTo));
+					$x += max($arDX) + (rand($this->textDistanceFrom, $this->textDistanceTo));
 				}
 				else
 				{
@@ -692,40 +736,45 @@ class CCaptcha
 			}
 			else
 			{
-				$x = rand($this->textStartX/2, $this->textStartX*2);
+				$x = rand($this->textStartX / 2, $this->textStartX * 2);
 			}
 
-			$arPos[$i] = array(
-				$angle,		//0
-				$x,		//1
-				$y,		//2
-				$ttfFile,	//3
-				$char,		//4
-				$arLeftBounds,	//5
-				$arRightBounds,	//6
-				$dx,		//7
-				$utf,		//8
-			);
-
+			$arPos[$i] = [
+				$angle,        //0
+				$x,        //1
+				$y,        //2
+				$ttfFile,    //3
+				$char,        //4
+				$arLeftBounds,    //5
+				$arRightBounds,    //6
+				$dx,        //7
+				$utf,        //8
+			];
 		}
 
 		$x2 = 0;
-		foreach($arPos as $pos)
+		foreach ($arPos as $pos)
 		{
 			$arTextColor = $this->GetColor($this->arTextColor);
 
 			if ($this->bTransparentText)
+			{
 				$color = imagecolorallocatealpha($this->image, $arTextColor[0], $arTextColor[1], $arTextColor[2], $alpha);
+			}
 			else
+			{
 				$color = imagecolorallocate($this->image, $arTextColor[0], $arTextColor[1], $arTextColor[2]);
+			}
 
 			$bounds = imagettftext($this->image, $this->textFontSize, $pos[0], $pos[1], $pos[2], $color, $pos[3], $pos[8]);
 
 			$x2 = $pos[1] + ($bounds[2] - $bounds[0]);
 		}
 
-		if($this->bEmptyText)
+		if ($this->bEmptyText)
+		{
 			$this->EmptyText();
+		}
 
 		return $x2;
 	}
@@ -760,7 +809,7 @@ class CCaptcha
 	function Output()
 	{
 		header("Expires: Sun, 1 Jan 2000 12:00:00 GMT");
-		header("Last-Modified: ".gmdate("D, d M Y H:i:s")."GMT");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . "GMT");
 		header("Cache-Control: no-store, no-cache, must-revalidate");
 		header("Cache-Control: post-check=0, pre-check=0", false);
 		header("Pragma: no-cache");
@@ -773,7 +822,7 @@ class CCaptcha
 	function OutputError()
 	{
 		header("Expires: Sun, 1 Jan 2000 12:00:00 GMT");
-		header("Last-Modified: ".gmdate("D, d M Y H:i:s")."GMT");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . "GMT");
 		header("Cache-Control: no-store, no-cache, must-revalidate");
 		header("Cache-Control: post-check=0, pre-check=0", false);
 		header("Pragma: no-cache");
@@ -781,15 +830,18 @@ class CCaptcha
 
 		$numArgs = func_num_args();
 		if ($numArgs > 0)
+		{
 			$arMsg = func_get_arg(0);
+		}
 		else
-			$arMsg = array();
+		{
+			$arMsg = [];
+		}
 
 		$this->CreateImageError($arMsg);
 		$this->ShowImage();
 		$this->DestroyImage();
 	}
-
 
 	/* CODE */
 	function SetCode()
@@ -804,7 +856,9 @@ class CCaptcha
 
 		$this->code = "";
 		for ($i = 0; $i < $this->codeLength; $i++)
+		{
 			$this->code .= $this->arChars[rand(1, $max) - 1];
+		}
 
 		$this->sid = time();
 
@@ -824,11 +878,15 @@ class CCaptcha
 
 		$this->code = "";
 		for ($i = 0; $i < $this->codeLength; $i++)
+		{
 			$this->code .= $this->arChars[rand(1, $max) - 1];
+		}
 
 		$session = \Bitrix\Main\Application::getInstance()->getSession();
 		if (!$session->get("CAPTCHA_PASSWORD"))
+		{
 			$session["CAPTCHA_PASSWORD"] = randString(10);
+		}
 
 		$this->codeCrypt = $this->CryptData($this->code, "E", $session["CAPTCHA_PASSWORD"]);
 	}
@@ -839,30 +897,31 @@ class CCaptcha
 
 		$this->code = "";
 		for ($i = 0; $i < $this->codeLength; $i++)
+		{
 			$this->code .= $this->arChars[rand(1, $max) - 1];
+		}
 
-		$this->sid = $sid===false? $this->Generate32RandomString(): $sid;
+		$this->sid = $sid === false ? $this->Generate32RandomString() : $sid;
 
 		CCaptcha::Add(
-			Array(
+			[
 				"CODE" => $this->code,
-				"ID" => $this->sid
-			)
+				"ID" => $this->sid,
+			]
 		);
-
 	}
 
 	function Generate32RandomString()
 	{
-		$prefix = (defined("BX_CLUSTER_GROUP")? BX_CLUSTER_GROUP: "0");
-		return mb_substr($prefix.md5(uniqid()), 0, 32);
+		$prefix = (defined("BX_CLUSTER_GROUP") ? BX_CLUSTER_GROUP : "0");
+		return mb_substr($prefix . md5(uniqid()), 0, 32);
 	}
 
 	function InitCaptchaCode($sid)
 	{
 		global $DB;
 
-		$res = $DB->Query("SELECT CODE FROM b_captcha WHERE ID = '".$DB->ForSQL($sid,32)."' ");
+		$res = $DB->Query("SELECT CODE FROM b_captcha WHERE ID = '" . $DB->ForSQL($sid, 32) . "' ");
 		if (!$ar = $res->Fetch())
 		{
 			return false;
@@ -873,20 +932,25 @@ class CCaptcha
 		$this->codeLength = mb_strlen($this->code);
 
 		return true;
-
 	}
 
 	function InitCode($sid)
 	{
 		if (!defined("CAPTCHA_COMPATIBILITY"))
+		{
 			return CCaptcha::InitCaptchaCode($sid);
+		}
 
 		$session = \Bitrix\Main\Application::getInstance()->getSession();
 		if (!is_array($session["CAPTCHA_CODE"]) || empty($session["CAPTCHA_CODE"]))
+		{
 			return false;
+		}
 
 		if (!array_key_exists($sid, $session["CAPTCHA_CODE"]))
+		{
 			return false;
+		}
 
 		$this->code = $session["CAPTCHA_CODE"][$sid];
 		$this->sid = $sid;
@@ -898,14 +962,20 @@ class CCaptcha
 	function InitCodeCrypt($codeCrypt)
 	{
 		if (!defined("CAPTCHA_COMPATIBILITY"))
+		{
 			return CCaptcha::InitCaptchaCode($codeCrypt);
+		}
 
 		if ($codeCrypt == '')
+		{
 			return false;
+		}
 
 		$session = \Bitrix\Main\Application::getInstance()->getSession();
 		if (!$session->get("CAPTCHA_PASSWORD"))
+		{
 			return false;
+		}
 
 		$this->codeCrypt = $codeCrypt;
 		$this->code = $this->CryptData($codeCrypt, "D", $session["CAPTCHA_PASSWORD"]);
@@ -922,7 +992,9 @@ class CCaptcha
 	function GetCodeCrypt()
 	{
 		if (!defined("CAPTCHA_COMPATIBILITY"))
+		{
 			return $this->sid;
+		}
 
 		return $this->codeCrypt;
 	}
@@ -931,18 +1003,26 @@ class CCaptcha
 	{
 		global $DB;
 
-		if ($userCode == '' || $sid == '')
+		if (!is_string($userCode) || $userCode == '' || !is_string($sid) || $sid == '')
+		{
 			return false;
+		}
 
 		if ($bUpperCode)
+		{
 			$userCode = mb_strtoupper($userCode);
+		}
 
-		$res = $DB->Query("SELECT CODE FROM b_captcha WHERE ID = '".$DB->ForSQL($sid,32)."' ");
+		$res = $DB->Query("SELECT CODE FROM b_captcha WHERE ID = '" . $DB->ForSQL($sid, 32) . "' ");
 		if (!$ar = $res->Fetch())
+		{
 			return false;
+		}
 
 		if ($ar["CODE"] != $userCode)
+		{
 			return false;
+		}
 
 		CCaptcha::Delete($sid);
 
@@ -952,20 +1032,35 @@ class CCaptcha
 	function CheckCode($userCode, $sid, $bUpperCode = true)
 	{
 		if (!defined("CAPTCHA_COMPATIBILITY"))
+		{
 			return CCaptcha::CheckCaptchaCode($userCode, $sid, $bUpperCode);
+		}
+
+		if (!is_string($userCode) || $userCode == '' || !is_string($sid) || $sid == '')
+		{
+			return false;
+		}
 
 		$session = \Bitrix\Main\Application::getInstance()->getSession();
-		if (!is_array($session["CAPTCHA_CODE"]) || empty($session["CAPTCHA_CODE"]))
+		if (empty($session["CAPTCHA_CODE"]) || !is_array($session["CAPTCHA_CODE"]))
+		{
 			return false;
+		}
 
-		if (!array_key_exists($sid, $session["CAPTCHA_CODE"]))
+		if (!isset($session["CAPTCHA_CODE"][$sid]))
+		{
 			return false;
+		}
 
 		if ($bUpperCode)
+		{
 			$userCode = mb_strtoupper($userCode);
+		}
 
 		if ($session["CAPTCHA_CODE"][$sid] != $userCode)
+		{
 			return false;
+		}
 
 		unset($session["CAPTCHA_CODE"][$sid]);
 
@@ -975,22 +1070,32 @@ class CCaptcha
 	function CheckCodeCrypt($userCode, $codeCrypt, $password = "", $bUpperCode = true)
 	{
 		if (!defined("CAPTCHA_COMPATIBILITY"))
+		{
 			return CCaptcha::CheckCaptchaCode($userCode, $codeCrypt, $bUpperCode);
+		}
 
 		if ($codeCrypt == '')
+		{
 			return false;
+		}
 
 		$session = \Bitrix\Main\Application::getInstance()->getSession();
 		if (!$session->get("CAPTCHA_PASSWORD"))
+		{
 			return false;
+		}
 
 		if ($bUpperCode)
+		{
 			$userCode = mb_strtoupper($userCode);
+		}
 
 		$code = $this->CryptData($codeCrypt, "D", $session["CAPTCHA_PASSWORD"]);
 
 		if ($code != $userCode)
+		{
 			return false;
+		}
 
 		return true;
 	}
@@ -999,10 +1104,14 @@ class CCaptcha
 	{
 		$type = strtoupper($type);
 		if ($type != "D")
+		{
 			$type = "E";
+		}
 
 		if ($type == 'D')
+		{
 			$data = base64_decode(urldecode($data));
+		}
 
 		$key[] = "";
 		$box[] = "";
@@ -1038,26 +1147,35 @@ class CCaptcha
 		}
 
 		if ($type == 'D')
+		{
 			$res_data = urldecode(urlencode($cipher));
+		}
 		else
+		{
 			$res_data = urlencode(base64_encode($cipher));
+		}
 
 		return $res_data;
 	}
-
 
 	public function Add($arFields)
 	{
 		global $DB;
 
 		if (!is_set($arFields, "CODE") || $arFields["CODE"] == '')
+		{
 			return false;
+		}
 
 		if (!is_set($arFields, "ID") || $arFields["ID"] == '')
+		{
 			$arFields["ID"] = $this->Generate32RandomString();
+		}
 
 		if (!is_set($arFields, "IP") || $arFields["IP"] == '')
+		{
 			$arFields["IP"] = $_SERVER["REMOTE_ADDR"];
+		}
 
 		if (!is_set($arFields, "DATE_CREATE") || $arFields["DATE_CREATE"] == '' || !$DB->IsDate($arFields["DATE_CREATE"], false, LANG, "FULL"))
 		{
@@ -1070,11 +1188,11 @@ class CCaptcha
 
 		$arInsert = $DB->PrepareInsert("b_captcha", $arFields);
 
-		$result = $DB->Query("INSERT INTO b_captcha (".$arInsert[0].") VALUES (".$arInsert[1].")", true);
+		$result = $DB->Query("INSERT INTO b_captcha (" . $arInsert[0] . ") VALUES (" . $arInsert[1] . ")", true);
 
 		$pool->useMasterOnly(false);
 
-		if($result)
+		if ($result)
 		{
 			return $arFields["ID"];
 		}
@@ -1085,11 +1203,12 @@ class CCaptcha
 	{
 		global $DB;
 
-		if (!$DB->Query("DELETE FROM b_captcha WHERE ID='".$DB->ForSQL($sid, 32)."' "))
+		if (!$DB->Query("DELETE FROM b_captcha WHERE ID='" . $DB->ForSQL($sid, 32) . "' "))
+		{
 			return false;
+		}
 
 		return true;
-
 	}
 }
 

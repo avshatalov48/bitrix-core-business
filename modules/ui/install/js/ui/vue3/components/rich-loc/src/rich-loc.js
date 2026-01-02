@@ -18,7 +18,7 @@ function makeRichLocChildren(text: string, templateItems: TemplateItem[], contex
 		if (item.index === index)
 		{
 			const placeholder = item.placeholder;
-			const slotName = placeholder.slice(1, -1);
+			const slotName = placeholder.match(/\[(.+?)\/?]/)[1];
 			if (Type.isFunction(context.slots[slotName]))
 			{
 				children.push(context.slots[slotName]({

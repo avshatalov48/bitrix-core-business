@@ -13,30 +13,48 @@ class AccessCode
 {
 	public const
 		ACCESS_DIRECTOR = 'AD',
-		ACCESS_EMPLOYEE = 'AE';
+		ACCESS_EMPLOYEE = 'AE',
+		ACCESS_DEPUTY = 'AT',
+		ACCESS_TEAM_DIRECTOR = 'ATD',
+		ACCESS_TEAM_EMPLOYEE = 'ATE',
+		ACCESS_TEAM_DEPUTY = 'ATT';
 
 	public const
-		AC_DEPARTMENT 		= '^(D)(\d+)$',
-		AC_ALL_DEPARTMENT 	= '^(DR)(\d+)$',
-		AC_INTRANET_USER 	= '^(IU)(\d+)$',
-		AC_GROUP 			= '^(G)(\d+)$',
-		AC_USER 			= '^(U)(\d+)$',
-		AC_SOCNETGROUP 		= '^(SG)(\d+)(_[AEK])?$',
-		AC_SOCNETUSER 		= '^(SU)(\d+)(_M)?$',
-		AC_CHAT				= '^(CHAT)(\d+)$',
-		AC_ACCESS_DIRECTOR	= '^('.self::ACCESS_DIRECTOR.')(\d+)?$',
-		AC_ACCESS_EMPLOYEE	= '^('.self::ACCESS_EMPLOYEE.')(\d+)?$';
+		AC_DEPARTMENT = '^(D)(\d+)$',
+		AC_ALL_DEPARTMENT = '^(DR)(\d+)$',
+		AC_INTRANET_USER = '^(IU)(\d+)$',
+		AC_GROUP = '^(G)(\d+)$',
+		AC_USER = '^(U)(\d+)$',
+		AC_SOCNETGROUP = '^(SG)(\d+)(_[AEK])?$',
+		AC_SOCNETUSER = '^(SU)(\d+)(_M)?$',
+		AC_CHAT = '^(CHAT)(\d+)$',
+		AC_ACCESS_DIRECTOR = '^(' . self::ACCESS_DIRECTOR . ')(\d+)?$',
+		AC_ACCESS_EMPLOYEE = '^(' . self::ACCESS_EMPLOYEE . ')(\d+)?$',
+		AC_ACCESS_DEPUTY = '^(' . self::ACCESS_DEPUTY . ')(\d+)?$',
+		AC_ACCESS_TEAM_DIRECTOR = '^(' . self::ACCESS_TEAM_DIRECTOR . ')(\d+)?$',
+		AC_ACCESS_TEAM_EMPLOYEE = '^(' . self::ACCESS_TEAM_EMPLOYEE . ')(\d+)?$',
+		AC_ACCESS_TEAM_DEPUTY = '^(' . self::ACCESS_TEAM_DEPUTY . ')(\d+)?$',
+		AC_STRUCTURE_DEPARTMENT = '^(SND)(\d+)$',
+		AC_ALL_STRUCTURE_DEPARTMENT = '^(SNDR)(\d+)$',
+		AC_STRUCTURE_TEAM = '^(SNT)(\d+)$',
+		AC_ALL_STRUCTURE_TEAM = '^(SNTR)(\d+)$';
 
 	public const
-		TYPE_USER 				= 'users',
-		TYPE_USER_ALL			= 'users_all',
-		TYPE_GROUP	 			= 'groups',
-		TYPE_SOCNETGROUP 		= 'sonetgroups',
-		TYPE_DEPARTMENT			= 'departments',
-		TYPE_ACCESS_DIRECTOR	= 'access_director',
-		TYPE_ACCESS_EMPLOYEE	= 'access_employee',
-		TYPE_CHAT				= 'chat',
-		TYPE_OTHER				= 'other';
+		TYPE_USER = 'users',
+		TYPE_USER_ALL = 'users_all',
+		TYPE_GROUP = 'groups',
+		TYPE_SOCNETGROUP = 'sonetgroups',
+		TYPE_DEPARTMENT = 'departments',
+		TYPE_ACCESS_DIRECTOR = 'access_director',
+		TYPE_ACCESS_EMPLOYEE = 'access_employee',
+		TYPE_ACCESS_DEPUTY = 'access_deputy',
+		TYPE_ACCESS_TEAM_DIRECTOR = 'access_team_director',
+		TYPE_ACCESS_TEAM_EMPLOYEE = 'access_team_employee',
+		TYPE_ACCESS_TEAM_DEPUTY = 'access_team_deputy',
+		TYPE_CHAT = 'chat',
+		TYPE_OTHER = 'other',
+		TYPE_STRUCTURE_DEPARTMENT = 'structuredepartments',
+		TYPE_STRUCTURE_TEAM = 'structureteams';
 
 	public static $map = [
 		self::AC_DEPARTMENT 		=> self::TYPE_DEPARTMENT,
@@ -49,6 +67,14 @@ class AccessCode
 		self::AC_CHAT 				=> self::TYPE_CHAT,
 		self::AC_ACCESS_DIRECTOR	=> self::TYPE_ACCESS_DIRECTOR,
 		self::AC_ACCESS_EMPLOYEE	=> self::TYPE_ACCESS_EMPLOYEE,
+		self::AC_ACCESS_DEPUTY		=> self::TYPE_ACCESS_DEPUTY,
+		self::AC_ACCESS_TEAM_DIRECTOR		=> self::TYPE_ACCESS_TEAM_DIRECTOR,
+		self::AC_ACCESS_TEAM_EMPLOYEE		=> self::TYPE_ACCESS_TEAM_EMPLOYEE,
+		self::AC_ACCESS_TEAM_DEPUTY		=> self::TYPE_ACCESS_TEAM_DEPUTY,
+		self::AC_STRUCTURE_DEPARTMENT		=> self::TYPE_STRUCTURE_DEPARTMENT,
+		self::AC_ALL_STRUCTURE_DEPARTMENT	=> self::TYPE_STRUCTURE_DEPARTMENT,
+		self::AC_STRUCTURE_TEAM		=> self::TYPE_STRUCTURE_TEAM,
+		self::AC_ALL_STRUCTURE_TEAM	=> self::TYPE_STRUCTURE_TEAM,
 	];
 
 	private $accessCode;

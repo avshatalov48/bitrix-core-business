@@ -19,16 +19,17 @@ class RestAdapter implements RestConvertible
 		$this->entities = $entities ?? [];
 	}
 
-	public function toRestFormat(array $options = []): array
+	public function toRestFormat(array $option = []): array
 	{
 		$this->processTariffLimit();
-		$popupData = new PopupData([]);
+		$excludedList = $option['POPUP_DATA_EXCLUDE'] ?? [];
+		$popupData = new PopupData([], $excludedList);
 
 		foreach ($this->entities as $entity)
 		{
 			if ($entity instanceof PopupDataAggregatable)
 			{
-				$popupData->merge($entity->getPopupData($options['POPUP_DATA_EXCLUDE'] ?? []));
+				$popupData->merge($entity->getPopupData($excludedList));
 			}
 		}
 
@@ -37,19 +38,19 @@ class RestAdapter implements RestConvertible
 			$popupData->merge($this->additionalPopupData);
 		}
 
-		$rest = $popupData->toRestFormat($options);
+		$rest = $popupData->toRestFormat($option);
 
 		if (empty($rest))
 		{
 			if (count($this->entities) === 1)
 			{
-				return $this->entities[0]->toRestFormat($options);
+				return $this->entities[0]->toRestFormat($option);
 			}
 		}
 
 		foreach ($this->entities as $entity)
 		{
-			$rest[$entity::getRestEntityName()] = $entity->toRestFormat($options);
+			$rest[$entity::getRestEntityName()] = $entity->toRestFormat($option);
 		}
 
 		return $rest;

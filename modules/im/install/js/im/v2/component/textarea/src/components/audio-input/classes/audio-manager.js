@@ -68,7 +68,6 @@ export class AudioManager extends EventEmitter
 		});
 		Event.bind(this.recognizer, RecognizerEvent.error, (event: SpeechRecognitionErrorEvent) => {
 			this.emit(AudioManager.events.recognitionError, event.error);
-			// eslint-disable-next-line no-console
 			console.error('Copilot: AudioManager: error', event.error);
 		});
 		Event.bind(this.recognizer, RecognizerEvent.end, () => {

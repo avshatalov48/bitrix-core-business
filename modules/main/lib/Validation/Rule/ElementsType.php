@@ -14,7 +14,7 @@ use Bitrix\Main\Validation\Rule\Enum\Type;
 use Bitrix\Main\Validation\ValidationError;
 use Bitrix\Main\Validation\ValidationResult;
 
-#[Attribute(Attribute::TARGET_PROPERTY)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class ElementsType implements PropertyValidationAttributeInterface
 {
 	use ValidationErrorTrait;

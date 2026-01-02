@@ -176,6 +176,72 @@ class Gd extends Engine
 	/**
 	 * @inheritDoc
 	 */
+	public function blur(int $sigma): bool
+	{
+		if ($this->resource === null)
+		{
+			return false;
+		}
+
+		$sigma = max(1, min(100, round($sigma)));
+
+		$originalWidth = $this->getWidth();
+		$originalHeight = $this->getHeight();
+
+		$minScale = 0.5;
+		$smallestWidth = ceil($originalWidth * (1 - pow($minScale, 1.0 / $sigma)));
+		$smallestHeight = ceil($originalHeight * (1 - pow($minScale, 1.0 / $sigma)));
+
+		$prevImage = $this->resource;
+		$prevWidth = $originalWidth;
+		$prevHeight = $originalHeight;
+		$nextImage = $this->resource;
+		$nextWidth = 0;
+		$nextHeight = 0;
+
+		for ($i = 1; $i <= $sigma; $i += 1)
+		{
+			$denominator = (1 - pow($minScale, 1.0 / $i));
+			$nextWidth = (int)round($smallestWidth / $denominator);
+			$nextHeight = (int)round($smallestHeight / $denominator);
+			$nextImage = imagecreatetruecolor($nextWidth, $nextHeight);
+			if ($this->format == File\Image::FORMAT_PNG || $this->format == File\Image::FORMAT_WEBP)
+			{
+				imagealphablending($nextImage, false);
+				imagesavealpha($nextImage, true);
+			}
+
+			imagecopyresampled($nextImage, $prevImage, 0, 0, 0, 0, $nextWidth, $nextHeight, $prevWidth, $prevHeight);
+			imagefilter($nextImage, IMG_FILTER_GAUSSIAN_BLUR);
+			if ($prevImage !== $this->resource)
+			{
+				imagedestroy($prevImage);
+			}
+
+			$prevImage = $nextImage;
+			$prevWidth = $nextWidth;
+			$prevHeight = $nextHeight;
+		}
+
+		if ($this->format == File\Image::FORMAT_PNG || $this->format == File\Image::FORMAT_WEBP)
+		{
+			imagealphablending($this->resource, false);
+			imagesavealpha($this->resource, true);
+		}
+
+		imagecopyresampled($this->resource, $nextImage, 0, 0, 0, 0, $originalWidth, $originalHeight, $nextWidth, $nextHeight);
+		imagefilter($this->resource, IMG_FILTER_GAUSSIAN_BLUR);
+		if ($nextImage !== $this->resource)
+		{
+			imagedestroy($nextImage);
+		}
+
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function filter(Mask $mask)
 	{
 		if ($this->resource === null)

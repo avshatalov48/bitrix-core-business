@@ -1,20 +1,26 @@
 <?php
+
+use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
+use Bitrix\Sale\Configuration;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
+/** @global CMain $APPLICATION */
+
 Loader::includeModule('sale');
 
-if (!\Bitrix\Sale\Configuration::isCanUsePersonalization())
+if (!Configuration::isCanUsePersonalization())
 {
 	LocalRedirect('/bitrix/admin/');
 }
 
 IncludeModuleLangFile(__FILE__);
 
-\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
+Extension::load('ui.fonts.opensans');
 
 // Page header
 $APPLICATION->SetTitle(GetMessage('BIGDATA_PERSONALIZATION'));
@@ -217,9 +223,13 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 	<div class="adm-c-bigdata-title-box">
 		<h2><?=GetMessage('BIGDATA_CONVERT')?></h2>
-		<?if (\Bitrix\Main\Application::getInstance()->getLicense()->getRegion() !== 'ua'):?>
+		<?php
+		if (Application::getInstance()->getLicense()->getRegion() !== 'ua'):
+			?>
 			<div class="adm-c-bigdata-mac"><iframe width="389" height="245" src="//www.youtube.com/embed/AtNZQGbkjHI?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe></div>
-		<?endif;?>
+			<?php
+		endif;
+		?>
 	</div>
 
 	<div class="adm-c-bigdata-content">
@@ -242,26 +252,38 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 		<div class="adm-c-bigdata-activate-content">
 			<ul class="adm-c-bigdata-activate-content-task-list">
 
-				<? $available = \Bitrix\Main\Analytics\Catalog::isOn(); ?>
-				<li <?=$available?'class="good"':''?>>
+				<?php
+				$available = \Bitrix\Main\Analytics\Catalog::isOn();
+				?>
+				<li <?= ($available ? 'class="good"' : '') ?>>
 					<?=GetMessage('BIGDATA_ENABLED')?>
-					<? if (!$available): ?>
+					<?php
+					if (!$available):
+						?>
 						<div class="adm-c-bigdata-activate-content-task-list-warning"><span><?=GetMessage('BIGDATA_DISABLED')?></span></div>
-					<? endif; ?>
+						<?php
+					endif;
+					?>
 				</li>
 
-				<? $installed = (time()-Bitrix\Main\Config\Option::get('main', 'rcm_component_usage', 0)<3600*24);?>
+				<?php
+				$installed = (time()-Bitrix\Main\Config\Option::get('main', 'rcm_component_usage', 0)<3600*24);
+				?>
 				<li <?=$installed?'class="good"':''?>>
 					<?=GetMessage('BIGDATA_INSTALLED')?>
-					<? if (!$installed): ?>
+					<?php
+					if (!$installed):
+						?>
 						<div class="adm-c-bigdata-activate-content-task-list-warning"><span><?=GetMessage('BIGDATA_UNINSTALLED')?></span></div>
-					<? endif; ?>
+						<?php
+					endif;
+					?>
 				</li>
 
 				<li <?=($available && $installed)?'class="good"':''?>><?=GetMessage('BIGDATA_OBSERVE')?></li>
 			</ul>
 
-			<?
+			<?php
 				$goUrl = '';
 
 				if ($available && $installed)
@@ -271,10 +293,6 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 				elseif (!$available)
 				{
 					$goUrl = 'settings.php?mid=main&mid_menu=1&lang='.LANGUAGE_ID;
-				}
-				elseif (!$installed)
-				{
-					$goUrl = 'https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=42&CHAPTER_ID=05367';
 				}
 			?>
 

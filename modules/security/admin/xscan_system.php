@@ -84,7 +84,7 @@ if (exec_enabled())
 	else
 	{
 		echo "<h4>&gt; crontab -l</h4>";
-		echo "<pre class=\"xscan-code\">no corntab</pre>";
+		echo "<pre class=\"xscan-code\">no crontab</pre>";
 	}
 
 	$output = null;
@@ -96,6 +96,29 @@ if (exec_enabled())
 		echo "<h4>&gt; last -i `whoami`</h4>";
 		$output = htmlspecialcharsbx(implode("\n", $output));
 		echo "<pre class=\"xscan-code\">$output</pre>";
+	}
+
+	$output = null;
+	$retval = null;
+	exec('cat ~/.bashrc', $output, $retval);
+
+	if ($retval === 0)
+	{
+		echo "<h4>&gt; cat ~/.bashrc</h4>";
+		$output = htmlspecialcharsbx(implode("\n", $output));
+		echo "<pre class=\"xscan-code\">$output</pre>";
+
+		$output = null;
+		$retval = null;
+		exec('stat ~/.bashrc', $output, $retval);
+
+		if ($retval === 0)
+		{
+			echo "<h4>&gt; stat ~/.bashrc</h4>";
+			$output = htmlspecialcharsbx(implode("\n", $output));
+			echo "<pre class=\"xscan-code\">$output</pre>";
+		}
+
 	}
 
 	$output = null;

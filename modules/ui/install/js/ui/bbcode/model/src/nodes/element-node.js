@@ -426,6 +426,16 @@ export class BBCodeElementNode extends BBCodeNode
 		this.trimEndLinebreaks();
 	}
 
+	trimLinebreaksOnce()
+	{
+		[this.getFirstChild(), this.getLastChild()].forEach((child: BBCodeContentNode) => {
+			if (child && child.getName() === '#linebreak')
+			{
+				child.remove();
+			}
+		});
+	}
+
 	toString(options: BBCodeToStringOptions = {}): string
 	{
 		const tagScheme: BBCodeTagScheme = this.getTagScheme();

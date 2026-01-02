@@ -247,11 +247,17 @@ class FieldFileUploaderController extends UploaderController
 
 	public function onUploadComplete(UploadResult $uploadResult): void
 	{
+		$fileInfo = $uploadResult->getFileInfo();
+
+		if ($fileInfo === null)
+		{
+			return;
+		}
+
 		$session = Application::getInstance()->getSession();
 		$session->save();
 		$session->start();
 
-		$fileInfo = $uploadResult->getFileInfo();
 		$fileId = $fileInfo->getFileId();
 		$downloadUrl = $fileInfo->getPreviewUrl();
 		if (is_string($downloadUrl) && $downloadUrl !== '')

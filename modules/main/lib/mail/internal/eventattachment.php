@@ -3,12 +3,12 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2012 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Mail\Internal;
 
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data\DataManager;
 
 /**
  * Class EventAttachmentTable
@@ -26,7 +26,7 @@ use Bitrix\Main\Entity;
  * @method static \Bitrix\Main\Mail\Internal\EO_EventAttachment wakeUpObject($row)
  * @method static \Bitrix\Main\Mail\Internal\EO_EventAttachment_Collection wakeUpCollection($rows)
  */
-class EventAttachmentTable extends Entity\DataManager
+class EventAttachmentTable extends DataManager
 {
 
 	/**

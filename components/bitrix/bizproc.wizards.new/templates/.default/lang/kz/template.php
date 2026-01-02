@@ -1,0 +1,26 @@
+<?php
+$MESS["BPWC_WNCT_2LIST"] = "Бизнес-процестер тізімі";
+$MESS["BPWC_WNCT_CANCEL"] = "Болдырмау";
+$MESS["BPWC_WNCT_COMP_LIST_TPL"] = "Бизнес-процесс тізімінің компонент қалыбы";
+$MESS["BPWC_WNCT_COMP_START_TPL"] = "Бизнес-процесті бастау компонентінің қалыбы";
+$MESS["BPWC_WNCT_COMP_TPL_DEF"] = "(әдепкі бойынша)";
+$MESS["BPWC_WNCT_COMP_VIEW_TPL"] = "Бизнес-процес компонентінің қалыбы";
+$MESS["BPWC_WNCT_DESCR"] = "Бизнес-процестің сипаттамасы";
+$MESS["BPWC_WNCT_EADD"] = "Элементті қосу' жазуы";
+$MESS["BPWC_WNCT_FILTERABLEFIELDS"] = "Іріктеу үшін қолжетімді өрістер";
+$MESS["BPWC_WNCT_ICON"] = "Бизнес-процесс белгішесі";
+$MESS["BPWC_WNCT_NAME"] = "Бизнес-процесс атауы";
+$MESS["BPWC_WNCT_NEW_TMPL"] = "Жаңа қалып (тізбекті)";
+$MESS["BPWC_WNCT_NEW_TMPL_1"] = "Жаңа қалып (мәртебелермен)";
+$MESS["BPWC_WNCT_P"] = "Бизнес-процесс элементтерінің жалғыз атауы";
+$MESS["BPWC_WNCT_PERMS"] = "Бизнес-процесті көруге кім құқылы";
+$MESS["BPWC_WNCT_PS"] = "Бизнес-процесс элементтерінің көптік атауы";
+$MESS["BPWC_WNCT_SAVE0"] = "Өзгерту";
+$MESS["BPWC_WNCT_SAVE1"] = "Бизнес-процесс құру";
+$MESS["BPWC_WNCT_SAVE2"] = "Әрі қарай";
+$MESS["BPWC_WNCT_SORT"] = "Бизнес-процесті сұрыптау индексі";
+$MESS["BPWC_WNCT_SUBTITLE1"] = "Жаңа бизнес-процесті құру";
+$MESS["BPWC_WNCT_SUBTITLE2"] = "Жаңа бизнес-процесті баптау";
+$MESS["BPWC_WNCT_SUBTITLE11"] = "Бизнес-процестің өзгеруі";
+$MESS["BPWC_WNCT_TMPL"] = "Бизнес-процесс қалыбы";
+$MESS["BPWC_WNCT_VISIBLEFIELDS"] = "Қарау үшін қолжетімді өрістер";

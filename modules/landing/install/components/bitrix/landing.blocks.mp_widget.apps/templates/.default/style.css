@@ -11,7 +11,6 @@
 
 .block-mp-widget-apps {
 	max-width: 100%;
-	font-family: var(--ui-font-family-system);
 }
 
 .landing-widget-apps {
@@ -31,6 +30,10 @@
 	height: 100%;
 	background: var(--ui-color-background-primary);
 	box-sizing: border-box;
+}
+
+.landing-widget-apps-type-2 .landing-widget-app-mobile {
+	padding: 24px 36px 0 55px;
 }
 
 .landing-widget-app-mobile-content {
@@ -92,6 +95,10 @@
 	background: rgba(38, 211, 235, .12) url(./images/landing-widgets-circles.svg) center no-repeat;
 }
 
+.landing-widget-apps-type-2 .landing-widget-app-mobile-qr-wrap {
+	background: url(./images/landing-widgets-circles-2.svg) center no-repeat;
+}
+
 .landing-widget-app-mobile-qr-box,
 .landing-widget-app-desktop-icon-box {
 	display: flex;
@@ -104,6 +111,11 @@
 	background: var(--ui-color-background-primary);
 	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1);
 	box-sizing: border-box;
+}
+
+.landing-widget-apps-type-2 .landing-widget-app-mobile-qr-box,
+.landing-widget-apps-type-2 .landing-widget-app-desktop-icon-box {
+	border: 2px solid #0075FF;
 }
 
 .landing-widget-app-mobile-qr-icon.ui-icon-set {
@@ -139,6 +151,15 @@
 	min-width: 284px;
 	height: 267px;
 	background: url(./images/landing-widget-mobile.png) left -4px bottom no-repeat;
+	background-size: 284px auto;
+}
+
+.landing-widget-apps-type-2 .landing-widget-app-mobile-logo {
+	align-self: end;
+	display: block;
+	min-width: 284px;
+	height: 273px;
+	background: url(./images/landing-widget-mobile-2.png) left -4px bottom no-repeat;
 	background-size: 284px auto;
 }
 
@@ -209,6 +230,10 @@
 		rgba(38, 211, 235, .12) 92.53%), url(./images/landing-widgets-circles.svg) center no-repeat;
 }
 
+.landing-widget-apps-type-2 .landing-widget-app-desktop-icon-wrap {
+	background: url(./images/landing-widgets-circles-2.svg) center no-repeat;
+}
+
 .landing-widget-app-desktop-icon.ui-icon-set {
 	--ui-icon-set__icon-size: 32px;
 	--ui-icon-set__icon-color: var(--ui-color-base-90);
@@ -233,12 +258,20 @@
 }
 
 .landing-widget-qr-button {
-	background: var(--widget-color-button-mobile);
-	color: var(--widget-color-button-text-mobile);
+	background: var(--widget-color-button-mobile) !important;
+	color: var(--widget-color-button-text-mobile) !important;
 }
 .landing-widget-desktop-button {
-	background: var(--widget-color-button-desktop);
-	color: var(--widget-color-button-text-desktop);
+	background: var(--widget-color-button-desktop) !important;
+	color: var(--widget-color-button-text-desktop) !important;
+	text-decoration: none !important;
+}
+.landing-widget-apps-type-2 .landing-widget-qr-button {
+	background: #0075FF;
+}
+.landing-widget-apps-type-2 .landing-widget-desktop-button {
+	background: #0075FF;
+	color: #ffffff;
 }
 
 .landing-widget-qr-button:hover {
@@ -255,6 +288,15 @@
 	height: 255px;
 	background: url(./images/landing-widget-notebook.png) no-repeat;
 	background-size: cover;
+}
+
+.landing-widget-apps-type-2 .landing-widget-app-desktop-logo {
+	align-self: end;
+	min-width: 451px;
+	height: 255px;
+	background: url(./images/landing-widget-notebook-2.png) no-repeat;
+	background-size: cover;
+	margin-bottom: 18px;
 }
 
 .landing-widget-app-desktop-logo-inner {

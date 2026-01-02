@@ -6,11 +6,7 @@ import { Parser } from 'im.v2.lib.parser';
 import '../css/message-panel.css';
 
 import type { ImModelMessage, ImModelUser } from 'im.v2.model';
-import type { PanelContext } from 'im.v2.provider.service';
-
-type MultiForwardPanelContext = PanelContext & {
-	messagesIds: number[],
-}
+import type { PanelContextWithMultipleIds } from 'im.v2.provider.service.sending';
 
 const MESSAGE_DISPLAY_LIMIT = 5;
 
@@ -27,7 +23,7 @@ export const ForwardPanel = {
 	emits: ['close'],
 	computed:
 	{
-		forwardContext(): MultiForwardPanelContext
+		forwardContext(): PanelContextWithMultipleIds
 		{
 			return this.context;
 		},

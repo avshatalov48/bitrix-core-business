@@ -9,7 +9,7 @@ import { commentFieldsConfig } from './format/field-config';
 import type { JsonObject } from 'main.core';
 import type { ActionTree, MutationTree, GetterTree } from 'ui.vue3.vuex';
 import type { ImModelCommentInfo, ImModelMessage } from 'im.v2.model';
-import type { RawCommentInfo } from 'im.v2.provider.service';
+import type { RawCommentInfo } from 'im.v2.provider.service.types';
 
 const LAST_USERS_TO_SHOW = 3;
 

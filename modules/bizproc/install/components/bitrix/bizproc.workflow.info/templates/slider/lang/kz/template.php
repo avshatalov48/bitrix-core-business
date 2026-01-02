@@ -1,0 +1,24 @@
+<?php
+$MESS["BPWFI_SLIDER_ARGUMENT_NULL"] = "'#PARAM#' міндетті өрісі толтырылмаған";
+$MESS["BPWFI_SLIDER_BANNER_BODY"] = "Процеске қатысушыларға пікірлер қалдырыңыз және сұрақтар қойыңыз";
+$MESS["BPWFI_SLIDER_BANNER_TITLE"] = "Процеске әлі пікірлер жоқ";
+$MESS["BPWFI_SLIDER_BUTTON_DELEGATE"] = "Табыстау";
+$MESS["BPWFI_SLIDER_CONFIRM_ACCEPT"] = "Иә, бас тарту";
+$MESS["BPWFI_SLIDER_CONFIRM_CANCEL"] = "Бас тартпау";
+$MESS["BPWFI_SLIDER_CONFIRM_DESCRIPTION"] = "Егер сіз процесс картасындағы өзгерістерді жойсаңыз, өрістердегі ақпарат сақталмайды";
+$MESS["BPWFI_SLIDER_CONFIRM_TITLE"] = "Процесс картасындағы өзгерістерді болдырмау керек пе?";
+$MESS["BPWFI_SLIDER_DESCRIPTION"] = "Сипаттама";
+$MESS["BPWFI_SLIDER_DISCUSSION_COMMENTS_COUNT"] = "Пікірлер: #COMMENTS_COUNT#";
+$MESS["BPWFI_SLIDER_DISCUSSION_TITLE"] = "Процесті талқылау";
+$MESS["BPWFI_SLIDER_DISCUSSION_ZERO_COMMENTS_COUNT"] = "Процеске әлі пікірлер жоқ";
+$MESS["BPWFI_SLIDER_DOCUMENT"] = "Элемент";
+$MESS["BPWFI_SLIDER_FIELDS_TITLE"] = "Толтырылуы тиіс өрістер";
+$MESS["BPWFI_SLIDER_MODIFIED"] = "Белсенділік";
+$MESS["BPWFI_SLIDER_NAME"] = "Атауы";
+$MESS["BPWFI_SLIDER_NOT_MY_PROCESS"] = "Сіз #USER# қызметкерінің процесін аштыңыз";
+$MESS["BPWFI_SLIDER_NOT_MY_TASK"] = "Сіз #USER# қызметкерінің тапсырмасын аштыңыз";
+$MESS["BPWFI_SLIDER_PROCESS"] = "Процесс";
+$MESS["BPWFI_SLIDER_STATUS"] = "Мәртебесі";
+$MESS["BPWFI_SLIDER_TASK"] = "Тапсырма";
+$MESS["BPWFI_SLIDER_TIMELINE_MSGVER_1"] = "Хаттама";
+$MESS["BPWFI_SLIDER_TYPE"] = "Процесс түрі";

@@ -7,6 +7,7 @@
 		this.controlNode = params.controlNode;
 		this.inputNode = params.inputNode;
 		this.config = params.config;
+		this.saved = false;
 	}
 	UserConsentControl.prototype = {
 
@@ -23,13 +24,14 @@
 		events: {
 			'save': 'main-user-consent-request-save',
 			'refused': 'main-user-consent-request-refused',
-			'accepted': 'main-user-consent-request-accepted'
+			'accepted': 'main-user-consent-request-accepted',
+			'afterAccepted': 'main-user-consent-request-after-accepted',
 		},
 		current: null,
 		autoSave: false,
 		isFormSubmitted: false,
-		isConsentSaved: false,
 		attributeControl: 'data-bx-user-consent',
+		items: [],
 		load: function (context)
 		{
 			var item = this.find(context)[0];
@@ -43,7 +45,16 @@
 		},
 		loadAll: function (context, limit)
 		{
-			this.find(context, limit).forEach(this.bind, this);
+			var items = this.find(context, limit);
+			if (items.length > 0)
+			{
+				items.forEach(this.bind, this);
+				this.items = this.items.concat(items);
+			}
+		},
+		getItems: function()
+		{
+			return this.items;
 		},
 		loadFromForms: function ()
 		{
@@ -73,7 +84,7 @@
 				BX.bind(item.formNode, 'submit', this.onSubmit.bind(this, item));
 			}
 
-			BX.bind(item.controlNode, 'click', this.onClick.bind(this, item));
+			BX.bind(item.inputNode, 'click', this.onClick.bind(this, item));
 		},
 		createItem: function (context, controlNode)
 		{
@@ -114,6 +125,17 @@
 		{
 			if (item.config.url)
 			{
+				if (item.inputNode.checked)
+				{
+					BX.onCustomEvent(item, this.events.afterAccepted, [item]);
+					BX.onCustomEvent(this, this.events.afterAccepted, [item]);
+				}
+				else
+				{
+					BX.onCustomEvent(item, this.events.refused, [item]);
+					BX.onCustomEvent(this, this.events.refused, [item]);
+				}
+
 				return;
 			}
 
@@ -141,7 +163,10 @@
 		{
 			if (item.inputNode.checked)
 			{
-				this.saveConsent(item);
+				this.saveConsent(item, () => {
+					item.saved = true;
+				});
+
 				return true;
 			}
 
@@ -182,21 +207,24 @@
 					BX.onCustomEvent(item, this.events.accepted, []);
 					BX.onCustomEvent(this, this.events.accepted, [item]);
 
-					this.isConsentSaved = true;
+					item.saved = true;
 
 					if (this.isFormSubmitted && item.formNode && !item.config.submitEventName)
 					{
 						BX.submit(item.formNode);
 					}
+
+					this.current.inputNode.checked = true;
+					this.current = null;
+
+					BX.onCustomEvent(item, this.events.afterAccepted, [item]);
+					BX.onCustomEvent(this, this.events.afterAccepted, [item]);
 				}
 			);
-
-			this.current.inputNode.checked = true;
-			this.current = null;
 		},
 		onRefused: function ()
 		{
-			BX.onCustomEvent(this.current, this.events.refused, []);
+			BX.onCustomEvent(this.current, this.events.refused, [this.current]);
 			BX.onCustomEvent(this, this.events.refused, [this.current]);
 			this.current.inputNode.checked = false;
 			this.current = null;
@@ -471,7 +499,7 @@
 			BX.onCustomEvent(item, this.events.save, [data]);
 			BX.onCustomEvent(this, this.events.save, [item, data]);
 
-			if (this.isConsentSaved || !item.config.autoSave)
+			if (item.saved || !item.config.autoSave)
 			{
 				if (callback)
 				{

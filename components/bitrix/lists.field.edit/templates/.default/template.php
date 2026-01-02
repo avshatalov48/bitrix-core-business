@@ -1,6 +1,11 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
 	die();
+}
+
+use Bitrix\Main\Localization\Loc;
 
 /** @var array $arParams */
 /** @var array $arResult */
@@ -20,50 +25,6 @@ $socnetGroupId = $arParams["SOCNET_GROUP_ID"] ? $arParams["SOCNET_GROUP_ID"] : 0
 $generateCode = false;
 if(!$arResult["FIELD_ID"] && $arResult["IS_PROPERTY"])
 	$generateCode = true;
-
-$listAction = array();
-if($arResult["FIELD_ID"] && $arResult["FIELD_ID"] != "NAME")
-{
-	$listAction[] = array(
-		"id" => "deleteField",
-		"text" => GetMessage("CT_BLFE_TOOLBAR_DELETE"),
-		"action" => "BX.Lists['".$jsClass."'].deleteField('form_".$arResult["FORM_ID"]."',
-			'".GetMessage("CT_BLFE_TOOLBAR_DELETE_WARNING")."')"
-	);
-}
-
-$isBitrix24Template = (SITE_TEMPLATE_ID == "bitrix24");
-$pagetitleAlignRightContainer = "lists-align-right-container";
-if($isBitrix24Template)
-{
-	$this->SetViewTarget("pagetitle", 100);
-	$pagetitleAlignRightContainer = "";
-}
-elseif(!IsModuleInstalled("intranet"))
-{
-	\Bitrix\Main\UI\Extension::load([
-		'ui.design-tokens',
-		'ui.fonts.opensans',
-	]);
-
-	$APPLICATION->SetAdditionalCSS("/bitrix/js/lists/css/intranet-common.css");
-}
-?>
-<div class="pagetitle-container pagetitle-align-right-container <?=$pagetitleAlignRightContainer?>">
-	<a href="<?=$arResult["LIST_FIELDS_URL"]?>" class="ui-btn ui-btn-sm ui-btn-link ui-btn-themes lists-list-back">
-		<?=GetMessage("CT_BLFE_TOOLBAR_RETURN_LIST_ELEMENT")?>
-	</a>
-	<?if($listAction):?>
-		<span id="lists-title-action" class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-dropdown ui-btn-themes">
-			<?=GetMessage("CT_BLFE_TOOLBAR_ACTION")?>
-		</span>
-	<?endif;?>
-</div>
-<?
-if($isBitrix24Template)
-{
-	$this->EndViewTarget();
-}
 
 $customHtml = "";
 
@@ -692,7 +653,7 @@ if(is_array($arResult["LIST"]))
 				});
 			});
 		</script>
-		<?
+		<?php
 	}
 	else
 	{
@@ -730,7 +691,6 @@ $APPLICATION->IncludeComponent(
 			iblockId: '<?=$arResult['IBLOCK_ID']?>',
 			socnetGroupId: '<?=$socnetGroupId?>',
 			generateCode: '<?=$generateCode?>',
-			listAction: <?=\Bitrix\Main\Web\Json::encode($listAction)?>
 		});
 
 		BX.message({

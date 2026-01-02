@@ -3,7 +3,6 @@
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
 use \Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ModuleManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -173,26 +172,6 @@ Class location extends CModule
 		\CTimeZone::Enable();
 	}
 
-	public function installConfigurer()
-	{
-		\CTimeZone::Disable();
-
-		/**
-		 * @see \Bitrix\Location\Source\Osm\Configurer::configure()
-		 */
-		CAgent::AddAgent(
-			"\\Bitrix\\Location\\Source\\Osm\\Configurer::configure();",
-			'location',
-			'N',
-			2,
-			'',
-			'Y',
-			\ConvertTimeStamp(time() + \CTimeZone::GetOffset() + 2, 'FULL')
-		);
-
-		\CTimeZone::Enable();
-	}
-
 	public function installRecentAddressesCleaner()
 	{
 		\CTimeZone::Disable();
@@ -267,7 +246,6 @@ Class location extends CModule
 
 		$this->installSources();
 		$this->installAreas();
-		$this->installConfigurer();
 		$this->installRecentAddressesCleaner();
 		$this->setDefaultFormatCode();
 

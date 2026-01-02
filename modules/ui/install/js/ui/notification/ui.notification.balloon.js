@@ -35,6 +35,7 @@
 	 * @property {number} [width=400]
 	 * @property {object} [data]
 	 * @property {?object.<string, function>} [events]
+	 * @property {boolean} [useAirDesign=false]
 	 */
 
 	/**
@@ -67,8 +68,14 @@
 		this.autoHideDelay = 8000;
 		this.autoHideTimeout = null;
 
+		this.useAirDesign = options.useAirDesign === true;
+
 		this.data = {};
 		this.width = 400;
+		if (this.useAirDesign === true)
+		{
+			this.width = 339;
+		}
 
 		this.closeButton = null;
 		this.closeButtonVisibility = true;
@@ -667,6 +674,11 @@
 					});
 
 					this.getContainer().classList.add(this.getAnimationClassName());
+
+					if (this.useAirDesign === true)
+					{
+						BX.Dom.addClass(this.getContainer(), ['--air', '—ui-context-content-dark']);
+					}
 				}
 				else
 				{

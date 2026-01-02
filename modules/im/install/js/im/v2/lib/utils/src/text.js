@@ -1,6 +1,6 @@
-import {Type, Loc, Text, Dom} from 'main.core';
+import { Type, Loc, Text, Dom } from 'main.core';
 
-import { FakeMessagePrefix, FakeDraftMessagePrefix, GetParameter } from 'im.v2.const';
+import { FakeMessagePrefix, FakeDraftMessagePrefix } from 'im.v2.const';
 
 import { emojiRegex } from './emoji-regex';
 
@@ -16,9 +16,14 @@ export const TextUtil = {
 
 	convertSnakeToCamelCase(text: string): string
 	{
-		return text.replace(/(_[a-z])/gi, ($1) => {
+		return text.replaceAll(/(_[a-z])/gi, ($1) => {
 			return $1.toUpperCase().replace('_', '');
 		});
+	},
+
+	convertCamelToSnakeCase(text: string): string
+	{
+		return text.replaceAll(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
 	},
 
 	escapeRegex(string): string
@@ -210,11 +215,6 @@ export const TextUtil = {
 		}
 
 		return `[USER=${dialogId}]${name}[/USER]`;
-	},
-
-	getMessageLink(dialogId: string, messageId: number): string
-	{
-		return `${location.origin}/online/?${GetParameter.openChat}=${dialogId}&${GetParameter.openMessage}=${messageId}`;
 	},
 
 	async copyToClipboard(textToCopy: string): Promise<void>

@@ -20,10 +20,6 @@ export const ContextMenu = {
 			type: Object,
 			required: true,
 		},
-		menuIsActiveForId: {
-			type: [String, Number],
-			default: 0,
-		},
 		showContextMenu: {
 			type: Boolean,
 			default: true,
@@ -52,7 +48,7 @@ export const ContextMenu = {
 		},
 		isBulkActionsMode(): boolean
 		{
-			return this.$store.getters['messages/select/getBulkActionsMode'];
+			return this.$store.getters['messages/select/isBulkActionsModeActive'](this.dialogId);
 		},
 	},
 	methods:
@@ -62,6 +58,7 @@ export const ContextMenu = {
 			EventEmitter.emit(EventType.dialog.onClickMessageContextMenu, {
 				message: this.message,
 				dialogId: this.dialogId,
+				bindElement: event.currentTarget,
 				event,
 			});
 		},
@@ -73,7 +70,6 @@ export const ContextMenu = {
 					:title="menuTitle"
 					@click="onMenuClick"
 					@contextmenu.prevent
-					:class="{'--active': menuIsActiveForId === message.id}"
 					class="bx-im-message-context-menu__button"
 				></button>
 			</div>

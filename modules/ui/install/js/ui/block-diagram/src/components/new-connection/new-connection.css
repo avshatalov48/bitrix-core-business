@@ -1,0 +1,15 @@
+.ui-block-diagram-new-connection {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 0;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+.ui-block-diagram-new-connection__path {
+	stroke: var(--pallete-blue-blue-57, #4A9DFF);
+	stroke-width: 1;
+	fill: var(--ui-color-background-transparent, transparent);
+}

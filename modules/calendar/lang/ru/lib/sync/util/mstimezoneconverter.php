@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["MS_TIMEZONE_PAGO_PAGO"] = "Паго-Паго";
 $MESS["MS_TIMEZONE_NIUE"] = "Ниуэ";
 $MESS["MS_TIMEZONE_MIDWAY"] = "о-ва Мидуэй";
@@ -55,6 +56,7 @@ $MESS['MS_TIMEZONE_NORTH_DAKOTA_CENTER'] = 'Центр, Северная Дак�
 $MESS['MS_TIMEZONE_NORTH_DAKOTA_NEW_SALEM'] = 'Нью-Сейлем, Северная Дакота';
 $MESS['MS_TIMEZONE_EASTER'] = 'о-в Пасхи';
 $MESS['MS_TIMEZONE_EASTER_ST'] = 'О-в Пасхи, стандартное время';
+$MESS['MS_TIMEZONE_EASTER_DST'] = 'О-в Пасхи, летнее время';
 $MESS['MS_TIMEZONE_MEXICO_CITY'] = 'Мехико';
 $MESS['MS_TIMEZONE_BAHIA_BANDERAS'] = 'Баия-де-Бандерас';
 $MESS['MS_TIMEZONE_MERIDA'] = 'Мерида';
@@ -291,6 +293,7 @@ $MESS['MS_TIMEZONE_EUCLA'] = 'Юкла';
 $MESS['MS_TIMEZONE_CHITA'] = 'Чита';
 $MESS['MS_TIMEZONE_TOKYO'] = 'Токио';
 $MESS['MS_TIMEZONE_JAYAPURA'] = 'Джаяпура';
+$MESS["MS_TIMEZONE_ULAANBAATAR"] = 'Улан-Батор';
 $MESS['MS_TIMEZONE_MAKASSAR'] = 'Макасар';
 $MESS['MS_TIMEZONE_KUALA_LUMPUR'] = 'Куала-Лумпур';
 $MESS['MS_TIMEZONE_KUCHING'] = 'Кучинг';
@@ -353,5 +356,3 @@ $MESS['MS_TIMEZONE_MCMURDO'] = 'Мак-Мердо';
 $MESS['MS_TIMEZONE_NOUMEA'] = 'Нумеа';
 $MESS['MS_TIMEZONE_EFATE'] = 'Эфате';
 $MESS['MS_TIMEZONE_GUADALCANAL'] = 'Гуадалканал';
-
-?>

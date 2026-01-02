@@ -23,7 +23,7 @@
 			const defaultColorTextRgb = 'rgb(51, 51, 51)';
 			const defaultColorTextHex = '#333333';
 			const divTableContainer = this.contextDocument.createElement('div');
-			divTableContainer.classList.add('landing-table-container');
+			divTableContainer.classList.add('landing-table-container', 'landing-table-container-new');
 			const tableElement = this.contextDocument.createElement('table');
 			tableElement.classList.add('landing-table', 'landing-table-style-1');
 			tableElement.setAttribute('text-color', defaultColorTextHex);

@@ -95,6 +95,7 @@
 				return new BX.Landing.UI.Field.Image({
 					title: options.name,
 					selector: this.selector,
+					contextType: BX.Landing.UI.Field.Image.CONTEXT_TYPE_CONTENT,
 					content: options.value,
 					onChange: this.onChangeHandler,
 					onValueChange: this.onValueChangeHandler,

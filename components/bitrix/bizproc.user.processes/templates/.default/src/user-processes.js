@@ -29,6 +29,9 @@ export class UserProcesses
 	#workflowTasks: Map<WorkflowId, TaskId> = new Map();
 	#workflowRenderer: Object<WorkflowId, WorkflowRenderer> = {};
 	currentUserId: number;
+	#targetUserId: number;
+	#shownMobilePopup: boolean;
+	#appLink: string;
 
 	loader: WorkflowLoader;
 
@@ -37,7 +40,10 @@ export class UserProcesses
 		actionPanelUserWrapperId: string,
 		errors: Array<{ message: string }>,
 		currentUserId: number,
+		targetUserId: number;
 		mustSubscribeToPushes: boolean,
+		shownMobilePopup: boolean,
+		appLink: string,
 	})
 	{
 		let mustSubscribeToPushes = false;
@@ -56,6 +62,9 @@ export class UserProcesses
 			};
 
 			this.currentUserId = options.currentUserId;
+			this.#targetUserId = options.targetUserId;
+			this.#shownMobilePopup = options.shownMobilePopup;
+			this.#appLink = options.appLink;
 
 			mustSubscribeToPushes = options.mustSubscribeToPushes === true;
 		}
@@ -66,6 +75,7 @@ export class UserProcesses
 		{
 			this.#subscribeToPushes();
 		}
+		this.#subscribeToTaskDo();
 
 		this.init();
 		this.initCounterPanel(options.counters, options.filterId);
@@ -102,6 +112,32 @@ export class UserProcesses
 				}
 			},
 		});
+	}
+
+	#subscribeToTaskDo()
+	{
+		BX.addCustomEvent(
+			'SidePanel.Slider:onMessage',
+			(event) => {
+				if (event.getEventId() === 'try-do-bp-task-event')
+				{
+					this.#hideRow(event.data.workflowId);
+				}
+				else if (event.getEventId() === 'error-do-bp-task-event')
+				{
+					this.#showRow(event.data.workflowId);
+				}
+				else if (event.getEventId() === 'success-do-bp-task-event')
+				{
+					UI.Notification.Center.notify({
+						content: Loc.getMessage(
+							'BIZPROC_USER_PROCESSES_TEMPLATE_TASK_TOUCHED',
+							{ '#TASK_NAME#': Text.encode(event.data.taskName) },
+						),
+					});
+				}
+			},
+		);
 	}
 
 	#updateWorkflows(response: LoadWorkflowsResponseData): void
@@ -222,7 +258,7 @@ export class UserProcesses
 				DOCUMENT_NAME: renderer.renderDocumentName(),
 				WORKFLOW_TEMPLATE_NAME: Text.encode(workflow.templateName),
 				TASK_DESCRIPTION: Dom.create('span', { html: workflow.description || '' }),
-				MODIFIED: renderer.renderModified(),
+				MODIFIED: Text.encode(workflow.modified),
 				WORKFLOW_STARTED: Text.encode(workflow.workflowStarted),
 				WORKFLOW_STARTED_BY: Text.encode(workflow.startedBy),
 				OVERDUE_DATE: Text.encode(workflow.overdueDate),
@@ -233,9 +269,33 @@ export class UserProcesses
 				TASK_PROGRESS: 'bp-task-progress-cell',
 				SUMMARY: 'bp-summary-cell',
 				TASK: workflow.isCompleted ? 'bp-status-completed-cell' : '',
+				TASK_DESCRIPTION: 'bp-description-cell',
 			},
+			counters: this.#getCountersOption(workflow),
 			editable: Boolean(workflow.task),
 		};
+	}
+
+	#getCountersOption(workflow: WorkflowData): Object
+	{
+		const counters = {};
+		if (this.#targetUserId === this.currentUserId && (workflow.taskCnt > 0 || workflow.commentCnt > 0))
+		{
+			const primaryColor = workflow.taskCnt === 0 && workflow.commentCnt > 0
+				? BX.Grid.Counters.Color.SUCCESS
+				: BX.Grid.Counters.Color.DANGER
+			;
+
+			counters.MODIFIED = {
+				type: BX.Grid.Counters.Type.LEFT,
+				color: primaryColor,
+				secondaryColor: BX.Grid.Counters.Color.SUCCESS,
+				value: (workflow.taskCnt || 0) + (workflow.commentCnt || 0),
+				isDouble: workflow.taskCnt > 0 && workflow.commentCnt > 0,
+			};
+		}
+
+		return counters;
 	}
 
 	init(): void
@@ -334,101 +394,38 @@ export class UserProcesses
 		}
 	}
 
-	async initStartWorkflowButton(buttonId: ?string)
+	clickStartWorkflowButton(): void
 	{
-		const button = Type.isStringFilled(buttonId) && document.getElementById(buttonId);
-		const lists = Type.isStringFilled(button?.dataset.lists) && JSON.parse(button.dataset.lists);
-		let selectedIBlockSliderParams = null;
+		Runtime
+			.loadExtension('bizproc.router')
+			.then(({ Router }) => {
+				Router.openUserProcessesStart();
+			})
+			.catch((e) => console.error(e));
 
-		if (lists)
-		{
-			const popupMenu = new Menu({
-				angle: true,
-				offsetLeft: Dom.getPosition(button).width / 2,
-				autoHide: true,
-				bindElement: button,
-				closeByEsc: true,
-				items: Object.values(lists).map((list) => {
-					const item = {
-						text: list.name,
-						className: 'feed-add-post-form-link-lists',
-						dataset: {
-							iconUrl: list.icon,
-						},
-					};
+		Runtime
+			.loadExtension('ui.analytics')
+			.then(({ sendData }) => {
+				sendData({
+					tool: 'automation',
+					category: 'bizproc_operations',
+					event: 'drawer_open',
+					c_section: 'bizproc',
+					c_element: 'button',
+				});
+			})
+			.catch(() => {})
+		;
+	}
 
-					if (Type.isNil(list.url))
-					{
-						const params = {
-							iBlockTypeId: list.iBlockTypeId,
-							iBlockId: list.iBlockId,
-							analyticsP1: list.name,
-						};
-
-						if (list.selected === true)
-						{
-							selectedIBlockSliderParams = params;
-						}
-
-						item.onclick = () => {
-							popupMenu.close();
-							Runtime.loadExtension('lists.element.creation-guide')
-								.then(({ CreationGuide }) => {
-									CreationGuide?.open(params);
-								})
-								.catch(() => {})
-							;
-						};
-					}
-					else
-					{
-						item.href = list.url;
-					}
-
-					return item;
-				}),
-			});
-			const popupElement = popupMenu.getMenuContainer();
-			for (const iconElement of popupElement.querySelectorAll('.menu-popup-item-icon'))
-			{
-				Dom.append(
-					Tag.render`
-						<img src = "${iconElement.parentElement.dataset.iconUrl}" alt="" width = "19" height = "16"/>
-					`,
-					iconElement,
-				);
-			}
-
-			button.onclick = (event) => {
-				event.preventDefault();
-				if (!popupMenu.getPopupWindow().isShown())
-				{
-					Runtime.loadExtension('ui.analytics')
-						.then(({ sendData }) => {
-							sendData({
-								tool: 'automation',
-								category: 'bizproc_operations',
-								event: 'drawer_open',
-								c_section: 'bizproc',
-								c_element: 'button',
-							});
-						})
-						.catch(() => {})
-					;
-				}
-				popupMenu.toggle();
-			};
-		}
-
-		if (selectedIBlockSliderParams)
-		{
-			Runtime.loadExtension('lists.element.creation-guide')
-				.then(({ CreationGuide }) => {
-					CreationGuide?.open(selectedIBlockSliderParams);
-				})
-				.catch(() => {})
-			;
-		}
+	creationGuideOpen(params: Object): void
+	{
+		Runtime.loadExtension('lists.element.creation-guide')
+			.then(({ CreationGuide }) => {
+				CreationGuide?.open(params);
+			})
+			.catch(() => {})
+		;
 	}
 
 	initUserSelector(): void
@@ -670,9 +667,47 @@ export class UserProcesses
 
 	removeWorkflow(workflowId: string): void
 	{
+		if (!this.#shownMobilePopup && this.#workflowTasks.has(workflowId))
+		{
+			const mobile = new BX.UI.MobilePromoter({
+				title: Loc.getMessage('BIZPROC_USER_PROCESSES_POPUP_PUSH_TITLE'),
+				content: this.getPopupContent(),
+				position: {
+					right: 30,
+					bottom: 30,
+				},
+				qrContent: this.#appLink,
+				analytics: { c_section: 'bizproc' },
+			});
+			mobile.show();
+			BX.userOptions.save('bizproc.user.processes', 'mobile_promotion_popup', 'shown_popup', 'Y', false);
+			this.#shownMobilePopup = true;
+		}
+
 		this.#hideRow(workflowId, true);
 		this.#deleteWorkflowRendererById(workflowId);
 		this.#workflowTasks.delete(workflowId);
+	}
+
+	getPopupContent(): HTMLElement
+	{
+		return Tag.render`
+			<div class="ui-mobile-promoter__content-wrapper">
+				<ul class="ui-mobile-promoter__popup-list">
+					<li class="ui-mobile-promoter__popup-list-item">
+						${Loc.getMessage('BIZPROC_USER_PROCESSES_POPUP_PUSH_DO_PROCESS')}
+					</li>
+					<li class="ui-mobile-promoter__popup-list-item">
+						${Loc.getMessage('BIZPROC_USER_PROCESSES_POPUP_PUSH_REACT')}
+					</li>
+					<li class="ui-mobile-promoter__popup-list-item">
+						${Loc.getMessage('BIZPROC_USER_PROCESSES_POPUP_PUSH_CONTROL')}
+					</li>
+				</ul>
+				<div class="ui-mobile-promoter__popup-desc">${Loc.getMessage('UI_MOBILE_PROMOTER_DESC')}</div>
+				<div class="ui-mobile-promoter__popup-info">${Loc.getMessage('UI_MOBILE_PROMOTER_INFO')}</div>
+			</div>
+		`;
 	}
 
 	getGrid(): ?BX.Main.grid
@@ -736,6 +771,18 @@ export class UserProcesses
 
 	#showRow(id: string): void
 	{
-		this.getGrid()?.getRows().getById(id)?.show();
+		const row = this.getGrid()?.getRows().getById(id);
+		if (row)
+		{
+			row.show();
+			Dom.addClass(row.getNode(), 'main-ui-grid-show-new-row');
+
+			Event.bind(row.getNode(), 'animationend', (event: AnimationEvent) => {
+				if (event.animationName === 'showNewRow')
+				{
+					Dom.removeClass(row.getNode(), 'main-ui-grid-show-new-row');
+				}
+			});
+		}
 	}
 }

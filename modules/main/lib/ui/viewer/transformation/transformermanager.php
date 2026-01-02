@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Main\UI\Viewer\Transformation;
 
@@ -10,10 +10,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Result;
 use Bitrix\Main\SystemException;
-use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\MimeType;
-use Bitrix\Transformer\Command;
-use Bitrix\Transformer\FileTransformer;
 
 final class TransformerManager
 {
@@ -129,74 +126,39 @@ final class TransformerManager
 			return $result;
 		}
 
-		$shouldSendPullTag = true;
-		$information = $this->getTransformationInformation($fileId);
-		if ($this->shouldSendToTransformation($information, $fileData))
+		if (!$this->shouldSendToTransformation($fileData))
 		{
-			$result = $transformer->transform(
-				(int)$fileId,
-				[$transformation->getOutputExtension()],
-				'main',
-				CallbackHandler::class,
-				['id' => $fileId, 'fileId' => $fileId, 'queue' => self::QUEUE_NAME]
-			);
-
-			if (!$result->isSuccess())
-			{
-				$shouldSendPullTag = false;
-			}
+			return $result;
 		}
 
-		if (isset($information['status']) && $information['status'] == Command::STATUS_ERROR)
-		{
-			$shouldSendPullTag = false;
-			$result->addError(new Error('Could not transform file', Command::STATUS_ERROR));
-		}
+		$result = $transformer->transform(
+			(int)$fileId,
+			[$transformation->getOutputExtension()],
+			'main',
+			CallbackHandler::class,
+			['id' => (int)$fileId, 'fileId' => (int)$fileId, 'queue' => self::QUEUE_NAME]
+		);
 
-		if ($shouldSendPullTag)
+		if ($result->isSuccess())
 		{
 			$pullTag = $this->subscribeCurrentUserForTransformation($fileId);
 			$result->setData([
 				'pullTag' => $pullTag,
-		 	]);
+			]);
 		}
 
 		return $result;
 	}
 
-	protected function shouldSendToTransformation($information, array $fileData)
+	protected function shouldSendToTransformation(array $fileData): bool
 	{
-		if (!$information)
+		$id = (int)($fileData['ID'] ?? 0);
+		if ($id <= 0)
 		{
 			return true;
 		}
 
-		if (!isset($information['status']))
-		{
-			return true;
-		}
-
-		if ($information['status'] !== Command::STATUS_SUCCESS)
-		{
-			/** @var DateTime $date */
-			$date = $information['time'];
-			if ($date && (time() - $date->getTimestamp()) > 24 * 3600)
-			{
-				return true;
-			}
-		}
-
-		if ($information['status'] === Command::STATUS_SUCCESS && !CallbackHandler::existSavedFile($fileData['ID']))
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	protected function getTransformationInformation($fileId)
-	{
-		return FileTransformer::getTransformationInfoByFile((int)$fileId);
+		return !CallbackHandler::existSavedFile($id);
 	}
 
 	public function subscribeCurrentUserForTransformation($fileId)

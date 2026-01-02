@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_const,im_v2_application_core) {
+(function (exports,im_v2_const,im_v2_application_core,im_v2_lib_feature) {
 	'use strict';
 
 	class CopilotManager {
@@ -79,6 +79,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  isCopilotChatOrBot(dialogId) {
 	    return this.isCopilotChat(dialogId) || this.isCopilotBot(dialogId);
 	  }
+	  isGroupCopilotChat(dialogId) {
+	    const {
+	      userCounter
+	    } = this.store.getters['chats/get'](dialogId);
+	    return this.isCopilotChat(dialogId) && userCounter > 2;
+	  }
+	  isCopilotMessage(messageId) {
+	    const message = this.store.getters['messages/getById'](messageId);
+	    if (!message) {
+	      return false;
+	    }
+	    if (this.isCopilotBot(message.authorId)) {
+	      return true;
+	    }
+	    return message.componentId === im_v2_const.MessageComponent.copilotCreation;
+	  }
 	  getMessageRoleAvatar(messageId) {
 	    var _this$store$getters$c2, _this$store$getters$c3;
 	    return (_this$store$getters$c2 = this.store.getters['copilot/messages/getRole'](messageId)) == null ? void 0 : (_this$store$getters$c3 = _this$store$getters$c2.avatar) == null ? void 0 : _this$store$getters$c3.medium;
@@ -91,19 +107,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const roleName = this.store.getters['copilot/messages/getRole'](messageId).name;
 	    return `${user.name} (${roleName})`;
 	  }
-	  isCopilotMessage(messageId) {
-	    const message = this.store.getters['messages/getById'](messageId);
-	    if (!message) {
-	      return false;
+	  getAIModelName(dialogId) {
+	    const isAIModelChangeAllowed = im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.isAIModelChangeAllowed);
+	    if (isAIModelChangeAllowed) {
+	      const currentAIModel = im_v2_application_core.Core.getStore().getters['copilot/chats/getAIModel'](dialogId);
+	      return currentAIModel.name;
 	    }
-	    if (this.isCopilotBot(message.authorId)) {
-	      return true;
-	    }
-	    return message.componentId === im_v2_const.MessageComponent.copilotCreation;
+	    return im_v2_application_core.Core.getStore().getters['copilot/getProvider'];
 	  }
 	}
 
 	exports.CopilotManager = CopilotManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Const,BX.Messenger.v2.Application));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Const,BX.Messenger.v2.Application,BX.Messenger.v2.Lib));
 //# sourceMappingURL=copilot.bundle.js.map

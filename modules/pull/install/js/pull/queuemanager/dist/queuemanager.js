@@ -365,7 +365,12 @@ this.BX = this.BX || {};
 	      var _this4 = this;
 	      var _babelHelpers$classPr2 = babelHelpers.classPrivateFieldGet(this, _options),
 	        pullTag = _babelHelpers$classPr2.pullTag;
-	      if (main_core.Type.isStringFilled(pullTag) && pullData.command !== pullTag) {
+	      var _babelHelpers$classPr3 = babelHelpers.classPrivateFieldGet(this, _options),
+	        additionalPullTags = _babelHelpers$classPr3.additionalPullTags;
+	      if (!main_core.Type.isArray(additionalPullTags)) {
+	        additionalPullTags = [];
+	      }
+	      if (main_core.Type.isStringFilled(pullTag) && pullData.command !== pullTag && !additionalPullTags.includes(pullTag)) {
 	        return;
 	      }
 	      var event = new main_core_events.BaseEvent({
@@ -460,9 +465,9 @@ this.BX = this.BX || {};
 	  return null;
 	}
 	function _createAndShowNotify2() {
-	  var _babelHelpers$classPr3,
+	  var _babelHelpers$classPr4,
 	    _this5 = this;
-	  var showOutdatedDataDialog = (_babelHelpers$classPr3 = babelHelpers.classPrivateFieldGet(this, _options).config) === null || _babelHelpers$classPr3 === void 0 ? void 0 : _babelHelpers$classPr3.showOutdatedDataDialog;
+	  var showOutdatedDataDialog = (_babelHelpers$classPr4 = babelHelpers.classPrivateFieldGet(this, _options).config) === null || _babelHelpers$classPr4 === void 0 ? void 0 : _babelHelpers$classPr4.showOutdatedDataDialog;
 	  var onReload = babelHelpers.classPrivateFieldGet(this, _options).callbacks.onReload;
 	  if (main_core.Type.isBoolean(showOutdatedDataDialog) && showOutdatedDataDialog === false || !main_core.Type.isFunction(onReload)) {
 	    return;

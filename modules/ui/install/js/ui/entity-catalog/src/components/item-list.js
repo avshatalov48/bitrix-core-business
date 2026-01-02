@@ -1,4 +1,5 @@
 import { Item } from './item';
+import type { ItemData } from '@/type/item';
 
 import '../css/item-list.css';
 
@@ -9,6 +10,7 @@ export const ItemList = {
 	},
 	props: {
 		items: {
+			/** @type Array<ItemData> */
 			Type: Array,
 			required: true,
 		}

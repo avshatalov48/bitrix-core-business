@@ -1,0 +1,13 @@
+.vote-creation-form-sidepanel .ui-page-slider-workarea-content-padding {
+	background: none;
+	padding: 0;
+}
+
+.vote-creation-form-sidepanel .ui-toolbar-title-item {
+	font: var(--ui-font-weight-medium) 25px / var(--ui-font-line-height-3xs) var(--ui-font-family-primary, var(--ui-font-family-system));
+}
+
+.vote-creation-form-sidepanel .ui-btn.ui-btn-wait,
+.vote-creation-form-sidepanel .ui-btn.ui-btn-disabled  {
+	pointer-events: none;
+}

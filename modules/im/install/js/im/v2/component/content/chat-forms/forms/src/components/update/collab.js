@@ -1,11 +1,8 @@
-import 'ui.notification';
-import { Loc } from 'main.core';
-
 import { Core } from 'im.v2.application.core';
 import { Messenger } from 'im.public';
 import { Analytics } from 'im.v2.lib.analytics';
-import { ChatService } from 'im.v2.provider.service';
-import { EmptyAvatarType } from 'im.v2.component.elements';
+import { ChatService } from 'im.v2.provider.service.chat';
+import { EmptyAvatarType } from 'im.v2.component.elements.avatar';
 import { Color } from 'im.v2.const';
 import {
 	TitleInput,
@@ -20,20 +17,9 @@ import { ChatMemberDiffManager } from '../../classes/chat-member-diff-manager';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelChat, ImModelCollabInfo } from 'im.v2.model';
-import type { CustomColorScheme } from 'im.v2.component.elements';
+import type { CustomColorScheme } from 'im.v2.component.elements.button';
 
 import type { AccessRightsFormResult } from '../create/collab/components/rights-section';
-
-const UpdateCollabErrorCode = {
-	emptyName: 'name',
-	duplicateName: 'ERROR_GROUP_NAME_EXISTS',
-};
-
-const NotificationTextByErrorCode = {
-	[UpdateCollabErrorCode.emptyName]: Loc.getMessage('IM_CREATE_COLLAB_ERROR_EMPTY_NAME'),
-	[UpdateCollabErrorCode.duplicateName]: Loc.getMessage('IM_CREATE_COLLAB_ERROR_DUPLICATE_NAME'),
-	default: Loc.getMessage('IM_UPDATE_CHAT_ERROR'),
-};
 
 // @vue/component
 export const CollabUpdating = {
@@ -174,23 +160,15 @@ export const CollabUpdating = {
 				this.isUpdating = false;
 				void Messenger.openChat(this.dialogId);
 			}
-			catch (error)
+			catch
 			{
-				this.handleUpdateError(error);
+				this.isUpdating = false;
 			}
 		},
 		onCancelClick()
 		{
 			Analytics.getInstance().ignoreNextChatOpen(this.dialogId);
 			void Messenger.openChat(this.dialogId);
-		},
-		handleUpdateError(error: { code: $Values<typeof UpdateCollabErrorCode> })
-		{
-			console.error('1', error);
-			const { code } = error;
-			const notificationText = NotificationTextByErrorCode[code] ?? NotificationTextByErrorCode.default;
-			this.isUpdating = false;
-			BX.UI.Notification.Center.notify({ content: notificationText });
 		},
 		getChatService(): ChatService
 		{

@@ -1,0 +1,19 @@
+<?php
+$MESS["LISTS_LIST_FIELD_ACTIVE_FROM"] = "Белсенділіктің басталуы";
+$MESS["LISTS_LIST_FIELD_ACTIVE_TO"] = "Белсенділіктің аяқталуы";
+$MESS["LISTS_LIST_FIELD_CREATED_BY"] = "Кім жасады";
+$MESS["LISTS_LIST_FIELD_DATE_CREATE"] = "Құрылған күні";
+$MESS["LISTS_LIST_FIELD_DETAIL_PICTURE"] = "Егжей-тегжейлі кескін";
+$MESS["LISTS_LIST_FIELD_DETAIL_TEXT"] = "Толық мәтін";
+$MESS["LISTS_LIST_FIELD_E"] = "Элементтерге байланыстыру";
+$MESS["LISTS_LIST_FIELD_F"] = "Файл";
+$MESS["LISTS_LIST_FIELD_G"] = "Бөлімдерге байланыстыру";
+$MESS["LISTS_LIST_FIELD_L"] = "Тізім";
+$MESS["LISTS_LIST_FIELD_MODIFIED_BY"] = "Кім өзгертті";
+$MESS["LISTS_LIST_FIELD_N"] = "Сан";
+$MESS["LISTS_LIST_FIELD_NAME"] = "Атауы";
+$MESS["LISTS_LIST_FIELD_PREVIEW_PICTURE"] = "Аңдатпаға арналған сурет";
+$MESS["LISTS_LIST_FIELD_PREVIEW_TEXT"] = "Аңдатпа мәтіні";
+$MESS["LISTS_LIST_FIELD_S"] = "Жол";
+$MESS["LISTS_LIST_FIELD_SORT"] = "Сұрыптау";
+$MESS["LISTS_LIST_FIELD_TIMESTAMP_X"] = "Өзгерту күні";

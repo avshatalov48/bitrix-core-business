@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_BAD_SITE_ID_NA"] = "Не введена привязка к сайту.";
 $MESS["IBLOCK_BAD_SITE_ID"] = "Неверный сайт!";
 $MESS["IBLOCK_BAD_NAME"] = "Не введено название информационного блока.";

@@ -204,7 +204,7 @@ class Manager
 	{
 		if (self::$isBundleEnabled === null)
 		{
-			self::$isBundleEnabled = Option::get('mobileapp', 'jn_bundle_enabled', 'Y') === 'Y';
+			self::$isBundleEnabled = Option::get('mobileapp', 'jn_bundle_enabled', 'N') === 'Y';
 		}
 
 		return self::$isBundleEnabled;

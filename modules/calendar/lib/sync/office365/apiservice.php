@@ -26,6 +26,21 @@ class ApiService
 {
 	use HasContextTrait;
 
+	private const CALENDAR_SELECT_FIELDS = [
+		'id',
+		'name',
+		'color',
+		'hexColor',
+		'isDefaultCalendar',
+		'changeKey',
+		'canShare',
+		'canViewPrivateItems',
+		'canEdit',
+		'isTallyingResponses',
+		'isRemovable',
+		'owner',
+	];
+
 	/** @var Helper */
 	private $helper;
 	/** @var ApiClient */
@@ -61,9 +76,13 @@ class ApiService
 	 */
 	public function getCalendarList(array $params): array
 	{
+		$selectParams = self::getCalendarSelectParams();
+
+		$params = array_merge($selectParams, $params);
+
 		$response = $this->apiClient->get('me/calendars', $params);
 
-		return (array) $response['value'];
+		return (array)$response['value'];
 	}
 
 	/**
@@ -103,7 +122,11 @@ class ApiService
 	 */
 	public function createSection(SectionDto $sectionDto): array
 	{
-		return $this->apiClient->post('me/calendars?', array_filter($sectionDto->toArray()));
+		$selectParams = self::getCalendarSelectParams();
+
+		$selectQuery = http_build_query($selectParams);
+
+		return $this->apiClient->post('me/calendars?' . $selectQuery, array_filter($sectionDto->toArray()));
 	}
 
 	/**
@@ -359,14 +382,14 @@ class ApiService
 	 * @throws GoneException
 	 * @throws NotFoundException
 	 */
-	public function addSectionSubscription(string $vendorSectionId, string $state = ''): array
+	public function addSectionSubscription(string $vendorSectionId, string $channelId = ''): array
 	{
 		$data = [
 			'changeType' => 'created,updated,deleted',
 			'notificationUrl' => $this->getNotificationUrl(),
 			'resource' => "me/calendars/$vendorSectionId/events",
 			'expirationDateTime' => $this->getExpirationDateTime(),
-			'clientState' => $state,
+			'clientState' => $channelId,
 			'latestSupportedTlsVersion' => 'v1_2',
 		];
 
@@ -437,6 +460,21 @@ class ApiService
 				. '&endDateTime=' . $interval['to']->format($this->helper::TIME_FORMAT_LONG);
 		}
 		return $uri;
+	}
+
+	/**
+	 * Temporary solution for fix http://jabber.bx/view.php?id=221156
+	 *
+	 * Without select request returns 500 response due to the
+	 * `allowedOnlineMeetingProviders` and `defaultOnlineMeetingProvider` fields
+	 *
+	 * @see https://learn.microsoft.com/en-us/answers/questions/2279133/getting-500-response-errors-to-get-me-calendars-al
+	 */
+	public static function getCalendarSelectParams(): array
+	{
+		return [
+			'$select' => implode(',', self::CALENDAR_SELECT_FIELDS),
+		];
 	}
 
 	/**

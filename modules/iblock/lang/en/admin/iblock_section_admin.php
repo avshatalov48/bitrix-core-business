@@ -51,4 +51,4 @@ $MESS["IBSEC_A_UP"] = "One level up";
 $MESS["IBSEC_A_UPDERR"] = "Error updating the record:";
 $MESS["IBSEC_A_UP_TITLE"] = "Click to browse higher level";
 $MESS["IBSEC_A_USERINFO"] = "View user information";
-$MESS["IBSEC_A_XML_ID_MSGVER_1"] = "External ID";
+$MESS['IBSEC_A_XML_ID_MSGVER_1'] = "External ID";

@@ -5,6 +5,10 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Crm\Integration\Analytics\Dictionary;
+
+use Bitrix\Main\Loader;
+
 class CBPSocNetMessageActivity extends CBPActivity
 {
 	public function __construct($name)
@@ -54,15 +58,15 @@ class CBPSocNetMessageActivity extends CBPActivity
 			'NOTIFY_EVENT' => 'activity',
 			'PUSH_MESSAGE' => $this->getPushText($messageText),
 		);
-		$ar = array();
+		$processedUsers = array();
 		foreach ($arMessageUserTo as $userTo)
 		{
-			if (in_array($userTo, $ar))
+			if (in_array($userTo, $processedUsers))
 			{
 				continue;
 			}
 
-			$ar[] = $userTo;
+			$processedUsers[] = $userTo;
 			$arMessageFields["TO_USER_ID"] = $userTo;
 			CSocNetMessages::Add($arMessageFields);
 		}
@@ -143,7 +147,9 @@ class CBPSocNetMessageActivity extends CBPActivity
 			$arMessageFields['FROM_USER_ID'] = $arMessageUserFrom;
 		}
 
-		$ar = array();
+
+		$ar = [];
+		$hasSentAtLeastOneMessage = false;
 		foreach ($arMessageUserTo as $userTo)
 		{
 			if (in_array($userTo, $ar))
@@ -153,7 +159,26 @@ class CBPSocNetMessageActivity extends CBPActivity
 
 			$ar[] = $userTo;
 			$arMessageFields["TO_USER_ID"] = $userTo;
-			CIMNotify::Add($arMessageFields);
+			$notifyResult = CIMNotify::Add($arMessageFields);
+
+			if (is_numeric($notifyResult))
+			{
+				$hasSentAtLeastOneMessage = true;
+			}
+		}
+
+		if (
+			$hasSentAtLeastOneMessage
+			&& Loader::includeModule('crm')
+			&& method_exists(CCrmBizProcHelper::class, 'sendOperationsAnalytics')
+		)
+		{
+			$documentType = $this->getDocumentType();
+			\CCrmBizProcHelper::sendOperationsAnalytics(
+				Dictionary::EVENT_ENTITY_SOCIAL,
+				$this,
+				$documentType[2] ?? '',
+			);
 		}
 	}
 

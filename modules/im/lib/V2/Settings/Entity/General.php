@@ -83,11 +83,9 @@ class General extends BaseSettings
 		if (is_array($source) && !empty($source))
 		{
 			$this->settings =
-				array_replace_recursive(\Bitrix\Im\Configuration\General::getDefaultSettings(), $source)
+				\Bitrix\Im\Configuration\General::prepareRawGroupSettings($source)
 			;
 			$this->isLoad = true;
-
-			return $this;
 		}
 
 		return $this;

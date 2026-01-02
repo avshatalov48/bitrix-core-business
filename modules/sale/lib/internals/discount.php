@@ -1,16 +1,12 @@
 <?php
-/**
- * Bitrix Framework
- * @package bitrix
- * @subpackage sale
- * @copyright 2001-2012 Bitrix
- */
+
 namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main,
 	Bitrix\Main\Application,
 	Bitrix\Main\Config,
 	Bitrix\Main\Localization\Loc,
+	Bitrix\Main\ORM\Data\DataManager,
 	Bitrix\Sale\Discount\Actions,
 	Bitrix\Sale\Discount\Gift,
 	Bitrix\Sale\Discount\Index,
@@ -76,7 +72,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Sale\Internals\EO_Discount wakeUpObject($row)
  * @method static \Bitrix\Sale\Internals\EO_Discount_Collection wakeUpCollection($rows)
  */
-class DiscountTable extends Main\Entity\DataManager
+class DiscountTable extends DataManager
 {
 	const VERSION_OLD = 0x0001;
 	const VERSION_NEW = 0x0002;

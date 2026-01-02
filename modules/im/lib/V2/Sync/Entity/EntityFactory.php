@@ -2,15 +2,16 @@
 
 namespace Bitrix\Im\V2\Sync\Entity;
 
+use Bitrix\Im\V2\Sync\Entities;
 use Bitrix\Im\V2\Sync\Event;
 
 class EntityFactory
 {
 	/**
 	 * @param Event[] $events
-	 * @return array
+	 * @return Entities
 	 */
-	public function createEntities(array $events): array
+	public function createEntities(array $events): Entities
 	{
 		$messages = new Messages();
 		$chats = new Chats();
@@ -33,8 +34,8 @@ class EntityFactory
 			}
 		}
 
-		$dialogIds = new DialogIds($messages, $pins, $chats);
+		$dialogIds = new DialogIds($chats);
 
-		return [$chats, $messages, $pins, $dialogIds];
+		return new Entities($chats, $messages, $pins, $dialogIds);
 	}
 }

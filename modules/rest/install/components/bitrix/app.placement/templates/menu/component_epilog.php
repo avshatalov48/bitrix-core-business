@@ -23,6 +23,14 @@ if(!function_exists('restMenuBuildEventHandler'))
 	function restMenuBuildEventHandler($placement, $eventParam, &$menu)
 	{
 		$appList = \Bitrix\Rest\HandlerHelper::getApplicationList($placement);
+		$langInstall = \Bitrix\Main\Localization\Loc::getMessage('REST_AP_MENU_ITEM_TEXT_MORE_2_MSGVER_2');
+		$langMarket = \Bitrix\Main\Localization\Loc::getMessage('REST_AP_MENU_ITEM_TEXT_2_MSGVER_2');
+		if (\Bitrix\Rest\Integration\Market\Label::isRenamedMarket())
+		{
+			$langMarket = \Bitrix\Main\Localization\Loc::getMessage('REST_AP_MENU_ITEM_TEXT_2_MSGVER_1');
+			$langInstall = \Bitrix\Main\Localization\Loc::getMessage('REST_AP_MENU_ITEM_TEXT_MORE_2_MSGVER_1');
+		}
+
 		if(count($appList) > 0)
 		{
 			$placementParam = array(
@@ -46,13 +54,13 @@ if(!function_exists('restMenuBuildEventHandler'))
 			$appMenu[] = array('SEPARATOR' => true);
 			$appMenu[] = array(
 				'TITLE' => \Bitrix\Main\Localization\Loc::getMessage('REST_AP_MENU_ITEM_TITLE_2'),
-				'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('REST_AP_MENU_ITEM_TEXT_MORE_2'),
+				'TEXT' => $langInstall,
 				'ONCLICK' => "BX.rest.Marketplace.open({PLACEMENT:'".\CUtil::JSEscape($placement)."'})",
 			);
 
 			$menu[] = array(
 				'TITLE' => \Bitrix\Main\Localization\Loc::getMessage('REST_AP_MENU_ITEM_TITLE_2'),
-				'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('REST_AP_MENU_ITEM_TEXT_2'),
+				'TEXT' => $langMarket,
 				'MENU' => $appMenu,
 			);
 		}
@@ -60,7 +68,7 @@ if(!function_exists('restMenuBuildEventHandler'))
 		{
 			$menu[] = array(
 				'TITLE' => \Bitrix\Main\Localization\Loc::getMessage('REST_AP_MENU_ITEM_TITLE_2'),
-				'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('REST_AP_MENU_ITEM_TEXT_2'),
+				'TEXT' => $langMarket,
 				'ONCLICK' => "BX.rest.Marketplace.open({PLACEMENT:'".\CUtil::JSEscape($placement)."'})",
 			);
 		}

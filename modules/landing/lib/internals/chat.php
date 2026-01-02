@@ -13,9 +13,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Chat_Query query()
- * @method static EO_Chat_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Chat_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Chat_Result getById($id)
- * @method static EO_Chat_Result getList(array $parameters = array())
+ * @method static EO_Chat_Result getList(array $parameters = [])
  * @method static EO_Chat_Entity getEntity()
  * @method static \Bitrix\Landing\Internals\EO_Chat createObject($setDefaultValues = true)
  * @method static \Bitrix\Landing\Internals\EO_Chat_Collection createCollection()

@@ -3,19 +3,26 @@ import { UserManager } from 'im.v2.lib.user';
 import { Core } from 'im.v2.application.core';
 
 import { getChatId } from './helpers/get-chat-id';
-import { getLastElementId } from './helpers/get-last-element-id';
 
 import type { Store } from 'ui.vue3.vuex';
 import type { JsonObject } from 'main.core';
 import type { RestClient } from 'rest.client';
+import type { RawUser } from 'im.v2.provider.service';
 
 const REQUEST_ITEMS_LIMIT = 50;
 
 type QueryParams = {
-	DIALOG_ID: string,
-	LAST_ID: number,
-	LIMIT: number
-}
+	dialogId: string,
+	limit: number,
+	cursor?: MembersPaginationCursor,
+};
+
+type MembersRestResult = {
+	users: RawUser[],
+	nextCursor: MembersPaginationCursor | null,
+};
+
+type MembersPaginationCursor = JsonObject;
 
 export class MembersService
 {
@@ -36,10 +43,9 @@ export class MembersService
 	getInitialQuery(): {[$Values<typeof RestMethod>]: JsonObject}
 	{
 		return {
-			[RestMethod.imDialogUsersList]: {
-				dialog_id: this.dialogId,
+			[RestMethod.imV2ChatMemberTail]: {
+				dialogId: this.dialogId,
 				limit: REQUEST_ITEMS_LIMIT,
-				LAST_ID: 0
 			},
 		};
 	}
@@ -66,39 +72,48 @@ export class MembersService
 
 	getQueryParams(): QueryParams
 	{
-		return {
-			DIALOG_ID: this.dialogId,
-			LIMIT: REQUEST_ITEMS_LIMIT,
-			LAST_ID: this.store.getters['sidebar/members/getLastId'](this.chatId),
+		const queryParams = {
+			dialogId: this.dialogId,
+			limit: REQUEST_ITEMS_LIMIT,
 		};
+
+		const nextCursor = this.store.getters['sidebar/members/getNextCursor'](this.chatId);
+		if (nextCursor)
+		{
+			queryParams.cursor = nextCursor;
+		}
+
+		return queryParams;
 	}
 
 	async requestPage(queryParams: QueryParams): Promise
 	{
-		let users = [];
+		let restResult: MembersRestResult = {};
 
 		try
 		{
-			const response = await this.restClient.callMethod(RestMethod.imDialogUsersList, queryParams);
-			users = response.data();
+			const response = await this.restClient.callMethod(RestMethod.imV2ChatMemberTail, queryParams);
+			restResult = response.data();
 		}
 		catch (error)
 		{
 			console.error('SidebarMain: Im.DialogUsersList: page request error', error);
 		}
 
-		return this.updateModels(users);
+		return this.updateModels(restResult);
 	}
 
 	getResponseHandler(): Function
 	{
 		return (response) => {
-			return this.updateModels(response[RestMethod.imDialogUsersList]);
+			return this.updateModels(response[RestMethod.imV2ChatMemberTail]);
 		};
 	}
 
-	updateModels(users: {id: number}[]): Promise
+	updateModels(restResult: MembersRestResult): Promise
 	{
+		const { users, nextCursor } = restResult;
+
 		const userIds = [];
 		const addUsersPromise = this.userManager.setUsersToModel(users);
 		users.forEach((user) => {
@@ -108,11 +123,19 @@ export class MembersService
 		const setMembersPromise = this.store.dispatch('sidebar/members/set', {
 			chatId: this.chatId,
 			users: userIds,
-			lastId: getLastElementId(users, 'DESC'),
 			hasNextPage: users.length === REQUEST_ITEMS_LIMIT,
 		});
 
-		return Promise.all([addUsersPromise, setMembersPromise]);
+		let cursorPromise = Promise.resolve();
+		if (nextCursor)
+		{
+			cursorPromise = this.store.dispatch('sidebar/members/setNextCursor', {
+				chatId: this.chatId,
+				nextCursor,
+			});
+		}
+
+		return Promise.all([addUsersPromise, setMembersPromise, cursorPromise]);
 	}
 
 	getMembersCountFromModel(): number

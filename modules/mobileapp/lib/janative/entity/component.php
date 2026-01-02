@@ -26,7 +26,8 @@ class Component extends Base
 	protected static array $modificationDates = [];
 	protected static array $dependencies = [];
 	private $version = null;
-	public $isBundleEnabled = false;
+	public bool $isBundleEnabled = true;
+	private ?Config $bundleConfig = null;
 
 	/**
 	 * Component constructor.
@@ -54,7 +55,6 @@ class Component extends Base
 		}
 
 		$directory = new Directory($this->path);
-		$this->isBundleEnabled = isset($this->getConfig()["packer"]) ?? false;
 		$this->baseFileName = 'component';
 		$path = $directory->getPath() . '/' . $this->baseFileName . '.js';
 		$file = new File($path);
@@ -118,36 +118,54 @@ class Component extends Base
 		return [];
 	}
 
-	private function shouldUseBundle(): bool
+	public function shouldUseBundle(): bool
 	{
 		if (Manager::isBundleEnabled())
 		{
-			return $this->isBundleEnabled;
+			return $this->isBundleEnabled && $this->hasBundleConfig();
 		}
 
 		return false;
 	}
 
+	private function getBundleConfig(): Config
+	{
+		if ($this->bundleConfig === null)
+		{
+			$this->bundleConfig = new Config("{$this->path}/dist/deps.bundle.php");
+		}
+
+		return $this->bundleConfig;
+	}
+
+	public function hasBundleConfig(): bool
+	{
+		return $this->getBundleConfig()->exists();
+	}
+
+	private function getBundleDynamicData(): array
+	{
+		return $this->getBundleConfig()->dynamicData;
+	}
+
 	public function getContent(): string
 	{
-		$env = $this->getEnvContent();
-		$lang = $this->getLangDefinitionExpression();
-		$componentFilePath = "{$this->path}/{$this->baseFileName}.js";
-		$extensionContent = "";
-		$availableComponents = "";
-
 		if ($this->shouldUseBundle())
 		{
-			$bundleConfig = new Config("{$this->path}/dist/deps.bundle.php");
-			foreach ($bundleConfig->dynamicData as $ext)
+			$extensionContent = "";
+			$availableComponents = "";
+
+			foreach ($this->getBundleDynamicData() as $ext)
 			{
 				$extension = Extension::getInstance($ext);
 				$extensionContent .= $extension->getResultExpression();
 			}
+
 			$componentFilePath = "{$this->path}/dist/{$this->baseFileName}.bundle.js";
 		}
 		else
 		{
+			$componentFilePath = "{$this->path}/{$this->baseFileName}.js";
 			$extensionContent = $this->getExtensionsContent();
 			$availableComponents = "this.availableComponents = " . Utils::jsonEncode($this->getComponentListInfo()) . ";";
 		}
@@ -156,7 +174,7 @@ class Component extends Base
 		$events = $eventManager->findEventHandlers("mobileapp", "onBeforeComponentContentGet");
 
 		$additionalContent = "";
-		if (count($events) > 0)
+		if (!empty($events))
 		{
 			foreach ($events as $event)
 			{
@@ -165,9 +183,11 @@ class Component extends Base
 				{
 					$additionalContent .= $jsCode;
 				}
-
 			}
 		}
+
+		$env = $this->getEnvContent();
+		$lang = $this->getLangDefinitionExpression();
 
 		$content = "
 			$env
@@ -248,6 +268,7 @@ class Component extends Base
 			'extranet' => $isExtranetUser,
 			'isCollaber' => $this->isUserCollaber(),
 			'installedModules' => $installedModules,
+			'region' => \Bitrix\Main\Application::getInstance()->getLicense()->getRegion(),
 		]);
 		$file = new File(Application::getDocumentRoot() . "/bitrix/js/mobileapp/platform.js");
 		$export = $file->getContents();

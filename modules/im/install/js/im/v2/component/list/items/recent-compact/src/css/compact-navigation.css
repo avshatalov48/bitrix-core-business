@@ -1,0 +1,69 @@
+.bx-im-compact-navigation__container {
+	--im-compact-navigation__background-color_icon: var(--ui-color-design-outline-na-bg);
+	--im-compact-navigation__border-color_icon: var(--ui-color-design-outline-stroke);
+	--im-compact-navigation__backdrop-filter_icon: blur(var(--ui-bg-blur-default));
+	--im-compact-navigation__background-color_delimiter: var(--ui-color-divider-accent);
+	--im-compact-navigation__color_counter: var(--ui-color-base-white-fixed);
+	--im-compact-navigation__background_color_counter: var(--ui-color-accent-main-alert);
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.bx-im-compact-navigation__items {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	padding: 3px 0;
+}
+
+.bx-im-compact-navigation__icon {
+	--ui-color: var(--im-compact-navigation__background-color_icon);
+	position: relative;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	border-radius: 50%;
+	border-color: var(--im-compact-navigation__border-color_icon);
+	background-color: var(--ui-color);
+	backdrop-filter: var(--im-compact-navigation__backdrop-filter_icon);
+	transition: 150ms ease-in-out background-color;
+}
+
+.bx-im-compact-navigation__icon-counter {
+	position: absolute;
+	top: -3px;
+	right: -2px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font: var(--im-font-size-4xs)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-compact-navigation__color_counter);
+	background-color: var(--im-compact-navigation__background_color_counter);
+	border-radius: 14px;
+	height: 14px;
+	min-width: 14px;
+	padding: 0 2px;
+}
+
+.bx-im-compact-navigation__icon:hover {
+	background-color: var(--ui-color-hover);
+	transition-duration: 0s;
+}
+
+.bx-im-compact-navigation__icon:active {
+	background-color: var(--ui-color-active);
+}
+
+.bx-im-compact-navigation__delimiter {
+	width: 24px;
+	height: 1px;
+	margin: 15px 0 11px 0;
+	background-color: var(--im-compact-navigation__background-color_delimiter);
+}

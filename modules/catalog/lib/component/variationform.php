@@ -279,8 +279,7 @@ class VariationForm extends BaseForm
 			}
 		}
 
-
-		return $currency ?: CurrencyManager::getBaseCurrency();
+		return $currency ?: (string)CurrencyManager::getBaseCurrency();
 	}
 
 	protected function getMeasureRatioFieldValue()

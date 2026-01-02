@@ -1,0 +1,20 @@
+<?php
+$MESS["LEARNING_ADMIN_MENU_DELETE_RECURSIVE"] = "Жою";
+$MESS["LEARNING_ADMIN_MENU_DISBAND"] = "Тарату";
+$MESS["LEARNING_ADMIN_MENU_DISBAND_QUESTION"] = "Элементті тарату оның жойылуына әкеледі, бірақ оған енгізілген барлық курстар/тараулар/сабақтар қалып, олар \"Барлық сабақтар тізімі\" бөлімінде қолжетімді болады. Жалғастыру керек пе?";
+$MESS["LEARNING_ADMIN_MENU_DISBAND_TITLE"] = "Таңдалған элементті ұрпағын қалдырып жою";
+$MESS["LEARNING_ADMIN_TITLE"] = "Сабақтар тізімі";
+$MESS["LEARNING_CONFIRM_DISBAND_LESSON_WITH_PARENT_PATHES"] = "Осы элемент басқа элементтердің біреуіне немесе бірнешеуіне (#CNT#) кіреді. Ол барлық жерден жойылатын болады. Жалғастыру керек пе?";
+$MESS["LEARNING_CONSIST_FROM"] = "Өзінде қамтиды";
+$MESS["LEARNING_COURSE_ADM_CARDINALITY_CHAPTERS"] = "Тараулар саны";
+$MESS["LEARNING_COURSE_ADM_CARDINALITY_DEPTH"] = "Тіркеме";
+$MESS["LEARNING_COURSE_ADM_CARDINALITY_LESSONS"] = "Сабақтар саны";
+$MESS["LEARNING_COURSE_ADM_CARDINALITY_QUESTIONS"] = "Сұрақтар";
+$MESS["LEARNING_COURSE_ADM_CARDINALITY_TESTS"] = "Тесттер";
+$MESS["LEARNING_COURSE_ADM_PUBLISH_PROHIBITED"] = "Жарияланымға тыйым салу";
+$MESS["LEARNING_FILTER_TYPE_COURSE"] = "Курс";
+$MESS["LEARNING_FILTER_TYPE_LESSON_WITH_CHILDS"] = "Тарау";
+$MESS["LEARNING_FILTER_TYPE_LESSON_WO_CHILDS"] = "Сабақ";
+$MESS["LEARNING_FILTER_TYPE_OF_UNILESSON"] = "Элемент түрі";
+$MESS["LEARNING_INCLUDED_IN"] = "Енгізілді";
+$MESS["LEARNING_QUESTION_ADD"] = "Сұрақты қосу";

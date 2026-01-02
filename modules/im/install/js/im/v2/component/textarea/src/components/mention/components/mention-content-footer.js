@@ -1,4 +1,4 @@
-import { Loader } from 'im.v2.component.elements';
+import { Loader } from 'im.v2.component.elements.loader';
 
 import '../css/mention-content-footer.css';
 

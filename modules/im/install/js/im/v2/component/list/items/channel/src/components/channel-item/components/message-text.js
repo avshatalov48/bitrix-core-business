@@ -1,6 +1,6 @@
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 import { Core } from 'im.v2.application.core';
-import { AvatarSize, MessageAvatar } from 'im.v2.component.elements';
+import { AvatarSize, MessageAvatar } from 'im.v2.component.elements.avatar';
 import { Utils } from 'im.v2.lib.utils';
 import { Parser } from 'im.v2.lib.parser';
 

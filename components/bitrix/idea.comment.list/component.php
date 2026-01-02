@@ -442,14 +442,12 @@ if(((!empty($arPost) && ($arPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLIS
 						{
 							if ($arResult["use_captcha"])
 							{
-								include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 								$captcha_code = $_POST["captcha_code"];
 								$captcha_word = $_POST["captcha_word"];
 								$cpt = new CCaptcha();
-								$captchaPass = COption::GetOptionString("main", "captcha_password", "");
 								if ($captcha_code <> '')
 								{
-									if (!$cpt->CheckCodeCrypt($captcha_word, $captcha_code, $captchaPass))
+									if (!$cpt->CheckCodeCrypt($captcha_word, $captcha_code))
 										$strErrorMessage .= GetMessage("B_B_PC_CAPTCHA_ERROR")."<br />";
 								}
 								else
@@ -536,7 +534,7 @@ if(((!empty($arPost) && ($arPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLIS
 										if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 											$serverName = SITE_SERVER_NAME;
 										else
-											$serverName = COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
+											$serverName = COption::GetOptionString("main", "server_name");
 									}
 
 									if(mb_strpos($commentUrl, "?") !== false)
@@ -995,15 +993,8 @@ if(((!empty($arPost) && ($arPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLIS
 
 			if($arResult["use_captcha"])
 			{
-				include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 				$cpt = new CCaptcha();
-				$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-				if ($captchaPass == '')
-				{
-					$captchaPass = randString(10);
-					COption::SetOptionString("main", "captcha_password", $captchaPass);
-				}
-				$cpt->SetCodeCrypt($captchaPass);
+				$cpt->SetCodeCrypt();
 				$arResult["CaptchaCode"] = htmlspecialcharsbx($cpt->GetCodeCrypt());
 			}
 		}

@@ -2,13 +2,15 @@ import 'main.date';
 
 import { Core } from 'im.v2.application.core';
 import { ChatType, Settings, Layout } from 'im.v2.const';
-import { ChatAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
-
-import { MessageText } from './components/message-text';
-import { ItemCounter } from './components/item-counter';
-import { MessageStatus } from './components/message-status';
+import { InputActionIndicator } from 'im.v2.component.list.items.elements.input-action-indicator';
+import { ChatTitle, ChatTitleType } from 'im.v2.component.elements.chat-title';
+import { ChatAvatar, AvatarSize, ChatAvatarType } from 'im.v2.component.elements.avatar';
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 import { ChannelManager } from 'im.v2.lib.channel';
+
+import { MessageText } from './components/message-text';
+import { ItemCounters } from './components/item-counter';
+import { MessageStatus } from './components/message-status';
 
 import './css/recent-item.css';
 
@@ -17,7 +19,7 @@ import type { ImModelRecentItem, ImModelChat, ImModelMessage } from 'im.v2.model
 // @vue/component
 export const RecentItem = {
 	name: 'RecentItem',
-	components: { ChatAvatar, ChatTitle, MessageText, MessageStatus, ItemCounter },
+	components: { ChatAvatar, ChatTitle, MessageText, MessageStatus, ItemCounters, InputActionIndicator },
 	props: {
 		item: {
 			type: Object,
@@ -72,9 +74,21 @@ export const RecentItem = {
 		{
 			return ChannelManager.isChannel(this.recentItem.dialogId);
 		},
+		isNotes(): boolean
+		{
+			return this.$store.getters['chats/isNotes'](this.recentItem.dialogId);
+		},
+		avatarType(): string
+		{
+			return this.isNotes ? ChatAvatarType.notes : '';
+		},
+		chatType(): string
+		{
+			return this.isNotes ? ChatTitleType.notes : '';
+		},
 		isChatSelected(): boolean
 		{
-			const canBeSelected = [Layout.chat.name, Layout.updateChat.name, Layout.collab.name];
+			const canBeSelected = [Layout.chat, Layout.updateChat, Layout.collab, Layout.copilot, Layout.taskComments];
 			if (!canBeSelected.includes(this.layout.name))
 			{
 				return false;
@@ -84,20 +98,15 @@ export const RecentItem = {
 		},
 		isChatMuted(): boolean
 		{
-			if (this.isUser)
-			{
-				return false;
-			}
-
 			const isMuted = this.dialog.muteList.find((element) => {
 				return element === Core.getUserId();
 			});
 
 			return Boolean(isMuted);
 		},
-		isSomeoneTyping(): boolean
+		hasActiveInputAction(): boolean
 		{
-			return this.dialog.writingList.length > 0;
+			return this.$store.getters['chats/inputActions/isChatActive'](this.recentItem.dialogId);
 		},
 		needsBirthdayPlaceholder(): boolean
 		{
@@ -146,14 +155,21 @@ export const RecentItem = {
 							:avatarDialogId="recentItem.dialogId" 
 							:contextDialogId="recentItem.dialogId" 
 							:size="AvatarSize.XL" 
-							:withSpecialTypeIcon="!isSomeoneTyping" 
+							:withSpecialTypeIcon="!hasActiveInputAction"
+							:customType="avatarType"
 						/>
-						<div v-if="isSomeoneTyping" class="bx-im-list-recent-item__avatar_typing"></div>
+						<InputActionIndicator v-if="hasActiveInputAction" />
 					</div>
 				</div>
 				<div class="bx-im-list-recent-item__content_container">
 					<div class="bx-im-list-recent-item__content_header">
-						<ChatTitle :dialogId="recentItem.dialogId" :withMute="true" />
+						<ChatTitle 
+							:dialogId="recentItem.dialogId" 
+							:withMute="true" 
+							:withAutoDelete="true"
+							:customType="chatType"
+							:showItsYou="false"
+						/>
 						<div class="bx-im-list-recent-item__date">
 							<MessageStatus :item="item" />
 							<span>{{ formattedDate }}</span>
@@ -161,7 +177,7 @@ export const RecentItem = {
 					</div>
 					<div class="bx-im-list-recent-item__content_bottom">
 						<MessageText :item="recentItem" />
-						<ItemCounter :item="recentItem" :isChatMuted="isChatMuted" />
+						<ItemCounters :item="recentItem" :isChatMuted="isChatMuted" />
 					</div>
 				</div>
 			</div>

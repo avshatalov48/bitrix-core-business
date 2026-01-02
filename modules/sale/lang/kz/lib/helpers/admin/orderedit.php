@@ -1,0 +1,22 @@
+<?php
+$MESS["SALE_ORDEREDIT_BASKET_ITEM_DEL_ERROR"] = "Тауарды жою қатесі";
+$MESS["SALE_ORDEREDIT_CLOSE"] = "Жабу";
+$MESS["SALE_ORDEREDIT_CONFIRM"] = "Растау";
+$MESS["SALE_ORDEREDIT_CONFIRM_ABORT"] = "Тоқтату";
+$MESS["SALE_ORDEREDIT_CONFIRM_CONTINUE"] = "Жалғастыру";
+$MESS["SALE_ORDEREDIT_DISCOUNT_UNKNOWN"] = "белгісіз";
+$MESS["SALE_ORDEREDIT_ERROR_CHANGE_USER_WITH_PAID_PAYMENTS"] = "Сатып алушыны ауыстыруға болмайды. Тапсырыста төленген төлемдер бар";
+$MESS["SALE_ORDEREDIT_ERROR_NO_PRODUCTS"] = "Кем дегенде бір тауар қосу керек";
+$MESS["SALE_ORDEREDIT_FIX"] = "Панельді бекіту";
+$MESS["SALE_ORDEREDIT_LOCKED"] = "Пайдаланушы #ID# тапсырысты уақытша бұғаттады (#DATE#)";
+$MESS["SALE_ORDEREDIT_MESSAGE"] = "Хабарлама";
+$MESS["SALE_ORDEREDIT_NAME_NULL"] = "Берілмеді";
+$MESS["SALE_ORDEREDIT_NAVIGATION"] = "Навигация";
+$MESS["SALE_ORDEREDIT_NOT_USE"] = "Таңдалмаған";
+$MESS["SALE_ORDEREDIT_ORDER_PROBLEM"] = "Тапсырыс мәселелері";
+$MESS["SALE_ORDEREDIT_PRODUCT_IS_NOT_AVAILABLE"] = "\"#NAME_ID#\" тауары қолжетімсіз";
+$MESS["SALE_ORDEREDIT_PRODUCT_QUANTITY_IS_EMPTY"] = "\"#NAME#\" тауарының жеткіліксіз саны";
+$MESS["SALE_ORDEREDIT_PROFILE_ERROR_SAVE"] = "Пайдаланушы профилін сақтау қатесі";
+$MESS["SALE_ORDEREDIT_REFRESHING_DATA"] = "Жаңартып жатырмыз...";
+$MESS["SALE_ORDEREDIT_UNFIX"] = "Панельді бекітуден шешу";
+$MESS["SALE_ORDEREDIT_UNMARK_ERROR"] = "Тапсырысты проблемалық деп белгілеуді болдырмау қатесі";

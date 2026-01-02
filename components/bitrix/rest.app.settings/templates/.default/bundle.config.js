@@ -6,4 +6,5 @@ module.exports = {
 	},
 	namespace: 'BX.Rest',
 	adjustConfigPhp: false,
+	browserslist: true,
 };

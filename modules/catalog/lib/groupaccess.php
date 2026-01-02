@@ -1,9 +1,9 @@
 <?php
+
 namespace Bitrix\Catalog;
 
-use Bitrix\Main\ORM,
-	Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\ORM;
+use Bitrix\Main\Localization\Loc;
 
 /**
  * Class GroupAccessTable
@@ -42,7 +42,7 @@ class GroupAccessTable extends ORM\Data\DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_group2group';
 	}
@@ -52,7 +52,7 @@ class GroupAccessTable extends ORM\Data\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return array(
 			'ID' => new ORM\Fields\IntegerField('ID', array(

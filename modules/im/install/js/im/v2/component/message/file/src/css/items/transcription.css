@@ -1,0 +1,22 @@
+.bx-im-audio-player__transcription-container {
+	--im-audio-player__color_transcription-default_text: var(--im-color-palette-gray-90);
+	--im-audio-player__color_transcription-error_text: var(--im-color-palette-gray-50);
+	--im-message-audio__divider-color: rgba(var(--im-color-palette-black-solid-rgb), 0.08);
+
+	color: var(--im-audio-player__color_transcription-default_text);
+	font: var(--im-font-size-lg)/var(--im-font-line-height-md) var(--im-font-family-system);
+}
+
+.bx-im-audio-player__transcription-container .--error {
+	color: var(--im-audio-player__color_transcription-error_text);
+}
+
+.bx-im-audio-player__transcription-content {
+	margin-top: 8px;
+}
+
+.bx-im-audio-player__transcription-divider {
+	height: 1px;
+	background-color: var(--im-message-audio__divider-color);
+	margin: 8px 0;
+}

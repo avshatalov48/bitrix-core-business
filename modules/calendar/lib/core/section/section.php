@@ -5,6 +5,9 @@ namespace Bitrix\Calendar\Core\Section;
 use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Base\EntityInterface;
 use Bitrix\Calendar\Core\Role\Role;
+use Bitrix\Calendar\Sync\Google\Dictionary;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Security\Random;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Type\Contract\Arrayable;
 
@@ -94,6 +97,11 @@ class Section implements EntityInterface, Arrayable
 	protected ?string $calDavMod = null;
 
 	protected ?bool $isCollab = false;
+
+	public static function generateXmlId(int $id, string $type): string
+	{
+		return md5($type. '_'. $id. '_'. Random::getString(8));
+	}
 
 	/**
 	 * @param int $id
@@ -370,6 +378,11 @@ class Section implements EntityInterface, Arrayable
 		return $this->owner;
 	}
 
+	public function getOwnerId(): ?int
+	{
+		return $this->owner?->getId();
+	}
+
 	/**
 	 * @return Date|null
 	 */
@@ -453,6 +466,27 @@ class Section implements EntityInterface, Arrayable
 	public function getName(): ?string
 	{
 		return $this->name;
+	}
+
+	/**
+	 * Returns the section name for external vendors (Google, iCloud, Office 365, etc.)
+	 *
+	 * @return string
+	 */
+	public function getExternalName(): string
+	{
+		$name = $this->name ?: (string)$this->id;
+
+		if ($this->externalType === self::LOCAL_EXTERNAL_TYPE)
+		{
+			IncludeModuleLangFile(
+				$_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/classes/general/calendar.php'
+			);
+
+			return Loc::getMessage('EC_CALENDAR_BITRIX24_NAME') . ' ' . $name;
+		}
+
+		return $name;
 	}
 
 	/**
@@ -553,6 +587,18 @@ class Section implements EntityInterface, Arrayable
 		return $this->isCollab;
 	}
 
+	public function isVirtual(): bool
+	{
+		return in_array(
+			$this->externalType,
+			[
+				Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE['reader'],
+				Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE['freeBusyOrder'],
+			],
+			true
+		);
+	}
+
 	public function toArray(): array
 	{
 		return [
@@ -567,7 +613,7 @@ class Section implements EntityInterface, Arrayable
 			'CAL_TYPE' => $this->type,
 			'ACTIVE' => $this->isActive,
 			'XML_ID' => $this->xmlId,
-			'OWNER_ID' => $this->owner?->getId(),
+			'OWNER_ID' => $this->getOwnerId(),
 			'CREATED_BY' => $this->creator?->getId(),
 			'IS_COLLAB' => $this->isCollab,
 		];

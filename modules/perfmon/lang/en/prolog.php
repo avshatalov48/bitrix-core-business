@@ -1,3 +1,2 @@
-<?
-$MESS["PERFMON_HIT_FIND"] = "Find";
-?>
+<?php
+$MESS['PERFMON_HIT_FIND'] = "Find";

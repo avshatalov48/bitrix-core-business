@@ -12,7 +12,6 @@ $MESS["BLG_GP_ERROR_NO_BLOG"] = "Blog with the ID &quot;#ID#&quot; cannot be fou
 $MESS["BLG_GP_IM_1A"] = "Sent you the #post#";
 $MESS["BLG_GP_IM_1A_FEMALE"] = "Sent you the #post#";
 $MESS["BLG_GP_IM_1B"] = "post";
-$MESS["BLG_GP_IM_1_FEMALE_MSGVER_1"] = "posted a Feed entry \"#title#\"";
 $MESS["BLG_GP_IM_1_MSGVER_1"] = "posted a Feed entry \"#title#\"";
 $MESS["BLG_GP_IM_1_MSGVER_1_FEMALE"] = "posted a Feed entry \"#title#\"";
 $MESS["BLG_GP_IM_4B"] = "post";

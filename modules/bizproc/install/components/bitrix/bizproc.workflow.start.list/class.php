@@ -12,14 +12,13 @@ use Bitrix\Bizproc\Workflow\Template\WorkflowTemplateUserOptionTable;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\Error;
 use Bitrix\Main\Errorable;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
-use Bitrix\Main\Type\DateTime;
+use Bitrix\Bizproc\Api\Enum\ErrorMessage;
 
 class BizprocWorkflowStartList extends CBitrixComponent implements Errorable, Controllerable
 {
@@ -50,6 +49,11 @@ class BizprocWorkflowStartList extends CBitrixComponent implements Errorable, Co
 			return false;
 		}
 
+		if (!Loader::includeModule('bizproc'))
+		{
+			return false;
+		}
+
 		$result = WorkflowTemplateUserOptionTable::addOption($templateId, $userId, WorkflowTemplateUserOptionTable::PINNED);
 
 		return $result->isSuccess();
@@ -64,6 +68,11 @@ class BizprocWorkflowStartList extends CBitrixComponent implements Errorable, Co
 
 		$userId = $user->getId();
 		if (!$userId)
+		{
+			return false;
+		}
+
+		if (!Loader::includeModule('bizproc'))
 		{
 			return false;
 		}
@@ -90,7 +99,7 @@ class BizprocWorkflowStartList extends CBitrixComponent implements Errorable, Co
 		return $this->errorCollection->toArray();
 	}
 
-	public function setError(Error $error): self
+	public function setError(\Bitrix\Bizproc\Error $error): self
 	{
 		$this->errorCollection->setError($error);
 
@@ -162,8 +171,7 @@ class BizprocWorkflowStartList extends CBitrixComponent implements Errorable, Co
 	{
 		if (!Loader::includeModule('bizproc'))
 		{
-			$errorMsg = Loc::getMessage('BIZPROC_WORKFLOW_START_LIST_MODULE_ERROR', ['#MODULE#' => 'BizProc']);
-			$this->setError(new Error($errorMsg));
+			$this->setError(ErrorMessage::MODULE_NOT_INSTALLED->getError());
 		}
 	}
 
@@ -188,7 +196,7 @@ class BizprocWorkflowStartList extends CBitrixComponent implements Errorable, Co
 		}
 		catch (CBPArgumentException $argumentException)
 		{
-			$this->setError(new Error(Loc::getMessage('BIZPROC_WORKFLOW_START_LIST_DOCUMENT_TYPE_ERROR')));
+			$this->setError(ErrorMessage::DOCUMENT_TYPE_ERROR->getError());
 		}
 	}
 
@@ -202,7 +210,8 @@ class BizprocWorkflowStartList extends CBitrixComponent implements Errorable, Co
 
 		if (!$permission)
 		{
-			$this->setError(new Error(Loc::getMessage('BIZPROC_WORKFLOW_START_LIST_RIGHTS_ERROR')));
+			$errorMsg = ErrorMessage::TEMPLATE_NO_PRERMISSIONS->getError();
+			$this->setError($errorMsg);
 		}
 	}
 
@@ -381,7 +390,7 @@ class BizprocWorkflowStartList extends CBitrixComponent implements Errorable, Co
 		$description = trim((string)$template->getDescription()); // description can be null
 		if ($description === '')
 		{
-			$description = Loc::getMessage('BIZPROC_WORKFLOW_START_EMPTY_DESCRIPTION');
+			$description = Loc::getMessage('BIZPROC_WORKFLOW_START_EMPTY_DESCRIPTION_1');
 		}
 
 		$templateDescriptionElement = sprintf(
@@ -408,7 +417,7 @@ class BizprocWorkflowStartList extends CBitrixComponent implements Errorable, Co
 			'<div class="%s">%s</div>',
 			'bizproc-workflow-start-list-grid-template-average-time',
 			Loc::getMessage(
-				'BIZPROC_WORKFLOW_START_LIST_AVERAGE_WAITING_TIME',
+				'BIZPROC_WORKFLOW_START_LIST_AVERAGE_WAITING_TIME_MSGVER_1',
 				[
 					'#TIME#' => '<b>' . $durationText . '</b>'
 				]

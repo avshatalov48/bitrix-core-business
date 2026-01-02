@@ -1,0 +1,24 @@
+<?php
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_BAD_DATA"] = "Каталог деректерінің дұрыс емес пішімі";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_BAD_VAT_ID"] = "Дұрыс емес ҚҚС ID-і";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_BAD_YANDEX_EXPORT"] = "Яндекске жүктеу қолданылуы туралы дұрыс емес көрсеткіш";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_EMPTY_DATA"] = "Каталог деректері жоқ";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_FIELD_CATALOG_IS_BAD"] = "Ақпараттық блок сауда каталогы ма, жоқ па, көрсетілмеген";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_FIELD_SKU_IS_ABSENT"] = "Сауда ұсыныстарының ақпараттық блогы таңдалмаған.";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_FIELD_SUBSCRIPTION_IS_ABSENT"] = "Контентті сату үшін ақпараттық блок пайдаланылатыны немесе пайдаланылмайтыны көрсетілмеген";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_FIELD_USE_SKU_IS_ABSENT"] = "Ақпараттық блоктың сауда ұсыныстары бар-жоғы көрсетілмеген";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_IBLOCK_ID_ABSENT"] = "Ақпараттық блоктың ID-і жоқ";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_IBLOCK_IS_NOT_EXISTS"] = "Жоқ ақпараттық блок көрсетілген";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_IBLOCK_SITELIST_IS_EMPTY"] = "Ақпараттық блок сайттарының тізімі бос";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_OFFERS_ONLY_CATALOG"] = "Сауда ұсыныстарының ақпараттық блогы сауда каталогы болуы керек";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_PARENT_IBLOCK_WITH_SUBSCRIPTION"] = "Сауда ұсыныстары бар ақпараттық блокты контентті сату үшін пайдалану мүмкін емес";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_SKU_BAD"] = "Жоқ сауда ұсыныстарының ақпараттық блогы";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_SKU_FROM_OTHER_IBLOCK"] = "Сауда ұсыныстарының ақпараттық блогы басқа ақпараттық блокқа байланған";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_SKU_PARENT_IBLOCK_IS_ABSENT"] = "Сауда ұсыныстарының ақпараттық блогы үшін тауарлардың негізгі ақпараттық блогы көрсетілмеген";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_SKU_PARENT_IBLOCK_OTHER"] = "Тауарлардың дұрыс емес негізгі ақпараттық блогы";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_SKU_SELF"] = "Ақпараттық блок өзі үшін сауда ұсыныстарының ақпараттық блогы бола алмайды";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_SKU_SITES_EMPTY"] = "Сауда ұсыныстарының ақпараттық блогы сайттарының тізімі бос";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_SKU_SITES_NOT_EQUAL"] = "Сауда ұсыныстары ақпараттық блоғы сайттарының тізімі негізгі ақпараттық блок сайттарының тізіміне сәйкес келмейді";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_SKU_WITH_SKU"] = "Сауда ұсыныстарының ақпараттық блогында сауда ұсыныстары болуы мүмкін емес";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_VAT_ID_IS_ABSENT"] = "ҚҚС ID-і көрсетілмеген";
+$MESS["BX_CAT_HELPER_ADMIN_CATALOGEDIT_ERR_YANDEX_EXPORT_IS_ABSENT"] = "Яндекске жүктеу қолданыла ма, жоқ па көрсетілмеген";

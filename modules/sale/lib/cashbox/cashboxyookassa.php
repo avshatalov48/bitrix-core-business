@@ -28,6 +28,7 @@ class CashboxYooKassa extends CashboxPaySystem
 	private const CODE_VAT_20 = 4;
 	private const CODE_VAT_5 = 7;
 	private const CODE_VAT_7 = 8;
+	private const CODE_VAT_22 = 11;
 
 	private const MARK_CODE_BASE64 = 1;
 	private const MARK_CODE_NOT_ENCODING = 2;
@@ -469,6 +470,7 @@ class CashboxYooKassa extends CashboxPaySystem
 					7 => self::CODE_VAT_7,
 					10 => self::CODE_VAT_10,
 					20 => self::CODE_VAT_20,
+					22 => self::CODE_VAT_22,
 				];
 
 				foreach ($vatList as $vat)

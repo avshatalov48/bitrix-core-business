@@ -16,6 +16,8 @@ abstract class Ofd
 	protected const EVENT_ON_GET_CUSTOM_OFD_HANDLERS = 'OnGetCustomOfdHandlers';
 	private const BX_OFD_PREFIX = 'bx_';
 
+	protected Cashbox $cashbox;
+
 	/**
 	 * @return array
 	 * @throws NotImplementedException

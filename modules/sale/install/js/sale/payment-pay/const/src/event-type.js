@@ -8,6 +8,7 @@ export const EventType = Object.freeze({
 	consent: {
 		accepted: 'Sale:PaymentPay:Consent:Accepted',
 		refused: 'Sale:PaymentPay:Consent:Refused',
+		save: 'Sale:PaymentPay:Consent:Save',
 	},
 	global: {
 		paySystemAjaxError: 'onPaySystemAjaxError',

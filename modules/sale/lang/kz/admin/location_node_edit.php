@@ -1,0 +1,20 @@
+<?php
+$MESS["SALE_LOCATION_E_CANNOT_SAVE_ITEM"] = "Орналасуды сақтау қатесі";
+$MESS["SALE_LOCATION_E_CANNOT_UPDATE_ITEM"] = "Орналасуды жаңарту қатесі";
+$MESS["SALE_LOCATION_E_EXTERNAL_TAB"] = "Сыртқы деректер";
+$MESS["SALE_LOCATION_E_EXTERNAL_TAB_TITLE"] = "Сыртқы деректер кестесі";
+$MESS["SALE_LOCATION_E_GEODATA"] = "Геодеректер";
+$MESS["SALE_LOCATION_E_GO_BACK"] = "Тізімге оралу";
+$MESS["SALE_LOCATION_E_HEADER_EXT_MORE"] = "Тағы";
+$MESS["SALE_LOCATION_E_HEADER_EXT_REMOVE"] = "Жою";
+$MESS["SALE_LOCATION_E_HEADING_EXTERNAL"] = "Сыртқы деректер";
+$MESS["SALE_LOCATION_E_HEADING_NAME"] = "Тілдік атаулары (#LANGUAGE_ID#)";
+$MESS["SALE_LOCATION_E_HEADING_NAME_ALL"] = "Тілдік атаулары";
+$MESS["SALE_LOCATION_E_ITEM_EDIT"] = "Орналасуларды редакциялау: #ITEM_NAME#";
+$MESS["SALE_LOCATION_E_ITEM_NEW"] = "Орналасқан жер: қосу";
+$MESS["SALE_LOCATION_E_ITEM_NOT_FOUND"] = "Орналасқан жері табылмады";
+$MESS["SALE_LOCATION_E_MAIN_TAB"] = "Орналасқан жері";
+$MESS["SALE_LOCATION_E_MAIN_TAB_TITLE"] = "Орналасу параметрлері";
+$MESS["SALE_LOCATION_E_NO_SERVICES"] = "Сыртқы сервистер жоқ. Өтінеміз, оларды сыртқы сервистер";
+$MESS["SALE_LOCATION_E_NO_SERVICES_LIST_PAGE"] = "тізімінің бетінде құрыңыз";
+$MESS["SALE_MODULE_ACCES_DENIED"] = "Модульге кіруге тыйым салынған";

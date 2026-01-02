@@ -1,0 +1,25 @@
+<?php
+$MESS["CATALOG_ERR_NO_PRODUCT"] = "Тауар табылмады";
+$MESS["CATALOG_ERR_NO_PRODUCT_SET"] = "Жиынтықтың құрамы табылған жоқ";
+$MESS["CATALOG_ERR_NO_PRODUCT_SET_ITEM"] = "Жиынтыққа кіретін тауарлар табылған жоқ";
+$MESS["CATALOG_ERR_SKU_PRODUCT"] = "Сауда ұсыныстары бар тауарды себетке салуға болмайды-тек нақты ұсыныс";
+$MESS["CATALOG_NO_QUANTITY_PRODUCT"] = "\"#NAME#\" тауары қолжетімсіз.";
+$MESS["CATALOG_QUANTITY_NOT_ENOGH"] = "Сіз \"#NAME#\" тауарының #QUANTITY# #MEASURE_NAME# санын сатып ала алмайсыз.  Сатып алу үшін қолжетімді сан: #CATALOG_QUANTITY# #MEASURE_NAME#.";
+$MESS["DDCT_DEDUCTION_BARCODE_ERROR"] = "#PRODUCT_NAME# (##PRODUCT_ID#) тауары үшін \"#BARCODE#\" штрихкоды табылмады.";
+$MESS["DDCT_DEDUCTION_MULTI_BARCODE_EMPTY"] = "##STORE_ID# қоймасы үшін \"#PRODUCT_NAME#\" тауарының штрихкоды көрсетілмеген.";
+$MESS["DDCT_DEDUCTION_PRODUCT_NOT_FOUND_ERROR"] = "Жөнелтім үшін тауарлар табылмады (##PRODUCT_ID#)";
+$MESS["DDCT_DEDUCTION_QUANTITY_ERROR"] = "Жөнелту үшін #PRODUCT_NAME# (##PRODUCT_ID#) тауарының саны жеткіліксіз";
+$MESS["DDCT_DEDUCTION_QUANTITY_STORE_ERROR"] = "Жөнелту үшін ##STORE_ID# қоймасында #PRODUCT_NAME# (##PRODUCT_ID#) тауарының саны жеткіліксіз.";
+$MESS["DDCT_DEDUCTION_QUANTITY_STORE_ERROR_2"] = "Жөнелту үшін \"#STORE_NAME#\" (##STORE_ID#) қоймасында \"#PRODUCT_NAME#\" (##PRODUCT_ID#) тауарының саны жеткіліксіз.";
+$MESS["DDCT_DEDUCTION_SAVE_ERROR"] = "#PRODUCT_NAME# (##PRODUCT_ID#) тауар санын қоймада сақтаудың белгісіз қатесі";
+$MESS["DDCT_DEDUCTION_SHIPMENT_QUANTITY_NOT_ENOUGH"] = "Жөнелтілетін тауардың саны \"#PRODUCT_NAME#\" қоймадағыдан көп";
+$MESS["DDCT_DEDUCTION_STORE_ERROR"] = "#PRODUCT_NAME# (##PRODUCT_ID#) тауарын жөнелту үшін қоймалар көрсетілмеген";
+$MESS["DDCT_DEDUCTION_UNDO_ERROR_RESERVE_QUANTITY"] = "Резервтен #PRODUCT_NAME# (##PRODUCT_ID#) резервтелген тауардан артық санды алып тастауға болмайды";
+$MESS["DDCT_DEDUCTION_WRITE_ERROR"] = "#PRODUCT_NAME# (##PRODUCT_ID#) тауарын жөнелту туралы ақпаратты жазу қатесі.";
+$MESS["DDCT_UNKNOWN_ERROR"] = "#PRODUCT_NAME# (##PRODUCT_ID#) тауарын жөнелту кезінде белгісіз қате";
+$MESS["RSRV_ID_NOT_FOUND"] = "##PRODUCT_ID# тауары табылмады";
+$MESS["RSRV_INCORRECT_ID"] = "Тауардың ID-і дұрыс емес";
+$MESS["RSRV_QUANTITY_NEGATIVE_ERROR"] = "Қоймада #PRODUCT_NAME# (##PRODUCT_ID#) тауарының теріс саны.";
+$MESS["RSRV_QUANTITY_NOT_ENOUGH_ERROR"] = "Қоймада #PRODUCT_NAME# (##PRODUCT_ID#) тауарының саны жеткіліксіз.";
+$MESS["RSRV_SKU_FOUND"] = "##PRODUCT_ID# тауары - бұл сауда ұсыныстары бар тауар. Тек нақты сауда ұсынысын резервтеуге және резервтен алуға болады";
+$MESS["RSRV_UNKNOWN_ERROR"] = "#PRODUCT_NAME# (##PRODUCT_ID#) тауарын резервтеу кезінде белгісіз қате";

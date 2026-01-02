@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,main_core,ui_notification,im_v2_component_message_base,im_v2_lib_dateFormatter,im_v2_application_core,im_v2_const) {
+(function (exports,main_core,im_v2_component_message_base,im_v2_lib_notifier,im_v2_application_core,im_v2_const) {
 	'use strict';
 
 	const VoteType = {
@@ -44,26 +44,26 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _updateModel)[_updateModel]({
 	      vote: VoteType.like
 	    });
-	    im_v2_application_core.Core.getRestClient().callMethod(im_v2_const.RestMethod.imBotDialogVote, {
+	    const payload = {
 	      MESSAGE_ID: babelHelpers.classPrivateFieldLooseBase(this, _messageId)[_messageId],
 	      DIALOG_ID: babelHelpers.classPrivateFieldLooseBase(this, _dialogId)[_dialogId],
 	      RATING: VoteType.like
-	    }).catch(error => {
-	      // eslint-disable-next-line no-console
-	      console.error('VoteService: error in dialog vote', error);
+	    };
+	    im_v2_application_core.Core.getRestClient().callMethod(im_v2_const.RestMethod.imBotDialogVote, payload).catch(result => {
+	      console.error('VoteService: error in dialog vote', result.error());
 	    });
 	  }
 	  dislike() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _updateModel)[_updateModel]({
 	      vote: VoteType.dislike
 	    });
-	    im_v2_application_core.Core.getRestClient().callMethod(im_v2_const.RestMethod.imBotDialogVote, {
+	    const payload = {
 	      MESSAGE_ID: babelHelpers.classPrivateFieldLooseBase(this, _messageId)[_messageId],
 	      DIALOG_ID: babelHelpers.classPrivateFieldLooseBase(this, _dialogId)[_dialogId],
 	      RATING: VoteType.dislike
-	    }).catch(error => {
-	      // eslint-disable-next-line no-console
-	      console.error('VoteService: error in dialog vote', error);
+	    };
+	    im_v2_application_core.Core.getRestClient().callMethod(im_v2_const.RestMethod.imBotDialogVote, payload).catch(result => {
+	      console.error('VoteService: error in dialog vote', result.error());
 	    });
 	  }
 	}
@@ -76,7 +76,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    ...currentMessage.componentParams,
 	    [VoteParamKey.currentVote]: vote
 	  };
-	  im_v2_application_core.Core.getStore().dispatch('messages/update', {
+	  void im_v2_application_core.Core.getStore().dispatch('messages/update', {
 	    id: babelHelpers.classPrivateFieldLooseBase(this, _messageId)[_messageId],
 	    fields: {
 	      componentParams: newComponentParams
@@ -104,9 +104,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      default: true
 	    }
 	  },
-	  data() {
-	    return {};
-	  },
 	  computed: {
 	    message() {
 	      return this.item;
@@ -129,11 +126,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return false;
 	      }
 	      return new Date(closeDate).getTime() < Date.now();
-	    },
-	    voteTimeSecondsLimit() {
-	      var _this$message$compone;
-	      const limit = (_this$message$compone = this.message.componentParams[VoteParamKey.timeLimit]) != null ? _this$message$compone : 0;
-	      return Number.parseInt(limit, 10);
 	    },
 	    likeClasses() {
 	      return {
@@ -170,13 +162,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.getVoteService().dislike();
 	    },
 	    showVoteClosedNotification() {
-	      BX.UI.Notification.Center.notify({
-	        content: this.loc('IM_MESSAGE_SUPPORT_VOTE_CLOSED')
-	      });
-	    },
-	    getDaysForVote() {
-	      const currentSeconds = Date.now() / 1000;
-	      return im_v2_lib_dateFormatter.DateFormatter.formatByCode(currentSeconds - this.voteTimeSecondsLimit, 'ddiff');
+	      im_v2_lib_notifier.Notifier.support.onVoteClosedError();
 	    },
 	    getVoteService() {
 	      if (!this.voteService) {
@@ -210,5 +196,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.SupportVoteMessage = SupportVoteMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX,BX,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const));
 //# sourceMappingURL=vote.bundle.js.map

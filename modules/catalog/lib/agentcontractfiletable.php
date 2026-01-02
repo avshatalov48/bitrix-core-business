@@ -2,11 +2,8 @@
 
 namespace Bitrix\Catalog;
 
-use Bitrix\Main\Application;
-use Bitrix\Main\Entity\EventResult;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
-use Bitrix\Main\ORM\Event;
 use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 

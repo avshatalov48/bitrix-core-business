@@ -54,4 +54,14 @@ abstract class Scope
 	 * @return array
 	 */
 	abstract public static function getExcludedHooks(): array;
+
+	/**
+	 * Check is scope can use extension
+	 * @param string $code - name of extension
+	 * @return bool
+	 */
+	public static function isExtensionAllow(string $code): bool
+	{
+		return true;
+	}
 }

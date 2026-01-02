@@ -59,7 +59,7 @@ class ChatConfigConnectionsRestorer extends Stepper
 					))->configureJoinType(\Bitrix\Main\ORM\Query\Join::TYPE_LEFT)
 				)
 				->whereNull('OPTION_USER.USER_ID')
-				->where('IS_REAL_USER', 'Y')
+				->where('REAL_USER', 'expr', true)
 				->where('ID', '>', $params['last_recovered_user'])
 				->addOrder('ID')
 				->setLimit(100)

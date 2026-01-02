@@ -27,7 +27,20 @@ use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_HrSyncQueue_Query query()
+ * @method static EO_HrSyncQueue_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_HrSyncQueue_Result getById($id)
+ * @method static EO_HrSyncQueue_Result getList(array $parameters = [])
+ * @method static EO_HrSyncQueue_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_HrSyncQueue createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_HrSyncQueue_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_HrSyncQueue wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_HrSyncQueue_Collection wakeUpCollection($rows)
+ */
 
 class HrSyncQueueTable extends DataManager
 {

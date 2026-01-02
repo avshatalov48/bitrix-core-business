@@ -16,15 +16,17 @@ $componentParameters = array(
 	'PATH_TO_STAT' => $arResult['PATH_TO_STAT'] ?? '',
 	'PATH_TO_RECIPIENT' => $arResult['PATH_TO_RECIPIENT'] ?? '',
 );
-if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y')
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] === 'Y')
 {
 	$APPLICATION->IncludeComponent(
-		"bitrix:sender.pageslider.wrapper",
+		"bitrix:ui.sidepanel.wrapper",
 		"",
 		array(
 			'POPUP_COMPONENT_NAME' => "bitrix:sender.letter.stat",
 			"POPUP_COMPONENT_TEMPLATE_NAME" => "",
 			"POPUP_COMPONENT_PARAMS" => $componentParameters,
+			"USE_UI_TOOLBAR" => "Y",
+			"USE_PADDING" => false,
 		)
 	);
 }

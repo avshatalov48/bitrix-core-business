@@ -258,6 +258,18 @@ class Actions
 			];
 		}
 
+		if (in_array(WorkgroupList::AVAILABLE_ACTION_CONVERT_TO_COLLAB, $actions, true))
+		{
+			$text = Loc::getMessage('SOCIALNETWORK_HELPER_UI_GRID_ACTION_CONVERT_TO_COLLAB');
+
+			$result[] = [
+				'text' => $text,
+				'onclick' => 'BX.Socialnetwork.WorkgroupList.Manager.getById("' . $params['GRID_ID'] . '").getActionManager().convertToCollab({
+					groupId: "' . $group->getId() . '",
+				})',
+			];
+		}
+
 		if (in_array(WorkgroupList::AVAILABLE_ACTION_DELETE, $actions, true))
 		{
 			$text = Loc::getMessage('SOCIALNETWORK_HELPER_UI_GRID_ACTION_DELETE');

@@ -1,0 +1,25 @@
+<?php
+$MESS["CP_BRO_CACHE_FILTER"] = "Сүзгі орнатылған кезде кэштеу";
+$MESS["CP_BRO_CACHE_GROUPS"] = "Қолжетімділік құқықтарын ескеру";
+$MESS["CP_BRO_FILTER_NAME"] = "Сүзгі";
+$MESS["CP_BRO_IBLOCK_ID"] = "Ақпараттық блок";
+$MESS["CP_BRO_IBLOCK_TYPE"] = "Ақпараттық блок түрі";
+$MESS["CP_BRO_NUM_DAYS"] = "Экспортқа арналған күндер саны";
+$MESS["CP_BRO_NUM_NEWS"] = "Экспортқа арналған жаңалықтар саны";
+$MESS["CP_BRO_RSS"] = "RSS параметрлері";
+$MESS["CP_BRO_RSS_TTL"] = "Әрекет ету уақыты (минутпен)";
+$MESS["CP_BRO_SECTION_CODE"] = "Бөлім коды";
+$MESS["CP_BRO_SECTION_ID"] = "Бөлім";
+$MESS["CP_BRO_SORT_ACTIVE_FROM"] = "Белсенділіктің басталу күні";
+$MESS["CP_BRO_SORT_ASC"] = "Өсу бойынша";
+$MESS["CP_BRO_SORT_BY1"] = "Жаңалықтарды бірінші сұрыптау үшін өріс";
+$MESS["CP_BRO_SORT_BY2"] = "Жаңалықтарды екінші сұрыптау үшін өріс";
+$MESS["CP_BRO_SORT_CREATED"] = "Құрылған күні";
+$MESS["CP_BRO_SORT_DESC"] = "Кему бойынша";
+$MESS["CP_BRO_SORT_ID"] = "ID";
+$MESS["CP_BRO_SORT_NAME"] = "Атауы";
+$MESS["CP_BRO_SORT_ORDER1"] = "Жаңалықтарды бірінші сұрыптау үшін бағыт";
+$MESS["CP_BRO_SORT_ORDER2"] = "Жаңалықтарды екінші сұрыптау үшін бағыт";
+$MESS["CP_BRO_SORT_SORT"] = "Сұрыптау";
+$MESS["CP_BRO_SORT_TIMESTAMP_X"] = "Соңғы өзгертілу күні";
+$MESS["CP_BRO_YANDEX"] = "Яндекс диалектке экспорттау";

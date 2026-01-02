@@ -9,3 +9,4 @@ $MESS["SONET_NS_MODERATORS_GROUP"] = "You were assigned or unassigned as a workg
 $MESS["SONET_NS_OWNER_GROUP"] = "Workgroup owner change";
 $MESS["SONET_NS_OWNER_GROUP_MSGVER_1"] = "Workgroup owner changed";
 $MESS["SONET_NS_SONET_GROUP_EVENT"] = "Workgroup updates";
+$MESS["SONET_NS_SONET_GROUP_TITLE"] = "Workgroups and projects";

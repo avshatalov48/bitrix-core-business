@@ -8,6 +8,7 @@ class IBlockListFilter extends Filter
 {
 	public const ALLOWABLE_FIELDS = [
 		'ID',
+		'NAME',
 		'ACTIVE',
 		'TYPE',
 		'SITE_ID',

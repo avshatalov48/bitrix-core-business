@@ -1,0 +1,19 @@
+<?php
+$MESS["ECLFV_CRM"] = "CRM";
+$MESS["ECLFV_DESCRIPTION"] = "Оқиғаның сипаттамасы";
+$MESS["ECLFV_EVENT"] = "Оқиға";
+$MESS["ECLFV_EVENT_ACCEPTED"] = "Сіз бұл оқиғаға қатысасыз";
+$MESS["ECLFV_EVENT_ATTENDEES"] = "Қатысуын растады";
+$MESS["ECLFV_EVENT_ATTENDEES_DES"] = "Қатысудан бас тартты";
+$MESS["ECLFV_EVENT_DECLINED"] = "Сіз бұл оқиғаға қатыспайсыз";
+$MESS["ECLFV_EVENT_LOCATION"] = "Өткізу орны";
+$MESS["ECLFV_EVENT_NAME"] = "Оқиға атауы";
+$MESS["ECLFV_EVENT_START"] = "Басталуы";
+$MESS["ECLFV_INVITE_ACCEPT"] = "Қатысуды растау";
+$MESS["ECLFV_INVITE_ACCEPT2"] = "Оқиғаға қатысу";
+$MESS["ECLFV_INVITE_DECLINE"] = "Бас тарту";
+$MESS["ECLFV_INVITE_DECLINE2"] = "Оқиғадан бас тарту";
+$MESS["ECLFV_REC_DECLINE"] = "Қайталанатын оқиғаға қатысудан бас тартасыз ба?";
+$MESS["ECLFV_REC_DECLINE_ALL"] = "Барлығынан";
+$MESS["ECLFV_REC_DECLINE_NEXT"] = "Осы және келесі";
+$MESS["ECLFV_REC_DECLINE_THIS"] = "Тек осыдан";

@@ -1,7 +1,12 @@
 <?php
 
+use Bitrix\Iblock\PropertyEnumerationTable;
+use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Main\SystemException;
 
 Loc::loadMessages(__FILE__);
 
@@ -15,6 +20,7 @@ class BizprocDocument extends CIBlockDocument
 	const DOCUMENT_TYPE_PREFIX = 'iblock_';
 	private static $cachedTasks;
 	private static $elements = [];
+	private static $cachedGroups = [];
 
 	public static function getEntityName()
 	{
@@ -117,7 +123,9 @@ class BizprocDocument extends CIBlockDocument
 	 */
 	public static function getDocument($documentId)
 	{
-		$documentId = intval($documentId);
+		$args = func_get_args();
+		$select = $args[2] ?? [];
+		$documentId = (int)$documentId;
 		if ($documentId <= 0)
 		{
 			throw new CBPArgumentNullException('documentId');
@@ -127,9 +135,32 @@ class BizprocDocument extends CIBlockDocument
 		$element = [];
 		$elementProperty = [];
 
+		if (!empty($select))
+		{
+			$select = array_filter($select, fn($field) => !str_starts_with($field, 'PROPERTY_'));
+			$select = array_merge(['ID', 'IBLOCK_ID'], $select);
+
+			if (in_array('CREATED_BY', $select) && !in_array('CREATED_USER_NAME', $select))
+			{
+				$select[] = 'CREATED_USER_NAME';
+			}
+			if (in_array('MODIFIED_BY', $select) && !in_array('USER_NAME', $select))
+			{
+				$select[] = 'USER_NAME';
+			}
+		}
+
+		$userNameFields = [
+			'CREATED_BY_PRINTABLE' => 'CREATED_USER_NAME',
+			'MODIFIED_BY_PRINTABLE' => 'USER_NAME',
+		];
+
+		$select = array_map(static fn($selectField) => $userNameFields[$selectField] ?? $selectField, $select);
+
 		$queryElement = CIBlockElement::getList(
 			[],
-			['ID' => $documentId, 'SHOW_NEW' => 'Y', 'SHOW_HISTORY' => 'Y']
+			['ID' => $documentId, 'SHOW_NEW' => 'Y', 'SHOW_HISTORY' => 'Y'],
+			arSelectFields: $select
 		);
 		while ($queryResult = $queryElement->fetch())
 		{
@@ -603,39 +634,58 @@ class BizprocDocument extends CIBlockDocument
 	 */
 	public static function getDocumentFields($documentType)
 	{
-		$iblockId = intval(mb_substr($documentType, mb_strlen("iblock_")));
+		$documentType = (string)$documentType;
+		if ($documentType === '' || !str_starts_with($documentType, 'iblock_'))
+		{
+			throw new CBPArgumentOutOfRangeException('documentType', $documentType);
+		}
+		$iblockId = (int)(substr($documentType, 7)); // length 'iblock_' - 7
 		if ($iblockId <= 0)
-			throw new CBPArgumentOutOfRangeException("documentType", $documentType);
+		{
+			throw new CBPArgumentOutOfRangeException('documentType', $documentType);
+		}
 
 		$documentFieldTypes = self::getDocumentFieldTypes($documentType);
 
 		$result = self::getSystemIblockFields();
 
-		$dbProperties = Bitrix\Iblock\PropertyTable::getList([
-			'select' => [
-				'ID', 'CODE', 'USER_TYPE', 'NAME', 'FILTRABLE', 'IS_REQUIRED',
-				'MULTIPLE', 'PROPERTY_TYPE', 'USER_TYPE_SETTINGS_LIST', 'DEFAULT_VALUE', 'LINK_IBLOCK_ID',
+		$employeeNotCompatible = Option::get('bizproc', 'employee_compatible_mode', 'N') !== 'Y';
+
+		$dbProperties = PropertyTable::getList([
+			'select' => ['*'],
+			'filter' => [
+				'=IBLOCK_ID' => $iblockId,
+				'=ACTIVE' => 'Y',
 			],
-			'filter' => ['=IBLOCK_ID' => $iblockId, '=ACTIVE' => 'Y'],
-			'order' => ['SORT' => 'ASC'],
-			'cache' => ['ttl' => 3600],
+			'order' => [
+				'SORT' => 'ASC',
+				'NAME' => 'ASC',
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
 		]);
+		PropertyTable::fillOldCoreFetchModifiers($dbProperties);
 
 		$ignoreProperty = array();
 		while ($property = $dbProperties->fetch())
 		{
-			if (trim($property["CODE"]) <> '')
+			$property['CODE'] = (string)$property['CODE'];
+			$property['USER_TYPE'] = (string)$property['USER_TYPE'];
+			$propertyIdAlias = 'PROPERTY_' . $property['ID'];
+
+			if ($property['CODE'])
 			{
-				$key = "PROPERTY_".$property["CODE"];
-				$ignoreProperty["PROPERTY_".$property["ID"]] = "PROPERTY_".$property["CODE"];
+				$key = 'PROPERTY_' . $property['CODE'];
+				$ignoreProperty[$propertyIdAlias] = $key;
 			}
 			else
 			{
-				$key = "PROPERTY_".$property["ID"];
-				$ignoreProperty["PROPERTY_".$property["ID"]] = 0;
+				$key = $propertyIdAlias;
+				$ignoreProperty[$propertyIdAlias] = 0;
 			}
 
-			$settings = $property["USER_TYPE_SETTINGS_LIST"];
+			$settings = $property['USER_TYPE_SETTINGS'];
 			$result[$key] = array(
 				"Name" => $property["NAME"],
 				"Filterable" => ($property["FILTRABLE"] == "Y"),
@@ -643,29 +693,29 @@ class BizprocDocument extends CIBlockDocument
 				"Required" => ($property["IS_REQUIRED"] == "Y"),
 				"Multiple" => ($property["MULTIPLE"] == "Y"),
 				"TypeReal" => $property["PROPERTY_TYPE"],
-				"UserTypeSettings" => $settings
+				"UserTypeSettings" => $settings,
+				'IblockPropertyId' => (int)$property['ID'],
 			);
 
-			if(trim($property["CODE"]) <> '')
-				$result[$key]["Alias"] = "PROPERTY_".$property["ID"];
-
-			if ($property["USER_TYPE"] <> '')
+			if ($property['CODE'])
 			{
-				$arUserType = CIBlockProperty::GetUserType($property["USER_TYPE"]);
-				if (isset($arUserType["ConvertFromDB"]) && array_key_exists("DEFAULT_VALUE", $property))
-				{
-					$value = [
-						"VALUE" => $property["DEFAULT_VALUE"],
-						"DESCRIPTION" => "",
-					];
-					$value = call_user_func_array($arUserType["ConvertFromDB"], [$property, $value]);
-					$res["DEFAULT_VALUE"] = $value["VALUE"] ?? null;
-				}
+				$result[$key]['Alias'] = $propertyIdAlias;
+			}
 
+			unset(
+				$propertyIdAlias,
+			);
+
+			if ($property["USER_TYPE"] !== '')
+			{
 				$result[$key]["TypeReal"] = $property["PROPERTY_TYPE"].":".$property["USER_TYPE"];
 
-				if ($property["USER_TYPE"] == "UserID"
-					|| $property["USER_TYPE"] == "employee" && (COption::getOptionString("bizproc", "employee_compatible_mode", "N") != "Y"))
+				if (
+					$property["USER_TYPE"] === PropertyTable::USER_TYPE_USER
+					|| (
+						$property["USER_TYPE"] === PropertyTable::USER_TYPE_EMPLOYEE && $employeeNotCompatible
+					)
+				)
 				{
 					$result[$key]["Type"] = "user";
 					$result[$key."_PRINTABLE"] = array(
@@ -678,28 +728,28 @@ class BizprocDocument extends CIBlockDocument
 					);
 					$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
 				}
-				elseif ($property["USER_TYPE"] == "DateTime")
+				elseif ($property["USER_TYPE"] === PropertyTable::USER_TYPE_DATETIME)
 				{
 					$result[$key]["Type"] = "datetime";
 					$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
 				}
-				elseif ($property["USER_TYPE"] == "Date")
+				elseif ($property["USER_TYPE"] === PropertyTable::USER_TYPE_DATE)
 				{
 					$result[$key]["Type"] = "date";
 					$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
 				}
-				elseif ($property["USER_TYPE"] == "EList")
+				elseif ($property["USER_TYPE"] === PropertyTable::USER_TYPE_ELEMENT_LIST)
 				{
 					$result[$key]["Type"] = "E:EList";
 					$result[$key]["Options"] = $property["LINK_IBLOCK_ID"];
 				}
-				elseif ($property["USER_TYPE"] == "ECrm")
+				elseif ($property["USER_TYPE"] === PropertyTable::USER_TYPE_CRM)
 				{
 					$result[$key]["Type"] = "E:ECrm";
 					$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
 					$result[$key]["Options"] = $settings;
 				}
-				elseif ($property["USER_TYPE"] == "Money")
+				elseif ($property["USER_TYPE"] === PropertyTable::USER_TYPE_MONEY)
 				{
 					$result[$key]["Type"] = "S:Money";
 					$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
@@ -712,13 +762,13 @@ class BizprocDocument extends CIBlockDocument
 						"Type" => "string",
 					);
 				}
-				elseif ($property["USER_TYPE"] == "Sequence")
+				elseif ($property["USER_TYPE"] === PropertyTable::USER_TYPE_SEQUENCE)
 				{
 					$result[$key]["Type"] = "N:Sequence";
 					$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
 					$result[$key]["Options"] = $settings;
 				}
-				elseif ($property["USER_TYPE"] == "DiskFile")
+				elseif ($property["USER_TYPE"] === PropertyTable::USER_TYPE_DISK)
 				{
 					$result[$key]["Type"] = "S:DiskFile";
 					$result[$key."_PRINTABLE"] = array(
@@ -730,7 +780,7 @@ class BizprocDocument extends CIBlockDocument
 						"Type" => "int",
 					);
 				}
-				elseif ($property["USER_TYPE"] == "HTML")
+				elseif ($property["USER_TYPE"] === PropertyTable::USER_TYPE_HTML)
 				{
 					$result[$key]["Type"] = "S:HTML";
 					$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
@@ -741,25 +791,45 @@ class BizprocDocument extends CIBlockDocument
 					$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
 				}
 			}
-			elseif ($property["PROPERTY_TYPE"] == "L")
+			elseif ($property["PROPERTY_TYPE"] === PropertyTable::TYPE_LIST)
 			{
 				$result[$key]["Type"] = "select";
 
-				$result[$key]["Options"] = array();
-				$dbPropertyEnums = CIBlockProperty::getPropertyEnum($property["ID"]);
-				while ($propertyEnum = $dbPropertyEnums->getNext())
+				$result[$key]["Options"] = [];
+
+				$enumIterator = PropertyEnumerationTable::getList([
+					'select' => [
+						'XML_ID',
+						'VALUE',
+						'DEF',
+					],
+					'filter' => [
+						'=PROPERTY_ID' => (int)$property['ID'],
+					],
+					'cache' => [
+						'ttl' => 86400,
+					],
+				]);
+				while ($enumRow = $enumIterator->fetch())
 				{
-					$result[$key]["Options"][$propertyEnum["XML_ID"]] = $propertyEnum["~VALUE"];
-					if($propertyEnum["DEF"] == "Y")
-						$result[$key]["DefaultValue"] = $propertyEnum["~VALUE"];
+					$enumXmlId = htmlspecialcharsEx($enumRow['XML_ID']);
+					$result[$key]['Options'][$enumXmlId] = $enumRow['VALUE'];
+					if ($enumRow['DEF'] === 'Y')
+					{
+						$result[$key]['DefaultValue'] = $enumRow['VALUE'];
+					}
 				}
+				unset(
+					$enumRow,
+					$enumIterator,
+				);
 			}
-			elseif ($property["PROPERTY_TYPE"] == "N")
+			elseif ($property["PROPERTY_TYPE"] === PropertyTable::TYPE_NUMBER)
 			{
 				$result[$key]["Type"] = "double";
 				$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
 			}
-			elseif ($property["PROPERTY_TYPE"] == "F")
+			elseif ($property["PROPERTY_TYPE"] === PropertyTable::TYPE_FILE)
 			{
 				$result[$key]["Type"] = "file";
 				$result[$key."_PRINTABLE"] = array(
@@ -771,12 +841,12 @@ class BizprocDocument extends CIBlockDocument
 					"Type" => "string",
 				);
 			}
-			elseif ($property["PROPERTY_TYPE"] == "S")
+			elseif ($property["PROPERTY_TYPE"] === PropertyTable::TYPE_STRING)
 			{
 				$result[$key]["Type"] = "string";
 				$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
 			}
-			elseif ($property["PROPERTY_TYPE"] == "E")
+			elseif ($property["PROPERTY_TYPE"] === PropertyTable::TYPE_ELEMENT)
 			{
 				$result[$key]["Type"] = "E:EList";
 				$result[$key]["Options"] = $property["LINK_IBLOCK_ID"];
@@ -796,7 +866,7 @@ class BizprocDocument extends CIBlockDocument
 			if(empty($field["SETTINGS"]))
 				$field["SETTINGS"] = array("SHOW_ADD_FORM" => 'Y', "SHOW_EDIT_FORM"=>'Y');
 
-			if(array_key_exists($fieldId, $ignoreProperty))
+			if (isset($ignoreProperty[$fieldId]))
 			{
 				$ignoreProperty[$fieldId] ? $key = $ignoreProperty[$fieldId] : $key = $fieldId;
 				$result[$key]["sort"] =  $field["SORT"];
@@ -878,14 +948,14 @@ class BizprocDocument extends CIBlockDocument
 		$fieldsTemporary = array(
 			"NAME" => $fields["name"],
 			"ACTIVE" => "Y",
-			"SORT" => $fields["sort"] ? $fields["sort"] : 900,
+			"SORT" => $fields["sort"] ?? 900,
 			"CODE" => $fields["code"],
 			'MULTIPLE' => $fields['multiple'] == 'Y' || (string)$fields['multiple'] === '1' ? 'Y' : 'N',
 			'IS_REQUIRED' => $fields['required'] == 'Y' || (string)$fields['required'] === '1' ? 'Y' : 'N',
 			"IBLOCK_ID" => $iblockId,
 			"FILTRABLE" => "Y",
-			"SETTINGS" => $fields["settings"] ? $fields["settings"] : array("SHOW_ADD_FORM" => 'Y', "SHOW_EDIT_FORM"=>'Y'),
-			"DEFAULT_VALUE" => $fields['DefaultValue']
+			"SETTINGS" => $fields["settings"] ?? ["SHOW_ADD_FORM" => 'Y', "SHOW_EDIT_FORM"=>'Y'],
+			"DEFAULT_VALUE" => $fields['DefaultValue'] ?? null,
 		);
 
 		if (mb_strpos("0123456789", mb_substr($fieldsTemporary["CODE"], 0, 1)) !== false)
@@ -899,7 +969,7 @@ class BizprocDocument extends CIBlockDocument
 
 		if(mb_strstr($fields["type"], ":") !== false)
 		{
-			list($fieldsTemporary["TYPE"], $fieldsTemporary["USER_TYPE"]) = explode(":", $fields["type"], 2);
+			[$fieldsTemporary["TYPE"], $fieldsTemporary["USER_TYPE"]] = explode(":", $fields["type"], 2);
 			if($fields["type"] == "E:EList")
 			{
 				$fieldsTemporary["LINK_IBLOCK_ID"] = $fields["options"] ?? null;
@@ -962,8 +1032,10 @@ class BizprocDocument extends CIBlockDocument
 						$v2 = trim(mb_substr($v, mb_strpos($v, "]") + 1));
 					}
 					$def = "N";
-					if($fields['DefaultValue'] == $v2)
+					if(($fields['DefaultValue'] ?? null) == $v2)
+					{
 						$def = "Y";
+					}
 					$fieldsTemporary["VALUES"][] = array("XML_ID" => $v1, "VALUE" => $v2, "DEF" => $def, "SORT" => $i);
 					$i = $i + 10;
 				}
@@ -973,7 +1045,7 @@ class BizprocDocument extends CIBlockDocument
 		{
 			$fieldsTemporary["TYPE"] = "S";
 
-			if($fields["row_count"] && $fields["col_count"])
+			if (!empty($fields["row_count"]))
 			{
 				$fieldsTemporary["ROW_COUNT"] = $fields["row_count"];
 				$fieldsTemporary["COL_COUNT"] = $fields["col_count"];
@@ -987,7 +1059,7 @@ class BizprocDocument extends CIBlockDocument
 		elseif($fields["type"] == "text")
 		{
 			$fieldsTemporary["TYPE"] = "S";
-			if($fields["row_count"] && $fields["col_count"])
+			if (!empty($fields["row_count"]))
 			{
 				$fieldsTemporary["ROW_COUNT"] = $fields["row_count"];
 				$fieldsTemporary["COL_COUNT"] = $fields["col_count"];
@@ -1113,7 +1185,7 @@ class BizprocDocument extends CIBlockDocument
 
 			if(mb_strstr($fields["type"], ":") !== false)
 			{
-				list($fieldData["TYPE"], $fieldData["USER_TYPE"]) = explode(":", $fields["type"], 2);
+				[$fieldData["TYPE"], $fieldData["USER_TYPE"]] = explode(":", $fields["type"], 2);
 				if($fields["type"] == "E:EList")
 				{
 					$fieldData["LINK_IBLOCK_ID"] = $fields["options"] ?? null;
@@ -1531,7 +1603,10 @@ class BizprocDocument extends CIBlockDocument
 
 			if (!\CLists::isBpFeatureEnabled($iblockTypeId))
 			{
-				throw new \CBPNotSupportedException(Loc::getMessage('LISTS_BIZPROC_RESUME_RESTRICTED'));
+				throw new SystemException(
+					Loc::getMessage('LISTS_BIZPROC_RESUME_RESTRICTED'),
+					CBPRuntime::EXCEPTION_CODE_INSTANCE_TARIFF_LIMIT_EXCEED
+				);
 			}
 		}
 	}
@@ -2054,49 +2129,70 @@ class BizprocDocument extends CIBlockDocument
 	 * @param bool $withExtended
 	 * @return array|bool
 	 */
-	public static function GetAllowableUserGroups($documentType, $withExtended = false)
+	public static function GetAllowableUserGroups($documentType, $withExtended = false): array|bool
 	{
 		$documentType = trim($documentType);
-		if ($documentType == '')
+		if ($documentType === '')
+		{
 			return false;
+		}
 
-		$iblockId = intval(mb_substr($documentType, mb_strlen("iblock_")));
+		$groupsKey = $documentType . ($withExtended ? '@withExtended' : '');
 
-		$result = array("Author" => GetMessage("IBD_DOCUMENT_AUTHOR"));
+		if (isset(self::$cachedGroups[$groupsKey]))
+		{
+			return self::$cachedGroups[$groupsKey];
+		}
 
-		$groupsId = array(1);
-		$extendedGroupsCode = array();
-		if(CIBlock::getArrayByID($iblockId, "RIGHTS_MODE") === "E")
+		$iblockId = (int)mb_substr($documentType, mb_strlen("iblock_"));
+
+		$groups = ["Author" => GetMessage("IBD_DOCUMENT_AUTHOR")];
+
+		$groupsId = [1];
+		$extendedGroupsCode = [];
+		if (CIBlock::getArrayByID($iblockId, "RIGHTS_MODE") === "E")
 		{
 			$rights = new CIBlockRights($iblockId);
-			foreach($rights->getGroups(/*"element_bizproc_start"*/) as $iblockGroupCode)
-				if(preg_match("/^G(\\d+)\$/", $iblockGroupCode, $match))
+			foreach ($rights->getGroups(/*"element_bizproc_start"*/) as $iblockGroupCode)
+			{
+				if (preg_match("/^G(\\d+)\$/", $iblockGroupCode, $match))
+				{
 					$groupsId[] = $match[1];
+				}
 				else
+				{
 					$extendedGroupsCode[] = $iblockGroupCode;
+				}
+			}
 		}
 		else
 		{
-			foreach(CIBlock::getGroupPermissions($iblockId) as $groupId => $perm)
+			foreach (CIBlock::getGroupPermissions($iblockId) as $groupId => $perm)
 			{
 				if ($perm > "R")
+				{
 					$groupsId[] = $groupId;
+				}
 			}
 		}
 
 		$groupsIterator = CGroup::getListEx(array("NAME" => "ASC"), array("ID" => $groupsId));
 		while ($group = $groupsIterator->fetch())
-			$result[$group["ID"]] = $group["NAME"];
+		{
+			$groups[$group["ID"]] = $group["NAME"];
+		}
 
 		if ($withExtended && $extendedGroupsCode)
 		{
 			foreach ($extendedGroupsCode as $groupCode)
 			{
-				$result['group_'.$groupCode] = CBPHelper::getExtendedGroupName($groupCode);
+				$groups['group_'.$groupCode] = CBPHelper::getExtendedGroupName($groupCode);
 			}
 		}
 
-		return $result;
+		self::$cachedGroups[$groupsKey] = $groups;
+
+		return $groups;
 	}
 
 	public static function SetPermissions($documentId, $workflowId, $permissions, $rewrite = true)
@@ -3322,11 +3418,20 @@ class BizprocDocument extends CIBlockDocument
 
 	public static function getBizprocEditorUrl($documentType): ?string
 	{
-		$iblockId = intval(mb_substr($documentType[2], mb_strlen(self::DOCUMENT_TYPE_PREFIX)));
+		$iblockId = (int)mb_substr($documentType[2], mb_strlen(self::DOCUMENT_TYPE_PREFIX));
 		if ($iblockId > 0)
 		{
+			if ($documentType[1] === 'BizprocDocument')
+			{
+				return sprintf('/bizproc/processes/%d/bp_edit/#ID#/', $iblockId);
+			}
 
-			return sprintf('/bizproc/processes/%d/bp_edit/#ID#/', $iblockId);
+			if (ModuleManager::isModuleInstalled('bitrix24'))
+			{
+				return sprintf('/company/lists/%d/bp_edit/#ID#/', $iblockId);
+			}
+
+			return sprintf('/services/lists/%d/bp_edit/#ID#/', $iblockId);
 		}
 
 		return null;

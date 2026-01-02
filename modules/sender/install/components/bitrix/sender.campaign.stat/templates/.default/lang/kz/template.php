@@ -1,0 +1,24 @@
+<?php
+$MESS["SENDER_STATS_CHART_CLICK"] = "Шертулер";
+$MESS["SENDER_STATS_CHART_EFFICIENCY"] = "Тиімділік динамикасы";
+$MESS["SENDER_STATS_CHART_READ"] = "Оқу";
+$MESS["SENDER_STATS_CHART_UNSUB"] = "Жазылымнан бас тартулар";
+$MESS["SENDER_STATS_COUNTER_CLICK"] = "Өтулер";
+$MESS["SENDER_STATS_COUNTER_POSTINGS"] = "Шығарылымдар саны";
+$MESS["SENDER_STATS_COUNTER_READ"] = "Оқылғандар";
+$MESS["SENDER_STATS_COUNTER_SEND_ALL"] = "Барлығы жіберілген хаттар";
+$MESS["SENDER_STATS_COUNTER_SUBS"] = "Жазылған";
+$MESS["SENDER_STATS_COUNTER_UNSUB"] = "Жазылымнан бас тартты";
+$MESS["SENDER_STATS_CREATE_NEW"] = "Жаңа шығарылым құру";
+$MESS["SENDER_STATS_EFFICIENCY_LEVEL_1"] = "Нашар";
+$MESS["SENDER_STATS_EFFICIENCY_LEVEL_2"] = "Жаман емес";
+$MESS["SENDER_STATS_EFFICIENCY_LEVEL_3"] = "Қалыпты";
+$MESS["SENDER_STATS_EFFICIENCY_LEVEL_4"] = "Жақсы";
+$MESS["SENDER_STATS_EFFICIENCY_LEVEL_5"] = "Өте жақсы";
+$MESS["SENDER_STATS_EFFICIENCY_TITLE"] = "Тиімділік деңгейі";
+$MESS["SENDER_STATS_FILTER_FROM_AUTHOR"] = "күні";
+$MESS["SENDER_STATS_FILTER_PERIOD_FOR"] = "ішінде";
+$MESS["SENDER_STATS_IN"] = "де";
+$MESS["SENDER_STATS_NO_DATA"] = "Деректер жоқ";
+$MESS["SENDER_STATS_RECENT_POSTINGS"] = "Соңғы шығарылымдар";
+$MESS["SENDER_STATS_TITLE"] = "Старт";

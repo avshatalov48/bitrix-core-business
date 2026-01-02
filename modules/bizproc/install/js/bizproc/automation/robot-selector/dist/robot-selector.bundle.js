@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Bizproc = this.BX.Bizproc || {};
-(function (exports,main_core_events,main_popup,bizproc_automation,bizproc_localSettings,main_core,ui_entityCatalog,ui_vue3_pinia) {
+(function (exports,main_core_events,main_popup,bizproc_automation,bizproc_localSettings,main_polyfill_intersectionobserver,main_core,ui_entityCatalog,ui_vue3_pinia) {
 	'use strict';
 
 	class GroupIcon {}
@@ -91,11 +91,87 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 			<path class="bizproc-creating-robot__svg-icon-blue" d="M12.6869 13.5858C12.9532 13.485 13.1018 13.2043 13.0469 12.9248L12.7469 11.3972C12.7469 10.8375 12.0017 10.1983 10.5341 9.8258C10.0369 9.68968 9.56423 9.47859 9.13302 9.20008C9.03872 9.14718 9.05305 8.65847 9.05305 8.65847L8.58038 8.58785C8.58038 8.54818 8.53997 7.96213 8.53997 7.96213C9.1055 7.77559 9.04732 6.67522 9.04732 6.67522C9.40647 6.87076 9.64037 5.99997 9.64037 5.99997C10.0652 4.79016 9.42883 4.86331 9.42883 4.86331C9.54015 4.12475 9.54015 3.37413 9.42883 2.63556C9.14592 0.185548 4.8865 0.850665 5.39155 1.65083C4.14669 1.42575 4.43075 4.20607 4.43075 4.20607L4.70076 4.92605C4.3265 5.16434 4.4 5.4378 4.4821 5.74327C4.51632 5.87062 4.55204 6.00353 4.55744 6.14178C4.58352 6.83559 5.01606 6.69182 5.01606 6.69182C5.04271 7.83692 5.61799 7.98604 5.61799 7.98604C5.72606 8.70518 5.6587 8.58279 5.6587 8.58279L5.14676 8.64356C5.15369 8.8071 5.14012 8.97086 5.10635 9.13114C4.80891 9.26127 4.62681 9.36482 4.44651 9.46733C4.26194 9.57229 4.07925 9.67616 3.77664 9.80639C2.62092 10.3035 1.36488 10.9501 1.14159 11.8206C1.06552 12.1172 0.991278 12.5327 0.926446 12.9518C0.884754 13.2213 1.03401 13.4842 1.28895 13.581C2.88255 14.1861 4.69417 14.5455 6.62018 14.5869H7.36842C9.28929 14.5456 11.0964 14.188 12.6869 13.5858Z" />
 		</svg>
 	`;
+	GroupIcon.NEW_ENTITY = `
+		<svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path class="bizproc-creating-robot__svg-icon-blue" d="M10.1257 10.3335C12.5271 7.48092 17.9493 6.19133 18.6062 6.74072C19.2627 7.29117 18.93 12.8367 16.5291 15.689C16.3331 15.9218 16.1364 16.1358 15.9402 16.3315C15.978 17.3418 15.6919 19.0279 13.6921 20.2349C13.2539 19.2897 12.9387 18.5081 12.7556 18.0317C11.7081 18.127 10.7349 17.7608 9.90991 17.0708C9.08616 16.3818 8.55551 15.4916 8.46655 14.4487C7.96354 14.3515 7.13981 14.1784 6.13452 13.9136C6.97614 11.7502 8.58209 11.1722 9.58765 11.0308C9.74832 10.8016 9.92744 10.5691 10.1257 10.3335ZM8.30151 16.4048C8.55075 16.8687 8.91079 17.2834 9.35718 17.6411C9.80369 17.9988 10.2943 18.2656 10.8162 18.4194C9.12175 19.4113 7.70366 19.9542 7.4812 19.7759C7.25929 19.5967 7.5731 18.1697 8.30151 16.4048ZM13.5398 12.7583C12.8166 12.1535 11.7386 12.2476 11.1316 12.9683C10.5247 13.6893 10.6184 14.7646 11.3416 15.3696C12.0649 15.9746 13.1438 15.8807 13.7507 15.1597C14.3577 14.4386 14.2631 13.3633 13.5398 12.7583ZM15.4539 10.4858C15.0654 10.161 14.4858 10.211 14.1599 10.5981C13.8341 10.9852 13.8851 11.5623 14.2732 11.8872C14.6617 12.212 15.2413 12.162 15.5671 11.7749C15.8929 11.3879 15.8419 10.8107 15.4539 10.4858Z"/>
+		</svg>
+	`;
+	GroupIcon.RECENT_ENTITY = `
+		<svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path class="ui-entity-catalog__svg-icon-blue" fill-rule="evenodd" clip-rule="evenodd" d="M9.369 13.2593C13.0305 13.2593 15.9986 10.2911 15.9986 6.62965C15.9986 2.9682 13.0305 0 9.369 0C6.00693 0 3.22939 2.50263 2.79764 5.74663H0L3.69844 9.44506L7.39687 5.74663H4.48558C4.90213 3.4276 6.93006 1.66789 9.369 1.66789C12.1093 1.66789 14.3308 3.88935 14.3308 6.62965C14.3308 9.36995 12.1093 11.5914 9.369 11.5914C9.2435 11.5914 9.11909 11.5867 8.99593 11.5776V13.249C9.11941 13.2558 9.2438 13.2593 9.369 13.2593ZM10.0865 4.01429H8.41983V8.18096H9.65978H10.0865H12.1195V6.56367H10.0865V4.01429Z"></path>
+		</svg>
+	`;
+
+	var _applied = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("applied");
+	class Filter {
+	  constructor() {
+	    Object.defineProperty(this, _applied, {
+	      writable: true,
+	      value: false
+	    });
+	    if (this.constructor === Filter) {
+	      throw new Error('Object of Abstract Class cannot be created');
+	    }
+	  }
+	  getId() {
+	    throw new Error("Abstract Method has no implementation");
+	  }
+	  getText() {
+	    throw new Error("Abstract Method has no implementation");
+	  }
+	  getAction() {
+	    throw new Error("Abstract Method has no implementation");
+	  }
+	  setApplied(applied = false) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _applied)[_applied] = applied;
+	    return this;
+	  }
+	  getApplied() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _applied)[_applied];
+	  }
+	  getData() {
+	    return {
+	      id: this.getId(),
+	      text: this.getText(),
+	      action: this.getAction(),
+	      applied: this.getApplied()
+	    };
+	  }
+	}
+
+	class B24Robots extends Filter {
+	  getId() {
+	    return 'bitrix24_robots';
+	  }
+	  getText() {
+	    return main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_TITLEBAR_FILTER_BITRIX_24_ROBOTS');
+	  }
+	  getAction() {
+	    return item => {
+	      return item.customData.type === 'robot' && item.customData.owner === 'bitrix24';
+	    };
+	  }
+	}
+
+	class B24Triggers extends Filter {
+	  getId() {
+	    return 'bitrix24_triggers';
+	  }
+	  getText() {
+	    return main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_TITLEBAR_FILTER_BITRIX_24_TRIGGERS');
+	  }
+	  getAction() {
+	    return item => {
+	      return item.customData.type === 'trigger' && item.customData.owner === 'bitrix24';
+	    };
+	  }
+	}
 
 	var _customData = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("customData");
 	var _selected = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("selected");
 	var _disabled = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("disabled");
 	var _compare = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("compare");
+	var _isHeaderGroup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isHeaderGroup");
 	class Group {
 	  constructor() {
 	    Object.defineProperty(this, _customData, {
@@ -113,6 +189,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    Object.defineProperty(this, _compare, {
 	      writable: true,
 	      value: null
+	    });
+	    Object.defineProperty(this, _isHeaderGroup, {
+	      writable: true,
+	      value: false
 	    });
 	    if (this.constructor === Group) {
 	      throw new Error('Object of Abstract Class cannot be created');
@@ -164,6 +244,13 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  getCompare() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _compare)[_compare];
 	  }
+	  setIsHeaderGroup(headerGroup = false) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _isHeaderGroup)[_isHeaderGroup] = headerGroup;
+	    return this;
+	  }
+	  isHeaderGroup() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _isHeaderGroup)[_isHeaderGroup];
+	  }
 	  getData() {
 	    const data = {
 	      id: this.getId(),
@@ -174,7 +261,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      adviceAvatar: this.getAdviceAvatar(),
 	      customData: this.getCustomData(),
 	      selected: this.getSelected(),
-	      disabled: this.getDisabled()
+	      disabled: this.getDisabled(),
+	      isHeaderGroup: this.isHeaderGroup()
 	    };
 	    if (main_core.Type.isFunction(this.getCompare())) {
 	      data.compare = this.getCompare();
@@ -408,6 +496,36 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }
 	}
 
+	class NewEntitiesGroup extends Group {
+	  getId() {
+	    return 'new';
+	  }
+	  getName() {
+	    return main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_ROBOT_AND_TRIGGER_GROUP');
+	  }
+	  getIcon() {
+	    return GroupIcon.NEW_ENTITY;
+	  }
+	  isHeaderGroup() {
+	    return true;
+	  }
+	}
+
+	class RecentGroup extends Group {
+	  getId() {
+	    return 'recent';
+	  }
+	  getName() {
+	    return main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_RECENT_ROBOT_GROUP');
+	  }
+	  getIcon() {
+	    return GroupIcon.RECENT_ENTITY;
+	  }
+	  isHeaderGroup() {
+	    return true;
+	  }
+	}
+
 	class EmployeeCategory extends Group {
 	  getId() {
 	    return 'employee_category';
@@ -484,6 +602,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	var _modificationDataGroup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("modificationDataGroup");
 	var _digitalWorkplaceGroup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("digitalWorkplaceGroup");
 	var _otherGroup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("otherGroup");
+	var _newEntitiesGroup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("newEntitiesGroup");
+	var _recentGroup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("recentGroup");
 	var _employeeCategory = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("employeeCategory");
 	var _clientCategory = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("clientCategory");
 	var _adsCategory = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("adsCategory");
@@ -551,6 +671,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _newEntitiesGroup, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _recentGroup, {
+	      writable: true,
+	      value: void 0
+	    });
 	    Object.defineProperty(this, _employeeCategory, {
 	      writable: true,
 	      value: void 0
@@ -577,6 +705,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      instance = new Manager();
 	    }
 	    return instance;
+	  }
+	  getAutomationHeaderGroupsData() {
+	    return [this.newEntitiesGroup.getData(), this.recentGroup.getData()];
 	  }
 	  getAutomationGroupsData() {
 	    return [this.clientCommunicationGroup.getData(), this.informingEmployeeGroup.getData(), this.employeeControlGroup.getData(), this.paperworkGroup.getData(), this.paymentGroup.getData(), this.deliveryGroup.getData(), this.repeatSalesGroup.getData(), this.adsGroup.getData(), this.elementControlGroup.getData(), this.clientDataGroup.getData(), this.goodsGroup.getData(), this.taskManagementGroup.getData(), this.modificationDataGroup.getData(), this.digitalWorkplaceGroup.getData(), this.otherGroup.getData()];
@@ -674,6 +805,18 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    }
 	    return babelHelpers.classPrivateFieldLooseBase(this, _otherGroup)[_otherGroup];
 	  }
+	  get newEntitiesGroup() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _newEntitiesGroup)[_newEntitiesGroup]) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _newEntitiesGroup)[_newEntitiesGroup] = new NewEntitiesGroup();
+	    }
+	    return babelHelpers.classPrivateFieldLooseBase(this, _newEntitiesGroup)[_newEntitiesGroup];
+	  }
+	  get recentGroup() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _recentGroup)[_recentGroup]) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _recentGroup)[_recentGroup] = new RecentGroup();
+	    }
+	    return babelHelpers.classPrivateFieldLooseBase(this, _recentGroup)[_recentGroup];
+	  }
 	  get employeeCategory() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _employeeCategory)[_employeeCategory]) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _employeeCategory)[_employeeCategory] = new EmployeeCategory();
@@ -703,86 +846,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _triggerCategory)[_triggerCategory] = new TriggerCategory();
 	    }
 	    return babelHelpers.classPrivateFieldLooseBase(this, _triggerCategory)[_triggerCategory];
-	  }
-	}
-
-	var _applied = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("applied");
-	class Filter {
-	  constructor() {
-	    Object.defineProperty(this, _applied, {
-	      writable: true,
-	      value: false
-	    });
-	    if (this.constructor === Filter) {
-	      throw new Error('Object of Abstract Class cannot be created');
-	    }
-	  }
-	  getId() {
-	    throw new Error("Abstract Method has no implementation");
-	  }
-	  getText() {
-	    throw new Error("Abstract Method has no implementation");
-	  }
-	  getAction() {
-	    throw new Error("Abstract Method has no implementation");
-	  }
-	  setApplied(applied = false) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _applied)[_applied] = applied;
-	    return this;
-	  }
-	  getApplied() {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _applied)[_applied];
-	  }
-	  getData() {
-	    return {
-	      id: this.getId(),
-	      text: this.getText(),
-	      action: this.getAction(),
-	      applied: this.getApplied()
-	    };
-	  }
-	}
-
-	class B24Robots extends Filter {
-	  getId() {
-	    return 'bitrix24_robots';
-	  }
-	  getText() {
-	    return main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_TITLEBAR_FILTER_BITRIX_24_ROBOTS');
-	  }
-	  getAction() {
-	    return item => {
-	      return item.customData.type === 'robot' && item.customData.owner === 'bitrix24';
-	    };
-	  }
-	}
-
-	class B24Triggers extends Filter {
-	  getId() {
-	    return 'bitrix24_triggers';
-	  }
-	  getText() {
-	    return main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_TITLEBAR_FILTER_BITRIX_24_TRIGGERS');
-	  }
-	  getAction() {
-	    return item => {
-	      return item.customData.type === 'trigger' && item.customData.owner === 'bitrix24';
-	    };
-	  }
-	}
-
-	class RecentGroup extends Group {
-	  getId() {
-	    return 'recent';
-	  }
-	  getName() {
-	    return '';
-	  }
-	  getData() {
-	    return {
-	      selected: this.getSelected(),
-	      compare: this.getCompare()
-	    };
 	  }
 	}
 
@@ -826,19 +889,38 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	var _stageId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("stageId");
 	var _catalog = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("catalog");
 	var _cache = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("cache");
+	var _settings = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("settings");
 	var _showNewGroups = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showNewGroups");
-	var _getRecentEntitiesIds = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getRecentEntitiesIds");
+	var _visibilityObserver = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("visibilityObserver");
+	var _pendingViewedNewRobotIds = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pendingViewedNewRobotIds");
+	var _viewedNewRobotIds = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("viewedNewRobotIds");
+	var _viewedSendTimerId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("viewedSendTimerId");
+	var _viewedEventTimerId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("viewedEventTimerId");
+	var _itemsById = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("itemsById");
+	var _observeItemsTimer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("observeItemsTimer");
+	var _hasNewRobots = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasNewRobots");
+	var _hasNewTriggers = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasNewTriggers");
+	var _items = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("items");
+	var _mergeCacheViewedIdsWithIdsFromSettings = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("mergeCacheViewedIdsWithIdsFromSettings");
+	var _getRecentEntityIds = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getRecentEntityIds");
 	var _getRecentEntities = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getRecentEntities");
 	var _getCatalog = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getCatalog");
+	var _onPopupShow = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onPopupShow");
+	var _onPopupClose = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onPopupClose");
+	var _prepareNewRobotGroupTitle = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareNewRobotGroupTitle");
+	var _prepareHeaderGroups = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareHeaderGroups");
 	var _getDefaultRobotGroups = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDefaultRobotGroups");
+	var _getDefaultHeaderGroups = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDefaultHeaderGroups");
 	var _getItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getItems");
 	var _getAssociatedTriggers = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getAssociatedTriggers");
 	var _getGroupIds = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getGroupIds");
 	var _getRobotItemData = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getRobotItemData");
 	var _getRecentRobotIds = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getRecentRobotIds");
+	var _getAllNewRobotIds = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getAllNewRobotIds");
+	var _getUnviewedNewRobotsCount = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getUnviewedNewRobotsCount");
 	var _getTriggerItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getTriggerItems");
 	var _getRecentTriggersIds = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getRecentTriggersIds");
-	var _addToRecentGroup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addToRecentGroup");
+	var _addToRecentEntities = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addToRecentEntities");
 	var _getSlots = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getSlots");
 	var _getGroupsHeader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getGroupsHeader");
 	var _getItemsHeader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getItemsHeader");
@@ -855,10 +937,78 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	var _sortItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sortItems");
 	var _oldSortItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("oldSortItems");
 	var _getColor = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getColor");
+	var _initViewedTracking = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initViewedTracking");
+	var _rebuildItemsMap = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("rebuildItemsMap");
+	var _observeItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("observeItems");
+	var _observeItemsDebounced = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("observeItemsDebounced");
+	var _onIntersection = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onIntersection");
+	var _processIntersectionEntry = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("processIntersectionEntry");
+	var _markNewRobotAsViewed = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("markNewRobotAsViewed");
+	var _scheduleViewedEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("scheduleViewedEvent");
+	var _scheduleFlushViewedRobots = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("scheduleFlushViewedRobots");
+	var _flushViewedRobotsToBackend = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("flushViewedRobotsToBackend");
+	var _stopViewedTracking = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("stopViewedTracking");
+	var _disconnectObservers = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("disconnectObservers");
+	var _loadViewedIdsFromCache = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadViewedIdsFromCache");
+	var _addViewedIdToCache = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addViewedIdToCache");
+	var _loadPendingViewedIdsFromCache = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadPendingViewedIdsFromCache");
+	var _savePendingViewedIdsToCache = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("savePendingViewedIdsToCache");
+	var _clearPendingViewedIdsCache = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("clearPendingViewedIdsCache");
 	class RobotSelector extends main_core_events.EventEmitter {
 	  constructor(props) {
 	    super();
 	    // TODO - fix namespace
+	    Object.defineProperty(this, _clearPendingViewedIdsCache, {
+	      value: _clearPendingViewedIdsCache2
+	    });
+	    Object.defineProperty(this, _savePendingViewedIdsToCache, {
+	      value: _savePendingViewedIdsToCache2
+	    });
+	    Object.defineProperty(this, _loadPendingViewedIdsFromCache, {
+	      value: _loadPendingViewedIdsFromCache2
+	    });
+	    Object.defineProperty(this, _addViewedIdToCache, {
+	      value: _addViewedIdToCache2
+	    });
+	    Object.defineProperty(this, _loadViewedIdsFromCache, {
+	      value: _loadViewedIdsFromCache2
+	    });
+	    Object.defineProperty(this, _disconnectObservers, {
+	      value: _disconnectObservers2
+	    });
+	    Object.defineProperty(this, _stopViewedTracking, {
+	      value: _stopViewedTracking2
+	    });
+	    Object.defineProperty(this, _flushViewedRobotsToBackend, {
+	      value: _flushViewedRobotsToBackend2
+	    });
+	    Object.defineProperty(this, _scheduleFlushViewedRobots, {
+	      value: _scheduleFlushViewedRobots2
+	    });
+	    Object.defineProperty(this, _scheduleViewedEvent, {
+	      value: _scheduleViewedEvent2
+	    });
+	    Object.defineProperty(this, _markNewRobotAsViewed, {
+	      value: _markNewRobotAsViewed2
+	    });
+	    Object.defineProperty(this, _processIntersectionEntry, {
+	      value: _processIntersectionEntry2
+	    });
+	    Object.defineProperty(this, _onIntersection, {
+	      value: _onIntersection2
+	    });
+	    Object.defineProperty(this, _observeItemsDebounced, {
+	      value: _observeItemsDebounced2
+	    });
+	    Object.defineProperty(this, _observeItems, {
+	      value: _observeItems2
+	    });
+	    Object.defineProperty(this, _rebuildItemsMap, {
+	      value: _rebuildItemsMap2
+	    });
+	    Object.defineProperty(this, _initViewedTracking, {
+	      value: _initViewedTracking2
+	    });
 	    Object.defineProperty(this, _oldSortItems, {
 	      value: _oldSortItems2
 	    });
@@ -904,14 +1054,20 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    Object.defineProperty(this, _getSlots, {
 	      value: _getSlots2
 	    });
-	    Object.defineProperty(this, _addToRecentGroup, {
-	      value: _addToRecentGroup2
+	    Object.defineProperty(this, _addToRecentEntities, {
+	      value: _addToRecentEntities2
 	    });
 	    Object.defineProperty(this, _getRecentTriggersIds, {
 	      value: _getRecentTriggersIds2
 	    });
 	    Object.defineProperty(this, _getTriggerItems, {
 	      value: _getTriggerItems2
+	    });
+	    Object.defineProperty(this, _getUnviewedNewRobotsCount, {
+	      value: _getUnviewedNewRobotsCount2
+	    });
+	    Object.defineProperty(this, _getAllNewRobotIds, {
+	      value: _getAllNewRobotIds2
 	    });
 	    Object.defineProperty(this, _getRecentRobotIds, {
 	      value: _getRecentRobotIds2
@@ -928,8 +1084,23 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    Object.defineProperty(this, _getItems, {
 	      value: _getItems2
 	    });
+	    Object.defineProperty(this, _getDefaultHeaderGroups, {
+	      value: _getDefaultHeaderGroups2
+	    });
 	    Object.defineProperty(this, _getDefaultRobotGroups, {
 	      value: _getDefaultRobotGroups2
+	    });
+	    Object.defineProperty(this, _prepareHeaderGroups, {
+	      value: _prepareHeaderGroups2
+	    });
+	    Object.defineProperty(this, _prepareNewRobotGroupTitle, {
+	      value: _prepareNewRobotGroupTitle2
+	    });
+	    Object.defineProperty(this, _onPopupClose, {
+	      value: _onPopupClose2
+	    });
+	    Object.defineProperty(this, _onPopupShow, {
+	      value: _onPopupShow2
 	    });
 	    Object.defineProperty(this, _getCatalog, {
 	      value: _getCatalog2
@@ -937,8 +1108,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    Object.defineProperty(this, _getRecentEntities, {
 	      value: _getRecentEntities2
 	    });
-	    Object.defineProperty(this, _getRecentEntitiesIds, {
-	      value: _getRecentEntitiesIds2
+	    Object.defineProperty(this, _getRecentEntityIds, {
+	      value: _getRecentEntityIds2
+	    });
+	    Object.defineProperty(this, _mergeCacheViewedIdsWithIdsFromSettings, {
+	      value: _mergeCacheViewedIdsWithIdsFromSettings2
 	    });
 	    Object.defineProperty(this, _context, {
 	      writable: true,
@@ -956,15 +1130,66 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _settings, {
+	      writable: true,
+	      value: null
+	    });
 	    Object.defineProperty(this, _showNewGroups, {
 	      writable: true,
 	      value: false
 	    });
+	    Object.defineProperty(this, _visibilityObserver, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _pendingViewedNewRobotIds, {
+	      writable: true,
+	      value: new Set()
+	    });
+	    Object.defineProperty(this, _viewedNewRobotIds, {
+	      writable: true,
+	      value: new Set()
+	    });
+	    Object.defineProperty(this, _viewedSendTimerId, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _viewedEventTimerId, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _itemsById, {
+	      writable: true,
+	      value: new Map()
+	    });
+	    Object.defineProperty(this, _observeItemsTimer, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _hasNewRobots, {
+	      writable: true,
+	      value: false
+	    });
+	    Object.defineProperty(this, _hasNewTriggers, {
+	      writable: true,
+	      value: false
+	    });
+	    Object.defineProperty(this, _items, {
+	      writable: true,
+	      value: void 0
+	    });
 	    this.setEventNamespace('BX.Bizproc.Automation.RobotSelector');
+	    babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings] = main_core.Extension.getSettings('bizproc.automation.robot-selector');
 	    babelHelpers.classPrivateFieldLooseBase(this, _context)[_context] = props.context;
 	    babelHelpers.classPrivateFieldLooseBase(this, _stageId)[_stageId] = props.stageId;
 	    babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache] = new bizproc_localSettings.Settings('robot-selector');
-	    this.recentGroupIdsSort = new Map(babelHelpers.classPrivateFieldLooseBase(this, _getRecentEntitiesIds)[_getRecentEntitiesIds]().map((id, index) => [id, index]));
+	    babelHelpers.classPrivateFieldLooseBase(this, _mergeCacheViewedIdsWithIdsFromSettings)[_mergeCacheViewedIdsWithIdsFromSettings]();
+	    babelHelpers.classPrivateFieldLooseBase(this, _loadViewedIdsFromCache)[_loadViewedIdsFromCache]();
+	    babelHelpers.classPrivateFieldLooseBase(this, _loadPendingViewedIdsFromCache)[_loadPendingViewedIdsFromCache]();
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _pendingViewedNewRobotIds)[_pendingViewedNewRobotIds].size > 0) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _flushViewedRobotsToBackend)[_flushViewedRobotsToBackend]();
+	    }
+	    this.recentGroupIdsSort = new Map(babelHelpers.classPrivateFieldLooseBase(this, _getRecentEntityIds)[_getRecentEntityIds]().map((id, index) => [id, index]));
 	    babelHelpers.classPrivateFieldLooseBase(this, _context)[_context].set('recentAutomationEntities', new Map());
 	    babelHelpers.classPrivateFieldLooseBase(this, _context)[_context].subsribeValueChanges('recentAutomationEntities', event => {
 	      const {
@@ -993,8 +1218,37 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  isShown() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _getCatalog)[_getCatalog]().isShown();
 	  }
+	  hasNewEntities() {
+	    const newRobots = babelHelpers.classPrivateFieldLooseBase(this, _getAllNewRobotIds)[_getAllNewRobotIds]();
+	    return (newRobots == null ? void 0 : newRobots.length) > 0;
+	  }
+	  calledFromNewEntitiesButton(value) {
+	    if (!main_core.Type.isFunction(babelHelpers.classPrivateFieldLooseBase(this, _getCatalog)[_getCatalog]().selectGroup)) {
+	      return;
+	    }
+	    if (main_core.Type.isBoolean(value) && value === true) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _getCatalog)[_getCatalog]().selectGroup(RobotSelector.NEW_ENTITY_GROUP_ID);
+	    }
+	  }
+	  getUnviewedNewRobotsCount() {
+	    const currentItems = babelHelpers.classPrivateFieldLooseBase(this, _getItems)[_getItems]();
+	    return babelHelpers.classPrivateFieldLooseBase(this, _getUnviewedNewRobotsCount)[_getUnviewedNewRobotsCount](currentItems);
+	  }
 	}
-	function _getRecentEntitiesIds2() {
+	function _mergeCacheViewedIdsWithIdsFromSettings2() {
+	  var _babelHelpers$classPr;
+	  const currentCachedViewed = babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].remember(RobotSelector.VIEWED_NEW_ROBOT_IDS_CACHE_KEY, []);
+	  const settingsViewed = Array.isArray((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings]) == null ? void 0 : _babelHelpers$classPr.viewedNewRobotIds) ? babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings].viewedNewRobotIds : [];
+	  if (settingsViewed && settingsViewed.length > 0) {
+	    for (const id of settingsViewed) {
+	      if (!currentCachedViewed.includes(id)) {
+	        currentCachedViewed.push(id);
+	      }
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].set(RobotSelector.VIEWED_NEW_ROBOT_IDS_CACHE_KEY, currentCachedViewed);
+	  }
+	}
+	function _getRecentEntityIds2() {
 	  return babelHelpers.classPrivateFieldLooseBase(this, _getRecentEntities)[_getRecentEntities]().map(item => item.id);
 	}
 	function _getRecentEntities2() {
@@ -1004,29 +1258,88 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	}
 	function _getCatalog2() {
 	  if (main_core.Type.isNil(babelHelpers.classPrivateFieldLooseBase(this, _catalog)[_catalog])) {
+	    const items = babelHelpers.classPrivateFieldLooseBase(this, _getItems)[_getItems]();
+	    const headerGroups = babelHelpers.classPrivateFieldLooseBase(this, _prepareHeaderGroups)[_prepareHeaderGroups](babelHelpers.classPrivateFieldLooseBase(this, _getDefaultHeaderGroups)[_getDefaultHeaderGroups]());
+	    const groups = [...headerGroups, ...babelHelpers.classPrivateFieldLooseBase(this, _getDefaultRobotGroups)[_getDefaultRobotGroups]()];
 	    babelHelpers.classPrivateFieldLooseBase(this, _catalog)[_catalog] = new ui_entityCatalog.EntityCatalog({
-	      groups: babelHelpers.classPrivateFieldLooseBase(this, _getDefaultRobotGroups)[_getDefaultRobotGroups](),
-	      items: babelHelpers.classPrivateFieldLooseBase(this, _getItems)[_getItems](),
-	      recentGroupData: new RecentGroup().setSelected(babelHelpers.classPrivateFieldLooseBase(this, _getRecentEntities)[_getRecentEntities]().length > 0).setCompare((lhsItem, rhsItem) => this.recentGroupIdsSort.get(lhsItem.id) - this.recentGroupIdsSort.get(rhsItem.id)).getData(),
+	      groups: groups,
+	      items: items,
 	      canDeselectGroups: false,
 	      customTitleBar: babelHelpers.classPrivateFieldLooseBase(this, _getTitleBar)[_getTitleBar](),
 	      slots: babelHelpers.classPrivateFieldLooseBase(this, _getSlots)[_getSlots](),
 	      showEmptyGroups: false,
-	      showRecentGroup: true,
 	      showSearch: true,
 	      filterOptions: babelHelpers.classPrivateFieldLooseBase(this, _getFilterOptions)[_getFilterOptions](),
 	      popupOptions: babelHelpers.classPrivateFieldLooseBase(this, _getPopupOptions)[_getPopupOptions](),
 	      customComponents: {
 	        EmptyGroupStub
+	      },
+	      events: {
+	        onItemsRendered: babelHelpers.classPrivateFieldLooseBase(this, _observeItemsDebounced)[_observeItemsDebounced].bind(this)
 	      }
 	    });
+	    const popup = babelHelpers.classPrivateFieldLooseBase(this, _catalog)[_catalog].getPopup();
+	    popup.subscribe('onAfterShow', babelHelpers.classPrivateFieldLooseBase(this, _onPopupShow)[_onPopupShow].bind(this));
+	    popup.subscribe('onAfterClose', babelHelpers.classPrivateFieldLooseBase(this, _onPopupClose)[_onPopupClose].bind(this));
 	  }
 	  return babelHelpers.classPrivateFieldLooseBase(this, _catalog)[_catalog];
+	}
+	function _onPopupShow2() {
+	  setTimeout(() => {
+	    babelHelpers.classPrivateFieldLooseBase(this, _initViewedTracking)[_initViewedTracking]();
+	  }, 80);
+	}
+	function _onPopupClose2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _stopViewedTracking)[_stopViewedTracking]();
+	}
+	function _prepareNewRobotGroupTitle2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _hasNewRobots)[_hasNewRobots] && !babelHelpers.classPrivateFieldLooseBase(this, _hasNewTriggers)[_hasNewTriggers]) {
+	    return main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_ROBOT_GROUP'));
+	  }
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _hasNewTriggers)[_hasNewTriggers] && !babelHelpers.classPrivateFieldLooseBase(this, _hasNewRobots)[_hasNewRobots]) {
+	    main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_TRIGGER_GROUP'));
+	  }
+	  return main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_ROBOT_AND_TRIGGER_GROUP'));
+	}
+	function _prepareHeaderGroups2(headerGroups) {
+	  const headerList = headerGroups && headerGroups[0] ? headerGroups[0] : [];
+	  const newEntitiesGroup = headerList.find(g => String(g.id) === String(RobotSelector.NEW_ENTITY_GROUP_ID));
+	  const recentGroup = headerList.find(g => String(g.id) === String(RobotSelector.RECENT_GROUP_ID));
+	  const newRobotsCount = this.getUnviewedNewRobotsCount();
+	  const recentEntities = babelHelpers.classPrivateFieldLooseBase(this, _getRecentEntities)[_getRecentEntities]();
+	  if (newEntitiesGroup) {
+	    var _newEntitiesGroup$cus;
+	    const newRobotGroupTitle = babelHelpers.classPrivateFieldLooseBase(this, _prepareNewRobotGroupTitle)[_prepareNewRobotGroupTitle]();
+	    newEntitiesGroup.customData = Object.assign({}, (_newEntitiesGroup$cus = newEntitiesGroup.customData) != null ? _newEntitiesGroup$cus : {}, {
+	      counterValue: newRobotsCount
+	    });
+	    newEntitiesGroup.selected = newRobotsCount > 0;
+	    newEntitiesGroup.name = newRobotGroupTitle;
+	  }
+	  if (recentGroup) {
+	    // compare function for recent ordering
+	    recentGroup.compare = (lhsItem, rhsItem) => {
+	      var _this$recentGroupIdsS, _this$recentGroupIdsS2;
+	      return ((_this$recentGroupIdsS = this.recentGroupIdsSort.get(lhsItem.id)) != null ? _this$recentGroupIdsS : 0) - ((_this$recentGroupIdsS2 = this.recentGroupIdsSort.get(rhsItem.id)) != null ? _this$recentGroupIdsS2 : 0);
+	    };
+
+	    // select recent only if newEntities wasn't selected
+	    if (!(newEntitiesGroup && newEntitiesGroup.selected)) {
+	      recentGroup.selected = recentEntities.length > 0;
+	    }
+	  }
+	  return headerGroups;
 	}
 	function _getDefaultRobotGroups2() {
 	  return babelHelpers.classPrivateFieldLooseBase(this, _showNewGroups)[_showNewGroups] ? [Manager.Instance.getAutomationGroupsData()] : [Manager.Instance.getAutomationCategoriesData()];
 	}
+	function _getDefaultHeaderGroups2() {
+	  return [Manager.Instance.getAutomationHeaderGroupsData()];
+	}
 	function _getItems2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _items)[_items]) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _items)[_items];
+	  }
 	  const getButtonHandler = robotData => {
 	    return event => {
 	      if (robotData.LOCKED) {
@@ -1038,7 +1351,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      if (!event.getData().eventData.groupIds.includes(this.constructor.RECENT_GROUP_ID)) {
 	        event.getData().eventData.groupIds.push(this.constructor.RECENT_GROUP_ID);
 	      }
-	      babelHelpers.classPrivateFieldLooseBase(this, _addToRecentGroup)[_addToRecentGroup]({
+	      babelHelpers.classPrivateFieldLooseBase(this, _addToRecentEntities)[_addToRecentEntities]({
 	        entity: 'robot',
 	        id: event.getData().eventData.id
 	      });
@@ -1053,6 +1366,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  };
 	  const availableRobots = babelHelpers.classPrivateFieldLooseBase(this, _context)[_context].availableRobots;
 	  const recentRobotIds = babelHelpers.classPrivateFieldLooseBase(this, _getRecentRobotIds)[_getRecentRobotIds]();
+	  const newRobotIds = babelHelpers.classPrivateFieldLooseBase(this, _getAllNewRobotIds)[_getAllNewRobotIds]();
 	  const triggers = babelHelpers.classPrivateFieldLooseBase(this, _getTriggerItems)[_getTriggerItems]();
 	  let items = [];
 	  const restRobots = [];
@@ -1071,6 +1385,15 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      action: getButtonHandler(robot),
 	      locked: !!robot.LOCKED
 	    };
+	    const isNewRobot = newRobotIds.includes(String(robotItem.id).toLowerCase());
+	    if (isNewRobot) {
+	      robotItem.customData.topText = main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_ROBOT_ITEM_TOP_TEXT');
+	      robotItem.customData.isViewed = false;
+	      if (!robotItem.groupIds.includes(this.constructor.NEW_ENTITY_GROUP_ID)) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _hasNewRobots)[_hasNewRobots] = true;
+	        robotItem.groupIds.push(this.constructor.NEW_ENTITY_GROUP_ID);
+	      }
+	    }
 	    const isRecentRobot = recentRobotIds.includes(robotItem.id);
 	    if (isRecentRobot && !robotItem.groupIds.includes(this.constructor.RECENT_GROUP_ID)) {
 	      robotItem.groupIds.push(this.constructor.RECENT_GROUP_ID);
@@ -1107,6 +1430,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          }, 'robot');
 	          item.description = settings[descriptionGroupKey] ? settings[descriptionGroupKey][firstGroupId] : robot['DESCRIPTION'];
 	          item.customData.contextGroup = firstGroupId;
+	          if (isNewRobot) {
+	            if (!item.groupIds.includes(this.constructor.NEW_ENTITY_GROUP_ID)) {
+	              item.groupIds.push(this.constructor.NEW_ENTITY_GROUP_ID);
+	            }
+	          }
 	          if (recentRobotIds.includes(item.id)) {
 	            if (!item.groupIds.includes(this.constructor.RECENT_GROUP_ID)) {
 	              item.groupIds.push(this.constructor.RECENT_GROUP_ID);
@@ -1135,6 +1463,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  } else {
 	    items.sort(babelHelpers.classPrivateFieldLooseBase(this, _oldSortItems)[_oldSortItems].bind(this));
 	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _items)[_items] = items;
 	  return items;
 	}
 	function _getAssociatedTriggers2(settings, triggers) {
@@ -1184,6 +1513,21 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	function _getRecentRobotIds2() {
 	  return babelHelpers.classPrivateFieldLooseBase(this, _getRecentEntities)[_getRecentEntities]().filter(item => item.entity === 'robot').map(item => item.id);
 	}
+	function _getAllNewRobotIds2() {
+	  var _babelHelpers$classPr2, _babelHelpers$classPr3;
+	  return (_babelHelpers$classPr2 = (_babelHelpers$classPr3 = babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings]) == null ? void 0 : _babelHelpers$classPr3.newRobotIds) != null ? _babelHelpers$classPr2 : [];
+	}
+	function _getUnviewedNewRobotsCount2(items) {
+	  return items.reduce((count, item) => {
+	    var _item$customData;
+	    const custom = (_item$customData = item.customData) != null ? _item$customData : {};
+	    const topText = custom.topText;
+	    const hasTopText = typeof topText === 'string' && topText.trim().length > 0;
+	    const idVal = String(item.id).toLowerCase();
+	    const isViewed = babelHelpers.classPrivateFieldLooseBase(this, _viewedNewRobotIds)[_viewedNewRobotIds].has(idVal);
+	    return count + (hasTopText && !isViewed ? 1 : 0);
+	  }, 0);
+	}
 	function _getTriggerItems2() {
 	  const getButtonHandler = triggerData => {
 	    return event => {
@@ -1196,7 +1540,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      if (!event.getData().eventData.groupIds.includes(this.constructor.RECENT_GROUP_ID)) {
 	        event.getData().eventData.groupIds.push(this.constructor.RECENT_GROUP_ID);
 	      }
-	      babelHelpers.classPrivateFieldLooseBase(this, _addToRecentGroup)[_addToRecentGroup]({
+	      babelHelpers.classPrivateFieldLooseBase(this, _addToRecentEntities)[_addToRecentEntities]({
 	        entity: 'trigger',
 	        id: triggerData.CODE
 	      });
@@ -1283,7 +1627,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	function _getRecentTriggersIds2() {
 	  return babelHelpers.classPrivateFieldLooseBase(this, _getRecentEntities)[_getRecentEntities]().filter(item => item.entity === 'trigger').map(item => item.id);
 	}
-	function _addToRecentGroup2(newItem) {
+	function _addToRecentEntities2(newItem) {
 	  let recentGroupItems = babelHelpers.classPrivateFieldLooseBase(this, _getRecentEntities)[_getRecentEntities]().filter(item => item.id !== newItem.id);
 	  if (recentGroupItems.length >= RobotSelector.MAX_SIZE_OF_RECENT_GROUP) {
 	    recentGroupItems = recentGroupItems.slice(0, RobotSelector.MAX_SIZE_OF_RECENT_GROUP - 1);
@@ -1293,7 +1637,15 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  entitiesByDocType[babelHelpers.classPrivateFieldLooseBase(this, _context)[_context].document.getRawType()[2]] = recentGroupItems;
 	  babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].set('recentAutomationEntities', entitiesByDocType);
 	  babelHelpers.classPrivateFieldLooseBase(this, _context)[_context].set('recentAutomationEntities', recentGroupItems);
-	  babelHelpers.classPrivateFieldLooseBase(this, _getCatalog)[_getCatalog]().setItems(babelHelpers.classPrivateFieldLooseBase(this, _getItems)[_getItems]());
+	  const newCount = this.getUnviewedNewRobotsCount();
+	  babelHelpers.classPrivateFieldLooseBase(this, _getCatalog)[_getCatalog]().updateGroupCounter(RobotSelector.NEW_ENTITY_GROUP_ID, newCount);
+	  const currentItems = babelHelpers.classPrivateFieldLooseBase(this, _getItems)[_getItems]();
+	  const matched = currentItems.find(matchedItem => String(matchedItem.id) === String(newItem.id));
+	  if (matched) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _getCatalog)[_getCatalog]().updateItemById(matched.id, {
+	      customData: matched.customData
+	    });
+	  }
 	}
 	function _getSlots2() {
 	  return {
@@ -1302,7 +1654,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    [ui_entityCatalog.EntityCatalog.SLOT_MAIN_CONTENT_WELCOME_STUB]: babelHelpers.classPrivateFieldLooseBase(this, _getItemsStub)[_getItemsStub](),
 	    [ui_entityCatalog.EntityCatalog.SLOT_GROUP_LIST_FOOTER]: babelHelpers.classPrivateFieldLooseBase(this, _getGroupsFooter)[_getGroupsFooter](),
 	    [ui_entityCatalog.EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND]: babelHelpers.classPrivateFieldLooseBase(this, _getSearchNotFoundStub)[_getSearchNotFoundStub](),
-	    [ui_entityCatalog.EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB]: `<EmptyGroupStub/>`,
+	    [ui_entityCatalog.EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB]: '<EmptyGroupStub/>',
 	    [ui_entityCatalog.EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB_TITLE]: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_EMPTY_GROUP_STUB_TITLE')
 	  };
 	}
@@ -1317,45 +1669,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 		`;
 	}
 	function _getItemsHeader2() {
+	  var _babelHelpers$classPr4, _babelHelpers$classPr5;
 	  const helpFeedbackParams = {
 	    id: String(Math.random()),
-	    portalUri: 'https://bitrix24.team',
-	    forms: [{
-	      zones: ['ru'],
-	      id: 1922,
-	      lang: 'ru',
-	      sec: 'frsxzd'
-	    }, {
-	      zones: ['kz'],
-	      id: 1923,
-	      lang: 'ru',
-	      sec: 'skbmjc'
-	    }, {
-	      zones: ['by'],
-	      id: 1931,
-	      lang: 'ru',
-	      sec: 'om1f4c'
-	    }, {
-	      zones: ['en'],
-	      id: 1937,
-	      lang: 'en',
-	      sec: 'yu3ljc'
-	    }, {
-	      zones: ['la', 'co', 'mx'],
-	      id: 1947,
-	      lang: 'es',
-	      sec: 'wuezi9'
-	    }, {
-	      zones: ['br'],
-	      id: 1948,
-	      lang: 'br',
-	      sec: 'j5gglp'
-	    }, {
-	      zones: ['de'],
-	      id: 1946,
-	      lang: 'de',
-	      sec: '6tpoy4'
-	    }]
+	    portalUri: (_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings]) == null ? void 0 : _babelHelpers$classPr4.portalUri,
+	    forms: (_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings]) == null ? void 0 : _babelHelpers$classPr5.forms,
+	    presets: {
+	      source: 'bizproc'
+	    }
 	  };
 	  return `
 			<div class="bizproc-creating-robot__head_title">
@@ -1386,8 +1707,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  const title = (_Text$encode = main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_SEARCH_NOT_FOUND_TITLE'))) != null ? _Text$encode : '';
 	  let msg = (_Text$encode2 = main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_SEARCH_NOT_FOUND'))) != null ? _Text$encode2 : '';
 	  const feedbackParams = {
-	    id: Math.random() + '',
-	    portalUri: 'https://product-feedback.bitrix24.com/',
+	    id: String(Math.random()),
 	    forms: [{
 	      zones: ['by', 'kz', 'ru'],
 	      id: 438,
@@ -1419,7 +1739,13 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return `<b>${title}</b><br/>${msg}`;
 	}
 	function _getGroupsFooter2() {
-	  const url = '/marketplace/category/%category%/'.replace('%category%', babelHelpers.classPrivateFieldLooseBase(this, _context)[_context].get('marketplaceRobotCategory'));
+	  const marketplaceRobotCategory = babelHelpers.classPrivateFieldLooseBase(this, _context)[_context].get('marketplaceRobotCategory');
+	  let url;
+	  if (marketplaceRobotCategory.startsWith('automation')) {
+	    url = '/market/collection/%category%/'.replace('%category%', marketplaceRobotCategory);
+	  } else {
+	    url = '/marketplace/category/crm_bots/';
+	  }
 	  return `
 			<a class="bizproc-creating-robot__menu-market" href="${url}">
 				<div class='bizproc-creating-robot__menu_item-market'>
@@ -1432,7 +1758,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 		`;
 	}
 	function _getTitleBar2() {
-	  var _babelHelpers$classPr;
+	  var _babelHelpers$classPr6;
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _context)[_context].document.statusList.length <= 1) {
 	    return main_core.Tag.render(_t || (_t = _`
 				<div>
@@ -1448,7 +1774,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 				${0}
 			</div>
 			${0}
-		`), main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_POPUP_TITLE_1'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_TITLEBAR_SUBTITLE'), (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _getTitleBarStageBlock)[_getTitleBarStageBlock]()) != null ? _babelHelpers$classPr : '');
+		`), main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_POPUP_TITLE_1'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_TITLEBAR_SUBTITLE'), (_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _getTitleBarStageBlock)[_getTitleBarStageBlock]()) != null ? _babelHelpers$classPr6 : '');
 	}
 	function _getTitleBarStageBlock2() {
 	  const statusList = babelHelpers.classPrivateFieldLooseBase(this, _context)[_context].document.statusList;
@@ -1598,14 +1924,213 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }
 	  return '#ACF2FA';
 	}
+	function _initViewedTracking2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _loadViewedIdsFromCache)[_loadViewedIdsFromCache]();
+	  babelHelpers.classPrivateFieldLooseBase(this, _pendingViewedNewRobotIds)[_pendingViewedNewRobotIds].clear();
+	  babelHelpers.classPrivateFieldLooseBase(this, _disconnectObservers)[_disconnectObservers]();
+	  const popup = babelHelpers.classPrivateFieldLooseBase(this, _getCatalog)[_getCatalog]().getPopup();
+	  const root = popup.getContentContainer();
+	  try {
+	    babelHelpers.classPrivateFieldLooseBase(this, _visibilityObserver)[_visibilityObserver] = new IntersectionObserver(babelHelpers.classPrivateFieldLooseBase(this, _onIntersection)[_onIntersection].bind(this), {
+	      root: root,
+	      threshold: [0.3]
+	    });
+	  } catch (e) {
+	    console.error(e);
+	    babelHelpers.classPrivateFieldLooseBase(this, _visibilityObserver)[_visibilityObserver] = null;
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _observeItemsDebounced)[_observeItemsDebounced]();
+	}
+	function _rebuildItemsMap2() {
+	  const items = babelHelpers.classPrivateFieldLooseBase(this, _getCatalog)[_getCatalog]().getItems();
+	  babelHelpers.classPrivateFieldLooseBase(this, _itemsById)[_itemsById].clear();
+	  for (const it of items) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _itemsById)[_itemsById].set(String(it.id), String(it).toLowerCase());
+	  }
+	}
+	function _observeItems2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _visibilityObserver)[_visibilityObserver]) {
+	    return;
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _rebuildItemsMap)[_rebuildItemsMap]();
+	  const popup = babelHelpers.classPrivateFieldLooseBase(this, _getCatalog)[_getCatalog]().getPopup();
+	  const root = popup.getContentContainer();
+	  const nodes = [...root.querySelectorAll('.ui-entity-catalog__option[data-item-id]')];
+	  const currentIds = nodes.map(n => n.dataset.itemId).join(',');
+	  if (this.lastObservedIds === currentIds) {
+	    return;
+	  }
+	  this.lastObservedIds = currentIds;
+	  for (const n of nodes) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _visibilityObserver)[_visibilityObserver].unobserve(n);
+	  }
+	  for (const node of nodes) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _visibilityObserver)[_visibilityObserver].observe(node);
+	  }
+	}
+	function _observeItemsDebounced2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _observeItemsTimer)[_observeItemsTimer]) {
+	    clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _observeItemsTimer)[_observeItemsTimer]);
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _observeItemsTimer)[_observeItemsTimer] = setTimeout(() => {
+	    babelHelpers.classPrivateFieldLooseBase(this, _observeItems)[_observeItems]();
+	  }, 50);
+	}
+	function _onIntersection2(entries = []) {
+	  const newIdsLower = (babelHelpers.classPrivateFieldLooseBase(this, _getAllNewRobotIds)[_getAllNewRobotIds]() || []).map(id => String(id).toLowerCase());
+	  for (const entry of entries) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _processIntersectionEntry)[_processIntersectionEntry](entry, newIdsLower);
+	  }
+	}
+	function _processIntersectionEntry2(entry, newIdsLower) {
+	  var _node$dataset$itemId, _node$dataset;
+	  if (entry.intersectionRatio < 0.3 || !entry.isIntersecting) {
+	    return;
+	  }
+	  const node = entry.target;
+	  const matchedId = (_node$dataset$itemId = (_node$dataset = node.dataset) == null ? void 0 : _node$dataset.itemId) != null ? _node$dataset$itemId : null;
+	  if (!matchedId) {
+	    return;
+	  }
+	  const matchedIdLower = String(matchedId).toLowerCase();
+	  const baseRobotId = matchedIdLower.split('@')[0];
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _viewedNewRobotIds)[_viewedNewRobotIds].has(matchedIdLower)) {
+	    return;
+	  }
+	  if (!newIdsLower.includes(baseRobotId)) {
+	    return;
+	  }
+	  requestAnimationFrame(() => {
+	    node.classList.add('ui-entity-catalog__option--new-entity-animate');
+	  });
+	  babelHelpers.classPrivateFieldLooseBase(this, _markNewRobotAsViewed)[_markNewRobotAsViewed](matchedIdLower);
+	}
+	function _markNewRobotAsViewed2(robotId) {
+	  const idLower = String(robotId).toLowerCase();
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _viewedNewRobotIds)[_viewedNewRobotIds].has(idLower)) {
+	    return;
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _addViewedIdToCache)[_addViewedIdToCache](robotId);
+	  babelHelpers.classPrivateFieldLooseBase(this, _pendingViewedNewRobotIds)[_pendingViewedNewRobotIds].add(robotId);
+	  babelHelpers.classPrivateFieldLooseBase(this, _savePendingViewedIdsToCache)[_savePendingViewedIdsToCache]();
+	  const unviewedNewRobotsCount = this.getUnviewedNewRobotsCount();
+	  babelHelpers.classPrivateFieldLooseBase(this, _scheduleViewedEvent)[_scheduleViewedEvent](unviewedNewRobotsCount);
+	  babelHelpers.classPrivateFieldLooseBase(this, _getCatalog)[_getCatalog]().updateGroupCounter(RobotSelector.NEW_ENTITY_GROUP_ID, unviewedNewRobotsCount);
+	  babelHelpers.classPrivateFieldLooseBase(this, _scheduleFlushViewedRobots)[_scheduleFlushViewedRobots]();
+	}
+	function _scheduleViewedEvent2(unviewedNewRobotsCount) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _viewedEventTimerId)[_viewedEventTimerId]) {
+	    clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _viewedEventTimerId)[_viewedEventTimerId]);
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _viewedEventTimerId)[_viewedEventTimerId] = setTimeout(() => {
+	    this.emit('newEntityViewed', new main_core_events.BaseEvent({
+	      data: {
+	        unviewedEntitiesCount: unviewedNewRobotsCount,
+	        hasNewEntities: this.hasNewEntities(),
+	        context: babelHelpers.classPrivateFieldLooseBase(this, _context)[_context]
+	      }
+	    }));
+	  }, 500);
+	}
+	function _scheduleFlushViewedRobots2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _viewedSendTimerId)[_viewedSendTimerId]) {
+	    clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _viewedSendTimerId)[_viewedSendTimerId]);
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _viewedSendTimerId)[_viewedSendTimerId] = setTimeout(() => {
+	    babelHelpers.classPrivateFieldLooseBase(this, _flushViewedRobotsToBackend)[_flushViewedRobotsToBackend]();
+	  }, 2000);
+	}
+	async function _flushViewedRobotsToBackend2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _pendingViewedNewRobotIds)[_pendingViewedNewRobotIds] || babelHelpers.classPrivateFieldLooseBase(this, _pendingViewedNewRobotIds)[_pendingViewedNewRobotIds].size === 0) {
+	    return;
+	  }
+	  const ids = [...babelHelpers.classPrivateFieldLooseBase(this, _pendingViewedNewRobotIds)[_pendingViewedNewRobotIds]];
+	  babelHelpers.classPrivateFieldLooseBase(this, _pendingViewedNewRobotIds)[_pendingViewedNewRobotIds].clear();
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _viewedSendTimerId)[_viewedSendTimerId]) {
+	    clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _viewedSendTimerId)[_viewedSendTimerId]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _viewedSendTimerId)[_viewedSendTimerId] = null;
+	  }
+	  try {
+	    await main_core.ajax.runAction('bizproc.robot.saveViewedRobots', {
+	      data: {
+	        viewedRobotIds: ids
+	      }
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _clearPendingViewedIdsCache)[_clearPendingViewedIdsCache]();
+	  } catch (e) {
+	    console.error(e);
+	    ids.forEach(id => babelHelpers.classPrivateFieldLooseBase(this, _pendingViewedNewRobotIds)[_pendingViewedNewRobotIds].add(id));
+	    babelHelpers.classPrivateFieldLooseBase(this, _savePendingViewedIdsToCache)[_savePendingViewedIdsToCache]();
+	  }
+	}
+	function _stopViewedTracking2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _pendingViewedNewRobotIds)[_pendingViewedNewRobotIds] && babelHelpers.classPrivateFieldLooseBase(this, _pendingViewedNewRobotIds)[_pendingViewedNewRobotIds].size > 0) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _flushViewedRobotsToBackend)[_flushViewedRobotsToBackend]();
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _disconnectObservers)[_disconnectObservers]();
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _viewedSendTimerId)[_viewedSendTimerId]) {
+	    clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _viewedSendTimerId)[_viewedSendTimerId]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _viewedSendTimerId)[_viewedSendTimerId] = null;
+	  }
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _viewedSendTimerId)[_viewedSendTimerId]) {
+	    clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _viewedSendTimerId)[_viewedSendTimerId]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _viewedSendTimerId)[_viewedSendTimerId] = null;
+	  }
+	}
+	function _disconnectObservers2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _visibilityObserver)[_visibilityObserver]) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _visibilityObserver)[_visibilityObserver].disconnect();
+	    babelHelpers.classPrivateFieldLooseBase(this, _visibilityObserver)[_visibilityObserver] = null;
+	  }
+	  this.lastObservedIds = null;
+	}
+	function _loadViewedIdsFromCache2() {
+	  try {
+	    const arr = babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].remember(RobotSelector.VIEWED_NEW_ROBOT_IDS_CACHE_KEY, []);
+	    babelHelpers.classPrivateFieldLooseBase(this, _viewedNewRobotIds)[_viewedNewRobotIds] = new Set((arr || []).map(id => String(id).toLowerCase()));
+	  } catch (e) {
+	    console.error(e);
+	    babelHelpers.classPrivateFieldLooseBase(this, _viewedNewRobotIds)[_viewedNewRobotIds] = new Set();
+	  }
+	}
+	function _addViewedIdToCache2(robotId) {
+	  if (!main_core.Type.isStringFilled(robotId)) {
+	    return;
+	  }
+	  const idStr = String(robotId);
+	  const idLower = idStr.toLowerCase();
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _viewedNewRobotIds)[_viewedNewRobotIds].has(idLower)) {
+	    return;
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _viewedNewRobotIds)[_viewedNewRobotIds].add(idLower);
+	  const arr = babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].remember(RobotSelector.VIEWED_NEW_ROBOT_IDS_CACHE_KEY, []);
+	  if (!arr.includes(idStr)) {
+	    arr.push(idStr);
+	    babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].set(RobotSelector.VIEWED_NEW_ROBOT_IDS_CACHE_KEY, arr);
+	  }
+	}
+	function _loadPendingViewedIdsFromCache2() {
+	  const pending = babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].remember(RobotSelector.PENDING_VIEWED_NEW_ROBOT_IDS_CACHE_KEY, []);
+	  pending.forEach(id => babelHelpers.classPrivateFieldLooseBase(this, _pendingViewedNewRobotIds)[_pendingViewedNewRobotIds].add(id));
+	}
+	function _savePendingViewedIdsToCache2() {
+	  const pending = [...babelHelpers.classPrivateFieldLooseBase(this, _pendingViewedNewRobotIds)[_pendingViewedNewRobotIds]];
+	  babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].set(RobotSelector.PENDING_VIEWED_NEW_ROBOT_IDS_CACHE_KEY, pending);
+	}
+	function _clearPendingViewedIdsCache2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].set(RobotSelector.PENDING_VIEWED_NEW_ROBOT_IDS_CACHE_KEY, []);
+	}
 	Object.defineProperty(RobotSelector, _getColor, {
 	  value: _getColor2
 	});
 	RobotSelector.RECENT_GROUP_ID = 'recent';
+	RobotSelector.NEW_ENTITY_GROUP_ID = 'new';
 	RobotSelector.DEFAULT_GROUP_NAME = 'other';
+	RobotSelector.VIEWED_NEW_ROBOT_IDS_CACHE_KEY = 'viewedNewRobotIds';
+	RobotSelector.PENDING_VIEWED_NEW_ROBOT_IDS_CACHE_KEY = 'pendingViewedNewRobotIds';
 	RobotSelector.MAX_SIZE_OF_RECENT_GROUP = 10;
 
 	exports.RobotSelector = RobotSelector;
 
-}((this.BX.Bizproc.Automation = this.BX.Bizproc.Automation || {}),BX.Event,BX.Main,BX.Bizproc.Automation,BX.Bizproc.LocalSettings,BX,BX.UI,BX.Vue3.Pinia));
+}((this.BX.Bizproc.Automation = this.BX.Bizproc.Automation || {}),BX.Event,BX.Main,BX.Bizproc.Automation,BX.Bizproc.LocalSettings,BX,BX,BX.UI,BX.Vue3.Pinia));
 //# sourceMappingURL=robot-selector.bundle.js.map

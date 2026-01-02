@@ -1,0 +1,26 @@
+<?php
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_PRODUCT_CREATION_HINT"] = "Каталогта тауар жасау үшін құқықтар жеткіліксіз";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_PURCHASING_PRICE_HINT"] = "Тауардың сатып алу бағасын көруге құқықтар жеткіліксіз";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_STORE_HINT"] = "Сізде тауар қабылданған қоймаға қолжетімділік жоқ. Қойма туралы ақпаратты көру үшін басшыдан немесе әкімшіден қолжетімділікті сұраңыз";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_TEXT"] = "Құқықтар жеткіліксіз";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_DEFAULT"] = "- әрекеттер -";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_STORE_CHANGED_HINT"] = "Қойма \"#STORE_NAME#\" болып өзгертілді";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_STORE_FROM_INFO_CHANGED_HINT"] = "жөнелтуші қойма \"#STORE_NAME#\" болып өзгертілді";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ACTION_STORE_TO_INFO_CHANGED_HINT"] = "Қабылдаушы қойма \"#STORE_NAME#\" болып өзгертілді";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ADD_PRODUCT"] = "Жол қосу";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ADD_PRODUCT_TITLE"] = "Жаңа тауарды табу немесе жасау";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_BARCODE_SETTING_PRODUCT"] = "сканерлеу баптаулары";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_BARCODE_SETTING_PRODUCT_TITLE"] = "сканерлеу баптаулары";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_COPY_ACTION"] = "Көшіру";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_CREATE_PRODUCT"] = "Тауар жасау";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_CREATE_PRODUCT_TITLE"] = "Каталогта жаңа тауарды жасау";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_DELETE_ACTION"] = "Жою";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT_2"] = "Құжатты өткізу үшін тауардың санын көрсетіңіз";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT_REALIZATION"] = "Тауар саны 1 ден кем болмауы керек";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_IS_EMPTY"] = "Құжатты өткізу үшін кем дегенде бір тауарды енгізіңіз";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_NEGATIVE_PRICE_NOTICE"] = "Құны теріс бола алмайды.";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_SETTING_DISABLED"] = "\"#NAME#\" баптауы өшірілді";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_SETTING_ENABLED"] = "\"#NAME#\" баптауы қосылды";
+$MESS["CATALOG_PRODUCT_SUM_TOTAL"] = "Жалпы сома";
+$MESS["CATALOG_PRODUCT_SUM_TOTAL_BEFORE_TAX"] = "Салықсыз сома";
+$MESS["CATALOG_PRODUCT_SUM_TOTAL_TAX"] = "Салық сомасы";

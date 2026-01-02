@@ -14,7 +14,6 @@ use Bitrix\Main\ORM\Fields\IntegerField;
 class PgsqlConnection extends Connection
 {
 	protected int $transactionLevel = 0;
-	const FULLTEXT_MAXIMUM_LENGTH = 900000;
 
 	public function connectionErrorHandler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
 	{
@@ -258,7 +257,7 @@ class PgsqlConnection extends Connection
 			if ($a['FULL_TEXT'])
 			{
 				$match = [];
-				if (preg_match_all('/,\s*([a-z0-9_]+)/i', $a['FULL_TEXT'], $match))
+				if (preg_match_all('/,\s*\(?([a-z0-9_]+)(?:\)::text)?/i', $a['FULL_TEXT'], $match))
 				{
 					foreach ($match[1] as $i => $colName)
 					{
@@ -327,7 +326,7 @@ class PgsqlConnection extends Connection
 			if ($row['FULL_TEXT'])
 			{
 				$match = [];
-				if (preg_match_all('/,\s*([a-z0-9_]+)/i', $row['FULL_TEXT'], $match))
+				if (preg_match_all('/,\s*\(?([a-z0-9_]+)(?:\)::text)?/i', $row['FULL_TEXT'], $match))
 				{
 					foreach ($match[1] as $i => $colName)
 					{
@@ -376,35 +375,14 @@ class PgsqlConnection extends Connection
 				$field = $sqlHelper->getFieldByColumnType($fieldName, $fieldType);
 				if (is_a($field, '\Bitrix\Main\ORM\Fields\StringField'))
 				{
-					if (!$fieldInfo['CHARACTER_MAXIMUM_LENGTH'])
+					if ($fieldInfo['CHARACTER_MAXIMUM_LENGTH'])
 					{
-						if (array_key_exists($fieldName, $fullTextColumns))
-						{
-							$maximumLength = static::FULLTEXT_MAXIMUM_LENGTH;
-						}
-						else
-						{
-							$maximumLength = false; // "Infinite"
-						}
-					}
-					else
-					{
-						if (
-							array_key_exists($fieldName, $fullTextColumns)
-							&& $fieldInfo['CHARACTER_MAXIMUM_LENGTH'] > static::FULLTEXT_MAXIMUM_LENGTH
-						)
-						{
-							$maximumLength = static::FULLTEXT_MAXIMUM_LENGTH;
-						}
-						else
-						{
-							$maximumLength = $fieldInfo['CHARACTER_MAXIMUM_LENGTH'];
-						}
+						$field->configureSize($fieldInfo['CHARACTER_MAXIMUM_LENGTH']);
 					}
 
-					if ($maximumLength)
+					if (array_key_exists($fieldName, $fullTextColumns))
 					{
-						$field->configureSize($maximumLength);
+						$field->configureFulltext(true);
 					}
 				}
 

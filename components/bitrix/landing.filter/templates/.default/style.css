@@ -25,19 +25,6 @@
 	opacity: 0.4;
 }
 
-.landing-filter-action-link {
-	text-decoration: none;
-}
-
-.landing-filter-action-link:hover {
-	text-decoration: none;
-}
-
-.landing-filter-buttons-container {
-	display: flex;
-	align-items: center;
-}
-
 .landing-filter-folder-input {
 	display:block;
 	-webkit-box-sizing:border-box;
@@ -52,14 +39,4 @@
 	padding: 0 10px;
 	font-size: 16px;
 	margin-top: 10px;
-}
-
-.landing-filter-action-link {
-	margin-right: 12px;
-}
-
-#landing-create-element, #landing-recycle-bin {
-	font-size: 14px;
-	font-weight: 600;
-	text-transform: none;
 }

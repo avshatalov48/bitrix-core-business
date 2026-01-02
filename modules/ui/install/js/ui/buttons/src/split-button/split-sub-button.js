@@ -2,8 +2,10 @@ import BaseButton from '../base-button';
 import SplitButtonState from './split-button-state';
 import SplitSubButtonType from './split-sub-button-type';
 import type SplitButton from './split-button';
-import { Type } from 'main.core';
-import type { SplitSubButtonOptions } from './split-sub-button-options';
+import { Dom, Type } from 'main.core';
+import { Switcher, SwitcherSize, SwitcherColor, AirSwitcherStyle } from 'ui.switcher';
+
+import type { SplitSubButtonOptions, SplitButtonSwitcherButtonOptions } from './split-sub-button-options';
 
 /**
  * @namespace {BX.UI}
@@ -13,13 +15,31 @@ export default class SplitSubButton extends BaseButton
 	constructor(options: SplitSubButtonOptions)
 	{
 		options = Type.isPlainObject(options) ? options : {};
-		options.baseClass =
-			options.buttonType === SplitSubButtonType.MAIN
-				? SplitSubButtonType.MAIN
-				: SplitSubButtonType.MENU
+		options.baseClass = options.buttonType === SplitSubButtonType.MAIN
+			? SplitSubButtonType.MAIN
+			: SplitSubButtonType.MENU
 		;
 
+		if (options.buttonType === SplitSubButtonType.SWITCHER)
+		{
+			options.baseClass += ' --switcher';
+		}
+
 		super(options);
+
+		if (this.isSwitcherButton())
+		{
+			const additionalSwitcherOptions = Type.isPlainObject(this.options.switcherOptions)
+				? this.options.switcherOptions
+				: {}
+			;
+
+			this.#initSwitcher({
+				...additionalSwitcherOptions,
+				size: this.options.switcherOptions.size,
+				useAirDesign: this.options.switcherOptions.useAirDesign === true,
+			});
+		}
 
 		if (this.isInputType())
 		{
@@ -64,6 +84,11 @@ export default class SplitSubButton extends BaseButton
 		return this.buttonType === SplitSubButtonType.MENU;
 	}
 
+	isSwitcherButton(): boolean
+	{
+		return this.buttonType === SplitSubButtonType.SWITCHER;
+	}
+
 	setText(text: string): this
 	{
 		if (Type.isString(text) && this.isMenuButton())
@@ -72,6 +97,40 @@ export default class SplitSubButton extends BaseButton
 		}
 
 		return super.setText(text);
+	}
+
+	#renderSwitcher(container: HTMLElement): void
+	{
+		Dom.clean(container);
+
+		return this.switcher?.renderTo(container);
+	}
+
+	#initSwitcher(switcherOptions: SplitButtonSwitcherButtonOptions = {}): void
+	{
+		if (switcherOptions.node)
+		{
+			this.switcher = new Switcher({
+				node: switcherOptions.node,
+				checked: Dom.hasClass(switcherOptions.node, Switcher.classNameOff) === false,
+			});
+
+			return;
+		}
+
+		this.switcher = new Switcher({
+			size: SwitcherSize.medium,
+			color: SwitcherColor.green,
+			style: AirSwitcherStyle.FILLED,
+			...switcherOptions,
+		});
+
+		this.#renderSwitcher(this.getContainer(), switcherOptions);
+	}
+
+	getSwitcher(): Switcher
+	{
+		return this.switcher;
 	}
 
 	/**
@@ -85,7 +144,7 @@ export default class SplitSubButton extends BaseButton
 			flag,
 			SplitButtonState.ACTIVE,
 			SplitButtonState.MAIN_ACTIVE,
-			SplitButtonState.MENU_ACTIVE
+			SplitButtonState.MENU_ACTIVE,
 		);
 
 		return this;
@@ -122,8 +181,13 @@ export default class SplitSubButton extends BaseButton
 			flag,
 			SplitButtonState.DISABLED,
 			SplitButtonState.MAIN_DISABLED,
-			SplitButtonState.MENU_DISABLED
+			SplitButtonState.MENU_DISABLED,
 		);
+
+		if (flag)
+		{
+			this.getSwitcher()?.disable();
+		}
 
 		super.setDisabled(flag);
 
@@ -141,7 +205,7 @@ export default class SplitSubButton extends BaseButton
 			flag,
 			SplitButtonState.HOVER,
 			SplitButtonState.MAIN_HOVER,
-			SplitButtonState.MENU_HOVER
+			SplitButtonState.MENU_HOVER,
 		);
 
 		return this;

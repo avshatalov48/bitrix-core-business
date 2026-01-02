@@ -43,10 +43,9 @@ export class TabIndentPlugin extends BasePlugin
 						return false;
 					}
 
-					event.preventDefault();
-
 					return this.getEditor().dispatchCommand(
 						event.shiftKey ? OUTDENT_CONTENT_COMMAND : INDENT_CONTENT_COMMAND,
+						{ event, triggerByTab: true },
 					);
 				},
 				COMMAND_PRIORITY_EDITOR,
@@ -55,7 +54,7 @@ export class TabIndentPlugin extends BasePlugin
 			// Turn off RichText built-in indents
 			this.getEditor().registerCommand(
 				INDENT_CONTENT_COMMAND,
-				(event): boolean => {
+				(): boolean => {
 					const selection = $getSelection();
 
 					return !$isSelectionInList(selection);
@@ -65,7 +64,7 @@ export class TabIndentPlugin extends BasePlugin
 
 			this.getEditor().registerCommand(
 				OUTDENT_CONTENT_COMMAND,
-				(event): boolean => {
+				(): boolean => {
 					const selection = $getSelection();
 
 					return !$isSelectionInList(selection);

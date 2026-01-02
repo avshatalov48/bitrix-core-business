@@ -3,12 +3,14 @@ namespace Bitrix\Bizproc\Automation\Trigger;
 
 use Bitrix\Bizproc\Automation\Engine\ConditionGroup;
 use Bitrix\Bizproc\Automation\Target\BaseTarget;
+use Bitrix\Bizproc\Workflow\Template\WorkflowTemplateSettingsTable;
 use Bitrix\Main;
 
 class BaseTrigger
 {
 	protected $target;
 	protected $returnValues;
+	protected $inputData;
 
 	/**
 	 * @return string the fully qualified name of this class.
@@ -62,6 +64,40 @@ class BaseTrigger
 		return 'Base trigger';
 	}
 
+	public function send()
+	{
+		$applied = false;
+		$triggers = $this->getPotentialTriggers();
+		if ($triggers)
+		{
+			foreach ($triggers as $trigger)
+			{
+				if ($this->checkApplyRules($trigger))
+				{
+					$this->applyTrigger($trigger);
+					$applied = true;
+
+					break;
+				}
+			}
+		}
+
+		return $applied;
+	}
+
+	protected function applyTrigger(array $trigger)
+	{
+		$statusId = $trigger['DOCUMENT_STATUS'];
+
+		$target = $this->getTarget();
+
+		$target->setAppliedTrigger($trigger);
+		$target->setDocumentStatus($statusId);
+		$target->getRuntime()->onDocumentStatusChanged();
+
+		return true;
+	}
+
 	protected function getPotentialTriggers()
 	{
 		$triggers = [];
@@ -69,7 +105,7 @@ class BaseTrigger
 		$currentStatus = $this->getTarget()->getDocumentStatus();
 		$allStatuses = array_keys($this->getTarget()->getDocumentStatusList());
 
-		$needleKey = array_search($currentStatus, $allStatuses);
+		$needleKey = array_search($currentStatus, $allStatuses, false);
 
 		if ($needleKey === false)
 		{
@@ -77,6 +113,7 @@ class BaseTrigger
 		}
 
 		$forwardStatuses = array_slice($allStatuses, $needleKey + 1);
+		unset($allStatuses[$needleKey]);
 
 		$code = static::getCode();
 		$rows = [];
@@ -89,7 +126,7 @@ class BaseTrigger
 				continue;
 			}
 
-			if (!in_array($row['DOCUMENT_STATUS'], $forwardStatuses))
+			if (!in_array($row['DOCUMENT_STATUS'], $forwardStatuses, false))
 			{
 				if (
 					!isset($row['APPLY_RULES']['ALLOW_BACKWARDS'])
@@ -110,18 +147,34 @@ class BaseTrigger
 			{
 				if (isset($rows[$needleStatus]))
 				{
-					$triggers = array_merge($triggers, $rows[$needleStatus]);
+					$triggers[] = $rows[$needleStatus];
 				}
 			}
 		}
 
-		return $triggers;
+		return array_merge(...$triggers);
+	}
+
+	public function setInputData($data)
+	{
+		$this->inputData = $data;
+
+		return $this;
+	}
+
+	public function getInputData($key = null)
+	{
+		if ($key !== null)
+		{
+			return $this->inputData[$key] ?? null;
+		}
+
+		return $this->inputData;
 	}
 
 	public function checkApplyRules(array $trigger)
 	{
-		$conditionRules = is_array($trigger['APPLY_RULES']) && isset($trigger['APPLY_RULES']['Condition'])
-			? $trigger['APPLY_RULES']['Condition'] : null;
+		$conditionRules = $trigger['APPLY_RULES']['Condition'] ?? null;
 
 		if ($conditionRules)
 		{

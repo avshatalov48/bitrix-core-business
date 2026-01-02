@@ -1029,6 +1029,105 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	  }
 	}
 
+	/* eslint-disable no-param-reassign */
+	class BuilderEntityModel$$1 extends BuilderModel$$1 {
+	  constructor() {
+	    super();
+
+	    // eslint-disable-next-line no-constructor-return
+	    return new Proxy(this, {
+	      get: (target, property) => {
+	        if (property in BuilderEntityModel$$1.defaultModel) {
+	          return () => {
+	            var _target$property;
+	            return {
+	              ...BuilderEntityModel$$1.defaultModel[property](target),
+	              ...((_target$property = target[property]) == null ? void 0 : _target$property.call(target))
+	            };
+	          };
+	        }
+	        return target[property];
+	      }
+	    });
+	  }
+	}
+	BuilderEntityModel$$1.defaultModel = {
+	  getState: () => ({
+	    collection: {}
+	  }),
+	  getGetters: () => ({
+	    getAll: state => Object.values(state.collection),
+	    getIds: state => Object.values(state.collection).map(({
+	      id
+	    }) => id),
+	    getById: state => id => state.collection[id],
+	    getByIds: (state, {
+	      getAll
+	    }) => ids => {
+	      return getAll.filter(item => ids.includes(item.id));
+	    }
+	  }),
+	  getActions: () => ({
+	    insert: (store, item) => {
+	      store.commit('insert', item);
+	    },
+	    insertMany: (store, items) => {
+	      items.forEach(item => store.commit('insert', item));
+	    },
+	    upsert: (store, item) => {
+	      store.commit('upsert', item);
+	    },
+	    upsertMany: (store, items) => {
+	      items.forEach(item => store.commit('upsert', item));
+	    },
+	    update: (store, payload) => {
+	      store.commit('update', payload);
+	    },
+	    delete: (store, id) => {
+	      store.commit('delete', id);
+	    },
+	    deleteMany: (store, ids) => {
+	      ids.forEach(id => store.commit('delete', id));
+	    }
+	  }),
+	  getMutations: target => ({
+	    insert: (state, item) => {
+	      if (item) {
+	        var _state$collection, _item$id, _state$collection$_it;
+	        (_state$collection$_it = (_state$collection = state.collection)[_item$id = item.id]) != null ? _state$collection$_it : _state$collection[_item$id] = {
+	          ...(target.getElementState == null ? void 0 : target.getElementState()),
+	          ...item
+	        };
+	      }
+	    },
+	    upsert: (state, item) => {
+	      if (item) {
+	        var _state$collection2, _item$id2, _state$collection2$_i;
+	        (_state$collection2$_i = (_state$collection2 = state.collection)[_item$id2 = item.id]) != null ? _state$collection2$_i : _state$collection2[_item$id2] = target.getElementState == null ? void 0 : target.getElementState();
+	        state.collection[item.id] = {
+	          ...state.collection[item.id],
+	          ...item
+	        };
+	      }
+	    },
+	    update: (state, {
+	      id,
+	      fields
+	    }) => {
+	      var _fields$id;
+	      const updatedItem = {
+	        ...state.collection[id],
+	        ...fields
+	      };
+	      delete state.collection[id];
+	      state.collection[(_fields$id = fields.id) != null ? _fields$id : id] = updatedItem;
+	    },
+	    delete: (state, id) => {
+	      delete state.collection[id];
+	    }
+	  })
+	};
+
 	/*!
 	 * vuex v4.1.0
 	 * (c) 2022 Evan You
@@ -2456,8 +2555,9 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	exports.storeKey = storeKey;
 	exports.useStore = useStore;
 	exports.version = version;
+	exports.BuilderEntityModel = BuilderEntityModel$$1;
 
-}((this.BX.Vue3.Vuex = this.BX.Vue3.Vuex || {}),BX.Dexie3,BX,BX,BX.Vue3));
+}((this.BX.Vue3.Vuex = this.BX.Vue3.Vuex || {}),BX.DexieExport,BX,BX,BX.Vue3));
 
 
 

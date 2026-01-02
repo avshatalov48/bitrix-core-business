@@ -2,6 +2,7 @@
 
 IncludeModuleLangFile(__FILE__);
 
+use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\NotSupportedException;
 
@@ -369,19 +370,32 @@ class CListPropertyField extends CListField
 	private function getPropertyArrayFromCache($id)
 	{
 		//Cache iblock metadata in order to reduce queries
-		if(!array_key_exists($this->_iblock_id, self::$prop_cache))
+		if (!isset(self::$prop_cache[$this->_iblock_id]))
 		{
-			self::$prop_cache[$this->_iblock_id] = array();
+			self::$prop_cache[$this->_iblock_id] = [];
 
-			$rsProperties = CIBlockProperty::GetList(array(), array(
-				"IBLOCK_ID" => $this->_iblock_id,
-				"CHECK_PERMISSIONS" => "N",
-				"ACTIVE" => "Y",
-			));
-			while($arProperty = $rsProperties->Fetch())
-				self::$prop_cache[$this->_iblock_id][$arProperty["ID"]] = $arProperty;
+			$iterator = PropertyTable::getList([
+				'select' => ['*'],
+				'filter' => [
+					'=IBLOCK_ID' => $this->_iblock_id,
+					'=ACTIVE' => 'Y',
+				],
+				'order' => [
+					'ID' => 'ASC',
+				]
+			]);
+			PropertyTable::fillOldCoreFetchModifiers($iterator);
+			while ($row = $iterator->fetch())
+			{
+				self::$prop_cache[$this->_iblock_id][$row['ID']] = $row;
+			}
+			unset(
+				$row,
+				$iterator,
+			);
 		}
-		return self::$prop_cache[$this->_iblock_id][$id];
+
+		return self::$prop_cache[$this->_iblock_id][$id] ?? false;
 	}
 
 	private static function resetPropertyArrayCache()

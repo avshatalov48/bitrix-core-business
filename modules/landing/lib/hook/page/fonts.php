@@ -5,6 +5,7 @@ use Bitrix\Landing\Field;
 use Bitrix\Landing\Manager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
 use Bitrix\UI;
 
 class Fonts extends \Bitrix\Landing\Hook\Page
@@ -64,6 +65,11 @@ class Fonts extends \Bitrix\Landing\Hook\Page
 			'url' => 'https://fonts.googleapis.com/css2?family=Lobster:wght@100;200;300;400;500;600;700;800;900&subset=cyrillic-ext,latin-ext',
 		],
 	];
+
+	/**
+	 * Default domain for Google Fonts.
+	 */
+	public const DEFAULT_DOMAIN = 'fonts.googleapis.com';
 
 	/**
 	 * Set fonts on the page.
@@ -164,10 +170,7 @@ class Fonts extends \Bitrix\Landing\Hook\Page
 
 		if ($setFonts)
 		{
-			Manager::setPageView(
-				'BeforeHeadClose',
-				implode('', $setFonts)
-			);
+			Asset::getInstance()->addString(implode('', $setFonts));
 		}
 	}
 
@@ -203,22 +206,56 @@ class Fonts extends \Bitrix\Landing\Hook\Page
 	}
 
 	/**
+	 * Generates HTML and CSS tags to load and apply a specified font.
+	 *
+	 * @param string $fontName The name of the font to be loaded and applied.
+	 *
+	 * @return string HTML and CSS tags for embedding the specified font.
+	 */
+	public static function generateFontTags(string $fontName): string
+	{
+		$proxyDomain = self::getProxyDomain();
+		$fontUrl = "https://{$proxyDomain}/css2?family="
+			. str_replace(' ', '+', $fontName)
+			. ":wght@100;200;300;400;500;600;700;800;900";
+		$fontClass = strtolower(str_replace(' ', '-', $fontName));
+
+		return <<<HTML
+			<noscript><link rel="stylesheet" href="$fontUrl" data-font="g-font-$fontClass"></noscript>
+			<link rel="preload" href="$fontUrl" data-font="g-font-$fontClass" onload="this.removeAttribute('onload');this.rel='stylesheet'" as="style">
+			<style data-id="g-font-$fontClass">.g-font-$fontClass { font-family: "$fontName", sans-serif; }</style>
+		HTML;
+	}
+
+	/**
 	 * Proxy font url to bitrix servers
 	 * @param string $fontString - string of font with link, noscript or other tags
 	 * @return string
 	 */
 	protected static function proxyFontUrl(string $fontString): string
 	{
-		$defaultDomain = 'fonts.googleapis.com';
-		$proxyDomain = $defaultDomain;
-		if (Loader::includeModule('ui'))
-		{
-			$proxyDomain = UI\Fonts\Proxy::resolveDomain(Manager::getZone());
-		}
+		$defaultDomain = self::DEFAULT_DOMAIN;
+		$proxyDomain = self::getProxyDomain();
 
 		return ($defaultDomain !== $proxyDomain)
 			? str_replace($defaultDomain, $proxyDomain, $fontString)
 			: $fontString
 		;
+	}
+
+	/**
+	 * Returns the proxy domain for fonts, depending on the current zone and UI module.
+	 *
+	 * @return string
+	 */
+	private static function getProxyDomain(): string
+	{
+		$proxyDomain = self::DEFAULT_DOMAIN;
+		if (Loader::includeModule('ui'))
+		{
+			$proxyDomain = UI\Fonts\Proxy::resolveDomain(Manager::getZone());
+		}
+
+		return $proxyDomain;
 	}
 }

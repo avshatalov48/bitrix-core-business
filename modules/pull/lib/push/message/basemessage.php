@@ -149,7 +149,7 @@ abstract class BaseMessage
 			$text = $messageArray["MESSAGE"];
 			$this->setText($text);
 
-			if (is_string($messageArray["SOUND"]) && $messageArray["SOUND"] != "")
+			if (!empty($messageArray["SOUND"]) && is_string($messageArray["SOUND"]))
 			{
 				$this->setSound($messageArray["SOUND"]);
 			}
@@ -174,7 +174,7 @@ abstract class BaseMessage
 			);
 		}
 
-		if (is_array($messageArray["ADVANCED_PARAMS"]))
+		if (isset($messageArray["ADVANCED_PARAMS"]) && is_array($messageArray["ADVANCED_PARAMS"]))
 		{
 			if (array_key_exists("senderMessage", $messageArray["ADVANCED_PARAMS"]))
 			{

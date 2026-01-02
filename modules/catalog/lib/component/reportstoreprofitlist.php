@@ -110,7 +110,7 @@ abstract class ReportStoreProfitList extends \CBitrixComponent
 
 		foreach ($this->getTotalFields() as $totalField)
 		{
-			$column[$totalField] = $this->formatValue($totalField, $column['TOTALS'][$totalField]);
+			$column[$totalField] = $this->formatValue($totalField, $column['TOTALS'][$totalField] ?? null);
 		}
 
 		unset($column['TOTALS']);

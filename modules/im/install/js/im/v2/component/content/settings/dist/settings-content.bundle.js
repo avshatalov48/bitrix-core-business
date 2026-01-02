@@ -3,12 +3,12 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_lib_logger,im_v2_lib_helpdesk,ui_feedback_form,im_v2_component_dialog_chat,im_v2_lib_theme,im_v2_lib_user,ui_forms,main_core,im_v2_application_core,im_v2_lib_rest,im_v2_lib_utils,im_v2_lib_desktopApi,im_v2_lib_confirm,im_v2_const,im_v2_provider_service) {
+(function (exports,im_v2_lib_logger,im_v2_lib_helpdesk,im_v2_lib_feedback,im_v2_component_dialog_chat,im_v2_lib_theme,im_v2_lib_demo,im_v2_lib_confirm,ui_forms,im_v2_component_elements_hint,main_core,im_v2_application_core,im_v2_lib_rest,im_v2_lib_utils,im_v2_lib_desktopApi,im_v2_const,im_v2_lib_feature,im_v2_provider_service_settings) {
 	'use strict';
 
 	const SectionMetaData = {
 	  appearance: {
-	    name: main_core.Loc.getMessage('IM_CONTENT_SETTINGS_SECTION_LIST_APPEARANCE'),
+	    name: main_core.Loc.getMessage('IM_CONTENT_SETTINGS_SECTION_LIST_APPEARANCE_MSGVER_1'),
 	    icon: 'fa-solid fa-brush'
 	  },
 	  notification: {
@@ -24,7 +24,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    icon: 'fa-solid fa-message'
 	  },
 	  recent: {
-	    name: main_core.Loc.getMessage('IM_CONTENT_SETTINGS_SECTION_LIST_RECENT'),
+	    name: main_core.Loc.getMessage('IM_CONTENT_SETTINGS_SECTION_LIST_RECENT_MSGVER_1'),
 	    icon: 'fa-solid fa-list-ul'
 	  },
 	  desktop: {
@@ -66,6 +66,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (!im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
 	        disabledSections.add(im_v2_const.SettingsSection.desktop);
 	      }
+	      if (im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.isNotificationsStandalone)) {
+	        disabledSections.add(im_v2_const.SettingsSection.notification);
+	      }
 	      return disabledSections;
 	    },
 	    sections() {
@@ -86,23 +89,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      im_v2_lib_helpdesk.openHelpdeskArticle(ARTICLE_CODE);
 	    },
 	    onFeedbackClick() {
-	      BX.UI.Feedback.Form.open({
-	        id: 'im-v2-feedback',
-	        forms: [{
-	          zones: ['ru'],
-	          id: 550,
-	          sec: '50my2x',
-	          lang: 'ru'
-	        }, {
-	          zones: ['en'],
-	          id: 560,
-	          sec: '621lbr',
-	          lang: 'ru'
-	        }],
-	        presets: {
-	          sender_page: 'profile'
-	        }
-	      });
+	      void new im_v2_lib_feedback.FeedbackManager().openGeneralForm();
 	    },
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
@@ -167,7 +154,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    onBackgroundClick(backgroundId) {
 	      const preparedBackgroundId = Number.parseInt(backgroundId, 10);
-	      const settingsService = new im_v2_provider_service.SettingsService();
+	      const settingsService = new im_v2_provider_service_settings.SettingsService();
 	      settingsService.changeSetting(im_v2_const.Settings.appearance.background, preparedBackgroundId);
 	    }
 	  },
@@ -206,7 +193,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getSettingsService() {
 	      if (!this.settingsService) {
-	        this.settingsService = new im_v2_provider_service.SettingsService();
+	        this.settingsService = new im_v2_provider_service_settings.SettingsService();
 	      }
 	      return this.settingsService;
 	    }
@@ -237,50 +224,32 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	const DEMO_DIALOG_ID = 'settings';
-	const demoChat = {
-	  dialogId: DEMO_DIALOG_ID,
-	  chatId: -1,
-	  type: im_v2_const.ChatType.chat,
-	  inited: true,
-	  role: im_v2_const.UserRole.guest
-	};
-	const demoUser = {
-	  id: -1,
-	  name: main_core.Loc.getMessage('IM_CONTENT_SETTINGS_DEMO_CHAT_USER_NAME')
-	};
-	const demoMessage1 = {
-	  id: -3,
-	  chatId: demoChat.chatId,
-	  authorId: demoUser.id,
-	  text: main_core.Loc.getMessage('IM_CONTENT_SETTINGS_DEMO_CHAT_MESSAGE_1'),
-	  viewedByOthers: true
-	};
-	const demoMessage2 = {
-	  id: -2,
-	  chatId: demoChat.chatId,
-	  authorId: im_v2_application_core.Core.getUserId(),
-	  replyId: demoMessage1.id,
-	  text: main_core.Loc.getMessage('IM_CONTENT_SETTINGS_DEMO_CHAT_MESSAGE_2'),
-	  viewedByOthers: true
-	};
-	const demoMessage3 = {
-	  id: -1,
-	  chatId: demoChat.chatId,
-	  authorId: demoUser.id,
-	  text: main_core.Loc.getMessage('IM_CONTENT_SETTINGS_DEMO_CHAT_MESSAGE_3'),
-	  viewedByOthers: true
-	};
-	const DemoManager = {
-	  initModels() {
-	    im_v2_application_core.Core.getStore().dispatch('chats/set', demoChat);
-	    const userManager = new im_v2_lib_user.UserManager();
-	    userManager.addUsersToModel([demoUser]);
-	    const messages = [demoMessage1, demoMessage2, demoMessage3];
-	    im_v2_application_core.Core.getStore().dispatch('messages/setChatCollection', {
-	      messages
-	    });
-	  }
+	const initDemoData = () => {
+	  const chatBuilder = new im_v2_lib_demo.DemoChatBuilder();
+	  chatBuilder.addChat({
+	    role: im_v2_const.UserRole.guest
+	  });
+	  const demoUser = chatBuilder.addUser({
+	    name: main_core.Loc.getMessage('IM_CONTENT_SETTINGS_DEMO_CHAT_USER_NAME')
+	  });
+	  const firstMessage = chatBuilder.addMessage({
+	    authorId: demoUser.id,
+	    text: main_core.Loc.getMessage('IM_CONTENT_SETTINGS_DEMO_CHAT_MESSAGE_1'),
+	    viewedByOthers: true
+	  });
+	  chatBuilder.addMessage({
+	    authorId: im_v2_application_core.Core.getUserId(),
+	    replyId: firstMessage.id,
+	    text: main_core.Loc.getMessage('IM_CONTENT_SETTINGS_DEMO_CHAT_MESSAGE_2'),
+	    viewedByOthers: true
+	  });
+	  chatBuilder.addMessage({
+	    authorId: demoUser.id,
+	    text: main_core.Loc.getMessage('IM_CONTENT_SETTINGS_DEMO_CHAT_MESSAGE_3'),
+	    viewedByOthers: true
+	  });
+	  chatBuilder.save();
+	  return chatBuilder.getChat().dialogId;
 	};
 
 	// @vue/component
@@ -292,7 +261,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    ChatAlignment
 	  },
 	  data() {
-	    return {};
+	    return {
+	      fakeDialogId: ''
+	    };
 	  },
 	  computed: {
 	    containerClasses() {
@@ -304,7 +275,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  created() {
-	    DemoManager.initModels();
+	    this.fakeDialogId = initDemoData();
 	  },
 	  methods: {
 	    loc(phraseCode) {
@@ -315,7 +286,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<div class="bx-im-settings-section-content__body">
 			<div class="bx-im-settings-section-content__block">
 				<div class="bx-im-content-chat__container bx-im-settings-appearance__demo-chat_container" :class="containerClasses" :style="backgroundStyle">
-					<ChatDialog :dialogId="'settings'" />
+					<ChatDialog :dialogId="fakeDialogId" />
 				</div>
 			</div>
 			<div class="bx-im-settings-section-content__block">
@@ -338,6 +309,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	// @vue/component
 	const CheckboxOption = {
 	  name: 'CheckboxOption',
+	  components: {
+	    ChatHint: im_v2_component_elements_hint.ChatHint
+	  },
 	  props: {
 	    value: {
 	      type: Boolean,
@@ -352,11 +326,18 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: Boolean,
 	      required: false,
 	      default: false
+	    },
+	    hintText: {
+	      type: String,
+	      required: false,
+	      default: ''
 	    }
 	  },
 	  emits: ['change'],
-	  data() {
-	    return {};
+	  computed: {
+	    hasHint() {
+	      return this.hintText.length > 0;
+	    }
 	  },
 	  methods: {
 	    onInput(event) {
@@ -367,7 +348,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<div class="bx-im-settings-checkbox__container bx-im-settings-section-content__block_option" :class="{ '--no-text': text === '' }">
 			<label class="ui-ctl ui-ctl-checkbox">
 				<input type="checkbox" :checked="value" :disabled="disabled" @input="onInput" class="ui-ctl-element">
-				<div v-if="text" class="ui-ctl-label-text">{{ text }}</div>
+				<span v-if="text" class="ui-ctl-label-text">{{ text }}</span>
+				<ChatHint v-if="hasHint" :text="hintText" />
 			</label>
 		</div>
 	`
@@ -467,7 +449,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getSettingsService() {
 	      if (!this.settingsService) {
-	        this.settingsService = new im_v2_provider_service.SettingsService();
+	        this.settingsService = new im_v2_provider_service_settings.SettingsService();
 	      }
 	      return this.settingsService;
 	    },
@@ -479,11 +461,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<div class="bx-im-settings-section-content__body">
 			<div class="bx-im-settings-section-content__block">
 				<div class="bx-im-settings-section-content__block_title">
-					{{ loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_BLOCK_SIMPLE_MODE_TITLE') }}
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_BLOCK_SIMPLE_MODE_TITLE_MSGVER_1') }}
 				</div>
 				<CheckboxOption
 					:value="enableWeb"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_WEB')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_WEB_MSGVER_1')"
 					@change="onEnableWebChange"
 				/>
 				<CheckboxOption
@@ -493,7 +475,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				/>
 				<CheckboxOption
 					:value="enablePush"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_PUSH_V1')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_MSGVER_1')"
 					@change="onEnablePushChange"
 				/>
 			</div>
@@ -511,11 +493,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        userId: im_v2_application_core.Core.getUserId(),
 	        scheme: newScheme
 	      }
-	    }).catch(error => {
-	      // eslint-disable-next-line no-console
+	    }).catch(([error]) => {
 	      console.error('NotificationService: switchScheme error', error);
 	    });
-	    return im_v2_application_core.Core.getStore().dispatch('application/settings/set', {
+	    void im_v2_application_core.Core.getStore().dispatch('application/settings/set', {
 	      notifications: newNotificationsSettings
 	    });
 	  },
@@ -526,13 +507,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type,
 	      value
 	    } = payload;
-	    im_v2_application_core.Core.getStore().dispatch('application/settings/setNotificationOption', {
+	    void im_v2_application_core.Core.getStore().dispatch('application/settings/setNotificationOption', {
 	      moduleId,
 	      optionName,
 	      type,
 	      value
 	    });
-	    return im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2SettingsNotifyUpdate, {
+	    im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2SettingsNotifyUpdate, {
 	      data: {
 	        userId: im_v2_application_core.Core.getUserId(),
 	        moduleId,
@@ -540,8 +521,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        type,
 	        value
 	      }
-	    }).catch(error => {
-	      // eslint-disable-next-line no-console
+	    }).catch(([error]) => {
 	      console.error('NotificationService: changeExpertOption error', error);
 	    });
 	  }
@@ -643,13 +623,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<div class="bx-im-settings-expert-notifications__header">
 					<div class="bx-im-settings-expert-notifications__header_title"></div>
 					<div class="bx-im-settings-expert-notifications__header_type">
-						{{ loc('IM_CONTENT_SETTINGS_EXPERT_NOTIFICATIONS_TYPE_WEB') }}
+						{{ loc('IM_CONTENT_SETTINGS_EXPERT_NOTIFICATIONS_TYPE_WEB_MSGVER_1') }}
 					</div>
 					<div class="bx-im-settings-expert-notifications__header_type">
 						{{ loc('IM_CONTENT_SETTINGS_EXPERT_NOTIFICATIONS_TYPE_MAIL') }}
 					</div>
 					<div class="bx-im-settings-expert-notifications__header_type">
-						{{ loc('IM_CONTENT_SETTINGS_EXPERT_NOTIFICATIONS_TYPE_PUSH') }}
+						{{ loc('IM_CONTENT_SETTINGS_EXPERT_NOTIFICATIONS_TYPE_PUSH_MSGVER_1') }}
 					</div>
 				</div>
 				<NotificationItem v-for="item in block.items" :item="item" :blockId="block.id" :key="item.id" />
@@ -692,15 +672,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    SimpleNotificationList,
 	    ExpertNotificationList
 	  },
-	  data() {
-	    return {};
-	  },
 	  computed: {
 	    enableSound() {
 	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.notification.enableSound);
 	    },
 	    enableAutoRead() {
 	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.notification.enableAutoRead);
+	    },
+	    isDndEnabled() {
+	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.user.status) === im_v2_const.UserStatus.dnd;
 	    },
 	    notificationMode() {
 	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.notification.mode);
@@ -727,6 +707,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    onEnableAutoReadChange(newValue) {
 	      this.getSettingsService().changeSetting(im_v2_const.Settings.notification.enableAutoRead, newValue);
 	    },
+	    onEnableDnDChange(newValue) {
+	      const preparedValue = newValue ? im_v2_const.UserStatus.dnd : im_v2_const.UserStatus.online;
+	      this.getSettingsService().changeStatus(preparedValue);
+	    },
 	    async onNotificationModeChange(newValue) {
 	      const isChangingToSimple = newValue === im_v2_const.NotificationSettingsMode.simple;
 	      if (isChangingToSimple) {
@@ -746,7 +730,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getSettingsService() {
 	      if (!this.settingsService) {
-	        this.settingsService = new im_v2_provider_service.SettingsService();
+	        this.settingsService = new im_v2_provider_service_settings.SettingsService();
 	      }
 	      return this.settingsService;
 	    },
@@ -758,24 +742,30 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<div class="bx-im-settings-section-content__body">
 			<div class="bx-im-settings-section-content__block">
 				<div class="bx-im-settings-section-content__block_title">
-					{{ loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_BLOCK_FOCUS') }}
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_BLOCK_FOCUS_MSGVER_1') }}
 				</div>
 				<CheckboxOption
 					:value="enableSound"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_SOUND')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_SOUND_MSGVER_1')"
 					@change="onEnableSoundChange"
 				/>
 				<CheckboxOption
 					:value="enableAutoRead"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_AUTO_READ')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_AUTO_READ_MSGVER_1')"
 					@change="onEnableAutoReadChange"
+				/>
+				<CheckboxOption
+					:value="isDndEnabled"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_DND')"
+					:hintText="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_DND_HINT')"
+					@change="onEnableDnDChange"
 				/>
 			</div>
 		</div>
 		<div class="bx-im-settings-section-content__body">
 			<div class="bx-im-settings-section-content__block">
 				<div class="bx-im-settings-section-content__block_title">
-					{{ loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_BLOCK_MODE') }}
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_BLOCK_MODE_MSGVER_1') }}
 				</div>
 				<RadioOption :items="notificationModeOptions" @change="onNotificationModeChange" />
 			</div>
@@ -799,10 +789,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    sendCombinationItems() {
 	      const ctrlKey = im_v2_lib_utils.Utils.platform.isMac() ? '&#8984;' : 'Ctrl';
-	      const enterSubtext = this.loc('IM_CONTENT_SETTINGS_OPTION_HOTKEY_NEW_LINE', {
+	      const enterSubtext = this.loc('IM_CONTENT_SETTINGS_OPTION_HOTKEY_NEW_LINE_MSGVER_1', {
 	        '#HOTKEY#': 'Shift + Enter'
 	      });
-	      const ctrlEnterSubtext = this.loc('IM_CONTENT_SETTINGS_OPTION_HOTKEY_NEW_LINE', {
+	      const ctrlEnterSubtext = this.loc('IM_CONTENT_SETTINGS_OPTION_HOTKEY_NEW_LINE_MSGVER_1', {
 	        '#HOTKEY#': 'Enter'
 	      });
 	      return [{
@@ -828,7 +818,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getSettingsService() {
 	      if (!this.settingsService) {
-	        this.settingsService = new im_v2_provider_service.SettingsService();
+	        this.settingsService = new im_v2_provider_service_settings.SettingsService();
 	      }
 	      return this.settingsService;
 	    },
@@ -857,9 +847,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  components: {
 	    CheckboxOption
 	  },
-	  data() {
-	    return {};
-	  },
 	  computed: {
 	    showBirthday() {
 	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.recent.showBirthday);
@@ -883,7 +870,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getSettingsService() {
 	      if (!this.settingsService) {
-	        this.settingsService = new im_v2_provider_service.SettingsService();
+	        this.settingsService = new im_v2_provider_service_settings.SettingsService();
 	      }
 	      return this.settingsService;
 	    },
@@ -896,17 +883,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<div class="bx-im-settings-section-content__block">
 				<CheckboxOption
 					:value="showBirthday"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_BIRTHDAY')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_BIRTHDAY_MSGVER_1')"
 					@change="onShowBirthdayChange"
 				/>
 				<CheckboxOption
 					:value="showInvited"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_INVITED')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_INVITED_MSGVER_1')"
 					@change="onShowInvitedChange"
 				/>
 				<CheckboxOption
 					:value="showLastMessage"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_TEXT')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_TEXT_MSGVER_1')"
 					@change="onShowLastMessageChange"
 				/>
 			</div>
@@ -920,13 +907,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  components: {
 	    CheckboxOption
 	  },
-	  data() {
-	    return {};
-	  },
 	  computed: {
-	    twoWindowMode() {
-	      return im_v2_lib_desktopApi.DesktopApi.isTwoWindowMode();
-	    },
 	    autoStartDesktop() {
 	      return im_v2_lib_desktopApi.DesktopApi.getAutostartStatus();
 	    },
@@ -943,22 +924,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      const sliderBindingStatus = im_v2_lib_desktopApi.DesktopApi.getCustomSetting(im_v2_lib_desktopApi.DesktopSettingsKey.sliderBindingsStatus, '1');
 	      return sliderBindingStatus === '1';
 	    },
-	    sendTelemetry() {
-	      return im_v2_lib_desktopApi.DesktopApi.getTelemetryStatus();
+	    isRedirectAvailable() {
+	      return im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.isDesktopRedirectAvailable);
 	    }
 	  },
 	  methods: {
-	    async onTwoWindowModeChange(newValue) {
-	      im_v2_lib_desktopApi.DesktopApi.setTwoWindowMode(newValue);
-	      if (!im_v2_lib_desktopApi.DesktopApi.isFeatureSupported(im_v2_lib_desktopApi.DesktopFeature.restart.id)) {
-	        void im_v2_lib_confirm.showDesktopConfirm();
-	        return;
-	      }
-	      const userChoice = await im_v2_lib_confirm.showDesktopRestartConfirm();
-	      if (userChoice === true) {
-	        im_v2_lib_desktopApi.DesktopApi.restart();
-	      }
-	    },
 	    onAutoStartDesktopChange(newValue) {
 	      im_v2_lib_desktopApi.DesktopApi.setAutostartStatus(newValue);
 	    },
@@ -969,9 +939,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.setSliderBindingStatus(newValue);
 	      im_v2_lib_desktopApi.DesktopApi.setCustomSetting(im_v2_lib_desktopApi.DesktopSettingsKey.sliderBindingsStatus, newValue ? '1' : '0');
 	    },
-	    onSendTelemetryChange(newValue) {
-	      im_v2_lib_desktopApi.DesktopApi.setTelemetryStatus(newValue);
-	    },
 	    setSliderBindingStatus(flag) {
 	      if (flag === true) {
 	        BX.SidePanel.Instance.enableAnchorBinding();
@@ -981,7 +948,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getSettingsService() {
 	      if (!this.settingsService) {
-	        this.settingsService = new im_v2_provider_service.SettingsService();
+	        this.settingsService = new im_v2_provider_service_settings.SettingsService();
 	      }
 	      return this.settingsService;
 	    },
@@ -996,11 +963,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_STARTUP') }}
 				</div>
 				<CheckboxOption
-					:value="twoWindowMode"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_TWO_WINDOW_MODE_V2')"
-					@change="onTwoWindowModeChange"
-				/>
-				<CheckboxOption
 					:value="autoStartDesktop"
 					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_AUTO_START')"
 					@change="onAutoStartDesktopChange"
@@ -1011,6 +973,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_LINKS') }}
 				</div>
 				<CheckboxOption
+					v-if="isRedirectAvailable"
 					:value="openPortalLinkInDesktop"
 					:text="openPortalLinkInDesktopPhrase"
 					@change="onOpenPortalLinkInDesktopChange"
@@ -1019,16 +982,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					:value="openLinksInSlider"
 					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_OPEN_LINKS_IN_SLIDER_V2')"
 					@change="onOpenLinksInSliderChange"
-				/>
-			</div>
-			<div class="bx-im-settings-section-content__block">
-				<div class="bx-im-settings-section-content__block_title">
-					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_ADDITIONAL') }}
-				</div>
-				<CheckboxOption
-					:value="sendTelemetry"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_SEND_TELEMETRY')"
-					@change="onSendTelemetryChange"
 				/>
 			</div>
 		</div>
@@ -1136,5 +1089,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.SettingsContent = SettingsContent;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.UI.Feedback,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Service));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Component.Elements,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Service));
 //# sourceMappingURL=settings-content.bundle.js.map

@@ -1,0 +1,24 @@
+<?php
+$MESS["F_DATE_TIME_FORMAT"] = "Күн мен уақытты көрсету пішімі";
+$MESS["F_DETAIL_TEMPLATE"] = "Ақпараттық блок элементінің парақшасы";
+$MESS["F_EDITOR_CODE_DEFAULT"] = "Әдепкі бойынша редактордың көрнекі емес режимін көрсету";
+$MESS["F_FORUM_ID"] = "Пікірлер үшін форумның ID-і";
+$MESS["F_IBLOCK_ID"] = "Ақпараттық блок коды";
+$MESS["F_IBLOCK_TYPE"] = "Ақпараттық блоктың түрі (тек тексеру үшін қолданылады)";
+$MESS["F_MESSAGES_PER_PAGE"] = "Бір парақшадағы хабарламалар саны";
+$MESS["F_PAGE_NAVIGATION_TEMPLATE"] = "Парақша бойынша навигацияны көрсетуге арналған қалып атауы";
+$MESS["F_PREORDER"] = "Хабарламаларды тікелей тәртіпте шығару";
+$MESS["F_PROFILE_VIEW_TEMPLATE"] = "Пайдаланушы парақшасы";
+$MESS["F_READ_TEMPLATE"] = "Форум тақырыбының оқу парақшасы";
+$MESS["F_SHOW_AVATAR"] = "Пайдаланушылардың аватарларын көрсету";
+$MESS["F_SHOW_AVATAR_PHOTO"] = "Жоқ, аватарлардың орнына фотосуреттерді көрсету";
+$MESS["F_USE_CAPTCHA"] = "CAPTCHA қолдану";
+$MESS["IBLOCK_ELEMENT_ID"] = "Элементтің ID-і";
+$MESS["RATING_TYPE"] = "Рейтинг батырмаларының түрі";
+$MESS["RATING_TYPE_CONFIG"] = "әдепкі бойынша";
+$MESS["RATING_TYPE_LIKE_GRAPHIC"] = "Маған ұнайды (графикалық)";
+$MESS["RATING_TYPE_LIKE_TEXT"] = "Маған ұнайды (мәтінді)";
+$MESS["RATING_TYPE_STANDART_GRAPHIC"] = "Ұнайды / Ұнамайды (графикалық)";
+$MESS["RATING_TYPE_STANDART_TEXT"] = "Ұнайды / Ұнамайды (мәтінді)";
+$MESS["SHOW_RATING"] = "Рейтингті қосу";
+$MESS["SHOW_RATING_CONFIG"] = "әдепкі бойынша";

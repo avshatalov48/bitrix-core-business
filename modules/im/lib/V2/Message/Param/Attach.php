@@ -53,31 +53,12 @@ class Attach extends Param
 	 * @param mixed $value
 	 * @return mixed
 	 */
-	public function loadValueFilter($value)
-	{
-		if (!empty($value))
-		{
-			$value = \Bitrix\Im\Text::decodeEmoji($value);
-		}
-		else
-		{
-			$value = null;
-		}
-
-		return $value;
-	}
-
-	/**
-	 * @param mixed $value
-	 * @return mixed
-	 */
 	public function saveValueFilter($value)
 	{
 		$value = '';
 		if (!empty($this->value['DESCRIPTION']))
 		{
 			$value = parent::saveValueFilter($this->value['DESCRIPTION']);
-			$value = \Bitrix\Im\Text::encodeEmoji($value);
 		}
 
 		return $value;

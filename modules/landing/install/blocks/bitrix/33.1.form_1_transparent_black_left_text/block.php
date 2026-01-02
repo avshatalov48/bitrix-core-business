@@ -23,7 +23,7 @@
 						<div class="media align-items-center mb-4">
 							<div class="d-flex">
 								<span class="landing-block-card-contact-icon-container u-icon-v1 u-icon-size--sm g-color-white mr-2">
-									<i class="landing-block-card-contact-icon icon-hotel-restaurant-235 u-line-icon-pro"></i>
+									<i class="landing-block-node-contact-icon icon-hotel-restaurant-235 u-line-icon-pro"></i>
 								</span>
 							</div>
 							<div class="media-body">

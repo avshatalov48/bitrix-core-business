@@ -1,10 +1,11 @@
-<?
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2002-2010 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:sources@bitrixsoft.com              #
-##############################################
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage mail
+ * @copyright 2001-2025 Bitrix
+ */
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/constants.php");
 

@@ -15,7 +15,7 @@ class CBitrixXscan
 	static $functions = '(?:parse_str|hex2bin|str_rot13|base64_decode|url_decode|str_replace|str_ireplace|preg_replace|move_uploaded_file)';
 	static $evals = ['eval', 'assert', 'create_function', 'exec', 'passthru', 'pcntl_exec', 'popen', 'proc_open', 'set_include_path', 'shell_exec', 'system'];
 	static $evals_reg = '(?:assert|call_user_func|call_user_func_array|create_function|eval|exec|ob_start|passthru|pcntl_exec|popen|proc_open|set_include_path|shell_exec|system)';
-	static $black_reg = '(https?://[0-9a-z\-]+\.pw/|wp-config|wp-admin|wp-login|deprecated-media-js|customize-menus-rtl|adminer_errors|/etc/passwd|/etc/hosts|mysql_pdo|__halt_compiler|/bin/sh|registerPHPFunctions|[e3]xp[l1][o0][i1][7td])';
+	static $black_reg = '(https?://[0-9a-z\-]+\.pw/|password_verify|https?://(?:sw\.)?bitrix\.dev|wp-config|wp-admin|wp-login|deprecated-media-js|customize-menus-rtl|adminer_errors|/etc/passwd|/etc/hosts|mysql_pdo|__halt_compiler|/bin/sh|registerPHPFunctions)';
 	static $mehtods = [
 		'Bitrix\Im\Call\Auth::authorizeById',
 		'Bitrix\ImOpenLines\Controller\Widget\Filter\Authorization::authorizeById',
@@ -33,7 +33,7 @@ class CBitrixXscan
 		'CSaleHelper::getOptionOrImportValues',
 		'CWebDavTools::sendJsonResponse',
 	];
-    public $false_positives = ['9223e925409363b7db262cfea1b6a7e2', '4d2cb64743ff3647bad4dea540d5b08e', 'd40c4da27ce1860c111fc0e68a4b39b5',
+    private const false_positives = ['9223e925409363b7db262cfea1b6a7e2', '4d2cb64743ff3647bad4dea540d5b08e', 'd40c4da27ce1860c111fc0e68a4b39b5',
         'ef9287187dc22a6ce47476fd80720878', '13484affcdf9f45d29b61d732f8a5855', '4a171d5dc7381cce26227c5d83b5ba0c', 'b41d3b390f0f5ac060f9819e40bda7eb',
         '40142320d26a29586dc8528cfb183aac', 'f454f39a15ec9240d93df67536372c1b', '29bba835e33ab80598f88e438857f342', '77cdd8164d4940cb6bfaac906383a766',
         '5b3425a6ff518fa2337b373e1c799959', '7c60ccaee2b919c9e6b16b307eb80dab', 'bde611db5c3545005a7270edcffd8dc2', '4d6b616171dbf06ff57d1dab8ea6bbce',
@@ -53,7 +53,7 @@ class CBitrixXscan
 	public $break_point = null;
 	public $skip_path = null;
 	public $found = false;
-	public $mem_enought = false;
+	public $db_error = false;
 	public $progress = 0;
 	public $total = 0;
 	public $collect_exceptions = true;
@@ -99,9 +99,10 @@ class CBitrixXscan
 	private $result_collection = null;
 	private $score = 1;
 
-	function __construct($progress = 0, $total = 0)
+	function __construct($progress = 0, $total = 0, $start_path='')
 	{
 		$this->doc_root = rtrim($_SERVER['DOCUMENT_ROOT'], '/');
+		$this->base_dir = $start_path;
 
 		$this->result_collection = new \Bitrix\Security\XScanResults();
 		$this->db_file = $this->doc_root . '/bitrix/modules/security/data/database.json';
@@ -112,7 +113,7 @@ class CBitrixXscan
 		$this->time_limit = min($this->time_limit, 30);
 		$this->time_limit = $this->time_limit * 0.7;
 
-		$this->mem_enought = $mem == -1 || $mem >= 128;
+		$this->db_error = $mem >= 0 && $mem <= 128;
 
 		$this->progress = $progress;
 		$this->total = $total;
@@ -130,11 +131,36 @@ class CBitrixXscan
 		}
 	}
 
-	function clean()
+	function start($start_path)
+	{
+		$this->clean();
+		$this->CheckTriggers();
+		$this->CheckEvents();
+		$this->CheckAgents();
+		$this->CheckTemplates();
+		$this->Search($start_path, 'count');
+	}
+
+
+	private function clean()
 	{
 		global $DB;
 		$DB->Query("TRUNCATE TABLE b_sec_xscan_results", true);
 		$this->errors = [];
+	}
+
+	function CheckTriggers()
+	{
+		global $DB;
+
+		if ($r = $DB->Query('SHOW triggers;', true))
+		{
+			if ($row = $r->Fetch())
+			{
+				$result = (new XScanResult)->setType('trigg')->setSrc($row['Trigger'])->setScore(1)->setMessage('[040] triggers');
+				$this->result_collection[] = $result;
+			}
+		}
 	}
 
 	function CheckEvents()
@@ -202,6 +228,41 @@ class CBitrixXscan
 		}
 	}
 
+	function CheckTemplates()
+	{
+		global $DB;
+
+		$r = $DB->Query('SELECT * from b_site_template');
+
+		while ($row = $r->Fetch())
+		{
+			if (!$row['CONDITION'])
+			{
+				continue;
+			}
+
+			$src = "<?php\n" . $row['CONDITION'] . "\n?>";
+			$this->CheckCode($src);
+
+			if ($this->results)
+			{
+				$message = [];
+				foreach ($this->results as $res)
+				{
+					$message[] = $res['subj'];
+				}
+
+				if (is_array($message))
+				{
+					$message = implode(' <br> ', array_unique($message));
+				}
+
+				$result = (new XScanResult)->setType('tmpl')->setSrc($row['ID'])->setScore(1)->setMessage($message);
+				$this->result_collection[] = $result;
+			}
+		}
+	}
+
 	static function crc($a)
 	{
 		return crc32(implode('|', $a));
@@ -214,7 +275,7 @@ class CBitrixXscan
 		$code = preg_replace('~<\?(php|=)?~', '', $code);
 		$code = preg_replace('~<[^>$()]*?>~', '', $code);
 		$code = str_replace('?>', '', $code);
-		$code = preg_split('~[\n;{}(),\s]+~', $code);
+		$code = preg_split('~[\n;{}(),\s.]+~', $code);
 
 		$arr = [];
 
@@ -355,29 +416,6 @@ class CBitrixXscan
         global $DB;
 
         static $static_cache;
-        static $map = [
-            'socserv' => 'socialservices',
-            'system' => 'main',
-            'rating' => 'main',
-            'spotlight' => 'main',
-            'desktop' => 'main',
-            'menu' => 'main',
-            'pdf' => 'fileman',
-            'player' => 'fileman',
-            'map' => 'fileman',
-            'news' => 'iblock',
-            'photo' => 'iblock',
-            'support' => 'iblock',
-            'rss' => 'iblock',
-            'voting' => 'vote',
-            'payroll' => 'intranet',
-            'planner' => 'intranet',
-            'eshop' => 'bitrix.eshop',
-            'furniture' => 'bitrix.sitecorporate',
-            'app' => 'rest'
-        ];
-
-        $module = isset($map[$module])? $map[$module]: $module;
 
         if (!is_array($static_cache)){
             $static_cache = [];
@@ -400,23 +438,18 @@ class CBitrixXscan
         }
         else
         {
-            $sHost = COption::GetOptionString("main", "update_site", "www.bitrixsoft.com");
-            $proxyAddr = COption::GetOptionString("main", "update_site_proxy_addr", "");
-            $proxyPort = COption::GetOptionString("main", "update_site_proxy_port", "");
-            $proxyUserName = COption::GetOptionString("main", "update_site_proxy_user", "");
-            $proxyPassword = COption::GetOptionString("main", "update_site_proxy_pass", "");
+            $sHost = \Bitrix\Main\Application::getInstance()->getLicense()->getDomainStoreLicense();
             $dbtype = mb_strtolower($DB->type);
             $http = new \Bitrix\Main\Web\HttpClient();
-            $http->setProxy($proxyAddr, $proxyPort, $proxyUserName, $proxyPassword);
 
-            $data = $http->get("https://{$sHost}/bitrix/updates/checksum.php?check_sum=Y&module_id={$module}&ver={$version}&dbtype={$dbtype}&mode=2");
+            $data = $http->get($sHost . "/bitrix/updates/checksum.php?check_sum=Y&module_id={$module}&ver={$version}&dbtype={$dbtype}&mode=2");
             $result = @unserialize(gzinflate($data), ['allowed_classes' => false]);
 
             $static_cache[$key] = [];
 
             if (is_array($result)) {
                 $result = array_filter($result, function ($value) {
-                    return substr($value, -4) === '.php';
+                    return preg_match('/\.(php|js)$/', $value);
                 }, ARRAY_FILTER_USE_KEY);
 
                 $cache->startDataCache();
@@ -432,64 +465,98 @@ class CBitrixXscan
 
     static function checkByHash($file_path)
     {
+		static $map = [];
+
+		if (!preg_match("~/bitrix/(?:modules|components|wizards|templates/bitrix24|blocks/bitrix|js)/~", $file_path))
+		{
+			return null;
+		}
+
+		$doc_root = static::detectDocRoot($file_path);
+
+		if(!$doc_root)
+		{
+			return null;
+		}
+
         $module = '';
         $file = '';
 
-        if (preg_match("~bitrix/modules/([^.]+?)/(.+)~", $file_path, $matches))
+        if (preg_match("~bitrix/modules/(.+?)/(.+)~", $file_path, $matches))
         {
             $file = $matches[2];
             $module = $matches[1];
         }
-        elseif(preg_match("~/bitrix(/components/bitrix/socialnetwork_(?:group|user)/.+)~", $file_path, $matches))
-        {
-            $file = 'install' . $matches[1];
-            $module = 'socialnetwork';
-        }
-        elseif(preg_match("~/bitrix(/components/bitrix/photogallery_user/.+)~", $file_path, $matches))
-        {
-            $file = 'install' . $matches[1];
-            $module = 'photogallery';
-        }
-        elseif(preg_match("~/bitrix(/(?:components|wizards)/bitrix/([a-z24]+)[./].+)~", $file_path, $matches))
-        {
-            $file = 'install' . $matches[1];
-            $module = $matches[2];
-        }
-        elseif(preg_match("~/bitrix(/templates/bitrix24/.+)~", $file_path, $matches))
-        {
-            $file = 'install' . $matches[1];
-            $module = 'intranet';
-        }
-        elseif(preg_match("~/bitrix(/blocks/bitrix/.+)~", $file_path, $matches))
-        {
-            $file = 'install' . $matches[1];
-            $module = 'landing';
-        }
+		elseif (preg_match("~bitrix/js/(.+?)/(.+)~", $file_path, $matches))
+		{
+			$file = 'install/js/' . $matches[1] . '/' .$matches[2];
+			$module = $matches[1];
+		}
+		elseif(preg_match("~/bitrix(/components/bitrix/mobile\.tasks\..+)~", $file_path, $matches))
+		{
+			$file = 'install' . $matches[1];
+			$module = 'tasksmobile';
+		}
+		else
+		{
+			$len = strlen($doc_root . '/bitrix');
+			$file = 'install' . substr($file_path, $len);
+			preg_match('~^install/.+?/.+?/.+?/~', $file, $key);
+			$key = $key ? rtrim($key[0], '/') : '';
 
-        if($file && $module)
-        {
-            $doc_root = static::detectDocRoot($file_path);
+			if (!isset($map[$doc_root]))
+			{
+				$map[$doc_root] = [];
 
-            if(!$doc_root)
-            {
-                return false;
-            }
+				foreach(glob("{$doc_root}/bitrix/modules/*") as $dir){
 
-            $version = static::getVersion($module, $doc_root);
-            if (!$version)
-            {
-                return;
-            }
+					if (is_dir($dir))
+					{
+						$mod = basename($dir);
+						$len = strlen($dir) + 1;
 
-            $hashes = static::getHashes($module, $version);
+						foreach (['components', 'wizards', 'blocks', 'templates'] as $sub)
+						{
+							if (!is_dir("{$dir}/install/{$sub}"))
+							{
+								continue;
+							}
 
-            if ($hashes && isset($hashes[$file]) && $hashes[$file] === md5_file($file_path))
-            {
-                return true;
-            }
-        }
+							foreach(glob("{$dir}/install/{$sub}/*/*") as $c)
+							{
+								$c = substr($c, $len);
+								$map[$doc_root][$c] = $mod;
+							}
+						}
+					}
+				}
+			}
 
-        return false;
+			if (isset($map[$doc_root]) && isset($map[$doc_root][$key]))
+			{
+				$module = $map[$doc_root][$key];
+			}
+		}
+
+		if (!$module || !$file)
+		{
+			return null;
+		}
+
+		$version = static::getVersion($module, $doc_root);
+		if (!$version)
+		{
+			return null;
+		}
+
+		$hashes = static::getHashes($module, $version);
+
+		if ($hashes && isset($hashes[$file]))
+		{
+			return $hashes[$file] === md5_file($file_path);
+		}
+
+        return null;
     }
 
 	function CheckFile($file_path)
@@ -535,6 +602,12 @@ class CBitrixXscan
 				return true;
 			}
 
+			if (stripos($src, '(index.php|cache.php)') !== false)
+			{
+				$this->addResult('[100] htaccess', '(index.php|cache.php)', 1);
+				return true;
+			}
+
 			if (preg_match_all('#x-httpd-php[578]?\s+(.+)#i', $src, $regs))
 			{
 				foreach ($regs[1] as $i => $val)
@@ -562,14 +635,20 @@ class CBitrixXscan
 			return true;
 		}
 
-		if (!preg_match('#\.php[578]?$#i', $file_path, $regs))
+		$hash_check = static::checkByHash($file_path);
+
+		if ($hash_check === true)
 		{
 			return false;
 		}
-
-		if (static::checkByHash($file_path))
+		elseif ($hash_check === false)
 		{
-			return false;
+			$this->addResult('[201] file was modified', '', 1);
+		}
+
+		if (!preg_match('#\.php[578]?$#i', $file_path, $regs))
+		{
+			return !empty($this->results);
 		}
 
 		# CODE 200
@@ -617,7 +696,7 @@ class CBitrixXscan
 
 	function IsFalsePositive($checksum)
 	{
-		return in_array($checksum, $this->false_positives, true);
+		return in_array($checksum, self::false_positives, true);
 	}
 
 	function getResult()
@@ -652,16 +731,53 @@ class CBitrixXscan
 		return $this->CheckCodeInternal($src, $file_path);
 	}
 
-	private function CheckCodeInternal(&$src, $file_path = false)
-	{
-		$file_path = $file_path ? $file_path : '';
+	private function load_db(){
 
-		if (!self::$database && is_file($this->db_file) && $this->mem_enought)
+		if (self::$database || $this->db_error)
+		{
+			return;
+		}
+
+		$cache = \Bitrix\Main\Data\Cache::createInstance();
+
+		if ($cache && $cache->initCache(12 * 3600, 'xscan_db', 'xscan'))
+		{
+			$result = $cache->getVars();
+		}
+		else
+		{
+			$http = new \Bitrix\Main\Web\HttpClient();
+			$data = $http->get("https://wwall.bitrix.info/database.gz");
+			$result = $http->getStatus() == 200 && $data ? json_decode(gzuncompress($data), true) : 'error';
+			$result = is_array($result) ? $result : 'error';
+			$cache->startDataCache();
+			$cache->endDataCache($result);
+			unset($data);
+		}
+
+		if (is_array($result) && isset($result['tokens']) && isset($result['shells']))
+		{
+			self::$database = $result;
+			unset($result);
+		}
+		elseif (is_file($this->db_file))
 		{
 			$tmp = file_get_contents($this->db_file);
 			self::$database = json_decode($tmp, true);
 			unset($tmp);
 		}
+		else
+		{
+			$this->db_error = true;
+		}
+
+	}
+
+	private function CheckCodeInternal(&$src, $file_path = false)
+	{
+		$file_path = $file_path ? $file_path : '';
+
+		$this->load_db();
 
 		$code = preg_replace("/<\?=/", "<?php echo ", $src);
 		$code = preg_replace("/<\?(?!php)/", "<?php ", $code);
@@ -675,19 +791,21 @@ class CBitrixXscan
 			($cmt = 'vars') && preg_match_all('/(?:\$|function\s+)(?:[o0]{4,}|[il]{4,})/i', $code) > 3 ||
 			($cmt = 'goto') && preg_match_all('/goto\s+[0-9A-Z]+\s*;/i', $code) > 2 ||
 			($cmt = 'globals') && preg_match_all('/\$GLOBALS\s*\[["\'][0-9_]+["\']\]/', $code) > 3 ||
-            ($cmt = 'base64_short') && preg_match_all("/base64_decode\s*\(\s*[^$].{3,14}\)/i", $code) > 3 ||
+            ($cmt = 'base64') && preg_match_all("/base64_decode\s*\(\s*[^$].{3,14}\)/i", $code) > 3 ||
+			($cmt = 'base64') && preg_match_all("~(?:base64_decode\s*\(\s*)(?:(['\"])[0-9a-z=+\/_]{1,20}\\1(?:\s*\.\s*)?){2,}~i", $code) > 3 ||
             ($cmt = 'functions') && preg_match_all("/function\s+_\w{1,3}\b/i", $code) > 3 ||
-            ($cmt = 'concat') && preg_match_all("~(?:(['\"])[0-9a-z=+\/_]{1,20}\\1(?:\s*\.\s*)?){2,}~i", $code) > 20 ||
+            ($cmt = 'concat') && preg_match_all("~(?:(?:(['\"])[0-9a-z=+\/_]{1,20}\\1|\\$?[0-9a-z_]+\(\))(?:\s*\.\s*)?){3,}~i", $code) > 20 ||
 			// ($cmt = 'len') && strlen($code) / max(substr_count($code, "\n"), 1) > 500 ||
 			// ($cmt = 'base_strings') && preg_match_all('~[0-9A-Z+/]{80,100}~i', $code) > 5 ||
 			($cmt = 'urlenc') && preg_match_all('/(%[0-9A-Z]{2}){80,100}/i', $code) > 2 ||
-			($cmt = 'base64_keys') && substr_count($code, "[base64") > 1 /* ||
+			($cmt = 'base64_keys') && substr_count($code, "[base64") > 1 ||
+            ($cmt = 'unicode') && preg_match_all('~[\p{So}\p{Sk}\p{Nl}]{4,}~u', $code) > 2 /* ||
 			($cmt = 'long_space') && preg_match('/\t{30,}+(?:[()$]|\S.*?[()$])/', $code) ||
 			($cmt = 'long_space') && preg_match('/[\t ]{80,}+(?:[()$]|\S.*?[()$])/', $code) */
 		)
 		{
 			$this->tags[] = defined('XSCAN_DEBUG') ? "obfuscator [$cmt]" : "obfuscator";
-            if (in_array($cmt, ['$$', 'vars', 'goto', 'globals', 'base64_short', 'functions', 'concat']))
+            if (in_array($cmt, ['$$', 'vars', 'goto', 'globals', 'base64', 'functions', 'concat', 'unicode']))
 			{
 				$this->addResult('[001] obfuscator', '', 0.6);
 			}
@@ -746,6 +864,16 @@ class CBitrixXscan
 		if (strpos($file_path, '/bitrix/modules/main/') !== false)
 		{
 			$this->tags[] = 'core';
+		}
+
+		static $included;
+		if (!$included)
+		{
+			$included = get_included_files();
+		}
+
+		if (in_array($file_path, $included) || in_array(realpath($file_path), $included)){
+			$this->tags[] = "included";
 		}
 
 		if (preg_match('~/bitrix/(?:modules|components)/[0-9a-z_]+\.[0-9a-z_]+/~i', $file_path) ||
@@ -830,7 +958,7 @@ class CBitrixXscan
 		if (self::$database && $this->SearchInDataBase($src))
 		{
 			$this->addResult('[007] looks like a well-known shell', '', 1);
-			return true; // is not false-positive
+			return true;
 		}
 
 		# CODE 302
@@ -1103,6 +1231,12 @@ class CBitrixXscan
 			}
 			if ($node instanceof Node\Expr\MethodCall && $node->name instanceof Node\Identifier && $node->name->toLowerString() == 'authorize'
                 && preg_match('/user|globals/i', $pprinter->prettyPrintExpr($node->var))) 
+            {
+                $nodes['auth'][] = $node;
+            }
+
+            if ($node instanceof Node\Expr\MethodCall && !($node->name instanceof Node\Identifier)
+                && preg_match('/^\$(user|globals)/i', $pprinter->prettyPrintExpr($node->var)))
             {
                 $nodes['auth'][] = $node;
             }
@@ -1530,6 +1664,10 @@ class CBitrixXscan
 		foreach ($nodes['auth'] as $node)
 		{
 			$arg = isset($node->args[0]) ? $node->args[0] : false;
+            if ($arg === false)
+			{
+                continue;
+            }
 			$flag = false;
 			$comment = '';
 
@@ -1538,6 +1676,9 @@ class CBitrixXscan
 			{
 				$node->setAttribute('comment', $comment);
 
+                $res[] = $node;
+            }
+            elseif ($node->var instanceof Node\Expr\ArrayDimFetch){
 				$res[] = $node;
 			}
 		}
@@ -1561,7 +1702,7 @@ class CBitrixXscan
 				$flag = true;
 				$comment = 'gif|png|jpg|jpeg|var|pdf|exe';
 			}
-			elseif (preg_match('#(https?|ftps?|compress\.zlib|php|glob|data|phar)://#i', $inc))
+			elseif (preg_match('#(https?|ftps?|compress\.zlib|php|glob|data|phar|zip)://#i', $inc))
 			{
 				$flag = true;
 				$comment = 'wrapper';
@@ -1596,7 +1737,7 @@ class CBitrixXscan
 				continue;
 			}
 			$checked[] = $v;
-            if (preg_match('#\$_{3,}#i', $v) || preg_match('#\$\{.*?(?:->|::|\()#i', $v))
+            if ($var->name instanceof Node\Expr\BinaryOp || preg_match('#\$_{3,}#i', $v) || preg_match('#\$\{.*?(?:->|::|\()#i', $v))
 			{
 				$subj = '[610] strange vars';
 				$checksum = $this->CalcChecksum($file_path, $v, $subj);
@@ -1793,7 +1934,7 @@ class CBitrixXscan
 			}
 		}
 
-		$this->CheckResults($res, '[665] encoded code', $file_path);
+        $this->CheckResults($res, '[665] encoded code', $file_path);
 
 		# CODE 887
 
@@ -2408,6 +2549,11 @@ class CBitrixXscan
 
 			if (is_link($path))
 			{
+				if ($this->base_dir && strpos($p . '/', $this->base_dir . '/') !== false)
+				{
+					return true;
+				}
+
 				$d = dirname($path);
 				if (strpos($p, $d) !== false || strpos($d, $p) !== false)
 				{
@@ -2434,7 +2580,7 @@ class CBitrixXscan
 			}
 			closedir($dir);
 		}
-		elseif (preg_match('/(?:\.htaccess|\.php[578]?)$/i', $path)) // file
+		elseif (preg_match('/\.(?:htaccess|php[578]?|js)$/i', $path)) // file
 		{
 			if ($mode == 'count')
 			{
@@ -2476,8 +2622,12 @@ class CBitrixXscan
 			'/bitrix/modules/main/lib/UpdateSystem/HashCodeParser.php',
 			'/bitrix/modules/main/lib/UpdateSystem/ActivationSystem.php',
 			'/bitrix/modules/main/lib/license.php',
-            '/bitrix/modules/crm/classes/general/sql_helper.php'
-
+            '/bitrix/modules/crm/classes/general/sql_helper.php',
+			'/bitrix/modules/main/lib/security/w/wwall.php',
+			'/bitrix/modules/main/lib/security/w/rules/intvalrule.php',
+			'/bitrix/modules/main/lib/security/w/rules/pregmatchrule.php',
+			'/bitrix/modules/main/lib/security/w/rules/pregreplacerule.php',
+			'/bitrix/modules/main/lib/security/w/rules/rule.php'
 		];
 		foreach ($system as $path)
 		{
@@ -2596,6 +2746,11 @@ class CBitrixXscan
 		);
 	}
 
+	static function getTriggerWatchButton()
+	{
+		return '<a class="ui-btn ui-btn-sm" target="_blank" style="text-decoration: none; color: #ffffff;" href="/bitrix/admin/sql.php?query=show%20triggers;">' . GetMessage("BITRIX_XSCAN_WATCH_EVENT") . '</a>';
+	}
+
 	static function getTotal($filter)
 	{
 		return XScanResultTable::getCount($filter);
@@ -2652,9 +2807,28 @@ class CBitrixXscan
 					]
 				];
 			}
+			elseif ($result['TYPE'] === 'trigg')
+			{
+				$output[] = [
+					'data' => [
+						'ID' => $result['ID'],
+						'FILE_NAME' => $result['SRC'],
+						'FILE_TYPE' => $result['MESSAGE'],
+						'FILE_SCORE' => $result['SCORE'],
+						'ACTIONS' => self::getTriggerWatchButton()
+					]
+				];
+			}
 			else
 			{
-				$table = $result['TYPE'] === 'agent' ? 'b_agent' : 'b_module_to_module';
+
+				$table = match ($result['TYPE'])
+				{
+					'agent' => 'b_agent',
+					'event' => 'b_module_to_module',
+					'tmpl' => 'b_site_template',
+				};
+
 				$output[] = [
 					'data' => [
 						'ID' => $result['ID'],

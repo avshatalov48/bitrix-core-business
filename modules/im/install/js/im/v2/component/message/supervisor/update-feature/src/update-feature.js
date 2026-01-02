@@ -1,4 +1,4 @@
-import { Button as ButtonComponent, ButtonSize, ButtonColor } from 'im.v2.component.elements';
+import { ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements.button';
 import { SupervisorBaseMessage } from 'im.v2.component.message.supervisor.base';
 
 import { metaData } from './const/tools';
@@ -11,7 +11,7 @@ const TOOL_ID_PARAMS_KEY = 'toolId';
 // @vue/component
 export const SupervisorUpdateFeatureMessage = {
 	name: 'SupervisorUpdateFeatureMessage',
-	components: { ButtonComponent, SupervisorBaseMessage },
+	components: { ChatButton, SupervisorBaseMessage },
 	props: {
 		item: {
 			type: Object,
@@ -54,14 +54,14 @@ export const SupervisorUpdateFeatureMessage = {
 				<div :class="['bx-im-message-update-features__image-wrapper', modifierImageClass]" />
 			</template>
 			<template #actions>
-				<ButtonComponent
+				<ChatButton
 					:size="ButtonSize.L"
 					:isRounded="true"
 					:color="ButtonColor.Success"
 					:text="toolData.detailButton.text"
 					@click="toolData.detailButton.callback"
 				/>
-				<ButtonComponent
+				<ChatButton
 					:size="ButtonSize.L"
 					:color="ButtonColor.LightBorder"
 					:isRounded="true"

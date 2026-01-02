@@ -4,6 +4,7 @@ import type {
 	AccessRightItem,
 	AccessRightsCollection,
 	AccessRightSection,
+	AccessRightSectionAction,
 	AccessRightSectionIcon,
 	Variable,
 } from '../../access-rights-model';
@@ -16,12 +17,18 @@ export type ExternalAccessRightSection = {
 	sectionHint: ?any,
 	sectionIcon: ?any,
 	rights: ExternalAccessRightItem[],
+	action: ?ExternalAccessRightSectionAction,
+};
+
+export type ExternalAccessRightSectionAction = {
+	buttonText: string,
 };
 
 export type ExternalAccessRightItem = {
 	id: any,
 	type: any,
 	title: any,
+	subtitle: ?any,
 	hint: ?any,
 	group: ?any,
 	groupHead: ?any,
@@ -39,6 +46,13 @@ export type ExternalAccessRightItem = {
 	showAvatars?: any,
 	compactView?: any,
 	hintTitle: ?any,
+	dependentVariablesPopupHint: ?any,
+
+	iconClass: ?any,
+	isClickable: ?any,
+	isDeletable: ?any,
+	isNew: ?any,
+	isModified: ?any,
 };
 
 export type ExternalVariable = {
@@ -51,6 +65,7 @@ export type ExternalVariable = {
 	conflictsWith?: any[],
 	requires?: any[],
 	secondary: ?any,
+	hint: ?any,
 }
 
 export class AccessRightsInternalizer implements Transformer<ExternalAccessRightSection[], AccessRightsCollection>
@@ -85,11 +100,12 @@ export class AccessRightsInternalizer implements Transformer<ExternalAccessRight
 			rights: new Map(),
 			isExpanded: true,
 			isShown: true,
+			action: this.#internalizeExternalSectionAction(externalSection.action),
 		};
 
 		for (const externalItem of externalSection.rights)
 		{
-			const internalizedItem = this.#internalizeExternalItem(externalItem);
+			const internalizedItem = this.internalizeExternalItem(externalItem);
 
 			internalizedSection.rights.set(internalizedItem.id, internalizedItem);
 		}
@@ -110,7 +126,19 @@ export class AccessRightsInternalizer implements Transformer<ExternalAccessRight
 		return null;
 	}
 
-	#internalizeExternalItem(externalItem: ExternalAccessRightItem): AccessRightItem
+	#internalizeExternalSectionAction(externalSectionAction: ExternalAccessRightSectionAction): ?AccessRightSectionAction
+	{
+		if (Type.isStringFilled(externalSectionAction?.buttonText))
+		{
+			return {
+				buttonText: externalSectionAction.buttonText,
+			};
+		}
+
+		return null;
+	}
+
+	internalizeExternalItem(externalItem: ExternalAccessRightItem): AccessRightItem
 	{
 		const [aliases, separator] = this.#internalizeSelectedVariablesAliases(externalItem.selectedVariablesAliases);
 
@@ -118,6 +146,7 @@ export class AccessRightsInternalizer implements Transformer<ExternalAccessRight
 			id: String(externalItem.id),
 			type: String(externalItem.type),
 			title: String(externalItem.title),
+			subtitle: Type.isStringFilled(externalItem.subtitle) ? externalItem.subtitle : null,
 			hint: Type.isStringFilled(externalItem.hint) ? externalItem.hint : null,
 			group: Type.isNil(externalItem.group) ? null : String(externalItem.group),
 			groupHead: Type.isBoolean(externalItem.groupHead) ? externalItem.groupHead : false,
@@ -128,7 +157,7 @@ export class AccessRightsInternalizer implements Transformer<ExternalAccessRight
 			emptyValue: this.#internalizeValueSet(externalItem.emptyValue),
 			nothingSelectedValue: this.#internalizeValueSet(externalItem.nothingSelectedValue),
 			setEmptyOnSetMinMaxValueInColumn: this.#internalizeSetEmptyOnSetMinMaxValueInColumn(externalItem),
-			variables: Type.isArray(externalItem.variables) ? new Map() : null,
+			variables: Type.isArray(externalItem.variables) || Type.isMap(externalItem.variables) ? new Map() : null,
 
 			allSelectedCode: Type.isStringFilled(externalItem.allSelectedCode) ? externalItem.allSelectedCode : null,
 			selectedVariablesAliases: aliases,
@@ -137,6 +166,15 @@ export class AccessRightsInternalizer implements Transformer<ExternalAccessRight
 			showAvatars: Type.isBoolean(externalItem.showAvatars) ? externalItem.showAvatars : null,
 			compactView: Type.isBoolean(externalItem.compactView) ? externalItem.compactView : null,
 			hintTitle: Type.isStringFilled(externalItem.hintTitle) ? externalItem.hintTitle : null,
+			dependentVariablesPopupHint: Type.isStringFilled(externalItem.dependentVariablesPopupHint)
+				? externalItem.dependentVariablesPopupHint
+				: null,
+
+			iconClass: Type.isStringFilled(externalItem.iconClass) ? externalItem.iconClass : null,
+			isClickable: Type.isBoolean(externalItem.isClickable) ? externalItem.isClickable : false,
+			isDeletable: Type.isBoolean(externalItem.isDeletable) ? externalItem.isDeletable : false,
+			isNew: Type.isBoolean(externalItem.isNew) ? externalItem.isNew : false,
+			isModified: Type.isBoolean(externalItem.isModified) ? externalItem.isModified : false,
 		};
 		if (normalizedItem.groupHead || normalizedItem.group)
 		{
@@ -146,6 +184,15 @@ export class AccessRightsInternalizer implements Transformer<ExternalAccessRight
 		if (Type.isArray(externalItem.variables))
 		{
 			for (const variable of externalItem.variables)
+			{
+				const normalizedVariable = this.#internalizeExternalVariable(variable);
+
+				normalizedItem.variables.set(normalizedVariable.id, normalizedVariable);
+			}
+		}
+		else if (Type.isMap(externalItem.variables))
+		{
+			for (const variable of externalItem.variables.values())
 			{
 				const normalizedVariable = this.#internalizeExternalVariable(variable);
 
@@ -191,6 +238,11 @@ export class AccessRightsInternalizer implements Transformer<ExternalAccessRight
 			return new Set(value.map((item) => String(item)));
 		}
 
+		if (Type.isSet(value))
+		{
+			return new Set(Array.from(value, (item) => String(item)));
+		}
+
 		return new Set([String(value)]);
 	}
 
@@ -223,6 +275,7 @@ export class AccessRightsInternalizer implements Transformer<ExternalAccessRight
 				? new Set(externalVariable.requires.map((x) => String(x)))
 				: null,
 			secondary: Type.isBoolean(externalVariable.secondary) ? externalVariable.secondary : null,
+			hint: Type.isStringFilled(externalVariable.hint) ? externalVariable.hint : null,
 		};
 	}
 }

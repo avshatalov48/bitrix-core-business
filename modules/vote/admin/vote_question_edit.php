@@ -1,16 +1,18 @@
-<?
-/*
-##############################################
-# Bitrix: SiteManager						#
-# Copyright (c) 2004 - 2009 Bitrix			#
-# https://www.bitrixsoft.com				#
-# mailto:admin@bitrix.ru					#
-##############################################
-*//**
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
+
+/**
  * @global CMain $APPLICATION
  * @global CUser $USER
  * @param integer $ID
  */
+
 use \Bitrix\Main\Localization\Loc;
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/prolog.php");

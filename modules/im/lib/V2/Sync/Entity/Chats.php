@@ -2,20 +2,25 @@
 
 namespace Bitrix\Im\V2\Sync\Entity;
 
-use Bitrix\Im\Chat;
-use Bitrix\Im\Recent;
+use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Chat\PrivateChat;
+use Bitrix\Im\V2\Sync\ChatsSync;
+use Bitrix\Im\V2\Sync\Recent\RecentSync;
 use Bitrix\Im\V2\Sync\Entity;
 use Bitrix\Im\V2\Sync\Event;
 
 class Chats implements Entity
 {
 	private array $chatIds = [];
+	private array $messageIds = [];
+	private array $recentChatIds = [];
+	private array $dialogIds = [];
 	private array $shortInfoChatIds = [];
 	private array $deletedChatIds = [];
 	private array $completeDeleteChatIds = [];
 	private bool $readAll = false;
-	private array $recent;
 	private array $chats;
+	private RecentSync $recent;
 
 	public function add(Event $event): void
 	{
@@ -39,42 +44,92 @@ class Chats implements Entity
 		}
 	}
 
-	public function getChats(): array
+	private function getRecent(): RecentSync
 	{
-		if (!isset($this->chats))
-		{
-			$this->chats =
-				empty($this->chatIds)
-					? []
-					: Chat::getList(['FILTER' => ['ID' => $this->chatIds], 'JSON' => true, 'SKIP_ACCESS_CHECK' => 'Y'])
-			;
-		}
+		$this->getChats();
 
-		return $this->chats;
-	}
-
-	public function getRecent(): array
-	{
 		if (!isset($this->recent))
 		{
-			$this->recent =
-				empty($this->chatIds)
-					? []
-					: Recent::get(null, ['JSON' => 'Y', 'CHAT_IDS' => $this->chatIds, 'SKIP_OPENLINES' => 'Y'])
-			;
+			$this->recent = RecentSync::getRecentSync($this->chatIds);
+
+			$entities = $this->recent->getEntityIds();
+			$this->recentChatIds = $entities['chatIds'];
+			$this->messageIds = $entities['messageIds'];
+			$this->dialogIds = $entities['dialogIds'];
 		}
 
 		return $this->recent;
 	}
 
-	public function getData(): array
+	public function getShortInfoChatIds(): array
 	{
-		$addedRecent = $this->getRecent();
-		$addedChats = $this->getChats();
+		return $this->shortInfoChatIds;
+	}
+
+	public function getMessageIds(): array
+	{
+		return $this->messageIds;
+	}
+
+	public function getChatItems(): ChatsSync
+	{
+		return new ChatsSync($this->getChats(), $this->getRecent());
+	}
+
+	private function getChats(): array
+	{
+		if (isset($this->chats))
+		{
+			return $this->chats;
+		}
+
+		$this->chats = [];
+		foreach ($this->chatIds as $chatId)
+		{
+			$chat = Chat::getInstance((int)$chatId);
+			if (
+				$chat instanceof Chat\NullChat
+				|| $chat instanceof Chat\NotifyChat
+			)
+			{
+				unset($this->chatIds[$chatId]);
+			}
+			else
+			{
+				$this->fillDialogId($chat);
+				$this->chats[$chatId] = $chat;
+			}
+		}
+
+		return $this->chats;
+	}
+
+	private function fillDialogId(Chat $chat): void
+	{
+		if (!$chat instanceof PrivateChat)
+		{
+			return;
+		}
+
+		$dialogId = $this->dialogIds[$chat->getId()] ?? null;
+		if ($dialogId !== null)
+		{
+			$chat->setDialogId((string)$dialogId);
+		}
+	}
+
+	public static function getRestEntityName(): string
+	{
+		return 'chatSync';
+	}
+
+	public function toRestFormat(array $option = []): ?array
+	{
+		$this->getRecent();
 
 		$result = [
-			'addedRecent' => $addedRecent,
-			'addedChats' => $addedChats,
+			'addedRecent' => $this->recentChatIds,
+			'addedChats' => $this->chatIds,
 			'deletedChats' => $this->deletedChatIds,
 			'completeDeletedChats' => $this->completeDeleteChatIds,
 		];
@@ -85,10 +140,5 @@ class Chats implements Entity
 		}
 
 		return $result;
-	}
-
-	public function getShortInfoChatIds(): array
-	{
-		return $this->shortInfoChatIds;
 	}
 }

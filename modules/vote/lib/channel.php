@@ -177,9 +177,9 @@ class ChannelGroupTable extends Entity\DataManager
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_ChannelSite_Query query()
- * @method static EO_ChannelSite_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ChannelSite_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_ChannelSite_Result getById($id)
- * @method static EO_ChannelSite_Result getList(array $parameters = array())
+ * @method static EO_ChannelSite_Result getList(array $parameters = [])
  * @method static EO_ChannelSite_Entity getEntity()
  * @method static \Bitrix\Vote\EO_ChannelSite createObject($setDefaultValues = true)
  * @method static \Bitrix\Vote\EO_ChannelSite_Collection createCollection()
@@ -373,7 +373,7 @@ class Channel extends BaseObject implements \ArrayAccess
 	 * @param string $offset An offset to check for.
 	 * @return mixed|null
 	 */
-	public function offsetExists($offset)
+	public function offsetExists(mixed $offset) :bool
 	{
 		return array_key_exists($offset, $this->data);
 	}
@@ -381,7 +381,7 @@ class Channel extends BaseObject implements \ArrayAccess
 	 * @param string $offset The offset to retrieve.
 	 * @return mixed|null
 	 */
-	public function offsetGet($offset)
+	public function offsetGet(mixed $offset): mixed
 	{
 		return $this->data[$offset];
 	}
@@ -392,7 +392,7 @@ class Channel extends BaseObject implements \ArrayAccess
 	 * @return void
 	 * @throws \Bitrix\Main\NotSupportedException
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet(mixed $offset, mixed $value): void
 	{
 		throw new \Bitrix\Main\NotSupportedException('Model provide ArrayAccess only for reading');
 	}
@@ -400,7 +400,7 @@ class Channel extends BaseObject implements \ArrayAccess
 	 * @param mixed $offset The offset to unset.
 	 * @return void
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset(mixed $offset): void
 	{
 		throw new \Bitrix\Main\NotSupportedException('Model provide ArrayAccess only for reading');
 	}

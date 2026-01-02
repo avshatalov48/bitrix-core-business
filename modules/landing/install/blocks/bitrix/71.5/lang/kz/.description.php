@@ -1,0 +1,11 @@
+<?php
+$MESS["LANDING_BLOCK_WIDGET_71_5_NAME"] = "Ашық фонда тақырыпаты, тақырыпшасы және 4 мәтін блогы бар мәтін блогы ";
+$MESS["LANDING_BLOCK_WIDGET_71_5_NODE_BADGE"] = "Бейдж ";
+$MESS["LANDING_BLOCK_WIDGET_71_5_NODE_CARD"] = "Карточка";
+$MESS["LANDING_BLOCK_WIDGET_71_5_NODE_CARD_BUTTON"] = "Батырма";
+$MESS["LANDING_BLOCK_WIDGET_71_5_NODE_CARD_TEXT"] = "Карточка мәтіні ";
+$MESS["LANDING_BLOCK_WIDGET_71_5_NODE_CARD_TITLE"] = "Карточка тақырыпаты";
+$MESS["LANDING_BLOCK_WIDGET_71_5_NODE_CONTAINER"] = "Контейнер ";
+$MESS["LANDING_BLOCK_WIDGET_71_5_NODE_SUBTITLE"] = "Тақырыпша";
+$MESS["LANDING_BLOCK_WIDGET_71_5_NODE_TEXT"] = "Мәтін ";
+$MESS["LANDING_BLOCK_WIDGET_71_5_NODE_TITLE"] = "Тақырыпаты";

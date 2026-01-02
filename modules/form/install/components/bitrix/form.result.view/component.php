@@ -400,11 +400,11 @@ if (CModule::IncludeModule("form"))
 	}
 	else
 	{
-		echo ShowError(GetMessage($arResult["ERROR"]));
+		ShowError(GetMessage($arResult["ERROR"]));
 	}
 }
 else
 {
-	echo ShowError(GetMessage("FORM_MODULE_NOT_INSTALLED"));
+	ShowError(GetMessage("FORM_MODULE_NOT_INSTALLED"));
 }
 ?>

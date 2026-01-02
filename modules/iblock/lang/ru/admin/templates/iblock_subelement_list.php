@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IB_SE_L_ADD_NEW_ELEMENT"] = "Добавить новое предложение";
 $MESS["IB_SE_L_ADD_NEW_ELEMENT_DESCR"] = "Добавить новое торговое предложение для товара";
 $MESS["IB_SE_L_EDIT_ELEMENT"] = "Редактировать предложение";
@@ -101,5 +101,4 @@ $MESS["IBLOCK_RED_ALT"] = "временно заблокирована (реда
 $MESS["IBLOCK_SUBELEMENT_LIST_SELECTED"] = "Выбрано:";
 $MESS["IBLOCK_SUBELEMENT_LIST_CHECKED"] = "Отмечено:";
 $MESS["IBLOCK_SUBELEMENT_LIST_ACTION_DELETE"] = "Удалить";
-$MESS["IBEL_CATALOG_EMPTY_VALUE"] = "не выбрано";
-?>
+$MESS['IBEL_CATALOG_EMPTY_VALUE'] = "не выбрано";

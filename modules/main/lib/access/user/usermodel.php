@@ -8,8 +8,11 @@
 
 namespace Bitrix\Main\Access\User;
 
+use Bitrix\HumanResources\Config\Storage;
+use Bitrix\HumanResources\Service\Container;
 use Bitrix\Main\Access\AccessCode;
 use Bitrix\Main\Engine\CurrentUser;
+use Bitrix\Main\Loader;
 use Bitrix\Main\UserAccessTable;
 use Bitrix\Main\UserTable;
 
@@ -110,14 +113,14 @@ abstract class UserModel
 				return $this->accessCodes;
 			}
 
-			// mantis #0160102
-			$res = UserAccessTable::getList([
-				'select' => ['ACCESS_CODE'],
-				'filter' => [
-					'=USER_ID' => $this->userId,
-					'!%=ACCESS_CODE' => 'CHAT%',
-				]
-			]);
+			// mantis #0160102, #0213214
+			$res = UserAccessTable::query()
+				->setSelect(['ACCESS_CODE'])
+				->where('USER_ID', $this->userId)
+				->whereNot('PROVIDER_ID', 'imchat')
+				->exec()
+				->fetchAll();
+
 			foreach ($res as $row)
 			{
 				$signature = (new AccessCode($row['ACCESS_CODE']))->getSignature();
@@ -128,6 +131,14 @@ abstract class UserModel
 			}
 
 			$this->accessCodes = array_values($this->accessCodes);
+
+			if (
+				Loader::includeModule('humanresources')
+				&& Storage::instance()->isCompanyStructureConverted()
+			)
+			{
+				return $this->accessCodes;
+			}
 
 			// add employee access code
 			if (!\Bitrix\Main\ModuleManager::isModuleInstalled('intranet'))

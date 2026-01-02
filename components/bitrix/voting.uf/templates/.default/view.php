@@ -64,13 +64,9 @@ foreach ($arResult['ATTACHES'] as $attach)
 	$canRevote = (($attach['OPTIONS'] & Option::ALLOW_REVOTE) && $attach->canRevote($USER->getId())->isSuccess());
 	$canReadResult = $attach->canReadResult($USER->getId())->isSuccess();
 	$lastVote = 0;
-	$ballot = [];
-	$extras = [];
-	if ($data = \Bitrix\Vote\Event::getDataFromRequest($attach['ID'], $request))
-	{
-		$ballot = $data['BALLOT'];
-		$extras = $data['EXTRAS'];
-	}
+	$data = \Bitrix\Vote\Event::getDataFromRequest($attach['ID'], $request);
+	$ballot = $data['BALLOT'] ?? [];
+	$extras = $data['EXTRAS'] ?? [];
 ?>
 <div class="bx-vote-container bx-vote-container-<?=$style?>" <?php
 	?>data-bx-vote-form="<?= ($canParticipate && $voted === false ? 'shown' : 'hidden') ?>" <?php

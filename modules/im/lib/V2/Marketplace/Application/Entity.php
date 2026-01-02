@@ -90,6 +90,26 @@ class Entity implements RestEntity
 	{
 		return $this->id;
 	}
+	
+	/**
+	 * Returns application title
+	 * 
+	 * @return string|null
+	 */
+	public function getTitle(): ?string
+	{
+		return $this->title;
+	}
+	
+	/**
+	 * Returns application order
+	 * 
+	 * @return int|null
+	 */
+	public function getOrder(): ?int
+	{
+		return $this->order;
+	}
 
 	/**
 	 * @inheritDoc

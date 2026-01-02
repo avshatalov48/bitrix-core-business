@@ -12,6 +12,8 @@ return [
 		'main.loader',
 		'im.public',
 		'main.core',
+		'ui.icon-set.api.core',
+		'ui.icon-set.main',
 	],
 	'skip_core' => false,
 ];

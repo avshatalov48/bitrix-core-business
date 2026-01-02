@@ -24,11 +24,6 @@ class CacheEngineNone implements CacheEngineInterface, CacheEngineStatInterface
 		return true;
 	}
 
-	public function getConfig(): array
-	{
-		return [];
-	}
-
 	public function clean($baseDir, $initDir = false, $filename = false)
 	{
 		return true;

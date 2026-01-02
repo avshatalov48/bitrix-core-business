@@ -4,24 +4,22 @@ namespace Bitrix\Main\Diag;
 
 class Debug
 {
+	/** @var StopWatch[]  */
+	protected static $timers = [];
 	protected static $timeLabels = [];
 
 	public static function startTimeLabel($name)
 	{
-		if (!isset(static::$timeLabels[$name]))
+		if (!isset(static::$timers[$name]))
 		{
-			static::$timeLabels[$name] = [];
+			static::$timers[$name] = new StopWatch();
 		}
-		static::$timeLabels[$name]['start'] = microtime(true);
+		static::$timers[$name]->start();
 	}
 
 	public static function endTimeLabel($name)
 	{
-		if (!isset(static::$timeLabels[$name]))
-		{
-			static::$timeLabels[$name] = [];
-		}
-		static::$timeLabels[$name]['time'] += microtime(true) - static::$timeLabels[$name]['start'];
+		static::$timeLabels[$name]['time'] = (static::$timers[$name] ?? null)?->stop();
 	}
 
 	public static function getTimeLabels()

@@ -3,13 +3,9 @@
 namespace Bitrix\Fileman\UserField;
 
 use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Fileman\UserField\Types\AddressType;
 
 Loader::includeModule('location');
-
-Loc::loadMessages(__FILE__);
 
 class Address extends \Bitrix\Main\UserField\TypeBase
 {

@@ -1,4 +1,4 @@
-import { ChatHint } from 'im.v2.component.elements';
+import { ChatHint } from 'im.v2.component.elements.hint';
 
 // @vue/component
 export const UserSelector = {

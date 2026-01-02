@@ -1,5 +1,6 @@
 <?php
 $MESS["REST_INTEGRATION_OPTION_SECTION_DESCRIPTION_AUTOMATE_CONTROL"] = "Қызметкерлерге автоматты түрде міндеттер қойыңыз, туындаған мәселелер туралы басшылыққа хабардар етіңіз және есептерді жанды лентада жариялаңыз";
+$MESS["REST_INTEGRATION_OPTION_SECTION_DESCRIPTION_AUTOMATE_CONTROL_MSGVER_1"] = "Қызметкерлерге автоматты түрде міндеттер беріңіз, туындаған мәселелер туралы басшылықты хабардар етіңіз және есептерді жанды лентада орналастырыңыз";
 $MESS["REST_INTEGRATION_OPTION_SECTION_DESCRIPTION_AUTOMATE_SALES"] = "Лидтер мен мәмілелерді автоматты түрде иірім бойынша ілгерілетіңіз және CRM-дегі деректердің дұрыстығын тексеріңіз";
 $MESS["REST_INTEGRATION_OPTION_SECTION_DESCRIPTION_CHAT_BOT"] = "Қызметкерлерге нотификациялар мен есептерді тікелей мессенджерге жіберетін чат-боттарын құрыңыз";
 $MESS["REST_INTEGRATION_OPTION_SECTION_DESCRIPTION_CUSTOM"] = "Битрикс24-те деректерді алу және өзгерту сценарийлерін іске асырыңыз";

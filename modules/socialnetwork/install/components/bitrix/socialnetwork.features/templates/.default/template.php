@@ -184,11 +184,14 @@ else
 							$featureAvailable = ToolsManager::getInstance()->checkAvailabilityByToolId('knowledge_base');
 						}
 
+						$featureMessageCode = "SONET_FEATURES_{$feature}";
+						$featureMessageCodeWithVersion = "{$featureMessageCode}_MSGVER_1";
+
 						$featureName = (
 								array_key_exists("title", $arResult["arSocNetFeaturesSettings"][$feature])
 								&& $arResult["arSocNetFeaturesSettings"][$feature]["title"] <> ''
 									? $arResult["arSocNetFeaturesSettings"][$feature]["title"]
-									: Loc::getMessage("SONET_FEATURES_".$feature)
+									: Loc::getMessage($featureMessageCode) ?? Loc::getMessage($featureMessageCodeWithVersion)
 						);
 
 						?>

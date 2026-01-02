@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2024 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Data;
@@ -193,14 +194,14 @@ class TaggedCache
 
 	protected function deleteTags(Cache $cache, array $id, array $paths): void
 	{
-		CacheTagTable::deleteByFilter(['@ID' => $id]);
-		CacheTagTable::deleteByFilter(['@RELATIVE_PATH' => array_keys($paths)]);
-
 		foreach ($paths as $path => $v)
 		{
 			$cache->cleanDir($path);
 			unset($this->cacheTag[$path]);
 		}
+
+		CacheTagTable::deleteByFilter(['@ID' => $id]);
+		CacheTagTable::deleteByFilter(['@RELATIVE_PATH' => array_keys($paths)]);
 	}
 
 	public function deleteAllTags(): void

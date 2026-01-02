@@ -29,6 +29,6 @@
 .bx-im-sidebar-copilot-preview-group-chat__settings {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 6px;
 	padding: 5px 16px 14px;
 }

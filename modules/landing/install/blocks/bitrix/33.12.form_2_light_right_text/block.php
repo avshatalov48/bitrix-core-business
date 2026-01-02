@@ -14,7 +14,7 @@
 
 			<div class="col-md-6 order-1 order-md-2">
 				<div class="text-center g-overflow-hidden">
-					<h3 class="landing-block-node-main-title text-uppercase g-font-weight-700 g-mb-20 g-color-black">
+					<h3 class="landing-block-node-main-title text-uppercase g-font-weight-700 g-mb-20 g-color">
 						Contact Us</h3>
 
 					<div class="landing-block-node-text g-line-height-1_5 text-left g-mb-40 g-color-gray-dark-v5">

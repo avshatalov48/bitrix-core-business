@@ -1,32 +1,20 @@
-import { Loc } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
 import { Messenger } from 'im.public';
-import { ChatService } from 'im.v2.provider.service';
-import { EmptyAvatarType } from 'im.v2.component.elements';
+import { ChatService } from 'im.v2.provider.service.chat';
+import { EmptyAvatarType } from 'im.v2.component.elements.avatar';
 import { ChatType, EventType, Layout, Color } from 'im.v2.const';
 import { CreateChatManager } from 'im.v2.lib.create-chat';
-import { TitleInput, ChatAvatar, CreateChatHeading, TextareaInput, ButtonPanel } from 'im.v2.component.content.chat-forms.elements';
+import { TitleInput, ChatAvatar, CreateChatHeading, TextareaInput, ButtonPanel, AutoDelete } from 'im.v2.component.content.chat-forms.elements';
 
 import { DescriptionBanner } from './components/description-banner/description-banner';
 import { RightsSection } from './components/rights-section';
 
 import type { JsonObject } from 'main.core';
-import type { CustomColorScheme } from 'im.v2.component.elements';
+import type { CustomColorScheme } from 'im.v2.component.elements.button';
 import type { OnLayoutChangeEvent } from 'im.v2.const';
 import type { AccessRightsFormResult } from './components/rights-section';
-
-const CreateCollabErrorCode = {
-	emptyName: 'name',
-	duplicateName: 'ERROR_GROUP_NAME_EXISTS',
-};
-
-const NotificationTextByErrorCode = {
-	[CreateCollabErrorCode.emptyName]: Loc.getMessage('IM_CREATE_COLLAB_ERROR_EMPTY_NAME'),
-	[CreateCollabErrorCode.duplicateName]: Loc.getMessage('IM_CREATE_COLLAB_ERROR_DUPLICATE_NAME'),
-	default: Loc.getMessage('IM_CREATE_CHAT_ERROR'),
-};
 
 export const CollabCreation = {
 	name: 'CollabCreation',
@@ -38,6 +26,7 @@ export const CollabCreation = {
 		TextareaInput,
 		ButtonPanel,
 		RightsSection,
+		AutoDelete,
 	},
 	data(): JsonObject
 	{
@@ -49,9 +38,10 @@ export const CollabCreation = {
 			groupSettings: {
 				ownerId: Core.getUserId(),
 				moderatorMembers: [],
-				options: null,
+				options: {},
 				permissions: null,
 			},
+			autoDeleteDelay: 0,
 		};
 	},
 	watch:
@@ -104,10 +94,11 @@ export const CollabCreation = {
 				return;
 			}
 
-			const { chatTitle, avatarFile, description } = savedFields;
+			const { chatTitle, avatarFile, description, autoDeleteDelay } = savedFields;
 			this.chatTitle = chatTitle;
 			this.avatarFile = avatarFile;
 			this.description = description;
+			this.autoDeleteDelay = autoDeleteDelay;
 		},
 		saveFields()
 		{
@@ -115,12 +106,13 @@ export const CollabCreation = {
 				chatTitle: this.chatTitle,
 				avatarFile: this.avatarFile,
 				description: this.description,
+				autoDeleteDelay: this.autoDeleteDelay,
 			});
 		},
 		onLayoutChange(event: BaseEvent<OnLayoutChangeEvent>): void
 		{
 			const { to } = event.getData();
-			if (to.name === Layout.createChat.name && to.entityId !== ChatType.collab)
+			if (to.name === Layout.createChat && to.entityId !== ChatType.collab)
 			{
 				this.exitByChatTypeSwitch = true;
 			}
@@ -139,6 +131,7 @@ export const CollabCreation = {
 					moderatorMembers: this.groupSettings.moderatorMembers,
 					options: this.groupSettings.options,
 					permissions: this.groupSettings.permissions,
+					autoDeleteDelay: this.autoDeleteDelay,
 				});
 
 				this.isCreating = false;
@@ -147,9 +140,9 @@ export const CollabCreation = {
 				await Messenger.openChat(newDialogId);
 				EventEmitter.emit(EventType.header.openAddToChatPopup);
 			}
-			catch (error)
+			catch
 			{
-				this.handleCreationError(error);
+				this.isCreating = false;
 			}
 		},
 		onCancelClick()
@@ -175,13 +168,6 @@ export const CollabCreation = {
 			this.groupSettings.permissions = permissions;
 			this.groupSettings.options = options;
 		},
-		handleCreationError(error: { code: $Values<typeof CreateCollabErrorCode> })
-		{
-			const { code } = error;
-			const notificationText = NotificationTextByErrorCode[code] ?? NotificationTextByErrorCode.default;
-			this.isCreating = false;
-			BX.UI.Notification.Center.notify({ content: notificationText });
-		},
 		getChatService(): ChatService
 		{
 			if (!this.chatService)
@@ -190,6 +176,10 @@ export const CollabCreation = {
 			}
 
 			return this.chatService;
+		},
+		onAutoDeleteDelayChange(delay: number): void
+		{
+			this.autoDeleteDelay = delay;
 		},
 		loc(phraseCode: string, replacements: {[string]: string} = {}): string
 		{
@@ -218,6 +208,10 @@ export const CollabCreation = {
 				/>
 			</div>
 			<RightsSection @change="onRightsChange" />
+			<AutoDelete 
+				:initialDelay="autoDeleteDelay" 
+				@delayChange="onAutoDeleteDelayChange" 
+			/>
 		</div>
 		<ButtonPanel
 			:isCreating="isCreating"

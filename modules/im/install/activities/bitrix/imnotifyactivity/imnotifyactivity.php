@@ -35,25 +35,17 @@ class CBPIMNotifyActivity extends \CBPActivity
 		$arMessageUserFrom = \CBPHelper::ExtractUsers($this->MessageUserFrom, $documentId, true);
 		$arMessageUserTo = \CBPHelper::ExtractUsers($this->MessageUserTo, $documentId, false);
 
-		$notifyMessage = $this->MessageSite;
-		if (is_array($notifyMessage))
-		{
-			$notifyMessage = implode(', ', \CBPHelper::MakeArrayFlat($notifyMessage));
-		}
-
-		$notifyMessageOut = $this->MessageOut;
-		if (is_array($notifyMessageOut))
-		{
-			$notifyMessageOut = implode(', ', \CBPHelper::MakeArrayFlat($notifyMessageOut));
-		}
+		$notifyMessage = CBPHelper::stringify($this->MessageSite);
+		$notifyMessageOut = CBPHelper::stringify($this->MessageOut);
 
 		$arMessageFields = [
-			'FROM_USER_ID' => $this->MessageType == \IM_NOTIFY_SYSTEM ? 0 : $arMessageUserFrom,
+			'FROM_USER_ID' => (int)$this->MessageType === IM_NOTIFY_SYSTEM ? 0 : $arMessageUserFrom,
 			'NOTIFY_TYPE' => (int)$this->MessageType,
-			'NOTIFY_MESSAGE' => (string)$notifyMessage,
-			'NOTIFY_MESSAGE_OUT' => (string)$notifyMessageOut,
+			'NOTIFY_MESSAGE' => $notifyMessage,
+			'NOTIFY_MESSAGE_OUT' => $notifyMessageOut,
 			'NOTIFY_MODULE' => 'bizproc',
 			'NOTIFY_EVENT' => 'activity',
+			'PUSH_MESSAGE' => $this->getPushText($notifyMessage),
 		];
 
 		$ar = [];
@@ -70,6 +62,17 @@ class CBPIMNotifyActivity extends \CBPActivity
 		}
 
 		return \CBPActivityExecutionStatus::Closed;
+	}
+
+	private function getPushText(string $htmlMessage): string
+	{
+		$text = mb_substr(\CTextParser::clearAllTags($htmlMessage), 0, 200);
+		if (mb_strlen($text) === 200)
+		{
+			$text .= '...';
+		}
+
+		return $text;
 	}
 
 	public static function ValidateProperties($arTestProperties = [], \CBPWorkflowTemplateUser $user = null)

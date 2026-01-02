@@ -9,6 +9,6 @@
 	transition: opacity 200ms ease;
 }
 
-.landing-card:hover > .landing-ui-panel-block-card-action {
+body:not(.landing-copilot-generation) .landing-card:hover > .landing-ui-panel-block-card-action {
 	opacity: 1;
 }

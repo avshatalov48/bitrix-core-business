@@ -1,0 +1,27 @@
+<?php
+$MESS["TASK_BINDING_MEDIALIB"] = "Медиадерекхана";
+$MESS["TASK_BINDING_STICKERS"] = "Стикерлер";
+$MESS["TASK_DESC_FILEMAN_ALLOWED_FOLDERS"] = "Тиісті құқықтар орнатылған файлдар мен бумаларды редакциялауға рұқсат етілген";
+$MESS["TASK_DESC_FILEMAN_DENIED"] = "Құрылымды басқару' модуліне кіруге тыйым салынады";
+$MESS["TASK_DESC_FILEMAN_FULL_ACCESS"] = "Тиісті құқықтар орнатылған файлдар мен бумаларды редакциялауға, сондай-ақ модуль параметрлерін өзгертуге рұқсат етілген";
+$MESS["TASK_DESC_MEDIALIB_DENIED"] = "Медиадерекханаға кіруге тыйым салынады";
+$MESS["TASK_DESC_MEDIALIB_EDITOR"] = "Медиадерекхана элементтері мен топтамаларын жасау, редакциялау және жою";
+$MESS["TASK_DESC_MEDIALIB_EDIT_ITEMS"] = "Қолданыстағы медиадерекхана топтамаларындағы элементтерді жасау, редакциялау және жою";
+$MESS["TASK_DESC_MEDIALIB_FULL"] = "Медиадерекхананың топтамаларына қол жеткізу құқығын өзгерту мүмкіндігін қоса алғанда, толық қолжетімділік";
+$MESS["TASK_DESC_MEDIALIB_ONLY_NEW"] = "Қолданыстағы элементтерді редакциялау мүмкіндігінсіз жаңа элементтер мен жинақтарды жасау";
+$MESS["TASK_DESC_MEDIALIB_VIEW"] = "Медиадерекхана диалогы арқылы топтамаларды көруге және элементтерді енгізуге рұқсат етілген";
+$MESS["TASK_DESC_STICKERS_DENIED"] = "Стикерлердің функционалына қол жеткізу жабық";
+$MESS["TASK_DESC_STICKERS_EDIT"] = "Стикерлерді қосуға, жоюға және редакциялауға рұқсат етіледі";
+$MESS["TASK_DESC_STICKERS_READ"] = "Стикерлерді қосу және редакциялау мүмкіндігінсіз қарауға рұқсат етілген";
+$MESS["TASK_NAME_FILEMAN_ALLOWED_FOLDERS"] = "Файлдар мен бумаларды редакциялау";
+$MESS["TASK_NAME_FILEMAN_DENIED"] = "Қолжетімділік жабық";
+$MESS["TASK_NAME_FILEMAN_FULL_ACCESS"] = "Толық қолжетімділік";
+$MESS["TASK_NAME_MEDIALIB_DENIED"] = "Қолжетімділік жабық";
+$MESS["TASK_NAME_MEDIALIB_EDITOR"] = "Элементтер мен топтамаларды редакциялау ";
+$MESS["TASK_NAME_MEDIALIB_EDIT_ITEMS"] = "Элементтерді редакциялау";
+$MESS["TASK_NAME_MEDIALIB_FULL"] = "Толық қолжетімділік";
+$MESS["TASK_NAME_MEDIALIB_ONLY_NEW"] = "Жаңаларын жасау";
+$MESS["TASK_NAME_MEDIALIB_VIEW"] = "Топтамаларды қарау";
+$MESS["TASK_NAME_STICKERS_DENIED"] = "Қолжетімділік жабық";
+$MESS["TASK_NAME_STICKERS_EDIT"] = "Стикерлерді редакциялау ";
+$MESS["TASK_NAME_STICKERS_READ"] = "Стикерлерді қарау";

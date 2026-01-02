@@ -12,6 +12,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      type
 	    } = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId, true);
 	    return ChannelManager.channelTypes.has(type);
+	  },
+	  getChannelTypes() {
+	    return [...ChannelManager.channelTypes];
+	  },
+	  isCommentsPostMessage(message, dialogId) {
+	    const {
+	      type: contextChatType
+	    } = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId, true);
+	    if (contextChatType !== im_v2_const.ChatType.comment) {
+	      return false;
+	    }
+	    const {
+	      dialogId: messageDialogId
+	    } = im_v2_application_core.Core.getStore().getters['chats/getByChatId'](message.chatId, true);
+	    return messageDialogId !== dialogId;
 	  }
 	};
 

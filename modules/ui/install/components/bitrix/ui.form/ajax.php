@@ -74,31 +74,13 @@ class CUIFormComponentAjaxController extends Main\Engine\Controller
 		$this->emitOnUIFormSetScope($guid, $scope, $categoryName);
 	}
 
-	public function forceCommonScopeForAllAction($guid, string $categoryName = '')
+	public function forceCommonScopeForAllAction($guid, string $categoryName = '', string $signedConfigParams = '', ?string $type = null): void
 	{
-		$this->getConfiguration($categoryName)->forceCommonScopeForAll($guid);
-	}
-
-	public static function renderImageInputAction($moduleId, $name, $value)
-	{
-		/*
-		$component = new UI\Controller\Response\Entity\Component('bitrix:main.file.input');
-		$component->setParameters(
-			array(
-				'MODULE_ID' => $moduleId,
-				'MAX_FILE_SIZE' => 3145728,
-				'MULTIPLE'=> 'N',
-				'ALLOW_UPLOAD' => 'I',
-				'SHOW_AVATAR_EDITOR' => 'Y',
-				'ENABLE_CAMERA' => 'N',
-				'CONTROL_ID' => strtolower($name).'_uploader',
-				'INPUT_NAME' => $name,
-				'INPUT_VALUE' => $value
-			)
-		);
-		$component->setFunctionParameters(array('HIDE_ICONS' => 'Y'));
-		return new UI\Controller\Response\Engine\Content($component);
-		*/
+		$configParams = (new \Bitrix\UI\Form\EntityEditorConfigSigner($guid))->unsign($signedConfigParams);
+		if ($configParams && $configParams['CAN_UPDATE_COMMON_CONFIGURATION'])
+		{
+			$this->getConfiguration($categoryName)->forceCommonScopeForAll($guid, $configParams['MODULE_ID'], $type);
+		}
 	}
 
 	private function areSignedParamsValid(string $guid, array $params, string $signedConfigParams): bool

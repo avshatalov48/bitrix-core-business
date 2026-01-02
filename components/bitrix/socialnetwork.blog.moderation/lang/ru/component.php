@@ -15,10 +15,9 @@ $MESS["BLOG_BLOG_BLOG_MES_PUB_NO_RIGHTS"] = "У вас нет прав на пу
 $MESS["BLOG_MOD_NO_SOCNET_GROUP"] = "Группа социальной сети не задана";
 $MESS["BLOG_MOD_NO_RIGHTS"] = "У вас не прав на модерацию сообщений в этой группе";
 
-$MESS["BLOG_MOD_TITLE"] = "Модерация";
+$MESS["BLOG_MOD_TITLE_MSGVER_1"] = "Модерация";
 $MESS["BLOG_MOD_PUB"] = "Опубликовать";
 $MESS["BLOG_MOD_DELETE"] = "Удалить";
 $MESS["BLOG_MOD_DELETE_CONFIRM"] = "Вы уверены, что хотите удалить сообщение?";
 $MESS["BLOG_MOD_NO_SOCNET_USER"] = "Вы не можете просматривать чужие сообщения на модерацию";
 $MESS["BLOG_MOD_EMPTY_SOCNET_USER"] = "Профиль пользователя не задан";
-?>

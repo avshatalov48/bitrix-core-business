@@ -2,15 +2,27 @@
 
 class CAdminException extends CApplicationException
 {
-	var $messages;
+	public $messages;
 
+	/**
+	 * @param array $messages array("id"=>"", "text"=>""), array(...), ...
+	 * @param $id
+	 * @throws \Bitrix\Main\ArgumentException
+	 */
 	public function __construct($messages, $id = false)
 	{
-		//array("id"=>"", "text"=>""), array(...), ...
 		$this->messages = $messages;
-		$s = "";
-		foreach($this->messages as $msg)
-			$s .= $msg["text"]."<br>";
+
+		$s = '';
+		foreach ($this->messages as $msg)
+		{
+			if (!isset($msg["text"]))
+			{
+				throw new \Bitrix\Main\ArgumentException('Incorrect message structure: ' . print_r($msg, true));
+			}
+			$s .= $msg["text"] . "<br>";
+		}
+
 		parent::__construct($s, $id);
 	}
 
@@ -21,7 +33,7 @@ class CAdminException extends CApplicationException
 
 	public function AddMessage($message)
 	{
-		$this->messages[]=$message;
-		$this->msg.=$message["text"]."<br>";
+		$this->messages[] = $message;
+		$this->msg .= $message["text"] . "<br>";
 	}
 }

@@ -552,7 +552,7 @@ final class Engine
 				"spread" => array_map(array("CUtil", "JSEscape"), $APPLICATION->GetSpreadCookieUrls()),
 			);
 
-			$content = Json::encode($content);
+			$content = Json::encode($content, Json::DEFAULT_OPTIONS & ~JSON_HEX_QUOT & ~JSON_HEX_TAG);
 		}
 		else
 		{

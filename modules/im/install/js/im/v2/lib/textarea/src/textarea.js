@@ -1,3 +1,5 @@
+import { Utils } from 'im.v2.lib.utils';
+
 export { ResizeManager } from './classes/resize-manager';
 
 type InsertTextConfig = {
@@ -81,20 +83,7 @@ export const Textarea = {
 		const LEFT_TAG = `[${decorationKey}]`;
 		const RIGHT_TAG = `[/${decorationKey}]`;
 
-		const decorationTagLength = LEFT_TAG.length + RIGHT_TAG.length;
-		const newSelectionStart = textarea.selectionStart;
-		const newSelectionEnd = textarea.selectionEnd + decorationTagLength;
-
-		const textBefore = textarea.value.slice(0, textarea.selectionStart);
-		const selectedText = textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
-		const textAfter = textarea.value.slice(textarea.selectionEnd);
-		const textWithTag = `${textBefore}${LEFT_TAG}${selectedText}${RIGHT_TAG}${textAfter}`;
-
-		textarea.value = textWithTag;
-		textarea.selectionStart = newSelectionStart;
-		textarea.selectionEnd = newSelectionEnd;
-
-		return textWithTag;
+		return this.applyWrapping(textarea, LEFT_TAG, RIGHT_TAG);
 	},
 	removeDecorationTag(textarea: HTMLTextAreaElement, decorationKey: 'b' | 'i' | 'u' | 's'): string
 	{
@@ -194,5 +183,41 @@ export const Textarea = {
 		textarea.selectionEnd = newSelectionPosition;
 
 		return resultText;
+	},
+	handlePasteUrl(textarea: HTMLTextAreaElement, event: ClipboardEvent): string
+	{
+		const pastedUrl = event.clipboardData?.getData('text/plain');
+		const selectedText = textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
+		const isUrl = Utils.text.checkUrl(pastedUrl);
+
+		if (!isUrl || !selectedText)
+		{
+			return textarea.value;
+		}
+
+		event.preventDefault();
+
+		const LEFT_TAG = `[URL=${pastedUrl}]`;
+		const RIGHT_TAG = '[/URL]';
+
+		return this.applyWrapping(textarea, LEFT_TAG, RIGHT_TAG);
+	},
+
+	applyWrapping(textarea: HTMLTextAreaElement, leftTag: string, rightTag: string): string
+	{
+		const selectedText = textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
+		const decorationTagLength = leftTag.length + rightTag.length;
+		const newSelectionStart = textarea.selectionStart;
+		const newSelectionEnd = textarea.selectionEnd + decorationTagLength;
+
+		const textBefore = textarea.value.slice(0, textarea.selectionStart);
+		const textAfter = textarea.value.slice(textarea.selectionEnd);
+		const textWithTag = `${textBefore}${leftTag}${selectedText}${rightTag}${textAfter}`;
+
+		textarea.value = textWithTag;
+		textarea.selectionStart = newSelectionStart;
+		textarea.selectionEnd = newSelectionEnd;
+
+		return textWithTag;
 	},
 };

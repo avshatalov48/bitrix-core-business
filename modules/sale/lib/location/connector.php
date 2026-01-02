@@ -1157,8 +1157,8 @@ abstract class Connector extends Entity\DataManager
 			$usageFlags[$entityPrimary][static::DB_GROUP_FLAG] = !!static::getList(array(
 				'limit' => 1,
 				'filter' => array(
-					static::getLinkField() => $entityPrimary,
-					'LOCATION_TYPE' => static::DB_GROUP_FLAG
+					'=' . static::getLinkField() => $entityPrimary,
+					'=LOCATION_TYPE' => static::DB_GROUP_FLAG
 				)
 			))->fetch();
 		}

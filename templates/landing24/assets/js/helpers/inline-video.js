@@ -4,19 +4,20 @@
 
 	BX.addCustomEvent(window, "BX.Landing.Block:init", function (event)
 	{
-		initBlock([].slice.call(event.block.querySelectorAll('[data-source]')));
+		initBlock([].slice.call(event.block.querySelectorAll('[data-source]')), event.block);
 	});
 
 	BX.addCustomEvent("BX.Landing.Block:Node:update", function (event)
 	{
 		if (event.node && event.node.hasAttribute('data-source'))
 		{
-			initBlock([].slice.call(event.block.querySelectorAll('[data-source]')));
+			initBlock([].slice.call(event.block.querySelectorAll('[data-source]')), event.block);
 		}
 	});
 
-	function initBlock(videos)
+	function initBlock(videos, block)
 	{
+		const blockId = block.getAttribute('data-id');
 		if (videos.length)
 		{
 			videos.forEach(function (video)
@@ -69,25 +70,59 @@
 				}
 				else
 				{
-					showError(video)
+					showError(video, blockId);
 				}
 			});
 		}
 	}
 
-	function showError(node)
+	function showError(node, blockId)
 	{
 		node.classList.remove('g-video-preview');
-
 		node.classList.add('g-video-preview-error');
-		node.innerHTML = '<div class="g-landing-alert-v2">' +
-			'<div class="g-landing-alert-title">' +
-			BX.message('LANDING_VIDEO_ALERT_WRONG_SOURCE') +
-			'</div>' +
-			'<div class="g-landing-alert-text">' +
-			BX.message('LANDING_VIDEO_ALERT_WRONG_SOURCE_TEXT_2') +
-			'</div>' +
-			'</div>';
+
+		let innerHTML = `
+			<div class="g-landing-alert-v2">
+				<div class="g-landing-alert-title">
+					${BX.message('LANDING_VIDEO_ALERT_WRONG_SOURCE')}
+				</div>
+				<div class="g-landing-alert-text">
+					${BX.message('LANDING_VIDEO_ALERT_WRONG_SOURCE_TEXT_3')}
+				</div>
+				<br>
+    	`;
+
+		if (isButtonNeeded(blockId))
+		{
+			innerHTML += `
+				<div class="ui-btn" onclick="BX.Landing.PageObject?.getBlocks()?.get(${blockId})?.onShowContentPanel();">
+					${BX.message('LANDING_VIDEO_ALERT_WRONG_SOURCE_BUTTON')}
+				</div>
+       		 `;
+		}
+
+		innerHTML += `</div>`;
+
+		node.innerHTML = innerHTML;
+	}
+
+	function isButtonNeeded(blockId)
+	{
+		const block = BX.Landing.PageObject?.getBlocks()?.get(blockId);
+		if (!block)
+		{
+			return false;
+		}
+
+		const blockCode = block.manifest?.code;
+
+		const excludedBlockCodes = [
+			'46.6.cover_with_bg_image_and_bottom_title',
+			'49.5.big_with_text_3',
+			'54.1.cover_with_slider_bgvideo',
+		];
+
+		return !excludedBlockCodes.includes(blockCode);
 	}
 
 	function resetPlayerPreview(playerPreview)

@@ -413,7 +413,7 @@ class ApiHelper
 				'</select>';
 			$groupsSelector.=
 				'<span style="padding-left:10px">
-					<a href="https://vk.com/club'. $selectedValue .'" id="vk_export_groupselector__link">
+					<a href="https://vk.ru/club'. $selectedValue .'" id="vk_export_groupselector__link">
 						<img src="/bitrix/images/sale/vk/vk_icon.png">
 					</a>
 				</span>';

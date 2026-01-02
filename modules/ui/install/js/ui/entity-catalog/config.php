@@ -13,6 +13,8 @@ return [
 		'ui.vue3.components.hint',
 		'ui.feedback.form',
 		'ui.icons',
+		'ui.cnt',
+		'ui.vue3.components.counter',
 		'ui.advice',
 		'ui.vue3.pinia',
 		'main.popup',

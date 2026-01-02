@@ -10,6 +10,8 @@ final class GenerateDto
 		public readonly ?string $namespace = null,
 		public readonly ?string $rootFolder = null,
 		public readonly bool $psr4 = true,
+		public readonly array $actions = [],
+		public readonly ?string $alias = null,
 	)
 	{}
 }

@@ -60,6 +60,46 @@ class Expenses
 			$this->data['campaignName'] = (string)$data['campaignName'];
 		}
 
+		if (isset($data['groupId']))
+		{
+			$this->data['groupId'] = (string)$data['groupId'];
+		}
+
+		if (isset($data['groupName']))
+		{
+			$this->data['groupName'] = (string)$data['groupName'];
+		}
+
+		if (isset($data['adId']))
+		{
+			$this->data['adId'] = (string)$data['adId'];
+		}
+
+		if (isset($data['adName']))
+		{
+			$this->data['adName'] = (string)$data['adName'];
+		}
+
+		if (isset($data['utmMedium']))
+		{
+			$this->data['utmMedium'] = (string)$data['utmMedium'];
+		}
+
+		if (isset($data['utmSource']))
+		{
+			$this->data['utmSource'] = (string)$data['utmSource'];
+		}
+
+		if (isset($data['utmCampaign']))
+		{
+			$this->data['utmCampaign'] = (string)$data['utmCampaign'];
+		}
+
+		if (isset($data['utmContent']))
+		{
+			$this->data['utmContent'] = (string)$data['utmContent'];
+		}
+
 		if (isset($data['date']) && $data['date'] instanceof Date)
 		{
 			$this->data['date'] = $data['date'];
@@ -150,6 +190,77 @@ class Expenses
 		return $this->data['campaignName'];
 	}
 
+	/**
+	 * @return string
+	 */
+	public function getGroupId(): string
+	{
+		return $this->data['groupId'] ?? '';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getGroupName(): string
+	{
+		return $this->data['groupName'] ?? '';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAdId(): string
+	{
+		return $this->data['adId'] ?? '';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAdName(): string
+	{
+		return $this->data['adName'] ?? '';
+	}
+
+	/**
+	 * Returns utm tag utm_medium if exists
+	 *
+	 * @return string
+	 */
+	public function getUtmMedium(): string
+	{
+		return $this->data['utmMedium'] ?? '';
+	}
+
+	/**
+	 * Returns utm tag utm_source if exists
+	 *
+	 * @return string
+	 */
+	public function getUtmSource(): string
+	{
+		return $this->data['utmSource'] ?? '';
+	}
+
+	/**
+	 * Returns utm tag utm_campaign if exists
+	 *
+	 * @return string
+	 */
+	public function getUtmCampaign(): string
+	{
+		return $this->data['utmCampaign'] ?? '';
+	}
+
+	/**
+	 * Returns utm tag utm_content if exists
+	 *
+	 * @return string
+	 */
+	public function getUtmContent(): string
+	{
+		return $this->data['utmContent'] ?? '';
+	}
 	/**
 	 * @return null|Date
 	 */

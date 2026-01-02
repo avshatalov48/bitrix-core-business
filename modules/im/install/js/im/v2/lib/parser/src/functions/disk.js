@@ -1,32 +1,13 @@
-import {Loc} from 'main.core';
-
-import {getConst} from '../utils/core-proxy';
-import {ParserIcon} from './icon';
-
-const {FileIconType} = getConst();
+import { Loc } from 'main.core';
 
 export const ParserDisk = {
-
-	decode(text): string
+	decode(text: string): string
 	{
-		const icon = ParserIcon.getIcon(FileIconType.file);
+		const diskText = `[${Loc.getMessage('IM_PARSER_ICON_TYPE_FILE')}]`;
 
-		let diskText;
-		if (icon)
-		{
-			diskText = `${icon} ${Loc.getMessage('IM_PARSER_ICON_TYPE_FILE')}`;
-		}
-		else
-		{
-			diskText = `[${Loc.getMessage('IM_PARSER_ICON_TYPE_FILE')}]`;
-		}
-
-		text = text.replace(/\[disk=\d+]/gi, diskText);
-
-		return text;
+		return text.replaceAll(/\[disk=\d+]/gi, diskText);
 	},
-
-	purify(text): string
+	purify(text: string): string
 	{
 		return this.decode(text);
 	},

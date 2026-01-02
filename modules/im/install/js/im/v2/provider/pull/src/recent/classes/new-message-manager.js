@@ -1,17 +1,16 @@
 import { Core } from 'im.v2.application.core';
-import { ChatType } from 'im.v2.const';
+import { ChatType, RecentType } from 'im.v2.const';
 import { ChannelManager } from 'im.v2.lib.channel';
 
 import type { PullExtraParams, RawChat } from '../../types/common';
 import type { MessageAddParams } from '../../types/message';
 
-const ActionNameByChatType = {
-	[ChatType.copilot]: 'recent/setCopilot',
-	[ChatType.channel]: 'recent/setChannel',
-	[ChatType.openChannel]: 'recent/setChannel',
-	[ChatType.generalChannel]: 'recent/setChannel',
-	[ChatType.collab]: 'recent/setCollab',
-	default: 'recent/setRecent',
+const ActionNameByRecentType = {
+	[RecentType.default]: 'recent/setRecent',
+	[RecentType.copilot]: 'recent/setCopilot',
+	[RecentType.openChannel]: 'recent/setChannel',
+	[RecentType.collab]: 'recent/setCollab',
+	[RecentType.taskComments]: 'recent/setTask',
 };
 
 export class NewMessageManager
@@ -49,6 +48,11 @@ export class NewMessageManager
 		return chat?.type ?? '';
 	}
 
+	getRecentTypes(): $Values<typeof RecentType>[]
+	{
+		return this.#params.recentConfig.sections;
+	}
+
 	isLinesChat(): boolean
 	{
 		return Boolean(this.#params.lines);
@@ -57,11 +61,6 @@ export class NewMessageManager
 	isCommentChat(): boolean
 	{
 		return this.getChatType() === ChatType.comment;
-	}
-
-	isCollabChat(): boolean
-	{
-		return this.getChatType() === ChatType.collab;
 	}
 
 	isChannelChat(): boolean
@@ -92,22 +91,10 @@ export class NewMessageManager
 
 	getAddActions(): string[]
 	{
-		// for open channels there are two similar P&P events
-		// one adds data to default recent, another adds data to channel recent
-		// close channels are added only to default recent
-		if (this.isChannelChat() && !this.isChannelListEvent())
-		{
-			return [ActionNameByChatType.default];
-		}
+		const recentTypes = this.getRecentTypes();
 
-		if (this.isCollabChat())
-		{
-			return [ActionNameByChatType.default, ActionNameByChatType[ChatType.collab]];
-		}
-
-		const newMessageChatType = this.getChatType();
-		const actionName = ActionNameByChatType[newMessageChatType] ?? ActionNameByChatType.default;
-
-		return [actionName];
+		return recentTypes.map((recentType) => {
+			return ActionNameByRecentType[recentType];
+		});
 	}
 }

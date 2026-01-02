@@ -1,0 +1,27 @@
+<?php
+$MESS["SONET_DATE_TIME_FORMAT"] = "Күн мен уақытты көрсету пішімі";
+$MESS["SONET_GROUP_ID"] = "Топ идентификаторы";
+$MESS["SONET_GROUP_PROPERTY"] = "Қос. топтың қасиеттері";
+$MESS["SONET_GROUP_VAR"] = "Топ үшін айнымалының атауы";
+$MESS["SONET_ITEMS_COUNT"] = "Тізімдердегі жазбалар саны";
+$MESS["SONET_PAGE_VAR"] = "Парақша үшін айнымалының атауы";
+$MESS["SONET_PATH_TO_GROUP"] = "Топтың парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_GROUP_BAN"] = "Топтың қара тізімі парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_GROUP_CREATE"] = "Жаңа топты құру парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_GROUP_DELETE"] = "Топты жою парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_GROUP_EDIT"] = "Топты параметрлерін өзгерту парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_GROUP_FEATURES"] = "Функционал баптаулары парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_GROUP_MODS"] = "Топтың нұсқаулық парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_GROUP_REQUESTS"] = "Топқа кіру сұрауларының парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_GROUP_REQUESTS_OUT"] = "Топқа қосылуға шақыру парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_GROUP_REQUEST_SEARCH"] = "Топқа қосылу үшін пайдаланушының сұрау парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_GROUP_SUBSCRIBE"] = "Жазылымды басқару жолының қалыбы";
+$MESS["SONET_PATH_TO_GROUP_USERS"] = "Топ мүшелерінің парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_SEARCH"] = "Пайдаланушыларды іздеу парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER"] = "Пайдаланушы парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER_LEAVE_GROUP"] = "Топтан шығу парақшасына жол қалыбы";
+$MESS["SONET_PATH_TO_USER_REQUEST_GROUP"] = "Пайдаланушының топқа кіру сұрау парақшасына жол қалыбы";
+$MESS["SONET_SET_NAVCHAIN"] = "Навигациялық тізбекті орнату";
+$MESS["SONET_SHORT_FORM"] = "Қысқартылған нысан";
+$MESS["SONET_USER_VAR"] = "Пайдаланушы үшін айнымалының атауы";
+$MESS["SONET_VARIABLE_ALIASES"] = "Айнымалылардың атаулары";

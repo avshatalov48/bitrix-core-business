@@ -1,11 +1,11 @@
 <?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/interface/init_admin.php");
 
 __IncludeLang($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/map.yandex.view/lang/'.LANGUAGE_ID.'/settings.php');
 
-//if(!$USER->IsAdmin())
-//	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+if(!$USER->IsAdmin())
+	CMain::FinalActions();
 
 $obJSPopup = new CJSPopup('',
 	array(

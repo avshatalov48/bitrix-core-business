@@ -1,0 +1,19 @@
+<?php
+$MESS["SALE_BASE_PRESET_ADD_ELEMENTS"] = "Қосу";
+$MESS["SALE_BASE_PRESET_DISCOUNT_EDIT_ERR_ADD"] = "Жеңілдік ережесін қосу кезіндегі қате";
+$MESS["SALE_BASE_PRESET_DISCOUNT_EDIT_ERR_UPDATE"] = "Жеңілдік ережесін жаңарту кезіндегі қате";
+$MESS["SALE_BASE_PRESET_EMPTY_PRODUCT_NOTICE"] = "Егер тауарлар көрсетілмесе, онда әрекет барлық тауарларға қолданылады";
+$MESS["SALE_BASE_PRESET_ERROR_EMPTY_LID"] = "Сайт көрсетілмеген";
+$MESS["SALE_BASE_PRESET_ERROR_EMPTY_NAME"] = "Жеңілдіктің атауы көрсетілмеген";
+$MESS["SALE_BASE_PRESET_ERROR_EMPTY_USER_GROUPS"] = "Пайдаланушылар тобы көрсетілмеген";
+$MESS["SALE_BASE_PRESET_ERROR_PRODUCT_NON_ARRAY"] = "Өнімдерді таңдау кезіндегі қате мән";
+$MESS["SALE_BASE_PRESET_ERROR_SECTION_NON_ARRAY"] = "Секцияларды таңдау кезіндегі қате мән";
+$MESS["SALE_BASE_PRESET_HEAD_IMAGE"] = "Кескін";
+$MESS["SALE_BASE_PRESET_HEAD_NAME"] = "Атауы";
+$MESS["SALE_BASE_PRESET_HEAD_PROPS"] = "Қасиеттері";
+$MESS["SALE_BASE_PRESET_ORDERAMOUNT_FIELD_NAME"] = "Жеңілдік атауы";
+$MESS["SALE_BASE_PRESET_ORDERAMOUNT_LID"] = "Жеңілдік қолданылатын сайт";
+$MESS["SALE_BASE_PRESET_ORDERAMOUNT_USER_GROUPS"] = "Ереже қолданылатын пайдаланушылар топтары";
+$MESS["SALE_BASE_PRESET_SUB_TITLE_PRODUCTS"] = "Тауарлар";
+$MESS["SALE_BASE_PRESET_SUB_TITLE_SECTION"] = "Бөлімдер";
+$MESS["SALE_BASE_PRESET_TRY_TO_TEXT"] = "Бөлімдерді көрсетіңіз";

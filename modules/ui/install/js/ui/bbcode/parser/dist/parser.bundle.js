@@ -31,8 +31,17 @@ this.BX.UI = this.BX.UI || {};
 
 	const TAG_REGEX = /\[(\/)?(\w+|\*).*?]/;
 	const TAG_REGEX_GS = /\[(\/)?(\w+|\*)(.*?)]/gs;
+	const LF = '\n';
+	const CRLF = '\r\n';
+	const TAB = '\t';
+	const isLinebreak = symbol => {
+	  return [LF, CRLF].includes(symbol);
+	};
+	const isTab = symbol => {
+	  return symbol === TAB;
+	};
 	const isSpecialChar = symbol => {
-	  return ['\n', '\t'].includes(symbol);
+	  return isTab(symbol) || isLinebreak(symbol);
 	};
 	const isList = tagName => {
 	  return ['list', 'ul', 'ol'].includes(String(tagName).toLowerCase());
@@ -139,7 +148,13 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  parseText(text) {
 	    if (main_core.Type.isStringFilled(text)) {
-	      return [...text].reduce((acc, symbol) => {
+	      const regex = /\\r\\n|\\n|\\t|\\.|.|\r\n|\n|\t/g;
+	      return [...text.matchAll(regex)].flatMap(([token]) => {
+	        if (isLinebreak(token)) {
+	          return token;
+	        }
+	        return [...token];
+	      }).reduce((acc, symbol) => {
 	        if (isSpecialChar(symbol)) {
 	          acc.push(symbol);
 	        } else {
@@ -152,10 +167,10 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	        return acc;
 	      }, []).map(fragment => {
-	        if (fragment === '\n') {
+	        if (isLinebreak(fragment)) {
 	          return parserScheme.createNewLine();
 	        }
-	        if (fragment === '\t') {
+	        if (isTab(fragment)) {
 	          return parserScheme.createTab();
 	        }
 	        return parserScheme.createText({
@@ -341,6 +356,12 @@ this.BX.UI = this.BX.UI || {};
 	          return parserScheme.createText(token.toString());
 	        });
 	        node.replace(...nodes);
+	      }
+	    });
+	    ui_bbcode_model.BBCodeNode.flattenAst(result).forEach(node => {
+	      const tagScheme = this.getScheme().getTagScheme(node);
+	      if (tagScheme) {
+	        tagScheme.runOnParseHandler(node);
 	      }
 	    });
 	    result.setScheme(this.getScheme(), this.getOnUnknownHandler());

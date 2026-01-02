@@ -120,12 +120,12 @@
 				));
 			}
 
+			// todo: need save Backward compatibility for "pallette"?
 			if (options.type === "palette")
 			{
 				field = new BX.Landing.UI.Field.ColorPalette(defaultOptions);
 			}
 
-			// todo: need save Backward compatibility for "pallette"?
 			if (options.type === "color")
 			{
 				field = new BX.Landing.UI.Field.ColorField(Object.assign(

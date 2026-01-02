@@ -1,0 +1,21 @@
+<?php
+$MESS["SONET_SM_SETTINGS_TITLE_1"] = "Функционал баптауы: ";
+$MESS["SONET_SM_SETTINGS_TITLE_blog"] = "хабарламалар";
+$MESS["SONET_SM_SETTINGS_TITLE_calendar"] = "күнтізбе";
+$MESS["SONET_SM_SETTINGS_TITLE_files"] = "файлдар";
+$MESS["SONET_SM_SETTINGS_TITLE_forum"] = "форум";
+$MESS["SONET_SM_SETTINGS_TITLE_global"] = "Мәзір баптаулары";
+$MESS["SONET_SM_SETTINGS_TITLE_microblog"] = "микроблог";
+$MESS["SONET_SM_SETTINGS_TITLE_photo"] = "фото";
+$MESS["SONET_SM_SETTINGS_TITLE_search"] = "іздеу";
+$MESS["SONET_SM_SETTINGS_TITLE_tasks"] = "міндеттер";
+$MESS["SONET_SM_TDEF_ADD"] = "Тағы көрсету";
+$MESS["SONET_SM_TDEF_CONF1"] = "Мәзір тармақтарының орналасуы әдепкі мәнге қалпына келтіріледі. Жалғастыру керек пе?";
+$MESS["SONET_SM_TDEF_CONF2"] = "Функционал өшіріледі. Жалғастыру керек пе?";
+$MESS["SONET_SM_TDEF_ERR1"] = "Сервердегі мәзір тармағының позициясын сақтау қатесі.";
+$MESS["SONET_SM_TDEF_ERR2"] = "Сервердегі мәзір тармағын қосу қатесі.";
+$MESS["SONET_SM_TDEF_INACTIVE"] = "Функционалды қосу";
+$MESS["SONET_SM_TDEF_MENU_SETTINGS"] = "Мәзірді баптау";
+$MESS["SONET_SM_TDEF_OFF"] = "Функционалды өшіру";
+$MESS["SONET_SM_TDEF_ON"] = "Функционалды қосу";
+$MESS["SONET_SM_TDEF_SETTINGS"] = "Функционалды баптау";

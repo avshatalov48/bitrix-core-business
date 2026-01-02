@@ -601,7 +601,7 @@
 					if (!author)
 						author = '';
 					else if (author.id > 0)
-						author = '<span id="' + editor.SetBxTag(false, {'tag': "postuser", 'params': {'value' : author.id}}) +
+						author = '<span id="' + editor.SetBxTag(false, {'tag': "postuser", 'userId': author.id, 'params': {'value' : author.id}}) +
 							'" style="color: #2067B0; border-bottom: 1px dashed #2067B0;">' + author.name.replace(/</gi, '&lt;').replace(/>/gi, '&gt;') + '</span>';
 					else
 						author = '<span>' + author.name.replace(/</gi, '&lt;').replace(/>/gi, '&gt;') + '</span>';

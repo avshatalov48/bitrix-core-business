@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2024 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Web\Http\Socket;
@@ -12,6 +12,8 @@ namespace Bitrix\Main\Web\Http\Socket;
 use Bitrix\Main\Web;
 use Bitrix\Main\Web\Http;
 use Bitrix\Main\Web\IpAddress;
+use Bitrix\Main\Web\HttpDebug;
+use Bitrix\Main\Diag\StopWatch;
 use Psr\Http\Message\RequestInterface;
 
 class Handler extends Http\Handler
@@ -33,6 +35,11 @@ class Handler extends Http\Handler
 	protected int $state = self::PENDING;
 	protected string $requestBodyPart = '';
 
+	protected ?StopWatch $connectTimer = null;
+	protected ?StopWatch $handshakeTimer = null;
+	protected ?StopWatch $requestTimer = null;
+	protected ?StopWatch $totalTimer = null;
+
 	/**
 	 * @param RequestInterface $request
 	 * @param Http\ResponseBuilderInterface $responseBuilder
@@ -53,23 +60,26 @@ class Handler extends Http\Handler
 	/**
 	 * Processes the given promise. The promise can be left in the pending state, fulfilled or rejected.
 	 *
-	 * @param Http\Promise $promise
+	 * @param Http\Promise | null $promise
 	 * @return void
 	 */
-	public function process(Http\Promise $promise)
+	public function process(?Http\Promise $promise = null)
 	{
 		$request = $this->request;
 		$uri = $request->getUri();
+		$fetchBody = true;
 
 		try
 		{
 			switch ($this->state)
 			{
 				case self::PENDING:
+					$this->initTimers();
+
 					$logUri = new Web\Uri((string)$uri);
 					$logUri->convertToUnicode();
 
-					$this->log("***CONNECT to " . $this->socket->getAddress() . " for URI " . $logUri . "\n", Web\HttpDebug::CONNECT);
+					$this->log("***CONNECT to {address} for URI {uri}\n", Web\HttpDebug::CONNECT, ['address' => $this->socket->getAddress(), 'uri' => $logUri]);
 
 					// this is a new job - should connect asynchronously
 					try
@@ -80,6 +90,8 @@ class Handler extends Http\Handler
 					{
 						throw new Http\NetworkException($request, $e->getMessage());
 					}
+
+					$this->connectTimer?->stop();
 
 					$this->state = self::CONNECTED;
 
@@ -99,12 +111,17 @@ class Handler extends Http\Handler
 						// enable ssl before sending request headers
 						if ($uri->getScheme() === 'https')
 						{
-							$this->socket->setBlocking();
+							if ($this->async)
+							{
+								$this->socket->setBlocking();
+							}
 
 							if ($this->socket->enableCrypto() === false)
 							{
 								throw new Http\NetworkException($request, 'Error establishing an SSL connection.');
 							}
+
+							$this->handshakeTimer?->stop();
 						}
 
 						// the socket is ready - can write headers
@@ -125,7 +142,7 @@ class Handler extends Http\Handler
 				case self::CONNECT_SENT:
 					if ($this->receiveHeaders())
 					{
-						$this->log("<<<CONNECT\n" . $this->responseHeaders . "\n", Web\HttpDebug::REQUEST_HEADERS);
+						$this->log("<<<CONNECT\n{headers}\n", Web\HttpDebug::REQUEST_HEADERS, ['headers' => $this->responseHeaders]);
 
 						// response to CONNECT from the proxy
 						$headers = Web\HttpHeaders::createFromString($this->responseHeaders);
@@ -149,6 +166,8 @@ class Handler extends Http\Handler
 					if ($this->sendBody())
 					{
 						// sent all the body
+						$this->requestTimer?->stop();
+
 						$this->state = self::BODY_SENT;
 					}
 
@@ -159,7 +178,7 @@ class Handler extends Http\Handler
 					if ($this->receiveHeaders())
 					{
 						// all headers received
-						$this->log("\n<<<RESPONSE\n" . $this->responseHeaders . "\n", Web\HttpDebug::RESPONSE_HEADERS);
+						$this->log("\n<<<RESPONSE\n{headers}\n", Web\HttpDebug::RESPONSE_HEADERS, ['headers' => $this->responseHeaders]);
 
 						// build the response for the next stage
 						$this->response = $this->responseBuilder->createFromString($this->responseHeaders);
@@ -177,11 +196,7 @@ class Handler extends Http\Handler
 						}
 						else
 						{
-							$this->socket->close();
-
 							// we don't want a body, just fulfil a promise with response headers
-							$promise->fulfill($this->response);
-
 							$this->state = self::BODY_RECEIVED;
 						}
 					}
@@ -193,34 +208,46 @@ class Handler extends Http\Handler
 					if ($this->receiveBody())
 					{
 						// have read all the body
-						$this->socket->close();
-
-						if ($this->debugLevel & Web\HttpDebug::RESPONSE_BODY)
-						{
-							$this->log($this->response->getBody(), Web\HttpDebug::RESPONSE_BODY);
-						}
-
-						// need to ajust the response headers (PSR-18)
-						$this->response->adjustHeaders();
-
-						// we have a result!
-						$promise->fulfill($this->response);
-
 						$this->state = self::BODY_RECEIVED;
 					}
 
 					break;
+			}
+
+			if ($this->state == self::BODY_RECEIVED)
+			{
+				$this->socket->close();
+
+				if ($fetchBody)
+				{
+					if ($this->debugLevel & Web\HttpDebug::RESPONSE_BODY)
+					{
+						$this->log($this->response->getBody(), Web\HttpDebug::RESPONSE_BODY);
+					}
+
+					// need to ajust the response headers (PSR-18)
+					$this->response->adjustHeaders();
+				}
+
+				$this->totalTimer?->stop();
+
+				$this->logDiagnostics();
+
+				// we have a result!
+				$promise?->fulfill($this->response);
 			}
 		}
 		catch (Http\ClientException $exception)
 		{
 			$this->socket->close();
 
-			$promise->reject($exception);
+			$promise?->reject($exception);
 
-			if ($logger = $this->getLogger())
+			$this->getLogger()?->error($exception->getMessage() . "\n");
+
+			if ($promise === null)
 			{
-				$logger->error($exception->getMessage() . "\n");
+				throw $exception;
 			}
 		}
 	}
@@ -257,14 +284,20 @@ class Handler extends Http\Handler
 
 		$requestHeaders .= "\r\n";
 
-		$this->log(">>>CONNECT\n" . $requestHeaders, Web\HttpDebug::REQUEST_HEADERS);
+		$this->log(">>>CONNECT\n{headers}", Web\HttpDebug::REQUEST_HEADERS, ['headers' => $requestHeaders]);
 
-		// blocking is critical for headers
-		$this->socket->setBlocking();
+		if ($this->async)
+		{
+			// blocking is critical for headers
+			$this->socket->setBlocking();
+		}
 
 		$this->write($requestHeaders, 'Error sending CONNECT to proxy.');
 
-		$this->socket->setBlocking(false);
+		if ($this->async)
+		{
+			$this->socket->setBlocking(false);
+		}
 	}
 
 	protected function sendHeaders(): void
@@ -287,14 +320,20 @@ class Handler extends Http\Handler
 
 		$requestHeaders .= "\r\n";
 
-		$this->log(">>>REQUEST\n" . $requestHeaders, Web\HttpDebug::REQUEST_HEADERS);
+		$this->log(">>>REQUEST\n{headers}", Web\HttpDebug::REQUEST_HEADERS, ['headers' => $requestHeaders]);
 
-		// blocking is critical for headers
-		$this->socket->setBlocking();
+		if ($this->async)
+		{
+			// blocking is critical for headers
+			$this->socket->setBlocking();
+		}
 
 		$this->write($requestHeaders, 'Error sending the message headers.');
 
-		$this->socket->setBlocking(false);
+		if ($this->async)
+		{
+			$this->socket->setBlocking(false);
+		}
 	}
 
 	protected function sendBody(): bool
@@ -363,11 +402,26 @@ class Handler extends Http\Handler
 
 		$length = $headers->get('Content-Length');
 
+		if ($length !== null && $length <= 0)
+		{
+			// nothing to read
+			return true;
+		}
+
 		while (!$this->socket->eof())
 		{
+			if ($length !== null)
+			{
+				$bufLength = min($length, self::BUF_READ_LEN);
+			}
+			else
+			{
+				$bufLength = self::BUF_READ_LEN;
+			}
+
 			try
 			{
-				$buf = $this->socket->read(self::BUF_READ_LEN);
+				$buf = $this->socket->read($bufLength);
 			}
 			catch (\RuntimeException)
 			{
@@ -465,5 +519,44 @@ class Handler extends Http\Handler
 	public function getSocket(): Stream
 	{
 		return $this->socket;
+	}
+
+	protected function initTimers(): void
+	{
+		// $this->debugLevel can be set from Diag\Logger::create()
+		if ($this->getLogger())
+		{
+			if ($this->debugLevel & HttpDebug::DIAGNOSTICS)
+			{
+				$this->connectTimer = (new StopWatch())->start();
+				if ($this->request->getUri()->getScheme() === 'https')
+				{
+					$this->handshakeTimer = (new StopWatch())->start();
+				}
+				$this->requestTimer = (new StopWatch())->start();
+				$this->totalTimer = (new StopWatch())->start();
+			}
+		}
+	}
+
+	protected function getDiagnostics(): array
+	{
+		return [
+			'connect' => $this->connectTimer?->get() ?? 0.0,
+			'handshake' => $this->handshakeTimer?->get() ?? 0.0,
+			'request' => $this->requestTimer?->get() ?? 0.0,
+			'total' => $this->totalTimer?->get() ?? 0.0,
+		];
+	}
+
+	public function execute(): Http\Response
+	{
+		while ($this->state != self::BODY_RECEIVED)
+		{
+			// request in a blocking way
+			$this->process();
+		}
+
+		return $this->response;
 	}
 }

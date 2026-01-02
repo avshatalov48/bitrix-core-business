@@ -46,7 +46,7 @@ $MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_CANCEL"] = "Отменить";
 $MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_INPUT_PLACEHOLDER_2"] = "Добавить подпись";
 $MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_FILE_UPLOAD_ERROR"] = "Не удалось загрузить файл";
 $MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_SEND_WITHOUT_COMPRESSION"] = "Отправить без сжатия";
-$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_FILES_LIMIT_MESSAGE_10"] = "Можно отправить не больше 10 файлов за раз";
+$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_FILES_LIMIT_MESSAGE_100"] = "Можно отправить не больше 100 файлов за раз";
 
 $MESS["IM_TEXTAREA_GIPHY_EMPTY_STATE"] = "По вашему запросу ничего не найдено";
 $MESS["IM_TEXTAREA_GIPHY_UNAVAILABLE_STATE"] = "Интеграция с Giphy недоступна";
@@ -75,6 +75,4 @@ $MESS["IM_TEXTAREA_MENTION_CHAT_TYPE"] = "Групповой чат";
 $MESS["IM_TEXTAREA_MENTION_OPEN_CHANNEL_TYPE"] = "Открытый канал";
 $MESS["IM_TEXTAREA_MENTION_PRIVATE_CHANNEL_TYPE"] = "Закрытый канал";
 $MESS["IM_TEXTAREA_MENTION_COLLAB_TYPE"] = "Коллаба";
-
-$MESS["IM_TEXTAREA_AUDIO_INPUT_ERROR"] = "Не удалось распознать речь, попробуйте позже";
-$MESS["IM_TEXTAREA_UNKNOWN_ERROR"] = "Не удалось выполнить действие, попробуйте позже";
+$MESS["IM_TEXTAREA_AUTO_DELETE_TITLE"] = "В этом чате включено автоудаление сообщений";

@@ -31,7 +31,7 @@ class SyncInfo
 		return new static(
 			EntityType::CHAT,
 			$node->entityId,
-			$node->node->id,
+			$node->nodeId,
 			$node->withChildNodes,
 			$direction,
 		);

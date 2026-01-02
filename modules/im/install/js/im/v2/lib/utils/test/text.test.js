@@ -1,6 +1,6 @@
 import 'im.v2.test';
-import {Utils} from 'im.v2.lib.utils';
-import {Type} from 'main.core';
+import { Utils } from 'im.v2.lib.utils';
+import { Type } from 'main.core';
 
 describe('Utils.text', () => {
 	describe('isUuidV4', () => {

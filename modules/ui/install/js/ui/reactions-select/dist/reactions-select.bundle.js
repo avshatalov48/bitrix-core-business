@@ -11902,13 +11902,13 @@ this.BX = this.BX || {};
 	  kiss: admireAnimatedEmojiData
 	});
 	const reactionCssClass = Object.freeze({
-	  like: "reaction-icon_like",
-	  laugh: "reaction-icon_laugh",
-	  wonder: "reaction-icon_wonder",
-	  cry: "reaction-icon_cry",
-	  angry: "reaction-icon_angry",
-	  facepalm: "reaction-icon_facepalm",
-	  kiss: "reaction-icon_kiss"
+	  like: 'reaction-icon_like',
+	  laugh: 'reaction-icon_laugh',
+	  wonder: 'reaction-icon_wonder',
+	  cry: 'reaction-icon_cry',
+	  angry: 'reaction-icon_angry',
+	  facepalm: 'reaction-icon_facepalm',
+	  kiss: 'reaction-icon_kiss'
 	});
 	const reactionSelectEvents = Object.freeze({
 	  show: 'show',
@@ -11921,7 +11921,7 @@ this.BX = this.BX || {};
 	  touchend: 'touchend',
 	  touchmove: 'touchmove'
 	});
-	var _name = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("name");
+	var _id = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("id");
 	var _containerClassname = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("containerClassname");
 	var _position = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("position");
 	var _baseClassname = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("baseClassname");
@@ -11943,7 +11943,9 @@ this.BX = this.BX || {};
 	var _renderReactionsList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderReactionsList");
 	var _renderReactionItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderReactionItem");
 	var _renderAnimatedReactionIcon = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderAnimatedReactionIcon");
+	var _getLottieAnimationNameByReaction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getLottieAnimationNameByReaction");
 	var _renderReactionItemHoverArea = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderReactionItemHoverArea");
+	var _destroyLottieAnimations = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("destroyLottieAnimations");
 	var _getPopupPositionForBindElement = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopupPositionForBindElement");
 	var _getPopupPositionOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopupPositionOptions");
 	var _handleTouchMove = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleTouchMove");
@@ -11955,7 +11957,6 @@ this.BX = this.BX || {};
 	var _touchMoveScrollListener = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("touchMoveScrollListener");
 	var _disableScrollOnMobile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("disableScrollOnMobile");
 	var _enableScrollOnMobile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("enableScrollOnMobile");
-	var _generateName = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("generateName");
 	var _checkPositionOption = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("checkPositionOption");
 	var _getElementFromTouchEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getElementFromTouchEvent");
 	var _checkIsPopupTouched = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("checkIsPopupTouched");
@@ -11984,9 +11985,6 @@ this.BX = this.BX || {};
 	    });
 	    Object.defineProperty(this, _checkPositionOption, {
 	      value: _checkPositionOption2
-	    });
-	    Object.defineProperty(this, _generateName, {
-	      value: _generateName2
 	    });
 	    Object.defineProperty(this, _enableScrollOnMobile, {
 	      value: _enableScrollOnMobile2
@@ -12021,8 +12019,14 @@ this.BX = this.BX || {};
 	    Object.defineProperty(this, _getPopupPositionForBindElement, {
 	      value: _getPopupPositionForBindElement2
 	    });
+	    Object.defineProperty(this, _destroyLottieAnimations, {
+	      value: _destroyLottieAnimations2
+	    });
 	    Object.defineProperty(this, _renderReactionItemHoverArea, {
 	      value: _renderReactionItemHoverArea2
+	    });
+	    Object.defineProperty(this, _getLottieAnimationNameByReaction, {
+	      value: _getLottieAnimationNameByReaction2
 	    });
 	    Object.defineProperty(this, _renderAnimatedReactionIcon, {
 	      value: _renderAnimatedReactionIcon2
@@ -12042,7 +12046,7 @@ this.BX = this.BX || {};
 	    Object.defineProperty(this, _createReactionsPopup, {
 	      value: _createReactionsPopup2
 	    });
-	    Object.defineProperty(this, _name, {
+	    Object.defineProperty(this, _id, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -12107,7 +12111,7 @@ this.BX = this.BX || {};
 	      value: void 0
 	    });
 	    this.setEventNamespace('UI:ReactionsSelect');
-	    babelHelpers.classPrivateFieldLooseBase(this, _name)[_name] = main_core.Type.isString(options.name) ? options.name : babelHelpers.classPrivateFieldLooseBase(this, _generateName)[_generateName]();
+	    babelHelpers.classPrivateFieldLooseBase(this, _id)[_id] = parseInt(Math.random() * 1000, 10);
 	    babelHelpers.classPrivateFieldLooseBase(this, _baseClassname)[_baseClassname] = 'reaction-select';
 	    babelHelpers.classPrivateFieldLooseBase(this, _popupContentClassname)[_popupContentClassname] = `${babelHelpers.classPrivateFieldLooseBase(this, _baseClassname)[_baseClassname]}_container`;
 	    babelHelpers.classPrivateFieldLooseBase(this, _availableReactions)[_availableReactions] = Object.keys(reactionType);
@@ -12167,13 +12171,10 @@ this.BX = this.BX || {};
 	  isShown() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _reactionsPopup)[_reactionsPopup] && babelHelpers.classPrivateFieldLooseBase(this, _reactionsPopup)[_reactionsPopup].isShown();
 	  }
-	  getName() {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _name)[_name];
-	  }
 	}
 	function _createReactionsPopup2() {
 	  babelHelpers.classPrivateFieldLooseBase(this, _reactionsPopup)[_reactionsPopup] = new main_popup.Popup({
-	    id: 'reactions-list-' + babelHelpers.classPrivateFieldLooseBase(this, _name)[_name],
+	    id: `reactions-list-${babelHelpers.classPrivateFieldLooseBase(this, _id)[_id]}`,
 	    content: babelHelpers.classPrivateFieldLooseBase(this, _renderPopupContent)[_renderPopupContent](),
 	    ...babelHelpers.classPrivateFieldLooseBase(this, _getPopupPositionOptions)[_getPopupPositionOptions](),
 	    noAllPaddings: true,
@@ -12185,7 +12186,12 @@ this.BX = this.BX || {};
 	    },
 	    cacheable: false,
 	    disableScroll: main_core.Browser.isMobile(),
-	    className: 'reaction-select-popup'
+	    className: 'reaction-select-popup',
+	    events: {
+	      onPopupDestroy: () => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _destroyLottieAnimations)[_destroyLottieAnimations]();
+	      }
+	    }
 	  });
 	}
 	function _renderPopupContent2() {
@@ -12201,8 +12207,8 @@ this.BX = this.BX || {};
 	  return babelHelpers.classPrivateFieldLooseBase(this, _popupContent)[_popupContent];
 	}
 	function _getPopupContentClassname2() {
-	  const baseClassname = `${babelHelpers.classPrivateFieldLooseBase(this, _popupContentClassname)[_popupContentClassname]}`;
-	  const mobileDeviceModifier = `${main_core.Browser.isMobile() ? '--mobile' : ''}`;
+	  const baseClassname = babelHelpers.classPrivateFieldLooseBase(this, _popupContentClassname)[_popupContentClassname];
+	  const mobileDeviceModifier = main_core.Browser.isMobile() ? '--mobile' : '';
 	  return [baseClassname, babelHelpers.classPrivateFieldLooseBase(this, _containerClassname)[_containerClassname], mobileDeviceModifier].join(' ');
 	}
 	function _renderReactionsList2() {
@@ -12231,11 +12237,15 @@ this.BX = this.BX || {};
 	function _renderAnimatedReactionIcon2(reactionName) {
 	  const reactionIcon = main_core.Tag.render(_t4 || (_t4 = _`<div class="${0}_reaction-icon"></div>`), babelHelpers.classPrivateFieldLooseBase(this, _baseClassname)[_baseClassname]);
 	  ui_lottie.Lottie.loadAnimation({
+	    name: babelHelpers.classPrivateFieldLooseBase(this, _getLottieAnimationNameByReaction)[_getLottieAnimationNameByReaction](reactionName),
 	    renderer: 'svg',
 	    container: reactionIcon,
 	    animationData: reactionLottieAnimations[reactionName]
 	  });
 	  return reactionIcon;
+	}
+	function _getLottieAnimationNameByReaction2(reactionName) {
+	  return `${babelHelpers.classPrivateFieldLooseBase(this, _id)[_id]}_${reactionName}`;
 	}
 	function _renderReactionItemHoverArea2(reactionName) {
 	  const className = `${babelHelpers.classPrivateFieldLooseBase(this, _baseClassname)[_baseClassname]}_reaction-hover-area`;
@@ -12248,6 +12258,11 @@ this.BX = this.BX || {};
 	    });
 	  }
 	  return reactionHoverArea;
+	}
+	function _destroyLottieAnimations2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _availableReactions)[_availableReactions].forEach(reactionName => {
+	    ui_lottie.Lottie.destroy(babelHelpers.classPrivateFieldLooseBase(this, _getLottieAnimationNameByReaction)[_getLottieAnimationNameByReaction](reactionName));
+	  });
 	}
 	function _getPopupPositionForBindElement2() {
 	  const leftShift = -50;
@@ -12267,7 +12282,8 @@ this.BX = this.BX || {};
 	    return {
 	      bindElement: babelHelpers.classPrivateFieldLooseBase(this, _position)[_position]
 	    };
-	  } else if (main_core.Type.isDomNode(babelHelpers.classPrivateFieldLooseBase(this, _position)[_position])) {
+	  }
+	  if (main_core.Type.isDomNode(babelHelpers.classPrivateFieldLooseBase(this, _position)[_position])) {
 	    return {
 	      bindElement: babelHelpers.classPrivateFieldLooseBase(this, _getPopupPositionForBindElement)[_getPopupPositionForBindElement]()
 	    };
@@ -12298,7 +12314,7 @@ this.BX = this.BX || {};
 	  const reactionName = reactionHoverArea == null ? void 0 : reactionHoverArea.parentElement.getAttribute('data-reaction');
 	  if (reactionName) {
 	    this.emit(ReactionsSelect.Events.select, {
-	      reaction: reactionName || null
+	      reaction: reactionName
 	    });
 	  }
 	  this.emit(ReactionsSelect.Events.touchend);
@@ -12314,7 +12330,7 @@ this.BX = this.BX || {};
 	  return babelHelpers.classPrivateFieldLooseBase(this, _isReactionHoverArea)[_isReactionHoverArea](element) ? element : null;
 	}
 	function _isReactionHoverArea2(element) {
-	  return element && element.classList.contains(`reaction-select_reaction-hover-area`);
+	  return element && main_core.Dom.hasClass(element, 'reaction-select_reaction-hover-area');
 	}
 	function _touchMoveScrollListener2(e) {
 	  e.preventDefault();
@@ -12335,29 +12351,29 @@ this.BX = this.BX || {};
 	  if (!main_core.Browser.isMobile()) {
 	    return;
 	  }
-	  document.removeEventListener('touchmove', babelHelpers.classPrivateFieldLooseBase(this, _touchMoveScrollListener)[_touchMoveScrollListener], {
+	  main_core.Event.unbind(window, 'touchmove', babelHelpers.classPrivateFieldLooseBase(this, _touchMoveScrollListener)[_touchMoveScrollListener], {
 	    passive: false
 	  });
 	  this.emit('onPullDownEnable');
-	}
-	function _generateName2() {
-	  const num = Math.round(Math.random() * 1000);
-	  return `ReactionsSelect${num}`;
 	}
 	function _checkPositionOption2(position) {
 	  if (position === undefined) {
 	    console.warn('UI.ReactionSelect: "position" parameter is required');
 	    return false;
-	  } else if (!main_core.Type.isDomNode(position) && !main_core.Type.isPlainObject(position)) {
+	  }
+	  if (!main_core.Type.isDomNode(position) && !main_core.Type.isPlainObject(position)) {
 	    console.warn('UI.ReactionSelect: "position" parameter must be an Object or an HTMLElement');
 	    return false;
-	  } else if (!main_core.Type.isPlainObject(position) && !main_core.Type.isDomNode(position)) {
+	  }
+	  if (!main_core.Type.isPlainObject(position) && !main_core.Type.isDomNode(position)) {
 	    console.warn('UI.ReactionSelect: "position" must be HTMLElement');
 	    return false;
-	  } else if (main_core.Type.isPlainObject(position) && !main_core.Type.isNumber(position.left)) {
+	  }
+	  if (main_core.Type.isPlainObject(position) && !main_core.Type.isNumber(position.left)) {
 	    console.warn('UI.ReactionSelect: position.left must be a number');
 	    return false;
-	  } else if (main_core.Type.isPlainObject(position) && !main_core.Type.isNumber(position.top)) {
+	  }
+	  if (main_core.Type.isPlainObject(position) && !main_core.Type.isNumber(position.top)) {
 	    console.warn('UI.ReactionSelect: position.top must be a number');
 	    return false;
 	  }
@@ -12365,7 +12381,7 @@ this.BX = this.BX || {};
 	}
 	function _getElementFromTouchEvent2(e) {
 	  var _e$touches$item, _e$touches$item2;
-	  if (!e || !e.touches || e.touches.length < 1) {
+	  if (!e || !e.touches || e.touches.length === 0) {
 	    return null;
 	  }
 	  const touchX = (_e$touches$item = e.touches.item(0)) == null ? void 0 : _e$touches$item.pageX;

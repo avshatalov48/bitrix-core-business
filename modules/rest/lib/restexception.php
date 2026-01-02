@@ -1,8 +1,8 @@
 <?
+
 namespace Bitrix\Rest;
 
-class RestException
-	extends \Exception
+class RestException extends \Exception implements RestExceptionInterface
 {
 	const ERROR_INTERNAL_WRONG_TRANSPORT = 'INTERNAL_WRONG_TRANSPORT';
 	const ERROR_INTERNAL_WRONG_HANDLER_CLASS = 'INTERNAL_WRONG_HANDLER_CLASS';
@@ -16,9 +16,9 @@ class RestException
 	const ERROR_ARGUMENT = 'ERROR_ARGUMENT';
 	const ERROR_NOT_FOUND = 'ERROR_NOT_FOUND';
 
-	protected $status;
-	protected $error_code;
-	protected $error_additional = array();
+	protected string $status;
+	protected string $error_code;
+	protected array $error_additional = [];
 
 	public function __construct($message, $code = "", $status = 0, \Exception $previous = null)
 	{
@@ -34,13 +34,13 @@ class RestException
 		return $this->error_code;
 	}
 
-	public function setErrorCode($error_code)
+	public function setErrorCode($errorCode) // 400 Bad Request
 	{
-		$this->error_code = $error_code;
-		$this->code = intval($error_code);
+		$this->error_code = $errorCode; // 400 Bad Request
+		$this->code = intval($errorCode); // 400
 	}
 
-	public function getStatus()
+	public function getStatus(): string
 	{
 		return $this->status == 0 ? \CRestServer::STATUS_WRONG_REQUEST : $this->status;
 	}
@@ -50,9 +50,9 @@ class RestException
 		$this->status = $status;
 	}
 
-	public function setMessage($msg)
+	public function setMessage($message)
 	{
-		$this->message = $msg;
+		$this->message = $message;
 	}
 
 	public function getAdditional()
@@ -60,21 +60,14 @@ class RestException
 		return $this->error_additional;
 	}
 
-	public function setAdditional($error_additional)
+	public function setAdditional($additional)
 	{
-		$this->error_additional = $error_additional;
+		$this->error_additional = $additional;
 	}
 
 	public function setApplicationException(\CApplicationException $ex)
 	{
-		if($ex->getId())
-		{
-			$this->setErrorCode($ex->getId());
-		}
-		else
-		{
-			$this->setErrorCode(self::ERROR_CORE);
-		}
+		$this->setErrorCode($ex->getId() ?: self::ERROR_CORE);
 
 		$this->message = $ex->getString();
 	}
@@ -92,9 +85,9 @@ class RestException
 				$e->getPrevious()
 			);
 		}
-		elseif(is_a($e, '\Bitrix\Main\SystemException'))
+		elseif (is_a($e, '\Bitrix\Main\SystemException'))
 		{
-			if(is_a($e, '\Bitrix\Main\ArgumentException'))
+			if (is_a($e, '\Bitrix\Main\ArgumentException'))
 			{
 				$ex = new self(
 					$e->getMessage(),
@@ -103,17 +96,15 @@ class RestException
 					$e->getPrevious()
 				);
 
-				$ex->setAdditional(array(
-					"argument" => $e->getParameter(),
-				));
+				$ex->setAdditional(['argument' => $e->getParameter()]);
 			}
 		}
 
-		if(!$ex)
+		if (!$ex)
 		{
 			$ex = new self(
 				$e->getMessage(),
-				$e->getCode() ? $e->getCode() : self::ERROR_CORE,
+				$e->getCode() ?: self::ERROR_CORE,
 				\CRestServer::STATUS_WRONG_REQUEST,
 				$e->getPrevious()
 			);
@@ -121,5 +112,14 @@ class RestException
 
 		return $ex;
 	}
+
+	public function output(): array
+	{
+		return array_merge([
+			'error' => $this->getErrorCode(),
+			'error_description' => $this->getMessage(),
+		], $this->getAdditional());
+	}
 }
+
 ?>

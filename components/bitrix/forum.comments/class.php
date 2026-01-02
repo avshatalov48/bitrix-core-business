@@ -668,6 +668,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 	{
 		return [
 			"FORUM_ID",
+			"SHOW_POST_FORM",
 			"ENTITY_TYPE",
 			"ENTITY_ID",
 			"ENTITY_XML_ID",

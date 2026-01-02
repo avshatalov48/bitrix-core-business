@@ -1,10 +1,8 @@
 import { ChatDialog, ScrollManager } from 'im.v2.component.dialog.chat';
 import { Layout, UserRole } from 'im.v2.const';
-import { CommentsService } from 'im.v2.provider.service';
+import { CommentsService } from 'im.v2.provider.service.comments';
 
 import { CommentsButton } from './comments-button';
-
-import { ChannelMessageList } from './message-list';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelChat, ImModelLayout } from 'im.v2.model';
@@ -12,7 +10,7 @@ import type { ImModelChat, ImModelLayout } from 'im.v2.model';
 // @vue/component
 export const ChannelDialog = {
 	name: 'ChannelDialog',
-	components: { ChatDialog, ChannelMessageList, CommentsButton },
+	components: { ChatDialog, CommentsButton },
 	props:
 	{
 		dialogId: {
@@ -42,7 +40,7 @@ export const ChannelDialog = {
 		},
 		isChatLayout(): boolean
 		{
-			return this.layout.name === Layout.chat.name;
+			return this.layout.name === Layout.chat;
 		},
 		channelComments(): number[]
 		{
@@ -89,11 +87,7 @@ export const ChannelDialog = {
 		async goToMessageContextByCommentsChatId(chatId: string)
 		{
 			this.$refs.dialog.showLoadingBar();
-			const messageId = await this.$refs.dialog.getMessageService().loadContextByChatId(chatId)
-				.catch((error) => {
-					// eslint-disable-next-line no-console
-					console.error('ChannelDialog: goToMessageContextByCommentsChatId error', error);
-				});
+			const messageId = await this.$refs.dialog.getMessageService().loadContextByChatId(chatId);
 			this.$refs.dialog.hideLoadingBar();
 
 			if (!messageId)
@@ -134,24 +128,18 @@ export const ChannelDialog = {
 		},
 		readAllChannelComments()
 		{
-			CommentsService.readAllChannelComments(this.dialogId);
+			void CommentsService.readAllChannelComments(this.dialogId);
 		},
 	},
 	template: `
-		<ChatDialog ref="dialog" :dialogId="dialogId" :resetOnExit="isGuest">
-			<template #message-list>
-				<ChannelMessageList :dialogId="dialogId" />
-			</template>
+		<ChatDialog ref="dialog" :dialogId="dialogId" :clearOnExit="isGuest">
 			<template #additional-float-button>
-				<Transition name="float-button-transition">
-					<CommentsButton
-						v-if="showCommentsButton"
-						:dialogId="dialogId"
-						:counter="totalChannelCommentsCounter"
-						@click="onCommentsButtonClick"
-						key="comments"
-					/>
-				</Transition>
+				<CommentsButton
+					v-if="showCommentsButton"
+					:dialogId="dialogId"
+					:counter="totalChannelCommentsCounter"
+					@click="onCommentsButtonClick"
+				/>
 			</template>
 		</ChatDialog>
 	`,

@@ -337,6 +337,7 @@ this.BX = this.BX || {};
 	var _id$1 = /*#__PURE__*/new WeakMap();
 	var _isHidden$1 = /*#__PURE__*/new WeakMap();
 	var _node$1 = /*#__PURE__*/new WeakMap();
+	var _className$1 = /*#__PURE__*/new WeakMap();
 	var SeparatorRow = /*#__PURE__*/function () {
 	  function SeparatorRow(params) {
 	    babelHelpers.classCallCheck(this, SeparatorRow);
@@ -352,9 +353,14 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    _classPrivateFieldInitSpec$2(this, _className$1, {
+	      writable: true,
+	      value: void 0
+	    });
 	    params = main_core.Type.isNil(params) ? {} : params;
 	    babelHelpers.classPrivateFieldSet(this, _isHidden$1, params.isHidden === true);
 	    babelHelpers.classPrivateFieldSet(this, _id$1, main_core.Type.isNil(params.id) ? 'row_' + main_core.Text.getRandom(8) : params.id);
+	    babelHelpers.classPrivateFieldSet(this, _className$1, main_core.Type.isStringFilled(params.className) ? params.className : '');
 	  }
 	  babelHelpers.createClass(SeparatorRow, [{
 	    key: "render",
@@ -362,7 +368,7 @@ this.BX = this.BX || {};
 	      if (babelHelpers.classPrivateFieldGet(this, _node$1)) {
 	        return babelHelpers.classPrivateFieldGet(this, _node$1);
 	      }
-	      babelHelpers.classPrivateFieldSet(this, _node$1, main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-section__separator-row\" ", "></div>\n\t\t"])), babelHelpers.classPrivateFieldGet(this, _isHidden$1) ? 'hidden' : ''));
+	      babelHelpers.classPrivateFieldSet(this, _node$1, main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-section__separator-row ", "\" ", "></div>\n\t\t"])), babelHelpers.classPrivateFieldGet(this, _className$1), babelHelpers.classPrivateFieldGet(this, _isHidden$1) ? 'hidden' : ''));
 	      return babelHelpers.classPrivateFieldGet(this, _node$1);
 	    }
 	  }, {

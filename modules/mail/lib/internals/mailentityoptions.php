@@ -4,6 +4,7 @@ namespace Bitrix\Mail\Internals;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\ORM;
+use Bitrix\Main\Type\DateTime;
 
 /**
  * Class MailEntityOptionsTable
@@ -23,9 +24,12 @@ use Bitrix\Main\ORM;
  */
 class MailEntityOptionsTable extends Entity\DataManager
 {
-	const DIR = 'DIR';
-	const MAILBOX = 'MAILBOX';
-	const MESSAGE = 'MESSAGE';
+	const DIR_TYPE_NAME = 'DIR';
+	const MAILBOX_TYPE_NAME = 'MAILBOX';
+	const MESSAGE_TYPE_NAME = 'MESSAGE';
+
+	const CONNECT_ERROR_ATTEMPT_COUNT_PROPERTY_NAME = 'CONNECT_ERROR_ATTEMPT_COUNT';
+	const SYNC_STATUS_PROPERTY_NAME = 'SYNC_STATUS';
 
 	public static function add($fields)
 	{
@@ -59,6 +63,38 @@ class MailEntityOptionsTable extends Entity\DataManager
 		return 'b_mail_entity_options';
 	}
 
+	public static function insertIgnore(
+		int $mailboxId,
+		int $entityId,
+		string $entityType,
+		string $propertyName,
+		string $value,
+		DateTime $dataInsert = new DateTime()
+	): void
+	{
+		$connection = self::getEntity()->getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+
+		[$columns, $insert] = $sqlHelper->prepareInsert(self::getTableName(),
+			[
+				'MAILBOX_ID' => $mailboxId,
+				'ENTITY_TYPE' => $entityType,
+				'ENTITY_ID' => $entityId,
+				'PROPERTY_NAME' => $propertyName,
+				'DATE_INSERT' => $dataInsert,
+				'VALUE' => $value,
+			]
+		);
+
+		$connection->queryExecute(
+			$sqlHelper->getInsertIgnore(
+				MailEntityOptionsTable::getTableName(),
+				"($columns)",
+				"VALUES($insert)"
+			)
+		);
+	}
+
 	public static function getMap()
 	{
 		return array(
@@ -69,7 +105,7 @@ class MailEntityOptionsTable extends Entity\DataManager
 			),
 			'ENTITY_TYPE' => array(
 				'data_type' => 'enum',
-				'values' => array(self::DIR, self::MAILBOX, self::MESSAGE),
+				'values' => array(self::DIR_TYPE_NAME, self::MAILBOX_TYPE_NAME, self::MESSAGE_TYPE_NAME),
 				'required'  => true,
 				'primary' => true,
 			),

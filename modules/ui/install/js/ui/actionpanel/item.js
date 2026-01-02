@@ -132,6 +132,11 @@ BX.UI.ActionPanel.Item.prototype =
 			this.hide();
 		}
 
+		if (this.id)
+		{
+			this.layout.container.id = this.id;
+		}
+
 		return this.layout.container;
 	},
 

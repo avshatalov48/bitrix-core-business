@@ -148,15 +148,6 @@ class CCalendarNotify
 			$CIMNotify->MarkNotifyRead($messageId);
 		}
 
-		$spaceEventData = $notifyFields;
-		$spaceEventData['ID'] = $params['eventId'] ?? null;
-		$spaceEventData['ATTENDEES_CODES'] = $params['fields']['ATTENDEES_CODES'] ?? null;
-		unset($spaceEventData['TITLE']);
-		(new \Bitrix\Calendar\Integration\SocialNetwork\SpaceService())->addEvent(
-			$mode,
-			$spaceEventData
-		);
-
 		foreach(GetModuleEvents("calendar", "OnSendInvitationMessage", true) as $arEvent)
 		{
 			ExecuteModuleEventEx($arEvent, [$params]);

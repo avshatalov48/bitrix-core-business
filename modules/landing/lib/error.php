@@ -5,9 +5,9 @@ class Error
 {
 	/**
 	 * Current errors.
-	 * @var array
+	 * @var \Bitrix\Main\Error[] array
 	 */
-	protected $errors = array();
+	protected array $errors = array();
 
 	/**
 	 * Add error to the current collection.
@@ -37,13 +37,14 @@ class Error
 	 * Returns first error frm errors stack.
 	 * @return \Bitrix\Main\Error|null
 	 */
-	public function getFirstError()
+	public function getFirstError(): ?\Bitrix\Main\Error
 	{
 		if ($this->errors)
 		{
 			$errors = array_values($this->errors);
 			return array_shift($errors);
 		}
+
 		return null;
 	}
 

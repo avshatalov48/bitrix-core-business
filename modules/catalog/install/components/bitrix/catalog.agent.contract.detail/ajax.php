@@ -6,10 +6,11 @@ const DisableEventsCheck = true;
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php';
 
-use Bitrix\Main;
 use Bitrix\Catalog;
+use Bitrix\Main;
+use Bitrix\Main\Web\Json;
 
-if (!\Bitrix\Main\Loader::includeModule('catalog'))
+if (!Main\Loader::includeModule('catalog'))
 {
 	return;
 }
@@ -37,6 +38,11 @@ if ($action === 'SAVE')
 		'TITLE' => $title,
 	];
 	$result = Catalog\v2\AgentContract\Manager::update($id, $fields);
+	if ($result->isSuccess())
+	{
+		Header('Content-Type: text/html; charset=' . LANG_CHARSET);
+		echo Json::encode([]);
+	}
 }
 elseif($action === 'RENDER_IMAGE_INPUT')
 {
@@ -65,7 +71,7 @@ elseif($action === 'RENDER_IMAGE_INPUT')
 			'',
 			array(
 				'MODULE_ID' => 'catalog',
-				'MAX_FILE_SIZE' => \CUtil::Unformat(ini_get('upload_max_filesize')),
+				'MAX_FILE_SIZE' => Main\Config\Ini::unformatInt((string)ini_get('upload_max_filesize')),
 				'MULTIPLE'=> 'Y',
 				'ALLOW_UPLOAD' => $request->get('ALLOW_UPLOAD') ?? 'N',
 				'CONTROL_ID' => mb_strtolower($fieldName) . '_uploader',

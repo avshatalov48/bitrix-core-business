@@ -68,3 +68,6 @@ $MESS["BIZPROC_AUTOMATION_CMP_ON_CLOSE_SLIDER_OK_TITLE"] = "Выйти без с
 $MESS['BIZPROC_AUTOMATION_TOUR_GUIDE_BEGINNING_SUBTITLE_SELLING_DOCUMENT_TYPE'] = 'Работать продуктивнее можно без дополнительных затрат и найма новых сотрудников! Система сама выполнит нужное действие или напомнит менеджеру, что нужно сделать. Вы не упустите ни одной возможности для продажи';
 $MESS['BIZPROC_AUTOMATION_CMP_DEACTIVATE_TRIGGER_ALERT_MESSAGE'] = 'Действие выполнено только для роботов. Включение/Отключение триггеров недоступно';
 $MESS['BIZPROC_AUTOMATION_CMP_DEACTIVATE_TRIGGER_ALERT_BUTTON_TEXT'] = 'Понятно';
+
+$MESS['BIZPROC_AUTOMATION_NEW_ENTITIES_BUTTON_TEXT'] = 'Новинки';
+$MESS['BIZPROC_AUTOMATION_NEW_ENTITIES_BUTTON_AHA_MOMENT_DESCRIPTION'] = 'Автоматизируйте новые сценарии и достигайте результатов ещё быстрее с новыми роботами и триггерами';

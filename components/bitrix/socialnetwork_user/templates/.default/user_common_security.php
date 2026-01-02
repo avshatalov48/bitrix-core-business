@@ -20,7 +20,8 @@ $APPLICATION->IncludeComponent(
 			"PATH_TO_USER_SYNCHRONIZE" => $arResult["PATH_TO_USER_SYNCHRONIZE"],
 			"PATH_TO_USER_SOCIAL_SERVICES" => $arResult["PATH_TO_USER_SOCIAL_SERVICES"]
 		),
-		"POPUP_COMPONENT_PARENT" => $this->getComponent()
+		"POPUP_COMPONENT_PARENT" => $this->getComponent(),
+		"USE_UI_TOOLBAR" => "Y",
 	)
 );
 ?>

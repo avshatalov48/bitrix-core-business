@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/avatar.bundle.css',
 	'js' => 'dist/avatar.bundle.js',
 	'rel' => [
+		'ui.design-tokens.air',
 		'main.core',
 	],
 	'skip_core' => false,

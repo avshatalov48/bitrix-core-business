@@ -1,0 +1,21 @@
+<?php
+$MESS["SALE_ESDE_CONFIRM_DEL_MESSAGE"] = "Бұл қосымша қызметті жойғыңыз келетініне сенімдісіз бе?";
+$MESS["SALE_ESDE_CREATE_NEW"] = "Қосымша қызмет құру";
+$MESS["SALE_ESDE_DELETE_ITEM"] = "Жою";
+$MESS["SALE_ESDE_ERROR_CODE_EXIST"] = "Бұл жеткізу қызметі үшін осы коды бар қосымша қызмет бұрыннан бар";
+$MESS["SALE_ESDE_ERROR_SAVE"] = "Қосымша қызметті сақтау қатесі";
+$MESS["SALE_ESDE_FIELD_ACTIVE"] = "Белсенділік";
+$MESS["SALE_ESDE_FIELD_CLIENT"] = "Клиент";
+$MESS["SALE_ESDE_FIELD_CODE"] = "Мнемоникалық код";
+$MESS["SALE_ESDE_FIELD_DESCRIPTION"] = "Сипаттама";
+$MESS["SALE_ESDE_FIELD_INITIAL"] = "Әдепкі бойынша";
+$MESS["SALE_ESDE_FIELD_MANAGER"] = "Менеджер";
+$MESS["SALE_ESDE_FIELD_NAME"] = "Атауы";
+$MESS["SALE_ESDE_FIELD_PARAMS"] = "Параметрлер";
+$MESS["SALE_ESDE_FIELD_RIGHTS"] = "Құқықтар";
+$MESS["SALE_ESDE_FIELD_SORT"] = "Сұрыптау";
+$MESS["SALE_ESDE_FIELD_TYPE"] = "Түрі";
+$MESS["SALE_ESDE_PAGE_TITLE"] = "Қосымша қызметті редакциялау";
+$MESS["SALE_ESDE_TAB_GENERAL"] = "Қосымша қызмет";
+$MESS["SALE_ESDE_TAB_GENERAL_TITLE"] = "Қосымша қызметтің қасиетін редакциялау";
+$MESS["SALE_ESDE_TO_LIST"] = "Жеткізу қызметіне";

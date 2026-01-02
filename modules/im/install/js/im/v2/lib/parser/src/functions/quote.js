@@ -1,7 +1,6 @@
 import { Dom, Tag } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
-import { ParserRecursionPrevention } from '../utils/recursion-prevention';
 import { ParserUtils } from '../utils/utils';
 import { getUtils, getConst } from '../utils/core-proxy';
 import { ParserIcon } from './icon';
@@ -66,9 +65,7 @@ export const ParserQuote = {
 
 	decodeQuote(text, { contextDialogId = '' } = {}): string
 	{
-		const sanitizedText = ParserRecursionPrevention.cutTags(text);
-
-		const decodedText = sanitizedText.replaceAll(
+		return text.replaceAll(
 			/-{54}(<br \/>(.*?)\[(.*?)]( #(?:chat\d+|\d+:\d+)\/\d+)?)?<br \/>(.*?)-{54}(<br \/>)?/gs,
 			(whole, userBlock, userName, timeTag, contextTag, quoteText): string => {
 				const preparedQuoteText = getQuoteText(userName, timeTag, quoteText);
@@ -87,8 +84,6 @@ export const ParserQuote = {
 				return layout.outerHTML;
 			},
 		);
-
-		return ParserRecursionPrevention.recoverTags(decodedText);
 	},
 
 	purifyQuote(text: string, spaceLetter: string = ' '): string

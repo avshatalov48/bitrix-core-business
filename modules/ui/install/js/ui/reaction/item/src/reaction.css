@@ -1,0 +1,235 @@
+.ui-reaction {
+	--ui-reaction-size: 32px;
+
+	display: inline-block;
+	width: var(--ui-reaction-size);
+	height: var(--ui-reaction-size);
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: contain;
+}
+
+.ui-reaction__animation-wrapper {
+	display: inline-block;
+	width: var(--ui-reaction-size);
+	height: var(--ui-reaction-size);
+}
+
+.ui-reaction__inner {
+	display: inline-block;
+	width: var(--ui-reaction-size);
+	height: var(--ui-reaction-size);
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: contain;
+	transform: scale(1.55);
+}
+
+.ui-reaction__lottie-animation {
+	transform: scale(1.55);
+}
+
+.ui-reaction__inner.--kiss {
+	background-image: url(../images/kiss.svg);
+}
+
+.ui-reaction__inner.--smilingFaceWithHeartEyes {
+	background-image: url(../images/smiling-face-with-heart-eyes.svg);
+}
+
+.ui-reaction__inner.--loveYouGesture {
+	background-image: url(../images/love-you-gesture.svg);
+}
+
+.ui-reaction__inner.--angry {
+	background-image: url(../images/angry.svg);
+}
+
+.ui-reaction__inner.--pleadingFace {
+	background-image: url(../images/pleading-face.svg);
+}
+
+.ui-reaction__inner.--exclamationMark {
+	background-image: url(../images/exclamation-mark.svg);
+}
+
+.ui-reaction__inner.--smilingFaceWithHearts {
+	background-image: url(../images/smiling-face-with-hearts.svg);
+}
+
+.ui-reaction__inner.--clappingHands {
+	background-image: url(../images/clapping-hands.svg);
+}
+
+.ui-reaction__inner.--clownFace {
+	background-image: url(../images/clown-face.svg);
+}
+
+.ui-reaction__inner.--partyingFace {
+	background-image: url(../images/partying-face.svg);
+}
+
+.ui-reaction__inner.--smilingFaceWithSunglasses {
+	background-image: url(../images/smiling-face-with-sunglasses.svg);
+}
+
+.ui-reaction__inner.--cry {
+	background-image: url(../images/cry.svg);
+}
+
+.ui-reaction__inner.--dislike {
+	background-image: url(../images/dislike.svg);
+}
+
+.ui-reaction__inner.--confusedFace {
+	background-image: url(../images/confused-face.svg);
+}
+
+.ui-reaction__inner.--thinkingFace {
+	background-image: url(../images/thinking-face.svg);
+}
+
+.ui-reaction__inner.--flushedFace {
+	background-image: url(../images/flushed-face.svg);
+}
+
+.ui-reaction__inner.--fire {
+	background-image: url(../images/fire.svg);
+}
+
+.ui-reaction__inner.--redHeart {
+	background-image: url(../images/red-heart.svg);
+}
+
+.ui-reaction__inner.--lightBulb {
+	background-image: url(../images/light-bulb.svg);
+}
+
+.ui-reaction__inner.--faceWithThermometer {
+	background-image: url(../images/face-with-thermometer.svg);
+}
+
+.ui-reaction__inner.--neutralFace {
+	background-image: url(../images/neutral-face.svg);
+}
+
+.ui-reaction__lottie-animation.--neutralFace {
+	transform: scale(1.58);
+}
+
+.ui-reaction__inner.--faceWithTearsOfJoy {
+	background-image: url(../images/face-with-tears-of-joy.svg);
+}
+
+.ui-reaction__inner.--laugh {
+	background-image: url(../images/laugh.svg);
+}
+
+.ui-reaction__inner.--like {
+	background-image: url(../images/like.svg);
+}
+
+.ui-reaction__inner.--smilingFaceWithHorns {
+	background-image: url(../images/smiling-face-with-horns.svg);
+}
+
+.ui-reaction__inner.--facepalm {
+	background-image: url(../images/facepalm.svg);
+}
+
+.ui-reaction__inner.--okHand {
+	background-image: url(../images/ok-hand.svg);
+}
+
+.ui-reaction__inner.--flexedBiceps {
+	background-image: url(../images/flexed-biceps.svg);
+}
+
+.ui-reaction__inner.--questionMark {
+	background-image: url(../images/question-mark.svg);
+}
+
+.ui-reaction__inner.--signHorns {
+	background-image: url(../images/sign-horns.svg);
+}
+
+.ui-reaction__inner.--cry {
+	background-image: url(../images/cry.svg);
+}
+
+.ui-reaction__inner.--wonder {
+	background-image: url(../images/wonder.svg);
+}
+
+.ui-reaction__inner.--slightlySmilingFace {
+	background-image: url(../images/slightly-smiling-face.svg);
+}
+
+.ui-reaction__inner.--slightlyFrowningFace {
+	background-image: url(../images/slightly-frowning-face.svg);
+}
+
+.ui-reaction__inner.--faceWithStuckOutTongueAndWinkingEye {
+	background-image: url(../images/face-with-stuck-out-tongue-and-winking-eye.svg);
+}
+
+.ui-reaction__inner.--foldedHands {
+	background-image: url(../images/folded-hands.svg);
+	transform: scale(1.07);
+}
+
+.ui-reaction__inner.--faceWithStuckOutTongue {
+	background-image: url(../images/face-with-stuck-out-tongue.svg);
+}
+
+.ui-reaction__inner.--poo {
+	background-image: url(../images/poo.svg);
+}
+
+.ui-reaction__inner.--raisedHand {
+	background-image: url(../images/raised-hand.svg);
+}
+
+.ui-reaction__inner.--winkingFace {
+	background-image: url(../images/winking-face.svg);
+}
+
+.ui-reaction__inner.--relievedFace {
+	background-image: url(../images/relieved-face.svg);
+}
+
+.ui-reaction__inner.--loudlyCryingFace {
+	background-image: url(../images/loudly-crying-face.svg);
+}
+
+.ui-reaction__inner.--bomb {
+	background-image: url(../images/bomb.svg);
+}
+
+.ui-reaction__inner.--sleepingSymbol {
+	background-image: url(../images/sleeping-symbol.svg);
+}
+
+.ui-reaction__inner.--whiteHeavyCheckMark {
+	background-image: url(../images/white-heavy-check-mark.svg);
+}
+
+.ui-reaction__inner.--handshake {
+	background-image: url(../images/handshake.svg);
+}
+
+.ui-reaction__inner.--hundredPoints {
+	background-image: url(../images/hundred-points.svg);
+}
+
+.ui-reaction__inner.--eyes {
+	background-image: url(../images/eyes.svg);
+}
+
+.ui-reaction__inner.--crossMark {
+	background-image: url(../images/cross-mark.svg);
+}
+
+.ui-reaction__inner.--hundredPoints {
+	background-image: url(../images/hundred-points.svg);
+}

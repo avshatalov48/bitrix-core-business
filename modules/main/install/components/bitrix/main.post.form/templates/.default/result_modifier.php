@@ -56,7 +56,7 @@ $arParams["BUTTONS"] = (
 $arParams["BUTTONS"] = array_values($arParams["BUTTONS"]);
 $arParams["BUTTONS_HTML"] = isset($arParams["BUTTONS_HTML"]) && is_array($arParams["BUTTONS_HTML"]) ? $arParams["BUTTONS_HTML"] : array();
 
-$arParams["TEXT"] = (is_array($arParams["~TEXT"]) ? $arParams["~TEXT"] : array());
+$arParams["TEXT"] = (isset($arParams["~TEXT"]) && is_array($arParams["~TEXT"]) ? $arParams["~TEXT"] : array());
 $arParams["TEXT"]["ID"] = (!empty($arParams["TEXT"]["ID"]) ? $arParams["TEXT"]["ID"] : "POST_MESSAGE");
 $arParams["TEXT"]["NAME"] = (!empty($arParams["TEXT"]["NAME"]) ? $arParams["TEXT"]["NAME"] : "POST_MESSAGE");
 $arParams["TEXT"]["TABINDEX"] = intval(($arParams["TEXT"]["TABINDEX"] ?? 0) <= 0 ? 10 : $arParams["TEXT"]["TABINDEX"]);

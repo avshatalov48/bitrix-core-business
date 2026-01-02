@@ -2,6 +2,8 @@
 
 namespace Bitrix\Mail;
 
+use Bitrix\Mail\Internals\MailboxAccessTable;
+use Bitrix\Main\Data\Cache;
 use Bitrix\Main\DB\ArrayResult;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization;
@@ -26,6 +28,16 @@ Localization\Loc::loadMessages(__FILE__);
  */
 class MailboxTable extends Entity\DataManager
 {
+
+	private const CACHE_TTL = 86400;
+	public const SHARED_MAILBOX_KEY = 'mailbox_shared_mailboxes';
+	public const OWNER_MAILBOX_KEY = 'mailbox_owners_mailboxes';
+	public const SHARED_CACHE_DIR = '/mail/shared/';
+	public const OWNER_CACHE_DIR = '/mail/owner/';
+	private static array $ownerCache = [];
+	private static array $onlyIdOwnerCache = [];
+	private static array $sharedCache = [];
+	private static array $onlyIdSharedCache = [];
 
 	public static function getFilePath()
 	{
@@ -128,52 +140,78 @@ class MailboxTable extends Entity\DataManager
 			$userId = $USER->getId();
 		}
 
-		static $mailboxes = [];
-		static $userMailboxes = [];
-
-		if (!array_key_exists($userId, $userMailboxes))
+		if ($onlyIds && isset(self::$onlyIdOwnerCache[$userId]))
 		{
-			$userMailboxes[$userId] = [];
+			return self::$onlyIdOwnerCache[$userId];
+		}
 
-			(new \CAccess)->updateCodes(['USER_ID' => $userId]);
+		if (!$onlyIds && isset(self::$ownerCache[$userId]))
+		{
+			return self::$ownerCache[$userId];
+		}
 
-			$getListParams = [
-				'filter' => [
-					[
-						'=USER_ID' => $userId,
-					],
-					'=ACTIVE' => 'Y',
-					'=SERVER_TYPE' => 'imap',
+		$cacheManager = Cache::createInstance();
+		$cacheKey = self::getOwnerMailboxCacheKey($userId);
+		if ($cacheManager->initCache(self::CACHE_TTL, $cacheKey,self::OWNER_CACHE_DIR))
+		{
+			$result = $cacheManager->getVars();
+			//cache stores only id values, but empty value also works for full request
+			if ($onlyIds || $result === [])
+			{
+				return $result;
+			}
+		}
+
+		self::$onlyIdOwnerCache[$userId] = [];
+		if (!$onlyIds)
+		{
+			self::$ownerCache[$userId] = [];
+		}
+
+		$getListParams = [
+			'filter' => [
+				[
+					'=USER_ID' => $userId,
 				],
-				'order' => [
-					'ID' => 'DESC',
-				],
+				'=ACTIVE' => 'Y',
+				'=SERVER_TYPE' => 'imap',
+			],
+			'order' => [
+				'ID' => 'DESC',
+			],
+		];
+
+		if ($onlyIds)
+		{
+			$getListParams['select'] = ['ID'];
+		}
+
+		$res = static::getList($getListParams);
+		while ($mailbox = $res->fetch())
+		{
+			static::normalizeEmail($mailbox);
+			$mailboxId = $mailbox['ID'] ?? null;
+			self::$onlyIdOwnerCache[$userId][$mailboxId] = [
+				'ID' => $mailboxId,
 			];
 
-			if ($onlyIds)
+			if (!$onlyIds)
 			{
-				$getListParams['select'] = ['ID'];
-			}
-
-			$res = static::getList($getListParams);
-
-			while ($mailbox = $res->fetch())
-			{
-				static::normalizeEmail($mailbox);
-
-				$mailboxes[$mailbox['ID']] = $mailbox;
-				$userMailboxes[$userId][] = $mailbox['ID'];
+				self::$ownerCache[$userId][$mailboxId] = $mailbox;
 			}
 		}
 
-		$result = [];
-
-		foreach ($userMailboxes[$userId] as $mailboxId)
+		if (empty(self::$onlyIdOwnerCache[$userId]))
 		{
-			$result[$mailboxId] = $mailboxes[$mailboxId];
+			self::$ownerCache[$userId] = [];
 		}
 
-		return $result;
+		if ($cacheManager->startDataCache(self::CACHE_TTL, $cacheKey,self::OWNER_CACHE_DIR))
+		{
+			$cacheManager->endDataCache(self::$onlyIdOwnerCache[$userId]);
+		}
+
+		return $onlyIds ? self::$onlyIdOwnerCache[$userId] : self::$ownerCache[$userId];
 	}
 
 	public static function getTheSharedMailboxes($userId = null, bool $onlyIds = false): array
@@ -190,76 +228,106 @@ class MailboxTable extends Entity\DataManager
 			$userId = $USER->getId();
 		}
 
-		static $mailboxes = [];
-		static $userMailboxes = [];
-
-		if (!array_key_exists($userId, $userMailboxes))
+		if ($onlyIds && isset(self::$onlyIdSharedCache[$userId]))
 		{
-			$userMailboxes[$userId] = [];
+			return self::$onlyIdSharedCache[$userId];
+		}
 
-			(new \CAccess)->updateCodes(['USER_ID' => $userId]);
+		if (!$onlyIds && isset(self::$sharedCache[$userId]))
+		{
+			return self::$sharedCache[$userId];
+		}
 
-			$getListParams = [
-				'runtime' => [
-					new Entity\ReferenceField(
-						'ACCESS',
-						'Bitrix\Mail\Internals\MailboxAccessTable',
-						[
-							'=this.ID' => 'ref.MAILBOX_ID',
-						],
-						[
-							'join_type' => 'LEFT',
-						]
-					),
-					new Entity\ReferenceField(
-						'USER_ACCESS',
-						'Bitrix\Main\UserAccess',
-						[
-							'this.ACCESS.ACCESS_CODE' => 'ref.ACCESS_CODE',
-						],
-						[
-							'join_type' => 'LEFT',
-						]
-					),
-				],
-				'filter' => [
+		$cacheManager = Cache::createInstance();
+		$cacheKey = self::getSharedMailboxCacheKey($userId);
+		if ($cacheManager->initCache(self::CACHE_TTL, $cacheKey, self::SHARED_CACHE_DIR))
+		{
+			$result = $cacheManager->getVars();
+			//cache stores only id values, but empty value also works for full request
+			if ($onlyIds || $result === [])
+			{
+				return $result;
+			}
+		}
+
+		self::$onlyIdSharedCache[$userId] = [];
+		if (!$onlyIds)
+		{
+			self::$sharedCache[$userId] = [];
+		}
+
+		(new \CAccess)->updateCodes(['USER_ID' => $userId]);
+
+		$getListParams = [
+			'runtime' => [
+				new Entity\ReferenceField(
+					'ACCESS',
+					'Bitrix\Mail\Internals\MailboxAccessTable',
 					[
-						'LOGIC' => 'AND',
-						'!=USER_ID' => $userId,
-						'=USER_ACCESS.USER_ID' => $userId,
+						'=this.ID' => 'ref.MAILBOX_ID',
 					],
-					'=ACTIVE' => 'Y',
-					'=SERVER_TYPE' => 'imap',
+					[
+						'join_type' => 'LEFT',
+					],
+				),
+				new Entity\ReferenceField(
+					'USER_ACCESS',
+					'Bitrix\Main\UserAccess',
+					[
+						'this.ACCESS.ACCESS_CODE' => 'ref.ACCESS_CODE',
+					],
+					[
+						'join_type' => 'LEFT',
+					],
+				),
+			],
+			'filter' => [
+				[
+					'LOGIC' => 'AND',
+					'!=USER_ID' => $userId,
+					'=USER_ACCESS.USER_ID' => $userId,
 				],
-				'order' => [
-					'ID' => 'DESC',
-				],
+				'=ACTIVE' => 'Y',
+				'=SERVER_TYPE' => 'imap',
+			],
+			'order' => [
+				'ID' => 'DESC',
+			],
+		];
+
+		if ($onlyIds)
+		{
+			$getListParams['select'] = ['ID'];
+		}
+
+		$res = static::getList($getListParams);
+
+		while ($mailbox = $res->fetch())
+		{
+			static::normalizeEmail($mailbox);
+
+			$mailboxId = $mailbox['ID'] ?? null;
+			self::$onlyIdSharedCache[$userId][$mailboxId] = [
+				'ID' => $mailboxId,
 			];
 
-			if ($onlyIds)
+			if (!$onlyIds)
 			{
-				$getListParams['select'] = ['ID'];
-			}
-
-			$res = static::getList($getListParams);
-
-			while ($mailbox = $res->fetch())
-			{
-				static::normalizeEmail($mailbox);
-
-				$mailboxes[$mailbox['ID']] = $mailbox;
-				$userMailboxes[$userId][] = $mailbox['ID'];
+				self::$sharedCache[$userId][$mailboxId] = $mailbox;
 			}
 		}
 
-		$result = [];
-
-		foreach ($userMailboxes[$userId] as $mailboxId)
+		if (empty(self::$onlyIdSharedCache[$userId]))
 		{
-			$result[$mailboxId] = $mailboxes[$mailboxId];
+			self::$sharedCache[$userId] = [];
 		}
 
-		return $result;
+		if ($cacheManager->startDataCache(self::CACHE_TTL, $cacheKey,self::SHARED_CACHE_DIR))
+		{
+			$cacheManager->endDataCache(self::$onlyIdSharedCache[$userId]);
+		}
+
+		return $onlyIds ? self::$onlyIdSharedCache[$userId] : self::$sharedCache[$userId];
 	}
 
 	/**
@@ -286,6 +354,29 @@ class MailboxTable extends Entity\DataManager
 		$ownersMailboxes = static::getTheOwnersMailboxes($userId, $onlyIds);
 
 		return $ownersMailboxes + $sharedMailboxes;
+	}
+
+	public static function onAfterAdd(Entity\Event $event): void
+	{
+		$mailbox = $event->getParameter('fields');
+		if (isset($mailbox['USER_ID']))
+		{
+			self::cleanOwnerCacheByUserId($mailbox['USER_ID']);
+		}
+	}
+
+	public static function onAfterUpdate(Entity\Event $event): void
+	{
+		$mailbox = $event->getParameter('fields');
+		if (isset($mailbox['USER_ID']))
+		{
+			unset(self::$ownerCache[$mailbox['USER_ID']]);
+		}
+	}
+
+	public static function onAfterDelete(Entity\Event $event): void
+	{
+		self::cleanAllCache();
 	}
 
 	public static function normalizeEmail(&$mailbox)
@@ -316,7 +407,7 @@ class MailboxTable extends Entity\DataManager
 			),
 			'LID' => array(
 				'data_type' => 'string',
-				'required'  => true
+				'required'  => true,
 			),
 			'ACTIVE' => array(
 				'data_type' => 'boolean',
@@ -357,7 +448,7 @@ class MailboxTable extends Entity\DataManager
 						function ($value)
 						{
 							return static::cryptoEnabled('PASSWORD') ? $value : \CMailUtil::crypt($value);
-						}
+						},
 					);
 				},
 				'fetch_data_modification' => function()
@@ -366,9 +457,9 @@ class MailboxTable extends Entity\DataManager
 						function ($value)
 						{
 							return static::cryptoEnabled('PASSWORD') ? $value : \CMailUtil::decrypt($value);
-						}
+						},
 					);
-				}
+				},
 			),
 			'DESCRIPTION' => array(
 				'data_type' => 'text',
@@ -399,7 +490,7 @@ class MailboxTable extends Entity\DataManager
 			),
 			'SERVER_TYPE' => array(
 				'data_type' => 'enum',
-				'values'    => array('smtp', 'pop3', 'imap', 'controller', 'domain', 'crdomain')
+				'values'    => array('smtp', 'pop3', 'imap', 'controller', 'domain', 'crdomain'),
 			),
 			'DOMAINS' => array(
 				'data_type' => 'string',
@@ -426,7 +517,7 @@ class MailboxTable extends Entity\DataManager
 						function ($options)
 						{
 							return serialize($options);
-						}
+						},
 					);
 				},
 				'fetch_data_modification' => function()
@@ -434,10 +525,10 @@ class MailboxTable extends Entity\DataManager
 					return array(
 						function ($values)
 						{
-							return unserialize($values);
-						}
+							return unserialize($values, ['allowed_classes' => false]);
+						},
 					);
-				}
+				},
 			),
 			'SITE' => array(
 				'data_type' => 'Bitrix\Main\Site',
@@ -446,4 +537,53 @@ class MailboxTable extends Entity\DataManager
 		);
 	}
 
+	public static function cleanOwnerCacheByUserId(int $userId): void
+	{
+		unset(self::$ownerCache[$userId]);
+		unset(self::$onlyIdOwnerCache[$userId]);
+		Cache::createInstance()
+			 ->clean(self::getOwnerMailboxCacheKey($userId),MailboxTable::OWNER_CACHE_DIR)
+		;
+	}
+
+	private static function getOwnerMailboxCacheKey(int $userId): string
+	{
+		return MailboxTable::OWNER_MAILBOX_KEY . '_' . $userId;
+	}
+
+	private static function cleanAllCache(): void
+	{
+		self::$onlyIdOwnerCache = [];
+		self::$ownerCache = [];
+		self::$onlyIdSharedCache = [];
+		self::$sharedCache = [];
+
+		$cacheManager = Cache::createInstance();
+		$cacheManager->cleanDir(self::SHARED_CACHE_DIR);
+		$cacheManager->cleanDir(self::OWNER_CACHE_DIR);
+	}
+
+	public static function cleanUserSharedCache(int $userId): void
+	{
+		unset(self::$sharedCache[$userId]);
+		unset(self::$onlyIdSharedCache[$userId]);
+
+		Cache::createInstance()
+			 ->clean(self::getSharedMailboxCacheKey($userId),MailboxTable::SHARED_CACHE_DIR)
+		;
+	}
+
+	private static function getSharedMailboxCacheKey(int $userId): string
+	{
+		return self::SHARED_MAILBOX_KEY . '_' . $userId;
+	}
+
+	public static function cleanAllSharedCache(): void
+	{
+		self::$onlyIdSharedCache = [];
+		self::$sharedCache = [];
+
+		$cacheManager = Cache::createInstance();
+		$cacheManager->cleanDir(self::SHARED_CACHE_DIR);
+	}
 }

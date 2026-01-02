@@ -19,11 +19,11 @@
 
 foreach ($arResult['MESSAGE'] as $itemValue)
 {
-	echo ShowMessage(['MESSAGE' => $itemValue, 'TYPE' => 'OK']);
+	ShowMessage(['MESSAGE' => $itemValue, 'TYPE' => 'OK']);
 }
 foreach ($arResult['ERROR'] as $itemValue)
 {
-	echo ShowMessage(['MESSAGE' => $itemValue, 'TYPE' => 'ERROR']);
+	ShowMessage(['MESSAGE' => $itemValue, 'TYPE' => 'ERROR']);
 }
 
 //whether to show the forms

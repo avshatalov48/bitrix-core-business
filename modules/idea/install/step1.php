@@ -37,9 +37,6 @@ Class CIdeaManagmentInstall
 		//NULL CACHE
 		BXClearCache(True, '/'.$this->SITE_ID.'/idea/');
 		BXClearCache(True, '/'.SITE_ID.'/idea/');
-		global $CACHE_MANAGER;
-		if(CACHED_b_user_field_enum!==false)
-			$CACHE_MANAGER->CleanDir("b_user_field_enum");
 
 		//Statuses List (for demo)
 		$this->arResult["SETTINGS"]["STATUS"] = CIdeaManagment::getInstance()->Idea()->GetStatusList();

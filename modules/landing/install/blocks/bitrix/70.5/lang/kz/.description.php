@@ -1,0 +1,8 @@
+<?php
+$MESS["LANDING_BLOCK_WIDGET_70_5_NAME"] = "Үш батырмасы, тақырыпаты, мәтіні және кескіні бар блок";
+$MESS["LANDING_BLOCK_WIDGET_70_5_NODE_CARD"] = "Карточка";
+$MESS["LANDING_BLOCK_WIDGET_70_5_NODE_CARD_BUTTON"] = "Батырма";
+$MESS["LANDING_BLOCK_WIDGET_70_5_NODE_CARD_BUTTON_TEXT"] = "Батырма мәтіні";
+$MESS["LANDING_BLOCK_WIDGET_70_5_NODE_IMG"] = "Сурет";
+$MESS["LANDING_BLOCK_WIDGET_70_5_NODE_TEXT"] = "Мәтін";
+$MESS["LANDING_BLOCK_WIDGET_70_5_NODE_TITLE"] = "Тақырыпаты";

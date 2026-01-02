@@ -79,7 +79,8 @@ class CMailClientComponent extends CBitrixComponent
 				'msg_view'    => 'message/#id#',
 				'msg_list'    => 'list/#id#/#start_sync_with_showing_stepper#',
 				'config_dirs' => 'config/dirs',
-                'addressbook' => 'addressbook',
+				'addressbook' => 'addressbook',
+				'mbx_list' => 'mailbox-list',
 			);
 		}
 		else
@@ -94,7 +95,8 @@ class CMailClientComponent extends CBitrixComponent
 				'msg_view'    => 'page=msg_view&id=#id#',
 				'msg_list'    => 'page=msg_list&id=#id#&start_sync_with_showing_stepper=#start_sync_with_showing_stepper#',
 				'config_dirs' => 'page=config_dirs',
-                'addressbook' => 'page=addressbook',
+				'addressbook' => 'page=addressbook',
+				'mbx_list' => 'page=mailbox-list',
 			);
 		}
 
@@ -125,6 +127,11 @@ class CMailClientComponent extends CBitrixComponent
 		if (empty($componentPage) || !array_key_exists($componentPage, $defaultUrlTemplates))
 			$componentPage = 'home';
 
+		if ($componentPage === 'mbx_list' && !(Main\Config\Option::get('mail', 'enable_mailbox_list_grid_page', 'N') === 'Y'))
+		{
+			$componentPage = 'home';
+		}
+
 		$this->arResult['VARIABLES'] = $variables;
 
 		$this->arResult['PATH_TO_USER_CALENDAR_EVENT'] = \CComponentEngine::makePathFromTemplate(
@@ -151,33 +158,12 @@ class CMailClientComponent extends CBitrixComponent
 			array('user_id' => $USER->getId())
 		);
 
-		$APPLICATION->setAdditionalCSS('/bitrix/components/bitrix/mail.client.sidepanel/templates/.default/style.css');
 		$APPLICATION->setAdditionalCSS('/bitrix/components/bitrix/mail.client.config/templates/.default/style.css');
 		$APPLICATION->setAdditionalCSS('/bitrix/components/bitrix/mail.contact.avatar/templates/.default/style.css');
 
 		$APPLICATION->setAdditionalCSS('/bitrix/components/bitrix/main.interface.buttons/templates/.default/style.css');
 
 		$this->includeComponentTemplate($componentPage);
-	}
-
-	public function includePageComponent($name, $template, &$params)
-	{
-		global $APPLICATION;
-
-		if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y')
-		{
-			$APPLICATION->includeComponent(
-				'bitrix:mail.client.sidepanel',
-				'',
-				array(
-					'COMPONENT_ARGUMENTS' => array($name, $template, $params, $this),
-				)
-			);
-		}
-		else
-		{
-			$APPLICATION->includeComponent($name, $template, $params, $this);
-		}
 	}
 
 }

@@ -468,15 +468,19 @@ this.BX = this.BX || {};
 	      option == null ? void 0 : option.setValue(value);
 	    },
 	    selectAll() {
-	      const visibleOptionIds = new Set(this.getOptions().map(option => option.id));
-	      this.getOptionRefs().forEach(option => {
-	        return !option.isLocked && visibleOptionIds.has(option.getId()) && option.setValue(true);
-	      });
+	      this.setValueForAllVisibleOptions(true);
 	    },
 	    deselectAll() {
+	      this.setValueForAllVisibleOptions(false);
+	    },
+	    setValueForAllVisibleOptions(value) {
 	      const visibleOptionIds = new Set(this.getOptions().map(option => option.id));
 	      this.getOptionRefs().forEach(option => {
-	        return !option.isLocked && visibleOptionIds.has(option.getId()) && option.setValue(false);
+	        if (option.isLocked || !visibleOptionIds.has(option.getId())) {
+	          return;
+	        }
+	        this.dataOptions.get(option.getId()).value = value;
+	        option.setValue(value);
 	      });
 	    },
 	    getOptionRefs() {

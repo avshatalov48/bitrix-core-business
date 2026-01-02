@@ -612,7 +612,7 @@ class PublicAction
 		];
 		$activeValues = $onlyActive ? 'Y' : ['Y', 'N'];
 		$filter = [
-			'CODE' => 'repo_%',
+			'=%CODE' => 'repo_%',
 			'=DELETED' => 'N',
 			'=PUBLIC' => $activeValues,
 			'=LANDING.ACTIVE' => $activeValues,

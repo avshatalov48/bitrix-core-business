@@ -21,6 +21,7 @@ $APPLICATION->IncludeComponent(
 		'USE_PADDING' => true,
 		'PAGE_MODE' => false,
 		'PAGE_MODE_OFF_BACK_URL' =>	$arResult['PATH_TO_INDEX'],
-		"POPUP_COMPONENT_PARENT" => $this->getComponent()
+		'POPUP_COMPONENT_PARENT' => $this->getComponent(),
+		'USE_UI_TOOLBAR' => 'Y',
 	)
 );

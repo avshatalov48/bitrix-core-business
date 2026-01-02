@@ -1,20 +1,14 @@
 <?php
 
-##############################################
-# Bitrix Site Manager Forum                  #
-# Copyright (c) 2002-2009 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
 
 class CAllVoteUser
 {
-	public static function err_mess()
-	{
-		$module_id = "vote";
-		return "<br>Module: ".$module_id."<br>Class: CAllVoteUser<br>File: ".__FILE__;
-	}
-
 	public static function OnUserLogin()
 	{
 		$_SESSION["VOTE"] = array("VOTES" => array());
@@ -22,19 +16,18 @@ class CAllVoteUser
 
 	public static function Delete($USER_ID)
 	{
-		$err_mess = (CAllVoteUser::err_mess())."<br>Function: Delete<br>Line: ";
 		global $DB;
 		$USER_ID = intval($USER_ID);
 		if ($USER_ID<=0) return;
 		$strSql = "DELETE FROM b_vote_user WHERE ID=$USER_ID";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = (CAllVoteUser::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB;
+
 		$arSqlSearch = Array();
 		$str_table = "";
 		$left_join = "";
@@ -146,7 +139,7 @@ class CAllVoteUser
 		LEFT JOIN b_vote_user U ON (VU.ID = U.ID)
 		LEFT JOIN b_user BUSER ON (U.AUTH_USER_ID = BUSER.ID)
 		".$strSqlOrder;
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}

@@ -4,11 +4,10 @@ import {
 	MessageComponents,
 	CollectionManager,
 } from 'im.v2.component.message-list';
-import { MessageComponentManager } from 'im.v2.lib.message-component-manager';
+import { MessageComponentManager } from 'im.v2.lib.message-component';
 import { MessageComponent } from 'im.v2.const';
 
 import { CommentsDialogLoader } from './dialog-loader';
-import { CommentsMessageMenu } from '../classes/message-menu';
 
 import '../css/message-list.css';
 
@@ -28,7 +27,6 @@ export const CommentsMessageList = {
 	},
 	computed:
 	{
-		CommentsMessageMenu: () => CommentsMessageMenu,
 		dialog(): ImModelChat
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
@@ -71,7 +69,6 @@ export const CommentsMessageList = {
 	template: `
 		<MessageList
 			:dialogId="dialogId"
-			:messageMenuClass="CommentsMessageMenu"
 			ref="messageList"
 		>
 			<template #loader>

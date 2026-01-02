@@ -1,12 +1,11 @@
-import {Dom, Tag, Type, Loc, Event} from 'main.core';
-import {EventEmitter} from 'main.core.events';
+import { Dom, Type, Loc } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { SplitButton, ButtonSize, ButtonColor } from 'ui.buttons';
+import { SwitcherColor } from 'ui.switcher';
 
 type Params = {
 	isShortView: 'Y' | 'N'
 }
-
-import 'ui.fonts.opensans';
-import './css/base.css';
 
 export class ShortView extends EventEmitter
 {
@@ -33,23 +32,30 @@ export class ShortView extends EventEmitter
 
 	render(): HTMLElement
 	{
-		const checked = (this.getShortView() === 'Y' ? 'checked' : '');
+		const checked = (this.getShortView() === 'Y');
 
-		this.node = Tag.render`
-			<div class="tasks-scrum__switcher--container tasks-scrum__scope-switcher" title="${Loc.getMessage('UI_SHORT_VIEW_LABEL')}">
-				<label class="tasks-scrum__switcher--label">
-				<div class="tasks-scrum__switcher--label-text">
-					${Loc.getMessage('UI_SHORT_VIEW_LABEL')}
-				</div>
-				<input type="checkbox" class="tasks-scrum__switcher--checkbox" ${checked}>
-				<span class="tasks-scrum__switcher-cursor"></span>
-				</label>
-			</div>
-		`;
+		this.node = new SplitButton({
+			text: Loc.getMessage('UI_SHORT_VIEW_LABEL'),
+			round: true,
+			size: ButtonSize.SMALL,
+			color: ButtonColor.LIGHT_BORDER,
+			className: 'ui-btn-themes',
+			mainButton: {
+				onclick: (button: SplitButton, event: MouseEvent) => {
+					event.preventDefault();
+					this.node.getSwitcher().toggle();
+				},
+			},
+			switcher: {
+				checked,
+				color: SwitcherColor.primary,
+				handlers: {
+					toggled: () => this.onChange(),
+				},
+			},
+		});
 
-		Event.bind(this.node, 'change', this.onChange.bind(this));
-
-		return this.node;
+		return this.node.render();
 	}
 
 	setShortView(value: string)
@@ -64,9 +70,7 @@ export class ShortView extends EventEmitter
 
 	onChange()
 	{
-		const checkboxNode = this.node.querySelector('input[type="checkbox"]');
-
-		this.setShortView(checkboxNode.checked ? 'Y' : 'N');
+		this.setShortView(this.node.getSwitcher().isChecked() ? 'Y' : 'N');
 
 		this.emit('change', this.getShortView());
 	}

@@ -6,6 +6,8 @@ use Bitrix\Im\User;
 use Bitrix\Im\V2\Chat\NotifyChat;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\Type\DateTime;
 
 class CIMNotify
@@ -394,9 +396,7 @@ class CIMNotify
 					U1.EMAIL as TO_USER_EMAIL,
 					U1.ACTIVE as TO_USER_ACTIVE,
 					U1.LID as TO_USER_LID,
-					U1.AUTO_TIME_ZONE as AUTO_TIME_ZONE,
 					U1.TIME_ZONE as TIME_ZONE,
-					U1.TIME_ZONE_OFFSET as TIME_ZONE_OFFSET,
 					U1.EXTERNAL_AUTH_ID as TO_EXTERNAL_AUTH_ID
 				FROM b_im_message M
 				LEFT JOIN b_user U2 ON U2.ID = M.AUTHOR_ID
@@ -1155,8 +1155,6 @@ class CIMNotify
 
 	public static function Delete($id)
 	{
-		global $DB;
-
 		$id = (int)$id;
 		$notification = self::getNotificationById($id);
 		if (!$notification)
@@ -1164,34 +1162,12 @@ class CIMNotify
 			return false;
 		}
 
-		$recentRow = \Bitrix\Im\Model\RecentTable::getRow([
-			'select' => ['ITEM_MID'],
-			'filter' => [
-				'=USER_ID' => $notification['RELATION_USER_ID'],
-				'=ITEM_TYPE' => IM_MESSAGE_SYSTEM,
-				'=ITEM_ID' => $notification['RELATION_USER_ID'],
-			],
-			'limit' => 1
-		]);
-		if (!$recentRow)
-		{
-			$needToUpdateRecent = false;
-		}
-		else
-		{
-			$lastIdFromRecent = (int)$recentRow['ITEM_MID'];
-			$needToUpdateRecent = $lastIdFromRecent === $id;
-		}
-
 		$message = (new IM\V2\Message())->setMessageId($id)->setChatId((int)$notification['CHAT_ID']);
 		self::deleteInternal($message, (int)$notification['RELATION_USER_ID']);
 		$counter = self::GetRealCounter($notification['CHAT_ID']);
 		$chatId = (int)$notification['CHAT_ID'];
-		// update unread counter
-		//$DB->Query("UPDATE b_im_relation SET COUNTER = {$counter} WHERE CHAT_ID = ".$chatId);
-		//\Bitrix\Im\Counter::clearCache($notification['RELATION_USER_ID']);
 
-		self::updateStateAfterDelete($chatId, $notification['RELATION_USER_ID'], $needToUpdateRecent);
+		self::updateStateAfterDelete($chatId, $notification['RELATION_USER_ID']);
 
 		foreach(GetModuleEvents("im", "OnAfterDeleteNotify", true) as $arEvent)
 		{
@@ -1200,6 +1176,7 @@ class CIMNotify
 
 		if (CModule::IncludeModule("pull"))
 		{
+
 			\Bitrix\Pull\Event::add(
 				$notification['RELATION_USER_ID'],
 				[
@@ -1217,110 +1194,84 @@ class CIMNotify
 		return true;
 	}
 
-	/**
-	 *
-	 * Deletes batch of notifications.
-	 * Use only to delete notifications of one user!
-	 *
-	 * @param array $ids Array of notification IDs.
-	 *
-	 * @return bool
-	 */
-	private static function deleteList(array $ids): bool
+	public static function deleteList(array $ids, array $params = []): bool
 	{
-		global $DB;
-
-		$cnt = count($ids);
-		if ($cnt <= 0)
+		if (empty($ids))
 		{
 			return false;
 		}
 
-		if ($cnt === 1)
-		{
-			self::Delete($ids[0]);
+		$chatIds = [];
+		$relationUserIds = [];
+		$resultDataForPushAndPull = [];
+		$messageCollection = new IM\V2\MessageCollection();
 
-			return true;
+		$notifyList = self::getNotificationList($ids);
+		foreach ($notifyList as $notify)
+		{
+			$notifyId = (int)$notify['ID'];
+
+			$message = (new IM\V2\Message())
+				->setMessageId($notifyId)
+				->setChatId((int)$notify['CHAT_ID'])
+			;
+			$messageCollection->add($message);
+
+			$chatIds[(int)$notify['CHAT_ID']] = (int)$notify['CHAT_ID'];
+			$relationUserIds[(int)$notify['CHAT_ID']] = (int)$notify['RELATION_USER_ID'];
+			$resultDataForPushAndPull[$notifyId] = $notify['NOTIFY_TYPE'];
 		}
 
-		$chatId = null;
-		$relationUserId = null;
-		$resultDataForPushAndPull = [];
+		self::deleteListInternal($messageCollection, $relationUserIds, $params);
 
-		foreach ($ids as $id)
+		foreach ($notifyList as $notify)
 		{
-			$arRes = self::getNotificationById($id);
-			if (!$arRes)
-			{
-				continue;
-			}
-
-			$message = (new IM\V2\Message())->setMessageId($id)->setChatId((int)$arRes['CHAT_ID']);
-			self::deleteInternal($message, (int)$arRes['RELATION_USER_ID']);
-
+			$notifyId = (int)$notify['ID'];
 			foreach(GetModuleEvents("im", "OnAfterDeleteNotify", true) as $arEvent)
 			{
-				ExecuteModuleEventEx($arEvent, [$id, $arRes]);
+				ExecuteModuleEventEx($arEvent, [$notifyId, $notify]);
 			}
-
-			if (!$chatId)
-			{
-				$chatId = $arRes['CHAT_ID'];
-			}
-			if (!$relationUserId)
-			{
-				$relationUserId = $arRes['RELATION_USER_ID'];
-			}
-			$resultDataForPushAndPull[$id] = $arRes['NOTIFY_TYPE'];
 		}
 
-		if (!$chatId || !$relationUserId || count($resultDataForPushAndPull) === 0)
+		if (empty($resultDataForPushAndPull))
 		{
 			return false;
 		}
 
-		$recentRow = \Bitrix\Im\Model\RecentTable::getRow([
-			'select' => ['ITEM_MID'],
-			'filter' => [
-				'=USER_ID' => $relationUserId,
-				'=ITEM_TYPE' => IM_MESSAGE_SYSTEM,
-				'=ITEM_ID' => $relationUserId,
-			],
-			'limit' => 1
-		]);
-		if (!$recentRow)
-		{
-			$needToUpdateRecent = false;
-		}
-		else
-		{
-			$lastIdFromRecent = (int)$recentRow['ITEM_MID'];
-			$needToUpdateRecent = $lastIdFromRecent === max($ids);
-		}
+		$counters = self::GetCounters(array_values($chatIds));
 
-		$chatId = (int)$chatId;
-		$counter = self::GetRealCounter($chatId);
-		// update unread counter
-		//$DB->Query("UPDATE b_im_relation SET COUNTER = {$counter} WHERE CHAT_ID = ".$chatId);
-		\Bitrix\Im\Counter::clearCache($relationUserId);
-
-		self::updateStateAfterDelete($chatId, $relationUserId, $needToUpdateRecent);
-
-		if (CModule::IncludeModule("pull"))
+		foreach ($chatIds as $chatId)
 		{
-			\Bitrix\Pull\Event::add(
-				$relationUserId,
-				[
-					'module_id' => 'im',
-					'command' => 'notifyDelete',
-					'params' => [
-						'id' => $resultDataForPushAndPull,
-						'counter' => $counter
-					],
-					'extra' => \Bitrix\Im\Common::getPullExtra()
-				]
-			);
-			\Bitrix\Pull\Event::send();
+			$userId = $relationUserIds[$chatId];
+			$counter = $counters[$chatId] ?? 0;
+			\Bitrix\Im\Counter::clearCache($userId);
+			self::updateStateAfterDelete($chatId, $userId);
+
+			if (CModule::IncludeModule("pull"))
+			{
+				if (isset($params['NOTIFY_TAG']))
+				{
+					CPushManager::DeleteFromQueueByTag($userId, $params['NOTIFY_TAG']);
+				}
+				elseif (isset($params['NOTIFY_SUB_TAG']))
+				{
+					CPushManager::DeleteFromQueueBySubTag($userId, $params['NOTIFY_SUB_TAG']);
+				}
+
+				\Bitrix\Pull\Event::add(
+					$userId,
+					[
+						'module_id' => 'im',
+						'command' => 'notifyDelete',
+						'params' => [
+							'id' => $resultDataForPushAndPull,
+							'counter' => $counter
+						],
+						'extra' => \Bitrix\Im\Common::getPullExtra()
+					]
+				);
+				\Bitrix\Pull\Event::send();
+			}
 		}
 
 		return true;
@@ -1329,9 +1280,8 @@ class CIMNotify
 	/*
 	 * Updates counters (unread and total) and last message for recent list.
 	 */
-	private static function updateStateAfterDelete(int $chatId, int $userId, bool $needToUpdateRecent): void
+	private static function updateStateAfterDelete(int $chatId, int $userId): void
 	{
-		global $DB;
 		CIMMessenger::SpeedFileDelete($userId, IM_SPEED_NOTIFY);
 
 		// update total amount of notifications
@@ -1343,33 +1293,6 @@ class CIMNotify
 		]);
 
 		IM\Model\ChatTable::update($chatId, ['MESSAGE_COUNT' => $messageCount]);
-
-		// update the preview of last message in recent list
-		if ($needToUpdateRecent)
-		{
-			$ormParams = [
-				'select' => ['ID'],
-				'filter' => [
-					'=CHAT_ID' => $chatId,
-				],
-				'order' => ['DATE_CREATE' => 'DESC'],
-				'limit' => 1,
-			];
-			$lastNotification = \Bitrix\Im\Model\MessageTable::getRow($ormParams);
-			if ($lastNotification !== null)
-			{
-				$DB->Query("
-					UPDATE b_im_recent 
-						SET ITEM_MID = {$lastNotification['ID']}
-					WHERE
-						USER_ID = {$userId}
-					AND
-						ITEM_TYPE = 'S'
-					AND
-						ITEM_ID = {$userId}
-				");
-			}
-		}
 	}
 
 	private static function deleteInternal(IM\V2\Message $message, int $userId): void
@@ -1377,6 +1300,30 @@ class CIMNotify
 		CIMMessageParam::DeleteAll($message->getId());
 		\Bitrix\Im\Model\MessageTable::delete($message->getId());
 		(new IM\V2\Message\ReadService())->deleteByMessage($message, [$userId]);
+	}
+
+	private static function deleteListInternal(
+		IM\V2\MessageCollection $messages,
+		array $userIds,
+		array $params
+	): void
+	{
+		$messageIds = $messages->getIds();
+		if (empty($messageIds))
+		{
+			return;
+		}
+
+		$overflowResetChatIds = null;
+		if (!empty($params['SKIP_OVERFLOW_CLEANUP_CHAT']))
+		{
+			$overflowResetChatIds = $messages->getChatIds();
+			unset($overflowResetChatIds[(int)$params['SKIP_OVERFLOW_CLEANUP_CHAT']]);
+		}
+
+		IM\Model\MessageParamTable::deleteBatch(['=MESSAGE_ID' => $messageIds]);
+		IM\Model\MessageTable::deleteBatch(['=ID' => $messageIds]);
+		(new IM\V2\Message\ReadService())->deleteByMessages($messages, $userIds, $overflowResetChatIds);
 	}
 
 	private static function getNotificationById(int $id): ?array
@@ -1397,6 +1344,27 @@ class CIMNotify
 		}
 
 		return $result;
+	}
+
+	private static function getNotificationList(array $messageIds): array
+	{
+		if (empty($messageIds))
+		{
+			return [];
+		}
+
+		return IM\Model\MessageTable::query()
+			->setSelect(['*', 'RELATION_USER_ID' => 'RELATION.USER_ID'])
+			->registerRuntimeField(new Reference(
+				'RELATION',
+				IM\Model\RelationTable::class,
+				Join::on('this.CHAT_ID', 'ref.CHAT_ID')
+					->where('ref.MESSAGE_TYPE', IM_MESSAGE_SYSTEM),
+				['join_type' => Join::TYPE_INNER]
+			))
+			->whereIn('ID', $messageIds)
+			->fetchAll()
+		;
 	}
 
 	private function fillReadStatuses(array $notifications): array
@@ -1481,34 +1449,24 @@ class CIMNotify
 		$sqlUser = "";
 		if ($authorId !== false)
 		{
-			$sqlUser = " AND M.AUTHOR_ID = ".intval($authorId);
+			$sqlUser = " AND M.AUTHOR_ID = " . (int)$authorId;
 		}
 
-		$dbRes = $DB->Query("SELECT M.ID, M.NOTIFY_TYPE, R.USER_ID FROM b_im_relation R, b_im_message M WHERE M.CHAT_ID = R.CHAT_ID AND M.NOTIFY_TAG = '".$DB->ForSQL($notifyTag)."'".$sqlUser);
-		$arUsers = Array();
-		$messages = Array();
+		$dbRes = $DB->Query("
+			SELECT M.ID
+			FROM b_im_message M 
+			WHERE M.NOTIFY_TAG = '" . $DB->ForSQL($notifyTag) . "'" . $sqlUser)
+		;
+
+		$messages = [];
 		while ($row = $dbRes->Fetch())
 		{
-			$messages[$row['ID']] = $row['NOTIFY_TYPE'];
-			$arUsers[$row['USER_ID']] = $row['USER_ID'];
-		}
-
-		$pullActive = false;
-		if (CModule::IncludeModule("pull"))
-			$pullActive = true;
-
-		foreach ($arUsers as $userId => $count)
-		{
-			CIMMessenger::SpeedFileDelete($userId, IM_SPEED_NOTIFY);
-			if ($pullActive)
-			{
-				CPushManager::DeleteFromQueueByTag($userId, $notifyTag);
-			}
+			$messages[] = (int)$row['ID'];
 		}
 
 		if (count($messages) > 0)
 		{
-			self::deleteList(array_keys($messages));
+			self::deleteList($messages, ['NOTIFY_TAG' => $notifyTag]);
 		}
 
 		return true;
@@ -1587,7 +1545,9 @@ class CIMNotify
 
 		$notifySubTag = (string)$notifySubTag;
 		if ($notifySubTag == '')
+		{
 			return false;
+		}
 
 		$sqlUser = "";
 		if ($authorId !== false)
@@ -1595,32 +1555,24 @@ class CIMNotify
 			$sqlUser = " AND M.AUTHOR_ID = ".intval($authorId);
 		}
 
-		$dbRes = $DB->Query("SELECT M.ID, M.NOTIFY_TYPE, R.USER_ID FROM b_im_relation R, b_im_message M WHERE M.CHAT_ID = R.CHAT_ID AND M.NOTIFY_SUB_TAG = '".$DB->ForSQL($notifySubTag)."'".$sqlUser);
-		$arUsers = Array();
-		$messages = Array();
+		$dbRes = $DB->Query("
+			SELECT M.ID 
+			FROM b_im_message M 
+			WHERE M.NOTIFY_SUB_TAG = '".$DB->ForSQL($notifySubTag)."'".$sqlUser)
+		;
+
+		$messages = [];
 		while ($row = $dbRes->Fetch())
 		{
-			$messages[$row['ID']] = $row['NOTIFY_TYPE'];
-			$arUsers[$row['USER_ID']] = $row['USER_ID'];
+			$messages[] = $row['ID'];
 		}
 
-		$pullIncluded = $pullActive && CModule::IncludeModule("pull");
-
-		foreach ($arUsers as $userId => $count)
+		if (!$pullActive)
 		{
-			CIMMessenger::SpeedFileDelete($userId, IM_SPEED_NOTIFY);
-			if ($pullIncluded)
-			{
-				CPushManager::DeleteFromQueueBySubTag($userId, $notifySubTag);
-			}
+			$notifySubTag = null;
 		}
 
-		if (count($messages) > 0)
-		{
-			self::deleteList(array_keys($messages));
-		}
-
-		return true;
+		return self::deleteList($messages, ['NOTIFY_SUB_TAG' => $notifySubTag]);
 	}
 
 	public static function DeleteByModule($moduleId, $moduleEvent = '')

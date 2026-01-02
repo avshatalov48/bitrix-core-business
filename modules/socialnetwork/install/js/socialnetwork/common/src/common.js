@@ -1,9 +1,12 @@
-import { Type, Loc, ajax, Runtime } from 'main.core';
+import { Type, Loc, ajax, Runtime, Extension } from 'main.core';
+import { BaseEvent } from 'main.core.events';
 import { MenuManager } from 'main.popup';
 import { Messenger } from 'im.public';
 import { Waiter } from './waiter.js';
 import { SonetGroupMenu } from './sonetgroupmenu.js';
 import { RecallJoinRequest } from './recalljoinrequest.js';
+
+import type { Converter } from 'socialnetwork.collab.converter';
 
 class Common
 {
@@ -134,6 +137,33 @@ class Common
 						};
 					}
 					menu.push(featuresItem);
+				}
+
+				const isCollabConverterEnabled = Extension.getSettings('socialnetwork.common').isCollabConverterEnabled;
+				if (
+					isCollabConverterEnabled
+					&& params.userRole === Loc.getMessage('USER_TO_GROUP_ROLE_OWNER')
+					&& !params.isProject
+					&& !params.isScrumProject
+				)
+				{
+					menu.push({
+						text: Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_CONVERT_TO_COLLAB'),
+						title: Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_CONVERT_TO_COLLAB'),
+						onclick: (event, menuItem) => {
+							menuItem.getMenuWindow().close();
+							Runtime.loadExtension('socialnetwork.collab.converter').then((exports) => {
+								const ConverterClass: Converter = exports.Converter;
+								const id = parseInt(Type.isUndefined(params.groupId) ? 0 : params.groupId, 10);
+
+								(new ConverterClass({
+									redirectAfterSuccess: true,
+								})).convertToCollab(id);
+							}).catch((error) => {
+								console.error(error);
+							});
+						},
+					});
 				}
 
 				itemTitle = Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_DELETE');

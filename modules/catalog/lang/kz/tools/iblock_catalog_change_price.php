@@ -1,0 +1,26 @@
+<?php
+$MESS["IBLIST_CHPRICE_ALERT_NOT_NULL"] = "Нөлдік емес мәнді енгізіңіз";
+$MESS["IBLIST_CHPRICE_ALERT_ONE_PRICE_TYPE"] = "Функция қолжетімді емес, тек бір баға түрі бар";
+$MESS["IBLIST_CHPRICE_ERR_BASE_PRICE_SELECTED"] = "Назар аударыңыз! Сіз бағаның базалық түрін өзгерткіңіз келеді. Базалық бағаға байланысты барлық бағалар да қайта есептеледі. Жалғастыру керек пе?";
+$MESS["IBLIST_CHPRICE_ERR_DESTINATION_PRICE_EMPTY"] = "Өзгерту үшін баға түрі таңдалмаған";
+$MESS["IBLIST_CHPRICE_ERR_EQUAL_PRICE_TYPES"] = "Дереккөз-баға түрі өзгеретін баға түріне сәйкес келеді";
+$MESS["IBLIST_CHPRICE_ERR_SOURCE_PRICE_EMPTY"] = "Дереккөз-баға түрі таңдалмаған";
+$MESS["IBLIST_CHPRICE_EXAMPLE_LABEL"] = "Мысал";
+$MESS["IBLIST_CHPRICE_EXAMPLE_VALUE"] = "#VALUE_BEFORE# дейін дөңгелектеу";
+$MESS["IBLIST_CHPRICE_HEAD_TABLE_ACTION"] = "Әрекетті таңдаңыз";
+$MESS["IBLIST_CHPRICE_HEAD_TABLE_TYPE"] = "Баға түрін таңдаңыз";
+$MESS["IBLIST_CHPRICE_HEAD_TABLE_UNITS"] = "Бірліктерді таңдаңыз";
+$MESS["IBLIST_CHPRICE_HEAD_TABLE_VALUE"] = "Мәнді енгізіңіз";
+$MESS["IBLIST_CHPRICE_PRICE_TYPE_EMPTY"] = "таңдалмаған";
+$MESS["IBLIST_CHPRICE_TABLE_ACTION_RESULT_CEIL"] = "Әрқашан кәсіпорынның пайдасына";
+$MESS["IBLIST_CHPRICE_TABLE_ACTION_RESULT_FLOOR"] = "Әрқашан клиент пайдасына";
+$MESS["IBLIST_CHPRICE_TABLE_ACTION_RESULT_LABEL"] = "Дөңгелектеу нұсқалары";
+$MESS["IBLIST_CHPRICE_TABLE_ACTION_ROUND_RESULT_ROUND"] = "Арифметикалық ережелер бойынша";
+$MESS["IBLIST_CHPRICE_TABLE_ACTION_TYPE_ADD"] = "Үлкейту";
+$MESS["IBLIST_CHPRICE_TABLE_ACTION_TYPE_SUB"] = "Кішірейту";
+$MESS["IBLIST_CHPRICE_TABLE_INITIAL_PRICE_TYPE"] = "Баға түрінен есептеңіз";
+$MESS["IBLIST_CHPRICE_TABLE_MINUS_COUNT_LABEL"] = "бағасынан алып тастау";
+$MESS["IBLIST_CHPRICE_TABLE_RESULT_MASK_LABEL"] = "дөңгелектеу дәлдігі";
+$MESS["IBLIST_CHPRICE_TABLE_UNIT_MULTYPLE"] = "еселік (бірнеше есе)";
+$MESS["IBLIST_CHPRICE_UNITS_NOTE_CURRENCY"] = "Валютаны таңдау кезінде тек осы валютаға сәйкес келетін мәндер өзгертіледі.";
+$MESS["IBLIST_CHPRICE_UNITS_NOTE_PERCENT"] = "Пайыздық мөлшердегі өзгерістер барлық таңдалған элементтердің бағасына қолданылады.";

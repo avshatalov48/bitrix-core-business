@@ -3,7 +3,9 @@
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 
+use Bitrix\Main;
 use Bitrix\Main\Context;
+use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Loader;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -23,6 +25,20 @@ if ($back_url === '')
 {
 	$back_url = '/bitrix/admin/iblock_type_admin.php?lang=' . LANGUAGE_ID;
 }
+
+function getIblockTypeEditStringOptionFromRequest(HttpRequest $request, string $index): ?string
+{
+	$result = $request->getPost($index) ?? null;
+	if ($result === null || is_array($result))
+	{
+		return null;
+	}
+
+	return trim($result);
+}
+
+$allowEditPhp = $USER->CanDoOperation('edit_php');
+
 $ID = (string)($request->get('ID') ?? '');
 
 $arIBTLang = [];
@@ -62,8 +78,43 @@ if (
 	{
 		$arFields["ID"] = ($request->getPost('NEW_ID') ?? null);
 	}
-	$arFields["EDIT_FILE_BEFORE"] = ($request->getPost('EDIT_FILE_BEFORE') ?? '');
-	$arFields["EDIT_FILE_AFTER"] = ($request->getPost('EDIT_FILE_AFTER') ?? '');
+
+	$pathList = [
+		'EDIT_FILE_BEFORE',
+		'EDIT_FILE_AFTER',
+	];
+	if ($allowEditPhp)
+	{
+		foreach ($pathList as $fieldId)
+		{
+			$value = getIblockTypeEditStringOptionFromRequest($request, $fieldId);
+			if ($value === null)
+			{
+				continue;
+			}
+			if ($value !== '')
+			{
+				try
+				{
+					$value = Main\IO\Path::normalize($value);
+					if ($value === '/')
+					{
+						$value = '';
+					}
+					elseif (Main\IO\Path::getExtension($value) !== 'php')
+					{
+						$value = '';
+					}
+				}
+				catch (Main\IO\InvalidPathException $e)
+				{
+					$value = '';
+				}
+			}
+			$arFields[$fieldId] = $value;
+		}
+	}
+
 	$arFields["IN_RSS"] = ($request->getPost('IN_RSS') === 'Y' ? 'Y' : 'N');
 	$arFields["SECTIONS"] = ($request->getPost('SECTIONS') === 'N' ? 'N' : 'Y');
 	$arFields["SORT"] = (int)($request->getPost('SORT') ?? 500);
@@ -298,51 +349,84 @@ CAdminMessage::ShowOldStyleError($strWarning);?>
 		<td><?= GetMessage("IBTYPE_E_SORT")?>:</td>
 		<td><input type="text" name="SORT" size="10"  maxlength="15" value="<?= htmlspecialcharsbx($str_SORT); ?>"></td>
 	</tr>
+	<?php
+	$fileInputControls = [
+		[
+			'NAME' => 'EDIT_FILE_BEFORE',
+			'TITLE' => GetMessage("IBTYPE_E_FILE_BEFORE"),
+			'HINT' => GetMessage('IBTYPE_E_FILE_FIELD_HINT'),
+			'VALUE' => $str_EDIT_FILE_BEFORE,
+			'BUTTON_EVENT' => 'BtnClick',
+		],
+		[
+			'NAME' => 'EDIT_FILE_AFTER',
+			'TITLE' => GetMessage("IBTYPE_E_FILE_AFTER"),
+			'HINT' => GetMessage('IBTYPE_E_FILE_FIELD_HINT'),
+			'VALUE' => $str_EDIT_FILE_AFTER,
+			'BUTTON_EVENT' => 'BtnClick2',
+		],
+	];
+	foreach ($fileInputControls as $fileControl):
+	$hintId = 'hint_' . $fileControl['NAME'];
+	?>
 	<tr>
 		<td>
-		<?php
-		CAdminFileDialog::ShowScript
-		(
-			Array(
-				"event" => "BtnClick",
-				"arResultDest" => array("FORM_NAME" => "form", "FORM_ELEMENT_NAME" => "EDIT_FILE_BEFORE"),
-				"arPath" => array("SITE" => SITE_ID, "PATH" => GetDirPath($str_EDIT_FILE_BEFORE)),
-				"select" => 'F',// F - file only, D - folder only
-				"operation" => 'O',// O - open, S - save
-				"showUploadTab" => true,
-				"showAddToMenuTab" => false,
-				"fileFilter" => 'php',
-				"allowAllFiles" => true,
-				"SaveConfig" => true,
-			)
-		);
-		?>
-		<?= GetMessage("IBTYPE_E_FILE_BEFORE")?></td>
-		<td><input type="text" name="EDIT_FILE_BEFORE" size="50"  maxlength="255" value="<?= htmlspecialcharsbx($str_EDIT_FILE_BEFORE); ?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick()"></td>
-	</tr>
-	<tr>
+			<span id="<?= $hintId ?>"></span>
+			<script>BX.hint_replace(BX('<?= $hintId ?>'), '<?= CUtil::JSEscape($fileControl['HINT']) ?>');</script>&nbsp;<?php
+			echo $fileControl['TITLE'];
+			?>
+		</td>
 		<td>
 		<?php
-		CAdminFileDialog::ShowScript
-		(
-			Array(
-				"event" => "BtnClick2",
-				"arResultDest" => array("FORM_NAME" => "form", "FORM_ELEMENT_NAME" => "EDIT_FILE_AFTER"),
-				"arPath" => array("SITE" => SITE_ID, "PATH" => GetDirPath($str_EDIT_FILE_AFTER)),
-				"select" => 'F',// F - file only, D - folder only
-				"operation" => 'O',// O - open, S - save
-				"showUploadTab" => true,
-				"showAddToMenuTab" => false,
-				"fileFilter" => 'php',
-				"allowAllFiles" => true,
-				"SaveConfig" => true,
-			)
-		);
+		if ($allowEditPhp):
+			CAdminFileDialog::ShowScript([
+				'event' => $fileControl['BUTTON_EVENT'],
+				'arResultDest' => [
+					'FORM_NAME' => 'form',
+					'FORM_ELEMENT_NAME' => $fileControl['NAME'],
+				],
+				'arPath' => [
+					'SITE' => SITE_ID,
+					'PATH' => GetDirPath($fileControl['VALUE']),
+				],
+				'select' => 'F', // F - file only, D - folder only
+				'operation' => 'O', // O - open, S - save
+				'showUploadTab' => true,
+				'showAddToMenuTab' => false,
+				'fileFilter' => 'php',
+				'allowAllFiles' => true,
+				'SaveConfig' => true,
+			]);
+			?>
+			<input
+				type="text"
+				name="<?= $fileControl['NAME'] ?>"
+				size="55"
+				maxlength="255"
+				value="<?= $fileControl['VALUE'] ?>"
+			>&nbsp;<input type="button" name="browse" value="..." onClick="<?= $fileControl['BUTTON_EVENT'] ?>();">
+		<?php
+		else:
+			?>
+			<input
+				disabled
+				type="text"
+				name="<?= $fileControl['NAME'] ?>"
+				size="55"
+				maxlength="255"
+				value="<?= $fileControl['VALUE'] ?>"
+			>
+		<?php
+		endif;
 		?>
-		<?= GetMessage("IBTYPE_E_FILE_AFTER")?></td>
-		<td><input type="text" name="EDIT_FILE_AFTER" size="50"  maxlength="255" value="<?= htmlspecialcharsbx($str_EDIT_FILE_AFTER); ?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick2()"></td>
+		</td>
 	</tr>
-<?php
+	<?php
+	endforeach;
+	unset(
+		$fileControl,
+		$fileInputControls,
+	);
 	$tabControl->Buttons(array("disabled"=>false, "back_url"=>$back_url));
 	$tabControl->End();
 ?>

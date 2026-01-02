@@ -5,5 +5,5 @@ $landing_default_option = array(
 	'history_lifetime_days' => '30',
 	'rights_extended_mode' => 'N',
 	'public_hook_on_save' => 'Y',
-	'portal_url' => $_SERVER['HTTP_HOST']
+	'portal_url' => $_SERVER['HTTP_HOST'] ?? null
 );

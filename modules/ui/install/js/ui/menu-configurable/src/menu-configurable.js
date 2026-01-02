@@ -1,14 +1,15 @@
-import {Runtime, Dom, Type, Loc} from 'main.core';
-import {EventEmitter, BaseEvent} from 'main.core.events';
-import {Menu as MainMenu, MenuManager} from 'main.popup';
-import type {MenuItemOptions} from "main.popup";
-import {Draggable} from 'ui.draganddrop.draggable';
+import { Dom, Loc, Runtime, Type } from 'main.core';
+import { BaseEvent, EventEmitter } from 'main.core.events';
+import type { MenuItemOptions } from 'main.popup';
+import { Menu as MainMenu, MenuManager } from 'main.popup';
+import { Draggable } from 'ui.draganddrop.draggable';
 
 export type Parameters = {
 	id: string,
 	items: Item[],
 	bindElement: ?HTMLElement,
 	maxVisibleItems: ?number,
+	maxWidth: ?number,
 }
 
 export type Item = {
@@ -29,15 +30,20 @@ export class Menu extends EventEmitter
 	#promise: Promise;
 	#closeResolver: Function;
 	#maxVisibleItems: number = 0;
+	#maxWidth: ?number;
 
 	constructor(parameters: Parameters)
 	{
 		super();
 
-		this.#id = Type.isStringFilled(parameters.id) ? parameters.id : 'settings-popup-' + Math.random().toString().substring(2);
+		this.#id = Type.isStringFilled(parameters.id)
+			? parameters.id
+			: `settings-popup-${Math.random().toString().slice(2)}`
+		;
 		this.#items = parameters.items;
 		this.#bindElement = parameters.bindElement;
 		this.#maxVisibleItems = Number(parameters.maxVisibleItems);
+		this.#maxWidth = Type.isNumber(parameters.maxWidth) ? parameters.maxWidth : null;
 		this.#createMenu();
 
 		this.setEventNamespace('BX.UI.MenuConfigurable.Menu');
@@ -66,7 +72,7 @@ export class Menu extends EventEmitter
 		this.#promise = null;
 		if (this.#closeResolver)
 		{
-			this.#closeResolver({isCanceled: true});
+			this.#closeResolver({ isCanceled: true });
 		}
 		this.#closeResolver = null;
 	}
@@ -76,7 +82,7 @@ export class Menu extends EventEmitter
 		this.#promise = null;
 		if (this.#closeResolver)
 		{
-			this.#closeResolver({items: this.#items});
+			this.#closeResolver({ items: this.#items });
 		}
 		this.#closeResolver = null;
 	}
@@ -96,7 +102,7 @@ export class Menu extends EventEmitter
 
 	#getItemById(id: string): ?Item
 	{
-		return this.#items.find(item => item.id === id);
+		return this.#items.find((item) => item.id === id);
 	}
 
 	getItemsFromMenu(): Item[]
@@ -105,7 +111,7 @@ export class Menu extends EventEmitter
 		let isHidden = false;
 
 		this.#menu.itemsContainer.querySelectorAll('.menu-configurable-item').forEach((node: HTMLElement) => {
-			if (node.classList.contains('menu-configurable-hidden-section-title'))
+			if (Dom.hasClass(node, 'menu-configurable-hidden-section-title'))
 			{
 				isHidden = true;
 			}
@@ -132,8 +138,8 @@ export class Menu extends EventEmitter
 
 		const menuItems = [];
 		menuItems.push(this.#getVisibleSectionTitleItem());
-		const visibleItems = this.#items.filter(item => !item.isHidden);
-		const hiddenItems = this.#items.filter(item => item.isHidden);
+		const visibleItems = this.#items.filter((item) => !item.isHidden);
+		const hiddenItems = this.#items.filter((item) => item.isHidden);
 		visibleItems.forEach((item) => {
 			menuItems.push(this.#getMenuItem(item));
 		});
@@ -141,8 +147,10 @@ export class Menu extends EventEmitter
 		hiddenItems.forEach((item) => {
 			menuItems.push(this.#getMenuItem(item));
 		});
-		menuItems.push(this.#getSaveItem());
-		menuItems.push(this.#getCancelItem());
+		menuItems.push(
+			this.#getSaveItem(),
+			this.#getCancelItem(),
+		);
 
 		this.#menu = MenuManager.create({
 			id: this.#id,
@@ -150,7 +158,8 @@ export class Menu extends EventEmitter
 			bindElement: bindElement ?? this.#bindElement,
 			events: {
 				onClose: this.close.bind(this),
-			}
+			},
+			maxWidth: this.#maxWidth,
 		});
 
 		this.#initDraggable();
@@ -163,7 +172,7 @@ export class Menu extends EventEmitter
 		return {
 			text: Loc.getMessage('UI_JS_MENU_CONFIGURABLE_SAVE'),
 			onclick: this.#save.bind(this),
-		}
+		};
 	}
 
 	#getCancelItem(): MenuItemOptions
@@ -171,7 +180,7 @@ export class Menu extends EventEmitter
 		return {
 			text: Loc.getMessage('UI_JS_MENU_CONFIGURABLE_CANCEL'),
 			onclick: this.#cancel.bind(this),
-		}
+		};
 	}
 
 	#save(): void
@@ -210,25 +219,25 @@ export class Menu extends EventEmitter
 			dataset: {
 				id: item.id,
 			},
-		}
+		};
 	}
 
 	#getVisibleSectionTitleItem(): MenuItemOptions
 	{
 		return {
 			delimiter: true,
-			html: '<span>' + Loc.getMessage('UI_JS_MENU_CONFIGURABLE_VISIBLE') + '</span>',
+			html: `<span>${Loc.getMessage('UI_JS_MENU_CONFIGURABLE_VISIBLE')}</span>`,
 			className: 'menu-configurable-visible-section-title menu-configurable-delimiter-item',
-		}
+		};
 	}
 
 	#getHiddenSectionTitleItem(): MenuItemOptions
 	{
 		return {
 			delimiter: true,
-			html: '<span>' + Loc.getMessage('UI_JS_MENU_CONFIGURABLE_HIDDEN') + '</span>',
+			html: `<span>${Loc.getMessage('UI_JS_MENU_CONFIGURABLE_HIDDEN')}</span>`,
 			className: 'menu-configurable-hidden-section-title menu-configurable-delimiter-item menu-configurable-item',
-		}
+		};
 	}
 
 	#initDraggable(): void
@@ -249,7 +258,7 @@ export class Menu extends EventEmitter
 
 	#getItemNode(item: Item): ?HTMLElement
 	{
-		return this.#menu.itemsContainer.querySelector('.menu-configurable-item[data-id="' + item.id + '"]');
+		return this.#menu.itemsContainer.querySelector(`.menu-configurable-item[data-id="${item.id}"]`);
 	}
 
 	#getHiddenSectionTitleNode(): ?HTMLElement
@@ -265,7 +274,7 @@ export class Menu extends EventEmitter
 		}
 
 		const runtimeItems = this.getItemsFromMenu();
-		const visibleItems = runtimeItems.filter(item => !item.isHidden);
+		const visibleItems = runtimeItems.filter((item) => !item.isHidden);
 		const visibleItemsCount = visibleItems.length;
 		const hiddenSectionTitleNode = this.#getHiddenSectionTitleNode();
 		if (hiddenSectionTitleNode && visibleItemsCount > this.#maxVisibleItems)

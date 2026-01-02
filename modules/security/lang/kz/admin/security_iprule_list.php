@@ -1,0 +1,27 @@
+<?php
+$MESS["SEC_IP_LIST_ACTIVE"] = "Белсенділік";
+$MESS["SEC_IP_LIST_ACTIVE_FROM"] = "Белсенділіктің басталуы";
+$MESS["SEC_IP_LIST_ACTIVE_TO"] = "Белсенділіктің аяқталуы";
+$MESS["SEC_IP_LIST_ADD_TITLE"] = "Тоқтатым-парағына жаңа жазба қосу";
+$MESS["SEC_IP_LIST_ADMIN_SECTION"] = "Әкімшілік бөлім";
+$MESS["SEC_IP_LIST_DELETE"] = "Жою";
+$MESS["SEC_IP_LIST_DELETE_CONF"] = "Бұл жазбаны тоқтатым-парағынан шынымен жойғыңыз келе ме?";
+$MESS["SEC_IP_LIST_DELETE_ERROR"] = "Тоқтатым-парағының жазбасын жою қатесі";
+$MESS["SEC_IP_LIST_EDIT"] = "Редакциялау";
+$MESS["SEC_IP_LIST_EXCL_IP"] = "Ерекшеліктердің IP-мекенжайлары";
+$MESS["SEC_IP_LIST_EXCL_PATH"] = "Ерекшелік маскалары";
+$MESS["SEC_IP_LIST_FIND"] = "Табу";
+$MESS["SEC_IP_LIST_ID"] = "ID";
+$MESS["SEC_IP_LIST_INCL_IP"] = "IP-мекенжайлары";
+$MESS["SEC_IP_LIST_INCL_PATH"] = "Жол маскалары";
+$MESS["SEC_IP_LIST_IP"] = "IP";
+$MESS["SEC_IP_LIST_NAME"] = "Атауы";
+$MESS["SEC_IP_LIST_PAGER"] = "Жазбалар";
+$MESS["SEC_IP_LIST_PATH"] = "Парақша";
+$MESS["SEC_IP_LIST_RULE_TYPE"] = "Жазба түрі";
+$MESS["SEC_IP_LIST_RULE_TYPE_A"] = "Автоматты";
+$MESS["SEC_IP_LIST_RULE_TYPE_M"] = "Қолмен";
+$MESS["SEC_IP_LIST_SITE_ID"] = "Сайт";
+$MESS["SEC_IP_LIST_SORT"] = "Сұрыптау";
+$MESS["SEC_IP_LIST_TITLE"] = "Тоқтатым-парағы";
+$MESS["SEC_IP_LIST_UPDATE_ERROR"] = "Тоқтатым-парағының жазбасын өзгерту қатесі";

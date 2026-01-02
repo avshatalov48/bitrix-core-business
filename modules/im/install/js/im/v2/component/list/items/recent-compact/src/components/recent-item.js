@@ -1,6 +1,6 @@
 import { Core } from 'im.v2.application.core';
 import { ChatType } from 'im.v2.const';
-import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize, ChatAvatarType } from 'im.v2.component.elements.avatar';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelRecentItem, ImModelChat } from 'im.v2.model';
@@ -72,6 +72,10 @@ export const RecentItem = {
 		{
 			return { '--no-counter': this.totalCounter === 0 };
 		},
+		getAvatarType(): string
+		{
+			return Number.parseInt(this.recentItem.dialogId, 10) === Core.getUserId() ? ChatAvatarType.notes : '';
+		},
 	},
 	methods:
 	{
@@ -92,6 +96,7 @@ export const RecentItem = {
 						:avatarDialogId="recentItem.dialogId"
 						:size="AvatarSize.M" 
 						:withSpecialTypes="false"
+						:customType="getAvatarType"
 					/>
 					<div v-if="totalCounter > 0" :class="{'--muted': isChatMuted}" class="bx-im-list-recent-compact-item__avatar_counter">
 						{{ formattedCounter }}

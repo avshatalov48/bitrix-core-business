@@ -8,7 +8,7 @@ import { Avatar } from 'mail.avatar';
 
 BX.ready(function()
 {
-	const addContactButton = document.getElementById('mail-address-book-add-button');
+	const addContactButton = document.getElementsByClassName('mail-address-book-add-button')[0];
 
 	addContactButton.onclick = () => {
 		top.BX.Runtime.loadExtension('mail.dialogeditcontact').then(
@@ -58,7 +58,7 @@ BX.ready(function()
 	EventEmitter.subscribe('Grid::updated', (event) => {
 		const [messageEvent] = event.getCompatData();
 
-		if (messageEvent.containerId === 'MAIL_ADDRESSBOOK_LIST')
+		if (messageEvent.containerId === gridId)
 		{
 			Avatar.replaceTagsWithAvatars({
 				className: 'mail-ui-avatar',

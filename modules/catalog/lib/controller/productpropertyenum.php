@@ -4,6 +4,9 @@ namespace Bitrix\Catalog\Controller;
 
 use Bitrix\Iblock\PropertyEnumerationTable;
 use Bitrix\Iblock\PropertyTable;
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\DuplicateEntryException;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 
@@ -57,19 +60,34 @@ final class ProductPropertyEnum extends ProductPropertyBase
 			return null;
 		}
 
-		$application = self::getApplication();
-		$application->ResetException();
-
-		$addResult = PropertyEnumerationTable::add($fields);
-		if (!$addResult->isSuccess())
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		try
 		{
-			$this->addErrors($addResult->getErrors());
+			$result = PropertyEnumerationTable::add($fields);
+		}
+		catch (DuplicateEntryException)
+		{
+			$result = new Result();
+			$result->addError(new Error('A value with xmlId \'' . $fields['XML_ID'] . '\' already exists.'));
+		}
+		catch (SqlQueryException)
+		{
+			$result = new Result();
+			$result->addError(new Error('Internal error adding enumeration value. Try adding again.'));
+		}
+
+		if (!$result->isSuccess())
+		{
+			$conn->rollbackTransaction();
+			$this->addErrors($result->getErrors());
 
 			return null;
 		}
+		$conn->commitTransaction();
 
 		return [
-			$this->getServiceItemName() => $this->get($addResult->getId()),
+			$this->getServiceItemName() => $this->get($result->getId()),
 		];
 	}
 
@@ -95,15 +113,38 @@ final class ProductPropertyEnum extends ProductPropertyBase
 		}
 
 		$propertyId = $this->get($id)['PROPERTY_ID'];
-		$updateResult = PropertyEnumerationTable::update([
-			'ID' => $id,
-			'PROPERTY_ID' => $propertyId,
-		], $fields);
-		if (!$updateResult)
+
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		try
 		{
-			$this->addErrors($updateResult->getErrors());
+			$result = PropertyEnumerationTable::update(
+				[
+					'ID' => $id,
+					'PROPERTY_ID' => $propertyId,
+				],
+				$fields
+			);
+		}
+		catch (DuplicateEntryException)
+		{
+			$result = new Result();
+			$result->addError(new Error('A value with xmlId \'' . $fields['XML_ID'] . '\' already exists.'));
+		}
+		catch (SqlQueryException)
+		{
+			$result = new Result();
+			$result->addError(new Error('Internal error updating enumeration value. Try updating again.'));
+		}
+
+		if (!$result->isSuccess())
+		{
+			$conn->rollbackTransaction();
+			$this->addErrors($result->getErrors());
+
 			return null;
 		}
+		$conn->commitTransaction();
 
 		return [$this->getServiceItemName() => $this->get($id)];
 	}
@@ -122,18 +163,32 @@ final class ProductPropertyEnum extends ProductPropertyBase
 		}
 
 		$propertyId = $this->get($id)['PROPERTY_ID'];
-		$deleteResult = PropertyEnumerationTable::delete([
-			'ID' => $id,
-			'PROPERTY_ID' => $propertyId,
-		]);
 
-		if (!$deleteResult)
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		try
 		{
-			$this->addErrors($deleteResult->getErrors());
-			return null;
+			$result = PropertyEnumerationTable::delete([
+				'ID' => $id,
+				'PROPERTY_ID' => $propertyId,
+			]);
+		}
+		catch (SqlQueryException)
+		{
+			$result = new Result();
+			$result->addError(new Error('Internal error deleting enumeration value. Try deleting again.'));
 		}
 
-		return $deleteResult->isSuccess();
+		if (!$result->isSuccess())
+		{
+			$conn->rollbackTransaction();
+			$this->addErrors($result->getErrors());
+
+			return null;
+		}
+		$conn->commitTransaction();
+
+		return true;
 	}
 
 	// endregion

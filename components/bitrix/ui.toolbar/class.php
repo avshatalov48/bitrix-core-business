@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
@@ -21,30 +21,35 @@ class UIToolbarComponent extends CBitrixComponent
 	 */
 	public function executeComponent()
 	{
-		Loader::includeModule('ui');
-		Extension::load(["ui.buttons", "ui.buttons.icons"]);
+		Extension::load(["ui.buttons", "ui.buttons.icons", 'ui.icon-set.outline', 'ui.icon-set.api.core']);
 
 		$this->toolbarId = $this->arParams["TOOLBAR_ID"] ?? Toolbar::DEFAULT_ID;
 
-		if($this->toolbarId === Toolbar::DEFAULT_ID)
-		{
-			$GLOBALS["APPLICATION"]->addBufferContent([$this, "includeTemplate"]);
+		$this->arResult["TOOLBAR_ID"] = $this->toolbarId;
+		$this->arResult["USE_AIR_DESIGN"] = defined('AIR_SITE_TEMPLATE');
+		$this->arResult["CONTAINER_ID"] = (
+			$this->toolbarId === Toolbar::DEFAULT_ID
+				? 'uiToolbarContainer'
+				: 'toolbar_' . $this->randString());
 
-			$this->initComponentTemplate();
-			$GLOBALS["APPLICATION"]->setAdditionalCSS($this->getTemplate()->getFolder()."/style.css");
-			$GLOBALS["APPLICATION"]->addHeadScript($this->getTemplate()->getFolder()."/script.js");
+		$GLOBALS["APPLICATION"]->addBufferContent([$this, "includeTemplate"]);
+
+		$this->initComponentTemplate();
+		if ($this->getTemplate()->getName() === 'admin')
+		{
+			$GLOBALS["APPLICATION"]->setAdditionalCSS($this->getTemplate()->getFolder() . "/style.css");
+			$GLOBALS["APPLICATION"]->addHeadScript($this->getTemplate()->getFolder() . "/script.js");
 		}
 		else
 		{
-			$this->arResult["TOOLBAR_ID"] = $this->toolbarId;
-			$this->arResult["CONTAINER_ID"] = "toolbar_" . $this->randString();
-			$this->includeComponentTemplate("common");
+			$GLOBALS["APPLICATION"]->setAdditionalCSS($this->getTemplate()->getFolder() . "/dist/ui.toolbar.bundle.css");
+			$GLOBALS["APPLICATION"]->addHeadScript($this->getTemplate()->getFolder() . "/dist/ui.toolbar.bundle.js");
 		}
 	}
 
 	public function includeTemplate()
 	{
-		//it's a dirty hack to prevent showing a white screen when some php error happens.
+		// it's a dirty hack to prevent showing a white screen when some php error happens.
 		if ($this->shouldPreventOutputBuffering())
 		{
 			return "";
@@ -71,7 +76,8 @@ class UIToolbarComponent extends CBitrixComponent
 				&& count($oldToolbar->getButtons()) > 0
 			));
 
-		if ($pageTitle <> '' || $insidePageTitle <> '' || $inPageTitle <> '' || $oldToolbarButtons)
+		$shouldUseOldTemplate = $pageTitle <> '' || $insidePageTitle <> '' || $inPageTitle <> '' || $oldToolbarButtons;
+		if ($shouldUseOldTemplate && $this->toolbarId === Toolbar::DEFAULT_ID)
 		{
 			$this->includeComponentTemplate("old");
 		}
@@ -97,7 +103,7 @@ class UIToolbarComponent extends CBitrixComponent
 				isset($traceLine['function']) &&
 				in_array(
 					$traceLine['function'],
-					['ob_end_flush', 'ob_end_clean', 'LocalRedirect', 'ForkActions', 'fastcgi_finish_request']
+					['ob_end_flush', 'ob_end_clean', 'LocalRedirect', 'fastcgi_finish_request']
 				)
 			)
 			{

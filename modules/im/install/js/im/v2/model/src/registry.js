@@ -21,6 +21,7 @@ export type {
 	CollabInfo as ImModelCollabInfo,
 	CollabEntityInfo as ImModelCollabEntityInfo,
 } from './type/chat';
+export type { InputActionState, ChatInputActions as ImModelInputActions } from './chats/nested-modules/input-actions';
 export type { User as ImModelUser, Bot as ImModelBot } from './type/user';
 export type { File as ImModelFile } from './type/file';
 export type {
@@ -41,6 +42,14 @@ export type { SidebarTaskItem as ImModelSidebarTaskItem } from './type/sidebar/t
 export type { SidebarMeetingItem as ImModelSidebarMeetingItem } from './type/sidebar/meetings';
 export type { SidebarFileItem as ImModelSidebarFileItem } from './type/sidebar/files';
 export type { MarketApplication as ImModelMarketApplication } from './type/market';
-export type { CopilotRole as ImModelCopilotRole } from './type/copilot';
-export type { CopilotPrompt as ImModelCopilotPrompt } from './type/copilot';
+export type {
+	CopilotRole as ImModelCopilotRole,
+	CopilotRoleCode as ImModelCopilotRoleCode,
+	CopilotPrompt as ImModelCopilotPrompt,
+	CopilotAIModel as ImModelCopilotAIModel,
+	AvatarSize as ImModelCopilotAvatarSize,
+} from './type/copilot';
 export type { SidebarMultidialogItem as ImModelSidebarMultidialogItem } from './type/sidebar/multidialog';
+export type { SidebarFileTab as ImModelSidebarFileTab } from './type/sidebar/file-tab';
+export type { Anchor as ImModelAnchor } from './type/anchor';
+export type { Transcription as ImModelTranscription } from './type/file';

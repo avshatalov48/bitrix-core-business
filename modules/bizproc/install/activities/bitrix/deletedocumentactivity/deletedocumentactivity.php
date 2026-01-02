@@ -1,6 +1,9 @@
 <?php
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+
+use Bitrix\Crm\Integration\Analytics\Dictionary;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -20,7 +23,8 @@ class CBPDeleteDocumentActivity extends CBPActivity
 
 	public function Execute()
 	{
-		$documentId = $this->GetDocumentId();
+		$documentId = $this->getDocumentId();
+		$documentType = $this->getDocumentType();
 
 		$documentService = $this->workflow->GetService('DocumentService');
 		$result = $documentService->DeleteDocument($documentId);
@@ -34,6 +38,19 @@ class CBPDeleteDocumentActivity extends CBPActivity
 			);
 
 			return CBPActivityExecutionStatus::Closed;
+		}
+
+		if (
+			Loader::includeModule('crm')
+			&& defined('Bitrix\Crm\Integration\Analytics\Dictionary::EVENT_ENTITY_DELETE')
+			&& method_exists(CCrmBizProcHelper::class, 'sendOperationsAnalytics')
+		)
+		{
+			\CCrmBizProcHelper::sendOperationsAnalytics(
+				Dictionary::EVENT_ENTITY_DELETE,
+				$this,
+				$documentType[2] ?? '',
+			);
 		}
 
 		if ($this->workflow->isDebug())

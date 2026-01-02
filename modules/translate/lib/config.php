@@ -56,7 +56,7 @@ final class Config
 			$defs = Main\Config\Option::getDefaults('translate');
 		}
 
-		return $defs[$optionName] ?: null;
+		return !empty($defs[$optionName]) ? $defs[$optionName] : null;
 	}
 
 	/**
@@ -66,7 +66,7 @@ final class Config
 	 */
 	public static function getDefaultLanguages(): array
 	{
-		return ['ru', 'en', 'de'];
+		return ['ru', 'en', 'de', 'kz'];
 	}
 
 	/**
@@ -183,7 +183,7 @@ final class Config
 	 *
 	 * @return string[]
 	 */
-	public static function getLanguages(): array 
+	public static function getLanguages(bool $skipCache = false): array
 	{
 		static $languages;
 		if ($languages === null)
@@ -192,7 +192,7 @@ final class Config
 			$iterator = Main\Localization\LanguageTable::getList([
 				'select' => ['ID', 'SORT'],
 				'order' => ['SORT' => 'ASC'],
-				'cache' => ['ttl' => self::CACHE_TTL],
+				'cache' => ['ttl' => $skipCache ? 0 : self::CACHE_TTL],
 			]);
 			while ($row = $iterator->fetch())
 			{

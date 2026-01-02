@@ -1,11 +1,17 @@
-<?
-
-use Bitrix\Main\Config\Option;
-use Bitrix\Catalog\Store\EnableWizard\TariffChecker;
+<?php
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
+}
+
+use Bitrix\Catalog\Store\EnableWizard\TariffChecker;
+use Bitrix\Main\Loader;
+
+$restricted = false;
+if (Loader::includeModule('catalog'))
+{
+	$restricted = TariffChecker::isOnecInventoryManagementRestricted();
 }
 
 return [
@@ -17,6 +23,6 @@ return [
 	],
 	'skip_core' => false,
 	'settings' => [
-		'is1cPlanRestricted' => TariffChecker::isOnecInventoryManagementRestricted(),
+		'is1cPlanRestricted' => $restricted,
 	],
 ];

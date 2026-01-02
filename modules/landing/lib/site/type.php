@@ -281,4 +281,19 @@ class Type
 
 		return $manifest;
 	}
+
+	/**
+	 * Check is current scope can use extension
+	 * @param string $code - name of extension
+	 * @return bool
+	 */
+	public static function isExtensionAllow(string $code): bool
+	{
+		if (self::$currentScopeClass !== null)
+		{
+			return self::$currentScopeClass::isExtensionAllow($code);
+		}
+
+		return true;
+	}
 }

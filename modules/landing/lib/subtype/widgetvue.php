@@ -205,16 +205,10 @@ class WidgetVue
 		}
 
 		$vueParams = Json::encode($vueParams);
-		$type = Landing\Site\Scope::getCurrentScopeId();
 
 		return "
 			<script>
 				(() => {
-					if (BX.Landing.Env)
-					{
-						BX.Landing.Env.getInstance().setType('{$type}');
-					}
-						
 					const init = () => {
 						(new BX.Landing.WidgetVue(
 							{$vueParams}

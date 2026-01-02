@@ -6,6 +6,7 @@ use Bitrix\Im\Model\ChatTable;
 use Bitrix\Im\Model\MessageTable;
 use Bitrix\Im\Model\MessageUnreadTable;
 use Bitrix\Im\Model\RecentTable;
+use Bitrix\Im\V2\Application\Features;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Chat\NotifyChat;
 use Bitrix\Im\V2\Common\ContextCustomer;
@@ -13,6 +14,7 @@ use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\Counter\CounterOverflowService;
 use Bitrix\Im\V2\MessageCollection;
+use Bitrix\Im\V2\Recent\Config\RecentConfigManager;
 use Bitrix\Im\V2\Relation;
 use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Service\Context;
@@ -33,9 +35,9 @@ class CounterService
 	protected const EXPIRY_INTERVAL = '-12 months';
 
 	protected const CACHE_TTL = 86400; // 1 month
-	protected const CACHE_NAME = 'counter_v5';
-	protected const CACHE_CHATS_COUNTERS_NAME = 'chats_counter_v6';
-	protected const CACHE_PATH = '/bx/im/v4/counter/';
+	protected const CACHE_NAME = 'counter_v7';
+	protected const CACHE_CHATS_COUNTERS_NAME = 'chats_counter_v7';
+	protected const CACHE_PATH = '/bx/im/counter/v7/';
 
 	protected const DEFAULT_COUNTERS = [
 		'TYPE' => [
@@ -45,15 +47,20 @@ class CounterService
 			'LINES' => 0,
 			'COPILOT' => 0,
 			'COLLAB' => 0,
+			'MESSENGER' => 0,
+			'TASKS_TASK' => 0,
 		],
 		'CHAT' => [],
 		'COLLAB' => [],
 		'CHAT_MUTED' => [],
 		'CHAT_UNREAD' => [],
 		'COLLAB_UNREAD' => [],
+		'COPILOT_UNREAD' => [],
+		'TASKS_TASK_UNREAD' => [],
 		'LINES' => [],
 		'COPILOT' => [],
 		'CHANNEL_COMMENT' => [],
+		'TASKS_TASK' => [],
 	];
 
 	protected static array $staticCounterCache = [];
@@ -116,6 +123,23 @@ class CounterService
 	public function getByChat(int $chatId): int
 	{
 		return $this->getCountUnreadMessagesByChatId($chatId);
+	}
+
+	public function getByChatWithOverflow(int $chatId): int
+	{
+		$currentUser = $this->getContext()->getUserId();
+		$overflowService = new CounterOverflowService($chatId);
+		$overflowInfo = $overflowService->getOverflowInfo([$currentUser]);
+
+		if (!empty($overflowInfo->getUsersWithoutOverflow()))
+		{
+			$count = $this->getCountUnreadMessagesByChatId($chatId);
+			$overflowService->insertOverflowed([$currentUser => $count]);
+
+			return $count;
+		}
+
+		return CounterOverflowService::getOverflowValue();
 	}
 
 	public function get(): array
@@ -197,7 +221,7 @@ class CounterService
 
 		$chatId = (int)$findResult->getResult()['ID'];
 
-		return $this->getByChat($chatId);
+		return $this->getByChatWithOverflow($chatId);
 	}
 
 	public function getForNotifyChats(array $chatIds): array
@@ -288,6 +312,12 @@ class CounterService
 	{
 		MessageUnreadTable::deleteByFilter(['=CHAT_ID' => $chatId]);
 		CounterOverflowService::deleteByChatIdForAll($chatId);
+	}
+
+	public static function deleteByChatIdsForAll(array $chatIds): void
+	{
+		MessageUnreadTable::deleteByFilter(['=CHAT_ID' => $chatIds]);
+		CounterOverflowService::deleteByChatIds($chatIds);
 	}
 
 	public function deleteByChatIds(array $chatIds): void
@@ -438,23 +468,22 @@ class CounterService
 		}
 	}
 
-	public function deleteByMessagesForAll(MessageCollection $messages, ?array $invalidateCacheUsers = null): void
+	public function deleteByMessagesForAll(
+		MessageCollection $messages,
+		?array $invalidateCacheUsers = null,
+		?array $overflowResetChatIds = null
+	): void
 	{
 		$messageIds = $messages->getIds();
-		$chatIds = [];
 		if (empty($messageIds))
 		{
 			return;
 		}
 
-		foreach ($messages as $message)
-		{
-			$chatId = $message->getChatId();
-			$chatIds[$chatId] = $chatId;
-		}
+		$overflowResetChatIds ??= $messages->getChatIds();
 
 		MessageUnreadTable::deleteByFilter(['=MESSAGE_ID' => $messageIds]);
-		CounterOverflowService::deleteByChatIds($chatIds);
+		CounterOverflowService::deleteByChatIds($overflowResetChatIds);
 
 		if (!isset($invalidateCacheUsers))
 		{
@@ -616,21 +645,23 @@ class CounterService
 
 		foreach ($unreadChats as $unreadChat)
 		{
-			if ($unreadChat['CHAT_TYPE'] === Chat::IM_TYPE_COLLAB)
+			$chatId = (int)$unreadChat['CHAT_ID'];
+			$isMuted = $unreadChat['IS_MUTED'] === 'Y';
+
+			match ($unreadChat['CHAT_TYPE'])
 			{
-				$this->setUnreadCollab((int)$unreadChat['CHAT_ID'], $unreadChat['IS_MUTED'] === 'Y');
-			}
-			else
-			{
-				$this->setUnreadChat((int)$unreadChat['CHAT_ID'], $unreadChat['IS_MUTED'] === 'Y');
-			}
+				Chat::IM_TYPE_COLLAB => $this->setUnreadCollab($chatId, $isMuted),
+				Chat::IM_TYPE_COPILOT => $this->setUnreadCopilot($chatId, $isMuted),
+				Chat::IM_TYPE_EXTERNAL => $this->setUnreadExternal($chatId, $unreadChat['CHAT_ENTITY_TYPE'] ?? '', $isMuted),
+				default => $this->setUnreadChat($chatId, $isMuted),
+			};
 		}
 	}
 
 	protected function countUnreadMessages(?array $chatIds = null): void
 	{
 		$counters = $this->getCountersForEachChat($chatIds);
-		$chatIdToParentIdMap = $this->getMapChatIdToParentId($counters);
+		$chatsInfo = $this->getChatsInfo($counters);
 
 		foreach ($counters as $counter)
 		{
@@ -640,25 +671,29 @@ class CounterService
 			{
 				$this->setFromMutedChat($chatId, $count);
 			}
+			elseif ($counter['CHAT_TYPE'] === Chat::IM_TYPE_EXTERNAL)
+			{
+				$this->setFromExternal($chatId, $chatsInfo[$chatId]['ENTITY_TYPE'], $count);
+			}
 			elseif ($counter['CHAT_TYPE'] === Chat::IM_TYPE_COLLAB)
 			{
 				$this->setFromCollab($chatId, $count);
 			}
-			else if ($counter['CHAT_TYPE'] === \IM_MESSAGE_SYSTEM)
+			elseif ($counter['CHAT_TYPE'] === \IM_MESSAGE_SYSTEM)
 			{
 				$this->setFromNotify($count);
 			}
-			else if ($counter['CHAT_TYPE'] === \IM_MESSAGE_OPEN_LINE)
+			elseif ($counter['CHAT_TYPE'] === \IM_MESSAGE_OPEN_LINE)
 			{
 				$this->setFromLine($chatId, $count);
 			}
-			else if ($counter['CHAT_TYPE'] === Chat::IM_TYPE_COPILOT)
+			elseif ($counter['CHAT_TYPE'] === Chat::IM_TYPE_COPILOT)
 			{
 				$this->setFromCopilot($chatId, $count);
 			}
-			else if ($counter['CHAT_TYPE'] === Chat::IM_TYPE_COMMENT)
+			elseif ($counter['CHAT_TYPE'] === Chat::IM_TYPE_COMMENT)
 			{
-				$this->setFromComment($chatId, $chatIdToParentIdMap[$chatId] ?? null, $count);
+				$this->setFromComment($chatId, $chatsInfo[$chatId]['PARENT_ID'] ?? null, $count);
 			}
 			else
 			{
@@ -674,6 +709,7 @@ class CounterService
 		{
 			$this->counters['TYPE']['ALL']++;
 			$this->counters['TYPE']['CHAT']++;
+			$this->counters['TYPE']['MESSENGER']++;
 		}
 
 		$this->counters['CHAT_UNREAD'][] = $id;
@@ -686,9 +722,62 @@ class CounterService
 			$this->counters['TYPE']['ALL']++;
 			$this->counters['TYPE']['CHAT']++;
 			$this->counters['TYPE']['COLLAB']++;
+			$this->counters['TYPE']['MESSENGER']++;
 		}
 
+		$this->counters['CHAT_UNREAD'][] = $id;
 		$this->counters['COLLAB_UNREAD'][] = $id;
+	}
+
+	protected function setUnreadCopilot(int $id, bool $isMuted): void
+	{
+		if (!$isMuted && !isset($this->counters['COPILOT'][$id]))
+		{
+			$this->counters['TYPE']['ALL']++;
+			$this->counters['TYPE']['CHAT']++;
+			$this->counters['TYPE']['COPILOT']++;
+			$this->counters['TYPE']['MESSENGER']++;
+		}
+
+		$this->counters['CHAT_UNREAD'][] = $id;
+		$this->counters['COPILOT_UNREAD'][] = $id;
+	}
+
+	protected function setUnreadExternal(int $id, string $entityType, bool $isMuted): void
+	{
+		if (!Features::isTasksRecentListAvailable())
+		{
+			return;
+		}
+
+		$config = RecentConfigManager::getInstance()->getByExtendedType($entityType);
+		$hasAnyRecentSection = $config->hasOwnRecentSection || $config->useDefaultRecentSection;
+		$recentSectionName = $config->getOwnSectionName() ?? $entityType;
+		if (!$isMuted && !isset($this->counters[$recentSectionName][$id]))
+		{
+			if ($hasAnyRecentSection)
+			{
+				$this->counters['TYPE']['ALL']++;
+				$this->counters['TYPE']['MESSENGER']++;
+			}
+			if ($config->useDefaultRecentSection)
+			{
+				$this->counters['TYPE']['CHAT']++;
+			}
+			if ($config->hasOwnRecentSection)
+			{
+				$this->counters['TYPE'][$recentSectionName]++;
+			}
+		}
+
+		if ($config->useDefaultRecentSection)
+		{
+			$this->counters['CHAT_UNREAD'][] = $id;
+		}
+		if ($config->hasOwnRecentSection)
+		{
+			$this->counters["{$recentSectionName}_UNREAD"][] = $id;
+		}
 	}
 
 	protected function setFromMutedChat(int $id, int $count): void
@@ -706,19 +795,55 @@ class CounterService
 	{
 		$this->counters['TYPE']['ALL'] += $count;
 		$this->counters['TYPE']['LINES'] += $count;
+		$this->counters['TYPE']['MESSENGER'] += $count;
 		$this->counters['LINES'][$id] = $count;
 	}
 
 	protected function setFromCopilot(int $id, int $count): void
 	{
+		$this->counters['TYPE']['ALL'] += $count;
+		$this->counters['TYPE']['CHAT'] += $count;
+		$this->counters['TYPE']['MESSENGER'] += $count;
 		$this->counters['TYPE']['COPILOT'] += $count;
 		$this->counters['COPILOT'][$id] = $count;
+		$this->counters['CHAT'][$id] = $count;
 	}
 
 	protected function setFromCollab(int $id, int $count): void
 	{
+		$this->counters['TYPE']['ALL'] += $count;
+		$this->counters['TYPE']['CHAT'] += $count;
+		$this->counters['TYPE']['MESSENGER'] += $count;
 		$this->counters['TYPE']['COLLAB'] += $count;
+		$this->counters['CHAT'][$id] = $count;
 		$this->counters['COLLAB'][$id] = $count;
+	}
+
+	protected function setFromExternal(int $id, string $entityType, int $count): void
+	{
+		if (!Features::isTasksRecentListAvailable())
+		{
+			return;
+		}
+
+		$config = RecentConfigManager::getInstance()->getByExtendedType($entityType);
+		$hasAnyRecentSection = $config->hasOwnRecentSection || $config->useDefaultRecentSection;
+		if ($config->hasOwnRecentSection)
+		{
+			$recentSectionName = $config->getOwnSectionName() ?? $entityType;
+			$this->counters['TYPE'][$recentSectionName] += $count;
+			$this->counters[$recentSectionName][$id] += $count;
+		}
+		if ($config->useDefaultRecentSection)
+		{
+			$this->counters['CHAT'][$id] += $count;
+			$this->counters['TYPE']['CHAT'] += $count;
+		}
+		if ($hasAnyRecentSection)
+		{
+			$this->counters['TYPE']['ALL'] += $count;
+			$this->counters['TYPE']['MESSENGER'] += $count;
+		}
 	}
 
 	protected function setFromComment(int $id, ?int $parentId, int $count): void
@@ -729,6 +854,7 @@ class CounterService
 		}
 
 		$this->counters['TYPE']['ALL'] += $count;
+		$this->counters['TYPE']['MESSENGER'] += $count;
 		$this->counters['CHANNEL_COMMENT'][$parentId][$id] = $count;
 	}
 
@@ -736,21 +862,21 @@ class CounterService
 	{
 		$this->counters['TYPE']['ALL'] += $count;
 		$this->counters['TYPE']['CHAT'] += $count;
+		$this->counters['TYPE']['MESSENGER'] += $count;
 		$this->counters['CHAT'][$id] = $count;
 	}
 
-	protected function getMapChatIdToParentId(array $counters): array
+	protected function getChatsInfo(array $counters): array
 	{
-		$commentChatIds = $this->getCommentChatIdsOnly($counters);
-
-		if (empty($commentChatIds))
+		$chatIds = array_map(static fn (array $counter): int => (int)$counter['CHAT_ID'], $counters);
+		if (empty($chatIds))
 		{
 			return [];
 		}
 
 		$raw = ChatTable::query()
-			->setSelect(['ID', 'PARENT_ID'])
-			->whereIn('ID', $commentChatIds)
+			->setSelect(['ID', 'PARENT_ID', 'ENTITY_TYPE'])
+			->whereIn('ID', $chatIds)
 			->fetchAll()
 		;
 		$result = [];
@@ -758,23 +884,10 @@ class CounterService
 		foreach ($raw as $row)
 		{
 			$chatId = (int)$row['ID'];
-			$parentId = (int)($row['PARENT_ID'] ?? 0);
-			$result[$chatId] = $parentId;
-		}
-
-		return $result;
-	}
-
-	protected function getCommentChatIdsOnly(array $counters): array
-	{
-		$result = [];
-
-		foreach ($counters as $counter)
-		{
-			if ($counter['CHAT_TYPE'] === Chat::IM_TYPE_COMMENT)
-			{
-				$result[] = (int)$counter['CHAT_ID'];
-			}
+			$result[$chatId] = [
+				'PARENT_ID' => (int)($row['PARENT_ID'] ?? 0),
+				'ENTITY_TYPE' => $row['ENTITY_TYPE'] ?? '',
+			];
 		}
 
 		return $result;
@@ -786,6 +899,7 @@ class CounterService
 			->setSelect([
 				'CHAT_ID' => 'ITEM_CID',
 				'CHAT_TYPE' => 'ITEM_TYPE',
+				'CHAT_ENTITY_TYPE' => 'CHAT.ENTITY_TYPE',
 				'IS_MUTED' => 'RELATION.NOTIFY_BLOCK',
 			])
 			->where('USER_ID', $this->getContext()->getUserId())

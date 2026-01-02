@@ -263,6 +263,7 @@ class Template
 				{
 					const imageField = new BX.Landing.UI.Field.Image({
 						id: '<?= $this->getFieldId($code, true) ?>',
+						contextType: BX.Landing.UI.Field.Image.CONTEXT_TYPE_SETTINGS,
 						disableLink: true,
                         disableAltField: true,
 						compactMode: <?= $codeHoverEdit ? 'false' : 'true' ?>,

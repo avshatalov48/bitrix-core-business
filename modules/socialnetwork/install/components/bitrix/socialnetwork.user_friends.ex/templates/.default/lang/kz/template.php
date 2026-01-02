@@ -1,0 +1,20 @@
+<?php
+$MESS["SONET_UFE_T_ACTIONS_TITLE"] = "Әрекеттер";
+$MESS["SONET_UFE_T_ACTION_ADDTOFRIENDS"] = "Достарды қосу";
+$MESS["SONET_UFE_T_ACTION_BAN"] = "Бұғаттау";
+$MESS["SONET_UFE_T_ACTION_EXCLUDEFROMFRIENDS"] = "Достар тізімінен шығару";
+$MESS["SONET_UFE_T_ACTION_EXCLUDEFROMFRIENDS_CONFIRM"] = "Сіз бұл пайдаланушыларды достар тізімінен шығарғыңыз келе ме?";
+$MESS["SONET_UFE_T_ACTION_FAILED"] = "Әрекет дұрыс емес аяқталу белгісін қайтарды: #ERROR#";
+$MESS["SONET_UFE_T_ACTION_UNBAN"] = "Бұғатты ашу";
+$MESS["SONET_UFE_T_BAN_SUBTITLE"] = "Бұғатталған пайдаланушылар";
+$MESS["SONET_UFE_T_FRIENDS_SUBTITLE"] = "Достар";
+$MESS["SONET_UFE_T_FRIEND_ID_INCORRECT"] = "Бір пайдаланушыны таңдаңыз.";
+$MESS["SONET_UFE_T_FRIEND_ID_INCORRECT_2"] = "Таңдалған пайдаланушылар операцияға сәйкес келмейді.";
+$MESS["SONET_UFE_T_FRIEND_ID_NOT_DEFINED"] = "Бірде-бір пайдаланушы таңдалмаған.";
+$MESS["SONET_UFE_T_MODULE_NOT_INSTALLED"] = "Әлеуметтік желі модулі орнатылмаған.";
+$MESS["SONET_UFE_T_NOT_ATHORIZED"] = "Сіз авторланбағансыз.";
+$MESS["SONET_UFE_T_NO_FRIENDS"] = "Достар жоқ";
+$MESS["SONET_UFE_T_NO_PERMS"] = "Бұл пайдаланушының достар тізімін басқаруға құқығыңыз жоқ.";
+$MESS["SONET_UFE_T_SESSION_WRONG"] = "Сіздің сессияңыз аяқталды, өтініш, әрекетті қайталаңыз.";
+$MESS["SONET_UFE_T_USER_ID_NOT_DEFINED"] = "Пайдаланушы табылмады.";
+$MESS["SONET_UFE_T_WAIT"] = "Өтініш, күтіңіз&hellip;";

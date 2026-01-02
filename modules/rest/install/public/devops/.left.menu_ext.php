@@ -46,6 +46,12 @@ if (Loader::includeModule('rest'))
 		$ext = 'ru';
 	}
 
+	$langMarket = Loc::getMessage('REST_MENU_DEVOPS_DOCUMENTATION_MARKET');
+	if (\Bitrix\Rest\Integration\Market\Label::isRenamedMarket())
+	{
+		$langMarket = Loc::getMessage('REST_MENU_DEVOPS_DOCUMENTATION_MARKET_MSGVER_1');
+	}
+
 	$subMenu = [
 		[
 			'TEXT' => Loc::getMessage("REST_MENU_DEVOPS_QUICK_START"),
@@ -66,7 +72,7 @@ if (Loader::includeModule('rest'))
 			'ID' => "menu_documentation_integration"
 		],
 		[
-			'TEXT' => Loc::getMessage("REST_MENU_DEVOPS_DOCUMENTATION_MARKET"),
+			'TEXT' => $langMarket,
 			'URL' => "https://apidocs.bitrix24.$ext/market/index.html",
 			'ON_CLICK' => 'window.open("' . CUtil::JSescape("https://apidocs.bitrix24.$ext/market/index.html") . '", "_blank"); return false;',
 			'ID' => "menu_documentation_market"

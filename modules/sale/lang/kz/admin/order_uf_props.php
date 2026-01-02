@@ -1,0 +1,27 @@
+<?php
+$MESS["SOPAN_4NEW_PROMT"] = "Төлеуші түрін таңдаңыз:";
+$MESS["SOPAN_ADD_NEW"] = "Жаңа қасиет";
+$MESS["SOPAN_ADD_NEW_ALT"] = "Жаңа қасиетті қосу үшін басыңыз";
+$MESS["USERTYPE_ADD_TITLE"] = "Пайдаланушылық өрісін қосу";
+$MESS["USERTYPE_DELETE_CONF"] = "Жойғыңыз келетініне сенімдісіз бе?";
+$MESS["USERTYPE_DEL_ERROR"] = "Өрісті жою қатесі";
+$MESS["USERTYPE_EDIT_IN_LIST"] = "Редакциялау";
+$MESS["USERTYPE_ENTITY_ID"] = "Объект";
+$MESS["USERTYPE_FIELD_NAME"] = "Өріс атауы";
+$MESS["USERTYPE_F_FIND"] = "Табу";
+$MESS["USERTYPE_IS_SEARCHABLE"] = "Іздеу";
+$MESS["USERTYPE_MANDATORY"] = "Мінд.";
+$MESS["USERTYPE_MULTIPLE"] = "Көп.";
+$MESS["USERTYPE_NAV"] = "Қасиеттері";
+$MESS["USERTYPE_PERSON"] = "Төлеушінің түрі";
+$MESS["USERTYPE_SHOW_FILTER"] = "Сүзгі";
+$MESS["USERTYPE_SHOW_IN_LIST"] = "Көрсетілімдер";
+$MESS["USERTYPE_SORT"] = "Сұрыптау";
+$MESS["USERTYPE_TITLE"] = "Пайдаланушы қасиеттері";
+$MESS["USERTYPE_UPDATE_ERROR"] = "Өзгерту қатесі.";
+$MESS["USERTYPE_USER_TYPE_ID"] = "Деректер түрі ";
+$MESS["USERTYPE_XML_ID"] = "XML_ID";
+$MESS["USER_TYPE_FILTER_E"] = "бүркеме бойынша іздеу";
+$MESS["USER_TYPE_FILTER_I"] = "дәл сәйкестік";
+$MESS["USER_TYPE_FILTER_N"] = "көрсетпеу";
+$MESS["USER_TYPE_FILTER_S"] = "ішкі жол бойынша іздеу";

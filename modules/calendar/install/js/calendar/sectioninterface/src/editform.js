@@ -19,6 +19,7 @@ export class EditForm extends EventEmitter
 		this.sectionManager = options.sectionManager;
 		this.closeCallback = options.closeCallback;
 		this.BX = Util.getBX();
+		this.calendarContext = options.calendarContext;
 		this.keyHandlerBinded = this.keyHandler.bind(this);
 	}
 
@@ -487,7 +488,9 @@ export class EditForm extends EventEmitter
 				},
 			];
 
-			if (Util.isProjectFeatureEnabled())
+			const calendarContext = this.calendarContext || Util.getCalendarContext();
+
+			if (calendarContext.util.config.projectFeatureEnabled)
 			{
 				entities.push({
 					id: 'project',
@@ -727,11 +730,3 @@ export class EditForm extends EventEmitter
 
 	}
 }
-
-
-
-
-
-
-
-

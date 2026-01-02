@@ -70,3 +70,46 @@ LANGUAGE 'plpgsql'
 IMMUTABLE
 CALLED ON NULL INPUT;
 
+CREATE OR REPLACE FUNCTION safe_text_for_tsvector(text_content text, config regconfig DEFAULT 'english')
+RETURNS text
+LANGUAGE plpgsql AS $$
+DECLARE
+    test TEXT;
+    search_position INTEGER;
+    step INTEGER;
+    direction INTEGER;
+BEGIN
+    IF text_content IS NULL THEN
+        RETURN NULL;
+    END IF;
+
+    BEGIN
+        PERFORM to_tsvector(config, text_content);
+        RETURN text_content;
+    EXCEPTION
+        WHEN program_limit_exceeded THEN
+        BEGIN
+            search_position := least(length(text_content), 1000000);
+            step := search_position / 2;
+            direction := -1;
+            LOOP
+                search_position := search_position + (step * direction);
+                BEGIN
+                    test := substring(text_content, 1, search_position);
+                    PERFORM to_tsvector(config, test);
+                    IF step < 32 THEN
+                        RETURN test;
+                    END IF;
+                    direction := 1;
+                EXCEPTION
+                    WHEN program_limit_exceeded THEN
+                        direction := -1;
+                END;
+                step := step / 2;
+            END LOOP;
+        END;
+    END;
+
+    RETURN '';
+END;
+$$;

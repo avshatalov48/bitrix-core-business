@@ -54,437 +54,437 @@ const popupModes = Object.freeze({
 });
 
 BitrixVue.component('bx-im-component-conference-public',
-{
-	components: {
-		Error, CheckDevices, OrientationDisabled, PasswordCheck, LoadingStatus,
-		RequestPermissions, MobileChatButton, ConferenceInfo, UserForm, ChatHeader, WaitingForStart, UserList, UserListHeader,
-		ConferenceSmiles
-	},
-	props: {
-		dialogId: { type: String, default: "0" }
-	},
-	data: function()
 	{
-		return {
-			waitingForStart: false,
-			popupMode: popupModes.preparation,
-			viewPortMetaNode: null,
-			chatDrag: false,
-			// in %
-			rightPanelSplitMode: {
-				usersHeight: 50,
-				chatHeight: 50,
-				chatMinHeight: 30,
-				chatMaxHeight: 80
-			}
-		};
-	},
-	created()
-	{
-		this.initEventHandlers();
-
-		EventEmitter.subscribe(EventType.conference.waitForStart, this.onWaitForStart);
-		EventEmitter.subscribe(EventType.conference.hideSmiles, this.onHideSmiles);
-
-		if (this.isMobile())
-		{
-			this.setMobileMeta();
-		}
-		else
-		{
-			document.body.classList.add('bx-im-application-call-desktop-state');
-		}
-
-		if (!this.isDesktop())
-		{
-			window.addEventListener('beforeunload', this.onBeforeUnload.bind(this));
-		}
-	},
-	mounted()
-	{
-		if (!this.isHttps())
-		{
-			this.getApplication().setError(ConferenceErrorCode.unsafeConnection);
-		}
-
-		if (!this.passwordChecked)
-		{
-			EventEmitter.emit(EventType.conference.setPasswordFocus);
-		}
-	},
-	beforeDestroy()
-	{
-		this.destroyHandlers();
-
-		EventEmitter.unsubscribe(EventType.conference.waitForStart, this.onWaitForStart);
-		EventEmitter.unsubscribe(EventType.conference.hideSmiles, this.onHideSmiles);
-
-		clearInterval(this.durationInterval);
-	},
-	computed:
-	{
-		EventType: () => EventType,
-		RightPanelMode: () => RightPanelMode,
-		userId()
-		{
-			return this.application.common.userId;
+		components: {
+			Error, CheckDevices, OrientationDisabled, PasswordCheck, LoadingStatus,
+			RequestPermissions, MobileChatButton, ConferenceInfo, UserForm, ChatHeader, WaitingForStart, UserList, UserListHeader,
+			ConferenceSmiles
 		},
-		dialogInited()
-		{
-			if (this.dialog)
-			{
-				return this.dialog.init;
-			}
+		props: {
+			dialogId: { type: String, default: "0" }
 		},
-		conferenceStarted()
+		data: function()
 		{
-			return this.conference.common.conferenceStarted;
-		},
-		hasErrorInCall()
-		{
-			return this.conference.common.hasErrorInCall;
-		},
-		userInited()
-		{
-			return this.conference.common.inited;
-		},
-		userHasRealName()
-		{
-			if (this.user)
-			{
-				return this.user.name !== this.localize['BX_IM_COMPONENT_CALL_DEFAULT_USER_NAME'];
-			}
-
-			return false;
-		},
-		rightPanelMode()
-		{
-			return this.conference.common.rightPanelMode;
-		},
-		userListClasses()
-		{
-			const result = [];
-			if (this.rightPanelMode === 'split')
-			{
-				result.push('bx-im-component-call-right-top');
-			}
-			else if (this.rightPanelMode === 'users')
-			{
-				result.push('bx-im-component-call-right-full');
-			}
-
-			return result;
-		},
-		userListStyles()
-		{
-			if (this.rightPanelMode !== RightPanelMode.split)
-			{
-				return {};
-			}
-
 			return {
-				height: `${this.rightPanelSplitMode.usersHeight}%`
-			}
+				waitingForStart: false,
+				popupMode: popupModes.preparation,
+				viewPortMetaNode: null,
+				chatDrag: false,
+				// in %
+				rightPanelSplitMode: {
+					usersHeight: 50,
+					chatHeight: 50,
+					chatMinHeight: 30,
+					chatMaxHeight: 80
+				},
+			};
 		},
-		chatClasses()
+		created()
 		{
-			const result = [];
-			if (this.rightPanelMode === 'split')
-			{
-				result.push('bx-im-component-call-right-bottom');
-			}
-			else if (this.rightPanelMode === 'chat')
-			{
-				result.push('bx-im-component-call-right-full');
-			}
+			this.initEventHandlers();
 
-			return result;
-		},
-		chatStyles()
-		{
-			if (this.rightPanelMode !== RightPanelMode.split)
-			{
-				return {};
-			}
+			EventEmitter.subscribe(EventType.conference.waitForStart, this.onWaitForStart);
+			EventEmitter.subscribe(EventType.conference.hideSmiles, this.onHideSmiles);
 
-			return {
-				height: `${this.rightPanelSplitMode.chatHeight}%`
-			}
-		},
-		isChatShowed()
-		{
-			return this.conference.common.showChat;
-		},
-		isPreparationStep()
-		{
-			return this.conference.common.state === ConferenceStateType.preparation;
-		},
-		isBroadcast()
-		{
-			return this.conference.common.isBroadcast;
-		},
-		presentersList()
-		{
-			return this.conference.common.presenters;
-		},
-		isCurrentUserPresenter()
-		{
-			return this.presentersList.includes(this.userId);
-		},
-		errorCode()
-		{
-			return this.conference.common.error;
-		},
-		passwordChecked()
-		{
-			return this.conference.common.passChecked;
-		},
-		permissionsRequested()
-		{
-			return this.conference.common.permissionsRequested;
-		},
-		callContainerClasses()
-		{
-			return [this.conference.common.callEnded ? 'with-clouds': ''];
-		},
-		wrapClasses()
-		{
-			const classes = ['bx-im-component-call-wrap'];
-
-			if (this.isMobile() && this.isBroadcast && !this.isCurrentUserPresenter && this.isPreparationStep)
-			{
-				classes.push('bx-im-component-call-mobile-viewer-mode');
-			}
-
-			return classes;
-		},
-		callComponentClasses()
-		{
-			return ['bx-im-component-call'];
-		},
-		chatId()
-		{
-			if (this.application)
-			{
-				return this.application.dialog.chatId;
-			}
-
-			return 0;
-		},
-		localize()
-		{
-			return BitrixVue.getFilteredPhrases(['BX_IM_COMPONENT_CALL_', 'IM_DIALOG_CLIPBOARD_']);
-		},
-		...Vuex.mapState({
-			conference: state => state.conference,
-			application: state => state.application,
-			user: state => state.users.collection[state.application.common.userId],
-			dialog: state => state.dialogues.collection[state.application.dialog.dialogId]
-		})
-	},
-	watch:
-	{
-		isChatShowed(newValue)
-		{
 			if (this.isMobile())
 			{
-				return false;
+				this.setMobileMeta();
+			}
+			else
+			{
+				document.body.classList.add('bx-im-application-call-desktop-state');
 			}
 
-			if (newValue === true)
+			if (!this.isDesktop())
 			{
-				this.$nextTick(() => {
-					EventEmitter.emit(EventType.dialog.scrollOnStart, {chatId: this.chatId});
+				window.addEventListener('beforeunload', this.onBeforeUnload.bind(this));
+			}
+		},
+		mounted()
+		{
+			if (!this.isHttps())
+			{
+				this.getApplication().setError(ConferenceErrorCode.unsafeConnection);
+			}
+
+			if (!this.passwordChecked)
+			{
+				EventEmitter.emit(EventType.conference.setPasswordFocus);
+			}
+		},
+		beforeDestroy()
+		{
+			this.destroyHandlers();
+
+			EventEmitter.unsubscribe(EventType.conference.waitForStart, this.onWaitForStart);
+			EventEmitter.unsubscribe(EventType.conference.hideSmiles, this.onHideSmiles);
+
+			clearInterval(this.durationInterval);
+		},
+		computed:
+			{
+				EventType: () => EventType,
+				RightPanelMode: () => RightPanelMode,
+				userId()
+				{
+					return this.application.common.userId;
+				},
+				dialogInited()
+				{
+					if (this.dialog)
+					{
+						return this.dialog.init;
+					}
+				},
+				conferenceStarted()
+				{
+					return this.conference.common.conferenceStarted;
+				},
+				hasErrorInCall()
+				{
+					return this.conference.common.hasErrorInCall;
+				},
+				userInited()
+				{
+					return this.conference.common.inited;
+				},
+				userHasRealName()
+				{
+					if (this.user)
+					{
+						return this.user.name !== this.localize['BX_IM_COMPONENT_CALL_DEFAULT_USER_NAME'];
+					}
+
+					return false;
+				},
+				rightPanelMode()
+				{
+					return this.conference.common.rightPanelMode;
+				},
+				userListClasses()
+				{
+					const result = [];
+					if (this.rightPanelMode === 'split')
+					{
+						result.push('bx-im-component-call-right-top');
+					}
+					else if (this.rightPanelMode === 'users')
+					{
+						result.push('bx-im-component-call-right-full');
+					}
+
+					return result;
+				},
+				userListStyles()
+				{
+					if (this.rightPanelMode !== RightPanelMode.split)
+					{
+						return {};
+					}
+
+					return {
+						height: `${this.rightPanelSplitMode.usersHeight}%`
+					}
+				},
+				chatClasses()
+				{
+					const result = [];
+					if (this.rightPanelMode === 'split')
+					{
+						result.push('bx-im-component-call-right-bottom');
+					}
+					else if (this.rightPanelMode === 'chat')
+					{
+						result.push('bx-im-component-call-right-full');
+					}
+
+					return result;
+				},
+				chatStyles()
+				{
+					if (this.rightPanelMode !== RightPanelMode.split)
+					{
+						return {};
+					}
+
+					return {
+						height: `${this.rightPanelSplitMode.chatHeight}%`
+					}
+				},
+				isChatShowed()
+				{
+					return this.conference.common.showChat;
+				},
+				isPreparationStep()
+				{
+					return this.conference.common.state === ConferenceStateType.preparation;
+				},
+				isBroadcast()
+				{
+					return this.conference.common.isBroadcast;
+				},
+				presentersList()
+				{
+					return this.conference.common.presenters;
+				},
+				isCurrentUserPresenter()
+				{
+					return this.presentersList.includes(this.userId);
+				},
+				errorCode()
+				{
+					return this.conference.common.error;
+				},
+				passwordChecked()
+				{
+					return this.conference.common.passChecked;
+				},
+				permissionsRequested()
+				{
+					return this.conference.common.permissionsRequested;
+				},
+				callContainerClasses()
+				{
+					return [this.conference.common.callEnded ? 'with-clouds': ''];
+				},
+				wrapClasses()
+				{
+					const classes = ['bx-im-component-call-wrap'];
+
+					if (this.isMobile() && this.isBroadcast && !this.isCurrentUserPresenter && this.isPreparationStep)
+					{
+						classes.push('bx-im-component-call-mobile-viewer-mode');
+					}
+
+					return classes;
+				},
+				callComponentClasses()
+				{
+					return ['bx-im-component-call'];
+				},
+				chatId()
+				{
+					if (this.application)
+					{
+						return this.application.dialog.chatId;
+					}
+
+					return 0;
+				},
+				localize()
+				{
+					return BitrixVue.getFilteredPhrases(['BX_IM_COMPONENT_CALL_', 'IM_DIALOG_CLIPBOARD_']);
+				},
+				...Vuex.mapState({
+					conference: state => state.conference,
+					application: state => state.application,
+					user: state => state.users.collection[state.application.common.userId],
+					dialog: state => state.dialogues.collection[state.application.dialog.dialogId]
+				})
+			},
+		watch:
+			{
+				isChatShowed(newValue)
+				{
+					if (this.isMobile())
+					{
+						return false;
+					}
+
+					if (newValue === true)
+					{
+						this.$nextTick(() => {
+							EventEmitter.emit(EventType.dialog.scrollOnStart, {chatId: this.chatId});
+							EventEmitter.emit(EventType.textarea.setFocus);
+						});
+					}
+				},
+				rightPanelMode(newValue)
+				{
+					if (newValue === RightPanelMode.chat || newValue === RightPanelMode.split)
+					{
+						this.$nextTick(() => {
+							EventEmitter.emit(EventType.dialog.scrollOnStart, {chatId: this.chatId});
+							EventEmitter.emit(EventType.textarea.setFocus);
+						});
+					}
+				},
+				dialogInited(newValue)
+				{
+					if (newValue === true)
+					{
+						this.getApplication().setDialogInited();
+					}
+				},
+				//to skip request permissions step in desktop
+				userInited(newValue)
+				{
+					if (newValue === true && this.isDesktop() && this.passwordChecked)
+					{
+						this.$nextTick(() => {
+							EventEmitter.emit(EventType.conference.requestPermissions);
+						});
+					}
+				},
+				user()
+				{
+					if (this.user && this.userHasRealName)
+					{
+						this.getApplication().setUserWasRenamed();
+					}
+				}
+			},
+		methods:
+			{
+				initEventHandlers()
+				{
+					this.sendMessageHandler = new SendMessageHandler(this.$Bitrix);
+					this.textareaHandler = new ConferenceTextareaHandler(this.$Bitrix);
+					this.readingHandler = new ReadingHandler(this.$Bitrix);
+					this.reactionHandler = new ReactionHandler(this.$Bitrix);
+					this.textareaUploadHandler = new ConferenceTextareaUploadHandler(this.$Bitrix);
+				},
+				destroyHandlers()
+				{
+					this.sendMessageHandler.destroy();
+					this.textareaHandler.destroy();
+					this.readingHandler.destroy();
+					this.reactionHandler.destroy();
+					this.textareaUploadHandler.destroy();
+				},
+				onHideSmiles()
+				{
+					this.getApplication().toggleSmiles();
+				},
+				onBeforeUnload(event)
+				{
+					if (!this.getApplication().callView)
+					{
+						return;
+					}
+
+					if (!this.isPreparationStep)
+					{
+						event.preventDefault();
+						event.returnValue = '';
+					}
+				},
+				onSmilesSelectSmile(event)
+				{
+					EventEmitter.emit(EventType.textarea.insertText, { text: event.text });
+				},
+				onSmilesSelectSet()
+				{
 					EventEmitter.emit(EventType.textarea.setFocus);
-				});
-			}
-		},
-		rightPanelMode(newValue)
-		{
-			if (newValue === RightPanelMode.chat || newValue === RightPanelMode.split)
-			{
-				this.$nextTick(() => {
-					EventEmitter.emit(EventType.dialog.scrollOnStart, {chatId: this.chatId});
-					EventEmitter.emit(EventType.textarea.setFocus);
-				});
-			}
-		},
-		dialogInited(newValue)
-		{
-			if (newValue === true)
-			{
-				this.getApplication().setDialogInited();
-			}
-		},
-		//to skip request permissions step in desktop
-		userInited(newValue)
-		{
-			if (newValue === true && this.isDesktop() && this.passwordChecked)
-			{
-				this.$nextTick(() => {
-					EventEmitter.emit(EventType.conference.requestPermissions);
-				});
-			}
-		},
-		user()
-		{
-			if (this.user && this.userHasRealName)
-			{
-				this.getApplication().setUserWasRenamed();
-			}
-		}
-	},
-	methods:
-	{
-		initEventHandlers()
-		{
-			this.sendMessageHandler = new SendMessageHandler(this.$Bitrix);
-			this.textareaHandler = new ConferenceTextareaHandler(this.$Bitrix);
-			this.readingHandler = new ReadingHandler(this.$Bitrix);
-			this.reactionHandler = new ReactionHandler(this.$Bitrix);
-			this.textareaUploadHandler = new ConferenceTextareaUploadHandler(this.$Bitrix);
-		},
-		destroyHandlers()
-		{
-			this.sendMessageHandler.destroy();
-			this.textareaHandler.destroy();
-			this.readingHandler.destroy();
-			this.reactionHandler.destroy();
-			this.textareaUploadHandler.destroy();
-		},
-		onHideSmiles()
-		{
-			this.getApplication().toggleSmiles();
-		},
-		onBeforeUnload(event)
-		{
-			if (!this.getApplication().callView)
-			{
-				return;
-			}
+				},
+				onWaitForStart()
+				{
+					this.waitingForStart = true;
+				},
+				onChatStartDrag(event)
+				{
+					if (this.chatDrag)
+					{
+						return;
+					}
 
-			if (!this.isPreparationStep)
-			{
-				event.preventDefault();
-                event.returnValue = '';
-			}
-		},
-		onSmilesSelectSmile(event)
-		{
-			EventEmitter.emit(EventType.textarea.insertText, { text: event.text });
-		},
-		onSmilesSelectSet()
-		{
-			EventEmitter.emit(EventType.textarea.setFocus);
-		},
-		onWaitForStart()
-		{
-			this.waitingForStart = true;
-		},
-		onChatStartDrag(event)
-		{
-			if (this.chatDrag)
-			{
-				return;
-			}
+					this.chatDrag = true;
 
-			this.chatDrag = true;
+					this.chatDragStartPoint = event.clientY;
+					this.chatDragStartHeight = this.rightPanelSplitMode.chatHeight;
 
-			this.chatDragStartPoint = event.clientY;
-			this.chatDragStartHeight = this.rightPanelSplitMode.chatHeight;
+					this.addChatDragEvents();
+				},
+				onChatContinueDrag(event)
+				{
+					if (!this.chatDrag)
+					{
+						return;
+					}
 
-			this.addChatDragEvents();
-		},
-		onChatContinueDrag(event)
-		{
-			if (!this.chatDrag)
-			{
-				return;
-			}
+					this.chatDragControlPoint = event.clientY;
+					const availableHeight = document.body.clientHeight;
 
-			this.chatDragControlPoint = event.clientY;
-			const availableHeight = document.body.clientHeight;
+					const maxHeightInPx = availableHeight * (this.rightPanelSplitMode.chatMaxHeight / 100);
+					const minHeightInPx = availableHeight * (this.rightPanelSplitMode.chatMinHeight / 100)
+					const startHeightInPx = availableHeight * (this.chatDragStartHeight / 100);
+					const chatHeightInPx = Math.max(
+						Math.min(startHeightInPx + this.chatDragStartPoint - this.chatDragControlPoint, maxHeightInPx),
+						minHeightInPx
+					);
 
-			const maxHeightInPx = availableHeight * (this.rightPanelSplitMode.chatMaxHeight / 100);
-			const minHeightInPx = availableHeight * (this.rightPanelSplitMode.chatMinHeight / 100)
-			const startHeightInPx = availableHeight * (this.chatDragStartHeight / 100);
-			const chatHeightInPx = Math.max(
-				Math.min(startHeightInPx + this.chatDragStartPoint - this.chatDragControlPoint, maxHeightInPx),
-				minHeightInPx
-			);
+					const chatHeight = (chatHeightInPx / availableHeight) * 100;
 
-			const chatHeight = (chatHeightInPx / availableHeight) * 100;
+					if (this.rightPanelSplitMode.chatHeight !== chatHeight)
+					{
+						this.rightPanelSplitMode.chatHeight = chatHeight;
+						this.rightPanelSplitMode.usersHeight = 100 - chatHeight;
+					}
+				},
+				onChatStopDrag(event)
+				{
+					if (!this.chatDrag)
+					{
+						return;
+					}
 
-			if (this.rightPanelSplitMode.chatHeight !== chatHeight)
-			{
-				this.rightPanelSplitMode.chatHeight = chatHeight;
-				this.rightPanelSplitMode.usersHeight = 100 - chatHeight;
-			}
-		},
-		onChatStopDrag(event)
-		{
-			if (!this.chatDrag)
-			{
-				return;
-			}
+					this.chatDrag = false;
+					this.removeChatDragEvents();
+					EventEmitter.emit(EventType.dialog.scrollToBottom, {chatId: this.chatId, force: true});
+				},
+				addChatDragEvents()
+				{
+					document.addEventListener('mousemove', this.onChatContinueDrag);
+					document.addEventListener('mouseup', this.onChatStopDrag);
+					document.addEventListener('mouseleave', this.onChatStopDrag);
+				},
+				removeChatDragEvents()
+				{
+					document.removeEventListener('mousemove', this.onChatContinueDrag);
+					document.removeEventListener('mouseup', this.onChatStopDrag);
+					document.removeEventListener('mouseleave', this.onChatStopDrag);
+				},
 
-			this.chatDrag = false;
-			this.removeChatDragEvents();
-			EventEmitter.emit(EventType.dialog.scrollToBottom, {chatId: this.chatId, force: true});
-		},
-		addChatDragEvents()
-		{
-			document.addEventListener('mousemove', this.onChatContinueDrag);
-			document.addEventListener('mouseup', this.onChatStopDrag);
-			document.addEventListener('mouseleave', this.onChatStopDrag);
-		},
-		removeChatDragEvents()
-		{
-			document.removeEventListener('mousemove', this.onChatContinueDrag);
-			document.removeEventListener('mouseup', this.onChatStopDrag);
-			document.removeEventListener('mouseleave', this.onChatStopDrag);
-		},
+				isMobile()
+				{
+					return Utils.device.isMobile();
+				},
+				isDesktop()
+				{
+					return Utils.platform.isBitrixDesktop();
+				},
+				setMobileMeta()
+				{
+					if (!this.viewPortMetaNode)
+					{
+						this.viewPortMetaNode = document.createElement('meta');
+						this.viewPortMetaNode.setAttribute('name', 'viewport');
+						this.viewPortMetaNode.setAttribute("content", "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0");
+						document.head.appendChild(this.viewPortMetaNode);
+					}
 
-		isMobile()
-		{
-			return Utils.device.isMobile();
-		},
-		isDesktop()
-		{
-			return Utils.platform.isBitrixDesktop();
-		},
-		setMobileMeta()
-		{
-			if (!this.viewPortMetaNode)
-			{
-				this.viewPortMetaNode = document.createElement('meta');
-				this.viewPortMetaNode.setAttribute('name', 'viewport');
-				this.viewPortMetaNode.setAttribute("content", "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0");
-				document.head.appendChild(this.viewPortMetaNode);
-			}
+					document.body.classList.add('bx-im-application-call-mobile-state');
 
-			document.body.classList.add('bx-im-application-call-mobile-state');
-
-			if (Utils.browser.isSafariBased())
-			{
-				document.body.classList.add('bx-im-application-call-mobile-safari-based');
-			}
-		},
-		isHttps()
-		{
-			return location.protocol === 'https:';
-		},
-		getUserHash()
-		{
-			return this.conference.user.hash;
-		},
-		getApplication()
-		{
-			return this.$Bitrix.Application.get();
-		},
-		/* endregion 03. Helpers */
-	},
-	template: `
+					if (Utils.browser.isSafariBased())
+					{
+						document.body.classList.add('bx-im-application-call-mobile-safari-based');
+					}
+				},
+				isHttps()
+				{
+					return location.protocol === 'https:';
+				},
+				getUserHash()
+				{
+					return this.conference.user.hash;
+				},
+				getApplication()
+				{
+					return this.$Bitrix.Application.get();
+				},
+				/* endregion 03. Helpers */
+			},
+		template: `
 	<div :class="wrapClasses">
 		<div :class="callComponentClasses">
 			<div class="bx-im-component-call-left">
@@ -621,4 +621,4 @@ BitrixVue.component('bx-im-component-conference-public',
 		</div>
 	</div>
 	`
-});
+	});

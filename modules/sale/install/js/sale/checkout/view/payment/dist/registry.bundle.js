@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
 this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
@@ -40,7 +41,6 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	    getChecksByPaymentId: function getChecksByPaymentId(paymentId) {
 	      var result = [];
 	      var list = this.check;
-
 	      if (main_core.Type.isArrayFilled(list)) {
 	        list.forEach(function (fields) {
 	          if (fields.paymentId === paymentId) {
@@ -53,7 +53,6 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	          }
 	        });
 	      }
-
 	      return result;
 	    },
 	    getFirstPaymentPaidY: function getFirstPaymentPaidY() {
@@ -68,7 +67,6 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	    prepare: function prepare() {
 	      var result = null;
 	      var item = this.getFirstPaymentPaidY();
-
 	      if (item !== null) {
 	        var paySystem = this.getPaySystemById(item.paySystemId);
 	        var list = [];
@@ -99,7 +97,6 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	          paymentProcess: paymentProcess
 	        };
 	      }
-
 	      return result;
 	    },
 	    sumFormatted: function sumFormatted(item) {

@@ -16,7 +16,7 @@ if (isset($_REQUEST['action']) && $_REQUEST['action'] === 'attachUrlPreview')
 	session_write_close();
 
 	$urlMetadata = null;
-	$userFieldId = filter_var($_REQUEST['userFieldId'], FILTER_VALIDATE_INT);
+	$userFieldId = filter_var($_REQUEST['userFieldId'] ?? null, FILTER_VALIDATE_INT);
 	$elementId = filter_var($_REQUEST['elementId'], FILTER_SANITIZE_STRING);
 
 	if($userFieldId === false)

@@ -1,0 +1,3 @@
+<?php
+$MESS["CATALOG_VIEWED_PRODUCTS_MAIL_TITLE"] = "Тауарлар блогы";
+$MESS["CATALOG_VIEWED_PRODUCTS_MAIL_YET"] = "Толығырақ";

@@ -30,19 +30,24 @@ this.BX = this.BX || {};
 	    key: "createGlobals",
 	    value: function createGlobals(mode, documentType, name, additionContext) {
 	      var customName = main_core.Type.isStringFilled(name) ? name : '';
-	      var visibility = null;
-	      var availableTypes = [];
-	      if (main_core.Type.isPlainObject(additionContext)) {
-	        visibility = main_core.Type.isStringFilled(additionContext.visibility) ? additionContext.visibility : null;
-	        availableTypes = main_core.Type.isArrayFilled(additionContext.availableTypes) ? additionContext.availableTypes : [];
-	      }
-	      return this.constructor.openSlider(main_core.Uri.addParam(this.editUrl, {
+	      var url = main_core.Uri.addParam(this.editUrl, {
 	        documentType: documentType,
 	        mode: this.mode[mode],
-	        name: customName,
-	        visibility: visibility,
-	        availableTypes: availableTypes
-	      }), this.editSliderOptions);
+	        name: customName
+	      });
+	      if (main_core.Type.isPlainObject(additionContext)) {
+	        if (main_core.Type.isStringFilled(additionContext.visibility)) {
+	          url = main_core.Uri.addParam(url, {
+	            visibility: additionContext.visibility
+	          });
+	        }
+	        if (main_core.Type.isArrayFilled(additionContext.availableTypes)) {
+	          url = main_core.Uri.addParam(url, {
+	            availableTypes: additionContext.availableTypes
+	          });
+	        }
+	      }
+	      return this.constructor.openSlider(url, this.editSliderOptions);
 	    }
 	  }, {
 	    key: "editGlobals",

@@ -1,24 +1,16 @@
-import { Loc } from 'main.core';
-
-import { ChatType } from 'im.v2.const';
-import { EditableChatTitle, LineLoader } from 'im.v2.component.elements';
+import { LineLoader } from 'im.v2.component.elements.loader';
+import { EditableChatTitle } from 'im.v2.component.elements.chat-title';
 import { FadeAnimation } from 'im.v2.component.animation';
 
 import { EntityLink } from '../entity-link/entity-link';
+import { UserCounter } from './user-counter';
 
 import type { ImModelChat } from 'im.v2.model';
-
-const UserCounterPhraseCodeByChatType = {
-	[ChatType.openChannel]: 'IM_CONTENT_CHAT_HEADER_CHANNEL_USER_COUNT',
-	[ChatType.channel]: 'IM_CONTENT_CHAT_HEADER_CHANNEL_USER_COUNT',
-	[ChatType.generalChannel]: 'IM_CONTENT_CHAT_HEADER_CHANNEL_USER_COUNT',
-	default: 'IM_CONTENT_CHAT_HEADER_USER_COUNT',
-};
 
 // @vue/component
 export const GroupChatTitle = {
 	name: 'GroupChatTitle',
-	components: { EditableChatTitle, EntityLink, LineLoader, FadeAnimation },
+	components: { EditableChatTitle, EntityLink, LineLoader, FadeAnimation, UserCounter },
 	inject: ['withSidebar'],
 	props:
 	{
@@ -27,7 +19,7 @@ export const GroupChatTitle = {
 			required: true,
 		},
 	},
-	emits: ['membersClick', 'newTitle'],
+	emits: ['newTitle'],
 	computed:
 	{
 		dialog(): ImModelChat
@@ -38,36 +30,9 @@ export const GroupChatTitle = {
 		{
 			return Boolean(this.dialog.entityLink?.url);
 		},
-		userCounterPhraseCode(): string
-		{
-			return UserCounterPhraseCodeByChatType[this.dialog.type] ?? UserCounterPhraseCodeByChatType.default;
-		},
-		userCounterText(): string
-		{
-			return Loc.getMessagePlural(this.userCounterPhraseCode, this.dialog.userCounter, {
-				'#COUNT#': this.dialog.userCounter,
-			});
-		},
-		needShowSubtitleCursor(): boolean
-		{
-			return this.withSidebar;
-		},
-		sidebarTooltipText(): string
-		{
-			return this.withSidebar ? this.loc('IM_CONTENT_CHAT_HEADER_OPEN_MEMBERS') : '';
-		},
 	},
 	methods:
 	{
-		onMembersClick()
-		{
-			if (!this.withSidebar)
-			{
-				return;
-			}
-
-			this.$emit('membersClick');
-		},
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
@@ -79,14 +44,7 @@ export const GroupChatTitle = {
 			<LineLoader v-if="!dialog.inited" :width="50" :height="16" />
 			<FadeAnimation :duration="100">
 				<div v-if="dialog.inited" class="bx-im-chat-header__subtitle_container">
-					<div
-						:title="sidebarTooltipText"
-						@click="onMembersClick"
-						class="bx-im-chat-header__subtitle_content"
-						:class="{'--click': needShowSubtitleCursor}"
-					>
-						{{ userCounterText }}
-					</div>
+					<UserCounter :dialogId="dialogId" />
 					<EntityLink v-if="hasEntityLink" :dialogId="dialogId" />
 				</div>
 			</FadeAnimation>

@@ -1,0 +1,25 @@
+<?php
+$MESS["EC_PL_ATTENDEES_LAST"] = "Қалған қатысушылар";
+$MESS["EC_PL_ATTENDEES_SHOW_MORE"] = "Тағы да қатысушылар";
+$MESS["EC_PL_ATTENDEES_TITLE"] = "Қызметкерлер";
+$MESS["EC_PL_GOTO_NOW"] = "Ағымдағы күнге өту";
+$MESS["EC_PL_LOCKED_TITLE"] = "Бос уақытты таңдау сіздің тарифіңізде қолжетімсіз";
+$MESS["EC_PL_PROPOSE"] = "Бос уақыт";
+$MESS["EC_PL_PROPOSE_NO_RESULT"] = "Өкінішті, жақын арада кездесудің ыңғайлы уақытын табу мүмкін болмады";
+$MESS["EC_PL_RESOURCE_TITLE"] = "Ресурстар";
+$MESS["EC_PL_SETTINGS"] = "Баптаулар";
+$MESS["EC_PL_SETTINGS_SCALE"] = "Масштабы";
+$MESS["EC_PL_SETTINGS_SCALE_1DAY"] = "1 күн";
+$MESS["EC_PL_SETTINGS_SCALE_1HOUR"] = "1 сағат";
+$MESS["EC_PL_SETTINGS_SCALE_2HOUR"] = "2 сағат";
+$MESS["EC_PL_SETTINGS_SCALE_15MIN"] = "15 мин";
+$MESS["EC_PL_SETTINGS_SCALE_30MIN"] = "30 мин";
+$MESS["EC_PL_SETTINGS_SCALE_ACCURACY"] = "Көрсетілетін уақыт";
+$MESS["EC_PL_SETTINGS_SCALE_READONLY_TITLE"] = "Масштабты өзгерту үшін 'күні бойы' опциясын өшіріңіз";
+$MESS["EC_PL_SETTINGS_SCALE_TIME"] = "Көрсетілетін уақыт";
+$MESS["EC_PL_STATUS_H"] = "Ұйымдастырушы";
+$MESS["EC_PL_STATUS_N"] = "Бас тартты";
+$MESS["EC_PL_STATUS_Q"] = "Қатысу расталған жоқ";
+$MESS["EC_PL_STATUS_TZALL"] = "Қатысушылардың кейбіреулері басқа уақыт белдеуінде";
+$MESS["EC_PL_STATUS_Y"] = "Қатысуын растады";
+$MESS["EC_PL_UNLOCK_FEATURE"] = "тарифті кеңейту";

@@ -53,7 +53,7 @@ class PlainTemplate extends Template
 	 */
 	protected function buildRobotText()
 	{
-		return '[i]'. Loc::getMessage('IM_BIZPROC_MESSAGE_PLAIN_TEMPLATE_SENT_BY_ROBOT') .'[/i]';
+		return '[size=10][i]'. Loc::getMessage('IM_BIZPROC_MESSAGE_PLAIN_TEMPLATE_SENT_BY_ROBOT') .'[/i][/size]';
 	}
 
 	protected function validate(): void

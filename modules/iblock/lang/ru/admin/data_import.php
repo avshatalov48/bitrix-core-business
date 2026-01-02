@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_ADM_IMP_NO_DATA_FILE"] = "Файл с данными не загружен и не выбран. Загрузка невозможна.";
 $MESS["IBLOCK_ADM_IMP_NO_DATA_FILE_SIMPLE"] = "Файл с данными не выбран. Загрузка невозможна.";
 $MESS["IBLOCK_ADM_IMP_NO_IBLOCK"] = "Информационный блок не выбран. Загрузка невозможна.";
@@ -95,4 +95,3 @@ $MESS["IBLOCK_ADM_IMP_FG_CODE"] = "Мнемонический код";
 $MESS["IBLOCK_ADM_IMP_IMG_RESIZE"] = "Использовать настройки инфоблока для обработки изображений";
 $MESS["IBLOCK_ADM_IMP_PROP_PATH"] = "Путь к файлам для свойств типа файл";
 $MESS["IBLOCK_ADM_IMP_PROP_PATH_DESCR"] = "Полный путь будет формироваться от корня сайта как \"&lt;путь к файлам свойств&gt;/&lt;имя файла&gt;\"";
-?>

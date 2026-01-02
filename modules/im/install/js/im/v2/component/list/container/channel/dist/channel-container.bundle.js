@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_component_list_items_channel,im_v2_component_elements,im_v2_const,im_v2_lib_analytics,im_v2_lib_logger,im_v2_lib_promo,im_v2_lib_createChat) {
+(function (exports,im_v2_component_list_items_channel,im_v2_component_list_container_elements_createChatPromo,im_v2_const,im_v2_lib_analytics,im_v2_lib_logger,im_v2_lib_promo,im_v2_lib_createChat) {
 	'use strict';
 
 	// @vue/component
@@ -11,7 +11,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  name: 'ChannelListContainer',
 	  components: {
 	    ChannelList: im_v2_component_list_items_channel.ChannelList,
-	    CreateChatPromo: im_v2_component_elements.CreateChatPromo
+	    CreateChatPromo: im_v2_component_list_container_elements_createChatPromo.CreateChatPromo
 	  },
 	  emits: ['selectEntity'],
 	  data() {
@@ -28,7 +28,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  methods: {
 	    onChatClick(dialogId) {
 	      this.$emit('selectEntity', {
-	        layoutName: im_v2_const.Layout.channel.name,
+	        layoutName: im_v2_const.Layout.channel,
 	        entityId: dialogId
 	      });
 	    },
@@ -76,5 +76,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.ChannelListContainer = ChannelListContainer;
 
-}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.List,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=channel-container.bundle.js.map

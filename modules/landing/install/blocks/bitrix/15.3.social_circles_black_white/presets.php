@@ -189,14 +189,14 @@ $result = [
 		'name' => '<span class="fa fa-vk"></span> '.Loc::getMessage('LANDING_BLOCK__SOCIAL_VK'),
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-15 g-mr-0--last g-mb-0"
 			data-card-preset="vk">
-			<a class="landing-block-node-icon landing-block-node-list-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v1--hover g-bg-gray-light-v1 g-color-black text-center" href="https://vk.com/" target="_blank">
+			<a class="landing-block-node-icon landing-block-node-list-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v1--hover g-bg-gray-light-v1 g-color-black text-center" href="https://vk.ru/" target="_blank">
 				<i class="landing-block-node-list-icon fa fa-vk"></i>
 			</a>
 		</li>',
 		'disallow' => ['.landing-block-node-list-icon'],
 		'values' => [
 			'.landing-block-node-list-link' => [
-				'href' => 'https://vk.com/',
+				'href' => 'https://vk.ru/',
 				'target' => '_blank',
 			],
 			'.landing-block-node-list-icon' => [
@@ -551,7 +551,7 @@ $resultCnZone = [
 	],
 ];
 
-if (!in_array(Manager::getZone(), ['ru', 'kz', 'by']))
+if (!in_array(Manager::getZone(), ['ru', 'kz', 'by', 'uz']))
 {
 	unset($result['vk'], $result['odnoklassniki']);
 }

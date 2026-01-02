@@ -762,6 +762,18 @@ class Message
 		}
 	}
 
+	/**
+	 * @param int $mailboxId
+	 * @param int $userId
+	 *
+	 * @return bool
+	 *
+	 * @use MailboxAccess::isMailboxOwner and
+	 * @use MailboxAccess::isMailboxSharedWithUser
+	 * @deprecated
+	 *
+	 * checked if the user has access to the mailbox by using getTheOwnersMailboxes and getTheSharedMailboxes from MailboxTable
+	 */
 	public static function isMailboxOwner(int $mailboxId, int $userId): bool
 	{
 		return (bool)MailboxTable::getUserMailbox($mailboxId, $userId);
@@ -822,11 +834,15 @@ class Message
 	 */
 	public static function replaceBodyInlineImgContentId(string $body, string $contentId, int $attachmentId): string
 	{
-		return (string)preg_replace(
+		Ini::adjustPcreBacktrackLimit(strlen($body)*2);
+
+		$replacedBody = preg_replace(
 			sprintf('/<img([^>]+)src\s*=\s*(\'|\")?\s*((?:http:\/\/)?cid:%s)\s*\2([^>]*)>/is', preg_quote($contentId, '/')),
 			sprintf('<img\1src="aid:%u"\4>', $attachmentId),
 			$body
 		);
+
+		return $replacedBody ?? $body;
 	}
 
 	public static function isolateBase64Files(string $text): string

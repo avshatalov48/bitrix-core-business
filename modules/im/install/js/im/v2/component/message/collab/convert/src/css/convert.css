@@ -1,0 +1,45 @@
+.bx-im-message-collab-convert__container {
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	gap: var(--ui-space-stack-xs2);
+	width: 550px;
+	background-color: var(--ui-color-base-white-fixed, #FFFFFF);
+	border-radius: 16px;
+	user-select: none;
+}
+
+.bx-im-message-collab-convert__image {
+	width: 156px;
+	min-width: 156px;
+	height: 155px;
+	background: url("./images/convert.svg") no-repeat center center;
+}
+
+.bx-im-message-collab-convert__content {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: var(--ui-space-stack-xs);
+	width: 350px;
+}
+
+.bx-im-message-collab-convert__title {
+	color: var(--ui-color-base-1, #333);
+	font-size: 17px;
+	font-style: normal;
+	font-weight: var(--ui-font-weight-semi-bold);
+	line-height: 23px;
+	letter-spacing:  -0.1px;
+	user-select: none;
+}
+
+.bx-im-message-collab-convert__description {
+	color: var(--ui-color-base-2, #525C69);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: var(--ui-font-weight-normal);
+	line-height: 19px;
+	letter-spacing: -0.05px;
+	user-select: none;
+}

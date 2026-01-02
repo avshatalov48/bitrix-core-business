@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_provider_service,im_v2_component_message_base,im_v2_component_elements) {
+(function (exports,im_v2_provider_service_sending,im_v2_component_message_base,im_v2_component_elements_avatar) {
 	'use strict';
 
 	// @vue/component
@@ -11,7 +11,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  name: 'ChatCopilotCreationMessage',
 	  components: {
 	    BaseMessage: im_v2_component_message_base.BaseMessage,
-	    MessageAvatar: im_v2_component_elements.MessageAvatar
+	    MessageAvatar: im_v2_component_elements_avatar.MessageAvatar
 	  },
 	  props: {
 	    item: {
@@ -24,7 +24,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  computed: {
-	    AvatarSize: () => im_v2_component_elements.AvatarSize,
+	    AvatarSize: () => im_v2_component_elements_avatar.AvatarSize,
 	    message() {
 	      return this.item;
 	    },
@@ -57,7 +57,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getSendingService() {
 	      if (!this.sendingService) {
-	        this.sendingService = im_v2_provider_service.SendingService.getInstance();
+	        this.sendingService = im_v2_provider_service_sending.SendingService.getInstance();
 	      }
 	      return this.sendingService;
 	    },

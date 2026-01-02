@@ -3,12 +3,13 @@ import { Type } from 'main.core';
 import { Logger } from 'im.v2.lib.logger';
 import { NewMessageManager } from 'im.v2.provider.pull';
 import { Core } from 'im.v2.application.core';
-import { CounterType } from 'im.v2.const';
+import { CounterType, RecentType } from 'im.v2.const';
 
-import type { ImModelRecentItem } from 'im.v2.model';
 import type { MessageAddParams, PullExtraParams, ReadMessageParams, UnreadMessageParams } from 'im.v2.provider.pull';
 import type { ChatMuteNotifyParams, ChatUnreadParams } from './types/chat';
 import type { MessageDeleteCompleteParams } from './types/message';
+
+type RecentTypeItem = $Values<typeof RecentType>;
 
 type CounterParams = {
 	dialogId: string,
@@ -17,7 +18,11 @@ type CounterParams = {
 	counter: number,
 	muted: boolean,
 	unread: boolean,
-	counterType: $Values<typeof CounterType>
+	counterType: $Values<typeof CounterType>,
+	recentConfig: {
+		chatId: number,
+		sections: RecentTypeItem[],
+	},
 };
 
 export class CounterPullHandler
@@ -95,11 +100,16 @@ export class CounterPullHandler
 		this.#handleCounters(params);
 	}
 
+	handleReadAllChats()
+	{
+		Logger.warn('CounterPullHandler: handleReadAllChats');
+		void Core.getStore().dispatch('counters/clear');
+	}
+
 	#handleCounters(params: CounterParams)
 	{
 		const {
 			chatId,
-			dialogId,
 			counter,
 			counterType = CounterType.chat,
 			parentChatId = 0,
@@ -123,22 +133,7 @@ export class CounterPullHandler
 			return;
 		}
 
-		const recentItem: ?ImModelRecentItem = Core.getStore().getters['recent/get'](dialogId);
-		// for now existing common chats counters are stored in corresponding chat model objects
-		if (recentItem)
-		{
-			return;
-		}
-
-		const newCounter = this.#getNewCounter(params);
-		// collab counters are stored in two structures - for common chats and collabs
-		// because collab counters are included in both total chat counter and total collab counter
-		if (counterType === CounterType.collab)
-		{
-			Core.getStore().dispatch('counters/setUnloadedCollabCounters', { [chatId]: newCounter });
-		}
-
-		Core.getStore().dispatch('counters/setUnloadedChatCounters', { [chatId]: newCounter });
+		this.#handleUnloadedChatCounters(params);
 	}
 
 	#getNewCounter(params: CounterParams): number
@@ -181,5 +176,51 @@ export class CounterPullHandler
 		};
 
 		Core.getStore().dispatch('counters/setCommentCounters', counters);
+	}
+
+	#handleUnloadedChatCounters(params: CounterParams)
+	{
+		const { chatId, recentConfig, dialogId } = params;
+		const newCounter = this.#getNewCounter(params);
+
+		recentConfig.sections.forEach((recentSection) => {
+			const sectionConfig = this.#getRecentSectionConfig(recentSection);
+			if (!sectionConfig)
+			{
+				return;
+			}
+
+			const isInRecentCollection = this.store.getters[sectionConfig.collectionGetter](dialogId);
+			if (isInRecentCollection)
+			{
+				return;
+			}
+
+			void Core.getStore().dispatch(sectionConfig.setUnloadedCounterAction, { [chatId]: newCounter });
+		});
+	}
+
+	#getRecentSectionConfig(section: RecentTypeItem): ?{ setUnloadedCounterAction: string, collectionGetter: string }
+	{
+		const handlers = {
+			[RecentType.default]: {
+				setUnloadedCounterAction: 'counters/setUnloadedChatCounters',
+				collectionGetter: 'recent/isInRecentCollection',
+			},
+			[RecentType.collab]: {
+				setUnloadedCounterAction: 'counters/setUnloadedCollabCounters',
+				collectionGetter: 'recent/isInCollabCollection',
+			},
+			[RecentType.copilot]: {
+				setUnloadedCounterAction: 'counters/setUnloadedCopilotCounters',
+				collectionGetter: 'recent/isInCopilotCollection',
+			},
+			[RecentType.taskComments]: {
+				setUnloadedCounterAction: 'counters/setUnloadedTaskCounters',
+				collectionGetter: 'recent/isInTaskCollection',
+			},
+		};
+
+		return handlers[section];
 	}
 }

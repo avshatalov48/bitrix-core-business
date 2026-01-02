@@ -7,6 +7,7 @@ use Bitrix\Main\Localization\Loc;
 class Error extends \Bitrix\Main\Error
 {
 	public const NOT_FOUND = 'NOT_FOUND';
+	public const PULL_NOT_INSTALLED = 'PULL_NOT_INSTALLED';
 
 	protected string $description = '';
 

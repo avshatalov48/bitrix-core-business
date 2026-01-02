@@ -9,17 +9,22 @@ use Bitrix\Socialnetwork\UserToGroupTable;
 
 Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/socialnetwork/install/js/socialnetwork/common/config.php');
 
-return array(
+if (!\Bitrix\Main\Loader::includeModule('socialnetwork'))
+{
+	return[];
+}
+
+return [
 	'js' => './dist/common.bundle.js',
 	'css' => '/bitrix/js/socialnetwork/common/socialnetwork.common.css',
 	'rel' => [
 		'popup',
-		'intranet_theme_picker',
 		'ui.popupcomponentsmaker',
 		'ui.icons',
 		'ui.buttons',
 		'ui.fonts.opensans',
 		'im.public',
+		'intranet.theme-picker',
 	],
 	'lang_additional' => [
 		'USER_SONET_ADMIN' => (\CSocNetUser::isCurrentUserModuleAdmin() ? 'Y' : 'N'),
@@ -30,4 +35,7 @@ return array(
 		'USER_TO_GROUP_INITIATED_BY_USER' => UserToGroupTable::INITIATED_BY_USER,
 		'USER_TO_GROUP_INITIATED_BY_GROUP' => UserToGroupTable::INITIATED_BY_GROUP,
 	],
-);
+	'settings' => [
+		'isCollabConverterEnabled' => \Bitrix\Socialnetwork\Collab\Converter\ConverterFeature::isOn(),
+	]
+];

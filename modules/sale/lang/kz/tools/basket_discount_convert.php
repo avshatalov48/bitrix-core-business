@@ -1,0 +1,22 @@
+<?php
+$MESS["SALE_BASKET_DISCOUNT_CONVERT_ERRORS_INCORRECT_SESSION"] = "Сіздің сессияңыз аяқталды. Диалогтық терезені жауып, қайта авторландырылыңыз, содан кейін операцияны қайталаңыз.";
+$MESS["SALE_BASKET_DISCOUNT_CONVERT_ERRORS_MODULE_CATALOG_ABSENT"] = "Сауда каталогының модулін қосу мүмкін болмады";
+$MESS["SALE_BASKET_DISCOUNT_CONVERT_ERRORS_MODULE_SALE_ABSENT"] = "Интернет-дүкен модулін қосу мүмкін болмады";
+$MESS["SALE_BASKET_DISCOUNT_CONVERT_ERRORS_RIGHTS"] = "Құқықтар жеткіліксіз";
+$MESS["SALE_BASKET_DISCOUNT_CONVERT_PAGE_TITLE"] = "Тапсырыстардағы сауда каталогының купондары туралы деректерді түрлендіру";
+$MESS["SALE_BASKET_DISCOUNT_ERRORS_TITLE"] = "Операцияны орындау кезіндегі қателер";
+$MESS["SALE_BASKET_DISCOUNT_FILTER"] = "Тапсырыстар сүзгісі";
+$MESS["SALE_BASKET_DISCOUNT_FILTER_DATE_RANGE"] = "Тапсырыстарды жасау күні:";
+$MESS["SALE_BASKET_DISCOUNT_FILTER_ORDER_ID_RANGE"] = "ID тапсырыстар ауқымы:";
+$MESS["SALE_BASKET_DISCOUNT_FILTER_RANGE_FROM"] = "бастап";
+$MESS["SALE_BASKET_DISCOUNT_FILTER_RANGE_TO"] = "дейін";
+$MESS["SALE_BASKET_DISCOUNT_FILTER_TYPE"] = "Шектеу:";
+$MESS["SALE_BASKET_DISCOUNT_FILTER_TYPE_ALL"] = "барлық тапсырыстар";
+$MESS["SALE_BASKET_DISCOUNT_FILTER_TYPE_DATE"] = "құрылған күні бойынша";
+$MESS["SALE_BASKET_DISCOUNT_FILTER_TYPE_ID"] = "ауқымы бойынша";
+$MESS["SALE_BASKET_DISCOUNT_MAX_EXECUTION_TIME"] = "Бір қадамның ұзақтығы, сек:";
+$MESS["SALE_BASKET_DISCOUNT_MESS_ORDERS_ABSENT"] = "Сауда каталогының купондық деректерін түрлендіруді қажет ететін тапсырыстар жоқ";
+$MESS["SALE_BASKET_DISCOUNT_STOP_BTN"] = "Тоқтату";
+$MESS["SALE_BASKET_DISCOUNT_TAB"] = "Параметрлер";
+$MESS["SALE_BASKET_DISCOUNT_TAB_TITLE"] = "Түрлендіру параметрлері";
+$MESS["SALE_BASKET_DISCOUNT_UPDATE_BTN"] = "Бастау";

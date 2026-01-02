@@ -8,6 +8,8 @@ use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
+use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 
 class MessageService
 {
@@ -39,16 +41,32 @@ class MessageService
 				->where('ID', '<', $messageId)
 				->where('ID', '>=', $startId)
 				->where('CHAT_ID', $chat->getChatId())
+			;
+
+			if ($this->message->getDateCreate() !== null)
+			{
+				$idsBefore->where('DATE_CREATE', '<=', $this->message->getDateCreate());
+			}
+
+			$idsBefore = $idsBefore
 				->setOrder(['DATE_CREATE' => 'DESC', 'ID' => 'DESC'])
 				->setLimit($range)
 				->fetchCollection()
 				->getIdList()
 			;
+
 			$idsAfter = MessageTable::query()
 				->setSelect(['ID'])
 				->where('ID', '>', $messageId)
 				->where('CHAT_ID', $chat->getChatId())
-				->setOrder(['DATE_CREATE' => 'ASC', 'ID' => 'ASC'])
+				;
+
+				if($this->message->getDateCreate() !== null)
+				{
+					$idsAfter->where('DATE_CREATE', '>=', $this->message->getDateCreate());
+				}
+
+				$idsAfter = $idsAfter->setOrder(['DATE_CREATE' => 'ASC', 'ID' => 'ASC'])
 				->setLimit($range)
 				->fetchCollection()
 				->getIdList()

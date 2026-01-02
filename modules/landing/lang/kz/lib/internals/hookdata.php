@@ -1,0 +1,7 @@
+<?php
+$MESS["LANDING_TABLE_FIELD_CODE"] = "Өріс коды";
+$MESS["LANDING_TABLE_FIELD_ENTITY_ID"] = "Мән ID-і";
+$MESS["LANDING_TABLE_FIELD_ENTITY_TYPE"] = "Мән түрі";
+$MESS["LANDING_TABLE_FIELD_HOOK"] = "Класс өңдеуіш";
+$MESS["LANDING_TABLE_FIELD_PUBLIC"] = "Жариялылық";
+$MESS["LANDING_TABLE_FIELD_VALUE"] = "Өріс мәні";

@@ -406,7 +406,7 @@ if ($arResult['APP']['ACTIVE'] === 'Y' && $arResult['ADMIN'])
 							<div class="mp-detail-main-controls-description"><?=GetMessage('REST_MARKETPLACE_HIDDEN_BUY')?></div>
 						<?php endif;?>
 						<?php if ($arResult['APP']['SUBSCRIPTION_EXPANDS'] === 'Y'):?>
-							<div class="mp-detail-main-controls-description"><?=GetMessage('REST_MARKETPLACE_SUBSCRIPTION_EXPANDS')?></div>
+							<div class="mp-detail-main-controls-description"><?=GetMessage('REST_MARKETPLACE_SUBSCRIPTION_EXPANDS_MSGVER_1')?></div>
 						<?php endif;?>
 						<?php if ($arResult['APP']['SUBSCRIPTION_REQUIRED'] === 'Y'):?>
 							<div class="mp-detail-main-controls-description"><?=GetMessage('REST_MARKETPLACE_SUBSCRIPTION_REQUIRED')?></div>
@@ -545,7 +545,7 @@ $arJSParams = array(
 	BX.message({
 		"MARKETPLACE_APP_INSTALL_REQUEST" : "<?=GetMessageJS('MARKETPLACE_APP_INSTALL_REQUEST')?>",
 		"MARKETPLACE_LICENSE_ERROR" : "<?=GetMessageJS('MARKETPLACE_LICENSE_ERROR')?>",
-		"MARKETPLACE_LICENSE_TOS_ERROR_2" : "<?=GetMessageJS('MARKETPLACE_LICENSE_TOS_ERROR_2')?>",
+		"MARKETPLACE_LICENSE_TOS_ERROR_2_MSGVER_1" : "<?=GetMessageJS('MARKETPLACE_LICENSE_TOS_ERROR_2_MSGVER_1')?>",
 		"REST_MP_INSTALL_REQUEST_CONFIRM" : "<?=GetMessageJS('REST_MP_INSTALL_REQUEST_CONFIRM')?>",
 		"REST_MP_APP_INSTALL_REQUEST" : "<?=GetMessageJS('REST_MP_APP_INSTALL_REQUEST')?>"
 	});

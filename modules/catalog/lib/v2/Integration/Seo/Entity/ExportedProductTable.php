@@ -2,12 +2,9 @@
 
 namespace Bitrix\Catalog\v2\Integration\Seo\Entity;
 
-use Bitrix\Main\Entity;
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
 use Bitrix\Main\Type\DateTime;
-
-Loc::loadMessages(__FILE__);
 
 /**
  * Class ExportedProductTable
@@ -25,9 +22,9 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct wakeUpObject($row)
  * @method static \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductCollection wakeUpCollection($rows)
  */
-class ExportedProductTable extends Entity\DataManager
+class ExportedProductTable extends DataManager
 {
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_exported_product';
 	}
@@ -42,7 +39,7 @@ class ExportedProductTable extends Entity\DataManager
 		return ExportedProductCollection::class;
 	}
 
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return [
 			'ID' => [

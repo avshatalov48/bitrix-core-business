@@ -1,13 +1,11 @@
 <?php
 
-/*
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002 - 2007 Bitrix           #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
-*/
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage mail
+ * @copyright 2001-2025 Bitrix
+ */
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/classes/general/mail.php");
 

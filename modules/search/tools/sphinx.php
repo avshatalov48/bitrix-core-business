@@ -358,7 +358,15 @@ class CSearchSphinx extends CSearchFullText
 		}
 		elseif ($bReplace)
 		{
-			$dbItem = $DB->Query('SELECT * FROM b_search_content WHERE ID = ' . $ID);
+			$dbItem = $DB->Query('
+				SELECT
+					*
+					,' . $DB->DateToCharFunction('DATE_CHANGE') . ' as LAST_MODIFIED
+					,' . $DB->DateToCharFunction('DATE_FROM') . ' as DATE_FROM
+					,' . $DB->DateToCharFunction('DATE_TO') . ' as DATE_TO
+				FROM b_search_content
+				WHERE ID = ' . $ID
+			);
 			$searchItem = $dbItem->fetch();
 			if ($searchItem)
 			{

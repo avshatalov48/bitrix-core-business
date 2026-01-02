@@ -168,7 +168,7 @@ class SpacesComponent extends CBitrixComponent implements Controllerable, Errora
 		$siteTemplateId = (defined('SITE_TEMPLATE_ID') ? SITE_TEMPLATE_ID  : 'def');
 		if (
 			Loader::includeModule('intranet')
-			&& $siteTemplateId === 'bitrix24'
+			&& ($siteTemplateId === 'bitrix24' || $siteTemplateId === 'air')
 		)
 		{
 			$this->arResult['SHOW_BITRIX24_THEME'] = 'Y';

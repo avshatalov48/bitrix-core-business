@@ -15,6 +15,7 @@
 .ui-switcher-disabled {
 	display: inline-block;
 	position: absolute;
+	left: 0;
 	width: 100%;
 	height: 100%;
 	color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-40));
@@ -45,13 +46,14 @@
 
 .ui-switcher-cursor {
 	position: absolute;
-	top: 3px;
+	top: 50%;
+	left: 0;
 	width: 16px;
 	height: 16px;
 	border-radius: 50%;
 	background: var(--ui-color-background-primary);
 	box-shadow: 0 1px 1px rgba(0, 0, 0, .09);
-	transform: translate(33px, 0);
+	transform: translate(33px, -50%);
 	transition: transform .2s ease-out;
 	z-index: 3;
 }
@@ -87,7 +89,7 @@
 }
 
 .ui-switcher-size-xs .ui-switcher-cursor {
-	top: 2px;
+	/*top: 2px;*/
 	width: 9px;
 	height: 9px;
 }
@@ -99,7 +101,7 @@
 }
 
 .ui-switcher-size-xs .ui-switcher-cursor {
-	transform: translate(12px, 0);
+	transform: translate(12px, -50%);
 }
 
 .ui-switcher-size-sm.ui-switcher {
@@ -129,7 +131,7 @@
 }
 
 .ui-switcher-size-sm .ui-switcher-cursor {
-	transform: translate(27px, 0);
+	transform: translate(27px, -50%);
 }
 
 /* COLORS */
@@ -141,7 +143,7 @@
 }
 
 .ui-switcher-off .ui-switcher-cursor {
-	transform: translate(4px, 0);
+	transform: translate(4px, -50%);
 }
 
 .ui-switcher-off .ui-switcher-disabled {

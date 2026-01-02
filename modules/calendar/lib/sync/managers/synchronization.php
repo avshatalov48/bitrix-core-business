@@ -24,9 +24,13 @@ use Bitrix\Calendar\Sync\Util\EventContext;
 use Bitrix\Calendar\Sync\Util\ExcludeDatesHandler;
 use Bitrix\Calendar\Sync\Util\Result;
 use Bitrix\Calendar\Sync\Util\SectionContext;
+use Bitrix\Calendar\Synchronization\Internal\Service\Messenger\Sender\EventSender;
+use Bitrix\Calendar\Synchronization\Public\Service\SynchronizationFeature;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Config\ConfigurationException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Error;
+use Bitrix\Main\Messenger\Internals\Exception\Broker\SendFailedException;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM\Query\Query;
@@ -49,6 +53,11 @@ class Synchronization
 	private Core\Mappers\Factory $mapperFactory;
 
 	/**
+	 * @var EventSender
+	 */
+	private EventSender $eventSender;
+
+	/**
 	 * @param FactoriesCollection $factories
 	 *
 	 * @throws ObjectNotFoundException
@@ -58,6 +67,8 @@ class Synchronization
 		$this->factories = $factories;
 		$this->mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
 
+		// @todo Use DI
+		$this->eventSender = ServiceLocator::getInstance()->get(EventSender::class);
 	}
 
 	/**
@@ -105,16 +116,16 @@ class Synchronization
 	/**
 	 * @param Event $event
 	 * @param Context $context
+	 * @param array $excludedVendorCodes List of vendor codes to exclude from deletion (e.g. ['icloud'])
 	 *
-	 * @return Result
 	 * @throws ArgumentException
-	 * @throws Core\Base\BaseException
+	 * @throws BaseException
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
 	 */
-	public function deleteEvent(Event $event, Context $context): Result
+	public function deleteEvent(Event $event, Context $context, array $excludedVendorCodes = []): Result
 	{
-		return $this->execActionEvent('deleteEvent', $event, $context);
+		return $this->execActionEvent('deleteEvent', $event, $context, $excludedVendorCodes);
 	}
 
 	/**
@@ -128,13 +139,45 @@ class Synchronization
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
 	 */
-	private function execActionEvent(string $method, Event $event, Context $context): Result
+	private function execActionEvent(string $method, Event $event, Context $context, array $excludedVendorCodes = []): Result
 	{
 		$mainResult = new Result();
 		$data = [];
 		$eventCloner = new Core\Builders\EventCloner($event);
 		$pushManager = new PushManager();
 		$push = null;
+
+		if (SynchronizationFeature::isOn())
+		{
+			$excludedVendorCode = $context->sync['originalFrom'] ?? null;
+
+			switch ($method)
+			{
+				case 'createEvent':
+				case 'createInstance':
+					$this->eventSender->sendCreatedMessage($event, $excludedVendorCode);
+
+					break;
+				case 'updateEvent':
+				case 'updateInstance':
+					$this->eventSender->sendUpdatedMessage($event, $excludedVendorCode);
+
+					break;
+				case 'deleteEvent':
+					if ($excludedVendorCode)
+					{
+						$excludedVendorCodes[] = $excludedVendorCode;
+					}
+
+					$this->eventSender->sendDeletedMessage($event, $excludedVendorCodes);
+
+					break;
+				case 'deleteInstance':
+					$this->eventSender->sendInstanceDeletedMessage($event, $excludedVendorCode, $context);
+
+					break;
+			}
+		}
 
 		/** @var FactoryInterface $factory */
 		foreach ($this->factories as $factory)
@@ -144,9 +187,29 @@ class Synchronization
 				continue;
 			}
 
+			if (SynchronizationFeature::isOn())
+			{
+				// @todo Temporary code until sync refactoring completed
+				$serviceName = $factory->getServiceName();
+
+				if (
+					in_array(
+						$serviceName,
+						[
+							\Bitrix\Calendar\Sync\Google\Factory::SERVICE_NAME,
+							\Bitrix\Calendar\Sync\ICloud\Factory::SERVICE_NAME,
+							\Bitrix\Calendar\Sync\Office365\Factory::SERVICE_NAME,
+						],
+						true,
+					)
+				)
+				{
+					continue;
+				}
+			}
+
 			try
 			{
-
 				$clonedEvent = $eventCloner->build();
 				$vendorSync = $this->getVendorSynchronization($factory);
 				$eventContext = $this->prepareEventContext($clonedEvent, clone $context, $factory);
@@ -175,6 +238,7 @@ class Synchronization
 			}
 		}
 
+		// @todo Результат ожидается только при deleteInstance
 		return $mainResult->setData($data);
 	}
 
@@ -190,22 +254,38 @@ class Synchronization
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
 	 * @throws Exception
+	 * @throws ConfigurationException
+	 * @throws SendFailedException
 	 */
 	public function reCreateRecurrence(Event $masterEvent, Context $context): Result
 	{
 		$mainResult = new Result();
 		$eventExceptionsMap = $this->getEventExceptionsMap($masterEvent);
 		$data = [];
+		// @todo Does it use in any place?
 		$masterEvent->setVersion($masterEvent->getVersion() + 1);
 		$eventCloner = new Core\Builders\EventCloner($masterEvent);
+
+		$excludedVendorCode = $context->sync['originalFrom'] ?? null;
+
+		if (SynchronizationFeature::isOn())
+		{
+			$this->eventSender->sendReCreateRecurrenceEventMessage($masterEvent, $excludedVendorCode);
+		}
 
 		/** @var FactoryInterface $factory */
 		foreach ($this->factories as $factory)
 		{
+			if (SynchronizationFeature::isOn())
+			{
+				continue;
+			}
+
 			if ($this->checkExclude($factory, $context))
 			{
 				continue;
 			}
+
 			try
 			{
 				$safeEvent = $eventCloner->build();
@@ -335,13 +415,12 @@ class Synchronization
 	 * @param Event $event
 	 * @param Context $context
 	 *
-	 * @return Result
 	 * @throws ArgumentException
 	 * @throws Core\Base\BaseException
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
 	 */
-	public function deleteInstance(Event $event, Context $context): Result
+	public function deleteInstance(Event $event, Context $context): void
 	{
 		$mainResult = new Result();
 
@@ -352,7 +431,8 @@ class Synchronization
 		)
 		{
 			$mainResult->addError(new Error('Not found info about exclude date'));
-			return $mainResult;
+
+			return;
 		}
 
 		if (!isset($context->sync['excludeDate']))
@@ -378,8 +458,7 @@ class Synchronization
 			$context->add('sync', 'excludeDate', $excludeDate);
 		}
 
-		return $this->execActionEvent('deleteInstance', $event, $context);
-
+		$this->execActionEvent('deleteInstance', $event, $context);
 	}
 
 	/**
@@ -717,6 +796,8 @@ class Synchronization
 	 * @throws ArgumentException
 	 * @throws SystemException
 	 * todo move it to the special class
+	 *
+	 * @todo Use EventRepository
 	 */
 	private function getEventExceptionsMap(Event $event): Core\Base\Map
 	{

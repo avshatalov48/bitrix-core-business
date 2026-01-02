@@ -11,6 +11,7 @@ import { TrackingCollabsForm } from './trackingcollabform';
 import { TrackingTypesForm } from './trackingtypesform';
 import { SectionManager } from 'calendar.sectionmanager';
 import { MessageBox } from 'ui.dialogs.messagebox';
+import { ButtonColor, ButtonSize, SplitButton } from 'ui.buttons';
 
 /* eslint-disable @bitrix24/bitrix24-rules/no-native-dom-methods */
 export class SectionInterface extends EventEmitter
@@ -662,18 +663,22 @@ export class SectionInterface extends EventEmitter
 			&& !calendarContext.isCollabUser
 		)
 		{
-			const addButtonOuter = this.DOM.titleWrap.appendChild(Tag.render`
-				<span class="ui-btn-split ui-btn-light-border" style="margin-right: 0"></span>
-			`);
-			this.DOM.addButton = addButtonOuter.appendChild(Tag.render`
-				<span class="ui-btn-main">${Loc.getMessage('EC_ADD')}</span>
-			`);
-			this.DOM.addButtonMore = addButtonOuter.appendChild(Tag.render`
-				<span class="ui-btn-extra"></span>
-			`);
+			const button = new SplitButton({
+				text: Loc.getMessage('EC_ADD'),
+				size: ButtonSize.MEDIUM,
+				color: ButtonColor.LIGHT_BORDER,
+				mainButton: {
+					onclick: this.showEditSectionForm.bind(this),
+				},
+				menuButton: {
+					onclick: this.showAddButtonPopup.bind(this),
+				},
+			});
 
-			Event.bind(this.DOM.addButtonMore, 'click', this.showAddButtonPopup.bind(this));
-			Event.bind(this.DOM.addButton, 'click', this.showEditSectionForm.bind(this));
+			button.renderTo(this.DOM.titleWrap);
+
+			this.DOM.addButton = button.getMainButton().getContainer();
+			this.DOM.addButtonMore = button.getMenuButton().getContainer();
 		}
 	}
 
@@ -704,10 +709,17 @@ export class SectionInterface extends EventEmitter
 			}),
 			this.getAddCompanyMenuItem(),
 			this.getAddUserMenuItem(),
-			this.getAddGroupMenuItem(),
 		];
 
-		if (this.isCollabFeatureEnabled)
+		const calendarContext = this.calendarContext || Util.getCalendarContext();
+		const { isBitrix24Template } = calendarContext.util.config;
+
+		if (isBitrix24Template)
+		{
+			menuItems.push(this.getAddGroupMenuItem());
+		}
+
+		if (isBitrix24Template && this.isCollabFeatureEnabled)
 		{
 			menuItems.push(this.getAddCollabMenuItem());
 		}
@@ -993,8 +1005,8 @@ export class SectionInterface extends EventEmitter
 
 		if (
 			!section.isPseudo()
-			&& section.data.EXPORT
-			&& section.data.EXPORT.LINK
+			&& section.data.EXPORT?.LINK
+			&& section.data.EXPORT?.PATH
 			&& section.data.EXTERNAL_TYPE === 'local'
 			&& !this.calendarContext?.util?.isExtranetUser()
 		)
@@ -1006,7 +1018,7 @@ export class SectionInterface extends EventEmitter
 
 					const options = {
 						sectionLink: section.data.EXPORT.LINK,
-						calendarPath: this.calendarContext.util.config.path,
+						calendarPath: section.data.EXPORT.PATH,
 					};
 					if (IcalSyncPopup.checkPathes(options))
 					{
@@ -1205,6 +1217,7 @@ export class SectionInterface extends EventEmitter
 			wrap: this.DOM.sectionFormWrap,
 			sectionAccessTasks: this.sectionManager.getSectionAccessTasks(),
 			sectionManager: this.sectionManager,
+			calendarContext: this.calendarContext,
 			closeCallback: () => {
 				this.allowSliderClose();
 			},

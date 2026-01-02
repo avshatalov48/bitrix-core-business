@@ -5,21 +5,28 @@ namespace Bitrix\Im\V2\Chat;
 use Bitrix\Im\Model\ChatTable;
 use Bitrix\Im\V2\Analytics\ChatAnalytics;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Chat\Ai\AiAssistantPrivateChat;
 use Bitrix\Im\V2\Common\ContextCustomer;
+use Bitrix\Im\V2\Integration\AiAssistant\AiAssistantService;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Application;
 use Bitrix\Main\Data\Cache;
+use Bitrix\Main\DI\ServiceLocator;
+use Bitrix\Im\V2\Chat\Add\AddResult;
 
 class ChatFactory
 {
 	use ContextCustomer;
 
 	public const NON_CACHED_FIELDS = ['MESSAGE_COUNT', 'USER_COUNT', 'LAST_MESSAGE_ID'];
+	private const LOCK_TIMEOUT = 3;
 
 	protected static self $instance;
+	protected AiAssistantService $aiAssistantService;
 
 	private function __construct()
 	{
+		$this->aiAssistantService = ServiceLocator::getInstance()->get(AiAssistantService::class);
 	}
 
 	/**
@@ -84,10 +91,11 @@ class ChatFactory
 			$addResult = $this->addChat($params);
 			if ($addResult->hasResult())
 			{
-				$chat = $addResult->getResult()['CHAT'];
-				$chat->setContext($this->context);
-
-				return $chat;
+				return
+					$addResult
+						->getChat()
+						?->setContext($this->context)
+				;
 			}
 		}
 
@@ -112,20 +120,11 @@ class ChatFactory
 		return $this->getChat($params);
 	}
 
-	/**
-	 * @param string $entityType
-	 * @param int|string $entityId
-	 * @return Chat|EntityChat|null
-	 */
-	public function getEntityChat(string $entityType, $entityId): ?EntityChat
+	public function getEntityChat(string $entityType, string $entityId): Chat
 	{
-		$params = [
-			'TYPE' => Chat::IM_TYPE_CHAT,
-			'ENTITY_TYPE' => $entityType,
-			'ENTITY_ID' => $entityId,
-		];
+		$chatId = $this->getEntityChatId($entityType, $entityId);
 
-		return $this->getChat($params);
+		return Chat::getInstance($chatId);
 	}
 
 	/**
@@ -184,8 +183,12 @@ class ChatFactory
 	 */
 	public function initChat(?array $params = null): Chat
 	{
-		$type = $params['TYPE'] ?? $params['MESSAGE_TYPE'] ?? '';
-		$entityType = $params['ENTITY_TYPE'] ?? '';
+		$params['TYPE'] ??= $params['MESSAGE_TYPE'] ?? '';
+		$params['ENTITY_TYPE'] ??= '';
+
+		$type = $params['TYPE'];
+		$entityType = $params['ENTITY_TYPE'];
+
 		$chat = match (true)
 		{
 			$entityType === Chat::ENTITY_TYPE_FAVORITE || $entityType === 'PERSONAL' => new FavoriteChat($params),
@@ -194,6 +197,7 @@ class ChatFactory
 			$entityType === Chat::ENTITY_TYPE_LINE || $type === Chat::IM_TYPE_OPEN_LINE => new OpenLineChat($params),
 			$entityType === Chat::ENTITY_TYPE_LIVECHAT => new OpenLineLiveChat($params),
 			$entityType === Chat::ENTITY_TYPE_VIDEOCONF => new VideoConfChat($params),
+			$this->isPrivateAiAssistantChat($params) => new AiAssistantPrivateChat($params),
 			$type === Chat::IM_TYPE_CHANNEL => new ChannelChat($params),
 			$type === Chat::IM_TYPE_OPEN_CHANNEL => new OpenChannelChat($params),
 			$type === Chat::IM_TYPE_OPEN => new OpenChat($params),
@@ -203,12 +207,30 @@ class ChatFactory
 			$type === Chat::IM_TYPE_COMMENT => new CommentChat($params),
 			$type === Chat::IM_TYPE_COPILOT => new CopilotChat($params),
 			$type === Chat::IM_TYPE_COLLAB => new CollabChat($params),
+			$type === Chat::IM_TYPE_EXTERNAL => new ExternalChat($params),
 			default => new NullChat(),
 		};
 
 		$chat->setContext($this->context);
 
 		return $chat;
+	}
+
+	protected function isPrivateAiAssistantChat(array $params): bool
+	{
+		$botId = $this->aiAssistantService->getBotId();
+
+		if ($params['TYPE'] !== Chat::IM_TYPE_PRIVATE || !$botId)
+		{
+			return false;
+		}
+
+		$users = [(int)($params['FROM_USER_ID'] ?? 0), (int)($params['TO_USER_ID'] ?? 0)];
+
+		return
+			$params['ENTITY_TYPE'] === Chat::ENTITY_TYPE_PRIVATE_AI_ASSISTANT
+			|| in_array($botId, $users, true)
+		;
 	}
 
 	/**
@@ -444,19 +466,36 @@ class ChatFactory
 		return $chat;
 	}
 
+	private function getEntityChatId(string $entityType, string $entityId): ?int
+	{
+		$row = ChatTable::query()
+			->setSelect(['ID'])
+			->where('ENTITY_TYPE', $entityType)
+			->where('ENTITY_ID', $entityId)
+			->setLimit(1)
+			->fetch()
+		;
+
+		if (!$row)
+		{
+			return null;
+		}
+
+		return (int)$row['ID'];
+	}
+
 	//endregion
 
 	//region Add new chat
 
 	/**
 	 * @param array $params
-	 * @return Result
+	 * @return AddResult
 	 */
-	public function addChat(array $params): Result
+	public function addChat(array $params): AddResult
 	{
-		$params['ENTITY_TYPE'] = $params['ENTITY_TYPE'] ?? '';
-
-		$params['TYPE'] = $params['TYPE'] ?? Chat::IM_TYPE_CHAT;
+		$params['ENTITY_TYPE'] ??= '';
+		$params['TYPE'] ??= Chat::IM_TYPE_CHAT;
 
 		// Temporary workaround for Open chat type
 		if (($params['SEARCHABLE'] ?? 'N') === 'Y')
@@ -477,7 +516,12 @@ class ChatFactory
 
 		ChatAnalytics::blockSingleUserEvents();
 
-		$initParams = ['TYPE' => $params['TYPE'] ?? null, 'ENTITY_TYPE' => $params['ENTITY_TYPE'] ?? null];
+		$initParams = [
+			'TYPE' => $params['TYPE'] ?? null,
+			'ENTITY_TYPE' => $params['ENTITY_TYPE'] ?? null,
+			'FROM_USER_ID' => $params['FROM_USER_ID'] ?? null,
+			'TO_USER_ID' => $params['TO_USER_ID'] ?? null,
+		];
 		$chat = $this->initChat($initParams);
 		$addResult = $chat->add($params);
 
@@ -486,13 +530,70 @@ class ChatFactory
 			return $addResult->addError(new ChatError(ChatError::CREATION_ERROR));
 		}
 
-		$resultChat = $addResult->getResult()['CHAT'] ?? null;
+		$resultChat = $addResult->getChat();
 		if ($resultChat instanceof Chat)
 		{
 			(new ChatAnalytics($resultChat))->addSubmitCreateNew();
 		}
 
 		return $addResult;
+	}
+
+	/**
+	 * Creates a chat ensuring uniqueness for the provided ENTITY_TYPE and ENTITY_ID pair.
+	 * @param array $params ENTITY_TYPE and ENTITY_ID are required keys
+	 * @return AddResult
+	 * @see static::addChat()
+	 *
+	 */
+	public function addUniqueChat(array $params): AddResult
+	{
+		$result = new AddResult();
+		if (!isset($params['ENTITY_TYPE']))
+		{
+			return $result->addError(new ChatError(ChatError::ENTITY_TYPE_EMPTY));
+		}
+		if (!isset($params['ENTITY_ID']))
+		{
+			return $result->addError(new ChatError(ChatError::ENTITY_ID_EMPTY));
+		}
+
+		$entityType = (string)$params['ENTITY_TYPE'];
+		$entityId = (string)$params['ENTITY_ID'];
+		$lockName = self::getUniqueAdditionLockName($entityType, $entityId);
+		$connection = Application::getConnection();
+
+		$isLocked = $connection->lock($lockName, self::LOCK_TIMEOUT);
+		if (!$isLocked)
+		{
+			return $result->addError(new ChatError(ChatError::CREATION_ERROR));
+		}
+
+		try
+		{
+			$chatId = $this->getEntityChatId($entityType, $entityId);
+			if ($chatId)
+			{
+				return $result->setResult(['CHAT_ID' => $chatId, 'CHAT' => Chat::getInstance($chatId)]);
+			}
+
+			return $this->addChat($params);
+		}
+		catch (\Throwable $exception)
+		{
+			Application::getInstance()->getExceptionHandler()->writeToLog($exception);
+
+			return $result->addError(new ChatError(ChatError::CREATION_ERROR));
+		}
+		finally
+		{
+			$connection->unlock($lockName);
+		}
+	}
+
+	private static function getUniqueAdditionLockName(string $entityType, string $entityId): string
+	{
+		return "add_unique_chat_{$entityType}_{$entityId}";
 	}
 
 	//endregion

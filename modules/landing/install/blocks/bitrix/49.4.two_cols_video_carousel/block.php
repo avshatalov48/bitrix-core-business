@@ -32,48 +32,43 @@
 			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15 col-12 col-sm-6 col-lg-6">
 				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 scale-100  mx-auto w-100">
 					<div class="landing-block-node-card-video embed-responsive-item g-video-preview w-100"
-						data-src="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=0&controls=1&loop=1&mute=0&rel=0"
-						data-source="https://www.youtube.com/watch?v=q4d8g9Dn3ww"
-						data-preview="//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg"
-						style="background-image:url(//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg)"
+						 #DEFAULT_VIDEO_SRC#
+						 #DEFAULT_VIDEO_SOURCE#
+						 #DEFAULT_VIDEO_PREVIEW#
+						 #DEFAULT_VIDEO_STYLE#
 					></div>
 				</div>
 			</div>
-
 			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15 col-12 col-sm-6 col-lg-6">
 				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 scale-100 mx-auto w-100">
 					<div class="landing-block-node-card-video embed-responsive-item g-video-preview w-100"
-						data-src="//www.youtube.com/embed/PDCsdEdGb_c?autoplay=0&controls=1&loop=1&mute=0&rel=0"
-						data-source="https://www.youtube.com/watch?v=PDCsdEdGb_c"
-						data-preview="//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg"
-						style="background-image:url(//img.youtube.com/vi/PDCsdEdGb_c/sddefault.jpg)"
+						 #DEFAULT_VIDEO_SRC_2#
+						 #DEFAULT_VIDEO_SOURCE_2#
+						 #DEFAULT_VIDEO_PREVIEW_2#
+						 #DEFAULT_VIDEO_STYLE_2#
 					></div>
 				</div>
 			</div>
-
 			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15 col-12 col-sm-6 col-lg-6">
 				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 scale-100 mx-auto w-100">
 					<div class="landing-block-node-card-video embed-responsive-item g-video-preview w-100"
-						data-src="//www.youtube.com/embed/0Ll9z8pwnp4?autoplay=0&controls=1&loop=1&mute=0&rel=0"
-						data-source="https://www.youtube.com/watch?v=0Ll9z8pwnp4"
-						data-preview="//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg"
-						style="background-image:url(//img.youtube.com/vi/0Ll9z8pwnp4/sddefault.jpg)"
+						 #DEFAULT_VIDEO_SRC#
+						 #DEFAULT_VIDEO_SOURCE#
+						 #DEFAULT_VIDEO_PREVIEW#
+						 #DEFAULT_VIDEO_STYLE#
 					></div>
 				</div>
 			</div>
-
 			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15 col-12 col-sm-6 col-lg-6">
 				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 scale-100 mx-auto w-100">
 					<div class="landing-block-node-card-video embed-responsive-item g-video-preview w-100"
-						data-src="//www.youtube.com/embed/IISycTRZ-UA?autoplay=0&controls=1&loop=1&mute=0&rel=0"
-						data-source="https://www.youtube.com/watch?v=IISycTRZ-UA"
-						data-preview="//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg"
-						style="background-image:url(//img.youtube.com/vi/IISycTRZ-UA/sddefault.jpg)"
+						 #DEFAULT_VIDEO_SRC_2#
+						 #DEFAULT_VIDEO_SOURCE_2#
+						 #DEFAULT_VIDEO_PREVIEW_2#
+						 #DEFAULT_VIDEO_STYLE_2#
 					></div>
 				</div>
 			</div>
-
-
 		</div>
 	</div>
 </section>

@@ -1,10 +1,16 @@
-import { CollabEntityType } from 'im.v2.const';
+import { CloseIconSize } from 'main.popup';
+import { Tooltip } from 'ui.dialogs.tooltip';
+import { CollabEntityType, PromoId } from 'im.v2.const';
+import { PromoManager } from 'im.v2.lib.promo';
 
+import { CollabTooltipContent } from '../../classes/tooltip-content/tooltip-content';
+import { IconKey } from '../../classes/tooltip-content/icon-key';
 import { EntityLink } from './components/entity-link';
 
 import './css/entities-panel.css';
 
 import type { ImModelChat, ImModelCollabInfo } from 'im.v2.model';
+import type { PromoParams } from 'im.v2.provider.pull';
 
 // @vue/component
 export const EntitiesPanel = {
@@ -20,6 +26,12 @@ export const EntitiesPanel = {
 			type: Boolean,
 			required: true,
 		},
+	},
+	data(): Object
+	{
+		return {
+			highlightMode: false,
+		};
 	},
 	computed:
 	{
@@ -65,15 +77,71 @@ export const EntitiesPanel = {
 			return this.calendarInfo.counter;
 		},
 	},
+	mounted()
+	{
+		this.initPromo();
+	},
 	methods:
 	{
+		initPromo(): void
+		{
+			const promoManager = PromoManager.getInstance();
+
+			const promoId = PromoId.collabEntities;
+			const promoParams = { chatId: this.dialog.chatId };
+
+			if (promoManager.needToShow(promoId, promoParams))
+			{
+				void this.showCollabEntitiesPromo(promoId, promoParams);
+			}
+		},
+		async showCollabEntitiesPromo(promoId: $Values<typeof PromoId>, promoParams: PromoParams): Promise<void>
+		{
+			const tooltip = new Tooltip({
+				bindElement: this.$refs['collab-entities'],
+				content: this.renderTooltipContent(),
+				minWidth: 410,
+				popupOptions: {
+					offsetTop: 11,
+					offsetLeft: 38,
+					autoHide: true,
+					closeIcon: true,
+					closeIconSize: CloseIconSize.LARGE,
+					events: {
+						onPopupShow: () => {
+							this.highlightMode = true;
+						},
+						onPopupClose: () => {
+							this.highlightMode = false;
+						},
+					},
+				},
+			});
+
+			tooltip.show();
+			void PromoManager.getInstance().markAsWatched(promoId, promoParams);
+		},
+		renderTooltipContent(): HTMLElement
+		{
+			const tooltipContent = new CollabTooltipContent({
+				title: this.loc('IM_CONTENT_COLLAB_ONBOARDING_ENTITIES_TITLE'),
+				text: this.loc('IM_CONTENT_COLLAB_ONBOARDING_ENTITIES_TEXT'),
+				iconKey: IconKey.collabEntities,
+			});
+
+			return tooltipContent.render();
+		},
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
 		},
 	},
 	template: `
-		<div class="bx-im-collab-header__links-container" :class="{'--compact': compactMode}">
+		<div
+			class="bx-im-collab-header__links-container"
+			:class="{'--compact': compactMode, '--highlight': highlightMode}"
+			ref="collab-entities"
+		>
 			<EntityLink
 				:dialogId="dialogId"
 				:compactMode="compactMode"

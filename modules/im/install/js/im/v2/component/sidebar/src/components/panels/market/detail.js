@@ -1,7 +1,7 @@
 import { Type, Runtime } from 'main.core';
 
 import { MarketManager } from 'im.v2.lib.market';
-import { Spinner, SpinnerSize } from 'im.v2.component.elements';
+import { Spinner, SpinnerSize } from 'im.v2.component.elements.loader';
 import { EventType, SidebarDetailBlock } from 'im.v2.const';
 import { EventEmitter } from 'main.core.events';
 

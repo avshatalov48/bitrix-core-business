@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["WSL_IMPORT_ERROR_ACCESS_DENIED"] = "Error: access denied!";
 $MESS["WSL_IMPORT_ERROR_FILES"] = "Error! Bad file names.";
 $MESS["WSL_IMPORT_FILES_LOADING"] = "Processing files...";
@@ -14,4 +14,3 @@ $MESS["WSL_IMPORT_ZIP_STATS"] = "ZIP codes:<ul>
 <li>for cities: #NUMCITIES#</li></ul>";
 $MESS["WSL_IMPORT_ERROR_NO_ZIP_FILE"] = "No ZIP file was loaded";
 $MESS["WSL_IMPORT_ALL_DONE"] = "Done.";
-?>

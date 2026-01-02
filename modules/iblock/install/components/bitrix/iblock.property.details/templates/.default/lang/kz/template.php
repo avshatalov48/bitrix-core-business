@@ -1,0 +1,11 @@
+<?php
+$MESS["IBLOCK_PROPERTY_DETAILS_MENU_ADDITIONAL"] = "Қосымша";
+$MESS["IBLOCK_PROPERTY_DETAILS_MENU_COMMON"] = "Жалпы";
+$MESS["IBLOCK_PROPERTY_DETAILS_MENU_DIRECTORY"] = "Анықтамалықтың мәндері";
+$MESS["IBLOCK_PROPERTY_DETAILS_MENU_LIST"] = "Тізімнің мәндері";
+$MESS["IBLOCK_PROPERTY_DETAILS_MENU_TITLE"] = "Баптаулар";
+$MESS["IBLOCK_PROPERTY_DETAILS_NEW_RECORD_TITLE"] = "Қасиеттерді қосу";
+$MESS["IBLOCK_PROPERTY_DETAILS_POPUP_OPEN_SLIDER_CONFIRM_SAVE_BUTTON"] = "Сақтау";
+$MESS["IBLOCK_PROPERTY_DETAILS_POPUP_OPEN_SLIDER_CONFIRM_TEXT"] = "Мәндерді толтыруға өту үшін қасиеттерді сақтаңыз";
+$MESS["IBLOCK_PROPERTY_DETAILS_REMOVE_POPUP_MESSAGE"] = "Осы қасиетті жойғыңыз келетініне сенімдісіз бе? Барлық мәліметтер жойылады";
+$MESS["IBLOCK_PROPERTY_DETAILS_SETTINGS_TITLE"] = "Түр баптаулары";

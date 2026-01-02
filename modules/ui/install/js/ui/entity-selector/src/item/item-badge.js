@@ -6,8 +6,9 @@ import type { TextNodeOptions } from '../common/text-node-options';
 export default class ItemBadge
 {
 	title: ?TextNode = null;
-	textColor: ?string = null;
-	bgColor: ?string = null;
+	textColor: string | null = null;
+	bgColor: string | null = null;
+	border: string | null = null;
 	containers: WeakMap<HTMLElement, HTMLElement> = new WeakMap();
 
 	constructor(badgeOptions: ItemBadgeOptions)
@@ -17,6 +18,7 @@ export default class ItemBadge
 		this.setTitle(options.title);
 		this.setTextColor(options.textColor);
 		this.setBgColor(options.bgColor);
+		this.setBorder(options.border);
 	}
 
 	getTitle(): string
@@ -65,6 +67,19 @@ export default class ItemBadge
 		}
 	}
 
+	getBorder(): string | null
+	{
+		return this.border;
+	}
+
+	setBorder(border: string | null): void
+	{
+		if (Type.isString(border) || border === null)
+		{
+			this.border = border;
+		}
+	}
+
 	getContainer(target: HTMLElement): HTMLElement
 	{
 		let container = this.containers.get(target);
@@ -94,7 +109,8 @@ export default class ItemBadge
 		}
 
 		Dom.style(container, 'color', this.getTextColor());
-		Dom.style(container, 'background-color', this.getBgColor())
+		Dom.style(container, 'background-color', this.getBgColor());
+		Dom.style(container, 'border', this.getBorder());
 		Dom.append(container, target);
 	}
 
@@ -103,7 +119,8 @@ export default class ItemBadge
 		return {
 			title: this.getTitleNode(),
 			textColor: this.getTextColor(),
-			bgColor: this.getBgColor()
-		}
+			bgColor: this.getBgColor(),
+			border: this.getBorder(),
+		};
 	}
 }

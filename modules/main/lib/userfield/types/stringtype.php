@@ -61,7 +61,8 @@ class StringType extends BaseType
 
 		$regExp = '';
 		if (
-			is_array($userField['SETTINGS'])
+			isset($userField['SETTINGS'])
+			&& is_array($userField['SETTINGS'])
 			&& !empty($userField['SETTINGS']['REGEXP'])
 			//Checking the correctness of the regular expression entered by the user
 			&& @preg_match($userField['SETTINGS']['REGEXP'], null) !== false
@@ -76,7 +77,7 @@ class StringType extends BaseType
 			'REGEXP' => $regExp,
 			'MIN_LENGTH' => $min,
 			'MAX_LENGTH' => $max,
-			'DEFAULT_VALUE' => is_array($userField['SETTINGS']) ? ($userField['SETTINGS']['DEFAULT_VALUE'] ?? '') : '',
+			'DEFAULT_VALUE' => isset($userField['SETTINGS']) && is_array($userField['SETTINGS']) ? ($userField['SETTINGS']['DEFAULT_VALUE'] ?? '') : '',
 		];
 	}
 

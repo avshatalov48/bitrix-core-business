@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
@@ -213,7 +214,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          var _ref4 = babelHelpers.slicedToArray(_ref3, 2),
 	            categoryId = _ref4[0],
 	            category = _ref4[1];
-	          if (categoryId !== 'CATALOG' && categoryId !== 'ACTIVITY' && categoryId !== 'INVOICE') {
+	          if (categoryId !== 'CATALOG' && category !== 'BOOKING' && categoryId !== 'ACTIVITY' && categoryId !== 'INVOICE') {
 	            if (main_core.Type.isPlainObject(_this3.options) && main_core.Type.isBoolean(_this3.options.isLeadEnabled) && !_this3.options.isLeadEnabled && categoryId === 'LEAD') {
 	              return;
 	            }
@@ -415,10 +416,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        activeButton.deactivate();
 	      }
 	      button.activate();
-	      var hideCreateButton = this.getAllowedTypes().every(function (type) {
-	        return main_core.Type.isPlainObject(type);
-	      });
-	      if (main_core.Type.isArrayFilled(this.getAllowedTypes()) && hideCreateButton) {
+	      var activatedCategoryId = button.id;
+	      if (this.shouldHideCreateButton(activatedCategoryId)) {
 	        this.hideCreateFieldButton();
 	      } else {
 	        this.showCreateFieldButton();
@@ -429,6 +428,19 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        var form = this.createFieldsListForm(button.id);
 	        this.appendForm(form);
 	      }
+	    }
+	  }, {
+	    key: "shouldHideCreateButton",
+	    value: function shouldHideCreateButton(activatedCategoryId) {
+	      var categoriesWithoutCreateButton = ['BOOKING'];
+	      var hideCreateButtonForCategory = categoriesWithoutCreateButton.includes(activatedCategoryId);
+	      if (hideCreateButtonForCategory) {
+	        return true;
+	      }
+	      var hideCreateButton = this.getAllowedTypes().every(function (type) {
+	        return main_core.Type.isPlainObject(type);
+	      });
+	      return main_core.Type.isArrayFilled(this.getAllowedTypes()) && hideCreateButton;
 	    }
 	  }, {
 	    key: "getFilteredFieldsTree",

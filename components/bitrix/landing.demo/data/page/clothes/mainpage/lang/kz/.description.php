@@ -1,0 +1,27 @@
+<?php
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--DESC"] = "Киім дүкенінің қалыбы, оны өз бизнесіңізге айналдырып, сатуды бастаңыз!";
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--NAME"] = "Басты парақша";
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_1"] = "Баға құлдырауы! Осы аптада сатып алуға уақыт бөліңіз!";
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_2"] = "Жаңа аяқ киім топтамасы";
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_3"] = "Толығырақ...";
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_4"] = "Неліктен біз?";
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_5"] = "Маусымның трендтері";
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_6"] = "Танымал<br />";
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_7"] = "Маусымдық сатылым";
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_8"] = "Ресейдің барлық аймақтарына жеткізу!";
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_9"] = "Жаңалықтар<br />";
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_10"] = "Толығырақ...";
+$MESS["LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TITLE_NEW"] = "Классикалық дүкен. Киім";
+$MESS["NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_1"] = "<span style=\"font-weight: normal;\">Күз келді. Жапырақтар сарғайып түсуде, жаз соңы үмітсіздік пен сағыныш тудырады. Қараңғы жұмыс күндерінің легін жарқын түске бояңыз, Баға құлдырауы күзгі науқанына асығыңыз! Күздің ең жақсы бағасы, тек сапалы тауарлар!</span>";
+$MESS["NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_2"] = "<span style=\"font-weight: normal;\">Қыздар мен ұлдар, ханымдар мен мырзалар, асығыңыздар! Аяқ киімнің жаңа түсімі. Тамаша сапа, танымал брендтер. Барлық өлшемдер қолжетімді.</span>";
+$MESS["NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_3"] = "<p>150 000 <br />астам <br />тапсырысты орындадық</p>";
+$MESS["NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_4"] = "<p>10 жылдан астам <br />табысты <br />қызмет</p>";
+$MESS["NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_5"] = "<p><br />50 000 астам <br />сатып алушы</p>";
+$MESS["NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_6"] = "<p>Сән <br />үйлерімен <br />келісімшарттар</p>";
+$MESS["NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_7"] = "<p>Түпнұсқа және<br />әрдайым жаңа <br />үлгілер</p>";
+$MESS["NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_8"] = "<p>Тәулік бойы <br />сатып алушыларға<br />қолдау көрсету</p>";
+$MESS["NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_9"] = "<span style=\"font-weight: normal;\">Сіз сауда жасайсыз және біз сіздің тапсырысыңызды біздің кең байтақ отанымыздың кез келген түкпіріне сүйіспеншілікпен жеткіземіз. 2500 рубльден астам тапсырыс үшін жеткізу мүлдем тегін болады.</span>";
+$MESS["NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_10"] = "Мықты су өткізбейтін қосылыс алынды";
+$MESS["NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_11"] = "Salon De Fashion халықаралық киім көрмесі";
+$MESS["NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_12"] = "Ресейдегі киім өндірушілерінің форумы";
+$MESS["NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TEXT_13"] = "Маусымның соңында барлық киімдерге 50% дейін жеңілдіктер";

@@ -1,0 +1,9 @@
+<?php
+$MESS["SALE_BIGDATA_TARGET_CONNECTOR_NAME"] = "Тауарларды мақсатты сату";
+$MESS["SALE_BIGDATA_TARGET_CONNECTOR_PRODUCTS_DESC"] = "Белгілі бір клиентке сатып алуға ұсынылатын тауарлар";
+$MESS["SALE_BIGDATA_TARGET_CONNECTOR_PRODUCTS_TITLE"] = "Тауарлар тізімі";
+$MESS["SALE_BIGDATA_TARGET_CONNECTOR_SELECT_DEL"] = "жою";
+$MESS["SALE_BIGDATA_TARGET_CONNECTOR_SELECT_LIMIT_CLOSE"] = "Жабу";
+$MESS["SALE_BIGDATA_TARGET_CONNECTOR_SELECT_LIMIT_MSG"] = "Бір тарату үшін #LIMIT# артық емес тауарларды таңдай аласыз.";
+$MESS["SALE_BIGDATA_TARGET_CONNECTOR_SELECT_LIMIT_TITLE"] = "Тауарлар саны";
+$MESS["SALE_BIGDATA_TARGET_CONNECTOR_SELECT_TITLE"] = "Тауарларды таңдау";

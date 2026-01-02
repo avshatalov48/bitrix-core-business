@@ -1,0 +1,5 @@
+<?php
+$MESS["LEARNING_SERVICE"] = "Оқыту";
+$MESS["LEARNING_STUDENT_GRADEBOOK_DESC"] = "Тест нәтижелері";
+$MESS["LEARNING_STUDENT_GRADEBOOK_NAME"] = "Студент журналы";
+$MESS["LEARNING_STUDENT_SERVICE"] = "Студент";

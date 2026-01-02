@@ -5,16 +5,21 @@ namespace Bitrix\Socialnetwork\Integration\UI\EntitySelector;
 use Bitrix\Intranet\Settings\Tools\ToolsManager;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\ORM\Fields\ExpressionField;
+use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Filter;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Search\Content;
+use Bitrix\Socialnetwork\Collab\CollabFeature;
+use Bitrix\Socialnetwork\Collab\Control\Option\Type\WhoCanInviteOption;
 use Bitrix\Socialnetwork\Collab\Integration\IM;
+use Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable;
 use Bitrix\Socialnetwork\EO_Workgroup;
 use Bitrix\Socialnetwork\EO_Workgroup_Collection;
 use Bitrix\Socialnetwork\FeaturePermTable;
@@ -156,6 +161,16 @@ class ProjectProvider extends BaseProvider
 			$this->options['shouldSelectDialogId'] = $options['shouldSelectDialogId'];
 		}
 
+		$this->options['checkCollabInviteOption'] = false;
+		if (isset($options['checkCollabInviteOption']) && is_bool($options['checkCollabInviteOption']))
+		{
+			$this->options['checkCollabInviteOption'] = $options['checkCollabInviteOption'];
+		}
+
+		/**
+		 * @deprecated
+		 * @see ProjectAccessCodesProvider use this instead
+		 */
 		$this->options['addProjectMetaUsers'] = false;
 		if (isset($options['addProjectMetaUsers']) && is_bool($options['addProjectMetaUsers']))
 		{
@@ -196,8 +211,8 @@ class ProjectProvider extends BaseProvider
 		$projects = $this->getProjectCollection(['limit' => $limit]);
 		$dialog->addItems($this->makeProjectItems($projects, ['tabs' => 'projects']));
 		$currentUserId = UserProvider::getCurrentUserId();
-		$userService = new User($currentUserId);
-		$isCollaber = $userService->isCollaber();
+		$user = new User($currentUserId);
+		$isCollaber = $user->isCollaber();
 /*
 		if ($projects->count() < $limit)
 		{
@@ -345,6 +360,7 @@ class ProjectProvider extends BaseProvider
 			'AVATAR_TYPE',
 			'LANDING',
 			'TYPE',
+			'SCRUM_MASTER_ID',
 		];
 
 		if (
@@ -386,6 +402,16 @@ class ProjectProvider extends BaseProvider
 		if (isset($options['project']) && is_bool(isset($options['project'])))
 		{
 			$query->where('PROJECT', $options['project'] ? 'Y' : 'N');
+		}
+
+		if (!CollabFeature::isFeatureEnabledInPortalSettings())
+		{
+			$options['!type'] ??= [];
+
+			if (is_array($options['!type']) && !in_array(Type::Collab->value, $options['!type']))
+			{
+				$options['!type'][] = Type::Collab->value;
+			}
 		}
 
 		if (!empty($options['!type']) && is_array($options['!type']))
@@ -463,6 +489,63 @@ class ProjectProvider extends BaseProvider
 					['join_type' => 'INNER']
 				)
 			);
+		}
+
+		if ($options['checkCollabInviteOption'] ?? false)
+		{
+			if ($currentUserModuleAdmin)
+			{
+				// include UserToGroupTable for admin, but don't include it twice for anyone else
+				$query->registerRuntimeField(
+					new Reference(
+						'MY_PROJECT',
+						UserToGroupTable::class,
+						Join::on('this.ID', 'ref.GROUP_ID')
+							->where('ref.USER_ID', $currentUserId),
+						['join_type' => Join::TYPE_INNER]
+					)
+				);
+			}
+
+			$query->registerRuntimeField(
+				new Reference(
+					'COLLAB_OPTIONS',
+					CollabOptionTable::class,
+					Join::on('this.ID', 'ref.COLLAB_ID')
+						->where('ref.NAME', WhoCanInviteOption::DB_NAME),
+					['join_type' => Join::TYPE_INNER]
+				)
+			);
+
+			$ownerRole = UserToGroupTable::ROLE_OWNER;
+			$managerRole = UserToGroupTable::ROLE_MODERATOR;
+			$userRole = UserToGroupTable::ROLE_USER;
+			$query->registerRuntimeField((new ExpressionField(
+				'NEED_ROLE_WEIGHT',
+				"CASE
+					WHEN %s = '{$ownerRole}' THEN 2
+					WHEN %s = '{$managerRole}' THEN 1
+					ELSE 0
+				END",
+				['COLLAB_OPTIONS.VALUE', 'COLLAB_OPTIONS.VALUE']
+			))->configureValueType(IntegerField::class));
+
+			$query->registerRuntimeField((new ExpressionField(
+				'ROLE_WEIGHT',
+				"CASE
+					WHEN %s = '{$ownerRole}' THEN 2
+					WHEN %s = '{$managerRole}' THEN 1
+					WHEN %s = '{$userRole}' THEN 0
+					ELSE -1
+				END",
+				['MY_PROJECT.ROLE', 'MY_PROJECT.ROLE', 'MY_PROJECT.ROLE']
+			))->configureValueType(IntegerField::class));
+
+			$query->where((new ExpressionField(
+				'HAS_ACCESS_BY_ROLE',
+				'%s >= %s',
+				['ROLE_WEIGHT', 'NEED_ROLE_WEIGHT']
+			))->configureValueType(BooleanField::class), 'expr', true);
 		}
 
 		$extranetSiteId = Option::get('extranet', 'extranet_site');
@@ -988,11 +1071,7 @@ class ProjectProvider extends BaseProvider
 		$item = new Item([
 			'id' => $project->getId(),
 			'entityId' => static::ENTITY_ID,
-			'entityType' => (
-			$isCollab
-				? 'collab'
-				: ($isExtranet ? 'extranet' : 'project')
-			),
+			'entityType' => self::makeProjectEntityType($project),
 			'title' => $project->getName(),
 			'avatar' => self::makeProjectAvatar($project),
 			'customData' => [
@@ -1093,6 +1172,16 @@ class ProjectProvider extends BaseProvider
 		}
 
 		return null;
+	}
+
+	public static function makeProjectEntityType(EO_Workgroup $project): ?string
+	{
+		$extranetSiteId = Option::get('extranet', 'extranet_site');
+		$extranetSiteId = ($extranetSiteId && ModuleManager::isModuleInstalled('extranet') ? $extranetSiteId : false);
+		$isExtranet = ($extranetSiteId && $project->get('IS_EXTRANET') === 'Y');
+		$isCollab = $project->getType() === Type::Collab->value;
+
+		return ($isExtranet && !$isCollab) ? 'extranet' : $project->getType();
 	}
 
 	public static function getProjectUrl(?int $projectId = null, ?int $currentUserId = null): string

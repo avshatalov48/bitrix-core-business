@@ -37,3 +37,5 @@ foreach($arResult["ITEMS"] as $key => $item)
 		$arResult["ITEMS"][$key]["SHOW_LIVE_FEED"] = CLists::getLiveFeed($item['ID']);
 	}
 }
+
+$arResult['RAND_STRING'] = $this->randString();

@@ -5,13 +5,16 @@ import { Core } from 'im.v2.application.core';
 import { FileStatus } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 
-import type { ImModelFile } from 'im.v2.model';
+import type { ImModelFile, ImModelTranscription } from 'im.v2.model';
 
 type FilesState = {
 	collection: {
 		[fileId: string]: ImModelFile
 	},
 	temporaryFilesMap: Map<number, string>,
+	transcriptions: {
+		[fileId: string]: ImModelTranscription,
+	},
 };
 
 export class FilesModel extends BuilderModel
@@ -26,6 +29,7 @@ export class FilesModel extends BuilderModel
 		return {
 			collection: {},
 			temporaryFilesMap: new Map(),
+			transcriptions: {},
 		};
 	}
 
@@ -39,8 +43,9 @@ export class FilesModel extends BuilderModel
 			type: 'file',
 			extension: '',
 			icon: 'empty',
+			isTranscribable: false,
 			size: 0,
-			image: false,
+			image: null,
 			status: FileStatus.done,
 			progress: 100,
 			authorId: 0,
@@ -112,6 +117,10 @@ export class FilesModel extends BuilderModel
 
 				return null;
 			},
+			/** @function files/getTranscription */
+			getTranscription: (state: FilesState) => (fileId: number): ?ImModelTranscription => {
+				return state.transcriptions[fileId] || null;
+			},
 		};
 	}
 
@@ -175,6 +184,16 @@ export class FilesModel extends BuilderModel
 			setTemporaryFileMapping: (store, payload: {serverFileId: number, temporaryFileId: string}) => {
 				store.commit('setTemporaryFileMapping', payload);
 			},
+			/** @function files/setTranscription */
+			setTranscription: (store, payload: ImModelTranscription) => {
+				const { fileId, status, transcriptText } = payload;
+
+				store.commit('setTranscription', {
+					fileId,
+					status,
+					transcriptText,
+				});
+			},
 		};
 	}
 
@@ -206,6 +225,9 @@ export class FilesModel extends BuilderModel
 			},
 			setTemporaryFileMapping: (state: FilesState, payload: {serverFileId: number, temporaryFileId: string}) => {
 				state.temporaryFilesMap.set(payload.serverFileId, payload.temporaryFileId);
+			},
+			setTranscription: (state: FilesState, payload: ImModelTranscription) => {
+				state.transcriptions[payload.fileId] = { status: payload.status, transcriptText: payload.transcriptText };
 			},
 		};
 	}
@@ -310,6 +332,11 @@ export class FilesModel extends BuilderModel
 			result.authorName = file.authorName.toString();
 		}
 
+		if (Type.isBoolean(file.isTranscribable))
+		{
+			result.isTranscribable = file.isTranscribable;
+		}
+
 		if (Type.isString(file.urlPreview))
 		{
 			if (
@@ -334,7 +361,8 @@ export class FilesModel extends BuilderModel
 				!file.urlDownload
 				|| file.urlDownload.startsWith('http')
 				|| file.urlDownload.startsWith('bx')
-				|| file.urlPreview.startsWith('file')
+				|| file.urlDownload.startsWith('file')
+				|| file.urlDownload.startsWith('blob')
 			)
 			{
 				result.urlDownload = file.urlDownload;
@@ -365,71 +393,7 @@ export class FilesModel extends BuilderModel
 
 		if (Type.isPlainObject(file.viewerAttrs))
 		{
-			result.viewerAttrs = this.validateViewerAttributes(file.viewerAttrs);
-		}
-
-		return result;
-	}
-
-	validateViewerAttributes(viewerAttrs): ImModelFile['ViewerAttrs']
-	{
-		const result = {
-			viewer: true,
-		};
-
-		if (Type.isString(viewerAttrs.actions))
-		{
-			result.actions = viewerAttrs.actions;
-		}
-
-		if (Type.isString(viewerAttrs.objectId))
-		{
-			result.objectId = viewerAttrs.objectId;
-		}
-
-		if (Type.isString(viewerAttrs.src))
-		{
-			result.src = viewerAttrs.src;
-		}
-
-		if (Type.isString(viewerAttrs.title))
-		{
-			result.title = viewerAttrs.title;
-		}
-
-		if (Type.isString(viewerAttrs.viewerGroupBy))
-		{
-			result.viewerGroupBy = viewerAttrs.viewerGroupBy;
-		}
-
-		if (Type.isString(viewerAttrs.viewerType))
-		{
-			result.viewerType = viewerAttrs.viewerType;
-		}
-
-		if (Type.isString(viewerAttrs.viewerPreview))
-		{
-			result.viewerPreview = viewerAttrs.viewerPreview;
-		}
-
-		if (Type.isString(viewerAttrs.viewerTypeClass))
-		{
-			result.viewerTypeClass = viewerAttrs.viewerTypeClass;
-		}
-
-		if (Type.isBoolean(viewerAttrs.viewerSeparateItem))
-		{
-			result.viewerSeparateItem = viewerAttrs.viewerSeparateItem;
-		}
-
-		if (Type.isString(viewerAttrs.viewerExtension))
-		{
-			result.viewerExtension = viewerAttrs.viewerExtension;
-		}
-
-		if (Type.isNumber(viewerAttrs.imChatId))
-		{
-			result.imChatId = viewerAttrs.imChatId;
+			result.viewerAttrs = file.viewerAttrs;
 		}
 
 		return result;

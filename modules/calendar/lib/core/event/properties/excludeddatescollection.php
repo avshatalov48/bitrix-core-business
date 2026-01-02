@@ -47,16 +47,8 @@ class ExcludedDatesCollection extends PropertyCollection
 		return $exdateCollection;
 	}
 
-	/**
-	 * @param Date $date
-	 * @return void
-	 */
 	public function removeDateFromCollection(Date $date): void
 	{
-		/**
-		 	* @var $key
-			* @var Date $item
-		 */
 		foreach ($this->collection as $key => $item)
 		{
 			if ($item->format('d.m.Y') === $date->format('d.m.Y'))

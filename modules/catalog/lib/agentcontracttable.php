@@ -1,8 +1,9 @@
 <?php
+
 namespace Bitrix\Catalog;
 
 use Bitrix\Main\Application;
-use Bitrix\Main\Entity\EventResult;
+use Bitrix\Main\ORM\EventResult;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Event;

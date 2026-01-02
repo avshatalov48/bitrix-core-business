@@ -1,3 +1,4 @@
+import type ItemNode from './item-node';
 import type { ItemNodeOptions } from './item-node-options';
 import type { ItemBadgeOptions } from './item-badge-options';
 import type { TextNodeOptions } from '../common/text-node-options';
@@ -30,10 +31,17 @@ export type ItemOptions = {
 	deselectable?: boolean,
 	selected?: boolean,
 	hidden?: boolean,
+	locked?: boolean,
 	children?: ItemOptions[],
 	nodeOptions?: ItemNodeOptions,
 	customData?: { [key: string]: any },
 	contextSort?: number,
 	globalSort?: number,
 	sort?: number,
+};
+
+export type ItemSelectOptions = {
+	emitEvents?: boolean,
+	animate?: boolean,
+	node?: ItemNode,
 };

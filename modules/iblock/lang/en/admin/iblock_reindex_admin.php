@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_RADM_ID"] = "ID";
 $MESS["IBLOCK_RADM_NAME"] = "Name";
 $MESS["IBLOCK_RADM_ACTIVE"] = "Active";
@@ -12,4 +12,3 @@ $MESS["IBLOCK_RADM_ACTIVE_YES"] = "yes";
 $MESS["IBLOCK_RADM_ACTIVE_NO"] = "no";
 $MESS["IBLOCK_RADM_REINDEX_DISABLE"] = "Disable";
 $MESS["IBLOCK_RADM_REINDEX_DISABLE_CONFIRM"] = "Are you sure you want to disable faceted index for this information block?";
-?>

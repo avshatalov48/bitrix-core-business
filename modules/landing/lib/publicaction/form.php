@@ -7,6 +7,7 @@ use Bitrix\Landing\PublicActionResult;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UserConsent\Agreement;
 use \Bitrix\Crm\Category\DealCategory;
+use Bitrix\Crm\Service\Container;
 
 class Form
 {
@@ -133,8 +134,10 @@ class Form
 			&& static::checkFormPermission()
 		)
 		{
-			$userPermissions = \CCrmPerms::GetCurrentUserPermissions();
-			$map = array_fill_keys(\CCrmDeal::GetPermittedToReadCategoryIDs($userPermissions), true);
+			$map = array_fill_keys(
+				\Bitrix\Crm\Service\Container::getInstance()->getUserPermissions()->category()->getAvailableForReadingCategoriesIds(\CCrmOwnerType::Deal),
+				true
+			);
 			$allCategories = DealCategory::getAll(true);
 
 			foreach ($allCategories as $key => $category)
@@ -161,15 +164,7 @@ class Form
 
 	public static function checkFormPermission(): bool
 	{
-		global $USER;
-		$CrmPerms = new \CCrmPerms($USER->GetID());
-
-		if($CrmPerms->HavePerm('WEBFORM', BX_CRM_PERM_NONE))
-		{
-			return false;
-		}
-
-		return true;
+		return Container::getInstance()->getUserPermissions()->webForm()->canEdit();
 	}
 
 	/**
@@ -194,7 +189,7 @@ class Form
 	{
 		$publicActionResult = new PublicActionResult();
 		$publicActionResult->setResult(
-			\Bitrix\Landing\Subtype\Form::getFormById((int)$formId)
+			\Bitrix\Landing\Subtype\Form::getFormById((int)$formId, true)
 		);
 
 		return $publicActionResult;

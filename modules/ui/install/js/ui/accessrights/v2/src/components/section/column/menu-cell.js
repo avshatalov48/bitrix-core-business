@@ -106,7 +106,7 @@ export const MenuCell = {
 		<CellLayout class="ui-access-rights-v2-menu-cell" style="cursor: pointer" @click="toggleMenu">
 			<div
 				ref="icon"
-				class="ui-icon-set --more ui-access-rights-v2-icon-more"
+				class="ui-icon-set --more-l ui-access-rights-v2-icon-more"
 			>
 				<RichMenuPopup
 					v-if="isMenuShown"

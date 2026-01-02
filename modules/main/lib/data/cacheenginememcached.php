@@ -1,5 +1,8 @@
 <?php
+
 namespace Bitrix\Main\Data;
+
+use Bitrix\Main\Config\Configuration;
 
 class CacheEngineMemcached extends CacheEngineMemcache
 {
@@ -8,19 +11,23 @@ class CacheEngineMemcached extends CacheEngineMemcache
 		return 'cache.memcached';
 	}
 
-	protected function modifyConfigByEngine(&$config, $cacheConfig, array $options = []): void
-	{
-		parent::modifyConfigByEngine($config, $cacheConfig, $options);
-
-		if (isset($cacheConfig['serializer']))
-		{
-			$config['serializer'] = (int) $cacheConfig['serializer'];
-		}
-	}
-
 	public static function getConnectionClass()
 	{
 		return MemcachedConnection::class;
+	}
+
+	protected function configure($options = []): array
+	{
+		$config = parent::configure($options);
+
+		$cacheConfig = Configuration::getValue('cache');
+
+		if (isset($cacheConfig['serializer']))
+		{
+			$config['serializer'] = (int)$cacheConfig['serializer'];
+		}
+
+		return $config;
 	}
 
 	public function set($key, $ttl, $value) : bool

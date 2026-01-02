@@ -1,7 +1,6 @@
 // File generated automatically. Don't modify it.
 import 'core-js/modules/es.aggregate-error';
 import 'core-js/modules/es.array.at';
-import 'core-js/modules/es.array.reverse';
 import 'core-js/modules/es.array-buffer.slice';
 import 'core-js/modules/es.object.from-entries';
 import 'core-js/modules/es.object.has-own';

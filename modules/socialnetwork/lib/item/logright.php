@@ -14,12 +14,19 @@ class LogRight
 {
 	public static function get(int $logId = 0)
 	{
-		$result = [];
+		static $cache = [];
 
 		if ($logId <= 0)
 		{
-			return $result;
+			return [];
 		}
+
+		if (!empty($cache[$logId]))
+		{
+			return $cache[$logId];
+		}
+
+		$result = [];
 
 		$res = LogRightTable::getList([
 			'filter' => [
@@ -31,6 +38,8 @@ class LogRight
 		{
 			$result[] = $logRightFields['GROUP_CODE'];
 		}
+
+		$cache[$logId] = $result;
 
 		return $result;
 	}

@@ -39,8 +39,8 @@ export class Step extends Event.EventEmitter
 			const callback = Type.isFunction(events[eventName]) ? events[eventName] : Reflection.getClass(events[eventName]);
 			if (callback)
 			{
-				this.subscribe(this.constructor.getFullEventName(eventName), () => {
-					callback();
+				this.subscribe(this.constructor.getFullEventName(eventName), (...args) => {
+					callback(...args);
 				});
 			}
 		}

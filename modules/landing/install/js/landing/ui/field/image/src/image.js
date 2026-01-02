@@ -1,12 +1,13 @@
-import { Dom, Type, Runtime, Event } from 'main.core';
-import {Loc} from 'landing.loc';
-import {Main} from 'landing.main';
-import {StylePanel} from 'landing.ui.panel.stylepanel';
-import {TextField} from 'landing.ui.field.textfield';
-import {ImageUploader} from 'landing.imageuploader';
-import {BaseButton} from 'landing.ui.button.basebutton';
-import {AiImageButton} from 'landing.ui.button.aiimagebutton';
-import {Env} from 'landing.env';
+import { Dom, Type, Runtime, Event, Text } from 'main.core';
+import { Loc } from 'landing.loc';
+import { Main } from 'landing.main';
+import { Metrika } from 'landing.metrika';
+import { StylePanel } from 'landing.ui.panel.stylepanel';
+import { TextField } from 'landing.ui.field.textfield';
+import { ImageUploader } from 'landing.imageuploader';
+import { BaseButton } from 'landing.ui.button.basebutton';
+import { AiImageButton } from 'landing.ui.button.aiimagebutton';
+import { Env } from 'landing.env';
 import type { Copilot as CopilotType } from 'ai.copilot';
 
 import 'ui.fonts.opensans';
@@ -23,19 +24,21 @@ export class Image extends TextField
 	copilotCategory = null;
 	useCopilotInIframe = false;
 	copilotFinishInitPromise = new Promise(() => {});
+	isEditorSaved = false;
 
 	static CONTEXT_TYPE_CONTENT = 'content';
 	static CONTEXT_TYPE_STYLE = 'style';
+	static CONTEXT_TYPE_SETTINGS = 'settings';
 
 	constructor(data)
 	{
 		super(data);
 
-		this.dimensions = typeof data.dimensions === "object" ? data.dimensions : null;
+		this.dimensions = typeof data.dimensions === 'object' ? data.dimensions : null;
 		this.create2xByDefault = data.create2xByDefault !== false;
-		this.uploadParams = typeof data.uploadParams === "object" ? data.uploadParams : {};
+		this.uploadParams = typeof data.uploadParams === 'object' ? data.uploadParams : {};
 		this.onValueChangeHandler = data.onValueChange ? data.onValueChange : (() => {});
-		this.type = this.content.type || "image";
+		this.type = this.content.type || 'image';
 		this.contextType = data.contextType || Image.CONTEXT_TYPE_CONTENT;
 		this.allowClear = data.allowClear;
 		this.isAiImageAvailable = Type.isBoolean(data.isAiImageAvailable) ? data.isAiImageAvailable : false;
@@ -121,10 +124,11 @@ export class Image extends TextField
 		this.left.appendChild(this.linkInput.layout);
 
 		this.uploadButton = Image.createUploadButton(this.compactMode);
-		this.uploadButton.on("click", this.onUploadClick.bind(this));
+		this.uploadButton.on('click', this.onUploadClick.bind(this));
 
 		this.editButton = Image.createEditButton();
-		this.editButton.on("click", this.onEditClick.bind(this));
+		this.editButton.on('click', this.onEditClick.bind(this));
+		this.onEditorClose = Runtime.debounce(this.onEditorClose, 1000, this);
 
 		this.right = Image.createRightLayout();
 
@@ -267,6 +271,8 @@ export class Image extends TextField
 		});
 
 		this.adjustEditButtonState();
+
+		this.metrika = new Metrika(true);
 	}
 
 	/**
@@ -275,9 +281,13 @@ export class Image extends TextField
 	 */
 	static createFileInput(id)
 	{
-		return Dom.create("input", {
-			props: {className: "landing-ui-field-image-dropzone-input"},
-			attrs: {accept: "image/*", type: "file", id: "file_" + id, name: "picture"},
+		return Dom.create('input', {
+			props: {
+				className: 'landing-ui-field-image-dropzone-input',
+			},
+			attrs: {
+				accept: 'image/*', type: 'file', id: `file_${id}`, name: 'picture',
+			},
 		});
 	}
 
@@ -567,19 +577,21 @@ export class Image extends TextField
 		Dom.addClass(this.preview, '--shown');
 		Dom.style(this.preview, 'background-image', `url("${this.imageCopilotUrl}")`);
 		Dom.style(this.preview, 'background-size', 'contain');
+
+		this.showPreview();
 	}
 
 	imageCopilotSaveImageHandler()
 	{
-		const url = this.imageCopilotUrl;
-		const proxyUrl = BX.util.add_url_param("/bitrix/tools/landing/proxy.php", {
-			"sessid": BX.bitrix_sessid(),
-			"url": url,
-		});
-		BX.Landing.Utils.urlToBlob(proxyUrl)
+		const url = new URL(this.imageCopilotUrl);
+		const name = url.searchParams.get('hashId') ?? Text.getRandom(8);
+
+		BX.Landing.Utils.urlToBlob(url.href)
 			.then(blob => {
+
+				const ext = blob.type === 'image/png' ? '.png' : '.jpg';
 				blob.lastModifiedDate = new Date();
-				blob.name = url.slice(url.lastIndexOf('/') + 1);
+				blob.name = `${name}.${ext}`;
 
 				return blob;
 			})
@@ -695,10 +707,16 @@ export class Image extends TextField
 						text: Loc.getMessage("LANDING_IMAGE_UPLOAD_MENU_UNSPLASH"),
 						onclick: this.onUnsplashShow.bind(this),
 					},
-					{
-						text: Loc.getMessage("LANDING_IMAGE_UPLOAD_MENU_GOOGLE"),
-						onclick: this.onGoogleShow.bind(this),
-					},
+					...(
+						Env.getInstance().getOptions()['google_images_available']
+							? [
+								{
+									text: Loc.getMessage("LANDING_IMAGE_UPLOAD_MENU_GOOGLE"),
+									onclick: this.onGoogleShow.bind(this),
+								},
+							]
+							: []
+					),
 					// {
 					// 	text: Loc.getMessage("LANDING_IMAGE_UPLOAD_MENU_PARTNER"),
 					// 	className: "landing-ui-disabled"
@@ -796,8 +814,17 @@ export class Image extends TextField
 
 	onEditClick(event)
 	{
+		this.sendAnalytic('open');
+		parent.BX.addCustomEvent('BX.Main.ImageEditor:close', this.onEditorClose);
+
 		event.preventDefault();
 		this.edit({src: this.hiddenImage.src});
+	}
+
+	onEditorClose()
+	{
+		this.sendAnalytic(this.isEditorSaved ? 'save' : 'close');
+		parent.BX.removeCustomEvent('BX.Main.ImageEditor:close', this.onEditorClose);
 	}
 
 	onClearClick(event)
@@ -806,6 +833,25 @@ export class Image extends TextField
 		this.setValue({src: ""});
 		this.fileInput.value = "";
 		this.showDropzone();
+	}
+
+	/**
+	 * @param {string} event - name of event (not event-object)
+	 */
+	sendAnalytic(event: string)
+	{
+		const contexts = {
+			[Image.CONTEXT_TYPE_CONTENT]: 'sites_editor',
+			[Image.CONTEXT_TYPE_STYLE]: 'sites_designer',
+			[Image.CONTEXT_TYPE_SETTINGS]: 'sites_settings',
+		};
+		const contextSection = contexts[this.contextType] || 'sites_editor';
+
+		this.metrika.sendData({
+			category: 'external_picture_editor',
+			event,
+			c_section: contextSection,
+		});
 	}
 
 	showDropzone()
@@ -1067,13 +1113,13 @@ export class Image extends TextField
 
 	edit(data)
 	{
+		this.isEditorSaved = false;
 		parent.BX.Landing.ImageEditor
 			.edit({
 				image: data.src,
 				dimensions: this.dimensions,
 			})
-			.then(function (file)
-			{
+			.then((file) => {
 				let ext = file.name.split('.').pop();
 				if (!file.name.includes('.') || ext.length > 4)
 				{
@@ -1082,11 +1128,13 @@ export class Image extends TextField
 				}
 
 				return this.upload(file, {context: "imageEditor"});
-			}.bind(this))
-			.then(function (result)
-			{
+			})
+			.then((result) => {
+				this.isEditorSaved = true;
+				this.onEditorClose();
+
 				this.setValue(result);
-			}.bind(this));
+			});
 
 		// Analytics hack
 		const tmpImage = document.createElement('img');

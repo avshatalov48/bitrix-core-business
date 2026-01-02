@@ -41,3 +41,4 @@ $MESS['LANDING_FIELDS_ITEM_FORM_ALLOWED_ANY_FILE_TYPE'] = 'Любые';
 
 $MESS['LANDING_FIELDS_ITEM_REQUISITE_SETTINGS_LABEL'] = 'Настройка реквизитов';
 $MESS['LANDING_FIELDS_ITEM_REQUISITE_SETTINGS_FIELDS_LABEL'] = 'настроить поля';
+$MESS['LANDING_PHONE_FIELD_AHA_MOMENT_REGION_CODE'] = 'Добавьте код страны — он будет подставляться в форму автоматически. Так клиентам будет проще вводить номер, а вы получите правильный телефон для связи';

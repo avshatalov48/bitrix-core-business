@@ -10,6 +10,4 @@ export {
 	FeaturePromotersRegistry,
 };
 
-BX.ready(() => {
-	FeaturePromoterAutoBinder.launch();
-});
+FeaturePromoterAutoBinder.launch();

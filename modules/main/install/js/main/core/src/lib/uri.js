@@ -19,6 +19,7 @@ export default class Uri
 	static removeParam(url: string, params: Array<string> | string): string
 	{
 		const removableParams = Type.isArray(params) ? params : [params];
+
 		return (new Uri(url)).removeQueryParam(...removableParams).toString();
 	}
 
@@ -27,107 +28,67 @@ export default class Uri
 		map.set(this, parseUrl(url));
 	}
 
-	/**
-	 * Gets schema
-	 * @return {?string}
-	 */
-	getSchema()
+	getSchema(): ?string
 	{
 		return map.get(this).schema;
 	}
 
-	/**
-	 * Sets schema
-	 * @param {string} schema
-	 * @return {Uri}
-	 */
-	setSchema(schema)
+	setSchema(schema: string): Uri
 	{
 		map.get(this).schema = String(schema);
+
 		return this;
 	}
 
-	/**
-	 * Gets host
-	 * @return {?string}
-	 */
-	getHost()
+	getHost(): ?string
 	{
 		return map.get(this).host;
 	}
 
-	/**
-	 * Sets host
-	 * @param {string} host
-	 * @return {Uri}
-	 */
-	setHost(host)
+	setHost(host: string): Uri
 	{
 		map.get(this).host = String(host);
+
 		return this;
 	}
 
-	/**
-	 * Gets port
-	 * @return {?string}
-	 */
-	getPort()
+	getPort(): string
 	{
 		return map.get(this).port;
 	}
 
-	/**
-	 * Sets port
-	 * @param {String | Number} port
-	 * @return {Uri}
-	 */
-	setPort(port)
+	setPort(port: string | number): Uri
 	{
 		map.get(this).port = String(port);
+
 		return this;
 	}
 
-	/**
-	 * Gets path
-	 * @return {?string}
-	 */
-	getPath()
+	getPath(): string
 	{
 		return map.get(this).path;
 	}
 
-	/**
-	 * Sets path
-	 * @param {string} path
-	 * @return {Uri}
-	 */
-	setPath(path)
+	setPath(path: string): Uri
 	{
 		if (!/^\//.test(path))
 		{
 			map.get(this).path = `/${String(path)}`;
+
 			return this;
 		}
 
 		map.get(this).path = String(path);
+
 		return this;
 	}
 
-	/**
-	 * Gets query
-	 * @return {?string}
-	 */
-	getQuery()
+	getQuery(): string
 	{
 		return buildQueryString(map.get(this).queryParams);
 	}
 
-	/**
-	 * Gets query param value by name
-	 * @param {string} key
-	 * @return {?string}
-	 */
-	getQueryParam(key)
+	getQueryParam(key: string): ?string
 	{
 		const params = this.getQueryParams();
 
@@ -139,103 +100,71 @@ export default class Uri
 		return null;
 	}
 
-	/**
-	 * Sets query param
-	 * @param {string} key
-	 * @param [value]
-	 * @return {Uri}
-	 */
-	setQueryParam(key, value = '')
+	setQueryParam(key: string, value: string = ''): Uri
 	{
 		map.get(this).queryParams[key] = prepareParamValue(value);
+		map.get(this).sourceQueryParams[key] = prepareParamValue(value);
+
 		return this;
 	}
 
-	/**
-	 * Gets query params
-	 * @return {Object<string, any>}
-	 */
-	getQueryParams()
+	getQueryParams(): { [key: string]: string }
 	{
-		return {...map.get(this).queryParams};
+		return { ...map.get(this).queryParams };
 	}
 
-	/**
-	 * Sets query params
-	 * @param {Object<string, any>} params
-	 * @return {Uri}
-	 */
-	setQueryParams(params = {})
+	setQueryParams(params: { [key: string]: string } = {}): Uri
 	{
-		const currentParams = this.getQueryParams();
-		const newParams = {...currentParams, ...params};
+		if (Type.isPlainObject(params))
+		{
+			const { queryParams, sourceQueryParams } = map.get(this);
 
-		Object.keys(newParams).forEach((key) => {
-			newParams[key] = prepareParamValue(newParams[key]);
+			Object.entries(params).forEach(([key: string, value: string]) => {
+				const preparedValue = prepareParamValue(value);
+				queryParams[key] = preparedValue;
+				sourceQueryParams[key] = preparedValue;
+			});
+		}
+
+		return this;
+	}
+
+	removeQueryParam(...keys: Array<string>): Uri
+	{
+		const { queryParams, sourceQueryParams } = map.get(this);
+
+		keys.forEach((key: string) => {
+			delete queryParams[key];
+			delete sourceQueryParams[key];
 		});
 
-		map.get(this).queryParams = newParams;
 		return this;
 	}
 
-	/**
-	 * Removes query params by name
-	 * @param keys
-	 * @return {Uri}
-	 */
-	removeQueryParam(...keys)
-	{
-		const currentParams = {...map.get(this).queryParams};
-
-		keys.forEach((key) => {
-			if (Object.hasOwn(currentParams, key))
-			{
-				delete currentParams[key];
-			}
-		});
-
-		map.get(this).queryParams = currentParams;
-		return this;
-	}
-
-	/**
-	 * Gets fragment
-	 * @return {?string}
-	 */
-	getFragment()
+	getFragment(): ?string
 	{
 		return map.get(this).hash;
 	}
 
-	/**
-	 * Sets fragment
-	 * @param {string} hash
-	 * @return {Uri}
-	 */
-	setFragment(hash)
+	setFragment(hash: string): Uri
 	{
 		map.get(this).hash = String(hash);
+
 		return this;
 	}
 
-	/**
-	 * Serializes URI
-	 * @return {Object}
-	 */
-	serialize()
+	serialize(): { [key: string]: string }
 	{
-		const serialized = {...map.get(this)};
+		const serialized = { ...map.get(this) };
+		delete serialized.sourceQueryParams;
 		serialized.href = this.toString();
+
 		return serialized;
 	}
 
-	/**
-	 * Gets URI string
-	 * @return {string}
-	 */
-	toString()
+	toString(): string
 	{
-		const data = {...map.get(this)};
+		const data = { ...map.get(this) };
 
 		let protocol = data.schema ? `${data.schema}://` : '';
 
@@ -255,7 +184,7 @@ export default class Uri
 
 		const host = this.getHost();
 		const path = this.getPath();
-		const query = buildQueryString(data.queryParams);
+		const query = buildQueryString(data.sourceQueryParams);
 		const hash = data.hash ? `#${data.hash}` : '';
 
 		return `${host ? protocol : ''}${host}${host ? port : ''}${path}${query}${hash}`;

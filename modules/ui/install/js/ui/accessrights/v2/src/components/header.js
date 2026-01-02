@@ -11,17 +11,18 @@ import 'ui.buttons';
 /**
  * A special case of Section
  */
+// @vue/component
 export const Header = {
 	name: 'Header',
 	components: { RoleHeading, SyncHorizontalScroll, Members, RolesControl, ColumnLayout, CellLayout },
+	directives: {
+		hint,
+	},
 	props: {
 		userGroups: {
 			type: Map,
 			required: true,
 		},
-	},
-	directives: {
-		hint,
 	},
 	computed: {
 		...mapState({

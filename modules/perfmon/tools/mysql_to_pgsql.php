@@ -10,7 +10,7 @@ define('CHAR_WIDTH', 4);
 define('CHARSET', 'utf8mb4');
 define('COLLATION', 'utf8mb4_0900_ai_ci');
 
-error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT & ~E_WARNING & ~E_USER_WARNING & ~E_COMPILE_WARNING);
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_WARNING & ~E_USER_WARNING & ~E_COMPILE_WARNING);
 
 class NotSupportedException extends \Exception {}
 
@@ -37,31 +37,31 @@ $table = '';
 
 for ($i = 1, $c = count($argv); $i < $c; $i++)
 {
-	if (preg_match("/^--file=(.+)\$/", $argv[$i], $match))
+	if (preg_match('/^--file=(.+)$/', $argv[$i], $match))
 	{
 		$files[] = $match[1];
 	}
-	elseif (preg_match("/^--mysqldump=(.+)\$/", $argv[$i], $match))
+	elseif (preg_match('/^--mysqldump=(.+)$/', $argv[$i], $match))
 	{
 		$mysqldump = $match[1];
 	}
-	elseif (preg_match("/^--host=(.+)\$/", $argv[$i], $match))
+	elseif (preg_match('/^--host=(.+)$/', $argv[$i], $match))
 	{
 		$host = $match[1];
 	}
-	elseif (preg_match("/^--user=(.+)\$/", $argv[$i], $match))
+	elseif (preg_match('/^--user=(.+)$/', $argv[$i], $match))
 	{
 		$user = $match[1];
 	}
-	elseif (preg_match("/^--password=(.+)\$/", $argv[$i], $match))
+	elseif (preg_match('/^--password=(.+)$/', $argv[$i], $match))
 	{
 		$password = $match[1];
 	}
-	elseif (preg_match("/^--database=(.+)\$/", $argv[$i], $match))
+	elseif (preg_match('/^--database=(.+)$/', $argv[$i], $match))
 	{
 		$databases[] = $match[1];
 	}
-	elseif (preg_match("/^--table=(.+)\$/", $argv[$i], $match))
+	elseif (preg_match('/^--table=(.+)$/', $argv[$i], $match))
 	{
 		$table = $match[1];
 	}
@@ -99,7 +99,7 @@ if ($mysqldump)
 					$ddl = '';
 				}
 			}
-			elseif (preg_match("/^(?:INSERT|REPLACE) INTO `(.*?)` VALUES (.+);\s*\$/", $line, $match))
+			elseif (preg_match('/^(?:INSERT|REPLACE) INTO `(.*?)` VALUES (.+);\s*$/', $line, $match))
 			{
 				$rows = parse_values($match[2]);
 				foreach ($rows as $row)
@@ -115,7 +115,7 @@ if ($files)
 {
 	foreach ($files as $file_name)
 	{
-		$sql = file_get_contents($file_name, "r");
+		$sql = file_get_contents($file_name, 'r');
 		echo generate_schema_ddl($sql, $table, false, $file_name);
 	}
 }
@@ -124,11 +124,11 @@ if ($host || $user || $password)
 {
 	echo "SET client_min_messages TO WARNING;\n";
 
-	$dbh = new \PDO("mysql:host=".$host.";port=3306", $user, $password);
+	$dbh = new \PDO('mysql:host=' . $host . ';port=3306', $user, $password);
 	$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 	if (!$databases)
 	{
-		$r = $dbh->query("show databases");
+		$r = $dbh->query('show databases');
 		while ($a = $r->fetch(\PDO::FETCH_ASSOC))
 		{
 			if (
@@ -145,12 +145,12 @@ if ($host || $user || $password)
 
 	foreach ($databases as $db_name)
 	{
-		$dbh->exec("use ".$db_name);
+		$dbh->exec('use ' . $db_name);
 		$sql = '';
-		$r = $dbh->query("show tables");
+		$r = $dbh->query('show tables');
 		while ($a = $r->fetch(\PDO::FETCH_ASSOC))
 		{
-			$r2 = $dbh->query("show create table `".$a['Tables_in_' . $db_name]."`");
+			$r2 = $dbh->query('show create table `' . $a['Tables_in_' . $db_name] . '`');
 			$a2 = $r2->fetch(\PDO::FETCH_ASSOC);
 			if (isset($a2['Table']))
 			{
@@ -163,7 +163,7 @@ if ($host || $user || $password)
 
 function unquote($identifier)
 {
-	return trim($identifier, "`");
+	return trim($identifier, '`');
 }
 
 function convertColumnType($columnType, $length, $unsigned)
@@ -217,7 +217,7 @@ function convertColumnType($columnType, $length, $unsigned)
 
 function generate_schema_ddl($sql, $tableFilter, $isDump, $source)
 {
-	$ddl = "";
+	$ddl = '';
 	$match = [];
 
 	//todo: Unsupported statement by Perfmon\Sql\Schema
@@ -235,7 +235,7 @@ function generate_schema_ddl($sql, $tableFilter, $isDump, $source)
 
 		if ($isDump)
 		{
-			$ddl .= "DROP TABLE IF EXISTS " . unquote($table->name) . ";\n";
+			$ddl .= 'DROP TABLE IF EXISTS ' . unquote($table->name) . ";\n";
 		}
 
 		$autoIncrementValue = null;
@@ -264,7 +264,7 @@ function generate_schema_ddl($sql, $tableFilter, $isDump, $source)
 				$ddl .= 'DROP TYPE IF EXISTS ' . $enumType . ";\n";
 				$ddl .= 'CREATE TYPE ' . $enumType . " AS ENUM ('" . implode("', '", $column->enum) . "');\n";
 				$columnDefinition .= ' ' . $enumType;
-				fwrite(STDERR, "Warning: " . $source . ": " . $table->name . '.' . $column->name ." is enum. Convert to char.\n");
+				fwrite(STDERR, 'Warning: ' . $source . ': ' . $table->name . '.' . $column->name . " is enum. Convert to char.\n");
 			}
 			else
 			{
@@ -278,25 +278,25 @@ function generate_schema_ddl($sql, $tableFilter, $isDump, $source)
 
 			if ($column->unsigned)
 			{
-				fwrite(STDERR, "Notice: " . $source . ": " . $table->name . '.' . $column->name ." is unsigned. Consider to convert to wider type and remove unsigned defunition.\n");
+				fwrite(STDERR, 'Notice: ' . $source . ': ' . $table->name . '.' . $column->name . " is unsigned. Consider to convert to wider type and remove unsigned defunition.\n");
 			}
 
 			if ($column->type === 'TIMESTAMP')
 			{
-				$columnDefinition .= " DEFAULT CURRENT_TIMESTAMP";
-				fwrite(STDERR, "Warning: " . $source . ": " . $table->name . '.' . $column->name ." is timestamp. Convert to datetime.\n");
+				$columnDefinition .= ' DEFAULT CURRENT_TIMESTAMP';
+				fwrite(STDERR, 'Warning: ' . $source . ': ' . $table->name . '.' . $column->name . " is timestamp. Convert to datetime.\n");
 			}
 			elseif (!is_null($column->default) && strlen($column->default) > 0)
 			{
 				$default = str_replace('"', "'", $column->default);
-				$default = str_replace("'0000-00-00 00:00:00'", "", $default);
-				$default = str_replace('NOW', "CURRENT_TIMESTAMP", $default);
-				$default = str_replace('now', "CURRENT_TIMESTAMP", $default);
-				$default = str_replace('false', "0", $default);
+				$default = str_replace("'0000-00-00 00:00:00'", '', $default);
+				$default = str_replace('NOW', 'CURRENT_TIMESTAMP', $default);
+				$default = str_replace('now', 'CURRENT_TIMESTAMP', $default);
+				$default = str_replace('false', '0', $default);
 				$default = trim($default, " \t\n\r");
 				if ($default !== '')
 				{
-					$columnDefinition .= " DEFAULT " . $default;
+					$columnDefinition .= ' DEFAULT ' . $default;
 				}
 			}
 			$inset[] = $columnDefinition;
@@ -307,19 +307,19 @@ function generate_schema_ddl($sql, $tableFilter, $isDump, $source)
 		{
 			if (preg_match('/^PRIMARY/i', $constraint->body) > 0)
 			{
-				$inset[] = "PRIMARY KEY (" . implode(", ", array_map(
+				$inset[] = 'PRIMARY KEY (' . implode(', ', array_map(
 					function($x)
 					{
 						return trim(unquote(preg_replace('/\s+(desc|asc)/i', '', preg_replace('/\(\d+\)/', '', $x))), " \t\n\r");
-					}, $constraint->columns)) . ")";
+					}, $constraint->columns)) . ')';
 			}
 			elseif (preg_match('/^UNIQUE/i', $constraint->body) > 0)
 			{
-				$inset[] = "UNIQUE (" . implode(", ", array_map(
+				$inset[] = 'UNIQUE (' . implode(', ', array_map(
 					function($x)
 					{
 						return unquote($x);
-					}, $constraint->columns)) . ")";
+					}, $constraint->columns)) . ')';
 			}
 		}
 
@@ -330,7 +330,7 @@ function generate_schema_ddl($sql, $tableFilter, $isDump, $source)
 			$c = count($inset) - 1;
 			foreach ($inset as $i => $line)
 			{
-				$ddl .= "  " . $line . ($i < $c ? "," : "") . "\n";
+				$ddl .= '  ' . $line . ($i < $c ? ',' : '') . "\n";
 			}
 
 			$ddl .= ");\n";
@@ -338,7 +338,7 @@ function generate_schema_ddl($sql, $tableFilter, $isDump, $source)
 
 		if ($autoIncrementValue && $isDump)
 		{
-			$ddl .= "ALTER TABLE " . unquote($table->name) . " ALTER COLUMN " . $autoIncrementColumn . " RESTART WITH " . $autoIncrementValue . ";\n";
+			$ddl .= 'ALTER TABLE ' . unquote($table->name) . ' ALTER COLUMN ' . $autoIncrementColumn . ' RESTART WITH ' . $autoIncrementValue . ";\n";
 		}
 
 		$indexes = [];
@@ -346,10 +346,10 @@ function generate_schema_ddl($sql, $tableFilter, $isDump, $source)
 		foreach ($table->indexes->getList() as $index)
 		{
 			$indexName = substr(
-				($index->unique ? "ux_" : ($index->fulltext ? "tx_" : "ix_"))
+				($index->unique ? 'ux_' : ($index->fulltext ? 'tx_' : 'ix_'))
 				. unquote($table->name)
-				. "_"
-				. implode("_", array_map(
+				. '_'
+				. implode('_', array_map(
 					function($x)
 					{
 						return strtolower(unquote(preg_replace('/\s*(\(\d+\)|asc|desc)(?![a-z0-9_])\s*/i', '', $x)));
@@ -368,12 +368,12 @@ function generate_schema_ddl($sql, $tableFilter, $isDump, $source)
 
 			if ($isDump)
 			{
-				$ddl .= "DROP INDEX IF EXISTS " . $indexName . ";\n";
+				$ddl .= 'DROP INDEX IF EXISTS ' . $indexName . ";\n";
 			}
 
 			if ($index->fulltext)
 			{
-				$ddl .= "CREATE INDEX " . $indexName . " ON " . unquote($table->name) . " USING GIN (to_tsvector('english', " . implode(" || ", array_map(
+				$ddl .= 'CREATE INDEX ' . $indexName . ' ON ' . unquote($table->name) . " USING GIN (to_tsvector('english', " . implode(' || ', array_map(
 					function($x)
 					{
 						return strtolower(unquote(preg_replace('/\s*(\(\d+\)|asc|desc)(?![a-z0-9_])\s*/i', '', $x)));
@@ -381,7 +381,7 @@ function generate_schema_ddl($sql, $tableFilter, $isDump, $source)
 			}
 			else
 			{
-				$ddl .= "CREATE" . ($index->unique ? " UNIQUE " : " ") . "INDEX " . $indexName . " ON " . unquote($table->name) . " (" . implode(", ", array_map(
+				$ddl .= 'CREATE' . ($index->unique ? ' UNIQUE ' : ' ') . 'INDEX ' . $indexName . ' ON ' . unquote($table->name) . ' (' . implode(', ', array_map(
 					function($x)
 					{
 						return strtolower(unquote(preg_replace('/\s*(\(\d+\)|asc|desc)(?![a-z0-9_])\s*/i', '', $x)));
@@ -397,7 +397,7 @@ function parse_values($values_str)
 	static $search = ['\\\'', '\\"'];
 	static $replace = ['\'\'', '"'];
 	$result = [];
-	$tokens = token_get_all('<?php '.$values_str);
+	$tokens = token_get_all('<?php ' . $values_str);
 	$row = [];
 	$c = count($tokens);
 	for ($i = 1; $i < $c; $i++)
@@ -405,12 +405,12 @@ function parse_values($values_str)
 		$token = $tokens[$i];
 		if (
 			($token == ',' || $token == ';')
-			&& ($tokens[$i-1] == ')')
+			&& ($tokens[$i - 1] == ')')
 		)
 		{
 			if ($row)
 			{
-				$result[] = '('.implode('', $row).')';
+				$result[] = '(' . implode('', $row) . ')';
 			}
 			$row = [];
 		}
@@ -425,7 +425,7 @@ function parse_values($values_str)
 				$escaped = str_replace($search, $replace, $token[1]);
 				if ($escaped === "'0000-00-00 00:00:00'")
 				{
-					$escaped = "NULL";
+					$escaped = 'NULL';
 				}
 				elseif (
 					preg_match('/\\\\[bfnrt\']/', $escaped)
@@ -452,7 +452,7 @@ function parse_values($values_str)
 	}
 	if ($row)
 	{
-		$result[] = '('.implode('', $row).')';
+		$result[] = '(' . implode('', $row) . ')';
 	}
 	return $result;
 }

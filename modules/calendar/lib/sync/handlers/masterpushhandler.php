@@ -30,6 +30,8 @@ class MasterPushHandler extends Core\Handlers\HandlerBase
 	/**
 	 * @var string $stage
 	 * //self::MASTER_STAGE
+	 *
+	 * @todo Unused
 	 */
 	public function __invoke(string $stage)
 	{

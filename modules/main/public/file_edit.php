@@ -292,15 +292,7 @@ if($strWarning == '')
 			{
 				if(COption::GetOptionString("fileman", "log_page", "Y")=="Y")
 				{
-					$res_log['path'] = mb_substr($path, 1);
-					CEventLog::Log(
-						"content",
-						"PAGE_EDIT",
-						"main",
-						"",
-						serialize($res_log),
-						$_REQUEST["site"] ?? ''
-					);
+					CEventLog::Log("content", "PAGE_EDIT", "fileman", $path, false, $_REQUEST["site"] ?? false);
 				}
 
 				if (CAutoSave::Allowed())

@@ -8,7 +8,9 @@
 
 namespace Bitrix\Rest\SessionAuth;
 
+use Bitrix\Intranet\Service\ServiceContainer;
 use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
 use Bitrix\Main\UserTable;
 
 class Auth

@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Socialnetwork = this.BX.Socialnetwork || {};
-(function (exports,im_public,main_popup,ui_buttons,ui_popupcomponentsmaker,main_core) {
+(function (exports,main_core_events,im_public,main_popup,ui_buttons,ui_popupcomponentsmaker,main_core) {
 	'use strict';
 
 	var Waiter = /*#__PURE__*/function () {
@@ -382,6 +382,25 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	              };
 	            }
 	            menu.push(featuresItem);
+	          }
+	          var isCollabConverterEnabled = main_core.Extension.getSettings('socialnetwork.common').isCollabConverterEnabled;
+	          if (isCollabConverterEnabled && params.userRole === main_core.Loc.getMessage('USER_TO_GROUP_ROLE_OWNER') && !params.isProject && !params.isScrumProject) {
+	            menu.push({
+	              text: main_core.Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_CONVERT_TO_COLLAB'),
+	              title: main_core.Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_CONVERT_TO_COLLAB'),
+	              onclick: function onclick(event, menuItem) {
+	                menuItem.getMenuWindow().close();
+	                main_core.Runtime.loadExtension('socialnetwork.collab.converter').then(function (exports) {
+	                  var ConverterClass = exports.Converter;
+	                  var id = parseInt(main_core.Type.isUndefined(params.groupId) ? 0 : params.groupId, 10);
+	                  new ConverterClass({
+	                    redirectAfterSuccess: true
+	                  }).convertToCollab(id);
+	                })["catch"](function (error) {
+	                  console.error(error);
+	                });
+	              }
+	            });
 	          }
 	          itemTitle = main_core.Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_DELETE');
 	          if (!!params.isScrumProject) {
@@ -916,5 +935,5 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	exports.WorkgroupWidget = WorkgroupWidget;
 	exports.RecallJoinRequest = RecallJoinRequest;
 
-}((this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {}),BX.Messenger.v2.Lib,BX.Main,BX.UI,BX.UI,BX));
+}((this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {}),BX.Event,BX.Messenger.v2.Lib,BX.Main,BX.UI,BX.UI,BX));
 //# sourceMappingURL=common.bundle.js.map

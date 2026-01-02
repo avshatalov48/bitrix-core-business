@@ -1,5 +1,6 @@
-import { MessengerPopup } from 'im.v2.component.elements';
+import { MessengerPopup } from 'im.v2.component.elements.popup';
 import { ChatType } from 'im.v2.const';
+import { CopilotManager } from 'im.v2.lib.copilot';
 
 import type { ImModelChat } from 'im.v2.model';
 
@@ -42,11 +43,15 @@ export const MentionPopup = {
 		{
 			return this.dialog.type === ChatType.copilot;
 		},
+		isGroupCopilotChat(): boolean
+		{
+			return (new CopilotManager()).isGroupCopilotChat(this.dialogId);
+		},
 		needToShowMentionPopup(): boolean
 		{
 			if (this.isCopilotType)
 			{
-				return this.dialog.userCounter > 2;
+				return this.isGroupCopilotChat;
 			}
 
 			return true;
@@ -59,7 +64,7 @@ export const MentionPopup = {
 			}
 
 			const copilotUserId = this.$store.getters['users/bots/getCopilotUserId'];
-			if (copilotUserId && this.dialog.userCounter > 2)
+			if (copilotUserId && this.isGroupCopilotChat)
 			{
 				return [copilotUserId.toString()];
 			}

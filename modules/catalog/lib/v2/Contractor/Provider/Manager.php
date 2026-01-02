@@ -20,6 +20,7 @@ class Manager
 	private const ON_GET_CONVERTER_EVENT = 'onGetContractorsConverter';
 
 	/**
+	 * @param string $providerName Contractor provider name.
 	 * @return IProvider|null
 	 */
 	public static function getActiveProvider(string $providerName): ?IProvider
@@ -72,7 +73,8 @@ class Manager
 	}
 
 	/**
-	 * @param string $moduleId
+	 * @param string $providerName Contractor provider name.
+	 * @param string $moduleId Module identifier.
 	 * @return bool
 	 */
 	public static function isActiveProviderByModule(string $providerName, string $moduleId): bool
@@ -102,6 +104,7 @@ class Manager
 	}
 
 	/**
+	 * @param string $providerName Contractor provider name.
 	 * @return IProvider|null
 	 */
 	private static function getProvider(string $providerName): ?IProvider

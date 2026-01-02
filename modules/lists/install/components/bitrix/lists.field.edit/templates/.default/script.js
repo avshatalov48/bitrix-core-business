@@ -12,7 +12,6 @@ BX.Lists.ListsFieldEditClass = (function ()
 		this.maxSort = 0;
 		this.generateCode = Boolean(parameters.generateCode);
 		this.prefixFieldId = 'bx-lists-field-';
-		this.listAction = parameters.listAction;
 		this.init();
 	};
 
@@ -30,49 +29,6 @@ BX.Lists.ListsFieldEditClass = (function ()
 		}
 
 		this.setStyleForForm();
-
-		this.actionButton = BX('lists-title-action');
-		this.actionPopupItems = [];
-		this.actionPopupObject = null;
-		this.actionPopupId = 'lists-title-action';
-		BX.bind(this.actionButton, 'click', BX.delegate(this.showListAction, this));
-	};
-
-	ListsFieldEditClass.prototype.showListAction = function ()
-	{
-		if(!this.actionPopupItems.length)
-		{
-			for(var k = 0; k < this.listAction.length; k++)
-			{
-				this.actionPopupItems.push({
-					text : this.listAction[k].text,
-					onclick : this.listAction[k].action
-				});
-			}
-		}
-		if(!BX.PopupMenu.getMenuById(this.actionPopupId))
-		{
-			var buttonRect = this.actionButton.getBoundingClientRect();
-			this.actionPopupObject = BX.PopupMenu.create(
-				this.actionPopupId,
-				this.actionButton,
-				this.actionPopupItems,
-				{
-					closeByEsc : true,
-					angle: true,
-					offsetLeft: buttonRect.width/2,
-					events: {
-						onPopupShow: BX.proxy(function () {
-							BX.addClass(this.actionButton, 'webform-button-active');
-						}, this),
-						onPopupClose: BX.proxy(function () {
-							BX.removeClass(this.actionButton, 'webform-button-active');
-						}, this)
-					}
-				}
-			);
-		}
-		if(this.actionPopupObject) this.actionPopupObject.popupWindow.show();
 	};
 
 	ListsFieldEditClass.prototype.setStyleForForm = function()

@@ -1,0 +1,5 @@
+<?php
+$MESS["IM_MESSENGER_MESSAGE_DELETED"] = "Бұл хабарлама жойылды.";
+$MESS["IM_MESSENGER_MESSAGE_DOWNLOAD"] = "Жүктеу";
+$MESS["IM_MESSENGER_MESSAGE_LIKE"] = "Ұнайды";
+$MESS["IM_MESSENGER_MESSAGE_SAVE_TO_DISK"] = "Дискке сақтау";

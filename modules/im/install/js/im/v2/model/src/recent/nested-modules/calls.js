@@ -71,7 +71,7 @@ export class CallsModel extends BuilderModel
 			addActiveCall: (store, payload: ImModelCallItem) =>
 			{
 				const existingCall = Object.values(store.state.collection).find((item: ImModelCallItem) => {
-					return item.dialogId === payload.dialogId || item.call.id === payload.call.id;
+					return item.dialogId === payload.dialogId || item.call.uuid === payload.call.uuid;
 				});
 
 				if (existingCall)

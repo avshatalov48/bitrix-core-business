@@ -4,56 +4,73 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
+use Bitrix\Main\Loader;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Internals\PrettyDate;
 use Bitrix\Sender\Message\ConfigurationOption as ConOpt;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 /** @var CMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
 $containerId = 'bx-sender-template-edit';
-Bitrix\Main\UI\Extension::load(
-	[
-		'ui',
-	]
-);
+Bitrix\Main\UI\Extension::load(['ui']);
+if(
+	($arParams['IFRAME'] === true)
+	&& Loader::includeModule('ui')
+)
+{
+	$title = (trim(htmlspecialcharsbx($arResult['ROW']['NAME'])) !== '')
+		? htmlspecialcharsbx($arResult['ROW']['NAME'])
+		: Loc::getMessage('SENDER_TEMPLATES_EDIT_TMPL_PATTERN_TITLE', [
+			'%name%' => Loc::getMessage('SENDER_TEMPLATES_EDIT_TMPL_NEW_TITLE'),
+			'%date%' => FormatDate(PrettyDate::getDateFormat(), (new DateTime())->getTimestamp()),
+		]);
+
+	$APPLICATION->SetTitle($title);
+	Toolbar::deleteFavoriteStar();
+	Toolbar::addEditableTitle();
+}
+
 CJSCore::Init(array('admin_interface'));
 ?>
 <script>
 	BX.ready(function () {
-		BX.Sender.Message.Editor.init(<?=Json::encode(array(
+		BX.Sender.Message.Editor.init(<?=Json::encode([
 			'containerId' => $containerId,
+			'toolbarId' => Toolbar::getId(),
 			'actionUrl' => $arResult['ACTION_URL'] ?? '',
-			'isFrame' => ($arParams['IFRAME'] ?? 'N') == 'Y',
+			'isFrame' => $arParams['IFRAME'] === true,
 			'isSaved' => $arResult['IS_SAVED'],
 			'prettyDateFormat' => PrettyDate::getDateFormat(),
-			'mess' => array(
+			'mess' => [
 				'patternTitle' => Loc::getMessage('SENDER_TEMPLATES_EDIT_TMPL_PATTERN_TITLE'),
 				'newTitle' => Loc::getMessage('SENDER_TEMPLATES_EDIT_TMPL_NEW_TITLE'),
-			)
-		))?>);
+			]
+		])?>);
 	});
 </script>
 
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="sender-template-edit-wrap">
 
 	<?
-	$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' => array(
-		array('type' => 'buttons', 'list' => array(
-			array('type' => 'feedback')
-		)),
-	)));
+	$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", ['LIST' => [
+		['type' => 'buttons', 'list' => [
+			['type' => 'feedback']
+		]],
+	]]);
 	?>
 
 	<form method="post" action="<?=htmlspecialcharsbx($arResult['SUBMIT_FORM_URL'])?>">
 		<?=bitrix_sessid_post()?>
 
-		<div class="bx-sender-letter-field" style="<?=(($arParams['IFRAME'] ?? 'N') == 'Y' ? 'display: none;' : '')?>">
+		<div class="bx-sender-letter-field" style="<?=($arParams['IFRAME'] === true ? 'display: none;' : '')?>">
 			<div class="bx-sender-caption">
 				<?=Loc::getMessage('SENDER_TEMPLATES_EDIT_TMPL_FIELD_NAME')?>:
 			</div>
-			<div class="bx-sender-value">
+			<div id="template-title-edit" class="bx-sender-value">
 				<input data-role="templates-title" type="text" name="NAME" value="<?=htmlspecialcharsbx($arResult['ROW']['NAME'])?>" class="bx-sender-form-control bx-sender-letter-field-input">
 			</div>
 		</div>

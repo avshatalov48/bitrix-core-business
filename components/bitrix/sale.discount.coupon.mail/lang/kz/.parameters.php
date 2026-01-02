@@ -1,0 +1,22 @@
+<?php
+$MESS["SBP_GROUPS_COUPON"] = "Купон";
+$MESS["SBP_GROUPS_DISCOUNT"] = "Жеңілдік";
+$MESS["SBP_GROUPS_REPL_SETT"] = "Параметрлер";
+$MESS["SBP_NEED_REQUIRED_MODULES"] = "Компоненттің жұмыс істеуі үшін дүкен, ақпараттық блоктар және каталог модульдері орнатылған болуы керек.";
+$MESS["SBP_PARAMETERS_COUPON_DAY_LIMIT_TYPE"] = "күн";
+$MESS["SBP_PARAMETERS_COUPON_IS_LIMITED"] = "Әрекет ету мерзімін шектеу";
+$MESS["SBP_PARAMETERS_COUPON_LIMIT_TYPE"] = "Мерзім түрі";
+$MESS["SBP_PARAMETERS_COUPON_LIMIT_VALUE"] = "Жарамдылық мерзімі (купон жасалған күннен бастап есептеледі)";
+$MESS["SBP_PARAMETERS_COUPON_MONTH_LIMIT_TYPE"] = "ай";
+$MESS["SBP_PARAMETERS_COUPON_TYPE"] = "Купон түрі";
+$MESS["SBP_PARAMETERS_COUPON_TYPE_BASKET"] = "Бір тапсырыс позициясына";
+$MESS["SBP_PARAMETERS_COUPON_TYPE_ORDER"] = "Бір тапсырысқа";
+$MESS["SBP_PARAMETERS_COUPON_WEEK_LIMIT_TYPE"] = "апта";
+$MESS["SBP_PARAMETERS_DISCOUNT_ID"] = "Себетпен жұмыс істеу ережесі";
+$MESS["SBP_PARAMETERS_DISCOUNT_UNIT"] = "Жеңілдік түрі";
+$MESS["SBP_PARAMETERS_DISCOUNT_UNIT_ALL"] = "Тауар сомасына";
+$MESS["SBP_PARAMETERS_DISCOUNT_UNIT_EACH"] = "Әр тауарға";
+$MESS["SBP_PARAMETERS_DISCOUNT_VALUE"] = "Жеңілдік мәні";
+$MESS["SBP_PARAMETERS_REPL_SETT_COUPON_DESCRIPTION"] = "Купон өрісі \"Сипаттама\"";
+$MESS["SBP_PARAMETERS_REPL_SETT_DISCOUNT_XML_ID"] = "Жеңілдік ережесінің өрісі \"XML_ID\"";
+$MESS["SBP_PARAMETERS_USE_DISCOUNT_ID"] = "Қолданыстағы жеңілдікті пайдалану";

@@ -18,6 +18,17 @@ export const CreatableChat = {
 	collab: 'collab',
 };
 
+export type OpenChatCreationParams = {
+	preselectedMembers?: PreselectedMemberItem[],
+	ownerId?: number,
+	includeCurrentUser?: boolean,
+};
+
+export type PreselectedMemberItem = {
+	type: 'user' | 'department',
+	id: number | string,
+};
+
 const CreationComponentByChatType = {
 	[ChatType.chat]: GroupChatCreation,
 	[ChatType.videoconf]: ConferenceCreation,

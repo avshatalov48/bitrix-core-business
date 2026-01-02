@@ -1,7 +1,8 @@
-import { Core } from 'im.v2.application.core';
-import { RestMethod } from 'im.v2.const';
 import { ajax as Ajax } from 'main.core';
 
+import { Core } from 'im.v2.application.core';
+import { RestMethod } from 'im.v2.const';
+import { UserManager } from 'im.v2.lib.user';
 import { Logger } from 'im.v2.lib.logger';
 import { Utils } from 'im.v2.lib.utils';
 import { getSearchConfig, StoreUpdater } from 'im.v2.lib.search';
@@ -52,7 +53,7 @@ export class BaseServerSearch
 			console.error('Mention search service: load chat participants error', error);
 		}
 
-		void this.#storeUpdater.updateUsers(users);
+		void (new UserManager()).setUsersToModel(users);
 
 		return this.#getDialogIdAndDate(users);
 	}

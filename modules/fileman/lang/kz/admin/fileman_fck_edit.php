@@ -1,0 +1,25 @@
+<?php
+$MESS["FILEMAN_EDIT_FILEPROPS"] = "Парақшалардың қасиеттері:";
+$MESS["FILEMAN_EDIT_PROPSCODE"] = "Код";
+$MESS["FILEMAN_EDIT_PROPSDEL"] = "Жою";
+$MESS["FILEMAN_EDIT_PROPSMORE"] = "Тағы...";
+$MESS["FILEMAN_EDIT_PROPSVAL"] = "Мәні";
+$MESS["FILEMAN_FILEEDIT_APPLY"] = "Қолдану";
+$MESS["FILEMAN_FILEEDIT_AS_HTML"] = "HTML ретінде редакциялау";
+$MESS["FILEMAN_FILEEDIT_AS_MENU"] = "Мәзір ретінде редакциялау";
+$MESS["FILEMAN_FILEEDIT_AS_PHP"] = "PHP ретінде редакциялау";
+$MESS["FILEMAN_FILEEDIT_AS_TXT"] = "Мәтін ретінде редакциялау";
+$MESS["FILEMAN_FILEEDIT_BAD_FNAME"] = "Файл атауы нүктеден басталмауы керек!";
+$MESS["FILEMAN_FILEEDIT_CHANGE"] = "PHP кодын енгізу үшін құқықтар жеткіліксіз.";
+$MESS["FILEMAN_FILEEDIT_CHANGE_ACCESS"] = "PHP коды бар парақшаларды өзгерту үшін құқықтар жеткіліксіз";
+$MESS["FILEMAN_FILEEDIT_DOWNLOAD"] = "Файлды жүктеу";
+$MESS["FILEMAN_FILEEDIT_FILE_EXISTS"] = "Мұндай атаумен файл бұрыннан бар!";
+$MESS["FILEMAN_FILEEDIT_FOLDER_EXISTS"] = "Бұл атаумен бума анықталды!";
+$MESS["FILEMAN_FILEEDIT_NAME"] = "Файлдың атауы:";
+$MESS["FILEMAN_FILEEDIT_RENAME"] = "Атауын өзгерту";
+$MESS["FILEMAN_FILEEDIT_RESET"] = "Болдырмау";
+$MESS["FILEMAN_FILEEDIT_SAVE"] = "Сақтау";
+$MESS["FILEMAN_FILEEDIT_TEMPLATE"] = "Қалып:";
+$MESS["FILEMAN_FILEEDIT_TITLE"] = "Парақшаның тақырыпаты:";
+$MESS["FILEMAN_FILE_EDIT_FOLDER_PROP"] = "Бөлімнің қасиеттерінен ағымдағы мән:";
+$MESS["FILEMAN_FILE_VIEW"] = "Файлды қарау";

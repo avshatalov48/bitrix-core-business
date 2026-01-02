@@ -8,6 +8,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\FinderDestTable;
 use Bitrix\Main\Loader;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 
 class Entities
 {
@@ -316,11 +317,8 @@ class Entities
 
 		if (!$userId)
 		{
-			if ($USER->IsAuthorized())
-			{
-				$userId = $USER->getId();
-			}
-			else
+			$userId = \Bitrix\Main\Engine\CurrentUser::get()->getId();
+			if (!$userId)
 			{
 				return $result;
 			}
@@ -397,7 +395,7 @@ class Entities
 				$helper = $conn->getSqlHelper();
 
 				$runtime = array(
-					new \Bitrix\Main\Entity\ExpressionField('CONTEXT_SORT', "CASE WHEN CONTEXT = '".$helper->forSql(mb_strtoupper($params["DEST_CONTEXT"]))."' THEN 1 ELSE 0 END")
+					new ExpressionField('CONTEXT_SORT', "CASE WHEN CONTEXT = '".$helper->forSql(mb_strtoupper($params["DEST_CONTEXT"]))."' THEN 1 ELSE 0 END")
 				);
 
 				$order = array(
@@ -419,7 +417,7 @@ class Entities
 				$res = FinderDestTable::getList(array(
 					'order' => $order,
 					'filter' => array(
-						"USER_ID" => $USER->getId(),
+						"USER_ID" => $userId,
 						"=CODE_USER.EXTERNAL_AUTH_ID" => 'email',
 						"=CODE_TYPE" => 'U'
 					),
@@ -772,7 +770,7 @@ class Entities
 						{
 							$selectList[] = 'UF_USER_CRM_ENTITY';
 						}
-						$selectList[] = new \Bitrix\Main\Entity\ExpressionField('MAX_LAST_USE_DATE', 'MAX(%s)', array('\Bitrix\Main\FinderDest:CODE_USER_CURRENT.LAST_USE_DATE'));
+						$selectList[] = new ExpressionField('MAX_LAST_USE_DATE', 'MAX(%s)', array('\Bitrix\Main\FinderDest:CODE_USER_CURRENT.LAST_USE_DATE'));
 
 						$res = \Bitrix\Main\UserTable::getList(array(
 							'order' => array(

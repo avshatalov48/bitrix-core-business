@@ -192,10 +192,13 @@ class Lazyload
 			$height = $fileArray['HEIGHT'];
 
 			$node->setAttribute('data-lazy-styleimg', 'Y');
-			$node->setAttribute('data-style', $node->getAttribute('style'));
-
-			$lazySrc = $this->createPlaceholderImage($width, $height);
-			$node->setAttribute('style', "background-image:url({$lazySrc});");
+			$styleAttrValue = $node->getAttribute('style');
+			if (!str_contains($styleAttrValue, 'data:image/svg+xml;'))
+			{
+				$node->setAttribute('data-style', $styleAttrValue);
+				$lazySrc = $this->createPlaceholderImage($width, $height);
+				$node->setAttribute('style', "background-image:url({$lazySrc});");
+			}
 
 			// todo: after add src in saveNode - get it too
 		}

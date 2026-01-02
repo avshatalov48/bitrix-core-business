@@ -1,16 +1,18 @@
 import type { reactionType as Reaction } from 'ui.reactions-select';
 
-import { CounterType } from 'im.v2.const';
+import { CounterType, RecentType } from 'im.v2.const';
 
-import type { RawChat, RawFile, RawUser, RawMessage, RawMultidialog, RawLines } from './common';
+import type { RawChat, RawFile, RawUser, RawMessage, RawMultidialog, RawLines, MultipleRawMessage } from './common';
 
 type CounterTypeItem = $Values<typeof CounterType>;
+type RecentTypeItem = $Values<typeof RecentType>;
 
 export type MessageAddParams = {
 	chat?: {[chatId: string]: RawChat} | [],
 	chatId: number,
 	counter: number,
-	dialogId: string,
+	counterType: CounterTypeItem,
+	dialogId: string | number,
 	files: {[fileId: string]: RawFile} | [],
 	lines: RawLines | null,
 	message: RawMessage,
@@ -18,6 +20,11 @@ export type MessageAddParams = {
 	userBlockChat: {[chatId: string]: {[userId: string]: boolean}} | [],
 	userInChat: {[chatId: string]: number[]} | [],
 	users: {[userId: string]: RawUser} | null,
+	messagesAutoDeleteConfigs: { delay: number, chatId: number }[],
+	recentConfig: {
+		chatId: number,
+		sections: RecentTypeItem[],
+	},
 };
 
 export type MessageUpdateParams = {
@@ -33,6 +40,50 @@ export type MessageUpdateParams = {
 	type: string
 };
 
+export type LastMessageViewsParams = {
+	countOfViewers: number,
+	firstViewers: Array<{
+		id: number,
+		name: string,
+		avatar: string
+	}>,
+	messageId: number,
+}
+
+export type PrepareDeleteMessageParams = Partial<MessageDeleteCompleteParams> & {
+	messages?: MultipleRawMessage[],
+}
+
+export type MultipleMessageDeleteParams = {
+	chatId: number,
+	counter: number,
+	counterType: CounterTypeItem,
+	dialogId: number,
+	lastMessageViews?: LastMessageViewsParams,
+	newLastMessageViews?: Object,
+	messages: MultipleRawMessage[],
+	muted: boolean,
+	unread: boolean,
+	newLastMessage?: RawMessage,
+	type: string,
+};
+
+export type MessageDeleteCompleteParams = {
+	chatId: number,
+	dialogId: string,
+	counter: number,
+	unread: boolean,
+	muted: boolean,
+	id: number,
+	lastMessageViews?: LastMessageViewsParams,
+	newLastMessage?: RawMessage,
+	params: Object<string, any>,
+	senderId: number,
+	text: string,
+	type: string,
+	counterType: CounterTypeItem
+};
+
 export type MessageDeleteParams = {
 	chatId: number,
 	dialogId: string,
@@ -45,29 +96,23 @@ export type MessageDeleteParams = {
 	type: string
 };
 
-export type MessageDeleteCompleteParams = {
-	chatId: number,
-	dialogId: string,
-	counter: number,
-	unread: boolean,
-	muted: boolean,
+export type MessageDeletePreparedParams = {
 	id: number,
-	lastMessageViews?: {
-		countOfViewers: number,
-		firstViewers: Array<{
-			id: number,
-			name: string,
-			avatar: string
-		}>,
-		messageId: number
-	},
-	newLastMessage?: RawMessage,
-	params: Object<string, any>,
+	dialogId: number,
 	senderId: number,
-	text: string,
-	type: string,
-	counterType: CounterTypeItem
-};
+}
+
+export type MessageDeleteCompletePreparedParams = {
+	counter: number,
+	newLastMessage: RawMessage,
+	lastMessageViews: LastMessageViewsParams,
+} & MessageDeletePreparedParams
+
+export type DialogUpdateFieldsParams = {
+	counter: number,
+	lastMessageId?: number,
+	lastMessageViews?: LastMessageViewsParams,
+}
 
 export type ReadMessageParams = {
 	chatId: number,

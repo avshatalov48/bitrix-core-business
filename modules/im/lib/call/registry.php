@@ -32,13 +32,31 @@ class Registry
 		return static::$calls[$id];
 	}
 
-	public static function getCallWithPublicId($publicId)
+	/**
+	 * @param string $uuid internal call Id
+	 * @return Call|null
+	 */
+	public static function getCallWithUuid(string $uuid): ?Call
 	{
+		foreach (static::$calls as $call)
+		{
+			if ($call instanceof Call && $call->getUuid() === $uuid)
+			{
+				return $call;
+			}
+		}
+		$row = CallTable::getList([
+			'select' => ['*'],
+			'filter' => ['=UUID' => $uuid],
+			'limit' => 1,
+		])->fetch();
+		if (!$row)
+		{
+			return null;
+		}
 
-	}
+		static::$calls[$row['ID']] = CallFactory::getCallInstance($row['PROVIDER'], $row);
 
-	public static function getCallWithEntity($entityType, $entityId)
-	{
-
+		return static::$calls[$row['ID']];
 	}
 }

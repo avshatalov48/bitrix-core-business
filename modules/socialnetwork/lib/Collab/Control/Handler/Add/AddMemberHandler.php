@@ -51,6 +51,7 @@ class AddMemberHandler implements AddHandlerInterface
 			$entity->getId(),
 			$command->getInitiatorId(),
 			UserToGroupTable::ROLE_USER,
+			UserToGroupTable::INITIATED_BY_GROUP,
 			...$add,
 		);
 

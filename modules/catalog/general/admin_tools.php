@@ -409,29 +409,6 @@ class CCatalogAdminTools extends CCatalogAdminToolsAll
 				);
 			}
 
-			if (
-				$publicShop
-				&& $arCatalog['CATALOG'] === 'Y'
-				&& (
-					CCatalogSku::TYPE_FULL == $arCatalog['CATALOG_TYPE']
-					|| CCatalogSku::TYPE_CATALOG == $arCatalog['CATALOG_TYPE']
-				)
-				&& \Bitrix\Main\Loader::includeModule('crm')
-			)
-			{
-				if (\Bitrix\Crm\Order\Import\Instagram::isAvailable()
-					&& Access\AccessController::getCurrent()->check(Access\ActionDictionary::ACTION_CATALOG_IMPORT_EXECUTION)
-				)
-				{
-					$arItems[] = [
-						'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_INSTAGRAM_IMPORT_2'),
-						'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_INSTAGRAM_IMPORT_TITLE'),
-						'LINK' => \Bitrix\Main\Config\Option::get('crm', 'path_to_order_import_instagram'),
-						'PUBLIC' => true,
-						'SHOW_TITLE' => true,
-					];
-				}
-			}
 		}
 		unset($productLimits);
 

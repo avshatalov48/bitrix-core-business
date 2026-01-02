@@ -3,7 +3,7 @@ import { Text } from 'main.core';
 import { Utils } from 'im.v2.lib.utils';
 
 import { BaseMessage } from 'im.v2.component.message.base';
-import { Button as ButtonComponent, ButtonSize } from 'im.v2.component.elements';
+import { ChatButton, ButtonSize } from 'im.v2.component.elements.button';
 import { MessageStatus } from 'im.v2.component.message.elements';
 import { DefaultMessage } from 'im.v2.component.message.default';
 
@@ -25,7 +25,7 @@ const PARAMS_KEY = {
 // @vue/component
 export const SignMessage = {
 	name: 'SignMessage',
-	components: { ButtonComponent, BaseMessage, DefaultMessage, MessageStatus },
+	components: { ChatButton, BaseMessage, DefaultMessage, MessageStatus },
 	props: {
 		item: {
 			type: Object,
@@ -160,7 +160,7 @@ export const SignMessage = {
 					</div>
 					<div class="bx-im-message-sign__description" v-html="replacePhrase(description)" />
 					<div class="bx-im-message-sign__buttons_container">
-						<ButtonComponent
+						<ChatButton
 							v-if="button"
 							:size="ButtonSize.L"
 							isRounded

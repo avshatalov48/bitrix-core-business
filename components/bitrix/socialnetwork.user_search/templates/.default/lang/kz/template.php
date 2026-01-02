@@ -1,0 +1,23 @@
+<?php
+$MESS["SONET_C241_T_ACTIVITY"] = "Соңғы белсенділік күні";
+$MESS["SONET_C241_T_ADD_FR"] = "Достар қатарына қосу";
+$MESS["SONET_C241_T_ANY"] = "Кез келген";
+$MESS["SONET_C241_T_BIGICON"] = "ірі фотосуреттер";
+$MESS["SONET_C241_T_DO_CANCEL"] = "&nbsp;&nbsp;Болдырмау&nbsp;&nbsp;";
+$MESS["SONET_C241_T_DO_SEARCH"] = "&nbsp;&nbsp;Табу&nbsp;&nbsp;";
+$MESS["SONET_C241_T_FIO"] = "Т.А.Ә.";
+$MESS["SONET_C241_T_ICON"] = "шағын фотосуреттер";
+$MESS["SONET_C241_T_LIST"] = "тізім";
+$MESS["SONET_C241_T_MEMBERS"] = "Қатысушылар";
+$MESS["SONET_C241_T_NOT_FILTERED"] = "Пайдаланушыларды іздеу шарттары көрсетілмеген";
+$MESS["SONET_C241_T_NOT_FOUND"] = "Бірде-бір пайдаланушы табылған жоқ";
+$MESS["SONET_C241_T_ONLINE"] = "сайтта";
+$MESS["SONET_C241_T_ORDER_DATE"] = "Күні бойынша сұрыптау";
+$MESS["SONET_C241_T_ORDER_REL"] = "Релеванттылық бойынша сұрыптау";
+$MESS["SONET_C241_T_SEARCH"] = "Іздеу";
+$MESS["SONET_C241_T_SEARCH_TITLE"] = "Пайдаланушыларды іздеу";
+$MESS["SONET_C241_T_SHOW_LIKE"] = "Түрінде шығару";
+$MESS["SONET_C241_T_SUBJECT"] = "Тақырыпта";
+$MESS["SONET_C241_T_TPL_FILTER_ADV"] = "Кеңейтілген іздеу";
+$MESS["SONET_C241_T_TPL_FILTER_SIMPLE"] = "Іздеу";
+$MESS["SONET_C241_T_WRITE"] = "хабарлама жазу";

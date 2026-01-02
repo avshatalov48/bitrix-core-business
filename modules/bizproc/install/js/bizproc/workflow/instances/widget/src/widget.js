@@ -185,7 +185,7 @@ export class Widget
 						${Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_AUTHOR')}
 					</div>
 					<div class="bizproc-workflow-instances-popup-heads-item">
-						${Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_IN_PROGRESS')}
+						${Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_IN_PROGRESS_MSGVER_1')}
 					</div>
 					<div class="bizproc-workflow-instances-popup-heads-item">
 						${Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TIME')}
@@ -229,9 +229,13 @@ export class Widget
 		const pageNode = Tag.render`<div class="bizproc-workflow-instances-popup-list-page"></div>`;
 
 		list.forEach((item) => {
-			const facesNode = this.#renderListItemFaces(item.avatars.author, item.avatars.running);
+			const steps: Array = item.steps;
+			const facesNode = this.#renderListItemFaces(
+				steps.at(0)?.avatarsData,
+				steps.find((step) => step.id === 'running')?.avatarsData,
+			);
 			const label = new Label({
-				text: this.#formatDuration(item.time.current),
+				text: this.#formatDuration(item.timeStep.duration),
 				color: LabelColor.LIGHT_BLUE,
 				size: LabelSize.SM,
 				fill: true,

@@ -883,6 +883,7 @@ export class Fields
 
 							fieldData.VALUES = presetField.VALUES;
 							fieldData.REQUIRED = presetField.REQUIRED;
+							fieldData.ICON = presetField?.ICON;
 						}
 					}
 

@@ -1,13 +1,14 @@
 <?php
+
 namespace Bitrix\Catalog\Model;
 
+use Bitrix\Catalog;
+use Bitrix\Iblock;
 use Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductTable;
 use Bitrix\Main;
 use Bitrix\Main\ORM;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Catalog;
-use Bitrix\Iblock;
 
 class Product extends Entity
 {
@@ -877,7 +878,7 @@ class Product extends Entity
 		return $result;
 	}
 
-	private static function calculateAvailable(array &$fields, array &$actions)
+	private static function calculateAvailable(array &$fields, array &$actions): void
 	{
 		$result = null;
 

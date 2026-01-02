@@ -16,6 +16,8 @@ use \Bitrix\Main\InvalidOperationException;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\ArgumentException;
 use \Bitrix\Main\NotSupportedException;
+use Bitrix\Main\Result;
+use Bitrix\Main\Security\Random;
 use \Bitrix\Main\Type\DateTime;
 use \Bitrix\Vote\Attachment\Connector;
 use \Bitrix\Vote\Base\BaseObject;
@@ -23,6 +25,9 @@ use \Bitrix\Vote\DBResult;
 use \Bitrix\Main\SystemException;
 use \Bitrix\Vote\Event;
 use \Bitrix\Main\ObjectNotFoundException;
+use Bitrix\Vote\Integration\Pull\VoteChangesSender;
+use Bitrix\Vote\Model\Dto\UserBallot;
+use Bitrix\Vote\Vote\Anonymity;
 
 Loc::loadMessages(__FILE__);
 
@@ -44,9 +49,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Attach_Query query()
- * @method static EO_Attach_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Attach_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Attach_Result getById($id)
- * @method static EO_Attach_Result getList(array $parameters = array())
+ * @method static EO_Attach_Result getList(array $parameters = [])
  * @method static EO_Attach_Entity getEntity()
  * @method static \Bitrix\Vote\EO_Attach createObject($setDefaultValues = true)
  * @method static \Bitrix\Vote\EO_Attach_Collection createCollection()
@@ -103,6 +108,10 @@ class AttachTable extends Entity\DataManager
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('V_TABLE_FIELD_AUTHOR_ID'),
 			),
+			'UID' => [
+				'data_type' => 'string',
+				'size' => 255,
+			],
 			'VOTE' => array(
 				'data_type' => '\Bitrix\Vote\VoteTable',
 				'reference' => array(
@@ -152,10 +161,25 @@ class AttachTable extends Entity\DataManager
 		}
 		return true;
 	}
+
+	public static function getIdByUid(string $uid): ?int
+	{
+		$row = AttachTable::query()
+			->where('UID', $uid)
+			->setSelect(['ID'])
+			->setLimit(1)
+			->exec()
+			->fetch()
+		;
+
+		return $row['ID'] ?? null;
+	}
 }
 
 class Attach extends BaseObject implements \ArrayAccess
 {
+	public const UID_LENGTH = 16;
+
 	/** @var array */
 	protected $attach;
 	/** @var Vote */
@@ -175,6 +199,7 @@ class Attach extends BaseObject implements \ArrayAccess
 	/**
 	 * @throws ArgumentException
 	 * @throws ArgumentNullException
+	 * @throws ObjectNotFoundException
 	 */
 	function init()
 	{
@@ -529,7 +554,7 @@ class Attach extends BaseObject implements \ArrayAccess
 	 */
 	public function getAttachId()
 	{
-		return array_key_exists("ID", $this->attach) ? $this->attach["ID"] : null;
+		return $this->attach['ID'] ?? null;
 	}
 	/**
 	 * Returns vote id.
@@ -704,16 +729,19 @@ class Attach extends BaseObject implements \ArrayAccess
 
 	/**
 	 * Voting for vote  from current user $USER.
+	 *
 	 * @param array $request Array("
 	 * 							vote_checkbox_".$questionId => array(1,2,3,...),
 	 * 							"vote_multiselect_".$questionId => array(1,2,3,...),
 	 * 							"vote_dropdown_".$questionId => 12 || "12",
 	 * 							"vote_radio_".$questionId => 12 || "12",
 	 * 							"vote_field_".$answerId => "12").
+	 * @param string $actionUuid Frontend uid to send in push
+	 *
 	 * @return bool
 	 * @throws InvalidOperationException
 	 */
-	public function voteFor(array $request)
+	public function voteFor(array $request, string $actionUuid = ''): bool
 	{
 		if (!is_object($this->vote))
 			throw new InvalidOperationException("Poll is not found.");
@@ -722,9 +750,16 @@ class Attach extends BaseObject implements \ArrayAccess
 			$result = $this->vote->voteFor($request, ["revote" => true]);
 		else
 			$result = $this->vote->registerEvent($res, ["revote" => true], User::getCurrent());
-		if (!$result)
+		if ($result)
+		{
+			$this->sendVotingPush($actionUuid);
+		}
+		else
+		{
 			$this->errorCollection->add($this->vote->getErrors());
-		return $result;
+		}
+
+		return (bool)$result;
 	}
 	/**
 	 * Exports data of voting into excel file
@@ -751,26 +786,47 @@ class Attach extends BaseObject implements \ArrayAccess
 
 	/**
 	 * Prolongs voting period.
-	 * @return bool
+	 *
+	 * @param string $actionUuid Frontend uid to send in push
+	 *
+	 * @return void
 	 * @throws InvalidOperationException
 	 */
-	public function resume()
+	public function resume(string $actionUuid = '')
 	{
 		if (!is_object($this->vote))
 			throw new InvalidOperationException("Poll is not found.");
-		return $this->vote->resume();
+		$this->vote->resume();
+		(new VoteChangesSender())->sendResume(
+			$this->getVoteId(),
+			(int)$this->getEntityId(),
+			$actionUuid,
+		);
 	}
 
 	/**
-	 * Finishes voting period.
-	 * @return bool
+	 * Finishes voting period
+	 *
+	 * @param string $actionUuid Frontend uid to send in push
+	 * .
+	 * @return void
 	 * @throws InvalidOperationException
 	 */
-	public function stop()
+	public function stop(string $actionUuid = '')
 	{
 		if (!is_object($this->vote))
 			throw new InvalidOperationException("Poll is not found.");
-		return $this->vote->stop();
+		$this->vote->stop();
+		(new VoteChangesSender())->sendStop(
+			$this->getVoteId(),
+			(int)$this->getEntityId(),
+			$actionUuid,
+		);
+		$connector = $this->getConnector();
+		if ($connector instanceof Connector)
+		{
+			$connector->onVoteStop($this);
+		}
 	}
 
 	/**
@@ -834,5 +890,113 @@ class Attach extends BaseObject implements \ArrayAccess
 	public static function loadFromId($id, $shouldBeNewIfIdIsNull = false)
 	{
 		return parent::loadFromId($id, true);
+	}
+
+	public function getUserEventsAnswersStatByUserId(int $userId): array
+	{
+		$eventId = $this->getUserEventId($userId);
+		if (!$eventId)
+		{
+			return [];
+		}
+
+		return $this->getUserEventAnswers($eventId)->stat;
+	}
+
+	public function getUserEventAnswers(int $eventId): UserBallot
+	{
+		$dbRes = EventTable::getList(array(
+			"select" => [
+				"V_" => "*",
+				"Q_" => "QUESTION.*",
+				"A_" => "QUESTION.ANSWER.*",
+				"U_ID" => "USER.USER.ID",
+			],
+			"filter" => [
+				"ID" => $eventId,
+				"VOTE_ID" => $this["VOTE_ID"],
+			]
+		));
+		$questions = $this["QUESTIONS"];
+		$userId = null;
+		$stat = [];
+		$extras = [];
+		if ($dbRes && ($res = $dbRes->fetch()))
+		{
+			$userId = $res["U_ID"];
+			$extras = array(
+				"VISIBLE" => $res["V_VISIBLE"],
+				"VALID" => $res["V_VALID"]
+			);
+			do
+			{
+				if (!array_key_exists($res["Q_QUESTION_ID"], $questions) ||
+					!array_key_exists($res["A_ANSWER_ID"], $questions[$res["Q_QUESTION_ID"]]["ANSWERS"]))
+					continue;
+				if (!array_key_exists($res["Q_QUESTION_ID"], $stat))
+					$stat[$res["Q_QUESTION_ID"]] = array();
+
+				$stat[$res["Q_QUESTION_ID"]][$res["A_ANSWER_ID"]] = array(
+					"EVENT_ID" => $res["A_ID"],
+					"EVENT_QUESTION_ID" => $res["Q_ID"],
+					"ANSWER_ID" => $res["A_ANSWER_ID"],
+					"ID" => $res["A_ID"],
+					"MESSAGE" => $res["A_MESSAGE"]
+				);
+			} while ($res = $dbRes->fetch());
+		}
+
+		return new UserBallot($stat, $extras, $userId);
+	}
+
+	public function recall(int $userId, string $actionUuid = ''): Result
+	{
+		$canRevoteResult = $this->canRevote($userId);
+		if (!$canRevoteResult->isSuccess())
+		{
+			return $canRevoteResult;
+		}
+
+		$result = $this->vote->recall($userId);
+		if ($result->isSuccess())
+		{
+			$this->sendVotingPush($actionUuid);
+		}
+
+		return $result;
+	}
+
+	private function getUserEventId(int $userId): ?int
+	{
+		$eventData = $this->canVote($userId)->getData();
+		$firstKey = array_key_first($eventData);
+		if ($firstKey === null)
+		{
+			return null;
+		}
+
+		return $eventData[$firstKey]['ID'] ?? null;
+	}
+
+	private function sendVotingPush(string $actionUuid): void
+	{
+		(new VoteChangesSender())->sendVoting($this, $actionUuid);
+	}
+
+	public function isFinished(): bool
+	{
+		return $this['DATE_END'] instanceof DateTime && $this['DATE_END']->getTimestamp() <= time();
+	}
+
+	public function isPublicVote(): bool
+	{
+		$anonymity = (int)($this['ANONYMITY'] ?? Anonymity::UNDEFINED);
+
+		return $anonymity === Anonymity::PUBLICLY;
+	}
+
+	public static function generateUid(): string
+	{
+		return Random::getStringByAlphabet(self::UID_LENGTH, Random::ALPHABET_ALPHALOWER | Random::ALPHABET_NUM);
 	}
 }

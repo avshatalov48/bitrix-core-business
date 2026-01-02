@@ -407,7 +407,7 @@ final class LocationTable extends Tree
 		if(!empty($types))
 		{
 			if(!$dbConnection->isTableExists('b_sale_loc_rebind'))
-				$dbConnection->query("create table b_sale_loc_rebind (TARGET_ID ".Helper::getSqlForDataType('int').", LOCATION_ID ".Helper::getSqlForDataType('int').")");
+				$dbConnection->query("create temporary table b_sale_loc_rebind (TARGET_ID ".Helper::getSqlForDataType('int').", LOCATION_ID ".Helper::getSqlForDataType('int').")");
 			else
 				$dbConnection->query("truncate table b_sale_loc_rebind");
 
@@ -440,7 +440,7 @@ final class LocationTable extends Tree
 				Helper::mergeTables($locTable, 'b_sale_loc_rebind', array('COUNTRY_ID' => 'LOCATION_ID'), array('ID' => 'TARGET_ID'));
 			}
 
-			Helper::dropTable('b_sale_loc_rebind');
+			$dbConnection->query('drop table if exists b_sale_loc_rebind');
 
 			if(intval($types['COUNTRY']))
 				$dbConnection->query("update ".$locTable." set COUNTRY_ID = ID where TYPE_ID = '".intval($types['COUNTRY'])."'");

@@ -4,6 +4,7 @@ namespace Bitrix\Landing;
 use \Bitrix\Landing\Internals\RightsTable;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\UserAccessTable;
+use Bitrix\Crm\Service\Container;
 
 Loc::loadMessages(__FILE__);
 
@@ -991,8 +992,8 @@ class Rights
 		// has context user access to crm forms
 		if (\Bitrix\Main\Loader::includeModule('crm'))
 		{
-			$access = new \CCrmPerms(self::getContextUserId());
-			if (!$access->havePerm('WEBFORM', BX_CRM_PERM_NONE, 'WRITE'))
+			$crmUserPermissions = Container::getInstance()->getUserPermissions(self::getContextUserId());
+			if ($crmUserPermissions->webForm()->canEdit())
 			{
 				// grant access to crm forms sites
 				$res = Site::getList([

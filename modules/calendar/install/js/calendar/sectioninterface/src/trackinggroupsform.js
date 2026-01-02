@@ -54,7 +54,7 @@ export class TrackingGroupsForm extends TrackingUsersForm
 		const selectedItems = this.groupTagSelector.getDialog().getSelectedItems();
 		this.trackingIdList = [];
 		selectedItems.forEach((item) => {
-			if (item.entityType === 'project')
+			if (item.entityId === 'project')
 			{
 				this.trackingIdList.push(item.id);
 			}

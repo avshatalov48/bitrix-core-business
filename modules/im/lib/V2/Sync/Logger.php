@@ -41,14 +41,14 @@ class Logger
 		return self::$instance;
 	}
 
-	public function add(Event $event, $userId, ?string $chatType = null): void
+	public function add(Event $event, mixed $userId, ?Chat $chat = null): void
 	{
 		if (!SyncService::isEnable())
 		{
 			return;
 		}
 
-		if (!$this->needToLog($chatType))
+		if (!$this->needToLog($chat))
 		{
 			return;
 		}
@@ -80,17 +80,30 @@ class Logger
 	public function clean(): void
 	{
 		$now = new DateTime();
-		LogTable::deleteByFilter(['<=DATE_DELETE' => $now]);
+		LogTable::deleteByFilter(['<=DATE_DELETE' => $now]); //Todo: add index in b_im_log
 	}
 
-	protected function needToLog(?string $chatType): bool
+	protected function needToLog(?Chat $chat): bool
 	{
-		if ($chatType === null)
+		if ($chat === null)
 		{
 			return true;
 		}
 
-		return !in_array($chatType, self::CHAT_TYPE_BLACKLIST, true);
+		if (
+			$chat instanceof Chat\NullChat
+			|| $chat instanceof Chat\NotifyChat
+		)
+		{
+			return false;
+		}
+
+		if (in_array($chat->getType(), self::CHAT_TYPE_BLACKLIST, true))
+		{
+			return false;
+		}
+
+		return !empty($chat->getRecentSections());
 	}
 
 	private function addDeferred(): void
@@ -263,7 +276,7 @@ class Logger
 			->setSelect(['ID'])
 			->whereIn('ID', $userIds)
 			->where('ACTIVE', true)
-			->where('IS_REAL_USER', true)
+			->where('REAL_USER', 'expr', true)
 			->fetchCollection()
 			->getIdList()
 		;

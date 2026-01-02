@@ -15,6 +15,7 @@
 
 import { Builder, BuilderDatabaseType } from './builder/builder.js';
 import { BuilderModel } from './builder/model.js';
+export { BuilderEntityModel } from './builder/entity-model';
 export { Builder, BuilderModel, BuilderDatabaseType };
 
 import { inject, effectScope, reactive, watch, computed } from 'ui.vue3';

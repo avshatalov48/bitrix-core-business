@@ -1,7 +1,11 @@
 <?php
 
 use Bitrix\Bizproc\FieldType;
+
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+
+use Bitrix\Crm\Integration\Analytics\Dictionary;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -60,6 +64,18 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 			}
 
 			$documentService->UpdateDocument($documentId, $resultFields, $this->ModifiedBy);
+
+			if (
+				Loader::includeModule('crm')
+				&& method_exists(CCrmBizProcHelper::class, 'sendOperationsAnalytics')
+			)
+			{
+				\CCrmBizProcHelper::sendOperationsAnalytics(
+					Dictionary::EVENT_ENTITY_EDIT,
+					$this,
+					$documentType[2] ?? '',
+				);
+			}
 		}
 		catch (Exception $e)
 		{
@@ -88,19 +104,16 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 			$mergeValues = ($this->MergeMultipleFields === 'Y');
 		}
 
-		$documentService = $this->workflow->GetService('DocumentService');
-
-		$documentFields = $documentService->GetDocumentFields($documentType);
-		$documentValues = $documentService->GetDocument($documentId, $documentType);
-		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
-
 		$resultFields = [];
+
+		$documentService = $this->workflow->GetService('DocumentService');
+		$documentFields = $documentService->GetDocumentFields($documentType);
+		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
+		$document = $documentService->getDocument($documentId, $documentType, array_keys($fields));
+
 		foreach ($fields as $key => $value)
 		{
-			if (!isset($documentFields[$key]) && isset($documentFieldsAliasesMap[$key]))
-			{
-				$key = $documentFieldsAliasesMap[$key];
-			}
+			$key = $this->resolveFieldKey($key, $documentFields, $documentFieldsAliasesMap);
 
 			$property = $documentFields[$key] ?? null;
 			if ($property && ($value || $mergeValues))
@@ -112,7 +125,7 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 
 					if ($mergeValues && $fieldTypeObject->isMultiple())
 					{
-						$baseValue = $documentValues[$key] ?? [];
+						$baseValue = $document[$key] ?? [];
 						$value = $fieldTypeObject->mergeValue($baseValue, $value);
 					}
 
@@ -127,15 +140,20 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 				}
 			}
 
-			if (is_null($value))
-			{
-				$value = '';
-			}
-
-			$resultFields[$key] = $value;
+			$resultFields[$key] = $value ?? '';
 		}
 
 		return $resultFields;
+	}
+
+	protected function resolveFieldKey(string $key, array $documentFields, array $documentFieldsAliasesMap): string
+	{
+		if (!isset($documentFields[$key]) && isset($documentFieldsAliasesMap[$key]))
+		{
+			$key = $documentFieldsAliasesMap[$key];
+		}
+
+		return $key;
 	}
 
 	public function OnExternalEvent($arEventParameters = [])
@@ -412,7 +430,7 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 				return false;
 			}
 
-			if (CBPHelper::getBool($property['Required']) && CBPHelper::isEmptyValue($r))
+			if (CBPHelper::getBool($property['Required'] ?? null) && CBPHelper::isEmptyValue($r))
 			{
 				$errors[] = [
 					'code' => 'NotExist',

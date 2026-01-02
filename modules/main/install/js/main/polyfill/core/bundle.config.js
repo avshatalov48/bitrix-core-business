@@ -25,7 +25,7 @@ if (Array.isArray(process.argv) ? process.argv.includes('build') : false)
 			'last 3 versions',
 			'not IE <= 11',
 			'not dead',
-		]
+		];
 	};
 
 	// Gets required modules by 'browserslist' query
@@ -41,6 +41,11 @@ if (Array.isArray(process.argv) ? process.argv.includes('build') : false)
 		'es.symbol.match-all',
 		'es.array.unscopables.flat',
 		'es.array.unscopables.flat-map',
+		'es.array.includes',
+		'es.array.reverse',
+		'es.regexp.flags',
+		'es.typed-array.fill',
+		'es.typed-array.set',
 		'es.global-this',
 		'es.json.stringify',
 		'es.string.replace',
@@ -60,7 +65,7 @@ if (Array.isArray(process.argv) ? process.argv.includes('build') : false)
 		})
 		.reduce((acc, moduleName) => {
 			return `${acc}import 'core-js/modules/${moduleName}';\n`;
-		}, `// File generated automatically. Don't modify it.\n`);
+		}, '// File generated automatically. Don\'t modify it.\n');
 
 	const sourceFilePath = path.resolve(
 		path.join(__dirname, 'src', 'polyfill.js'),

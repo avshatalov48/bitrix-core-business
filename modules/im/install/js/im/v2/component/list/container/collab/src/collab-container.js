@@ -1,5 +1,5 @@
 import { CollabList } from 'im.v2.component.list.items.collab';
-import { CreateChatPromo } from 'im.v2.component.elements';
+import { CreateChatPromo } from 'im.v2.component.list.container.elements.create-chat-promo';
 import { Layout, ChatType, ActionByUserType } from 'im.v2.const';
 import { Analytics } from 'im.v2.lib.analytics';
 import { Feature, FeatureManager } from 'im.v2.lib.feature';
@@ -33,7 +33,7 @@ export const CollabListContainer = {
 	{
 		onChatClick(dialogId: string): void
 		{
-			this.$emit('selectEntity', { layoutName: Layout.collab.name, entityId: dialogId });
+			this.$emit('selectEntity', { layoutName: Layout.collab, entityId: dialogId });
 		},
 		onCreateClick(): void
 		{

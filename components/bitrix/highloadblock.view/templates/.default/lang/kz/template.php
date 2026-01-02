@@ -1,0 +1,4 @@
+<?php
+$MESS["HLBLOCK_ROW_VIEW_BACK_TO_LIST"] = "Тізімге оралу";
+$MESS["HLBLOCK_ROW_VIEW_NAME_COLUMN"] = "Өріс";
+$MESS["HLBLOCK_ROW_VIEW_VALUE_COLUMN"] = "Мәні";

@@ -1,31 +1,32 @@
-import { Store } from 'ui.vue3.vuex';
-import { Loc } from 'main.core';
-
 import { LayoutManager } from 'im.v2.lib.layout';
 import { Messenger } from 'im.public';
 import { ChatType, UserRole } from 'im.v2.const';
 import { Core } from 'im.v2.application.core';
 import { UserManager } from 'im.v2.lib.user';
-import { CopilotManager } from 'im.v2.lib.copilot';
 import { CallManager } from 'im.v2.lib.call';
 import { ChannelManager } from 'im.v2.lib.channel';
-import { WritingManager } from 'im.v2.lib.writing';
+import { InputActionListener } from 'im.v2.lib.input-action';
 import { Logger } from 'im.v2.lib.logger';
 import { getChatRoleForUser } from 'im.v2.lib.role-manager';
 import { Analytics } from 'im.v2.lib.analytics';
+import { Notifier } from 'im.v2.lib.notifier';
+
+import type { Store } from 'ui.vue3.vuex';
 
 import type {
 	ChatOwnerParams,
 	ChatManagersParams,
 	ChatUserAddParams,
 	ChatUserLeaveParams,
-	StartWritingParams,
+	InputActionNotifyParams,
 	ChatUnreadParams,
 	ChatMuteNotifyParams,
 	ChatRenameParams,
 	ChatAvatarParams,
 	ChatConvertParams,
 	ChatDeleteParams,
+	MessagesAutoDeleteDelayParams,
+	Relation,
 } from '../../types/chat';
 import type { RawUser, RawChat } from '../../types/common';
 import type { ImModelChat } from 'im.v2.model';
@@ -91,73 +92,67 @@ export class ChatPullHandler
 	handleChatUserAdd(params: ChatUserAddParams)
 	{
 		Logger.warn('ChatPullHandler: handleChatUserAdd', params);
+		this.#updateChatUsers(params);
+
+		const { newUsers, dialogId, relations } = params;
+
 		const currentUserId = Core.getUserId();
-		if (params.newUsers.includes(currentUserId))
+		if (newUsers.includes(currentUserId))
 		{
-			this.#store.dispatch('chats/update', {
-				dialogId: params.dialogId,
-				fields: { role: UserRole.member },
+			const currentUserRelation: Relation = relations.find((relation) => relation.userId === Core.getUserId());
+			void this.#store.dispatch('chats/update', {
+				dialogId,
+				fields: { role: currentUserRelation.role },
 			});
 		}
-		this.#updateChatUsers(params);
 	}
 
 	handleChatUserLeave(params: ChatUserLeaveParams)
 	{
 		Logger.warn('ChatPullHandler: handleChatUserLeave', params);
-		const currentUserIsKicked = params.userId === Core.getUserId();
-
-		if (currentUserIsKicked)
-		{
-			this.#store.dispatch('chats/update', {
-				dialogId: params.dialogId,
-				fields: { inited: false },
-			});
-			this.#store.dispatch('messages/clearChatCollection', { chatId: params.chatId });
-		}
-
-		const isChannel = ChannelManager.isChannel(params.dialogId);
-		if (isChannel)
-		{
-			void this.#store.dispatch('counters/deleteForChannel', {
-				channelChatId: params.chatId,
-			});
-		}
-
-		const chatIsOpened = this.#store.getters['application/isChatOpen'](params.dialogId);
-		if (currentUserIsKicked && chatIsOpened)
-		{
-			Messenger.openChat();
-		}
-
-		const chatHasCall = CallManager.getInstance().getCurrentCallDialogId() === params.dialogId;
-		if (currentUserIsKicked && chatHasCall)
-		{
-			CallManager.getInstance().leaveCurrentCall();
-		}
-
-		if (currentUserIsKicked)
-		{
-			CallManager.getInstance().deleteRecentCall(params.dialogId);
-		}
-
 		this.#updateChatUsers(params);
-	}
 
-	handleStartWriting(params: StartWritingParams)
-	{
-		if (params.userId === Core.getUserId())
+		// chatUserLeave is single user event, so we can safely use first (and only) relation from array
+		const { userId, dialogId, chatId, relations: [relation] } = params;
+		const currentUserIsKicked = userId === Core.getUserId();
+		if (relation?.isHidden || !currentUserIsKicked)
 		{
 			return;
 		}
-		Logger.warn('ChatPullHandler: handleStartWriting', params);
-		const { dialogId, userId, userName } = params;
-		WritingManager.getInstance().startWriting({ dialogId, userId, userName });
+
+		void this.#store.dispatch('chats/update', {
+			dialogId,
+			fields: { inited: false },
+		});
+		void this.#store.dispatch('messages/clearChatCollection', { chatId });
+
+		const isChannel = ChannelManager.isChannel(dialogId);
+		if (isChannel)
+		{
+			void this.#store.dispatch('counters/deleteForChannel', { channelChatId: chatId });
+		}
+
+		const chatIsOpened = this.#store.getters['application/isChatOpen'](dialogId);
+		if (chatIsOpened)
+		{
+			void Messenger.openChat();
+		}
+
+		CallManager.getInstance().deleteRecentCall(dialogId);
+		const chatHasCall = CallManager.getInstance().getCurrentCallDialogId() === dialogId;
+		if (chatHasCall)
+		{
+			CallManager.getInstance().leaveCurrentCall();
+		}
+	}
+
+	handleInputActionNotify(params: InputActionNotifyParams)
+	{
+		Logger.warn('ChatPullHandler: handleInputActionNotify', params);
+		InputActionListener.getInstance().startAction(params);
 		this.#store.dispatch('users/update', {
-			id: userId,
-			fields: {
-				lastActivityDate: new Date(),
-			},
+			id: params.userId,
+			fields: { lastActivityDate: new Date() },
 		});
 	}
 
@@ -233,25 +228,30 @@ export class ChatPullHandler
 	handleChatConvert(params: ChatConvertParams)
 	{
 		Logger.warn('ChatPullHandler: handleChatConvert', params);
-		const { dialogId, newType, newPermissions } = params;
-		this.#store.dispatch('chats/update', {
-			dialogId,
-			fields: {
-				type: newType,
-				permissions: newPermissions,
-			},
-		});
-	}
+		const { dialogId, oldType, newType, newPermissions, newTypeParams } = params;
+		const fields = {
+			type: newType,
+			permissions: newPermissions,
+		};
 
-	handleChatCopilotRoleUpdate(params)
-	{
-		if (!params.copilotRole)
+		if ([newType, oldType].includes(ChatType.collab))
 		{
-			return;
+			fields.diskFolderId = 0;
 		}
 
-		const copilotManager = new CopilotManager();
-		void copilotManager.handleRoleUpdate(params.copilotRole);
+		this.#store.dispatch('chats/update', {
+			dialogId,
+			fields,
+		});
+
+		const dialog = this.#store.getters['chats/get'](dialogId);
+		if (newType === ChatType.collab && dialog?.chatId > 0)
+		{
+			this.#store.dispatch('chats/collabs/set', {
+				chatId: dialog.chatId,
+				collabInfo: newTypeParams.collabInfo,
+			});
+		}
 	}
 
 	handleChatUpdate(params: {chat: RawChat})
@@ -261,6 +261,16 @@ export class ChatPullHandler
 			fields: {
 				role: getChatRoleForUser(params.chat),
 				...params.chat,
+			},
+		});
+	}
+
+	handleChatFieldsUpdate(params: Partial<RawChat> & {dialogId: string, chatId: number})
+	{
+		void this.#store.dispatch('chats/update', {
+			dialogId: params.dialogId,
+			fields: {
+				...params,
 			},
 		});
 	}
@@ -304,7 +314,7 @@ export class ChatPullHandler
 		if (chatIsOpened)
 		{
 			Analytics.getInstance().chatDelete.onChatDeletedNotification(params.dialogId);
-			this.#showNotification(Loc.getMessage('IM_CONTENT_CHAT_ACCESS_ERROR_MSGVER_1'));
+			Notifier.chat.onNotFoundError();
 			void LayoutManager.getInstance().clearCurrentLayoutEntityId();
 			void LayoutManager.getInstance().deleteLastOpenedElementById(params.dialogId);
 		}
@@ -316,26 +326,39 @@ export class ChatPullHandler
 		}
 	}
 
+	handleMessagesAutoDeleteDelayChanged(params: MessagesAutoDeleteDelayParams)
+	{
+		Logger.warn('ChatPullHandler: handleMessagesAutoDeleteDelayChanged', params);
+
+		const { chatId, delay } = params;
+
+		void this.#store.dispatch('chats/autoDelete/set', {
+			chatId,
+			delay,
+		});
+	}
+
 	#updateChatUsers(params: {
 		users?: {[userId: string]: RawUser},
 		dialogId: string,
-		userCount: number
+		userCount: number,
+		chatExtranet: boolean,
+		containsCollaber: boolean,
 	})
 	{
 		if (params.users)
 		{
 			const userManager = new UserManager();
-			userManager.setUsersToModel(Object.values(params.users));
+			void userManager.setUsersToModel(Object.values(params.users));
 		}
 
-		this.#store.dispatch('chats/update', {
+		void this.#store.dispatch('chats/update', {
 			dialogId: params.dialogId,
-			fields: { userCounter: params.userCount },
+			fields: {
+				userCounter: params.userCount,
+				extranet: params.chatExtranet,
+				containsCollaber: params.containsCollaber,
+			},
 		});
-	}
-
-	#showNotification(text: string): void
-	{
-		BX.UI.Notification.Center.notify({ content: text });
 	}
 }

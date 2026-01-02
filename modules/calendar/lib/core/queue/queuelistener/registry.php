@@ -36,6 +36,7 @@ class Registry
 
 	private function init()
 	{
+		// @todo Remove with deprecated agent
 		$this->registerListener(
 			QueueRegistry::QUEUE_LIST['EventDelayedSync'],
 			new AgentListener(
@@ -45,6 +46,7 @@ class Registry
 			)
 
 		);
+
 		$this->registerListener(
 			QueueRegistry::QUEUE_LIST['DelayedSyncSection'],
 			new AgentListener(

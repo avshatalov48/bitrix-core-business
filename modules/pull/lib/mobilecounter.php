@@ -1,6 +1,9 @@
 <?php
 namespace Bitrix\Pull;
 
+use Bitrix\Main\EventResult;
+use Bitrix\Main\Type\Collection;
+
 class MobileCounter
 {
 	const MOBILE_APP = 'Bitrix24';
@@ -14,7 +17,7 @@ class MobileCounter
 
 		foreach ($event->getResults() as $eventResult)
 		{
-			if ($eventResult->getType() != \Bitrix\Main\EventResult::SUCCESS)
+			if ($eventResult->getType() != EventResult::SUCCESS)
 			{
 				continue;
 			}
@@ -80,25 +83,32 @@ class MobileCounter
 
 		foreach ($event->getResults() as $eventResult)
 		{
-			if ($eventResult->getType() != \Bitrix\Main\EventResult::SUCCESS)
+			if ($eventResult->getType() != EventResult::SUCCESS)
 			{
 				continue;
 			}
 
-			$result = $eventResult->getParameters();
+			$mobileCounters = $eventResult->getParameters();
 
-			$type = $eventResult->getModuleId().'_'.$result['TYPE'];
-			if ($typeStatus[$type] === false)
+			if (Collection::isAssociative($mobileCounters))
 			{
-				continue;
+				$mobileCounters = [$mobileCounters];
 			}
 
-			if (intval($result['COUNTER']) > 0)
+			foreach ($mobileCounters as $mobileCounter)
 			{
-				$counter += $result['COUNTER'];
+				$type = $eventResult->getModuleId() . '_' . $mobileCounter['TYPE'];
+				if ($typeStatus[$type] === false)
+				{
+					continue;
+				}
+
+				if ((int)$mobileCounter['COUNTER'] > 0)
+				{
+					$counter += $mobileCounter['COUNTER'];
+				}
 			}
 		}
-
 		return $counter;
 	}
 

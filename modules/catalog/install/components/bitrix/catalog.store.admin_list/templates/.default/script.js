@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports) {
 	'use strict';
 
@@ -21,13 +22,16 @@
 	    key: "openStoreSlider",
 	    value: function openStoreSlider() {
 	      var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-	      var url = '/shop/documents-stores/details/' + parseInt(id) + '/';
+	      var url = "/shop/documents-stores/details/".concat(parseInt(id, 10), "/");
 	      BX.SidePanel.Instance.open(url, {
 	        allowChangeHistory: true,
 	        cacheable: false,
 	        width: 500,
 	        events: {
 	          onClose: function onClose(event) {
+	            if (!BX.Main.gridManager) {
+	              return;
+	            }
 	            var grid = BX.Main.gridManager.getInstanceById(Grid.gridId);
 	            if (grid) {
 	              grid.reload();

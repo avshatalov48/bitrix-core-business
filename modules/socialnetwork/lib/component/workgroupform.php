@@ -69,7 +69,7 @@ class WorkgroupForm extends \CBitrixComponent
 		$groupId = (isset($this->arParams['GROUP_ID']) ? (int)$this->arParams['GROUP_ID'] : 0);
 
 		if (
-			SITE_TEMPLATE_ID !== 'bitrix24'
+			(SITE_TEMPLATE_ID !== 'bitrix24' && SITE_TEMPLATE_ID !== 'air')
 			|| !Loader::includeModule('intranet')
 		)
 		{
@@ -231,7 +231,7 @@ class WorkgroupForm extends \CBitrixComponent
 
 			$res = UserToGroupTable::getList([
 				'filter' => [
-					'ROLE' => UserToGroupTable::ROLE_MODERATOR,
+					'=ROLE' => UserToGroupTable::ROLE_MODERATOR,
 					'GROUP_ID' => $groupId,
 				],
 				'select' => [ 'USER_ID' ]

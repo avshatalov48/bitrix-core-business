@@ -1,13 +1,16 @@
 import { InvitationInput } from 'intranet.invitation-input';
 import { EventEmitter } from 'main.core.events';
 
-import { UserType } from 'im.v2.const';
+import { UserType, SliderCode } from 'im.v2.const';
 import { Core } from 'im.v2.application.core';
 import { openHelpdeskArticle } from 'im.v2.lib.helpdesk';
 import { Feature, FeatureManager } from 'im.v2.lib.feature';
-import { Button as MessengerButton, ButtonSize, ButtonColor, ScrollWithGradient } from 'im.v2.component.elements';
+import { ScrollWithGradient } from 'im.v2.component.elements.scroll-with-gradient';
+import { ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements.button';
+import { FeaturePromoter } from 'ui.info-helper';
 
 import { CopyInviteLink } from './copy-invite-link';
+import { InviteLanguageSelector } from './invite-language-selector';
 
 import type { ImModelChat, ImModelCollabInfo, ImModelUser } from 'im.v2.model';
 import type { JsonObject } from 'main.core';
@@ -18,7 +21,7 @@ const HELPDESK_SLIDER_ID = 'main:helper';
 // @vue/component
 export const AddGuestsTab = {
 	name: 'AddGuestsTab',
-	components: { MessengerButton, ScrollWithGradient, CopyInviteLink },
+	components: { ChatButton, ScrollWithGradient, CopyInviteLink, InviteLanguageSelector },
 	props:
 	{
 		dialogId: {
@@ -30,12 +33,13 @@ export const AddGuestsTab = {
 			default: 0,
 		},
 	},
-	emits: ['close', 'closeHelpdeskSlider', 'openHelpdeskSlider'],
+	emits: ['close', 'closeHelpdeskSlider', 'openHelpdeskSlider', 'closeLanguageSelector', 'openLanguageSelector'],
 	data(): JsonObject
 	{
 		return {
 			isAddButtonDisabled: true,
 			isInvitingGuests: false,
+			invitationLangCode: '',
 		};
 	},
 	computed:
@@ -103,6 +107,18 @@ export const AddGuestsTab = {
 
 			return currentUser.type === UserType.collaber;
 		},
+		isEnabledCollabersInvitation(): boolean
+		{
+			return FeatureManager.isFeatureAvailable(Feature.enabledCollabersInvitation);
+		},
+		isChangeInviteLanguageAvailable(): boolean
+		{
+			return FeatureManager.isFeatureAvailable(Feature.changeInviteLanguageAvailable);
+		},
+		defaultLanguageCode(): string
+		{
+			return Core.getLanguageId();
+		},
 	},
 	created()
 	{
@@ -111,6 +127,7 @@ export const AddGuestsTab = {
 	},
 	mounted()
 	{
+		this.invitationLangCode = this.defaultLanguageCode;
 		this.invitationGuests.renderTo(this.$refs['im-collab-invitation-guests-input']);
 	},
 	beforeUnmount()
@@ -150,6 +167,17 @@ export const AddGuestsTab = {
 			this.isInvitingGuests = false;
 			this.$emit('close');
 		},
+		onInvitationGuests()
+		{
+			if (!this.isEnabledCollabersInvitation)
+			{
+				this.showHelper();
+			}
+		},
+		showHelper()
+		{
+			new FeaturePromoter({ code: SliderCode.collabInviteOff }).show();
+		},
 		onCloseOpenHelpdeskSlider({ data })
 		{
 			const [event] = data;
@@ -159,6 +187,11 @@ export const AddGuestsTab = {
 			{
 				this.$emit('closeHelpdeskSlider');
 			}
+		},
+		onInviteLanguageSelected(langCode: string)
+		{
+			this.invitationLangCode = langCode;
+			this.invitationGuests.changeLanguage(langCode);
 		},
 		loc(phraseCode: string, replacements: {[string]: string} = {}): string
 		{
@@ -171,7 +204,6 @@ export const AddGuestsTab = {
 				<ScrollWithGradient :gradientHeight="28" :withShadow="true">
 					<div class="bx-im-add-to-collab__content">
 						<div class="bx-im-add-to-collab__description">
-							<div class="bx-im-add-to-collab__description_icon"></div>
 							<div class="bx-im-add-to-collab__description_content">
 								<div class="bx-im-add-to-collab__description_title">{{ preparedDescriptionTitle }}</div>
 								<div class="bx-im-add-to-collab__description_text">{{ preparedDescription }}</div>
@@ -179,8 +211,20 @@ export const AddGuestsTab = {
 									{{ loc('IM_ENTITY_SELECTOR_ADD_TO_COLLAB_HELPDESK_LINK') }}
 								</a>
 							</div>
+							<div class="bx-im-add-to-collab__description_icon"></div>
 						</div>
-						<CopyInviteLink :collabId="collabId" :dialogId="dialogId" />
+						<InviteLanguageSelector
+							v-if="isChangeInviteLanguageAvailable"
+							:defaultLanguageCode="defaultLanguageCode"
+							@selectLanguage="onInviteLanguageSelected"
+							@openLanguageSelector="$emit('openLanguageSelector')"
+							@closeLanguageSelector="$emit('closeLanguageSelector')"
+						/>
+						<CopyInviteLink 
+							:collabId="collabId"
+							:dialogId="dialogId"
+							:langCode="invitationLangCode"
+						/>
 						<div class="bx-im-add-to-collab__invite-block">
 							<span class="bx-im-add-to-collab__invite-block-title --ellipsis">
 								{{ preparedInvitationTitle }}
@@ -188,13 +232,14 @@ export const AddGuestsTab = {
 							<div 
 								ref="im-collab-invitation-guests-input" 
 								class="bx-im-add-to-collab__invite-block-input"
+								@click="onInvitationGuests"
 							></div>
 						</div>
 					</div>
 				</ScrollWithGradient>
 			</div>
 			<div class="bx-im-add-to-collab__buttons">
-				<MessengerButton
+				<ChatButton
 					:size="ButtonSize.L"
 					:color="ButtonColor.Collab"
 					:isRounded="true"
@@ -203,7 +248,7 @@ export const AddGuestsTab = {
 					:isLoading="isInvitingGuests"
 					@click="addGuestToCollab"
 				/>
-				<MessengerButton
+				<ChatButton
 					:size="ButtonSize.L"
 					:color="ButtonColor.LightBorder"
 					:isRounded="true"

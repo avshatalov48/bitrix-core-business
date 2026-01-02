@@ -24,37 +24,6 @@ else
 
 $socnetGroupId = $arParams["SOCNET_GROUP_ID"] ? $arParams["SOCNET_GROUP_ID"] : 0;
 
-$isBitrix24Template = (SITE_TEMPLATE_ID == "bitrix24");
-$pagetitleAlignRightContainer = "lists-align-right-container";
-if($isBitrix24Template)
-{
-	$this->SetViewTarget("pagetitle", 100);
-	$pagetitleAlignRightContainer = "";
-}
-elseif(!IsModuleInstalled("intranet"))
-{
-	\Bitrix\Main\UI\Extension::load([
-		'ui.design-tokens',
-		'ui.fonts.opensans',
-	]);
-
-	$APPLICATION->SetAdditionalCSS("/bitrix/js/lists/css/intranet-common.css");
-}
-?>
-<div class="pagetitle-container pagetitle-align-right-container <?=$pagetitleAlignRightContainer?>">
-	<a href="<?=$arResult["LIST_URL"]?>" class="ui-btn ui-btn-sm ui-btn-link ui-btn-themes lists-list-back">
-		<?=GetMessage("CT_BLF_TOOLBAR_RETURN_LIST_ELEMENT")?>
-	</a>
-	<a class="ui-btn ui-btn-sm ui-btn-primary ui-btn-icon-add" href="<?=$arResult['LIST_FIELD_EDIT_URL']?>">
-		<?=Loc::getMessage('CT_BLF_TOOLBAR_ADD')?>
-	</a>
-</div>
-<?
-if($isBitrix24Template)
-{
-	$this->EndViewTarget();
-}
-
 $arResult['HEADERS'] = array(
 	array(
 		'id' => 'SORT',

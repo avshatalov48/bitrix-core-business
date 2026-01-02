@@ -1,0 +1,20 @@
+<?php
+$MESS['FDATE_LAST_MESSAGE'] = "дата последнего сообщения";
+$MESS['FMESSAGE_TOPIC'] = "тема сообщения";
+$MESS['FNUM_ANSWERS'] = "количество ответов";
+$MESS['FNUM_VIEWS'] = "количество просмотров";
+$MESS['FSTART_DATE'] = "дата начала темы";
+$MESS['FAUTHOR_TOPIC'] = "автор темы";
+$MESS['FASC'] = "по возрастанию";
+$MESS['FDESC'] = "по убыванию";
+$MESS['FNO_ACCESS'] = "нет доступа";
+$MESS['FREAD_ACCESS'] = "чтение";
+$MESS['FANSWER_ACCESS'] = "ответ";
+$MESS['FNEW_MESSAGE_ACCESS'] = "новая тема";
+$MESS['FMODERATE_ACCESS'] = "модерирование";
+$MESS['FEDIT_ACCESS'] = "редактирование";
+$MESS['FFULL_ACCESS'] = "полный доступ";
+$MESS['FSUBSC_NO_SPERMS'] = "У вас нет прав на удаление этой подписки";
+$MESS['FORUM_NO_MODULE'] = "Модуль форума не установлен";
+$MESS['FR_VIDEO'] = "Вставить видео";
+$MESS['FR_VIDEO_P'] = "Путь к видео";

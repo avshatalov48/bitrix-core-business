@@ -203,7 +203,6 @@ this.BX = this.BX || {};
 	    this.designAllowed = !!landing_env.Env.getInstance().getOptions().design_block_allowed;
 	    this.cardSelectors.push(''); // for without cards elements
 	    this.nodeMap = new WeakMap();
-	    this.metrika = new landing_metrika.Metrika(true);
 	    this.repoManager = new RepoManager({
 	      repository: options.repository,
 	      onElementSelect: this.addElement.bind(this)
@@ -267,9 +266,6 @@ this.BX = this.BX || {};
 	        });
 	        if (elementAdded) {
 	          _this3.refreshManifest();
-	          setTimeout(function () {
-	            _this3.sendLabel('designerBlock', 'onHistoryAddNode');
-	          }, 0);
 	        }
 	      });
 	      top.BX.addCustomEvent('Landing:onHistoryRemoveNode', function (tags) {
@@ -277,9 +273,6 @@ this.BX = this.BX || {};
 	          _this3.removeNode(body.querySelector(tag.elementSelector));
 	        });
 	        _this3.refreshManifest();
-	        setTimeout(function () {
-	          _this3.sendLabel('designerBlock', 'onHistoryRemoveNode');
-	        }, 0);
 	      });
 	    }
 	  }, {
@@ -330,7 +323,6 @@ this.BX = this.BX || {};
 	          _this4.saving = false;
 	          finishCallback();
 	        });
-	        _this4.sendLabel('designerBlock', 'save' + '&designed=' + (_this4.designed ? 'Y' : 'N') + '&code=' + _this4.blockCode);
 	      });
 	    }
 	  }, {
@@ -489,12 +481,6 @@ this.BX = this.BX || {};
 	      return element.parentElement.tagName === 'A';
 	    }
 	  }, {
-	    key: "sendLabel",
-	    value: function sendLabel(key, value) {
-	      this.metrika.clearSendedLabel();
-	      this.metrika.sendLabel(null, key, value);
-	    }
-	  }, {
 	    key: "addElement",
 	    value: function addElement(repoElement) {
 	      var _this10 = this;
@@ -511,7 +497,6 @@ this.BX = this.BX || {};
 	          insertAfterSelector: BX.Landing.Utils.getCSSSelector(insertAfter)
 	        });
 	      });
-	      this.sendLabel('designerBlock', 'addElement' + '&code=' + this.blockCode + '&name=' + repoElement.code + '&preset=' + (Object.keys(repoElement.manifest.nodes).length === 1 ? 'N' : 'Y'));
 	      this.changed = true;
 	      this.refreshManifest(repoElement.manifest.nodes);
 	      this.highlight.show(null);
@@ -533,7 +518,6 @@ this.BX = this.BX || {};
 	      this.hideHoverArea();
 	      this.highlight.hide();
 	      setTimeout(function () {
-	        _this11.sendLabel('designerBlock', 'removeElement' + '&tagName=' + _this11.activeNode.getElement().tagName + '&code=' + _this11.blockCode);
 	        babelHelpers.toConsumableArray(document.body.querySelectorAll(_this11.activeNode.getSelector())).map(function (node) {
 	          tags.push({
 	            elementHtml: _this11.clearHtml(node.outerHTML),

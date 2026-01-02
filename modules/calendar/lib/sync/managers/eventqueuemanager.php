@@ -11,6 +11,7 @@ use Bitrix\Calendar\Sync\Dictionary;
 use Bitrix\Calendar\Sync\Factories\FactoryBuilder;
 use Bitrix\Calendar\Sync\Util\Context;
 use Bitrix\Calendar\Sync\Util\EventContext;
+use Bitrix\Calendar\Synchronization\Public\Service\SynchronizationFeature;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Loader;
@@ -51,6 +52,11 @@ class EventQueueManager
 	 */
 	public static function checkEvents(): ?string
 	{
+		if (SynchronizationFeature::isOn())
+		{
+			return "\\Bitrix\\Calendar\\Sync\\Managers\\EventQueueManager::checkEvents();";
+		}
+
 		if (
 			!Loader::includeModule('calendar')
 			|| !Loader::includeModule('dav')
@@ -90,6 +96,11 @@ class EventQueueManager
 					);
 				}
 
+				continue;
+			}
+
+			if (SynchronizationFeature::isOn())
+			{
 				continue;
 			}
 

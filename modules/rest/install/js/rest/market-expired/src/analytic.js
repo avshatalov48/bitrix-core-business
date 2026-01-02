@@ -1,8 +1,11 @@
 import { AnalyticsOptions, sendData } from 'ui.analytics';
+import PopupType from './type/popup-type';
+import PopupCategory from './type/popup-category';
 
 export type AnalyticContext = {
 	withDiscount: boolean,
-	popupType: 'WARNING' | 'FINAL',
+	popupType: PopupType,
+	popupCategory: PopupCategory,
 }
 
 export class Analytic
@@ -36,7 +39,7 @@ export class Analytic
 		this.#send({
 			tool: 'intranet',
 			category: 'demo',
-			event: 'demo_activated',
+			event: 'market_demo_activated',
 		});
 	}
 
@@ -51,9 +54,16 @@ export class Analytic
 
 	#getType(): string
 	{
-		return this.context.popupType === 'WARNING'
+		let type = this.context.popupType === PopupType.WARNING
 			? 'pre_disconnection_alert'
 			: 'post_disconnection_notice';
+
+		if (this.context.popupCategory === PopupCategory.TRIAL)
+		{
+			type = `${type}_demo`;
+		}
+
+		return type;
 	}
 
 	#getP1(): string

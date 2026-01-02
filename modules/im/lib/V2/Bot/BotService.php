@@ -3,8 +3,6 @@
 namespace Bitrix\Im\V2\Bot;
 
 use Bitrix\Im;
-use Bitrix\Im\V2\Chat;
-use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Message\Send\SendingConfig;
 
@@ -26,11 +24,6 @@ class BotService
 		$this->sendingConfig = $sendingConfig;
 	}
 
-	/**
-	 * @param Chat $chat
-	 * @param Message $message
-	 * @return void
-	 */
 	public function runMessageCommand(int $messageId, array $fields): void
 	{
 		$fields['COMMAND_CONTEXT'] = 'TEXTAREA';

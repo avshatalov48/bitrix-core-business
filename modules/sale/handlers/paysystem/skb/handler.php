@@ -26,6 +26,8 @@ class SkbHandler
 	private const MODE_DELOBANK = 'delobank';
 	private const MODE_GAZENERGOBANK = 'gazenergobank';
 
+	private const TAG_BITRIX_24 = 'Bitrix24';
+
 	private const RESPONSE_CODE_SUCCESS = [
 		'0',
 		'RQ00000'
@@ -685,6 +687,7 @@ class SkbHandler
 		return [
 			'Authorization' => 'Basic ' . $this->getBasicAuthString($payment),
 			'Content-Type' => 'application/json',
+			'User-Agent' => self::TAG_BITRIX_24,
 		];
 	}
 

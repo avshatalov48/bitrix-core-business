@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core,landing_env) {
 	'use strict';
@@ -101,7 +102,7 @@ this.BX = this.BX || {};
 	        return response.result;
 	      })["catch"](function (err) {
 	        if (requestBody.action !== 'Landing::downBlock' && requestBody.action !== 'Landing::upBlock') {
-	          if (requestBody.action !== 'Block::getById' && requestBody.action !== 'Block::publication' && requestBody.action !== 'Landing::move' && requestBody.action !== 'Landing::copy' && requestBody.action !== 'Landing::publication' && requestBody.action !== 'Site::publication' && requestBody.action !== 'Site::moveFolder' && requestBody.action !== 'Site::markDelete' && requestBody.action !== 'Vk::getVideoInfo' && requestBody.action !== 'RepoWidget::fetchData') {
+	          if (requestBody.action !== 'Block::getById' && requestBody.action !== 'Block::publication' && requestBody.action !== 'Landing::move' && requestBody.action !== 'Landing::copy' && requestBody.action !== 'Landing::publication' && requestBody.action !== 'Site::publication' && requestBody.action !== 'Site::moveFolder' && requestBody.action !== 'Site::markDelete' && requestBody.action !== 'Vk::getVideoInfo') {
 	            var error = main_core.Type.isString(err) ? {
 	              type: 'error'
 	            } : err;

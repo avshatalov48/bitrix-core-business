@@ -42,9 +42,14 @@ if (
 				$classList[] = '--active';
 			}
 
-			$new = ($code === 'scrum')
+			$new = $code === 'scrum';
+			$limitCode = $type['LIMIT_FEATURE'] ?? null;
 			?>
-			<div class="<?= implode(' ', $classList) ?>" data-bx-project-type="<?= htmlspecialcharsbx($code) ?>">
+			<div
+				class="<?= implode(' ', $classList) ?>"
+				data-bx-project-type="<?= htmlspecialcharsbx($code) ?>"
+				<?= is_string($limitCode) ? 'data-bx-project-limit="' . htmlspecialcharsbx($limitCode) .'"' : ''?>
+			>
 				<div class="socialnetwork-group-create-ex__group-selector--logo --<?= htmlspecialcharsbx($code) ?>"></div>
 				<div class="socialnetwork-group-create-ex__group-selector--container">
 					<div class="socialnetwork-group-create-ex__group-selector--title">

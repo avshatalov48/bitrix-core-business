@@ -1,0 +1,23 @@
+<?php
+$MESS["ADM_FILE_ADD"] = "Файлды қосу";
+$MESS["ADM_FILE_ADD_DESC"] = "Сипаттама қосу";
+$MESS["ADM_FILE_ADD_M"] = "Файлдарды қосу";
+$MESS["ADM_FILE_CANCEL_DEL"] = "Жоюдан бас тарту";
+$MESS["ADM_FILE_CLEAR"] = "Таңдауды болдырмау";
+$MESS["ADM_FILE_CLOUD"] = "Бұлттардан жүктеу";
+$MESS["ADM_FILE_DELETE"] = "Жою";
+$MESS["ADM_FILE_DELETED_TITLE"] = "Кескін<br>жойылады<br>";
+$MESS["ADM_FILE_DESC"] = "сипаттама...";
+$MESS["ADM_FILE_DESCRIPTION"] = "Сипаттама";
+$MESS["ADM_FILE_INFO_DIM"] = "Өлшемі";
+$MESS["ADM_FILE_INFO_LINK"] = "Сілтеме";
+$MESS["ADM_FILE_INFO_SIZE"] = "Көлемі";
+$MESS["ADM_FILE_INSERT_PATH"] = "Файлға апаратын жолды қою";
+$MESS["ADM_FILE_MEDIALIB"] = "Медиадерекханадан таңдау";
+$MESS["ADM_FILE_NEW_CLOUD"] = "Бұлттағы файлмен ауыстыру";
+$MESS["ADM_FILE_NEW_MEDIALIB"] = "Медиа дерекханадағы файлмен ауыстыру";
+$MESS["ADM_FILE_NEW_SITE"] = "Құрылымдағы файлмен ауыстыру";
+$MESS["ADM_FILE_NEW_UPLOAD"] = "Компьютерден файлмен ауыстыру";
+$MESS["ADM_FILE_NOT_FOUND"] = "Файл табылмады";
+$MESS["ADM_FILE_SITE"] = "Құрылымнан таңдау";
+$MESS["ADM_FILE_UPLOAD"] = "Компьютерден жүктеу";

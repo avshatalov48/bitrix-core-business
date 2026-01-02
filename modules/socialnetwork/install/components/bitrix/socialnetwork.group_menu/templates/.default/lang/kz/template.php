@@ -1,0 +1,20 @@
+<?php
+$MESS["SONET_SGM_T_MODULE_NOT_INSTALLED"] = "Әлеуметтік желі модулі орнатылмаған.";
+$MESS["SONET_SGM_T_NOTIFY_HINT_OFF"] = "Сіз енді мессенджер арқылы<br>топтағы жаңартулар туралы мәлімдеме алмайсыз";
+$MESS["SONET_SGM_T_NOTIFY_HINT_ON"] = "Топтағы жаңартулар туралы мәлімдемелер<br>сізге мессенджерге келеді";
+$MESS["SONET_SGM_T_NOTIFY_TITLE_OFF"] = "Мәлімдемелер өшірулі";
+$MESS["SONET_SGM_T_NOTIFY_TITLE_ON"] = "Мәлімдемелер қосылды";
+$MESS["SONET_SGM_T_NOT_ATHORIZED"] = "Сіз авторланбағансыз.";
+$MESS["SONET_SGM_T_SESSION_WRONG"] = "Сіздің сессияңыз аяқталды, өтініш, әрекетті қайталаңыз.";
+$MESS["SONET_SGM_T_WAIT"] = "Өтініш, күтіңіз&hellip;";
+$MESS["SONET_UM_BLACKLIST"] = "Қара тізім";
+$MESS["SONET_UM_BLOG"] = "Хабарламалар";
+$MESS["SONET_UM_CALENDAR"] = "Күнтізбе";
+$MESS["SONET_UM_FILES"] = "Диск";
+$MESS["SONET_UM_FORUM"] = "Форум";
+$MESS["SONET_UM_GENERAL"] = "Негізгі";
+$MESS["SONET_UM_MODS"] = "Модераторлар";
+$MESS["SONET_UM_PHOTO"] = "Фото";
+$MESS["SONET_UM_REQUESTS"] = "Сұраулар";
+$MESS["SONET_UM_SEARCH"] = "Іздеу";
+$MESS["SONET_UM_USERS"] = "Қатысушылар";

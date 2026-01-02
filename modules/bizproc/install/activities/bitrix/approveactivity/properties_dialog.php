@@ -1,5 +1,11 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Localization\Loc;
 ?>
 
 <tr>
@@ -87,27 +93,27 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 	<td><?=CBPDocument::ShowParameterField("string", 'task_button2_message', $arCurrentValues['task_button2_message'], Array('size'=>'50'))?></td>
 </tr>
 <tr>
-	<td align="right"><?= GetMessage("BPAR_PD_SHOW_COMMENT") ?>:</td>
+	<td align="right"><?= Loc::getMessage('BPAR_PD_SHOW_COMMENT_1') ?>:</td>
 	<td>
 		<select name="show_comment">
-			<option value="Y"<?= $arCurrentValues["show_comment"] != "N" ? " selected" : "" ?>><?= GetMessage("BPAA_PD_YES") ?></option>
-			<option value="N"<?= $arCurrentValues["show_comment"] == "N" ? " selected" : "" ?>><?= GetMessage("BPAA_PD_NO") ?></option>
+			<option value="Y"<?= $arCurrentValues["show_comment"] !== "N" ? " selected" : "" ?>><?= GetMessage("BPAA_PD_YES") ?></option>
+			<option value="N"<?= $arCurrentValues["show_comment"] === "N" ? " selected" : "" ?>><?= GetMessage("BPAA_PD_NO") ?></option>
 		</select>
 	</td>
 </tr>
 <tr>
-	<td align="right"><?= GetMessage("BPAR_PD_COMMENT_REQUIRED") ?>:</td>
+	<td align="right"><?= Loc::getMessage('BPAR_PD_COMMENT_REQUIRED_1') ?>:</td>
 	<td>
 		<select name="comment_required">
-			<option value="N"><?= GetMessage("BPAA_PD_NO") ?></option>
-			<option value="Y"<?= $arCurrentValues["comment_required"] == "Y" ? " selected" : "" ?>><?= GetMessage("BPAA_PD_YES") ?></option>
-			<option value="YA"<?= $arCurrentValues["comment_required"] == "YA" ? " selected" : "" ?>><?= GetMessage("BPAR_PD_COMMENT_REQUIRED_YA") ?></option>
-			<option value="YR"<?= $arCurrentValues["comment_required"] == "YR" ? " selected" : "" ?>><?= GetMessage("BPAR_PD_COMMENT_REQUIRED_YR") ?></option>
+			<option value="N"><?= Loc::getMessage('BPAA_PD_NO') ?></option>
+			<option value="Y"<?= $arCurrentValues["comment_required"] == "Y" ? " selected" : "" ?>><?= Loc::getMessage('BPAA_PD_YES') ?></option>
+			<option value="YA"<?= $arCurrentValues["comment_required"] == "YA" ? " selected" : "" ?>><?= Loc::getMessage('BPAR_PD_COMMENT_REQUIRED_YA_1') ?></option>
+			<option value="YR"<?= $arCurrentValues["comment_required"] == "YR" ? " selected" : "" ?>><?= Loc::getMessage('BPAR_PD_COMMENT_REQUIRED_YR_1') ?></option>
 		</select>
 	</td>
 </tr>
 <tr>
-	<td align="right"><?= GetMessage("BPAR_PD_COMMENT_LABEL_MESSAGE") ?>:</td>
+	<td align="right"><?= Loc::getMessage('BPAR_PD_COMMENT_LABEL_MESSAGE_1') ?>:</td>
 	<td><?=CBPDocument::ShowParameterField("string", 'comment_label_message', $arCurrentValues['comment_label_message'], Array('size'=>'50'))?></td>
 </tr>
 <tr>

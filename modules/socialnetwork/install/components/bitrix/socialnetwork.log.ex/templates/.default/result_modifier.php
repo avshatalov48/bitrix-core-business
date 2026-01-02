@@ -33,7 +33,11 @@ if (IsModuleInstalled('tasks'))
 
 $formTargetId = false;
 $informerTargetId = false;
-if (defined("BITRIX24_INDEX_PAGE"))
+if (defined('AIR_SITE_TEMPLATE') && defined("BITRIX24_INDEX_PAGE"))
+{
+	$informerTargetId = "feed-informer";
+}
+else if (defined("BITRIX24_INDEX_PAGE"))
 {
 	$formTargetId = "topblock";
 	$informerTargetId = "inside_pagetitle";

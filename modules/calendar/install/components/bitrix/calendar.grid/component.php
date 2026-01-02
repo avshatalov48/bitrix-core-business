@@ -24,8 +24,6 @@ CModule::IncludeModule("socialnetwork");
 $APPLICATION->ResetException();
 $APPLICATION->SetPageProperty("BodyClass", trim($APPLICATION->GetPageProperty("BodyClass")." no-all-paddings"));
 
-$arParams['FILTER_ID'] = "CALENDAR_GRID_FILTER_".$arParams["CALENDAR_TYPE"]."_". ($arParams["OWNER_ID"] ?? '') ."_".CCalendar::GetCurUserId();
-
 $viewTaskPath = '';
 $editTaskPath = '';
 if ($arParams['CALENDAR_TYPE'] === 'user')
@@ -38,6 +36,9 @@ else if ($arParams['CALENDAR_TYPE'] === 'group')
 	$viewTaskPath = str_replace(array('#group_id#', '#action#'), array($arParams["OWNER_ID"], 'view'), $arParams['PATH_TO_GROUP_TASK']);
 	$editTaskPath = str_replace(array('#group_id#', '#action#', '#task_id#'), array($arParams["OWNER_ID"], 'edit', 0), $arParams['PATH_TO_GROUP_TASK']);
 }
+
+$arParams['EDIT_TASK_PATH'] = $editTaskPath;
+$arParams['VIEW_TASK_PATH'] = $viewTaskPath;
 
 $arParams['USER_ID'] = CCalendar::GetCurUserId();
 $arParams['SHOW_FILTER'] =

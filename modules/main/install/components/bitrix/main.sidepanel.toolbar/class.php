@@ -1,6 +1,5 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SidePanel\ToolbarItemTable;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
@@ -55,9 +54,6 @@ class MainSidePanelToolbarComponent extends \CBitrixComponent
 				: null
 		;
 
-		$this->arResult['spotlight'] = false;
-		$this->arResult['spotlightTitle'] = '';
-		$this->arResult['spotlightHint'] = '';
 		$this->arResult['options'] = [
 			'items' => $items,
 			'collapsed' => $toolbar === null || $toolbar->isCollapsed(),
@@ -65,16 +61,6 @@ class MainSidePanelToolbarComponent extends \CBitrixComponent
 			'position' => $position,
 			'shiftedPosition' => $shiftedPosition,
 		];
-
-		$spotlight = new \Bitrix\Main\UI\Spotlight('sidepanel_toolbar');
-		$spotlight->setUserTimeSpan(3600 * 24 * 14);
-		$spotlight->setEndDate(gmmktime(8, 30, 0, 1, 1, 2024));
-		if ($spotlight->isAvailable())
-		{
-			$this->arResult['spotlight'] = true;
-			$this->arResult['spotlightTitle'] = Loc::getMessage('SIDEPANEL_TOOLBAR_HINT_TITLE');
-			$this->arResult['spotlightHint'] = Loc::getMessage('SIDEPANEL_TOOLBAR_HINT');
-		}
 
 		$this->includeComponentTemplate();
 	}

@@ -1,8 +1,8 @@
 import { EventEmitter } from 'main.core.events';
+import { Runtime, Extension } from 'main.core';
 
 import { EventType, SidebarDetailBlock } from 'im.v2.const';
-import { Loader } from 'im.v2.component.elements';
-import { Runtime, Extension } from 'main.core';
+import { Loader } from 'im.v2.component.elements.loader';
 
 import { FavoriteMenu } from '../../../classes/context-menu/favorite/favorite-menu';
 import { Favorite } from '../../../classes/panels/favorite';

@@ -3,7 +3,6 @@ import { BaseEvent, EventEmitter } from 'main.core.events';
 
 import { Tooltip } from './tooltip';
 
-
 export class TooltipBalloon
 {
 	constructor(params)
@@ -96,17 +95,17 @@ export class TooltipBalloon
 			return;
 		}
 
-		const elCoords = BX.pos(this.node);
+		this.elCoords = BX.pos(this.node);
 		this.realAnchor = this.node;
 
 		this.coordsLeft = (
-			elCoords.width < 40
-				? (elCoords.left - 35)
-				: (elCoords.left + 0)
+			this.elCoords.width < 40
+				? (this.elCoords.left - 35)
+				: (this.elCoords.left + 0)
 		);
-		this.coordsTop = elCoords.top - 245; // 325
-		this.anchorRight = elCoords.right;
-		this.anchorTop = elCoords.top;
+		this.coordsTop = this.elCoords.top - 245; // 325
+		this.anchorRight = this.elCoords.right;
+		this.anchorTop = this.elCoords.top;
 
 		this.tracking = true;
 
@@ -117,7 +116,14 @@ export class TooltipBalloon
 		}, 500);
 
 		this.node.addEventListener('mouseout', this.stopTrackMouse.bind(this));
+		this.node.removeEventListener('click', this.handleClick);
+		this.node.addEventListener('click', this.handleClick);
 	}
+
+	handleClick = () => {
+		this.hideTooltip();
+		this.stopTrackMouse();
+	};
 
 	stopTrackMouse()
 	{
@@ -130,7 +136,7 @@ export class TooltipBalloon
 		this.active = false;
 		setTimeout(() => {
 			this.hideTooltip()
-		}, 500);
+		}, 100);
 		this.tracking = false;
 	}
 
@@ -198,7 +204,7 @@ export class TooltipBalloon
 		this.tracking++;
 		if (this.active)
 		{
-			if ((this.active.time + 5/*0.5sec*/)  <= this.tracking)
+			if ((this.active.time + 3/*0.3sec*/) <= this.tracking)
 			{
 				this.showTooltip();
 			}
@@ -573,7 +579,7 @@ export class TooltipBalloon
 
 		if (this.vMirror)
 		{
-			this.ROOT_DIV.style.top = `${parseInt(this.anchorTop + 13)}px`;
+			this.ROOT_DIV.style.top = `${parseInt(this.anchorTop + this.elCoords.height)}px`;
 		}
 		else
 		{

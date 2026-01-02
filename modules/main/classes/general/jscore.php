@@ -370,8 +370,6 @@ JS;
 	{
 		$ret = '';
 
-		$ext = preg_replace('/[^a-z0-9_\.\-]/i', '', $ext);
-
 		if (!self::IsExtRegistered($ext))
 		{
 			$success = Extension::register($ext);
@@ -537,7 +535,6 @@ JS;
 
 	public static function IsExtRegistered($ext)
 	{
-		$ext = preg_replace('/[^a-z0-9_\.\-]/i', '', $ext);
 		return isset(self::$arRegisteredExt[$ext]) && is_array(self::$arRegisteredExt[$ext]);
 	}
 

@@ -1,8 +1,9 @@
-import {ajax, Type, Loc, Tag} from 'main.core';
+import { ajax, Type, Loc, Tag, Runtime } from 'main.core';
 import {BaseEvent, EventEmitter} from 'main.core.events';
 import {PopupManager} from 'main.popup';
 import {SendButton, CancelButton} from 'ui.buttons';
 import {Common} from 'socialnetwork.common';
+import type { Converter } from 'socialnetwork.collab.converter';
 
 import Manager from './manager'
 
@@ -293,5 +294,17 @@ export class ActionManager
 		});
 
 		confirmPopup.show();
+	}
+
+	convertToCollab(params): void
+	{
+		Runtime.loadExtension('socialnetwork.collab.converter').then((exports) => {
+			const ConverterClass: Converter = exports.Converter;
+			const id = parseInt(Type.isUndefined(params.groupId) ? 0 : params.groupId, 10);
+
+			(new ConverterClass({})).convertToCollab(id);
+		}).catch((error) => {
+			console.error(error);
+		});
 	}
 }

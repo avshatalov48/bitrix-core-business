@@ -196,8 +196,17 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && (!empty($_POST['save']) || !empty($_
 		//New from media library and file structure
 		if(array_key_exists("NEW_FILE", $_POST) && is_array($_POST["NEW_FILE"]))
 		{
-			foreach($_POST["NEW_FILE"] as $index=>$value)
-				$arFiles[$index] = CFile::MakeFileArray($value);
+			foreach ($_POST["NEW_FILE"] as $index => $value)
+			{
+				if ($USER->CanAccessFile($value))
+				{
+					$fileArray = CFile::MakeFileArray($_SERVER['DOCUMENT_ROOT'] . Rel2Abs("/", $value));
+					if (!empty($fileArray))
+					{
+						$arFiles[$index] = $fileArray;
+					}
+				}
+			}
 		}
 
 		//Copy
@@ -268,7 +277,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && (!empty($_POST['save']) || !empty($_
 		if (!empty($_POST['save']))
 		{
 			if (!empty($_REQUEST["type"]))
-				LocalRedirect(BX_ROOT."/admin/type_edit.php?EVENT_NAME=".$EVENT_NAME."&lang=".LANGUAGE_ID);
+				LocalRedirect(BX_ROOT."/admin/type_edit.php?EVENT_NAME=" . $_REQUEST["EVENT_NAME"] . "&lang=".LANGUAGE_ID);
 			else
 				LocalRedirect(BX_ROOT."/admin/message_admin.php?lang=".LANGUAGE_ID);
 		}
@@ -350,7 +359,6 @@ require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_af
 <input type="hidden" name="COPY_ID" value="<?echo $COPY_ID?>" />
 <input type="hidden" name="type" value="<?echo htmlspecialcharsbx($_REQUEST["type"] ?? '')?>" />
 <script>
-<!--
 var t=null;
 function PutString(str, field)
 {
@@ -392,7 +400,6 @@ function PutAttachString(str)
 		BX.fireEvent(t, 'change');
 	}
 }
-//-->
 </script>
 <?
 $aMenu = array(

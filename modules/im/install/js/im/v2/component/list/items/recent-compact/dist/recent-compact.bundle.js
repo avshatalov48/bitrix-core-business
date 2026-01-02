@@ -3,14 +3,121 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_lib_utils,im_v2_provider_service,im_v2_lib_menu,im_public,im_v2_css_tokens,im_v2_application_core,im_v2_const,im_v2_component_elements) {
+(function (exports,im_v2_lib_utils,im_v2_provider_service_recent,im_v2_lib_menu,im_v2_css_tokens,ui_designTokens_air,main_core,ui_iconSet_api_vue,im_public,im_v2_application_core,im_v2_const,im_v2_component_elements_avatar) {
 	'use strict';
+
+	const NavigationItemToIcon = Object.freeze({
+	  [im_v2_const.NavigationMenuItem.notification]: ui_iconSet_api_vue.Outline.NOTIFICATION,
+	  [im_v2_const.NavigationMenuItem.copilot]: ui_iconSet_api_vue.Outline.COPILOT,
+	  [im_v2_const.NavigationMenuItem.openlines]: ui_iconSet_api_vue.Outline.OPEN_CHANNELS,
+	  [im_v2_const.NavigationMenuItem.openlinesV2]: ui_iconSet_api_vue.Outline.OPEN_CHANNELS
+	});
+	const ICON_SIZE = 24;
+
+	// @vue/component
+	const CompactNavigationItem = {
+	  name: 'CompactNavigationItem',
+	  components: {
+	    BIcon: ui_iconSet_api_vue.BIcon
+	  },
+	  props: {
+	    id: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  computed: {
+	    ICON_SIZE: () => ICON_SIZE,
+	    Color: () => im_v2_const.Color,
+	    NavigationItemToIcon: () => NavigationItemToIcon,
+	    counter() {
+	      var _this$$store$getters$;
+	      const counterToItemId = {
+	        [im_v2_const.NavigationMenuItem.notification]: 'notifications/getCounter',
+	        [im_v2_const.NavigationMenuItem.copilot]: 'counters/getTotalCopilotCounter',
+	        [im_v2_const.NavigationMenuItem.openlines]: 'counters/getTotalLinesCounter',
+	        [im_v2_const.NavigationMenuItem.openlinesV2]: 'counters/getTotalLinesCounter'
+	      };
+	      return (_this$$store$getters$ = this.$store.getters[counterToItemId[this.id]]) != null ? _this$$store$getters$ : 0;
+	    },
+	    hasCounter() {
+	      return this.counter > 0;
+	    },
+	    formattedCounter() {
+	      if (!this.hasCounter) {
+	        return '';
+	      }
+	      return this.counter > 99 ? '99+' : String(this.counter);
+	    },
+	    iconColorToken() {
+	      if (this.counter > 0) {
+	        return 'var(--ui-color-design-outline-content)';
+	      }
+	      return 'var(--ui-color-design-outline-na-content)';
+	    }
+	  },
+	  methods: {
+	    onNavigationItemClick() {
+	      void im_public.Messenger.openNavigationItem({
+	        id: this.id
+	      });
+	    }
+	  },
+	  template: `
+		<div class="bx-im-compact-navigation__icon --ui-hoverable" @click="onNavigationItemClick">
+			<BIcon
+				:key="id"
+				:name="NavigationItemToIcon[id]"
+				:hoverable-alt="true"
+				:color="iconColorToken"
+				:size="ICON_SIZE"
+			/>
+			<div
+				v-if="hasCounter"
+				class="bx-im-compact-navigation__icon-counter"
+			>
+				{{ formattedCounter }}
+			</div>
+		</div>
+	`
+	};
+
+	const CompactNavigationItems = [im_v2_const.NavigationMenuItem.notification, im_v2_const.NavigationMenuItem.copilot, im_v2_const.NavigationMenuItem.openlines, im_v2_const.NavigationMenuItem.openlinesV2];
+	// @vue/component
+	const CompactNavigation = {
+	  name: 'CompactNavigation',
+	  components: {
+	    CompactNavigationItem
+	  },
+	  computed: {
+	    availableNavigationItems() {
+	      const settings = main_core.Extension.getSettings('im.v2.component.list.items.recent-compact');
+	      const items = settings.get('navigationItems', []);
+	      return items.map(item => item.id);
+	    },
+	    preparedNavigationItems() {
+	      return CompactNavigationItems.filter(item => this.availableNavigationItems.includes(item));
+	    }
+	  },
+	  template: `
+		<div class="bx-im-compact-navigation__container">
+			<div class="bx-im-compact-navigation__items">
+				<CompactNavigationItem
+					v-for="navigationItemId in preparedNavigationItems"
+					:id="navigationItemId"
+					:key="navigationItemId"
+				/>
+			</div>
+			<div class="bx-im-compact-navigation__delimiter"></div>
+		</div>
+	`
+	};
 
 	// @vue/component
 	const RecentItem = {
 	  name: 'RecentItem',
 	  components: {
-	    ChatAvatar: im_v2_component_elements.ChatAvatar
+	    ChatAvatar: im_v2_component_elements_avatar.ChatAvatar
 	  },
 	  props: {
 	    item: {
@@ -22,7 +129,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    return {};
 	  },
 	  computed: {
-	    AvatarSize: () => im_v2_component_elements.AvatarSize,
+	    AvatarSize: () => im_v2_component_elements_avatar.AvatarSize,
 	    recentItem() {
 	      return this.item;
 	    },
@@ -62,6 +169,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return {
 	        '--no-counter': this.totalCounter === 0
 	      };
+	    },
+	    getAvatarType() {
+	      return Number.parseInt(this.recentItem.dialogId, 10) === im_v2_application_core.Core.getUserId() ? im_v2_component_elements_avatar.ChatAvatarType.notes : '';
 	    }
 	  },
 	  methods: {
@@ -81,6 +191,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 						:avatarDialogId="recentItem.dialogId"
 						:size="AvatarSize.M" 
 						:withSpecialTypes="false"
+						:customType="getAvatarType"
 					/>
 					<div v-if="totalCounter > 0" :class="{'--muted': isChatMuted}" class="bx-im-list-recent-compact-item__avatar_counter">
 						{{ formattedCounter }}
@@ -95,7 +206,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const ActiveCall = {
 	  name: 'ActiveCall',
 	  components: {
-	    ChatAvatar: im_v2_component_elements.ChatAvatar
+	    ChatAvatar: im_v2_component_elements_avatar.ChatAvatar
 	  },
 	  props: {
 	    item: {
@@ -105,7 +216,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  emits: ['click'],
 	  computed: {
-	    AvatarSize: () => im_v2_component_elements.AvatarSize,
+	    AvatarSize: () => im_v2_component_elements_avatar.AvatarSize,
 	    activeCall() {
 	      return this.item;
 	    }
@@ -166,7 +277,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  components: {
 	    RecentItem,
 	    ActiveCall,
-	    EmptyState
+	    EmptyState,
+	    CompactNavigation
 	  },
 	  emits: ['chatClick'],
 	  data() {
@@ -230,7 +342,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return;
 	      }
 	      const context = {
-	        ...item,
+	        dialogId: item.dialogId,
+	        recentItem: item,
 	        compactMode: true
 	      };
 	      this.contextMenuManager.openMenu(context, event.currentTarget);
@@ -253,7 +366,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getRecentService() {
 	      if (!this.service) {
-	        this.service = im_v2_provider_service.RecentService.getInstance();
+	        this.service = im_v2_provider_service_recent.LegacyRecentService.getInstance();
 	      }
 	      return this.service;
 	    },
@@ -263,6 +376,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-messenger__scope bx-im-list-recent-compact__container">
+			<CompactNavigation />
 			<div v-if="activeCalls.length > 0" class="bx-im-list-recent-compact__calls_container">
 				<ActiveCall
 					v-for="activeCall in activeCalls"
@@ -298,5 +412,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.RecentList = RecentList;
 
-}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Css,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements));
+}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Css,BX,BX,BX.UI.IconSet,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements));
 //# sourceMappingURL=recent-compact.bundle.js.map

@@ -10,6 +10,7 @@ use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Socialnetwork\Collab\Collab;
 use Bitrix\Socialnetwork\Collab\Integration\IM\Dialog;
+use Bitrix\Socialnetwork\Internals\Group\GroupEntity;
 use Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection;
 use Bitrix\Socialnetwork\Internals\Registry\Event\GroupLoadedEvent;
 use Bitrix\Socialnetwork\Internals\site\SiteEntityCollection;
@@ -62,7 +63,7 @@ class GroupRegistry
 			return static::$storage[$groupId];
 		}
 
-		$this->load($groupId);
+		$this->load([$groupId]);
 
 		return static::$storage[$groupId];
 	}
@@ -79,45 +80,52 @@ class GroupRegistry
 	 * @throws SystemException
 	 * @throws ArgumentException
 	 */
-	protected function load(int $groupId): void
+	public function load(array $groupIds): void
 	{
-		$fields = $this->loadData($groupId);
-		if (empty($fields))
+		if (empty($groupIds))
 		{
-			static::$storage[$groupId] = null;
-
 			return;
 		}
 
-		$this->fillStorage($fields);
+		$rows = WorkgroupTable::query()
+			->setSelect(['*', 'SITES', 'MEMBERS'])
+			->whereIn('ID', $groupIds)
+			->exec()
+			->fetchCollection();
+
+		foreach ($groupIds as $groupId)
+		{
+			$group = $rows->getByPrimary($groupId);
+			if (!$group instanceof GroupEntity)
+			{
+				static::$storage[$groupId] = null;
+
+				continue;
+			}
+
+			$fields = $this->loadData($groupId, $group->collectValues());
+			if (empty($fields))
+			{
+				static::$storage[$groupId] = null;
+
+				return;
+			}
+
+			$this->fillStorage($fields);
+		}
 	}
 
-	protected function loadData(int $groupId): array
+	protected function loadData(int $groupId, array $baseFields): array
 	{
-		$select = [
-			'select' => [
-				'*',
-				'SITES',
-				'MEMBERS',
-			],
-		];
+		$this->fillDates($baseFields);
+		$this->fillUserFields($baseFields);
+		$this->fillChatId($baseFields);
+		$this->fillUserMembers($baseFields);
+		$this->fillSites($baseFields);
 
-		$fields = WorkgroupTable::getByPrimary($groupId, $select)->fetchObject()?->collectValues();
+		$this->remapBooleanFields($baseFields);
 
-		if (empty($fields))
-		{
-			return [];
-		}
-		
-		$this->fillDates($fields);
-		$this->fillUserFields($fields);
-		$this->fillChatId($fields);
-		$this->fillUserMembers($fields);
-		$this->fillSites($fields);
-
-		$this->remapBooleanFields($fields);
-
-		return $fields;
+		return $baseFields;
 	}
 
 	protected function onObjectAlreadyLoaded(?Workgroup $group): void

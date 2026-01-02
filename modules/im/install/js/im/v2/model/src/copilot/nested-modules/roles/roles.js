@@ -6,12 +6,12 @@ import { formatFieldsWithConfig } from '../../../utils/validate';
 
 import type { JsonObject } from 'main.core';
 import type { GetterTree, ActionTree, MutationTree } from 'ui.vue3.vuex';
-import type { CopilotPrompt, CopilotRole, CopilotRoleCode, AvatarSize } from '../../../type/copilot';
+import type { ImModelCopilotPrompt, ImModelCopilotRole, ImModelCopilotRoleCode, ImModelCopilotAvatarSize } from 'im.v2.model';
 
 type RolesState = {
-	roles: {[CopilotRoleCode]: CopilotRole}
+	roles: {[ImModelCopilotRoleCode]: ImModelCopilotRole}
 }
-export const AvatarSizes: {[AvatarSize]: string} = Object.freeze({
+export const AvatarSizes: {[ImModelCopilotAvatarSize]: string} = Object.freeze({
 	S: 'small',
 	M: 'medium',
 	L: 'large',
@@ -27,7 +27,7 @@ export class RolesModel extends BuilderModel
 		};
 	}
 
-	getElementState(): CopilotRole
+	getElementState(): ImModelCopilotRole
 	{
 		return {
 			code: '',
@@ -47,15 +47,15 @@ export class RolesModel extends BuilderModel
 	{
 		return {
 			/** @function copilot/roles/get */
-			get: (state) => (): CopilotRole[] => {
+			get: (state) => (): ImModelCopilotRole[] => {
 				return Object.values(state.roles);
 			},
 			/** @function copilot/roles/getByCode */
-			getByCode: (state, getters) => (code: string): CopilotRole[] => {
+			getByCode: (state, getters) => (code: string): ImModelCopilotRole[] => {
 				return state.roles[code] ?? getters.getDefault;
 			},
 			/** @function copilot/roles/getPrompts */
-			getPrompts: (state, getters) => (roleCode: string): CopilotPrompt[] => {
+			getPrompts: (state, getters) => (roleCode: string): ImModelCopilotPrompt[] => {
 				if (!state.roles[roleCode])
 				{
 					return getters.getDefault?.prompts ?? [];
@@ -64,11 +64,11 @@ export class RolesModel extends BuilderModel
 				return state.roles[roleCode].prompts;
 			},
 			/** @function copilot/roles/getDefault */
-			getDefault: (state): CopilotRole => {
-				return Object.values(state.roles).find((role: CopilotRole) => role.default);
+			getDefault: (state): ImModelCopilotRole => {
+				return Object.values(state.roles).find((role: ImModelCopilotRole) => role.default);
 			},
 			/** @function copilot/roles/getAvatar */
-			getAvatar: (state, getters) => (roleCode: string, size: AvatarSize = 'M'): string => {
+			getAvatar: (state, getters) => (roleCode: string, size: ImModelCopilotAvatarSize = 'M'): string => {
 				if (!state.roles[roleCode])
 				{
 					return getters.getDefault?.prompts ?? [];

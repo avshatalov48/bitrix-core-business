@@ -21,7 +21,20 @@ use Bitrix\Main\ArgumentTypeException,
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_OptionAccess_Query query()
+ * @method static EO_OptionAccess_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_OptionAccess_Result getById($id)
+ * @method static EO_OptionAccess_Result getList(array $parameters = [])
+ * @method static EO_OptionAccess_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_OptionAccess createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_OptionAccess_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_OptionAccess wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_OptionAccess_Collection wakeUpCollection($rows)
+ */
 
 class OptionAccessTable extends DataManager
 {

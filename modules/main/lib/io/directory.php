@@ -1,8 +1,8 @@
 <?php
+
 namespace Bitrix\Main\IO;
 
-class Directory
-	extends DirectoryEntry
+class Directory extends DirectoryEntry
 {
 	public function __construct($path, $siteId = null)
 	{
@@ -11,12 +11,18 @@ class Directory
 
 	public function isExists()
 	{
-		$p = $this->getPhysicalPath();
-		return file_exists($p) && is_dir($p);
+		if ($this->exists === null)
+		{
+			$p = $this->getPhysicalPath();
+			$this->exists = file_exists($p) && is_dir($p);
+		}
+
+		return $this->exists;
 	}
 
 	public function delete()
 	{
+		$this->exists = null;
 		return self::deleteInternal($this->getPhysicalPath());
 	}
 
@@ -25,7 +31,9 @@ class Directory
 		if (is_file($path) || is_link($path))
 		{
 			if (!@unlink($path))
+			{
 				throw new FileDeleteException($path);
+			}
 		}
 		elseif (is_dir($path))
 		{
@@ -34,14 +42,18 @@ class Directory
 				while (($file = readdir($handle)) !== false)
 				{
 					if ($file == "." || $file == "..")
+					{
 						continue;
+					}
 
 					self::deleteInternal(Path::combine($path, $file));
 				}
 				closedir($handle);
 			}
 			if (!@rmdir($path))
+			{
 				throw new FileDeleteException($path);
+			}
 		}
 
 		return true;
@@ -54,23 +66,31 @@ class Directory
 	public function getChildren()
 	{
 		if (!$this->isExists())
+		{
 			throw new FileNotFoundException($this->originalPath);
+		}
 
-		$arResult = array();
+		$arResult = [];
 
 		if ($handle = opendir($this->getPhysicalPath()))
 		{
 			while (($file = readdir($handle)) !== false)
 			{
 				if ($file == "." || $file == "..")
+				{
 					continue;
+				}
 
 				$pathLogical = Path::combine($this->path, Path::convertPhysicalToLogical($file));
 				$pathPhysical = Path::combine($this->getPhysicalPath(), $file);
 				if (is_dir($pathPhysical))
+				{
 					$arResult[] = new Directory($pathLogical, $this->siteId);
+				}
 				else
+				{
 					$arResult[] = new File($pathLogical, $this->siteId);
+				}
 			}
 			closedir($handle);
 		}
@@ -87,6 +107,7 @@ class Directory
 		$dir = new Directory(Path::combine($this->path, $name));
 		if (!$dir->isExists())
 		{
+			$dir->exists = null;
 			try
 			{
 				mkdir($dir->getPhysicalPath(), BX_DIR_PERMISSIONS, true);
@@ -103,41 +124,14 @@ class Directory
 		return $dir;
 	}
 
-	public function getCreationTime()
-	{
-		if (!$this->isExists())
-			throw new FileNotFoundException($this->originalPath);
-
-		return filectime($this->getPhysicalPath());
-	}
-
-	public function getLastAccessTime()
-	{
-		if (!$this->isExists())
-			throw new FileNotFoundException($this->originalPath);
-
-		return fileatime($this->getPhysicalPath());
-	}
-
-	public function getModificationTime()
-	{
-		if (!$this->isExists())
-			throw new FileNotFoundException($this->originalPath);
-
-		return filemtime($this->getPhysicalPath());
-	}
-
 	public function markWritable()
 	{
 		if (!$this->isExists())
+		{
 			throw new FileNotFoundException($this->originalPath);
+		}
 
 		@chmod($this->getPhysicalPath(), BX_DIR_PERMISSIONS);
-	}
-
-	public function getPermissions()
-	{
-		return fileperms($this->getPhysicalPath());
 	}
 
 	/**

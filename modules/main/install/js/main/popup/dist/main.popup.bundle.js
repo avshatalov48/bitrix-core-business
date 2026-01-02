@@ -259,6 +259,25 @@ this.BX = this.BX || {};
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Popup).call(this));
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _enableTargetScroll);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _disableTargetScroll);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "handleAutoHide", function (event) {
+	      if (_this.isDestroyed()) {
+	        return;
+	      }
+	      if (_this.autoHideHandler !== null) {
+	        if (_this.autoHideHandler(event)) {
+	          _this._tryCloseByEvent(event);
+	        }
+	      } else if (event.target !== _this.getPopupContainer() && !_this.getPopupContainer().contains(event.target)) {
+	        _this._tryCloseByEvent(event);
+	      }
+	    });
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "handleDocumentKeyUp", function (event) {
+	      if (event.keyCode === 27) {
+	        checkEscPressed(_this.getZindex(), function () {
+	          _this.close();
+	        });
+	      }
+	    });
 	    _this.setEventNamespace('BX.Main.Popup');
 	    var _arguments = Array.prototype.slice.call(arguments),
 	      popupId = _arguments[0],
@@ -303,7 +322,6 @@ this.BX = this.BX || {};
 	    _this.autoHide = params.autoHide === true;
 	    _this.disableScroll = params.disableScroll === true || params.isScrollBlock === true;
 	    _this.autoHideHandler = main_core.Type.isFunction(params.autoHideHandler) ? params.autoHideHandler : null;
-	    _this.handleAutoHide = _this.handleAutoHide.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.handleOverlayClick = _this.handleOverlayClick.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.isAutoHideBinded = false;
 	    _this.closeByEsc = params.closeByEsc === true;
@@ -324,7 +342,7 @@ this.BX = this.BX || {};
 	    _this.contentBackground = null;
 	    _this.borderRadius = null;
 	    _this.contentBorderRadius = null;
-	    _this.targetContainer = main_core.Type.isElementNode(params.targetContainer) ? params.targetContainer : document.body;
+	    _this.setTargetContainer(params.targetContainer);
 	    _this.dragOptions = {
 	      cursor: '',
 	      callback: function callback() {},
@@ -338,7 +356,6 @@ this.BX = this.BX || {};
 	    _this.animationCloseEventType = null;
 	    _this.handleDocumentMouseMove = _this.handleDocumentMouseMove.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.handleDocumentMouseUp = _this.handleDocumentMouseUp.bind(babelHelpers.assertThisInitialized(_this));
-	    _this.handleDocumentKeyUp = _this.handleDocumentKeyUp.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.handleResizeWindow = _this.handleResizeWindow.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.handleResize = _this.handleResize.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.handleMove = _this.handleMove.bind(babelHelpers.assertThisInitialized(_this));
@@ -350,11 +367,13 @@ this.BX = this.BX || {};
 	      popupClassName += ' popup-window-with-titlebar';
 	    }
 	    if (params.className && main_core.Type.isStringFilled(params.className)) {
-	      popupClassName += ' ' + params.className;
+	      popupClassName += " ".concat(params.className);
 	    }
 	    if (params.darkMode) {
 	      popupClassName += ' popup-window-dark';
 	    }
+	    _this.designSystemContext = params.darkMode ? '--ui-context-content-dark' : '--ui-context-content-light';
+	    popupClassName += " ".concat(_this.designSystemContext);
 	    if (params.titleBar) {
 	      _this.titleBar = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"popup-window-titlebar\" id=\"popup-window-titlebar-", "\"></div>\n\t\t\t"])), popupId);
 	    }
@@ -372,13 +391,13 @@ this.BX = this.BX || {};
 	    /**
 	     * @private
 	     */
-	    _this.contentContainer = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div id=\"popup-window-content-", "\" class=\"popup-window-content\"></div>"])), popupId);
+	    _this.contentContainer = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"popup-window-content-", "\" class=\"popup-window-content\"></div>\n\t\t"])), popupId);
 
 	    /**
 	     * @private
 	     */
-	    _this.popupContainer = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div\n\t\t\t\tclass=\"", "\"\n\t\t\t\tid=\"", "\"\n\t\t\t\tstyle=\"display: none; position: absolute; left: 0; top: 0;\"\n\t\t\t>", "</div>"])), popupClassName, popupId, [_this.titleBar, _this.contentContainer, _this.closeIcon]);
-	    _this.targetContainer.appendChild(_this.popupContainer);
+	    _this.popupContainer = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div\n\t\t\t\tclass=\"", "\"\n\t\t\t\tid=\"", "\"\n\t\t\t\tstyle=\"display: none; position: absolute; left: 0; top: 0;\"\n\t\t\t>", "</div>\n\t\t"])), popupClassName, popupId, [_this.titleBar, _this.contentContainer, _this.closeIcon]);
+	    _this.getTargetContainer().append(_this.popupContainer);
 	    _this.zIndexComponent = main_core_zIndexManager.ZIndexManager.register(_this.popupContainer, params.zIndexOptions);
 	    _this.buttonsContainer = null;
 	    if (params.contentColor && main_core.Type.isStringFilled(params.contentColor)) {
@@ -396,6 +415,7 @@ this.BX = this.BX || {};
 	    _this.setOffset(params);
 	    _this.setBindElement(bindElement);
 	    _this.setTitleBar(params.titleBar);
+	    _this.setDraggable(params.draggable);
 	    _this.setContent(params.content);
 	    _this.setButtons(params.buttons);
 	    _this.setWidth(params.width);
@@ -415,6 +435,7 @@ this.BX = this.BX || {};
 	    _this.setCacheable(params.cacheable);
 	    _this.setToFrontOnShow(params.toFrontOnShow);
 	    _this.setFixed(params.fixed);
+	    _this.setDesignSystemContext(params.designSystemContext);
 
 	    // Compatibility
 	    if (params.contentNoPaddings) {
@@ -966,6 +987,39 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }, {
+	    key: "getDesignSystemContext",
+	    value: function getDesignSystemContext() {
+	      return this.designSystemContext;
+	    }
+	  }, {
+	    key: "setDesignSystemContext",
+	    value: function setDesignSystemContext(context) {
+	      if (main_core.Type.isString(context)) {
+	        if (this.popupContainer !== null) {
+	          main_core.Dom.removeClass(this.popupContainer, this.designSystemContext);
+	          main_core.Dom.addClass(this.popupContainer, context);
+	        }
+	        this.designSystemContext = context;
+	      }
+	    }
+	  }, {
+	    key: "setTargetContainer",
+	    value: function setTargetContainer(targetContainer) {
+	      var newTargetContainer = main_core.Type.isElementNode(targetContainer) ? targetContainer : document.body;
+	      if (newTargetContainer === this.targetContainer) {
+	        return;
+	      }
+	      this.targetContainer = newTargetContainer;
+	      if (this.getPopupContainer()) {
+	        main_core_zIndexManager.ZIndexManager.unregister(this.getPopupContainer());
+	        this.getTargetContainer().append(this.getPopupContainer());
+	        main_core_zIndexManager.ZIndexManager.register(this.getPopupContainer());
+	      }
+	      if (this.overlay) {
+	        main_core.Dom.append(this.overlay.element, this.getTargetContainer());
+	      }
+	    }
+	  }, {
 	    key: "getTargetContainer",
 	    value: function getTargetContainer() {
 	      return this.targetContainer;
@@ -1107,10 +1161,18 @@ this.BX = this.BX || {};
 	          text: params
 	        }));
 	      }
-	      if (this.params.draggable) {
-	        this.titleBar.style.cursor = 'move';
-	        main_core.Event.bind(this.titleBar, 'mousedown', this.onTitleMouseDown);
+	    }
+	  }, {
+	    key: "setDraggable",
+	    value: function setDraggable(draggable) {
+	      var _draggable$element;
+	      this.params.draggable = draggable;
+	      var element = (_draggable$element = draggable === null || draggable === void 0 ? void 0 : draggable.element) !== null && _draggable$element !== void 0 ? _draggable$element : this.titleBar;
+	      if (!draggable || !element) {
+	        return;
 	      }
+	      main_core.Dom.style(element, 'cursor', 'move');
+	      main_core.Event.bind(element, 'mousedown', this.onTitleMouseDown);
 	    }
 	  }, {
 	    key: "setClosingByEsc",
@@ -1131,7 +1193,7 @@ this.BX = this.BX || {};
 	    key: "bindClosingByEsc",
 	    value: function bindClosingByEsc() {
 	      if (this.closeByEsc && !this.isCloseByEscBinded) {
-	        main_core.Event.bind(document, 'keyup', this.handleDocumentKeyUp);
+	        main_core.Event.bind(this.targetContainer.ownerDocument, 'keyup', this.handleDocumentKeyUp, true);
 	        this.isCloseByEscBinded = true;
 	      }
 	    }
@@ -1142,7 +1204,7 @@ this.BX = this.BX || {};
 	    key: "unbindClosingByEsc",
 	    value: function unbindClosingByEsc() {
 	      if (this.isCloseByEscBinded) {
-	        main_core.Event.unbind(document, 'keyup', this.handleDocumentKeyUp);
+	        main_core.Event.unbind(this.targetContainer.ownerDocument, 'keyup', this.handleDocumentKeyUp, true);
 	        this.isCloseByEscBinded = false;
 	      }
 	    }
@@ -1173,9 +1235,9 @@ this.BX = this.BX || {};
 	          main_core.Event.bind(this.overlay.element, 'click', this.handleOverlayClick);
 	        } else {
 	          if (this.isCompatibleMode()) {
-	            main_core.Event.bind(document, 'click', this.handleAutoHide);
+	            main_core.Event.bind(this.targetContainer.ownerDocument, 'click', this.handleAutoHide);
 	          } else {
-	            document.addEventListener('click', this.handleAutoHide, true);
+	            this.targetContainer.ownerDocument.addEventListener('click', this.handleAutoHide, true);
 	          }
 	        }
 	      }
@@ -1195,9 +1257,9 @@ this.BX = this.BX || {};
 	          main_core.Event.unbind(this.overlay.element, 'click', this.handleOverlayClick);
 	        } else {
 	          if (this.isCompatibleMode()) {
-	            main_core.Event.unbind(document, 'click', this.handleAutoHide);
+	            main_core.Event.unbind(this.targetContainer.ownerDocument, 'click', this.handleAutoHide);
 	          } else {
-	            document.removeEventListener('click', this.handleAutoHide, true);
+	            this.targetContainer.ownerDocument.removeEventListener('click', this.handleAutoHide, true);
 	          }
 	        }
 	      }
@@ -1206,24 +1268,10 @@ this.BX = this.BX || {};
 	     * @private
 	     */
 	  }, {
-	    key: "handleAutoHide",
-	    value: function handleAutoHide(event) {
-	      if (this.isDestroyed()) {
-	        return;
-	      }
-	      if (this.autoHideHandler !== null) {
-	        if (this.autoHideHandler(event)) {
-	          this._tryCloseByEvent(event);
-	        }
-	      } else if (event.target !== this.getPopupContainer() && !this.getPopupContainer().contains(event.target)) {
-	        this._tryCloseByEvent(event);
-	      }
-	    }
+	    key: "_tryCloseByEvent",
 	    /**
 	     * @private
 	     */
-	  }, {
-	    key: "_tryCloseByEvent",
 	    value: function _tryCloseByEvent(event) {
 	      var _this2 = this;
 	      if (this.isCompatibleMode()) {
@@ -1261,14 +1309,17 @@ this.BX = this.BX || {};
 	          element: main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"popup-window-overlay\" id=\"popup-window-overlay-", "\"></div>\n\t\t\t\t"])), this.getId())
 	        };
 	        this.resizeOverlay();
-	        this.targetContainer.appendChild(this.overlay.element);
+	        main_core.Dom.append(this.overlay.element, this.getTargetContainer());
 	        this.getZIndexComponent().setOverlay(this.overlay.element);
 	      }
-	      if (params && main_core.Type.isNumber(params.opacity) && params.opacity >= 0 && params.opacity <= 100) {
-	        this.overlay.element.style.opacity = parseFloat(params.opacity / 100).toPrecision(3);
+	      if (main_core.Type.isNumber(params === null || params === void 0 ? void 0 : params.opacity) && params.opacity >= 0 && params.opacity <= 100) {
+	        main_core.Dom.style(this.overlay.element, 'opacity', parseFloat(params.opacity / 100).toPrecision(3));
 	      }
-	      if (params && params.backgroundColor) {
-	        this.overlay.element.style.backgroundColor = params.backgroundColor;
+	      if (params !== null && params !== void 0 && params.backgroundColor) {
+	        main_core.Dom.style(this.overlay.element, 'background-color', params.backgroundColor);
+	      }
+	      if (params !== null && params !== void 0 && params.blur) {
+	        main_core.Dom.style(this.overlay.element, 'backdrop-filter', params.blur);
 	      }
 	    }
 	  }, {
@@ -1522,7 +1573,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "isShown",
 	    value: function isShown() {
-	      return !this.isDestroyed() && this.getPopupContainer().style.display === 'block';
+	      var _this$getPopupContain;
+	      return !this.isDestroyed() && ((_this$getPopupContain = this.getPopupContainer()) === null || _this$getPopupContain === void 0 ? void 0 : _this$getPopupContain.style.display) === 'block';
 	    }
 	  }, {
 	    key: "destroy",
@@ -1722,20 +1774,10 @@ this.BX = this.BX || {};
 	     * @private
 	     */
 	  }, {
-	    key: "handleDocumentKeyUp",
-	    value: function handleDocumentKeyUp(event) {
-	      var _this7 = this;
-	      if (event.keyCode === 27) {
-	        checkEscPressed(this.getZindex(), function () {
-	          _this7.close();
-	        });
-	      }
-	    }
+	    key: "handleResizeWindow",
 	    /**
 	     * @private
 	     */
-	  }, {
-	    key: "handleResizeWindow",
 	    value: function handleResizeWindow() {
 	      if (this.isShown()) {
 	        this.adjustPosition();
@@ -2579,9 +2621,13 @@ this.BX = this.BX || {};
 	/**
 	 * @memberof BX.Main
 	 */
-	var Menu = /*#__PURE__*/function () {
+	var Menu = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(Menu, _EventEmitter);
 	  function Menu(options) {
+	    var _this;
 	    babelHelpers.classCallCheck(this, Menu);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Menu).call(this));
+	    _this.setEventNamespace('BX.Main.Menu');
 	    var _arguments = Array.prototype.slice.call(arguments),
 	      id = _arguments[0],
 	      bindElement = _arguments[1],
@@ -2594,31 +2640,38 @@ this.BX = this.BX || {};
 	      bindElement = options.bindElement;
 	      menuItems = options.items;
 	      if (!main_core.Type.isStringFilled(id)) {
-	        id = 'menu-popup-' + main_core.Text.getRandom();
+	        id = "menu-popup-".concat(main_core.Text.getRandom());
 	      }
 	    }
-	    this.id = id;
-	    this.bindElement = bindElement;
+	    _this.emit('onInit', {
+	      id: id,
+	      bindElement: bindElement,
+	      menuItems: menuItems,
+	      params: params
+	    });
+	    _this.id = id;
+	    _this.bindElement = bindElement;
 
 	    /**
 	     *
 	     * @type {MenuItem[]}
 	     */
-	    this.menuItems = [];
-	    this.itemsContainer = null;
-	    this.params = params && babelHelpers["typeof"](params) === 'object' ? params : {};
-	    this.parentMenuWindow = null;
-	    this.parentMenuItem = null;
+	    _this.menuItems = [];
+	    _this.itemsContainer = null;
+	    _this.params = params && babelHelpers["typeof"](params) === 'object' ? params : {};
+	    _this.parentMenuWindow = null;
+	    _this.parentMenuItem = null;
 	    if (menuItems && main_core.Type.isArray(menuItems)) {
 	      for (var i = 0; i < menuItems.length; i++) {
-	        this.addMenuItemInternal(menuItems[i], null);
+	        _this.addMenuItemInternal(menuItems[i], null);
 	      }
 	    }
-	    this.layout = {
+	    _this.layout = {
 	      menuContainer: null,
 	      itemsContainer: null
 	    };
-	    this.popupWindow = this.__createPopup();
+	    _this.popupWindow = _this.__createPopup();
+	    return _this;
 	  }
 
 	  /**
@@ -2884,7 +2937,7 @@ this.BX = this.BX || {};
 	    }
 	  }]);
 	  return Menu;
-	}();
+	}(main_core_events.EventEmitter);
 
 	var MenuManager = /*#__PURE__*/function () {
 	  /**

@@ -247,7 +247,6 @@
 
 		var updateContent = BX.create("div", { props : { className : "bx-desktop-update-box" }, children : [
 			BX.create("div", { props : { className : "bx-desktop-update-box-text" }, html: BX.message('BXD_NEED_UPDATE')}),
-			BX.create("div", { props : { className : "bx-desktop-update-box-btn" }, events : { click :  BX.delegate(function(){this.checkUpdate(true)}, this)}, html: BX.message('BXD_NEED_UPDATE_BTN')})
 		]});
 
 		BX.ready(function(){
@@ -525,22 +524,6 @@
 					BXDesktopSystem.Logout(3);
 			}, this)
 		});
-
-		return true;
-	}
-
-	Desktop.prototype.checkUpdate = function (openBrowser)
-	{
-		return false;
-
-		if (typeof(BXDesktopSystem) == 'undefined')
-			return false;
-
-		openBrowser = typeof(openBrowser) != 'boolean'? false: openBrowser;
-		if (!openBrowser && this.enableInVersion(16))
-			BXDesktopSystem.ExecuteCommand("update.check", { NotifyNoUpdates: true, ShowNotifications: true});
-		else
-			this.browse(BX.browser.IsMac()? "http://dl.bitrix24.com/b24/bitrix24_desktop.dmg": "http://dl.bitrix24.com/b24/bitrix24_desktop.exe", "desktopApp");
 
 		return true;
 	}

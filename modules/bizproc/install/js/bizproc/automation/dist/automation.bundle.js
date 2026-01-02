@@ -4200,8 +4200,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    var buttonText = babelHelpers.classPrivateFieldGet(this, _data$1).Activated ? main_core.Loc.getMessage('BIZPROC_AUTOMATION_ACTIONS_DEACTIVATE_BUTTON_TEXT') : main_core.Loc.getMessage('BIZPROC_AUTOMATION_ACTIONS_ACTIVATE_BUTTON_TEXT');
 	    var menu = new main_popup.Menu({
 	      bindElement: button,
-	      width: 150,
-	      height: 90,
 	      autoHide: true,
 	      angle: {
 	        offset: main_core.Dom.getPosition(button).width / 2 + 23

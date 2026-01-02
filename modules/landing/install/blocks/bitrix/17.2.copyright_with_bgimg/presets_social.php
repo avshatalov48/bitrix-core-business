@@ -190,13 +190,13 @@ $result = [
 			<li class="landing-block-card-social list-inline-item g-mr-10 g-my-5"
 				data-card-preset="vk">
 				<a class="landing-block-card-social-icon-link u-icon-v2 g-width-35 g-height-35 g-font-size-16 g-color-white g-color-white--hover g-bg-primary--hover g-brd-white g-brd-primary--hover g-rounded-50x"
-				   href="https://vk.com">
+				   href="https://vk.ru">
 					<i class="landing-block-card-social-icon fa fa-vk"></i>
 				</a>
 			</li>',
 		'values' => [
 			'.landing-block-card-social-icon-link' => [
-				'href' => 'https://vk.com',
+				'href' => 'https://vk.ru',
 			],
 			'.landing-block-card-social-icon' => [
 				'type' => 'icon',
@@ -544,7 +544,7 @@ if (Manager::getZone() === 'cn')
 }
 
 
-if (!in_array(Manager::getZone(), ['ru', 'kz', 'by']))
+if (!in_array(Manager::getZone(), ['ru', 'kz', 'by', 'uz']))
 {
 	unset($result['vk'], $result['odnoklassniki']);
 }

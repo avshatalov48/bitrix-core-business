@@ -23,7 +23,4 @@ $MESS ['FORM_DEMO_DIR'] = "Follow this links to view the demo files in action:";
 $MESS ['FORM_RESET'] = "Reset";
 $MESS ['FORM_SITE'] = "Site";
 $MESS ['FORM_LINK'] = "Link";
-$MESS ['COPY_PUBLIC_FILES'] = "Copy public files";
-$MESS ['COPY_FOLDER'] = "Folder where the files will be copied (relating to the site root folder):";
-$MESS ['INSTALL_PUBLIC_REW'] = "Overwrite existing files";
 ?>

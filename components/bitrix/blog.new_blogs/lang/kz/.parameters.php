@@ -1,0 +1,21 @@
+<?php
+$MESS["BLG_GROUP_ID"] = "Блогтарды көрсету үшін топ";
+$MESS["BLOG_DESCR_BLOG_NAME"] = "Блог атауы";
+$MESS["BLOG_DESCR_DATE_CREATE"] = "Құрылған күні";
+$MESS["BLOG_DESCR_LAST_MES"] = "Соңғы хабардың күні";
+$MESS["BLOG_DESCR_N"] = "Жоқ";
+$MESS["BLOG_DESCR_NB_COUNT"] = "Блогтар саны";
+$MESS["BLOG_DESCR_NB_S_DESCR"] = "Блог сипаттамасын көрсету";
+$MESS["BLOG_DESCR_SORT_1"] = "Сұрыптау үшін бірінші өріс";
+$MESS["BLOG_DESCR_SORT_2"] = "Сұрыптау үшін екінші өріс";
+$MESS["BLOG_DESCR_SORT_ASC"] = "Өсу бойынша";
+$MESS["BLOG_DESCR_SORT_DESC"] = "Кему бойынша";
+$MESS["BLOG_DESCR_SORT_ORDER"] = "Сұрыптау бағыты";
+$MESS["BLOG_DESCR_Y"] = "Иә";
+$MESS["BMN_BLOG_VAR"] = "Блог идентификаторы үшін айнымалының атауы";
+$MESS["BMN_PAGE_VAR"] = "Парақша үшін айнымалының атауы";
+$MESS["BMN_PATH_TO_BLOG"] = "Блог парақшасына жол қалыбы";
+$MESS["BMN_PATH_TO_GROUP"] = "Топ туралы ақпарат парақшасына жол қалыбы";
+$MESS["BMN_PATH_TO_GROUP_BLOG"] = "Топ блогы парақшасына жол қалыбы";
+$MESS["BMN_PATH_TO_USER"] = "Пайдаланушы туралы ақпарат парақшасына жол қалыбы";
+$MESS["BMN_USER_VAR"] = "Пайдаланушы идентификаторы үшін айнымалы атауы";

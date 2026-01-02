@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Sale\Internals\Analytics;
 
 use Bitrix\Main;
@@ -9,7 +10,7 @@ use Bitrix\Main;
  */
 final class Sender
 {
-	protected const URL = 'https://util.1c-bitrix.ru/analytics.php';
+	protected const URL = '/analytics.php';
 
 	/** @var string $type */
 	private $type;
@@ -19,6 +20,7 @@ final class Sender
 
 	/**
 	 * Service constructor.
+	 * @param string $type
 	 * @param array $data
 	 */
 	public function __construct(string $type, array $data)
@@ -40,7 +42,10 @@ final class Sender
 			$postData = Main\Web\Json::encode($postData);
 
 			$httpClient = new Main\Web\HttpClient();
-			$response = $httpClient->post(self::URL, $postData);
+			$response = $httpClient->post(
+				Main\Application::getInstance()->getLicense()->getDomainStoreLicense() . self::URL,
+				$postData
+			);
 			if (!$response || $httpClient->getStatus() !== 200)
 			{
 				return false;
@@ -54,7 +59,7 @@ final class Sender
 					return false;
 				}
 			}
-			catch (Main\ArgumentException $ex)
+			catch (Main\ArgumentException)
 			{
 				return false;
 			}

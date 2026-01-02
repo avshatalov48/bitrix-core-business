@@ -30,7 +30,7 @@ final class WorkgroupRequestRecipient implements Collector
 			->setSelect(['ID', 'ACTIVE', 'IS_REAL_USER', 'IS_ONLINE'])
 			->whereIn('ID', $memberIds)
 			->where('ACTIVE', '=', 'Y')
-			->where('IS_REAL_USER', '=', 'Y')
+			->where('REAL_USER', 'expr', true)
 			->setLimit($limit)
 			->setOffset($offset)
 			->fetch()

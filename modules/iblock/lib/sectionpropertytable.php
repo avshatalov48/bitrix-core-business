@@ -1,8 +1,10 @@
 <?php
+
 namespace Bitrix\Iblock;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
 
 /**
  * Class SectionPropertyTable
@@ -37,7 +39,7 @@ use Bitrix\Main\Localization\Loc;
  * @method static \Bitrix\Iblock\EO_SectionProperty_Collection wakeUpCollection($rows)
  */
 
-class SectionPropertyTable extends Entity\DataManager
+class SectionPropertyTable extends DataManager
 {
 	//ABCDE - for numbers
 	public const NUMBERS_WITH_SLIDER = 'A';

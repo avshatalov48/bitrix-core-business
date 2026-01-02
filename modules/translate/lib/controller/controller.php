@@ -36,7 +36,7 @@ abstract class Controller extends Main\Engine\Controller
 	 *
 	 * @return boolean
 	 */
-	public function hasErrors()
+	public function hasErrors(): bool
 	{
 		if (!$this->errorCollection instanceof Main\ErrorCollection)
 		{

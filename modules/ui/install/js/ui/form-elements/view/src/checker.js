@@ -36,6 +36,7 @@ export class Checker extends BaseField
 			handlers: params.handlers,
 			color: params.colors,
 			size: params.size,
+			disabled: !this.isEnable(),
 		});
 		if (this.isFieldDisabled())
 		{
@@ -62,6 +63,11 @@ export class Checker extends BaseField
 				this.emit('change', this.isChecked());
 			}
 		);
+	}
+
+	setHideSeparator(isHide: boolean): void
+	{
+		this.hideSeparator = isHide;
 	}
 
 	getValue(): string
@@ -131,7 +137,7 @@ export class Checker extends BaseField
 					</div>
 					<div class="ui-section__field-inner">
 						<div class="ui-section__title">
-							${this.getLabel()} ${lockElement}
+							${this.getLabel()} ${this.getBadge()?.render()} ${lockElement}
 						</div>
 						${this.#renderHint(this.isChecked())}
 					</div>

@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports,ui_designTokens,main_popup,ui_dialogs_messagebox,main_core_events,ui_notification,main_core) {
+(function (exports,ui_designTokens,ui_dialogs_messagebox,main_core_events,ui_notification,main_core,main_popup,ui_buttons,landing_metrika) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
@@ -412,8 +412,8 @@ this.BX.Landing = this.BX.Landing || {};
 	        });
 	        var buttOpen = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span href=\"", "\" class=\"ui-btn ui-btn-light-border ui-btn-round\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_NOT_PUBLISHED_BUTTON_OPEN'));
 	        main_core.Event.bind(buttOpen, 'click', function () {
-	          // todo: loader?
 	          if (_this2.indexEditUrl) {
+	            main_core.Dom.addClass(buttOpen, 'ui-btn-wait');
 	            window.location.href = _this2.indexEditUrl;
 	          }
 	        });
@@ -433,7 +433,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  return PopupHelper;
 	}();
 
-	var _templateObject$3, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1, _templateObject7$1, _templateObject8$1, _templateObject9$1, _templateObject10$1, _templateObject11$1, _templateObject12$1, _templateObject13$1, _templateObject14$1, _templateObject15$1, _templateObject16$1, _templateObject17$1, _templateObject18, _templateObject19, _templateObject20, _templateObject21, _templateObject22;
+	var _templateObject$3, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1, _templateObject7$1, _templateObject8$1, _templateObject9$1, _templateObject10$1, _templateObject11$1, _templateObject12$1, _templateObject13$1, _templateObject14$1, _templateObject15$1, _templateObject16$1, _templateObject17$1, _templateObject18, _templateObject19, _templateObject20, _templateObject21, _templateObject22, _templateObject23, _templateObject24;
 	var Item = /*#__PURE__*/function () {
 	  function Item(options) {
 	    babelHelpers.classCallCheck(this, Item);
@@ -469,6 +469,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.popupStatus = null;
 	    this.popupConfig = null;
 	    this.loader = null;
+	    this.copilotProcess = main_core.Type.isBoolean(options.copilotProcess) ? options.copilotProcess : null;
 	    this.$container = null;
 	    this.$containerWrapper = null;
 	    this.$containerPreviewImage = null;
@@ -901,6 +902,11 @@ this.BX.Landing = this.BX.Landing || {};
 	        if (this.published && this.cloudPreview && this.cloudPreview !== this.preview) {
 	          this.lazyLoadCloudPreview();
 	        }
+	        if (this.copilotProcess === false) {
+	          var copilotLabelText = main_core.Loc.getMessage('LANDING_SITE_TILE_COPILOT_LABEL');
+	          var copilotLabel = main_core.Tag.render(_templateObject16$1 || (_templateObject16$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"landing-sites__preview-copilot-label\">\n\t\t\t\t\t\t<i class=\"ui-icon-set --copilot-ai\"></i>\n\t\t\t\t\t\t<div class=\"\">", "</div>\n\t\t\t\t\t</i>\n\t\t\t\t"])), copilotLabelText);
+	          this.$containerPreviewImage.appendChild(copilotLabel);
+	        }
 	      }
 	      return this.$containerPreviewImage;
 	    }
@@ -928,7 +934,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainerPreviewStatus() {
 	      var _this10 = this;
 	      if (!this.$containerPreviewStatus) {
-	        this.$containerPreviewStatus = main_core.Tag.render(_templateObject16$1 || (_templateObject16$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-status --not-published ", "\">\n\t\t\t\t\t<div class=\"landing-sites__preview-status-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-icon\"></div>\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.published ? '--hide' : '', main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_NOT_PUBLISHED'));
+	        this.$containerPreviewStatus = main_core.Tag.render(_templateObject17$1 || (_templateObject17$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-status --not-published ", "\">\n\t\t\t\t\t<div class=\"landing-sites__preview-status-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-icon\"></div>\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.published ? '--hide' : '', main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_NOT_PUBLISHED'));
 	        main_core.Event.bind(this.$containerPreviewStatus, 'mouseenter', function () {
 	          _this10.$containerPreviewStatus.style.width = _this10.$containerPreviewStatus.firstElementChild.offsetWidth + 'px';
 	        });
@@ -942,7 +948,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerPreviewShowPages",
 	    value: function getContainerPreviewShowPages() {
 	      if (!this.$containerPreviewShowPages) {
-	        this.$containerPreviewShowPages = main_core.Tag.render(_templateObject17$1 || (_templateObject17$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-show\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_SHOW_PAGES'));
+	        this.$containerPreviewShowPages = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-show\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_SHOW_PAGES'));
 	      }
 	      return this.$containerPreviewShowPages;
 	    }
@@ -951,7 +957,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainerPreviewInstruction() {
 	      var _this11 = this;
 	      if (!this.$containerPreviewInstruction) {
-	        this.$containerPreviewInstruction = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-leadership\">\n\t\t\t\t\t<div class=\"landing-sites__preview-leadership-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_INSTRUCTION'));
+	        this.$containerPreviewInstruction = main_core.Tag.render(_templateObject19 || (_templateObject19 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-leadership\">\n\t\t\t\t\t<div class=\"landing-sites__preview-leadership-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_INSTRUCTION'));
 	        main_core.Event.bind(this.$containerPreviewInstruction, 'click', function () {
 	          _this11.getLeadership().show();
 	        });
@@ -963,7 +969,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainerLinks() {
 	      var _this12 = this;
 	      if (!this.$containerLinks) {
-	        this.$containerLinks = main_core.Tag.render(_templateObject19 || (_templateObject19 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__container --without-bg --auto-height --flex\"></div>"])));
+	        this.$containerLinks = main_core.Tag.render(_templateObject20 || (_templateObject20 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__container --without-bg --auto-height --flex\"></div>"])));
 	        this.menuBottomItems.map(function (menuItem) {
 	          _this12.$containerLinks.appendChild(_this12.getContainerLinksItem(menuItem.code, menuItem.href, menuItem.text));
 	        });
@@ -974,7 +980,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerLinksItem",
 	    value: function getContainerLinksItem(type, link, title) {
 	      var _this13 = this;
-	      var container = main_core.Tag.render(_templateObject20 || (_templateObject20 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a href=\"", "\" class=\"landing-sites__container-link landing-sites__container-link-", " --white-bg--alpha\">\n\t\t\t\t<div class=\"landing-sites__container-link-icon --", "\"></div>\n\t\t\t\t<div class=\"landing-sites__container-link-text\">", "</div>\n\t\t\t</a>\n\t\t"])), link, this.id, type, title);
+	      var container = main_core.Tag.render(_templateObject21 || (_templateObject21 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a href=\"", "\" class=\"landing-sites__container-link landing-sites__container-link-", " --white-bg--alpha\">\n\t\t\t\t<div class=\"landing-sites__container-link-icon --", "\"></div>\n\t\t\t\t<div class=\"landing-sites__container-link-text\">", "</div>\n\t\t\t</a>\n\t\t"])), link, this.id, type, title);
 	      main_core.Event.bind(container, 'click', function (event) {
 	        main_core_events.EventEmitter.emit('BX.Landing.SiteTile:onBottomMenuClick', [type, event, _this13]);
 	      });
@@ -1063,7 +1069,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerWrapper",
 	    value: function getContainerWrapper() {
 	      if (!this.$containerWrapper) {
-	        this.$containerWrapper = main_core.Tag.render(_templateObject21 || (_templateObject21 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__item-container\">\n\t\t\t\t\t<a href=\"", "\" class=\"landing-sites__preview\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.pagesUrl, this.getContainerPreviewImage(), this.getContainerPreviewStatus(), this.getContainerPreviewShowPages(), this.articles.length > 0 ? this.getContainerPreviewInstruction() : '', this.getContainerInfo(), this.getContainerDomain(), this.getContainerLinks());
+	        this.$containerWrapper = main_core.Tag.render(_templateObject22 || (_templateObject22 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__item-container\">\n\t\t\t\t\t<a href=\"", "\" class=\"landing-sites__preview\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.pagesUrl, this.getContainerPreviewImage(), this.getContainerPreviewStatus(), this.getContainerPreviewShowPages(), this.articles.length > 0 ? this.getContainerPreviewInstruction() : '', this.getContainerInfo(), this.getContainerDomain(), this.getContainerLinks());
 	      }
 	      return this.$containerWrapper;
 	    }
@@ -1071,7 +1077,9 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.$container) {
-	        this.$container = main_core.Tag.render(_templateObject22 || (_templateObject22 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__grid-item ", "\">\n\t\t\t\t\t<div class=\"landing-sites__item\" id=\"landing-sites__grid-item--", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.deleted ? '--deleted' : '', this.id, this.getLeadership().getContainer(), this.getContainerWrapper(), this.getPopupHelper().getContainer());
+	        var containerClasses = ['landing-sites__grid-item', this.deleted ? '--deleted' : '', this.copilotProcess === true ? '--generating' : ''].join(' ').trim();
+	        var copilotLabel = this.copilotProcess === true ? main_core.Tag.render(_templateObject23 || (_templateObject23 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"landing-sites__preview-show copilot-label\">\n\t\t\t\t\t    <i class=\"ui-icon-set --copilot-ai\"></i>\n\t\t\t\t\t    ", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_COPILOT_GENERATED_TEXT')) : '';
+	        this.$container = main_core.Tag.render(_templateObject24 || (_templateObject24 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t    <div class=\"landing-sites__item\" id=\"landing-sites__grid-item--", "\">\n\t\t\t\t        ", "\n\t\t\t\t        ", "\n\t\t\t\t        ", "\n\t\t\t\t    </div>\n\t\t\t\t    ", "\n\t\t\t\t</div>\n\t\t\t"])), containerClasses, this.id, this.getLeadership().getContainer(), this.getContainerWrapper(), this.getPopupHelper().getContainer(), copilotLabel);
 	      }
 	      return this.$container;
 	    }
@@ -1182,9 +1190,118 @@ this.BX.Landing = this.BX.Landing || {};
 	  return Scroller;
 	}();
 
-	var _templateObject$6;
+	var _templateObject$6, _templateObject2$5;
+	var PopupCopilot = /*#__PURE__*/function () {
+	  function PopupCopilot(options) {
+	    babelHelpers.classCallCheck(this, PopupCopilot);
+	    this.id = options.id;
+	    this.videoSrc = options.videoSrc;
+	    this.container = null;
+	    this.content = null;
+	    this.popup = this.getPopup();
+	  }
+	  babelHelpers.createClass(PopupCopilot, [{
+	    key: "getContent",
+	    value: function getContent() {
+	      if (!this.content) {
+	        this.content = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-site_title-popup-content\">\n\t\t\t\t\t<div class=\"landing-site_title-popup-main\">\n\t\t\t\t\t\t<div class=\"landing-site_title-popup-title\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-site_title-popup-list\">\n\t\t\t\t\t\t\t<div class=\"landing-site_title-popup-list-item --about\">\n\t\t\t\t\t\t\t\t<div class=\"landing-site_title-popup-list-icon\"></div>\n\t\t\t\t\t\t\t\t<div class=\"landing-site_title-popup-list-text\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t<div class=\"landing-site_title-popup-list-item --ai\">\n\t\t\t\t\t\t\t\t<div class=\"landing-site_title-popup-list-icon\"></div>\n\t\t\t\t\t\t\t\t<div class=\"landing-site_title-popup-list-text\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t<div class=\"landing-site_title-popup-list-item --rocket\">\n\t\t\t\t\t\t\t\t<div class=\"landing-site_title-popup-list-icon\"></div>\n\t\t\t\t\t\t\t\t<div class=\"landing-site_title-popup-list-text\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-site_title-popup-desc\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_COPILOT_TITLE'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_1'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_2'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_COPILOT_LIST_TEXT_3'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_COPILOT_DESCRIPTION'), this.renderVideo());
+	      }
+	      return this.content;
+	    }
+	  }, {
+	    key: "getPopup",
+	    value: function getPopup() {
+	      var _this = this;
+	      if (!this.container) {
+	        this.container = new main_popup.Popup({
+	          darkMode: true,
+	          bindElement: window,
+	          content: this.getContent(),
+	          width: 670,
+	          closeIcon: {
+	            top: '12px',
+	            right: '13px'
+	          },
+	          padding: 0,
+	          className: 'landing-site_title-popup',
+	          borderRadius: '24px',
+	          background: '#853af5',
+	          cacheable: true,
+	          animation: 'fading-slide',
+	          overlay: true,
+	          events: {
+	            onShow: function onShow() {
+	              var button = _this.container.buttonsContainer.children[0];
+	              var icon = document.querySelector('.landing-site_title-popup-list-icon');
+	              var video = document.querySelector('.landing-site_title-popup-video');
+	              main_core.Dom.addClass(_this.container.popupContainer, '--animation-first-step');
+	              main_core.Event.bind(button, 'animationend', function (event) {
+	                if (event.animationName === 'landing-site_title-popup-btn-animation') {
+	                  main_core.Dom.addClass(_this.container.popupContainer, '--animation-second-step');
+	                }
+	              });
+	              main_core.Event.bind(icon, 'animationend', function (event) {
+	                if (event.animationName === 'landing-site_title-popup-list-icon') {
+	                  main_core.Dom.addClass(_this.container.popupContainer, '--animation-third-step');
+	                }
+	              });
+	              main_core.Event.bind(video, 'animationend', function (event) {
+	                if (event.animationName === 'landing-site_title-popup-video') {
+	                  _this.videoElement.play();
+	                }
+	              });
+	            }
+	          },
+	          buttons: [new ui_buttons.Button({
+	            text: main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_COPILOT_BUTTON'),
+	            color: ui_buttons.Button.Color.SUCCESS,
+	            size: ui_buttons.Button.Size.EXTRA_LARGE,
+	            useAirDesign: true,
+	            style: ui_buttons.Button.AirStyle.FILLED_SUCCESS,
+	            onclick: function onclick(button) {
+	              button.setWaiting();
+	              BX.ajax.runAction('bitrix24.license.demolicense.activate').then(function () {
+	                window.location.href = '/sites/ai/';
+	              })["catch"](function (err) {
+	                console.error(err);
+	                window.location.href = '/sites/ai/';
+	              });
+	            }
+	          })]
+	        });
+	      }
+	      return this.container;
+	    }
+	  }, {
+	    key: "renderVideo",
+	    value: function renderVideo() {
+	      var _this2 = this;
+	      this.videoElement = main_core.Tag.render(_templateObject2$5 || (_templateObject2$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<video\n\t\t\t\tsrc=\"", "\"\n\t\t\t\tautoplay\n\t\t\t\tpreload\n\t\t\t\tloop\n\t\t\t\tmuted\n\t\t\t\tclass=\"landing-site_title-popup-video\"\n\t\t\t></video>\n\t\t"])), this.videoSrc);
+	      main_core.Event.bind(this.videoElement, 'canplay', function () {
+	        _this2.videoElement.muted = true;
+	      });
+	      return this.videoElement;
+	    }
+	  }, {
+	    key: "showPopup",
+	    value: function showPopup() {
+	      var _this3 = this;
+	      var timeout = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+	      if (!this.popup) {
+	        this.popup = this.getPopup();
+	      }
+	      setTimeout(function () {
+	        _this3.popup.show();
+	      }, timeout);
+	    }
+	  }]);
+	  return PopupCopilot;
+	}();
+
+	var _templateObject$7;
 	var SiteTile = /*#__PURE__*/function () {
 	  function SiteTile(options) {
+	    var _this = this;
 	    babelHelpers.classCallCheck(this, SiteTile);
 	    this.renderTo = options.renderTo || null;
 	    this.items = options.items || [];
@@ -1193,6 +1310,31 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.siteTileItems = [];
 	    this.$container = null;
 	    this.scroller = null;
+	    var videoSrc = '/bitrix/components/bitrix/landing.site_tile/templates/.default/video/en/siteWithCopilot.webm';
+	    if (options.lang === 'ru') {
+	      videoSrc = '/bitrix/components/bitrix/landing.site_tile/templates/.default/video/ru/siteWithCopilot.webm';
+	    }
+	    if (options.isNeedCreateCopilotPopup) {
+	      main_core.Runtime.loadExtension(['ui.banner-dispatcher']).then(function (exports) {
+	        var BannerDispatcher = exports.BannerDispatcher;
+	        BannerDispatcher.critical.toQueue(function (onDone) {
+	          var metrika = new landing_metrika.Metrika(true);
+	          metrika.sendData({
+	            category: 'site',
+	            event: 'creating_scenario_hint_show',
+	            type: 'preset'
+	          });
+	          _this.popupCopilot = new PopupCopilot({
+	            id: 'popupCopilot',
+	            videoSrc: videoSrc
+	          });
+	          _this.popupCopilot.showPopup(1000);
+	          _this.popupCopilot.getPopup().subscribe('onAfterClose', function () {
+	            onDone();
+	          });
+	        });
+	      })["catch"](function () {});
+	    }
 	    this.setData(this.items);
 	    this.init();
 	  }
@@ -1204,7 +1346,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "setData",
 	    value: function setData(data) {
-	      var _this = this;
+	      var _this2 = this;
 	      this.siteTileItems = data.map(function (item) {
 	        if (item.type === 'itemMarketing') {
 	          return new ItemMarketing({
@@ -1236,11 +1378,12 @@ this.BX.Landing = this.BX.Landing || {};
 	          domainStatusMessage: item.domainStatusMessage || null,
 	          menuItems: item.menuItems || null,
 	          menuBottomItems: item.menuBottomItems || null,
-	          notPublishedText: _this.notPublishedText || null,
+	          notPublishedText: _this2.notPublishedText || null,
 	          access: item.access || {},
 	          error: item.error || {},
 	          articles: item.articles || null,
-	          grid: _this
+	          grid: _this2,
+	          copilotProcess: item.copilotProcess
 	        });
 	      });
 	      return this.siteTileItems;
@@ -1249,7 +1392,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.$container) {
-	        this.$container = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__grid landing-sites__scope\"></div>"])));
+	        this.$container = main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__grid landing-sites__scope\"></div>"])));
 	        for (var i = 0; i < this.siteTileItems.length; i++) {
 	          this.$container.appendChild(this.siteTileItems[i].getContainer());
 	        }
@@ -1287,5 +1430,5 @@ this.BX.Landing = this.BX.Landing || {};
 
 	exports.SiteTile = SiteTile;
 
-}((this.BX.Landing.Component = this.BX.Landing.Component || {}),BX,BX.Main,BX.UI.Dialogs,BX.Event,BX,BX));
+}((this.BX.Landing.Component = this.BX.Landing.Component || {}),BX,BX.UI.Dialogs,BX.Event,BX,BX,BX.Main,BX.UI,BX.Landing));
 //# sourceMappingURL=script.js.map

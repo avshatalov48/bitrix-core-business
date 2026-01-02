@@ -1,0 +1,27 @@
+<?php
+$MESS["CVAT_ACTIVE"] = "Белс.";
+$MESS["CVAT_ADD_NEW"] = "Қосу";
+$MESS["CVAT_ADD_NEW_ALT"] = "ҚҚС мөлшерлемесін қосу";
+$MESS["CVAT_ALL"] = "барлығы";
+$MESS["CVAT_DELETE_ALT"] = "Жою";
+$MESS["CVAT_DELETE_CONF"] = "Сіз бұл ҚҚС мөлшерлемесін жойғыңыз келетініне сенімдісіз бе?";
+$MESS["CVAT_EDIT_ALT"] = "Редакциялау";
+$MESS["CVAT_EXCLUDE_VAT"] = "ҚҚС қоспағанда";
+$MESS["CVAT_FILTER_ACTIVE"] = "Белсенділік";
+$MESS["CVAT_FILTER_NAME"] = "Атауы";
+$MESS["CVAT_FILTER_RATE"] = "Мөлшерлеме";
+$MESS["CVAT_FILTER_XML_ID"] = "Сыртқы код";
+$MESS["CVAT_LIST_ACCESS_DENIED"] = "ҚҚС мөлшерлемелерінің тізіміне қолжетімділік жоқ";
+$MESS["CVAT_NAME"] = "Атауы";
+$MESS["CVAT_NAV"] = "ҚҚС мөлшерлемелері";
+$MESS["CVAT_NO"] = "Белсенді еместер";
+$MESS["CVAT_PAGE_TITLE"] = "ҚҚС мөлшерлемелері";
+$MESS["CVAT_RATE"] = "Мөлшерлеме";
+$MESS["CVAT_SORT"] = "Сұрыптау";
+$MESS["CVAT_VAT_ACTIVATE"] = "Белсендіру";
+$MESS["CVAT_VAT_DEACTIVATE"] = "Өшіру";
+$MESS["CVAT_VIEW_ALT"] = "Ашу";
+$MESS["CVAT_XML_ID"] = "Сыртқы код";
+$MESS["CVAT_YES"] = "белсенділер";
+$MESS["ERROR_DELETE_VAT"] = "##ID# ҚҚС мөлшерлемесін жою қатесі";
+$MESS["ERROR_UPDATE_VAT"] = "##ID# ҚҚС мөлшерлемесін жаңарту қатесі";

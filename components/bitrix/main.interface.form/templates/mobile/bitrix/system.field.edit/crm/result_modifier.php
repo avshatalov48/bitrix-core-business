@@ -13,33 +13,32 @@
 if(!CModule::IncludeModule("crm"))
 	return;
 
-global $USER;
-$CCrmPerms = new CCrmPerms($USER->GetID());
-$arSupportedTypes = array(); // all entity types are defined in settings
+$arSupportedTypes = []; // all entity types are defined in settings
 $arSettings = $arParams["arUserField"]["SETTINGS"];
 if (isset($arSettings["LEAD"]) && $arSettings["LEAD"] === "Y")
 {
-	$arSupportedTypes[] = "LEAD";
+	$arSupportedTypes[] = CCrmOwnerType::Lead;
 }
 if (isset($arSettings["CONTACT"]) && $arSettings["CONTACT"] === "Y")
 {
-	$arSupportedTypes[] = "CONTACT";
+	$arSupportedTypes[] = CCrmOwnerType::Contact;
 }
 if (isset($arSettings["COMPANY"]) && $arSettings["COMPANY"] === "Y")
 {
-	$arSupportedTypes[] = "COMPANY";
+	$arSupportedTypes[] = CCrmOwnerType::Company;
 }
 if (isset($arSettings["DEAL"]) && $arSettings["DEAL"] === "Y")
 {
-	$arSupportedTypes[] = "DEAL";
+	$arSupportedTypes[] = CCrmOwnerType::Deal;
 }
 
-$arParams["ENTITY_TYPE"] = array(); // only entity types are allowed for current user
-foreach($arSupportedTypes as $supportedType)
+$crmUserPermissions = \Bitrix\Crm\Service\Container::getInstance()->getUserPermissions();
+$arParams["ENTITY_TYPE"] = []; // only entity types are allowed for current user
+foreach($arSupportedTypes as $entityTypeId)
 {
-	if(!$CCrmPerms->HavePerm($supportedType, BX_CRM_PERM_NONE, "READ"))
+	if($crmUserPermissions->entityType()->canReadItems($entityTypeId))
 	{
-		$arParams["ENTITY_TYPE"][] = $supportedType;
+		$arParams["ENTITY_TYPE"][] = $entityTypeId;
 	}
 }
 

@@ -526,7 +526,7 @@ class CBPUpdateListsDocumentActivity extends CBPSetFieldActivity
 		$this->writeDebugInfo($debugInfo);
 	}
 
-	public function collectUsages()
+	public function collectUsages(): array
 	{
 		$usages = [];
 		$this->collectUsagesRecursive($this->arProperties, $usages);

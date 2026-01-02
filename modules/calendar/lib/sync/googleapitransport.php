@@ -1,7 +1,7 @@
-<?
+<?php
+
 namespace Bitrix\Calendar\Sync;
 
-use Bitrix\Calendar\Sync\Util\RequestLogger;
 use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
@@ -28,14 +28,6 @@ final class GoogleApiTransport
 	private $client;
 	private $errors;
 	private $currentMethod = '';
-	/**
-	 * @var CSocServGoogleOAuth
-	 */
-	private $oAuth;
-	/**
-	 * @var RequestLogger
-	 */
-	protected $requestLogger;
 
 	/**
 	 * GoogleApiTransport constructor.
@@ -54,10 +46,6 @@ final class GoogleApiTransport
 		}
 
 		$this->client = new Web\HttpClient();
-		if (RequestLogger::isEnabled())
-		{
-			$this->requestLogger = new RequestLogger((int)$userId, self::SERVICE_NAME);
-		}
 
 		if (CSocServGoogleProxyOAuth::isProxyAuth())
 		{
@@ -201,18 +189,6 @@ final class GoogleApiTransport
 					$this->errors[] = ["code" => $code, "message" => $error];
 				}
 			}
-		}
-
-		if ($this->requestLogger)
-		{
-			$this->requestLogger->write([
-				'requestParams' => $requestParams,
-				'url' => $url,
-				'method' => $type,
-				'statusCode' => $this->client->getStatus(),
-				'response' => $this->prepareResponseForDebug($response),
-				'error' => $this->prepareErrorForDebug(),
-			]);
 		}
 
 		return $response;
@@ -631,57 +607,5 @@ final class GoogleApiTransport
 		$requestBody = Web\Json::encode($calendarData, JSON_UNESCAPED_SLASHES);
 
 		return $this->doRequest(Web\HttpClient::HTTP_PUT, $url, $requestBody);
-	}
-
-	/**
-	 * @param $response
-	 * @return string
-	 */
-	private function prepareResponseForDebug($response): string
-	{
-		if (!$response || !is_array($response))
-		{
-			return '';
-		}
-
-		$result = '';
-
-		foreach ($response as $key => $value)
-		{
-			if (is_string($value))
-			{
-				$result .= "{$key}:{$value}; ";
-			}
-			elseif (is_array($value))
-			{
-				$result .= "{$key}:";
-				foreach ($value as $valueKey => $valueValue)
-				{
-					$result .= "{$valueKey}:{$valueValue}, ";
-				}
-				$result .= "; ";
-			}
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @return string
-	 */
-	private function prepareErrorForDebug(): string
-	{
-		if (!$this->errors || !is_array($this->errors))
-		{
-			return '';
-		}
-
-		$result = '';
-		foreach ($this->errors as $error)
-		{
-			$result .= $error['code'] . " " . $error['message'] . "; ";
-		}
-
-		return $result;
 	}
 }

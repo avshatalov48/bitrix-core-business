@@ -181,7 +181,7 @@ class Expression
 	 *
 	 * @return string
 	 */
-	protected static function getTmpName($postfix)
+	public static function getTmpName($postfix)
 	{
 		return 'A'.strtoupper(Random::getString(6).'_'.$postfix);
 	}

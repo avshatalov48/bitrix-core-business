@@ -1,7 +1,7 @@
 import { Type } from 'main.core';
 
 import { ThemeManager } from 'im.v2.lib.theme';
-import { RecentService } from 'im.v2.provider.service';
+import { LegacyRecentService } from 'im.v2.provider.service.recent';
 
 import './css/empty-state.css';
 
@@ -55,7 +55,7 @@ export const BaseEmptyState = {
 		},
 		isEmptyRecent(): boolean
 		{
-			return RecentService.getInstance().getCollection().length === 0;
+			return LegacyRecentService.getInstance().getCollection().length === 0;
 		},
 		backgroundStyle(): BackgroundStyle
 		{

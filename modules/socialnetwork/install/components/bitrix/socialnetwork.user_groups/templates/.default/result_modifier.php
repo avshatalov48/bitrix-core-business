@@ -196,7 +196,7 @@ $arResult["menuId"] = "sonetgroups_panel_menu";
 $arResult['SIDEBAR_GROUPS'] = [];
 
 if (
-	SITE_TEMPLATE_ID === "bitrix24"
+	(SITE_TEMPLATE_ID === "bitrix24" || SITE_TEMPLATE_ID === 'air')
 	&& $USER->isAuthorized()
 	&& $arParams["USER_ID"] == $USER->getId()
 	&& (

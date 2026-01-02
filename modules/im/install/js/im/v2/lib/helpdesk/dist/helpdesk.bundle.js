@@ -9,8 +9,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  var _BX$Helper;
 	  (_BX$Helper = BX.Helper) == null ? void 0 : _BX$Helper.show(`redirect=detail&code=${articleCode}`);
 	};
+	const getHelpdeskStringCallback = articleCode => {
+	  return `BX.Helper?.show('redirect=detail&code=${articleCode}')`;
+	};
 
 	exports.openHelpdeskArticle = openHelpdeskArticle;
+	exports.getHelpdeskStringCallback = getHelpdeskStringCallback;
 
 }((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {})));
 //# sourceMappingURL=helpdesk.bundle.js.map

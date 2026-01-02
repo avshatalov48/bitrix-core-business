@@ -1,0 +1,21 @@
+<?php
+$MESS['LANDING_COPILOT_DEMO_WISH_1'] = 'Архитектура';
+$MESS['LANDING_COPILOT_DEMO_WISH_2'] = 'Интернет-агентство';
+$MESS['LANDING_COPILOT_DEMO_WISH_3'] = 'Строительная компания';
+$MESS['LANDING_COPILOT_DEMO_WISH_4'] = 'IT услуги';
+$MESS['LANDING_COPILOT_DEMO_WISH_5'] = 'Музыка';
+$MESS['LANDING_COPILOT_DEMO_WISH_6'] = 'Доставка еды';
+$MESS['LANDING_COPILOT_DEMO_WISH_7'] = 'Курсы';
+$MESS['LANDING_COPILOT_DEMO_WISH_8'] = 'Букеты на заказ';
+$MESS['LANDING_COPILOT_DEMO_WISH_9'] = 'Портфолио фотографа';
+$MESS['LANDING_COPILOT_DEMO_WISH_10'] = 'СПА';
+$MESS['LANDING_COPILOT_DEMO_WISH_11'] = 'Натуральная косметика';
+$MESS['LANDING_COPILOT_DEMO_WISH_12'] = 'Бухгалтерские услуги';
+$MESS['LANDING_COPILOT_DEMO_WISH_13'] = 'Игровой клуб';
+$MESS['LANDING_COPILOT_DEMO_WISH_14'] = 'Агент по недвижимости';
+$MESS['LANDING_COPILOT_DEMO_WISH_15'] = 'Мебель на заказ';
+$MESS['LANDING_COPILOT_DEMO_WISH_16'] = 'Адвокат';
+$MESS['LANDING_COPILOT_DEMO_WISH_17'] = 'Ремонт техники';
+$MESS['LANDING_COPILOT_DEMO_WISH_18'] = 'Автосервис';
+$MESS['LANDING_COPILOT_DEMO_WISH_19'] = 'Услуги ремонта';
+$MESS['LANDING_COPILOT_DEMO_WISH_20'] = 'Юридические услуги';

@@ -43,11 +43,11 @@ export class MarketList
 		`;
 	}
 
-	#renderList(): ?HTMLElement
+	#renderList(): HTMLElement
 	{
 		if (this.#items.length === 0)
 		{
-			return null;
+			return '';
 		}
 
 		const listContainer = Tag.render`

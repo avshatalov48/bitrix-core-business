@@ -198,7 +198,7 @@ $includeFormComponent = static function(array $tab) {
 <div class="list-el-cg">
 	<div class="list-el-cg__header">
 		<div class="list-el-cg__header-icon">
-			<div class="ui-icon-set --bp" style="--ui-icon-set__icon-size: 48px; --ui-icon-set__icon-color: #fff;"></div>
+			<div class="ui-icon-set --business-process-1" style="--ui-icon-set__icon-size: 48px; --ui-icon-set__icon-color: #fff;"></div>
 		</div>
 		<div class="list-el-cg__header-content">
 			<div class="list-el-cg__header__title"><?= htmlspecialcharsbx(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_CMP_TITLE')) ?></div>
@@ -226,12 +226,6 @@ $includeFormComponent = static function(array $tab) {
 									<?php $includeFormComponent($tab) ?>
 									<div>
 										<div id="<?= htmlspecialcharsbx($htmlId . '-constants-' . $tab['templateId'] . '-errors')?>"></div>
-										<button
-											class="ui-btn ui-btn-xs ui-btn-secondary"
-											onclick="BX.Lists.Component.ElementCreationGuide.Instance.saveConstants(<?= (int)$tab['templateId'] ?>, this)"
-										>
-											<?= htmlspecialcharsbx(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_CMP_BUTTON_SAVE')) ?>
-										</button>
 									</div>
 								</div>
 							<?php endforeach ?>
@@ -262,6 +256,7 @@ $includeFormComponent = static function(array $tab) {
 						</div>
 					<?php endforeach ?>
 				</div>
+				<div class="list-el-cg__content-body --border --hidden"></div>
 			</div>
 		</div>
 	</div>
@@ -312,6 +307,7 @@ $includeFormComponent = static function(array $tab) {
 				'hasFieldsToShow' => $hasFieldsToShow,
 				'hasStatesToTuning' => (bool)$statesToTuning,
 				'canUserTuningStates' => $canUserTuningStates,
+				'iBlockId' => $arResult['iBlockId'],
 			]) ?>
 		);
 

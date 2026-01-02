@@ -6,6 +6,7 @@ use Bitrix\Catalog\Controller\Product;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\Response\DataType\Page;
+use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Bitrix\Main\UI\PageNavigation;
 
@@ -22,7 +23,16 @@ abstract class Base extends Product
 
 		if ($name === 'add' || $name === 'update')
 		{
-			$arguments['fields']['type'] = static::TYPE;
+			$fields = $arguments['fields'] ?? [];
+			if (!is_array($fields))
+			{
+				$this->addError(new Error('Incorrect fields format'));
+
+				return null;
+			}
+			$fields['type'] = static::TYPE;
+			$arguments['fields'] = $fields;
+
 			$action->setArguments($arguments);
 		}
 

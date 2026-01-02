@@ -1,0 +1,177 @@
+.mailbox-grid_user-list-popup-wrap-block {
+	display: inline-block;
+	position: relative;
+	font-family: Verdana, Tahoma, sans-serif;
+	overflow: hidden;
+}
+
+.mailbox-grid_user-list-popup-wrap-block .mailbox-grid_user-list-popup-popup-outer {
+	display: block;
+	max-height: 100%;
+	overflow-y: auto;
+	scrollbar-track-color: #F9FAFB;
+	scrollbar-base-color: #D4D7D9;
+	scrollbar-shadow-color: #D4D7D9;
+	scrollbar-highlight-color: #D4D7D9;
+}
+
+.mailbox-grid_user-list-popup-wrap-block .mailbox-grid_user-list-popup-popup {
+	background-color: #fff;
+	display: block;
+	margin: 0 0 2px 0;
+	padding: 0 17px 8px 8px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	width: auto;
+	min-width: 174px;
+	min-height: 50px;
+	max-height: 200px;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	user-select: none;
+	scrollbar-track-color: #F9FAFB;
+	scrollbar-base-color: #D4D7D9;
+	scrollbar-shadow-color: #D4D7D9;
+	scrollbar-highlight-color: #D4D7D9;
+}
+
+.mailbox-grid_user-list-popup-wrap-block .mailbox-grid_user-list-popup-popup::-webkit-scrollbar {
+	width: 6px;
+}
+
+.mailbox-grid_user-list-popup-wrap-block .mailbox-grid_user-list-popup-popup::-webkit-scrollbar-track {
+	border-radius: 3px;
+	background: rgba(216, 216, 216, .2);
+}
+
+.mailbox-grid_user-list-popup-wrap-block .mailbox-grid_user-list-popup-popup::-webkit-scrollbar-thumb {
+	border-radius: 3px;
+	background: #D8D8D8;
+}
+
+* html .mailbox-grid_user-list-popup-wrap-block {
+	width: 186px;
+}
+
+.mailbox-grid_user-list-popup-popup {
+	background-color: #fff;
+	display: inline-block;
+	max-height: 121px;
+	margin: 0 0 2px 0;
+	padding: 0 6px 5px 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	width: 180px;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	user-select: none;
+}
+
+* html .mailbox-grid_user-list-popup-popup {
+	width: 186px;
+	height: 130px;
+}
+
+.mailbox-grid_user-list-popup-popup .mailbox-grid_user-list-popup-popup-img {
+	display: block;
+	color: #656365;
+	text-decoration: none;
+	overflow: hidden;
+	zoom: 1;
+	white-space: nowrap;
+	margin-bottom: 8px;
+}
+
+.mailbox-grid_user-list-popup-popup .mailbox-grid_user-list-popup-popup-img:last-child {
+	margin-bottom: 0;
+}
+
+.mailbox-grid_user-list-popup-popup .mailbox-grid_user-list-popup-popup-img:link span,
+.mailbox-grid_user-list-popup-popup .mailbox-grid_user-list-popup-popup-img:visited span {
+	color: #525C69;
+	text-decoration: none;
+}
+
+.mailbox-grid_user-list-popup-popup .mailbox-grid_user-list-popup-popup-img:hover span {
+	color: #525C69;
+	text-decoration: underline;
+}
+
+.mailbox-grid_user-list-popup-popup .mailbox-grid_user-list-popup-popup-img:hover .mailbox-grid_user-list-popup-popup-name {
+	text-decoration: none;
+}
+
+.mailbox-grid_user-list-popup-popup .mailbox-grid_user-list-popup-popup-img:hover .mailbox-grid_user-list-popup-popup-name-link {
+	text-decoration: underline;
+}
+
+.mailbox-grid_user-list-popup-popup-avatar-new {
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 2px;
+	background: #fff;
+	position: relative;
+	width: 20px;
+	height: 20px;
+}
+
+* html .mailbox-grid_user-list-popup-popup-avatar,
+* html .mailbox-grid_user-list-popup-popup-avatar-new {
+	width: 23px;
+}
+
+.mailbox-grid_user-list-popup-popup-img img {
+	border: none;
+	background-color: #FFF;
+	border-radius: 50%;
+}
+
+.mailbox-grid_user-list-popup-popup .mailbox-grid_user-list-popup-popup-name,
+.mailbox-grid_user-list-popup-popup .mailbox-grid_user-list-popup-popup-name-link {
+	display: inline-block;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	padding-left: 6px;
+	height: 15px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding-top: 1px;
+	white-space: nowrap;
+	min-width: 100px;
+	vertical-align: middle;
+}
+
+.mailbox-grid_user-list-popup-popup .mailbox-grid_user-list-popup-popup-name {
+	cursor: default;
+	text-decoration: none;
+}
+
+.mailbox-grid_user-list-popup-popup .mailbox-grid_user-list-popup-popup-name-link {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+* html .mailbox-grid_user-list-popup-popup-name,
+* html .mailbox-grid_user-list-popup-popup-name-link {
+	width: 135px;
+}
+
+
+.popup-window-mailbox-user-list {
+	padding: 6px 10px 10px 10px;
+	border-radius: 18px;
+}
+
+
+.mailbox-grid_user-list-popup-popup-name.contentview-name,
+.mailbox-grid_user-list-popup-popup-name-link.contentview-name {
+	height: 18px;
+	display: block;
+	text-decoration: none;
+	cursor: auto;
+	padding: 10px 0 9px 0;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #525C69;
+	border-bottom: 1px solid #D8D8D8;
+	margin: 0 8px 9px 8px;
+	max-width: 190px;
+}

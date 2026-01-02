@@ -145,8 +145,8 @@ class PaymentItemShipment extends ControllerBase
 
 		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
 
-		$shipmentId = $fields['SHIPMENT_ID'];
-		$paymentId = $fields['PAYMENT_ID'];
+		$shipmentId = (int)$fields['SHIPMENT_ID'];
+		$paymentId = (int)$fields['PAYMENT_ID'];
 
 		unset($fields['PAYMENT_ID'], $fields['SHIPMENT_ID']);
 
@@ -154,34 +154,38 @@ class PaymentItemShipment extends ControllerBase
 		$shipmentClass = $registry->getShipmentClassName();
 
 		$r = $shipmentClass::getList([
-			'select'=>['ORDER_ID'],
-			'filter'=>['ID'=>$shipmentId],
+			'select' => ['ORDER_ID'],
+			'filter' => ['ID' => $shipmentId],
 		]);
 
-		if($row = $r->fetch())
+		if ($row = $r->fetch())
 		{
 			/** @var \Bitrix\Sale\Order $orderClass */
 			$orderClass = $registry->getOrderClassName();
 
 			$order = $orderClass::load($row['ORDER_ID']);
+
+			/** @var \Bitrix\Sale\Shipment $shipment */
 			$shipment = $order->getShipmentCollection()->getItemById($shipmentId);
-			if($shipment instanceof \Bitrix\Sale\Shipment)
+
+			$payment = null;
+
+			$collection = $order->getPaymentCollection();
+			if ($paymentId > 0)
 			{
-				/** @var PaymentCollection $collection */
-				$collection = $order->getPaymentCollection();
 				$payment = $collection->getItemById($paymentId);
-				if($payment instanceof \Bitrix\Sale\Payment)
+				if ($payment)
 				{
 					$paymentItems = $payment->getPayableItemCollection()->getShipments();
-					if($this->isExistShipment($paymentItems, $shipment) == false)
+					if (!$this->isExistShipment($paymentItems, $shipment))
 					{
 						/** @var PayableShipmentItem $paymentItem */
 						$paymentItem = $payment->getPayableItemCollection()->createItemByShipment($shipment);
 						$result = $paymentItem->setFields($fields);
-						if($result->isSuccess() && $result->hasWarnings() == false)
+						if ($result->isSuccess() && !$result->hasWarnings())
 						{
 							$r = $this->save($paymentItem);
-							if(!$r->isSuccess())
+							if (!$r->isSuccess())
 							{
 								$result->addErrors($r->getErrors());
 							}
@@ -192,10 +196,11 @@ class PaymentItemShipment extends ControllerBase
 						$result->addError(new Error('Duplicate entry for key [shipmentId, paymentId]', 201250000001));
 					}
 				}
-				else
-				{
-					$result->addError(new Error('payment not exists', 201240400002));
-				}
+			}
+
+			if (!$payment)
+			{
+				$result->addError(new Error('payment not exists', 201240400002));
 			}
 		}
 		else
@@ -203,23 +208,23 @@ class PaymentItemShipment extends ControllerBase
 			$result->addError(new Error('shipment not exists', 201240400003));
 		}
 
-		if(!$result->isSuccess())
+		if (!$result->isSuccess())
 		{
 			$this->addErrors($result->getErrors());
 			return null;
 		}
-		elseif($result->hasWarnings())
+		elseif ($result->hasWarnings())
 		{
 			$this->addErrors($result->getWarnings());
 			return null;
 		}
-		elseif($paymentItem instanceof PayableItem)
+		elseif ($paymentItem instanceof PayableItem)
 		{
-			return ['PAYMENT_ITEM_SHIPMENT'=>$paymentItem->toArray()];
+			return ['PAYMENT_ITEM_SHIPMENT' => $paymentItem->toArray()];
 		}
 		else
 		{
-			return ['PAYMENT_ITEM_SHIPMENT'=>$paymentItem];
+			return ['PAYMENT_ITEM_SHIPMENT' => $paymentItem];
 		}
 	}
 

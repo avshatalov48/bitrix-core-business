@@ -275,12 +275,7 @@ $defaultSectionId = $isOpenEvent && isset($arParams['sections'][0]['ID']) ? $arP
 											<span class="calendar-event-timezone">
 												<span class="calendar-field-container calendar-field-container-select">
 													<span class="calendar-field-block">
-														<select id="<?=$id?>_timezone_from" class="calendar-field calendar-field-select" name="tz_from">
-															<option value=""> - </option>
-															<?foreach($arResult['TIMEZONE_LIST'] as $tz):?>
-																<option value="<?= $tz['timezone_id']?>"><?= htmlspecialcharsEx($tz['title'])?></option>
-															<?endforeach;?>
-														</select>
+														<input id="<?=$id?>_timezone_from" class="calendar-field calendar-field-select" name="tz_from" style="width: 300px" readonly>
 													</span>
 												</span>
 											</span>
@@ -288,12 +283,7 @@ $defaultSectionId = $isOpenEvent && isset($arParams['sections'][0]['ID']) ? $arP
 											<span class="calendar-event-timezone">
 												<span class="calendar-field-container calendar-field-container-select">
 													<span class="calendar-field-block">
-														<select id="<?=$id?>_timezone_to" class="calendar-field calendar-field-select" name="tz_to">
-															<option value=""> - </option>
-															<?foreach($arResult['TIMEZONE_LIST'] as $tz):?>
-																<option value="<?= $tz['timezone_id']?>"><?= htmlspecialcharsEx($tz['title'])?></option>
-															<?endforeach;?>
-														</select>
+														<input id="<?=$id?>_timezone_to" class="calendar-field calendar-field-select" name="tz_to" style="width: 300px" readonly>
 													</span>
 												</span>
 											</span>
@@ -467,13 +457,7 @@ $defaultSectionId = $isOpenEvent && isset($arParams['sections'][0]['ID']) ? $arP
 												<div class="calendar-options-sub-item">
 													<div class="calendar-options-item-column-left">
 														<div class="calendar-field-container">
-															<select name="EVENT_RRULE[FREQ]" class="calendar-field calendar-field-select"  id="<?=$id?>_rrule_type">
-																<option value="NONE"><?=Loc::getMessage('EC_EDIT_SLIDER_REPEAT_NONE')?></option>
-																<option value="DAILY"><?=Loc::getMessage('EC_EDIT_SLIDER_REPEAT_DAILY')?></option>
-																<option value="WEEKLY"><?=Loc::getMessage('EC_EDIT_SLIDER_REPEAT_WEEKLY')?></option>
-																<option value="MONTHLY"><?=Loc::getMessage('EC_EDIT_SLIDER_REPEAT_MONTHLY')?></option>
-																<option value="YEARLY"><?=Loc::getMessage('EC_EDIT_SLIDER_REPEAT_YEARLY')?></option>
-															</select>
+															<input name="EVENT_RRULE[FREQ]" class="calendar-field calendar-field-select" id="<?=$id?>_rrule_type" readonly>
 														</div>
 													</div>
 													<div class="calendar-options-item-column-right">
@@ -485,11 +469,7 @@ $defaultSectionId = $isOpenEvent && isset($arParams['sections'][0]['ID']) ? $arP
 														</div>
 														<div class="calendar-field-container calendar-field-container-select">
 															<span class="calendar-field-block calendar-rrule-count">
-																<select id="<?=$id?>_rrule_count" class="calendar-field calendar-field-select" name="EVENT_RRULE[INTERVAL]">
-																	<?for ($i = 1; $i < 36; $i++):?>
-																		<option value="<?=$i?>"><?=$i?></option>
-																	<?endfor;?>
-																</select>
+																<input id="<?=$id?>_rrule_count" class="calendar-field calendar-field-select" name="EVENT_RRULE[INTERVAL]" style="width: 70px" readonly>
 															</span>
 														</div>
 														<div class="calendar-field-block-text">
@@ -772,16 +752,7 @@ $defaultSectionId = $isOpenEvent && isset($arParams['sections'][0]['ID']) ? $arP
 										<div class="calendar-options-item-column-one">
 											<div class="calendar-field-container calendar-field-container-select">
 												<div class="calendar-field-block">
-													<select class="calendar-field calendar-field-select" id="<?=$id?>_accessibility" name="accessibility">
-														<option value="busy"><?=GetMessage('EC_EDIT_SLIDER_ACC_B')?></option>
-														<option value="quest"><?=GetMessage('EC_EDIT_SLIDER_ACC_Q')?></option>
-														<option value="free"><?=GetMessage('EC_EDIT_SLIDER_ACC_F')?></option>
-														<?if (!CCalendar::IsBitrix24()
-															|| COption::GetOptionString("bitrix24",  "absence_limits_enabled", "") != "Y"
-															|| \Bitrix\Bitrix24\Feature::isFeatureEnabled("absence")):?>
-															<option value="absent"><?=GetMessage('EC_EDIT_SLIDER_ACC_A')?> (<?=GetMessage('EC_EDIT_SLIDER_ACC_EX')?>)</option>
-														<?endif;?>
-													</select>
+													<input class="calendar-field calendar-field-select" id="<?=$id?>_accessibility" name="accessibility" style="max-width: 300px" readonly>
 												</div>
 											</div>
 										</div>

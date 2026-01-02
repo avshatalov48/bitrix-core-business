@@ -1,0 +1,20 @@
+<?php
+$MESS["SALE_HPS_YANDEX_AlphaClick"] = "Альфа-Клик";
+$MESS["SALE_HPS_YANDEX_CUSTOMER_REJECTION"] = "Клиенттің бас тартуы";
+$MESS["SALE_HPS_YANDEX_Cards"] = "Банк карталары";
+$MESS["SALE_HPS_YANDEX_DATE_PAYED"] = "Төлем күні";
+$MESS["SALE_HPS_YANDEX_MasterPass"] = "MasterPass";
+$MESS["SALE_HPS_YANDEX_Mobile"] = "Мобильді төлемдер";
+$MESS["SALE_HPS_YANDEX_Promsvyazbank"] = "Промсвязьбанк";
+$MESS["SALE_HPS_YANDEX_Qiwi"] = "QIWI Wallet";
+$MESS["SALE_HPS_YANDEX_REFUND_CONNECTION_ERROR"] = "Қосылу қатесі. URL: #URL#. HTTP коды: #CODE#. Қате: #ERROR#";
+$MESS["SALE_HPS_YANDEX_REFUND_ERROR"] = "Қайтаруды жүзеге асыру кезінде қате пайда болды.";
+$MESS["SALE_HPS_YANDEX_REFUND_ERROR_INFO"] = "Мәртебе: #STATUS#. Қате коды: #ERROR#";
+$MESS["SALE_HPS_YANDEX_Sberbank"] = "Сбербанк Онлайн";
+$MESS["SALE_HPS_YANDEX_Smart"] = "Ақылды төлем";
+$MESS["SALE_HPS_YANDEX_TRANSACTION"] = "Транзакция";
+$MESS["SALE_HPS_YANDEX_Terminals"] = "Терминалдар";
+$MESS["SALE_HPS_YANDEX_TinkoffBank"] = "КупиВкредит";
+$MESS["SALE_HPS_YANDEX_YKuppiRu"] = "Сенімгерлік төлем";
+$MESS["SALE_HPS_YANDEX_YMoney"] = "ЮMoney";
+$MESS["SALE_HPS_YANDEX_mPOS"] = "Мобильді терминал (mPOS)";

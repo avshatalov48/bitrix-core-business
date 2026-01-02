@@ -241,10 +241,30 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 		$eventMailParams['MAILING_CHAIN_ID'] = $message->getConfiguration()->get('LETTER_ID');
 		$event = new Main\Event('sender', 'OnPostingSendRecipientEmail', [$eventMailParams]);
 		$event->send();
+		$logMessageOption = Option::get('sender', 'log_error_mail_messages', 'N');
 		foreach ($event->getResults() as $eventResult)
 		{
 			if($eventResult->getType() == Main\EventResult::ERROR)
 			{
+				if ($logMessageOption === 'Y')
+				{
+					try
+					{
+						$eventMessage = Main\Web\Json::encode(
+							[
+								'handler' => $eventResult->getHandler(),
+								'parameters' => $eventResult->getParameters(),
+							],
+						);
+					}
+					catch (Main\ArgumentException $e)
+					{
+						$eventMessage = 'Could not encode event result to JSON.';
+					}
+
+					AddMessage2Log('Error in OnPostingSendRecipientEmail: ' . $eventMessage, 'sender', 0);
+				}
+
 				return false;
 			}
 
@@ -256,7 +276,40 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 		unset($eventMailParams['MAILING_CHAIN_ID']);
 		$mailParams = $eventMailParams;
 
-		return Mail\Mail::send($mailParams);
+		$errorsBefore = error_get_last();
+		$sendResult = Mail\Mail::send($mailParams);
+
+		if (!$sendResult && $logMessageOption === 'Y')
+		{
+			$errorDetails = [];
+
+			$lastPhpError = error_get_last();
+			if (is_array($lastPhpError) && $lastPhpError !== $errorsBefore)
+			{
+				$errorDetails[] = sprintf(
+					'PHP Error: %s in %s on line %d',
+					$lastPhpError['message'],
+					$lastPhpError['file'],
+					$lastPhpError['line']
+				);
+			}
+
+			$errorMessage = sprintf(
+				'Email sending failed [TO: %s, SUBJECT: %s, LETTER_ID: %s]',
+				$mailMessage->getMailTo(),
+				$mailMessage->getMailSubject() ?? 'N/A',
+				$message->getConfiguration()->get('LETTER_ID') ?? 'N/A'
+			);
+
+			if (!empty($errorDetails))
+			{
+				$errorMessage .= ' Details: ' . implode('; ', $errorDetails);
+			}
+
+			AddMessage2Log($errorMessage, 'sender', 0);
+		}
+
+		return $sendResult;
 	}
 
 	/**

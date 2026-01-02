@@ -2,6 +2,7 @@
 
 namespace Bitrix\Bizproc\Workflow\Task;
 
+use Bitrix\Bizproc\UI\Helpers\DurationFormatter;
 use Bitrix\Bizproc\Workflow\Task;
 use Bitrix\Main\Type\DateTime;
 
@@ -33,11 +34,13 @@ class TimelineTask implements \JsonSerializable
 		$createdDate = $this->getCreatedDate();
 		if (isset($createdDate))
 		{
-			return
+			$duration = (
 				$this->task->isCompleted()
 					? $this->task->getModified()->getTimestamp() - $createdDate->getTimestamp()
 					: (new DateTime())->getTimestamp() - $createdDate->getTimestamp()
-			;
+			);
+
+			return DurationFormatter::roundTimeInSeconds($duration, 2);
 		}
 
 		return null;

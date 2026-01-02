@@ -46,7 +46,7 @@ class PinService
 		Sync\Logger::getInstance()->add(
 			new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::PIN_MESSAGE_ENTITY, $pin->getId()),
 			fn () => $chat->getRelations()->getUserIds(),
-			$chat->getType()
+			$chat
 		);
 
 		$this->sendMessageAboutPin($pin);
@@ -88,13 +88,62 @@ class PinService
 		Sync\Logger::getInstance()->add(
 			new Sync\Event(Sync\Event::DELETE_EVENT, Sync\Event::PIN_MESSAGE_ENTITY, $pin->getId()),
 			fn () => $chat->getRelations()->getUserIds(),
-			$chat->getType()
+			$chat
 		);
 
 		Push::getInstance()
 			->setContext($this->context)
 			->sendIdOnly($pin, static::DELETE_PIN_EVENT, ['CHAT_ID' => $pin->getChatId()])
 		;
+
+		return $result;
+	}
+
+	public function unpinMessages(MessageCollection $messages, bool $clearParams = true): Result
+	{
+		$result = new Result();
+
+		$pinCollection = PinCollection::getByMessages($messages);
+
+		if ($pinCollection->count() === 0)
+		{
+			return $result;
+		}
+
+		$deleteResult = $pinCollection->delete();
+
+		if (!$deleteResult->isSuccess())
+		{
+			return $result->addErrors($deleteResult->getErrors());
+		}
+
+		if ($clearParams)
+		{
+			$deleteParamResult = $this->deleteFromParams($messages);
+
+			if (!$deleteParamResult->isSuccess())
+			{
+				return $result->addErrors($deleteParamResult->getErrors());
+			}
+		}
+
+
+		$chat = Chat::getInstance($pinCollection->getRelatedChatId());
+
+		/** @var PinItem $pin */
+		foreach ($pinCollection as $pin)
+		{
+			Sync\Logger::getInstance()->add(
+				new Sync\Event(Sync\Event::DELETE_EVENT, Sync\Event::PIN_MESSAGE_ENTITY, $pin->getId()),
+				fn () => $chat->getRelations()->getUserIds(),
+				$chat
+			);
+
+			Push::getInstance()
+				->setContext($this->context)
+				->sendIdOnly($pin, static::DELETE_PIN_EVENT, ['CHAT_ID' => $pin->getChatId()])
+			;
+		}
 
 		return $result;
 	}
@@ -141,6 +190,18 @@ class PinService
 		return new Result();
 	}
 
+	protected function deleteFromParams(MessageCollection $messages): Result
+	{
+		$pushService = new Message\Param\PushService();
+		foreach ($messages as $message)
+		{
+			$message->getParams(true)->load([Message\Params::IS_PINNED => 'N']);
+			$pushService->sendPull($message, ['IS_PINNED']);
+		}
+
+		return new Result();
+	}
+
 	protected function sendMessageAboutPin(PinItem $pin): Result
 	{
 		//todo: Replace with new API
@@ -150,7 +211,7 @@ class PinService
 		$messageId = \CIMChat::AddMessage([
 			'DIALOG_ID' => $dialogId,
 			'SYSTEM' => 'Y',
-			'MESSAGE' => $this->getMessageText($pin),
+			'MESSAGE' => $this->getPinMessageText($pin),
 			'FROM_USER_ID' => $authorId,
 			'PARAMS' => [
 				'CLASS' => 'bx-messenger-content-item-system',
@@ -172,7 +233,7 @@ class PinService
 		return $result;
 	}
 
-	protected function getMessageText(PinItem $pin): string
+	protected function getPinMessageText(PinItem $pin): string
 	{
 		if (Chat::getInstance($pin->getChatId()) instanceof Chat\ChannelChat)
 		{

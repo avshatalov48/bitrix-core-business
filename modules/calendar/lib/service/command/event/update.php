@@ -13,7 +13,7 @@ use Bitrix\Calendar\Util;
 class Update extends Base
 {
 	private bool $canEdit;
-	private bool $canEditAttendies;
+	private bool $canEditAttendees;
 	private bool $canEditLocation;
 
 	public function checkPermissions(): void
@@ -22,10 +22,10 @@ class Update extends Base
 		$controller = $this->getAccessController();
 
 		$this->canEdit = $controller->check(ActionDictionary::ACTION_EVENT_EDIT, $model);
-		$this->canEditAttendies = $controller->check(ActionDictionary::ACTION_EVENT_EDIT_ATTENDEES, $model);
+		$this->canEditAttendees = $controller->check(ActionDictionary::ACTION_EVENT_EDIT_ATTENDEES, $model);
 		$this->canEditLocation = $controller->check(ActionDictionary::ACTION_EVENT_EDIT_LOCATION, $model);
 
-		if (!($this->canEdit || $this->canEditAttendies || $this->canEditLocation))
+		if (!($this->canEdit || $this->canEditAttendees || $this->canEditLocation))
 		{
 			throw new PermissionDenied();
 		}
@@ -76,7 +76,7 @@ class Update extends Base
 		}
 
 		// Attendees
-		if ($this->canEdit || $this->canEditAttendies)
+		if ($this->canEdit || $this->canEditAttendees)
 		{
 			$entryFields['ATTENDEES_CODES'] = $this->getAttendeeAccessCodes();
 			$entryFields['ATTENDEES'] = \CCalendar::GetDestinationUsers($entryFields['ATTENDEES_CODES']);
@@ -115,12 +115,16 @@ class Update extends Base
 
 	private function getAccessEventModel(int $eventId): EventModel
 	{
-		return \CCalendarEvent::getEventModelForPermissionCheck($eventId, [], $this->getCurrentUserId());
+		return \CCalendarEvent::getEventModelForPermissionCheck(
+			eventId: $eventId,
+			userId: $this->getCurrentUserId()
+		);
 	}
 
 	private function getParentEventId(): int
 	{
 		$event = Util::getEventById($this->getId());
+
 		return (int)($event['PARENT_ID'] ?? $this->getId());
 	}
 }

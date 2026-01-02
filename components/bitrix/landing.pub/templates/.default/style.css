@@ -28,6 +28,7 @@
 .bitrix-footer-link,
 a.bitrix-footer-link,
 a.bitrix-footer-link:visited,
+.bitrix-footer-terms,
 .bitrix-footer-text {
 	color: #919191;
 	font: 12px/14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
@@ -416,6 +417,12 @@ body {
 }
 .landing-page-link-btn:hover {
 	opacity: 1;
+}
+
+.landing-pub-top-panel-total-view, .landing-pub-top-panel-unique-view {
+	display: flex;
+	font-weight: var(--ui-font-weight-semi-bold, 600);
+	margin-right: 15px;
 }
 
 .landing-pub-top-panel-unique-view-popup {

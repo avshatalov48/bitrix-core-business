@@ -272,6 +272,8 @@ if (!empty($htmlEditorConfigs))
 						enableBottomPanel: <?=$arResult['ENABLE_BOTTOM_PANEL'] ? 'true' : 'false'?>,
 						enableFieldsContextMenu: <?=$arResult['ENABLE_FIELDS_CONTEXT_MENU'] ? 'true' : 'false'?>,
 						enablePageTitleControls: <?=$arResult['ENABLE_PAGE_TITLE_CONTROLS'] ? 'true' : 'false'?>,
+						enablePageTitleControlsViaToolbar: <?=$arResult['ENABLE_PAGE_TITLE_CONTROLS_VIA_TOOLBAR'] ? 'true' : 'false'?>,
+						enablePageTitleEdit: <?=$arResult['ENABLE_PAGE_TITLE_EDIT'] ? 'true' : 'false'?>,
 						readOnly: <?=$arResult['READ_ONLY'] ? 'true' : 'false'?>,
 						enableAjaxForm: <?=$arResult['ENABLE_AJAX_FORM'] ? 'true' : 'false'?>,
 						enableRequiredUserFieldCheck: <?=$arResult['ENABLE_REQUIRED_USER_FIELD_CHECK'] ? 'true' : 'false'?>,

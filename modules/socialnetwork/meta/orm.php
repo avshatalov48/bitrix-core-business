@@ -1,34 +1,59 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserTagTable:socialnetwork/lib/usertag.php */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserContentViewTable:socialnetwork/lib/usercontentview.php */
 namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_UserTag
-	 * @see \Bitrix\Socialnetwork\UserTagTable
+	 * EO_UserContentView
+	 * @see \Bitrix\Socialnetwork\UserContentViewTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\EO_UserTag setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
 	 * @method bool hasUserId()
 	 * @method bool isUserIdFilled()
 	 * @method bool isUserIdChanged()
 	 * @method \Bitrix\Main\EO_User getUser()
 	 * @method \Bitrix\Main\EO_User remindActualUser()
 	 * @method \Bitrix\Main\EO_User requireUser()
-	 * @method \Bitrix\Socialnetwork\EO_UserTag setUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Socialnetwork\EO_UserTag resetUser()
-	 * @method \Bitrix\Socialnetwork\EO_UserTag unsetUser()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView resetUser()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView unsetUser()
 	 * @method bool hasUser()
 	 * @method bool isUserFilled()
 	 * @method bool isUserChanged()
 	 * @method \Bitrix\Main\EO_User fillUser()
-	 * @method \string getName()
-	 * @method \Bitrix\Socialnetwork\EO_UserTag setName(\string|\Bitrix\Main\DB\SqlExpression $name)
-	 * @method bool hasName()
-	 * @method bool isNameFilled()
-	 * @method bool isNameChanged()
+	 * @method \string getRatingTypeId()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView setRatingTypeId(\string|\Bitrix\Main\DB\SqlExpression $ratingTypeId)
+	 * @method bool hasRatingTypeId()
+	 * @method bool isRatingTypeIdFilled()
+	 * @method bool isRatingTypeIdChanged()
+	 * @method \int getRatingEntityId()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView setRatingEntityId(\int|\Bitrix\Main\DB\SqlExpression $ratingEntityId)
+	 * @method bool hasRatingEntityId()
+	 * @method bool isRatingEntityIdFilled()
+	 * @method bool isRatingEntityIdChanged()
+	 * @method \string getContentId()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView setContentId(\string|\Bitrix\Main\DB\SqlExpression $contentId)
+	 * @method bool hasContentId()
+	 * @method bool isContentIdFilled()
+	 * @method bool isContentIdChanged()
+	 * @method \string remindActualContentId()
+	 * @method \string requireContentId()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView resetContentId()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView unsetContentId()
+	 * @method \string fillContentId()
+	 * @method \Bitrix\Main\Type\DateTime getDateView()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView setDateView(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateView)
+	 * @method bool hasDateView()
+	 * @method bool isDateViewFilled()
+	 * @method bool isDateViewChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateView()
+	 * @method \Bitrix\Main\Type\DateTime requireDateView()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView resetDateView()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView unsetDateView()
+	 * @method \Bitrix\Main\Type\DateTime fillDateView()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -44,9 +69,9 @@ namespace Bitrix\Socialnetwork {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_UserTag set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_UserTag reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_UserTag unset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -54,11 +79,11 @@ namespace Bitrix\Socialnetwork {
 	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_UserTag wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_UserContentView wakeUp($data)
 	 */
-	class EO_UserTag {
-		/* @var \Bitrix\Socialnetwork\UserTagTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\UserTagTable';
+	class EO_UserContentView {
+		/* @var \Bitrix\Socialnetwork\UserContentViewTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\UserContentViewTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
@@ -67,48 +92,53 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_UserTag_Collection
+	 * EO_UserContentView_Collection
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int[] getUserIdList()
 	 * @method \Bitrix\Main\EO_User[] getUserList()
-	 * @method \Bitrix\Socialnetwork\EO_UserTag_Collection getUserCollection()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView_Collection getUserCollection()
 	 * @method \Bitrix\Main\EO_User_Collection fillUser()
-	 * @method \string[] getNameList()
+	 * @method \string[] getRatingTypeIdList()
+	 * @method \int[] getRatingEntityIdList()
+	 * @method \string[] getContentIdList()
+	 * @method \string[] fillContentId()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateViewList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateView()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_UserTag $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_UserTag $object)
+	 * @method void add(\Bitrix\Socialnetwork\EO_UserContentView $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_UserContentView $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_UserTag getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_UserTag[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_UserTag $object)
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_UserContentView $object)
 	 * @method void removeByPrimary($primary)
 	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_UserTag_Collection wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_UserContentView_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_UserTag current() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_UserTag_Collection merge(?\Bitrix\Socialnetwork\EO_UserTag_Collection $collection)
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView_Collection merge(?\Bitrix\Socialnetwork\EO_UserContentView_Collection $collection)
 	 * @method bool isEmpty()
 	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
-	class EO_UserTag_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\UserTagTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\UserTagTable';
+	class EO_UserContentView_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\UserContentViewTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\UserContentViewTable';
 	}
 }
 namespace Bitrix\Socialnetwork {
@@ -116,825 +146,63 @@ namespace Bitrix\Socialnetwork {
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_UserTag_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_UserTag fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_UserTag_Collection fetchCollection()
+	 * @method EO_UserContentView_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView_Collection fetchCollection()
 	 */
-	class EO_UserTag_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_UserContentView_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_UserTag fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_UserTag_Collection fetchCollection()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView_Collection fetchCollection()
 	 */
-	class EO_UserTag_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_UserContentView_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_UserTag createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_UserTag_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_UserTag wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_UserTag_Collection wakeUpCollection($rows)
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_UserContentView_Collection wakeUpCollection($rows)
 	 */
-	class EO_UserTag_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_UserContentView_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogFavoritesTable:socialnetwork/lib/logfavorites.php */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupSiteTable:socialnetwork/lib/workgroupsite.php */
 namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_LogFavorites
-	 * @see \Bitrix\Socialnetwork\LogFavoritesTable
+	 * EO_WorkgroupSite
+	 * @see \Bitrix\Socialnetwork\WorkgroupSiteTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
-	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \int getLogId()
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
-	 * @method bool hasLogId()
-	 * @method bool isLogIdFilled()
-	 * @method bool isLogIdChanged()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_LogFavorites wakeUp($data)
-	 */
-	class EO_LogFavorites {
-		/* @var \Bitrix\Socialnetwork\LogFavoritesTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogFavoritesTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_LogFavorites_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getUserIdList()
-	 * @method \int[] getLogIdList()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_LogFavorites $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_LogFavorites $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogFavorites $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_LogFavorites_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites_Collection merge(?\Bitrix\Socialnetwork\EO_LogFavorites_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_LogFavorites_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\LogFavoritesTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogFavoritesTable';
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_LogFavorites_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites_Collection fetchCollection()
-	 */
-	class EO_LogFavorites_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites_Collection fetchCollection()
-	 */
-	class EO_LogFavorites_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_LogFavorites_Collection wakeUpCollection($rows)
-	 */
-	class EO_LogFavorites_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogSiteTable:socialnetwork/lib/logsite.php */
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_LogSite
-	 * @see \Bitrix\Socialnetwork\LogSiteTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getLogId()
-	 * @method \Bitrix\Socialnetwork\EO_LogSite setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
-	 * @method bool hasLogId()
-	 * @method bool isLogIdFilled()
-	 * @method bool isLogIdChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log getLog()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log remindActualLog()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log requireLog()
-	 * @method \Bitrix\Socialnetwork\EO_LogSite setLog(\Bitrix\Socialnetwork\Internals\Log\Log $object)
-	 * @method \Bitrix\Socialnetwork\EO_LogSite resetLog()
-	 * @method \Bitrix\Socialnetwork\EO_LogSite unsetLog()
-	 * @method bool hasLog()
-	 * @method bool isLogFilled()
-	 * @method bool isLogChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log fillLog()
-	 * @method \string getSiteId()
-	 * @method \Bitrix\Socialnetwork\EO_LogSite setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
-	 * @method bool hasSiteId()
-	 * @method bool isSiteIdFilled()
-	 * @method bool isSiteIdChanged()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogSite set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_LogSite reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogSite unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_LogSite wakeUp($data)
-	 */
-	class EO_LogSite {
-		/* @var \Bitrix\Socialnetwork\LogSiteTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogSiteTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_LogSite_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getLogIdList()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log[] getLogList()
-	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection getLogCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection fillLog()
-	 * @method \string[] getSiteIdList()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_LogSite $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_LogSite $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogSite getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogSite[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogSite $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_LogSite_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_LogSite current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection merge(?\Bitrix\Socialnetwork\EO_LogSite_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_LogSite_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\LogSiteTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogSiteTable';
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_LogSite_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_LogSite fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection fetchCollection()
-	 */
-	class EO_LogSite_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogSite fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection fetchCollection()
-	 */
-	class EO_LogSite_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogSite createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_LogSite wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection wakeUpCollection($rows)
-	 */
-	class EO_LogSite_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserRelationsTable:socialnetwork/lib/userrelations.php */
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_UserRelations
-	 * @see \Bitrix\Socialnetwork\UserRelationsTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \int getFirstUserId()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations setFirstUserId(\int|\Bitrix\Main\DB\SqlExpression $firstUserId)
-	 * @method bool hasFirstUserId()
-	 * @method bool isFirstUserIdFilled()
-	 * @method bool isFirstUserIdChanged()
-	 * @method \int remindActualFirstUserId()
-	 * @method \int requireFirstUserId()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetFirstUserId()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetFirstUserId()
-	 * @method \int fillFirstUserId()
-	 * @method \int getSecondUserId()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations setSecondUserId(\int|\Bitrix\Main\DB\SqlExpression $secondUserId)
-	 * @method bool hasSecondUserId()
-	 * @method bool isSecondUserIdFilled()
-	 * @method bool isSecondUserIdChanged()
-	 * @method \int remindActualSecondUserId()
-	 * @method \int requireSecondUserId()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetSecondUserId()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetSecondUserId()
-	 * @method \int fillSecondUserId()
-	 * @method \string getRelation()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations setRelation(\string|\Bitrix\Main\DB\SqlExpression $relation)
-	 * @method bool hasRelation()
-	 * @method bool isRelationFilled()
-	 * @method bool isRelationChanged()
-	 * @method \string remindActualRelation()
-	 * @method \string requireRelation()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetRelation()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetRelation()
-	 * @method \string fillRelation()
-	 * @method \string getInitiatedBy()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations setInitiatedBy(\string|\Bitrix\Main\DB\SqlExpression $initiatedBy)
-	 * @method bool hasInitiatedBy()
-	 * @method bool isInitiatedByFilled()
-	 * @method bool isInitiatedByChanged()
-	 * @method \string remindActualInitiatedBy()
-	 * @method \string requireInitiatedBy()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetInitiatedBy()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetInitiatedBy()
-	 * @method \string fillInitiatedBy()
-	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
-	 * @method bool hasDateCreate()
-	 * @method bool isDateCreateFilled()
-	 * @method bool isDateCreateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetDateCreate()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime getDateUpdate()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations setDateUpdate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateUpdate)
-	 * @method bool hasDateUpdate()
-	 * @method bool isDateUpdateFilled()
-	 * @method bool isDateUpdateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateUpdate()
-	 * @method \Bitrix\Main\Type\DateTime requireDateUpdate()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetDateUpdate()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetDateUpdate()
-	 * @method \Bitrix\Main\Type\DateTime fillDateUpdate()
-	 * @method \string getMessage()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations setMessage(\string|\Bitrix\Main\DB\SqlExpression $message)
-	 * @method bool hasMessage()
-	 * @method bool isMessageFilled()
-	 * @method bool isMessageChanged()
-	 * @method \string remindActualMessage()
-	 * @method \string requireMessage()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetMessage()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetMessage()
-	 * @method \string fillMessage()
-	 * @method \Bitrix\Main\EO_User getFirstUser()
-	 * @method \Bitrix\Main\EO_User remindActualFirstUser()
-	 * @method \Bitrix\Main\EO_User requireFirstUser()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations setFirstUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetFirstUser()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetFirstUser()
-	 * @method bool hasFirstUser()
-	 * @method bool isFirstUserFilled()
-	 * @method bool isFirstUserChanged()
-	 * @method \Bitrix\Main\EO_User fillFirstUser()
-	 * @method \Bitrix\Main\EO_User getSecondUser()
-	 * @method \Bitrix\Main\EO_User remindActualSecondUser()
-	 * @method \Bitrix\Main\EO_User requireSecondUser()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations setSecondUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetSecondUser()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetSecondUser()
-	 * @method bool hasSecondUser()
-	 * @method bool isSecondUserFilled()
-	 * @method bool isSecondUserChanged()
-	 * @method \Bitrix\Main\EO_User fillSecondUser()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_UserRelations wakeUp($data)
-	 */
-	class EO_UserRelations {
-		/* @var \Bitrix\Socialnetwork\UserRelationsTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\UserRelationsTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_UserRelations_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getFirstUserIdList()
-	 * @method \int[] fillFirstUserId()
-	 * @method \int[] getSecondUserIdList()
-	 * @method \int[] fillSecondUserId()
-	 * @method \string[] getRelationList()
-	 * @method \string[] fillRelation()
-	 * @method \string[] getInitiatedByList()
-	 * @method \string[] fillInitiatedBy()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateUpdateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateUpdate()
-	 * @method \string[] getMessageList()
-	 * @method \string[] fillMessage()
-	 * @method \Bitrix\Main\EO_User[] getFirstUserList()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection getFirstUserCollection()
-	 * @method \Bitrix\Main\EO_User_Collection fillFirstUser()
-	 * @method \Bitrix\Main\EO_User[] getSecondUserList()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection getSecondUserCollection()
-	 * @method \Bitrix\Main\EO_User_Collection fillSecondUser()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_UserRelations $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_UserRelations $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_UserRelations $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_UserRelations_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection merge(?\Bitrix\Socialnetwork\EO_UserRelations_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_UserRelations_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\UserRelationsTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\UserRelationsTable';
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_UserRelations_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection fetchCollection()
-	 */
-	class EO_UserRelations_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection fetchCollection()
-	 */
-	class EO_UserRelations_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection wakeUpCollection($rows)
-	 */
-	class EO_UserRelations_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogPageTable:socialnetwork/lib/logpage.php */
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_LogPage
-	 * @see \Bitrix\Socialnetwork\LogPageTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \string getSiteId()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
-	 * @method bool hasSiteId()
-	 * @method bool isSiteIdFilled()
-	 * @method bool isSiteIdChanged()
-	 * @method \string getGroupCode()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage setGroupCode(\string|\Bitrix\Main\DB\SqlExpression $groupCode)
-	 * @method bool hasGroupCode()
-	 * @method bool isGroupCodeFilled()
-	 * @method bool isGroupCodeChanged()
-	 * @method \int getPageSize()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage setPageSize(\int|\Bitrix\Main\DB\SqlExpression $pageSize)
-	 * @method bool hasPageSize()
-	 * @method bool isPageSizeFilled()
-	 * @method bool isPageSizeChanged()
-	 * @method \int getPageNum()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage setPageNum(\int|\Bitrix\Main\DB\SqlExpression $pageNum)
-	 * @method bool hasPageNum()
-	 * @method bool isPageNumFilled()
-	 * @method bool isPageNumChanged()
-	 * @method \Bitrix\Main\Type\DateTime getPageLastDate()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage setPageLastDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $pageLastDate)
-	 * @method bool hasPageLastDate()
-	 * @method bool isPageLastDateFilled()
-	 * @method bool isPageLastDateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualPageLastDate()
-	 * @method \Bitrix\Main\Type\DateTime requirePageLastDate()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage resetPageLastDate()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage unsetPageLastDate()
-	 * @method \Bitrix\Main\Type\DateTime fillPageLastDate()
-	 * @method \int getTrafficAvg()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage setTrafficAvg(\int|\Bitrix\Main\DB\SqlExpression $trafficAvg)
-	 * @method bool hasTrafficAvg()
-	 * @method bool isTrafficAvgFilled()
-	 * @method bool isTrafficAvgChanged()
-	 * @method \int remindActualTrafficAvg()
-	 * @method \int requireTrafficAvg()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage resetTrafficAvg()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage unsetTrafficAvg()
-	 * @method \int fillTrafficAvg()
-	 * @method \int getTrafficCnt()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage setTrafficCnt(\int|\Bitrix\Main\DB\SqlExpression $trafficCnt)
-	 * @method bool hasTrafficCnt()
-	 * @method bool isTrafficCntFilled()
-	 * @method bool isTrafficCntChanged()
-	 * @method \int remindActualTrafficCnt()
-	 * @method \int requireTrafficCnt()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage resetTrafficCnt()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage unsetTrafficCnt()
-	 * @method \int fillTrafficCnt()
-	 * @method \Bitrix\Main\Type\DateTime getTrafficLastDate()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage setTrafficLastDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $trafficLastDate)
-	 * @method bool hasTrafficLastDate()
-	 * @method bool isTrafficLastDateFilled()
-	 * @method bool isTrafficLastDateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualTrafficLastDate()
-	 * @method \Bitrix\Main\Type\DateTime requireTrafficLastDate()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage resetTrafficLastDate()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage unsetTrafficLastDate()
-	 * @method \Bitrix\Main\Type\DateTime fillTrafficLastDate()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogPage set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_LogPage reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogPage unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_LogPage wakeUp($data)
-	 */
-	class EO_LogPage {
-		/* @var \Bitrix\Socialnetwork\LogPageTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogPageTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_LogPage_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getUserIdList()
-	 * @method \string[] getSiteIdList()
-	 * @method \string[] getGroupCodeList()
-	 * @method \int[] getPageSizeList()
-	 * @method \int[] getPageNumList()
-	 * @method \Bitrix\Main\Type\DateTime[] getPageLastDateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillPageLastDate()
-	 * @method \int[] getTrafficAvgList()
-	 * @method \int[] fillTrafficAvg()
-	 * @method \int[] getTrafficCntList()
-	 * @method \int[] fillTrafficCnt()
-	 * @method \Bitrix\Main\Type\DateTime[] getTrafficLastDateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillTrafficLastDate()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_LogPage $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_LogPage $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogPage getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogPage[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogPage $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_LogPage_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_LogPage current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_LogPage_Collection merge(?\Bitrix\Socialnetwork\EO_LogPage_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_LogPage_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\LogPageTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogPageTable';
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_LogPage_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage_Collection fetchCollection()
-	 */
-	class EO_LogPage_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogPage fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage_Collection fetchCollection()
-	 */
-	class EO_LogPage_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogPage createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_LogPage_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_LogPage wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_LogPage_Collection wakeUpCollection($rows)
-	 */
-	class EO_LogPage_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserToGroupTable:socialnetwork/lib/usertogroup.php */
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Member
-	 * @see \Bitrix\Socialnetwork\UserToGroupTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\Space\Member setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\Space\Member setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \int remindActualUserId()
-	 * @method \int requireUserId()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetUserId()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetUserId()
-	 * @method \int fillUserId()
-	 * @method \Bitrix\Intranet\EO_User getUser()
-	 * @method \Bitrix\Intranet\EO_User remindActualUser()
-	 * @method \Bitrix\Intranet\EO_User requireUser()
-	 * @method \Bitrix\Socialnetwork\Space\Member setUser(\Bitrix\Intranet\EO_User $object)
-	 * @method \Bitrix\Socialnetwork\Space\Member resetUser()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetUser()
-	 * @method bool hasUser()
-	 * @method bool isUserFilled()
-	 * @method bool isUserChanged()
-	 * @method \Bitrix\Intranet\EO_User fillUser()
 	 * @method \int getGroupId()
-	 * @method \Bitrix\Socialnetwork\Space\Member setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
 	 * @method bool hasGroupId()
 	 * @method bool isGroupIdFilled()
 	 * @method bool isGroupIdChanged()
-	 * @method \int remindActualGroupId()
-	 * @method \int requireGroupId()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetGroupId()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetGroupId()
-	 * @method \int fillGroupId()
 	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity getGroup()
 	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity remindActualGroup()
 	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity requireGroup()
-	 * @method \Bitrix\Socialnetwork\Space\Member setGroup(\Bitrix\Socialnetwork\Internals\Group\GroupEntity $object)
-	 * @method \Bitrix\Socialnetwork\Space\Member resetGroup()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetGroup()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite setGroup(\Bitrix\Socialnetwork\Internals\Group\GroupEntity $object)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite resetGroup()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite unsetGroup()
 	 * @method bool hasGroup()
 	 * @method bool isGroupFilled()
 	 * @method bool isGroupChanged()
 	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity fillGroup()
-	 * @method \string getRole()
-	 * @method \Bitrix\Socialnetwork\Space\Member setRole(\string|\Bitrix\Main\DB\SqlExpression $role)
-	 * @method bool hasRole()
-	 * @method bool isRoleFilled()
-	 * @method bool isRoleChanged()
-	 * @method \string remindActualRole()
-	 * @method \string requireRole()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetRole()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetRole()
-	 * @method \string fillRole()
-	 * @method \boolean getAutoMember()
-	 * @method \Bitrix\Socialnetwork\Space\Member setAutoMember(\boolean|\Bitrix\Main\DB\SqlExpression $autoMember)
-	 * @method bool hasAutoMember()
-	 * @method bool isAutoMemberFilled()
-	 * @method bool isAutoMemberChanged()
-	 * @method \boolean remindActualAutoMember()
-	 * @method \boolean requireAutoMember()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetAutoMember()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetAutoMember()
-	 * @method \boolean fillAutoMember()
-	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
-	 * @method \Bitrix\Socialnetwork\Space\Member setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
-	 * @method bool hasDateCreate()
-	 * @method bool isDateCreateFilled()
-	 * @method bool isDateCreateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetDateCreate()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime getDateUpdate()
-	 * @method \Bitrix\Socialnetwork\Space\Member setDateUpdate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateUpdate)
-	 * @method bool hasDateUpdate()
-	 * @method bool isDateUpdateFilled()
-	 * @method bool isDateUpdateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateUpdate()
-	 * @method \Bitrix\Main\Type\DateTime requireDateUpdate()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetDateUpdate()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetDateUpdate()
-	 * @method \Bitrix\Main\Type\DateTime fillDateUpdate()
-	 * @method \string getInitiatedByType()
-	 * @method \Bitrix\Socialnetwork\Space\Member setInitiatedByType(\string|\Bitrix\Main\DB\SqlExpression $initiatedByType)
-	 * @method bool hasInitiatedByType()
-	 * @method bool isInitiatedByTypeFilled()
-	 * @method bool isInitiatedByTypeChanged()
-	 * @method \string remindActualInitiatedByType()
-	 * @method \string requireInitiatedByType()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetInitiatedByType()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetInitiatedByType()
-	 * @method \string fillInitiatedByType()
-	 * @method \int getInitiatedByUserId()
-	 * @method \Bitrix\Socialnetwork\Space\Member setInitiatedByUserId(\int|\Bitrix\Main\DB\SqlExpression $initiatedByUserId)
-	 * @method bool hasInitiatedByUserId()
-	 * @method bool isInitiatedByUserIdFilled()
-	 * @method bool isInitiatedByUserIdChanged()
-	 * @method \int remindActualInitiatedByUserId()
-	 * @method \int requireInitiatedByUserId()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetInitiatedByUserId()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetInitiatedByUserId()
-	 * @method \int fillInitiatedByUserId()
-	 * @method \Bitrix\Main\EO_User getInitiatedByUser()
-	 * @method \Bitrix\Main\EO_User remindActualInitiatedByUser()
-	 * @method \Bitrix\Main\EO_User requireInitiatedByUser()
-	 * @method \Bitrix\Socialnetwork\Space\Member setInitiatedByUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Socialnetwork\Space\Member resetInitiatedByUser()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetInitiatedByUser()
-	 * @method bool hasInitiatedByUser()
-	 * @method bool isInitiatedByUserFilled()
-	 * @method bool isInitiatedByUserChanged()
-	 * @method \Bitrix\Main\EO_User fillInitiatedByUser()
-	 * @method \string getMessage()
-	 * @method \Bitrix\Socialnetwork\Space\Member setMessage(\string|\Bitrix\Main\DB\SqlExpression $message)
-	 * @method bool hasMessage()
-	 * @method bool isMessageFilled()
-	 * @method bool isMessageChanged()
-	 * @method \string remindActualMessage()
-	 * @method \string requireMessage()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetMessage()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetMessage()
-	 * @method \string fillMessage()
+	 * @method \string getSiteId()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
+	 * @method bool hasSiteId()
+	 * @method bool isSiteIdFilled()
+	 * @method bool isSiteIdChanged()
+	 * @method \Bitrix\Main\EO_Site getSite()
+	 * @method \Bitrix\Main\EO_Site remindActualSite()
+	 * @method \Bitrix\Main\EO_Site requireSite()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite setSite(\Bitrix\Main\EO_Site $object)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite resetSite()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite unsetSite()
+	 * @method bool hasSite()
+	 * @method bool isSiteFilled()
+	 * @method bool isSiteChanged()
+	 * @method \Bitrix\Main\EO_Site fillSite()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -950,9 +218,9 @@ namespace Bitrix\Socialnetwork {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\Space\Member set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\Space\Member reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\Space\Member unset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -960,11 +228,11 @@ namespace Bitrix\Socialnetwork {
 	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\Space\Member wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite wakeUp($data)
 	 */
-	class EO_UserToGroup {
-		/* @var \Bitrix\Socialnetwork\UserToGroupTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\UserToGroupTable';
+	class EO_WorkgroupSite {
+		/* @var \Bitrix\Socialnetwork\WorkgroupSiteTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupSiteTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
@@ -973,71 +241,51 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * MemberEntityCollection
+	 * SiteEntityCollection
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getUserIdList()
-	 * @method \int[] fillUserId()
-	 * @method \Bitrix\Intranet\EO_User[] getUserList()
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection getUserCollection()
-	 * @method \Bitrix\Intranet\EO_User_Collection fillUser()
 	 * @method \int[] getGroupIdList()
-	 * @method \int[] fillGroupId()
 	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity[] getGroupList()
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection getGroupCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection getGroupCollection()
 	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection fillGroup()
-	 * @method \string[] getRoleList()
-	 * @method \string[] fillRole()
-	 * @method \boolean[] getAutoMemberList()
-	 * @method \boolean[] fillAutoMember()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateUpdateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateUpdate()
-	 * @method \string[] getInitiatedByTypeList()
-	 * @method \string[] fillInitiatedByType()
-	 * @method \int[] getInitiatedByUserIdList()
-	 * @method \int[] fillInitiatedByUserId()
-	 * @method \Bitrix\Main\EO_User[] getInitiatedByUserList()
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection getInitiatedByUserCollection()
-	 * @method \Bitrix\Main\EO_User_Collection fillInitiatedByUser()
-	 * @method \string[] getMessageList()
-	 * @method \string[] fillMessage()
+	 * @method \string[] getSiteIdList()
+	 * @method \Bitrix\Main\EO_Site[] getSiteList()
+	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection getSiteCollection()
+	 * @method \Bitrix\Main\EO_Site_Collection fillSite()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\Space\Member $object)
-	 * @method bool has(\Bitrix\Socialnetwork\Space\Member $object)
+	 * @method void add(\Bitrix\Socialnetwork\EO_WorkgroupSite $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_WorkgroupSite $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Space\Member getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Space\Member[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\Space\Member $object)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_WorkgroupSite $object)
 	 * @method void removeByPrimary($primary)
 	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\Space\Member current() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection merge(?\Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection $collection)
+	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection merge(?\Bitrix\Socialnetwork\Internals\site\SiteEntityCollection $collection)
 	 * @method bool isEmpty()
 	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
-	class EO_UserToGroup_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\UserToGroupTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\UserToGroupTable';
+	class EO_WorkgroupSite_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\WorkgroupSiteTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupSiteTable';
 	}
 }
 namespace Bitrix\Socialnetwork {
@@ -1045,119 +293,353 @@ namespace Bitrix\Socialnetwork {
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_UserToGroup_Result exec()
-	 * @method \Bitrix\Socialnetwork\Space\Member fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection fetchCollection()
+	 * @method EO_WorkgroupSite_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection fetchCollection()
 	 */
-	class EO_UserToGroup_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_WorkgroupSite_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Socialnetwork\Space\Member fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection fetchCollection()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection fetchCollection()
 	 */
-	class EO_UserToGroup_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_WorkgroupSite_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Socialnetwork\Space\Member createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection createCollection()
-	 * @method \Bitrix\Socialnetwork\Space\Member wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection wakeUpCollection($rows)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection wakeUpCollection($rows)
 	 */
-	class EO_UserToGroup_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_WorkgroupSite_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\FeatureTable:socialnetwork/lib/feature.php */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupSubjectSiteTable:socialnetwork/lib/workgroupsubjectsite.php */
 namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_Feature
-	 * @see \Bitrix\Socialnetwork\FeatureTable
+	 * EO_WorkgroupSubjectSite
+	 * @see \Bitrix\Socialnetwork\WorkgroupSubjectSiteTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getSubjectId()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite setSubjectId(\int|\Bitrix\Main\DB\SqlExpression $subjectId)
+	 * @method bool hasSubjectId()
+	 * @method bool isSubjectIdFilled()
+	 * @method bool isSubjectIdChanged()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject getSubject()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject remindActualSubject()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject requireSubject()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite setSubject(\Bitrix\Socialnetwork\EO_WorkgroupSubject $object)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite resetSubject()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite unsetSubject()
+	 * @method bool hasSubject()
+	 * @method bool isSubjectFilled()
+	 * @method bool isSubjectChanged()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject fillSubject()
+	 * @method \string getSiteId()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
+	 * @method bool hasSiteId()
+	 * @method bool isSiteIdFilled()
+	 * @method bool isSiteIdChanged()
+	 * @method \Bitrix\Main\EO_Site getSite()
+	 * @method \Bitrix\Main\EO_Site remindActualSite()
+	 * @method \Bitrix\Main\EO_Site requireSite()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite setSite(\Bitrix\Main\EO_Site $object)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite resetSite()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite unsetSite()
+	 * @method bool hasSite()
+	 * @method bool isSiteFilled()
+	 * @method bool isSiteChanged()
+	 * @method \Bitrix\Main\EO_Site fillSite()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite wakeUp($data)
+	 */
+	class EO_WorkgroupSubjectSite {
+		/* @var \Bitrix\Socialnetwork\WorkgroupSubjectSiteTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupSubjectSiteTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_WorkgroupSubjectSite_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getSubjectIdList()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject[] getSubjectList()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection getSubjectCollection()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection fillSubject()
+	 * @method \string[] getSiteIdList()
+	 * @method \Bitrix\Main\EO_Site[] getSiteList()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection getSiteCollection()
+	 * @method \Bitrix\Main\EO_Site_Collection fillSite()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\EO_WorkgroupSubjectSite $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_WorkgroupSubjectSite $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_WorkgroupSubjectSite $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection merge(?\Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_WorkgroupSubjectSite_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\WorkgroupSubjectSiteTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupSubjectSiteTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_WorkgroupSubjectSite_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection fetchCollection()
+	 */
+	class EO_WorkgroupSubjectSite_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection fetchCollection()
+	 */
+	class EO_WorkgroupSubjectSite_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection wakeUpCollection($rows)
+	 */
+	class EO_WorkgroupSubjectSite_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogPinnedTable:socialnetwork/lib/logpinned.php */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogPinned
+	 * @see \Bitrix\Socialnetwork\LogPinnedTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getLogId()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
+	 * @method bool hasLogId()
+	 * @method bool isLogIdFilled()
+	 * @method bool isLogIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \Bitrix\Main\Type\DateTime getPinnedDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned setPinnedDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $pinnedDate)
+	 * @method bool hasPinnedDate()
+	 * @method bool isPinnedDateFilled()
+	 * @method bool isPinnedDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualPinnedDate()
+	 * @method \Bitrix\Main\Type\DateTime requirePinnedDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned resetPinnedDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned unsetPinnedDate()
+	 * @method \Bitrix\Main\Type\DateTime fillPinnedDate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\EO_LogPinned wakeUp($data)
+	 */
+	class EO_LogPinned {
+		/* @var \Bitrix\Socialnetwork\LogPinnedTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogPinnedTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogPinned_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getLogIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \Bitrix\Main\Type\DateTime[] getPinnedDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillPinnedDate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\EO_LogPinned $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_LogPinned $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogPinned $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\EO_LogPinned_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection merge(?\Bitrix\Socialnetwork\EO_LogPinned_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_LogPinned_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\LogPinnedTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogPinnedTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_LogPinned_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection fetchCollection()
+	 */
+	class EO_LogPinned_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection fetchCollection()
+	 */
+	class EO_LogPinned_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection wakeUpCollection($rows)
+	 */
+	class EO_LogPinned_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupSubjectTable:socialnetwork/lib/workgroupsubject.php */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_WorkgroupSubject
+	 * @see \Bitrix\Socialnetwork\WorkgroupSubjectTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\EO_Feature setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject setId(\int|\Bitrix\Main\DB\SqlExpression $id)
 	 * @method bool hasId()
 	 * @method bool isIdFilled()
 	 * @method bool isIdChanged()
-	 * @method \string getEntityType()
-	 * @method \Bitrix\Socialnetwork\EO_Feature setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
-	 * @method bool hasEntityType()
-	 * @method bool isEntityTypeFilled()
-	 * @method bool isEntityTypeChanged()
-	 * @method \string remindActualEntityType()
-	 * @method \string requireEntityType()
-	 * @method \Bitrix\Socialnetwork\EO_Feature resetEntityType()
-	 * @method \Bitrix\Socialnetwork\EO_Feature unsetEntityType()
-	 * @method \string fillEntityType()
-	 * @method \int getEntityId()
-	 * @method \Bitrix\Socialnetwork\EO_Feature setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
-	 * @method bool hasEntityId()
-	 * @method bool isEntityIdFilled()
-	 * @method bool isEntityIdChanged()
-	 * @method \int remindActualEntityId()
-	 * @method \int requireEntityId()
-	 * @method \Bitrix\Socialnetwork\EO_Feature resetEntityId()
-	 * @method \Bitrix\Socialnetwork\EO_Feature unsetEntityId()
-	 * @method \int fillEntityId()
-	 * @method \string getFeature()
-	 * @method \Bitrix\Socialnetwork\EO_Feature setFeature(\string|\Bitrix\Main\DB\SqlExpression $feature)
-	 * @method bool hasFeature()
-	 * @method bool isFeatureFilled()
-	 * @method bool isFeatureChanged()
-	 * @method \string remindActualFeature()
-	 * @method \string requireFeature()
-	 * @method \Bitrix\Socialnetwork\EO_Feature resetFeature()
-	 * @method \Bitrix\Socialnetwork\EO_Feature unsetFeature()
-	 * @method \string fillFeature()
-	 * @method \string getFeatureName()
-	 * @method \Bitrix\Socialnetwork\EO_Feature setFeatureName(\string|\Bitrix\Main\DB\SqlExpression $featureName)
-	 * @method bool hasFeatureName()
-	 * @method bool isFeatureNameFilled()
-	 * @method bool isFeatureNameChanged()
-	 * @method \string remindActualFeatureName()
-	 * @method \string requireFeatureName()
-	 * @method \Bitrix\Socialnetwork\EO_Feature resetFeatureName()
-	 * @method \Bitrix\Socialnetwork\EO_Feature unsetFeatureName()
-	 * @method \string fillFeatureName()
-	 * @method \string getActive()
-	 * @method \Bitrix\Socialnetwork\EO_Feature setActive(\string|\Bitrix\Main\DB\SqlExpression $active)
-	 * @method bool hasActive()
-	 * @method bool isActiveFilled()
-	 * @method bool isActiveChanged()
-	 * @method \string remindActualActive()
-	 * @method \string requireActive()
-	 * @method \Bitrix\Socialnetwork\EO_Feature resetActive()
-	 * @method \Bitrix\Socialnetwork\EO_Feature unsetActive()
-	 * @method \string fillActive()
-	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
-	 * @method \Bitrix\Socialnetwork\EO_Feature setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
-	 * @method bool hasDateCreate()
-	 * @method bool isDateCreateFilled()
-	 * @method bool isDateCreateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
-	 * @method \Bitrix\Socialnetwork\EO_Feature resetDateCreate()
-	 * @method \Bitrix\Socialnetwork\EO_Feature unsetDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime getDateUpdate()
-	 * @method \Bitrix\Socialnetwork\EO_Feature setDateUpdate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateUpdate)
-	 * @method bool hasDateUpdate()
-	 * @method bool isDateUpdateFilled()
-	 * @method bool isDateUpdateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateUpdate()
-	 * @method \Bitrix\Main\Type\DateTime requireDateUpdate()
-	 * @method \Bitrix\Socialnetwork\EO_Feature resetDateUpdate()
-	 * @method \Bitrix\Socialnetwork\EO_Feature unsetDateUpdate()
-	 * @method \Bitrix\Main\Type\DateTime fillDateUpdate()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection getPermissions()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection requirePermissions()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection fillPermissions()
-	 * @method bool hasPermissions()
-	 * @method bool isPermissionsFilled()
-	 * @method bool isPermissionsChanged()
-	 * @method void addToPermissions(\Bitrix\Socialnetwork\EO_FeaturePerm $featurePerm)
-	 * @method void removeFromPermissions(\Bitrix\Socialnetwork\EO_FeaturePerm $featurePerm)
-	 * @method void removeAllPermissions()
-	 * @method \Bitrix\Socialnetwork\EO_Feature resetPermissions()
-	 * @method \Bitrix\Socialnetwork\EO_Feature unsetPermissions()
+	 * @method \string getSiteId()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
+	 * @method bool hasSiteId()
+	 * @method bool isSiteIdFilled()
+	 * @method bool isSiteIdChanged()
+	 * @method \Bitrix\Main\EO_Site getSite()
+	 * @method \Bitrix\Main\EO_Site remindActualSite()
+	 * @method \Bitrix\Main\EO_Site requireSite()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject setSite(\Bitrix\Main\EO_Site $object)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject resetSite()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject unsetSite()
+	 * @method bool hasSite()
+	 * @method bool isSiteFilled()
+	 * @method bool isSiteChanged()
+	 * @method \Bitrix\Main\EO_Site fillSite()
+	 * @method \string getName()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject setName(\string|\Bitrix\Main\DB\SqlExpression $name)
+	 * @method bool hasName()
+	 * @method bool isNameFilled()
+	 * @method bool isNameChanged()
+	 * @method \string remindActualName()
+	 * @method \string requireName()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject resetName()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject unsetName()
+	 * @method \string fillName()
+	 * @method \int getSort()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject setSort(\int|\Bitrix\Main\DB\SqlExpression $sort)
+	 * @method bool hasSort()
+	 * @method bool isSortFilled()
+	 * @method bool isSortChanged()
+	 * @method \int remindActualSort()
+	 * @method \int requireSort()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject resetSort()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject unsetSort()
+	 * @method \int fillSort()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -1173,9 +655,9 @@ namespace Bitrix\Socialnetwork {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_Feature set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_Feature reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_Feature unset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -1183,11 +665,11 @@ namespace Bitrix\Socialnetwork {
 	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_Feature wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubject wakeUp($data)
 	 */
-	class EO_Feature {
-		/* @var \Bitrix\Socialnetwork\FeatureTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\FeatureTable';
+	class EO_WorkgroupSubject {
+		/* @var \Bitrix\Socialnetwork\WorkgroupSubjectTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupSubjectTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
@@ -1196,61 +678,52 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_Feature_Collection
+	 * EO_WorkgroupSubject_Collection
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int[] getIdList()
-	 * @method \string[] getEntityTypeList()
-	 * @method \string[] fillEntityType()
-	 * @method \int[] getEntityIdList()
-	 * @method \int[] fillEntityId()
-	 * @method \string[] getFeatureList()
-	 * @method \string[] fillFeature()
-	 * @method \string[] getFeatureNameList()
-	 * @method \string[] fillFeatureName()
-	 * @method \string[] getActiveList()
-	 * @method \string[] fillActive()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateUpdateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateUpdate()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection[] getPermissionsList()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection getPermissionsCollection()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection fillPermissions()
+	 * @method \string[] getSiteIdList()
+	 * @method \Bitrix\Main\EO_Site[] getSiteList()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection getSiteCollection()
+	 * @method \Bitrix\Main\EO_Site_Collection fillSite()
+	 * @method \string[] getNameList()
+	 * @method \string[] fillName()
+	 * @method \int[] getSortList()
+	 * @method \int[] fillSort()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_Feature $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_Feature $object)
+	 * @method void add(\Bitrix\Socialnetwork\EO_WorkgroupSubject $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_WorkgroupSubject $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_Feature getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_Feature[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_Feature $object)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_WorkgroupSubject $object)
 	 * @method void removeByPrimary($primary)
 	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_Feature_Collection wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_Feature current() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_Feature_Collection merge(?\Bitrix\Socialnetwork\EO_Feature_Collection $collection)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection merge(?\Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection $collection)
 	 * @method bool isEmpty()
 	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
-	class EO_Feature_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\FeatureTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\FeatureTable';
+	class EO_WorkgroupSubject_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\WorkgroupSubjectTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupSubjectTable';
 	}
 }
 namespace Bitrix\Socialnetwork {
@@ -1258,23 +731,23 @@ namespace Bitrix\Socialnetwork {
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_Feature_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_Feature fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_Feature_Collection fetchCollection()
+	 * @method EO_WorkgroupSubject_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection fetchCollection()
 	 */
-	class EO_Feature_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_WorkgroupSubject_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_Feature fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_Feature_Collection fetchCollection()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection fetchCollection()
 	 */
-	class EO_Feature_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_WorkgroupSubject_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_Feature createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_Feature_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_Feature wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_Feature_Collection wakeUpCollection($rows)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection wakeUpCollection($rows)
 	 */
-	class EO_Feature_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_WorkgroupSubject_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogCommentTable:socialnetwork/lib/logcomment.php */
 namespace Bitrix\Socialnetwork {
@@ -1512,765 +985,210 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_LogComment_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogRightTable:socialnetwork/lib/logright.php */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogTable:socialnetwork/lib/log.php */
 namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_LogRight
-	 * @see \Bitrix\Socialnetwork\LogRightTable
+	 * Log
+	 * @see \Bitrix\Socialnetwork\LogTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setId(\int|\Bitrix\Main\DB\SqlExpression $id)
 	 * @method bool hasId()
 	 * @method bool isIdFilled()
 	 * @method bool isIdChanged()
-	 * @method \int getLogId()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
-	 * @method bool hasLogId()
-	 * @method bool isLogIdFilled()
-	 * @method bool isLogIdChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log getLog()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log remindActualLog()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log requireLog()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight setLog(\Bitrix\Socialnetwork\Internals\Log\Log $object)
-	 * @method \Bitrix\Socialnetwork\EO_LogRight resetLog()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight unsetLog()
-	 * @method bool hasLog()
-	 * @method bool isLogFilled()
-	 * @method bool isLogChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log fillLog()
-	 * @method \string getGroupCode()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight setGroupCode(\string|\Bitrix\Main\DB\SqlExpression $groupCode)
-	 * @method bool hasGroupCode()
-	 * @method bool isGroupCodeFilled()
-	 * @method bool isGroupCodeChanged()
-	 * @method \string remindActualGroupCode()
-	 * @method \string requireGroupCode()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight resetGroupCode()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight unsetGroupCode()
-	 * @method \string fillGroupCode()
-	 * @method \Bitrix\Main\Type\DateTime getLogUpdate()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight setLogUpdate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $logUpdate)
-	 * @method bool hasLogUpdate()
-	 * @method bool isLogUpdateFilled()
-	 * @method bool isLogUpdateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualLogUpdate()
-	 * @method \Bitrix\Main\Type\DateTime requireLogUpdate()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight resetLogUpdate()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight unsetLogUpdate()
-	 * @method \Bitrix\Main\Type\DateTime fillLogUpdate()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogRight set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_LogRight reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogRight unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_LogRight wakeUp($data)
-	 */
-	class EO_LogRight {
-		/* @var \Bitrix\Socialnetwork\LogRightTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogRightTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_LogRight_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getLogIdList()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log[] getLogList()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight_Collection getLogCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection fillLog()
-	 * @method \string[] getGroupCodeList()
-	 * @method \string[] fillGroupCode()
-	 * @method \Bitrix\Main\Type\DateTime[] getLogUpdateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillLogUpdate()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_LogRight $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_LogRight $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogRight getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogRight[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogRight $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_LogRight_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_LogRight current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_LogRight_Collection merge(?\Bitrix\Socialnetwork\EO_LogRight_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_LogRight_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\LogRightTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogRightTable';
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_LogRight_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight_Collection fetchCollection()
-	 */
-	class EO_LogRight_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogRight fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight_Collection fetchCollection()
-	 */
-	class EO_LogRight_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogRight createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_LogRight_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_LogRight wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_LogRight_Collection wakeUpCollection($rows)
-	 */
-	class EO_LogRight_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogViewTable:socialnetwork/lib/logview.php */
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_LogView
-	 * @see \Bitrix\Socialnetwork\LogViewTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\EO_LogView setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
+	 * @method \string getEntityType()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
+	 * @method bool hasEntityType()
+	 * @method bool isEntityTypeFilled()
+	 * @method bool isEntityTypeChanged()
+	 * @method \string remindActualEntityType()
+	 * @method \string requireEntityType()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetEntityType()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetEntityType()
+	 * @method \string fillEntityType()
+	 * @method \int getEntityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
+	 * @method bool hasEntityId()
+	 * @method bool isEntityIdFilled()
+	 * @method bool isEntityIdChanged()
+	 * @method \int remindActualEntityId()
+	 * @method \int requireEntityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetEntityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetEntityId()
+	 * @method \int fillEntityId()
 	 * @method \string getEventId()
-	 * @method \Bitrix\Socialnetwork\EO_LogView setEventId(\string|\Bitrix\Main\DB\SqlExpression $eventId)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setEventId(\string|\Bitrix\Main\DB\SqlExpression $eventId)
 	 * @method bool hasEventId()
 	 * @method bool isEventIdFilled()
 	 * @method bool isEventIdChanged()
-	 * @method \boolean getType()
-	 * @method \Bitrix\Socialnetwork\EO_LogView setType(\boolean|\Bitrix\Main\DB\SqlExpression $type)
-	 * @method bool hasType()
-	 * @method bool isTypeFilled()
-	 * @method bool isTypeChanged()
-	 * @method \boolean remindActualType()
-	 * @method \boolean requireType()
-	 * @method \Bitrix\Socialnetwork\EO_LogView resetType()
-	 * @method \Bitrix\Socialnetwork\EO_LogView unsetType()
-	 * @method \boolean fillType()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogView set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_LogView reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogView unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_LogView wakeUp($data)
-	 */
-	class EO_LogView {
-		/* @var \Bitrix\Socialnetwork\LogViewTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogViewTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_LogView_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getUserIdList()
-	 * @method \string[] getEventIdList()
-	 * @method \boolean[] getTypeList()
-	 * @method \boolean[] fillType()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_LogView $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_LogView $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogView getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogView[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogView $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_LogView_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_LogView current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_LogView_Collection merge(?\Bitrix\Socialnetwork\EO_LogView_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_LogView_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\LogViewTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogViewTable';
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_LogView_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_LogView fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogView_Collection fetchCollection()
-	 */
-	class EO_LogView_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogView fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogView_Collection fetchCollection()
-	 */
-	class EO_LogView_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogView createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_LogView_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_LogView wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_LogView_Collection wakeUpCollection($rows)
-	 */
-	class EO_LogView_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogTagTable:socialnetwork/lib/logtag.php */
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_LogTag
-	 * @see \Bitrix\Socialnetwork\LogTagTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getLogId()
-	 * @method \Bitrix\Socialnetwork\EO_LogTag setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
-	 * @method bool hasLogId()
-	 * @method bool isLogIdFilled()
-	 * @method bool isLogIdChanged()
-	 * @method \int remindActualLogId()
-	 * @method \int requireLogId()
-	 * @method \Bitrix\Socialnetwork\EO_LogTag resetLogId()
-	 * @method \Bitrix\Socialnetwork\EO_LogTag unsetLogId()
-	 * @method \int fillLogId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log getLog()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log remindActualLog()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log requireLog()
-	 * @method \Bitrix\Socialnetwork\EO_LogTag setLog(\Bitrix\Socialnetwork\Internals\Log\Log $object)
-	 * @method \Bitrix\Socialnetwork\EO_LogTag resetLog()
-	 * @method \Bitrix\Socialnetwork\EO_LogTag unsetLog()
-	 * @method bool hasLog()
-	 * @method bool isLogFilled()
-	 * @method bool isLogChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log fillLog()
-	 * @method \string getItemType()
-	 * @method \Bitrix\Socialnetwork\EO_LogTag setItemType(\string|\Bitrix\Main\DB\SqlExpression $itemType)
-	 * @method bool hasItemType()
-	 * @method bool isItemTypeFilled()
-	 * @method bool isItemTypeChanged()
-	 * @method \string getItemId()
-	 * @method \Bitrix\Socialnetwork\EO_LogTag setItemId(\string|\Bitrix\Main\DB\SqlExpression $itemId)
-	 * @method bool hasItemId()
-	 * @method bool isItemIdFilled()
-	 * @method bool isItemIdChanged()
-	 * @method \string getName()
-	 * @method \Bitrix\Socialnetwork\EO_LogTag setName(\string|\Bitrix\Main\DB\SqlExpression $name)
-	 * @method bool hasName()
-	 * @method bool isNameFilled()
-	 * @method bool isNameChanged()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogTag set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_LogTag reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogTag unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_LogTag wakeUp($data)
-	 */
-	class EO_LogTag {
-		/* @var \Bitrix\Socialnetwork\LogTagTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogTagTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_LogTag_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getLogIdList()
-	 * @method \int[] fillLogId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log[] getLogList()
-	 * @method \Bitrix\Socialnetwork\EO_LogTag_Collection getLogCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection fillLog()
-	 * @method \string[] getItemTypeList()
-	 * @method \string[] getItemIdList()
-	 * @method \string[] getNameList()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_LogTag $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_LogTag $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogTag getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogTag[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogTag $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_LogTag_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_LogTag current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_LogTag_Collection merge(?\Bitrix\Socialnetwork\EO_LogTag_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_LogTag_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\LogTagTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogTagTable';
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_LogTag_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_LogTag fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogTag_Collection fetchCollection()
-	 */
-	class EO_LogTag_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogTag fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogTag_Collection fetchCollection()
-	 */
-	class EO_LogTag_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogTag createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_LogTag_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_LogTag wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_LogTag_Collection wakeUpCollection($rows)
-	 */
-	class EO_LogTag_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\MemberToGroupTable:socialnetwork/lib/membertogroup.php */
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Member
-	 * @see \Bitrix\Socialnetwork\MemberToGroupTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\Space\Member setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
+	 * @method \string remindActualEventId()
+	 * @method \string requireEventId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetEventId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetEventId()
+	 * @method \string fillEventId()
 	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\Space\Member setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
 	 * @method bool hasUserId()
 	 * @method bool isUserIdFilled()
 	 * @method bool isUserIdChanged()
 	 * @method \int remindActualUserId()
 	 * @method \int requireUserId()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetUserId()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetUserId()
 	 * @method \int fillUserId()
-	 * @method \Bitrix\Intranet\EO_User getUser()
-	 * @method \Bitrix\Intranet\EO_User remindActualUser()
-	 * @method \Bitrix\Intranet\EO_User requireUser()
-	 * @method \Bitrix\Socialnetwork\Space\Member setUser(\Bitrix\Intranet\EO_User $object)
-	 * @method \Bitrix\Socialnetwork\Space\Member resetUser()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetUser()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetUser()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetUser()
 	 * @method bool hasUser()
 	 * @method bool isUserFilled()
 	 * @method bool isUserChanged()
-	 * @method \Bitrix\Intranet\EO_User fillUser()
-	 * @method \int getGroupId()
-	 * @method \Bitrix\Socialnetwork\Space\Member setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
-	 * @method bool hasGroupId()
-	 * @method bool isGroupIdFilled()
-	 * @method bool isGroupIdChanged()
-	 * @method \int remindActualGroupId()
-	 * @method \int requireGroupId()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetGroupId()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetGroupId()
-	 * @method \int fillGroupId()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity getGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity remindActualGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity requireGroup()
-	 * @method \Bitrix\Socialnetwork\Space\Member setGroup(\Bitrix\Socialnetwork\Internals\Group\GroupEntity $object)
-	 * @method \Bitrix\Socialnetwork\Space\Member resetGroup()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetGroup()
-	 * @method bool hasGroup()
-	 * @method bool isGroupFilled()
-	 * @method bool isGroupChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity fillGroup()
-	 * @method \string getRole()
-	 * @method \Bitrix\Socialnetwork\Space\Member setRole(\string|\Bitrix\Main\DB\SqlExpression $role)
-	 * @method bool hasRole()
-	 * @method bool isRoleFilled()
-	 * @method bool isRoleChanged()
-	 * @method \string remindActualRole()
-	 * @method \string requireRole()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetRole()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetRole()
-	 * @method \string fillRole()
-	 * @method \boolean getAutoMember()
-	 * @method \Bitrix\Socialnetwork\Space\Member setAutoMember(\boolean|\Bitrix\Main\DB\SqlExpression $autoMember)
-	 * @method bool hasAutoMember()
-	 * @method bool isAutoMemberFilled()
-	 * @method bool isAutoMemberChanged()
-	 * @method \boolean remindActualAutoMember()
-	 * @method \boolean requireAutoMember()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetAutoMember()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetAutoMember()
-	 * @method \boolean fillAutoMember()
-	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
-	 * @method \Bitrix\Socialnetwork\Space\Member setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
-	 * @method bool hasDateCreate()
-	 * @method bool isDateCreateFilled()
-	 * @method bool isDateCreateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetDateCreate()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime getDateUpdate()
-	 * @method \Bitrix\Socialnetwork\Space\Member setDateUpdate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateUpdate)
-	 * @method bool hasDateUpdate()
-	 * @method bool isDateUpdateFilled()
-	 * @method bool isDateUpdateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateUpdate()
-	 * @method \Bitrix\Main\Type\DateTime requireDateUpdate()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetDateUpdate()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetDateUpdate()
-	 * @method \Bitrix\Main\Type\DateTime fillDateUpdate()
-	 * @method \string getInitiatedByType()
-	 * @method \Bitrix\Socialnetwork\Space\Member setInitiatedByType(\string|\Bitrix\Main\DB\SqlExpression $initiatedByType)
-	 * @method bool hasInitiatedByType()
-	 * @method bool isInitiatedByTypeFilled()
-	 * @method bool isInitiatedByTypeChanged()
-	 * @method \string remindActualInitiatedByType()
-	 * @method \string requireInitiatedByType()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetInitiatedByType()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetInitiatedByType()
-	 * @method \string fillInitiatedByType()
-	 * @method \int getInitiatedByUserId()
-	 * @method \Bitrix\Socialnetwork\Space\Member setInitiatedByUserId(\int|\Bitrix\Main\DB\SqlExpression $initiatedByUserId)
-	 * @method bool hasInitiatedByUserId()
-	 * @method bool isInitiatedByUserIdFilled()
-	 * @method bool isInitiatedByUserIdChanged()
-	 * @method \int remindActualInitiatedByUserId()
-	 * @method \int requireInitiatedByUserId()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetInitiatedByUserId()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetInitiatedByUserId()
-	 * @method \int fillInitiatedByUserId()
-	 * @method \Bitrix\Main\EO_User getInitiatedByUser()
-	 * @method \Bitrix\Main\EO_User remindActualInitiatedByUser()
-	 * @method \Bitrix\Main\EO_User requireInitiatedByUser()
-	 * @method \Bitrix\Socialnetwork\Space\Member setInitiatedByUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Socialnetwork\Space\Member resetInitiatedByUser()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetInitiatedByUser()
-	 * @method bool hasInitiatedByUser()
-	 * @method bool isInitiatedByUserFilled()
-	 * @method bool isInitiatedByUserChanged()
-	 * @method \Bitrix\Main\EO_User fillInitiatedByUser()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 * @method \string getTitle()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setTitle(\string|\Bitrix\Main\DB\SqlExpression $title)
+	 * @method bool hasTitle()
+	 * @method bool isTitleFilled()
+	 * @method bool isTitleChanged()
+	 * @method \string remindActualTitle()
+	 * @method \string requireTitle()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetTitle()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetTitle()
+	 * @method \string fillTitle()
 	 * @method \string getMessage()
-	 * @method \Bitrix\Socialnetwork\Space\Member setMessage(\string|\Bitrix\Main\DB\SqlExpression $message)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setMessage(\string|\Bitrix\Main\DB\SqlExpression $message)
 	 * @method bool hasMessage()
 	 * @method bool isMessageFilled()
 	 * @method bool isMessageChanged()
 	 * @method \string remindActualMessage()
 	 * @method \string requireMessage()
-	 * @method \Bitrix\Socialnetwork\Space\Member resetMessage()
-	 * @method \Bitrix\Socialnetwork\Space\Member unsetMessage()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetMessage()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetMessage()
 	 * @method \string fillMessage()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\Space\Member set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\Space\Member reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\Space\Member unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\Space\Member wakeUp($data)
-	 */
-	class EO_MemberToGroup {
-		/* @var \Bitrix\Socialnetwork\MemberToGroupTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\MemberToGroupTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * MemberEntityCollection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getUserIdList()
-	 * @method \int[] fillUserId()
-	 * @method \Bitrix\Intranet\EO_User[] getUserList()
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection getUserCollection()
-	 * @method \Bitrix\Intranet\EO_User_Collection fillUser()
-	 * @method \int[] getGroupIdList()
-	 * @method \int[] fillGroupId()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity[] getGroupList()
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection getGroupCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection fillGroup()
-	 * @method \string[] getRoleList()
-	 * @method \string[] fillRole()
-	 * @method \boolean[] getAutoMemberList()
-	 * @method \boolean[] fillAutoMember()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateUpdateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateUpdate()
-	 * @method \string[] getInitiatedByTypeList()
-	 * @method \string[] fillInitiatedByType()
-	 * @method \int[] getInitiatedByUserIdList()
-	 * @method \int[] fillInitiatedByUserId()
-	 * @method \Bitrix\Main\EO_User[] getInitiatedByUserList()
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection getInitiatedByUserCollection()
-	 * @method \Bitrix\Main\EO_User_Collection fillInitiatedByUser()
-	 * @method \string[] getMessageList()
-	 * @method \string[] fillMessage()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\Space\Member $object)
-	 * @method bool has(\Bitrix\Socialnetwork\Space\Member $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Space\Member getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Space\Member[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\Space\Member $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\Space\Member current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection merge(?\Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_MemberToGroup_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\MemberToGroupTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\MemberToGroupTable';
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_MemberToGroup_Result exec()
-	 * @method \Bitrix\Socialnetwork\Space\Member fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection fetchCollection()
-	 */
-	class EO_MemberToGroup_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\Space\Member fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection fetchCollection()
-	 */
-	class EO_MemberToGroup_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\Space\Member createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection createCollection()
-	 * @method \Bitrix\Socialnetwork\Space\Member wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection wakeUpCollection($rows)
-	 */
-	class EO_MemberToGroup_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserContentViewTable:socialnetwork/lib/usercontentview.php */
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_UserContentView
-	 * @see \Bitrix\Socialnetwork\UserContentViewTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \Bitrix\Main\EO_User getUser()
-	 * @method \Bitrix\Main\EO_User remindActualUser()
-	 * @method \Bitrix\Main\EO_User requireUser()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView setUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView resetUser()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView unsetUser()
-	 * @method bool hasUser()
-	 * @method bool isUserFilled()
-	 * @method bool isUserChanged()
-	 * @method \Bitrix\Main\EO_User fillUser()
+	 * @method \string getTextMessage()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setTextMessage(\string|\Bitrix\Main\DB\SqlExpression $textMessage)
+	 * @method bool hasTextMessage()
+	 * @method bool isTextMessageFilled()
+	 * @method bool isTextMessageChanged()
+	 * @method \string remindActualTextMessage()
+	 * @method \string requireTextMessage()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetTextMessage()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetTextMessage()
+	 * @method \string fillTextMessage()
+	 * @method \string getUrl()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setUrl(\string|\Bitrix\Main\DB\SqlExpression $url)
+	 * @method bool hasUrl()
+	 * @method bool isUrlFilled()
+	 * @method bool isUrlChanged()
+	 * @method \string remindActualUrl()
+	 * @method \string requireUrl()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetUrl()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetUrl()
+	 * @method \string fillUrl()
+	 * @method \string getModuleId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setModuleId(\string|\Bitrix\Main\DB\SqlExpression $moduleId)
+	 * @method bool hasModuleId()
+	 * @method bool isModuleIdFilled()
+	 * @method bool isModuleIdChanged()
+	 * @method \string remindActualModuleId()
+	 * @method \string requireModuleId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetModuleId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetModuleId()
+	 * @method \string fillModuleId()
+	 * @method \string getParams()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setParams(\string|\Bitrix\Main\DB\SqlExpression $params)
+	 * @method bool hasParams()
+	 * @method bool isParamsFilled()
+	 * @method bool isParamsChanged()
+	 * @method \string remindActualParams()
+	 * @method \string requireParams()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetParams()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetParams()
+	 * @method \string fillParams()
+	 * @method \int getSourceId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setSourceId(\int|\Bitrix\Main\DB\SqlExpression $sourceId)
+	 * @method bool hasSourceId()
+	 * @method bool isSourceIdFilled()
+	 * @method bool isSourceIdChanged()
+	 * @method \int remindActualSourceId()
+	 * @method \int requireSourceId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetSourceId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetSourceId()
+	 * @method \int fillSourceId()
+	 * @method \Bitrix\Main\Type\DateTime getLogDate()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setLogDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $logDate)
+	 * @method bool hasLogDate()
+	 * @method bool isLogDateFilled()
+	 * @method bool isLogDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualLogDate()
+	 * @method \Bitrix\Main\Type\DateTime requireLogDate()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetLogDate()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetLogDate()
+	 * @method \Bitrix\Main\Type\DateTime fillLogDate()
+	 * @method \Bitrix\Main\Type\DateTime getLogUpdate()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setLogUpdate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $logUpdate)
+	 * @method bool hasLogUpdate()
+	 * @method bool isLogUpdateFilled()
+	 * @method bool isLogUpdateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualLogUpdate()
+	 * @method \Bitrix\Main\Type\DateTime requireLogUpdate()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetLogUpdate()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetLogUpdate()
+	 * @method \Bitrix\Main\Type\DateTime fillLogUpdate()
+	 * @method \int getCommentsCount()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setCommentsCount(\int|\Bitrix\Main\DB\SqlExpression $commentsCount)
+	 * @method bool hasCommentsCount()
+	 * @method bool isCommentsCountFilled()
+	 * @method bool isCommentsCountChanged()
+	 * @method \int remindActualCommentsCount()
+	 * @method \int requireCommentsCount()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetCommentsCount()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetCommentsCount()
+	 * @method \int fillCommentsCount()
+	 * @method \boolean getTransform()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setTransform(\boolean|\Bitrix\Main\DB\SqlExpression $transform)
+	 * @method bool hasTransform()
+	 * @method bool isTransformFilled()
+	 * @method bool isTransformChanged()
+	 * @method \boolean remindActualTransform()
+	 * @method \boolean requireTransform()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetTransform()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetTransform()
+	 * @method \boolean fillTransform()
+	 * @method \boolean getInactive()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setInactive(\boolean|\Bitrix\Main\DB\SqlExpression $inactive)
+	 * @method bool hasInactive()
+	 * @method bool isInactiveFilled()
+	 * @method bool isInactiveChanged()
+	 * @method \boolean remindActualInactive()
+	 * @method \boolean requireInactive()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetInactive()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetInactive()
+	 * @method \boolean fillInactive()
 	 * @method \string getRatingTypeId()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView setRatingTypeId(\string|\Bitrix\Main\DB\SqlExpression $ratingTypeId)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setRatingTypeId(\string|\Bitrix\Main\DB\SqlExpression $ratingTypeId)
 	 * @method bool hasRatingTypeId()
 	 * @method bool isRatingTypeIdFilled()
 	 * @method bool isRatingTypeIdChanged()
+	 * @method \string remindActualRatingTypeId()
+	 * @method \string requireRatingTypeId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetRatingTypeId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetRatingTypeId()
+	 * @method \string fillRatingTypeId()
 	 * @method \int getRatingEntityId()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView setRatingEntityId(\int|\Bitrix\Main\DB\SqlExpression $ratingEntityId)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setRatingEntityId(\int|\Bitrix\Main\DB\SqlExpression $ratingEntityId)
 	 * @method bool hasRatingEntityId()
 	 * @method bool isRatingEntityIdFilled()
 	 * @method bool isRatingEntityIdChanged()
-	 * @method \string getContentId()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView setContentId(\string|\Bitrix\Main\DB\SqlExpression $contentId)
-	 * @method bool hasContentId()
-	 * @method bool isContentIdFilled()
-	 * @method bool isContentIdChanged()
-	 * @method \string remindActualContentId()
-	 * @method \string requireContentId()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView resetContentId()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView unsetContentId()
-	 * @method \string fillContentId()
-	 * @method \Bitrix\Main\Type\DateTime getDateView()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView setDateView(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateView)
-	 * @method bool hasDateView()
-	 * @method bool isDateViewFilled()
-	 * @method bool isDateViewChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateView()
-	 * @method \Bitrix\Main\Type\DateTime requireDateView()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView resetDateView()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView unsetDateView()
-	 * @method \Bitrix\Main\Type\DateTime fillDateView()
+	 * @method \int remindActualRatingEntityId()
+	 * @method \int requireRatingEntityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetRatingEntityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetRatingEntityId()
+	 * @method \int fillRatingEntityId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -2286,9 +1204,9 @@ namespace Bitrix\Socialnetwork {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView unset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -2296,11 +1214,11 @@ namespace Bitrix\Socialnetwork {
 	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_UserContentView wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\Internals\Log\Log wakeUp($data)
 	 */
-	class EO_UserContentView {
-		/* @var \Bitrix\Socialnetwork\UserContentViewTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\UserContentViewTable';
+	class EO_Log {
+		/* @var \Bitrix\Socialnetwork\LogTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
@@ -2309,53 +1227,83 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_UserContentView_Collection
+	 * LogCollection
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getEntityTypeList()
+	 * @method \string[] fillEntityType()
+	 * @method \int[] getEntityIdList()
+	 * @method \int[] fillEntityId()
+	 * @method \string[] getEventIdList()
+	 * @method \string[] fillEventId()
 	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
 	 * @method \Bitrix\Main\EO_User[] getUserList()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView_Collection getUserCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection getUserCollection()
 	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 * @method \string[] getTitleList()
+	 * @method \string[] fillTitle()
+	 * @method \string[] getMessageList()
+	 * @method \string[] fillMessage()
+	 * @method \string[] getTextMessageList()
+	 * @method \string[] fillTextMessage()
+	 * @method \string[] getUrlList()
+	 * @method \string[] fillUrl()
+	 * @method \string[] getModuleIdList()
+	 * @method \string[] fillModuleId()
+	 * @method \string[] getParamsList()
+	 * @method \string[] fillParams()
+	 * @method \int[] getSourceIdList()
+	 * @method \int[] fillSourceId()
+	 * @method \Bitrix\Main\Type\DateTime[] getLogDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillLogDate()
+	 * @method \Bitrix\Main\Type\DateTime[] getLogUpdateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillLogUpdate()
+	 * @method \int[] getCommentsCountList()
+	 * @method \int[] fillCommentsCount()
+	 * @method \boolean[] getTransformList()
+	 * @method \boolean[] fillTransform()
+	 * @method \boolean[] getInactiveList()
+	 * @method \boolean[] fillInactive()
 	 * @method \string[] getRatingTypeIdList()
+	 * @method \string[] fillRatingTypeId()
 	 * @method \int[] getRatingEntityIdList()
-	 * @method \string[] getContentIdList()
-	 * @method \string[] fillContentId()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateViewList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateView()
+	 * @method \int[] fillRatingEntityId()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_UserContentView $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_UserContentView $object)
+	 * @method void add(\Bitrix\Socialnetwork\Internals\Log\Log $object)
+	 * @method bool has(\Bitrix\Socialnetwork\Internals\Log\Log $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_UserContentView $object)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\Internals\Log\Log $object)
 	 * @method void removeByPrimary($primary)
 	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_UserContentView_Collection wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\Internals\Log\LogCollection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView current() Iterator
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView_Collection merge(?\Bitrix\Socialnetwork\EO_UserContentView_Collection $collection)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection merge(?\Bitrix\Socialnetwork\Internals\Log\LogCollection $collection)
 	 * @method bool isEmpty()
 	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
-	class EO_UserContentView_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\UserContentViewTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\UserContentViewTable';
+	class EO_Log_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\LogTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogTable';
 	}
 }
 namespace Bitrix\Socialnetwork {
@@ -2363,88 +1311,68 @@ namespace Bitrix\Socialnetwork {
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_UserContentView_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView_Collection fetchCollection()
+	 * @method EO_Log_Result exec()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection fetchCollection()
 	 */
-	class EO_UserContentView_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_Log_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView_Collection fetchCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection fetchCollection()
 	 */
-	class EO_UserContentView_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_Log_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_UserContentView_Collection wakeUpCollection($rows)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection createCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection wakeUpCollection($rows)
 	 */
-	class EO_UserContentView_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_Log_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupPinTable:socialnetwork/lib/workgrouppin.php */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserWelltoryDisclaimerTable:socialnetwork/lib/userwelltorydisclaimer.php */
 namespace Bitrix\Socialnetwork {
 	/**
-	 * Pin
-	 * @see \Bitrix\Socialnetwork\WorkgroupPinTable
+	 * EO_UserWelltoryDisclaimer
+	 * @see \Bitrix\Socialnetwork\UserWelltoryDisclaimerTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer setId(\int|\Bitrix\Main\DB\SqlExpression $id)
 	 * @method bool hasId()
 	 * @method bool isIdFilled()
 	 * @method bool isIdChanged()
 	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
 	 * @method bool hasUserId()
 	 * @method bool isUserIdFilled()
 	 * @method bool isUserIdChanged()
 	 * @method \int remindActualUserId()
 	 * @method \int requireUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin resetUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin unsetUserId()
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer resetUserId()
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer unsetUserId()
 	 * @method \int fillUserId()
 	 * @method \Bitrix\Main\EO_User getUser()
 	 * @method \Bitrix\Main\EO_User remindActualUser()
 	 * @method \Bitrix\Main\EO_User requireUser()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin setUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin resetUser()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin unsetUser()
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer resetUser()
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer unsetUser()
 	 * @method bool hasUser()
 	 * @method bool isUserFilled()
 	 * @method bool isUserChanged()
 	 * @method \Bitrix\Main\EO_User fillUser()
-	 * @method \int getGroupId()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
-	 * @method bool hasGroupId()
-	 * @method bool isGroupIdFilled()
-	 * @method bool isGroupIdChanged()
-	 * @method \int remindActualGroupId()
-	 * @method \int requireGroupId()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin resetGroupId()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin unsetGroupId()
-	 * @method \int fillGroupId()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity getGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity remindActualGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity requireGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin setGroup(\Bitrix\Socialnetwork\Internals\Group\GroupEntity $object)
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin resetGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin unsetGroup()
-	 * @method bool hasGroup()
-	 * @method bool isGroupFilled()
-	 * @method bool isGroupChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity fillGroup()
-	 * @method \string getContext()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin setContext(\string|\Bitrix\Main\DB\SqlExpression $context)
-	 * @method bool hasContext()
-	 * @method bool isContextFilled()
-	 * @method bool isContextChanged()
-	 * @method \string remindActualContext()
-	 * @method \string requireContext()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin resetContext()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin unsetContext()
-	 * @method \string fillContext()
+	 * @method \Bitrix\Main\Type\DateTime getDateSigned()
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer setDateSigned(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateSigned)
+	 * @method bool hasDateSigned()
+	 * @method bool isDateSignedFilled()
+	 * @method bool isDateSignedChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateSigned()
+	 * @method \Bitrix\Main\Type\DateTime requireDateSigned()
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer resetDateSigned()
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer unsetDateSigned()
+	 * @method \Bitrix\Main\Type\DateTime fillDateSigned()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -2460,9 +1388,9 @@ namespace Bitrix\Socialnetwork {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin unset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -2470,11 +1398,11 @@ namespace Bitrix\Socialnetwork {
 	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\Internals\Pin\Pin wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer wakeUp($data)
 	 */
-	class EO_WorkgroupPin {
-		/* @var \Bitrix\Socialnetwork\WorkgroupPinTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupPinTable';
+	class EO_UserWelltoryDisclaimer {
+		/* @var \Bitrix\Socialnetwork\UserWelltoryDisclaimerTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\UserWelltoryDisclaimerTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
@@ -2483,7 +1411,7 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * PinCollection
+	 * EO_UserWelltoryDisclaimer_Collection
 	 *
 	 * Custom methods:
 	 * ---------------
@@ -2492,47 +1420,42 @@ namespace Bitrix\Socialnetwork {
 	 * @method \int[] getUserIdList()
 	 * @method \int[] fillUserId()
 	 * @method \Bitrix\Main\EO_User[] getUserList()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection getUserCollection()
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection getUserCollection()
 	 * @method \Bitrix\Main\EO_User_Collection fillUser()
-	 * @method \int[] getGroupIdList()
-	 * @method \int[] fillGroupId()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity[] getGroupList()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection getGroupCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection fillGroup()
-	 * @method \string[] getContextList()
-	 * @method \string[] fillContext()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateSignedList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateSigned()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\Internals\Pin\Pin $object)
-	 * @method bool has(\Bitrix\Socialnetwork\Internals\Pin\Pin $object)
+	 * @method void add(\Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\Internals\Pin\Pin $object)
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer $object)
 	 * @method void removeByPrimary($primary)
 	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\Internals\Pin\PinCollection wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin current() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection merge(?\Bitrix\Socialnetwork\Internals\Pin\PinCollection $collection)
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection merge(?\Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection $collection)
 	 * @method bool isEmpty()
 	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
-	class EO_WorkgroupPin_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\WorkgroupPinTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupPinTable';
+	class EO_UserWelltoryDisclaimer_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\UserWelltoryDisclaimerTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\UserWelltoryDisclaimerTable';
 	}
 }
 namespace Bitrix\Socialnetwork {
@@ -2540,400 +1463,23 @@ namespace Bitrix\Socialnetwork {
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_WorkgroupPin_Result exec()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection fetchCollection()
+	 * @method EO_UserWelltoryDisclaimer_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection fetchCollection()
 	 */
-	class EO_WorkgroupPin_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_UserWelltoryDisclaimer_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection fetchCollection()
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection fetchCollection()
 	 */
-	class EO_WorkgroupPin_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_UserWelltoryDisclaimer_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection createCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection wakeUpCollection($rows)
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection wakeUpCollection($rows)
 	 */
-	class EO_WorkgroupPin_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterTable:socialnetwork/lib/internals/livefeed/counter/countertable.php */
-namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter {
-	/**
-	 * EO_Counter
-	 * @see \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \int remindActualUserId()
-	 * @method \int requireUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetUserId()
-	 * @method \int fillUserId()
-	 * @method \int getSonetLogId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setSonetLogId(\int|\Bitrix\Main\DB\SqlExpression $sonetLogId)
-	 * @method bool hasSonetLogId()
-	 * @method bool isSonetLogIdFilled()
-	 * @method bool isSonetLogIdChanged()
-	 * @method \int remindActualSonetLogId()
-	 * @method \int requireSonetLogId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetSonetLogId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetSonetLogId()
-	 * @method \int fillSonetLogId()
-	 * @method \int getGroupId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
-	 * @method bool hasGroupId()
-	 * @method bool isGroupIdFilled()
-	 * @method bool isGroupIdChanged()
-	 * @method \int remindActualGroupId()
-	 * @method \int requireGroupId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetGroupId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetGroupId()
-	 * @method \int fillGroupId()
-	 * @method \string getType()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setType(\string|\Bitrix\Main\DB\SqlExpression $type)
-	 * @method bool hasType()
-	 * @method bool isTypeFilled()
-	 * @method bool isTypeChanged()
-	 * @method \string remindActualType()
-	 * @method \string requireType()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetType()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetType()
-	 * @method \string fillType()
-	 * @method \int getValue()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setValue(\int|\Bitrix\Main\DB\SqlExpression $value)
-	 * @method bool hasValue()
-	 * @method bool isValueFilled()
-	 * @method bool isValueChanged()
-	 * @method \int remindActualValue()
-	 * @method \int requireValue()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetValue()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetValue()
-	 * @method \int fillValue()
-	 * @method \Bitrix\Main\EO_User getUser()
-	 * @method \Bitrix\Main\EO_User remindActualUser()
-	 * @method \Bitrix\Main\EO_User requireUser()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetUser()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetUser()
-	 * @method bool hasUser()
-	 * @method bool isUserFilled()
-	 * @method bool isUserChanged()
-	 * @method \Bitrix\Main\EO_User fillUser()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity getGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity remindActualGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity requireGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setGroup(\Bitrix\Socialnetwork\Internals\Group\GroupEntity $object)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetGroup()
-	 * @method bool hasGroup()
-	 * @method bool isGroupFilled()
-	 * @method bool isGroupChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity fillGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log getSonetLog()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log remindActualSonetLog()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log requireSonetLog()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setSonetLog(\Bitrix\Socialnetwork\Internals\Log\Log $object)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetSonetLog()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetSonetLog()
-	 * @method bool hasSonetLog()
-	 * @method bool isSonetLogFilled()
-	 * @method bool isSonetLogChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log fillSonetLog()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter wakeUp($data)
-	 */
-	class EO_Counter {
-		/* @var \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter {
-	/**
-	 * EO_Counter_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getUserIdList()
-	 * @method \int[] fillUserId()
-	 * @method \int[] getSonetLogIdList()
-	 * @method \int[] fillSonetLogId()
-	 * @method \int[] getGroupIdList()
-	 * @method \int[] fillGroupId()
-	 * @method \string[] getTypeList()
-	 * @method \string[] fillType()
-	 * @method \int[] getValueList()
-	 * @method \int[] fillValue()
-	 * @method \Bitrix\Main\EO_User[] getUserList()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection getUserCollection()
-	 * @method \Bitrix\Main\EO_User_Collection fillUser()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity[] getGroupList()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection getGroupCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection fillGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log[] getSonetLogList()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection getSonetLogCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection fillSonetLog()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter $object)
-	 * @method bool has(\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection merge(?\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_Counter_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterTable';
-	}
-}
-namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_Counter_Result exec()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection fetchCollection()
-	 */
-	class EO_Counter_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection fetchCollection()
-	 */
-	class EO_Counter_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection wakeUpCollection($rows)
-	 */
-	class EO_Counter_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\QueueTable:socialnetwork/lib/internals/livefeed/counter/queue/queuetable.php */
-namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue {
-	/**
-	 * EO_Queue
-	 * @see \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\QueueTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \int remindActualUserId()
-	 * @method \int requireUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue resetUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue unsetUserId()
-	 * @method \int fillUserId()
-	 * @method \string getType()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue setType(\string|\Bitrix\Main\DB\SqlExpression $type)
-	 * @method bool hasType()
-	 * @method bool isTypeFilled()
-	 * @method bool isTypeChanged()
-	 * @method \string remindActualType()
-	 * @method \string requireType()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue resetType()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue unsetType()
-	 * @method \string fillType()
-	 * @method \int getSonetLogId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue setSonetLogId(\int|\Bitrix\Main\DB\SqlExpression $sonetLogId)
-	 * @method bool hasSonetLogId()
-	 * @method bool isSonetLogIdFilled()
-	 * @method bool isSonetLogIdChanged()
-	 * @method \int remindActualSonetLogId()
-	 * @method \int requireSonetLogId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue resetSonetLogId()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue unsetSonetLogId()
-	 * @method \int fillSonetLogId()
-	 * @method \Bitrix\Main\Type\DateTime getDatetime()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue setDatetime(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $datetime)
-	 * @method bool hasDatetime()
-	 * @method bool isDatetimeFilled()
-	 * @method bool isDatetimeChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDatetime()
-	 * @method \Bitrix\Main\Type\DateTime requireDatetime()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue resetDatetime()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue unsetDatetime()
-	 * @method \Bitrix\Main\Type\DateTime fillDatetime()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue wakeUp($data)
-	 */
-	class EO_Queue {
-		/* @var \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\QueueTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\QueueTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue {
-	/**
-	 * EO_Queue_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getUserIdList()
-	 * @method \int[] fillUserId()
-	 * @method \string[] getTypeList()
-	 * @method \string[] fillType()
-	 * @method \int[] getSonetLogIdList()
-	 * @method \int[] fillSonetLogId()
-	 * @method \Bitrix\Main\Type\DateTime[] getDatetimeList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDatetime()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue $object)
-	 * @method bool has(\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection merge(?\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_Queue_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\QueueTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\QueueTable';
-	}
-}
-namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_Queue_Result exec()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection fetchCollection()
-	 */
-	class EO_Queue_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection fetchCollection()
-	 */
-	class EO_Queue_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection wakeUpCollection($rows)
-	 */
-	class EO_Queue_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_UserWelltoryDisclaimer_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Internals\EventService\EventTable:socialnetwork/lib/internals/eventservice/eventtable.php */
 namespace Bitrix\Socialnetwork\Internals\EventService {
@@ -3284,6 +1830,560 @@ namespace Bitrix\Socialnetwork\Internals\EventService\Queue {
 	 * @method \Bitrix\Socialnetwork\Internals\EventService\Queue\EO_Queue_Collection wakeUpCollection($rows)
 	 */
 	class EO_Queue_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\QueueTable:socialnetwork/lib/internals/livefeed/counter/queue/queuetable.php */
+namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue {
+	/**
+	 * EO_Queue
+	 * @see \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\QueueTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue resetUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \string getType()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue setType(\string|\Bitrix\Main\DB\SqlExpression $type)
+	 * @method bool hasType()
+	 * @method bool isTypeFilled()
+	 * @method bool isTypeChanged()
+	 * @method \string remindActualType()
+	 * @method \string requireType()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue resetType()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue unsetType()
+	 * @method \string fillType()
+	 * @method \int getSonetLogId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue setSonetLogId(\int|\Bitrix\Main\DB\SqlExpression $sonetLogId)
+	 * @method bool hasSonetLogId()
+	 * @method bool isSonetLogIdFilled()
+	 * @method bool isSonetLogIdChanged()
+	 * @method \int remindActualSonetLogId()
+	 * @method \int requireSonetLogId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue resetSonetLogId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue unsetSonetLogId()
+	 * @method \int fillSonetLogId()
+	 * @method \Bitrix\Main\Type\DateTime getDatetime()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue setDatetime(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $datetime)
+	 * @method bool hasDatetime()
+	 * @method bool isDatetimeFilled()
+	 * @method bool isDatetimeChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDatetime()
+	 * @method \Bitrix\Main\Type\DateTime requireDatetime()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue resetDatetime()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue unsetDatetime()
+	 * @method \Bitrix\Main\Type\DateTime fillDatetime()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue wakeUp($data)
+	 */
+	class EO_Queue {
+		/* @var \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\QueueTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\QueueTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue {
+	/**
+	 * EO_Queue_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \string[] getTypeList()
+	 * @method \string[] fillType()
+	 * @method \int[] getSonetLogIdList()
+	 * @method \int[] fillSonetLogId()
+	 * @method \Bitrix\Main\Type\DateTime[] getDatetimeList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDatetime()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue $object)
+	 * @method bool has(\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection merge(?\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_Queue_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\QueueTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\QueueTable';
+	}
+}
+namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Queue_Result exec()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection fetchCollection()
+	 */
+	class EO_Queue_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection fetchCollection()
+	 */
+	class EO_Queue_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\EO_Queue_Collection wakeUpCollection($rows)
+	 */
+	class EO_Queue_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterTable:socialnetwork/lib/internals/livefeed/counter/countertable.php */
+namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter {
+	/**
+	 * EO_Counter
+	 * @see \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \int getSonetLogId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setSonetLogId(\int|\Bitrix\Main\DB\SqlExpression $sonetLogId)
+	 * @method bool hasSonetLogId()
+	 * @method bool isSonetLogIdFilled()
+	 * @method bool isSonetLogIdChanged()
+	 * @method \int remindActualSonetLogId()
+	 * @method \int requireSonetLogId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetSonetLogId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetSonetLogId()
+	 * @method \int fillSonetLogId()
+	 * @method \int getGroupId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
+	 * @method bool hasGroupId()
+	 * @method bool isGroupIdFilled()
+	 * @method bool isGroupIdChanged()
+	 * @method \int remindActualGroupId()
+	 * @method \int requireGroupId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetGroupId()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetGroupId()
+	 * @method \int fillGroupId()
+	 * @method \string getType()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setType(\string|\Bitrix\Main\DB\SqlExpression $type)
+	 * @method bool hasType()
+	 * @method bool isTypeFilled()
+	 * @method bool isTypeChanged()
+	 * @method \string remindActualType()
+	 * @method \string requireType()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetType()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetType()
+	 * @method \string fillType()
+	 * @method \int getValue()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setValue(\int|\Bitrix\Main\DB\SqlExpression $value)
+	 * @method bool hasValue()
+	 * @method bool isValueFilled()
+	 * @method bool isValueChanged()
+	 * @method \int remindActualValue()
+	 * @method \int requireValue()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetValue()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetValue()
+	 * @method \int fillValue()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetUser()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity getGroup()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity remindActualGroup()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity requireGroup()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setGroup(\Bitrix\Socialnetwork\Internals\Group\GroupEntity $object)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetGroup()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetGroup()
+	 * @method bool hasGroup()
+	 * @method bool isGroupFilled()
+	 * @method bool isGroupChanged()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity fillGroup()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log getSonetLog()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log remindActualSonetLog()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log requireSonetLog()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter setSonetLog(\Bitrix\Socialnetwork\Internals\Log\Log $object)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter resetSonetLog()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unsetSonetLog()
+	 * @method bool hasSonetLog()
+	 * @method bool isSonetLogFilled()
+	 * @method bool isSonetLogChanged()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log fillSonetLog()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter wakeUp($data)
+	 */
+	class EO_Counter {
+		/* @var \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter {
+	/**
+	 * EO_Counter_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \int[] getSonetLogIdList()
+	 * @method \int[] fillSonetLogId()
+	 * @method \int[] getGroupIdList()
+	 * @method \int[] fillGroupId()
+	 * @method \string[] getTypeList()
+	 * @method \string[] fillType()
+	 * @method \int[] getValueList()
+	 * @method \int[] fillValue()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity[] getGroupList()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection getGroupCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection fillGroup()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log[] getSonetLogList()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection getSonetLogCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection fillSonetLog()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter $object)
+	 * @method bool has(\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection merge(?\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_Counter_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterTable';
+	}
+}
+namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Counter_Result exec()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection fetchCollection()
+	 */
+	class EO_Counter_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection fetchCollection()
+	 */
+	class EO_Counter_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\EO_Counter_Collection wakeUpCollection($rows)
+	 */
+	class EO_Counter_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupPinTable:socialnetwork/lib/workgrouppin.php */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Pin
+	 * @see \Bitrix\Socialnetwork\WorkgroupPinTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin resetUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin resetUser()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 * @method \int getGroupId()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
+	 * @method bool hasGroupId()
+	 * @method bool isGroupIdFilled()
+	 * @method bool isGroupIdChanged()
+	 * @method \int remindActualGroupId()
+	 * @method \int requireGroupId()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin resetGroupId()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin unsetGroupId()
+	 * @method \int fillGroupId()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity getGroup()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity remindActualGroup()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity requireGroup()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin setGroup(\Bitrix\Socialnetwork\Internals\Group\GroupEntity $object)
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin resetGroup()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin unsetGroup()
+	 * @method bool hasGroup()
+	 * @method bool isGroupFilled()
+	 * @method bool isGroupChanged()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity fillGroup()
+	 * @method \string getContext()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin setContext(\string|\Bitrix\Main\DB\SqlExpression $context)
+	 * @method bool hasContext()
+	 * @method bool isContextFilled()
+	 * @method bool isContextChanged()
+	 * @method \string remindActualContext()
+	 * @method \string requireContext()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin resetContext()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin unsetContext()
+	 * @method \string fillContext()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\Internals\Pin\Pin wakeUp($data)
+	 */
+	class EO_WorkgroupPin {
+		/* @var \Bitrix\Socialnetwork\WorkgroupPinTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupPinTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * PinCollection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 * @method \int[] getGroupIdList()
+	 * @method \int[] fillGroupId()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity[] getGroupList()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection getGroupCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection fillGroup()
+	 * @method \string[] getContextList()
+	 * @method \string[] fillContext()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\Internals\Pin\Pin $object)
+	 * @method bool has(\Bitrix\Socialnetwork\Internals\Pin\Pin $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\Internals\Pin\Pin $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\Internals\Pin\PinCollection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection merge(?\Bitrix\Socialnetwork\Internals\Pin\PinCollection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_WorkgroupPin_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\WorkgroupPinTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupPinTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_WorkgroupPin_Result exec()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection fetchCollection()
+	 */
+	class EO_WorkgroupPin_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection fetchCollection()
+	 */
+	class EO_WorkgroupPin_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection createCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\Pin wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\Internals\Pin\PinCollection wakeUpCollection($rows)
+	 */
+	class EO_WorkgroupPin_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupTable:socialnetwork/lib/workgroup.php */
 namespace Bitrix\Socialnetwork {
@@ -3790,357 +2890,50 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_Workgroup_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupSiteTable:socialnetwork/lib/workgroupsite.php */
-namespace Bitrix\Socialnetwork {
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserLatestActivityTable:socialnetwork/lib/internals/space/recentactivity/spaceuserlatestactivitytable.php */
+namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
 	/**
-	 * EO_WorkgroupSite
-	 * @see \Bitrix\Socialnetwork\WorkgroupSiteTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getGroupId()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
-	 * @method bool hasGroupId()
-	 * @method bool isGroupIdFilled()
-	 * @method bool isGroupIdChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity getGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity remindActualGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity requireGroup()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite setGroup(\Bitrix\Socialnetwork\Internals\Group\GroupEntity $object)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite resetGroup()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite unsetGroup()
-	 * @method bool hasGroup()
-	 * @method bool isGroupFilled()
-	 * @method bool isGroupChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity fillGroup()
-	 * @method \string getSiteId()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
-	 * @method bool hasSiteId()
-	 * @method bool isSiteIdFilled()
-	 * @method bool isSiteIdChanged()
-	 * @method \Bitrix\Main\EO_Site getSite()
-	 * @method \Bitrix\Main\EO_Site remindActualSite()
-	 * @method \Bitrix\Main\EO_Site requireSite()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite setSite(\Bitrix\Main\EO_Site $object)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite resetSite()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite unsetSite()
-	 * @method bool hasSite()
-	 * @method bool isSiteFilled()
-	 * @method bool isSiteChanged()
-	 * @method \Bitrix\Main\EO_Site fillSite()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite wakeUp($data)
-	 */
-	class EO_WorkgroupSite {
-		/* @var \Bitrix\Socialnetwork\WorkgroupSiteTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupSiteTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * SiteEntityCollection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getGroupIdList()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity[] getGroupList()
-	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection getGroupCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection fillGroup()
-	 * @method \string[] getSiteIdList()
-	 * @method \Bitrix\Main\EO_Site[] getSiteList()
-	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection getSiteCollection()
-	 * @method \Bitrix\Main\EO_Site_Collection fillSite()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_WorkgroupSite $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_WorkgroupSite $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_WorkgroupSite $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection merge(?\Bitrix\Socialnetwork\Internals\site\SiteEntityCollection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_WorkgroupSite_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\WorkgroupSiteTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupSiteTable';
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_WorkgroupSite_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection fetchCollection()
-	 */
-	class EO_WorkgroupSite_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection fetchCollection()
-	 */
-	class EO_WorkgroupSite_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSite wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection wakeUpCollection($rows)
-	 */
-	class EO_WorkgroupSite_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogTable:socialnetwork/lib/log.php */
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Log
-	 * @see \Bitrix\Socialnetwork\LogTable
+	 * EO_SpaceUserLatestActivity
+	 * @see \Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserLatestActivityTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity setId(\int|\Bitrix\Main\DB\SqlExpression $id)
 	 * @method bool hasId()
 	 * @method bool isIdFilled()
 	 * @method bool isIdChanged()
-	 * @method \string getEntityType()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
-	 * @method bool hasEntityType()
-	 * @method bool isEntityTypeFilled()
-	 * @method bool isEntityTypeChanged()
-	 * @method \string remindActualEntityType()
-	 * @method \string requireEntityType()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetEntityType()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetEntityType()
-	 * @method \string fillEntityType()
-	 * @method \int getEntityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
-	 * @method bool hasEntityId()
-	 * @method bool isEntityIdFilled()
-	 * @method bool isEntityIdChanged()
-	 * @method \int remindActualEntityId()
-	 * @method \int requireEntityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetEntityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetEntityId()
-	 * @method \int fillEntityId()
-	 * @method \string getEventId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setEventId(\string|\Bitrix\Main\DB\SqlExpression $eventId)
-	 * @method bool hasEventId()
-	 * @method bool isEventIdFilled()
-	 * @method bool isEventIdChanged()
-	 * @method \string remindActualEventId()
-	 * @method \string requireEventId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetEventId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetEventId()
-	 * @method \string fillEventId()
 	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
 	 * @method bool hasUserId()
 	 * @method bool isUserIdFilled()
 	 * @method bool isUserIdChanged()
 	 * @method \int remindActualUserId()
 	 * @method \int requireUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity resetUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity unsetUserId()
 	 * @method \int fillUserId()
-	 * @method \Bitrix\Main\EO_User getUser()
-	 * @method \Bitrix\Main\EO_User remindActualUser()
-	 * @method \Bitrix\Main\EO_User requireUser()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetUser()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetUser()
-	 * @method bool hasUser()
-	 * @method bool isUserFilled()
-	 * @method bool isUserChanged()
-	 * @method \Bitrix\Main\EO_User fillUser()
-	 * @method \string getTitle()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setTitle(\string|\Bitrix\Main\DB\SqlExpression $title)
-	 * @method bool hasTitle()
-	 * @method bool isTitleFilled()
-	 * @method bool isTitleChanged()
-	 * @method \string remindActualTitle()
-	 * @method \string requireTitle()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetTitle()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetTitle()
-	 * @method \string fillTitle()
-	 * @method \string getMessage()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setMessage(\string|\Bitrix\Main\DB\SqlExpression $message)
-	 * @method bool hasMessage()
-	 * @method bool isMessageFilled()
-	 * @method bool isMessageChanged()
-	 * @method \string remindActualMessage()
-	 * @method \string requireMessage()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetMessage()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetMessage()
-	 * @method \string fillMessage()
-	 * @method \string getTextMessage()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setTextMessage(\string|\Bitrix\Main\DB\SqlExpression $textMessage)
-	 * @method bool hasTextMessage()
-	 * @method bool isTextMessageFilled()
-	 * @method bool isTextMessageChanged()
-	 * @method \string remindActualTextMessage()
-	 * @method \string requireTextMessage()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetTextMessage()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetTextMessage()
-	 * @method \string fillTextMessage()
-	 * @method \string getUrl()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setUrl(\string|\Bitrix\Main\DB\SqlExpression $url)
-	 * @method bool hasUrl()
-	 * @method bool isUrlFilled()
-	 * @method bool isUrlChanged()
-	 * @method \string remindActualUrl()
-	 * @method \string requireUrl()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetUrl()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetUrl()
-	 * @method \string fillUrl()
-	 * @method \string getModuleId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setModuleId(\string|\Bitrix\Main\DB\SqlExpression $moduleId)
-	 * @method bool hasModuleId()
-	 * @method bool isModuleIdFilled()
-	 * @method bool isModuleIdChanged()
-	 * @method \string remindActualModuleId()
-	 * @method \string requireModuleId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetModuleId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetModuleId()
-	 * @method \string fillModuleId()
-	 * @method \string getParams()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setParams(\string|\Bitrix\Main\DB\SqlExpression $params)
-	 * @method bool hasParams()
-	 * @method bool isParamsFilled()
-	 * @method bool isParamsChanged()
-	 * @method \string remindActualParams()
-	 * @method \string requireParams()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetParams()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetParams()
-	 * @method \string fillParams()
-	 * @method \int getSourceId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setSourceId(\int|\Bitrix\Main\DB\SqlExpression $sourceId)
-	 * @method bool hasSourceId()
-	 * @method bool isSourceIdFilled()
-	 * @method bool isSourceIdChanged()
-	 * @method \int remindActualSourceId()
-	 * @method \int requireSourceId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetSourceId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetSourceId()
-	 * @method \int fillSourceId()
-	 * @method \Bitrix\Main\Type\DateTime getLogDate()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setLogDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $logDate)
-	 * @method bool hasLogDate()
-	 * @method bool isLogDateFilled()
-	 * @method bool isLogDateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualLogDate()
-	 * @method \Bitrix\Main\Type\DateTime requireLogDate()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetLogDate()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetLogDate()
-	 * @method \Bitrix\Main\Type\DateTime fillLogDate()
-	 * @method \Bitrix\Main\Type\DateTime getLogUpdate()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setLogUpdate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $logUpdate)
-	 * @method bool hasLogUpdate()
-	 * @method bool isLogUpdateFilled()
-	 * @method bool isLogUpdateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualLogUpdate()
-	 * @method \Bitrix\Main\Type\DateTime requireLogUpdate()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetLogUpdate()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetLogUpdate()
-	 * @method \Bitrix\Main\Type\DateTime fillLogUpdate()
-	 * @method \int getCommentsCount()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setCommentsCount(\int|\Bitrix\Main\DB\SqlExpression $commentsCount)
-	 * @method bool hasCommentsCount()
-	 * @method bool isCommentsCountFilled()
-	 * @method bool isCommentsCountChanged()
-	 * @method \int remindActualCommentsCount()
-	 * @method \int requireCommentsCount()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetCommentsCount()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetCommentsCount()
-	 * @method \int fillCommentsCount()
-	 * @method \boolean getTransform()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setTransform(\boolean|\Bitrix\Main\DB\SqlExpression $transform)
-	 * @method bool hasTransform()
-	 * @method bool isTransformFilled()
-	 * @method bool isTransformChanged()
-	 * @method \boolean remindActualTransform()
-	 * @method \boolean requireTransform()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetTransform()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetTransform()
-	 * @method \boolean fillTransform()
-	 * @method \boolean getInactive()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setInactive(\boolean|\Bitrix\Main\DB\SqlExpression $inactive)
-	 * @method bool hasInactive()
-	 * @method bool isInactiveFilled()
-	 * @method bool isInactiveChanged()
-	 * @method \boolean remindActualInactive()
-	 * @method \boolean requireInactive()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetInactive()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetInactive()
-	 * @method \boolean fillInactive()
-	 * @method \string getRatingTypeId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setRatingTypeId(\string|\Bitrix\Main\DB\SqlExpression $ratingTypeId)
-	 * @method bool hasRatingTypeId()
-	 * @method bool isRatingTypeIdFilled()
-	 * @method bool isRatingTypeIdChanged()
-	 * @method \string remindActualRatingTypeId()
-	 * @method \string requireRatingTypeId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetRatingTypeId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetRatingTypeId()
-	 * @method \string fillRatingTypeId()
-	 * @method \int getRatingEntityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log setRatingEntityId(\int|\Bitrix\Main\DB\SqlExpression $ratingEntityId)
-	 * @method bool hasRatingEntityId()
-	 * @method bool isRatingEntityIdFilled()
-	 * @method bool isRatingEntityIdChanged()
-	 * @method \int remindActualRatingEntityId()
-	 * @method \int requireRatingEntityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log resetRatingEntityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unsetRatingEntityId()
-	 * @method \int fillRatingEntityId()
+	 * @method \int getSpaceId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity setSpaceId(\int|\Bitrix\Main\DB\SqlExpression $spaceId)
+	 * @method bool hasSpaceId()
+	 * @method bool isSpaceIdFilled()
+	 * @method bool isSpaceIdChanged()
+	 * @method \int remindActualSpaceId()
+	 * @method \int requireSpaceId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity resetSpaceId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity unsetSpaceId()
+	 * @method \int fillSpaceId()
+	 * @method \int getActivityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity setActivityId(\int|\Bitrix\Main\DB\SqlExpression $activityId)
+	 * @method bool hasActivityId()
+	 * @method bool isActivityIdFilled()
+	 * @method bool isActivityIdChanged()
+	 * @method \int remindActualActivityId()
+	 * @method \int requireActivityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity resetActivityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity unsetActivityId()
+	 * @method \int fillActivityId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -4156,9 +2949,9 @@ namespace Bitrix\Socialnetwork {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log unset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -4166,120 +2959,274 @@ namespace Bitrix\Socialnetwork {
 	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\Internals\Log\Log wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity wakeUp($data)
 	 */
-	class EO_Log {
-		/* @var \Bitrix\Socialnetwork\LogTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogTable';
+	class EO_SpaceUserLatestActivity {
+		/* @var \Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserLatestActivityTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserLatestActivityTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
 		public function __construct($setDefaultValues = true) {}
 	}
 }
-namespace Bitrix\Socialnetwork {
+namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
 	/**
-	 * LogCollection
+	 * EO_SpaceUserLatestActivity_Collection
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int[] getIdList()
-	 * @method \string[] getEntityTypeList()
-	 * @method \string[] fillEntityType()
-	 * @method \int[] getEntityIdList()
-	 * @method \int[] fillEntityId()
-	 * @method \string[] getEventIdList()
-	 * @method \string[] fillEventId()
 	 * @method \int[] getUserIdList()
 	 * @method \int[] fillUserId()
-	 * @method \Bitrix\Main\EO_User[] getUserList()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection getUserCollection()
-	 * @method \Bitrix\Main\EO_User_Collection fillUser()
-	 * @method \string[] getTitleList()
-	 * @method \string[] fillTitle()
-	 * @method \string[] getMessageList()
-	 * @method \string[] fillMessage()
-	 * @method \string[] getTextMessageList()
-	 * @method \string[] fillTextMessage()
-	 * @method \string[] getUrlList()
-	 * @method \string[] fillUrl()
-	 * @method \string[] getModuleIdList()
-	 * @method \string[] fillModuleId()
-	 * @method \string[] getParamsList()
-	 * @method \string[] fillParams()
-	 * @method \int[] getSourceIdList()
-	 * @method \int[] fillSourceId()
-	 * @method \Bitrix\Main\Type\DateTime[] getLogDateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillLogDate()
-	 * @method \Bitrix\Main\Type\DateTime[] getLogUpdateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillLogUpdate()
-	 * @method \int[] getCommentsCountList()
-	 * @method \int[] fillCommentsCount()
-	 * @method \boolean[] getTransformList()
-	 * @method \boolean[] fillTransform()
-	 * @method \boolean[] getInactiveList()
-	 * @method \boolean[] fillInactive()
-	 * @method \string[] getRatingTypeIdList()
-	 * @method \string[] fillRatingTypeId()
-	 * @method \int[] getRatingEntityIdList()
-	 * @method \int[] fillRatingEntityId()
+	 * @method \int[] getSpaceIdList()
+	 * @method \int[] fillSpaceId()
+	 * @method \int[] getActivityIdList()
+	 * @method \int[] fillActivityId()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\Internals\Log\Log $object)
-	 * @method bool has(\Bitrix\Socialnetwork\Internals\Log\Log $object)
+	 * @method void add(\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity $object)
+	 * @method bool has(\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\Internals\Log\Log $object)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity $object)
 	 * @method void removeByPrimary($primary)
 	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\Internals\Log\LogCollection wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log current() Iterator
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection merge(?\Bitrix\Socialnetwork\Internals\Log\LogCollection $collection)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection merge(?\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection $collection)
 	 * @method bool isEmpty()
 	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
-	class EO_Log_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\LogTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogTable';
+	class EO_SpaceUserLatestActivity_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserLatestActivityTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserLatestActivityTable';
 	}
 }
-namespace Bitrix\Socialnetwork {
+namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
 	/**
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_Log_Result exec()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection fetchCollection()
+	 * @method EO_SpaceUserLatestActivity_Result exec()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection fetchCollection()
 	 */
-	class EO_Log_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_SpaceUserLatestActivity_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection fetchCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection fetchCollection()
 	 */
-	class EO_Log_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_SpaceUserLatestActivity_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection createCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Log\Log wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection wakeUpCollection($rows)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection wakeUpCollection($rows)
 	 */
-	class EO_Log_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_SpaceUserLatestActivity_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable:socialnetwork/lib/internals/space/recentactivity/spaceuserrecentactivitytable.php */
+namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
+	/**
+	 * EO_SpaceUserRecentActivity
+	 * @see \Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity resetUserId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \int getSpaceId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setSpaceId(\int|\Bitrix\Main\DB\SqlExpression $spaceId)
+	 * @method bool hasSpaceId()
+	 * @method bool isSpaceIdFilled()
+	 * @method bool isSpaceIdChanged()
+	 * @method \int remindActualSpaceId()
+	 * @method \int requireSpaceId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity resetSpaceId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unsetSpaceId()
+	 * @method \int fillSpaceId()
+	 * @method \string getTypeId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setTypeId(\string|\Bitrix\Main\DB\SqlExpression $typeId)
+	 * @method bool hasTypeId()
+	 * @method bool isTypeIdFilled()
+	 * @method bool isTypeIdChanged()
+	 * @method \string remindActualTypeId()
+	 * @method \string requireTypeId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity resetTypeId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unsetTypeId()
+	 * @method \string fillTypeId()
+	 * @method \int getEntityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
+	 * @method bool hasEntityId()
+	 * @method bool isEntityIdFilled()
+	 * @method bool isEntityIdChanged()
+	 * @method \int remindActualEntityId()
+	 * @method \int requireEntityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity resetEntityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unsetEntityId()
+	 * @method \int fillEntityId()
+	 * @method \Bitrix\Main\Type\DateTime getDatetime()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setDatetime(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $datetime)
+	 * @method bool hasDatetime()
+	 * @method bool isDatetimeFilled()
+	 * @method bool isDatetimeChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDatetime()
+	 * @method \Bitrix\Main\Type\DateTime requireDatetime()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity resetDatetime()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unsetDatetime()
+	 * @method \Bitrix\Main\Type\DateTime fillDatetime()
+	 * @method \int getSecondaryEntityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setSecondaryEntityId(\int|\Bitrix\Main\DB\SqlExpression $secondaryEntityId)
+	 * @method bool hasSecondaryEntityId()
+	 * @method bool isSecondaryEntityIdFilled()
+	 * @method bool isSecondaryEntityIdChanged()
+	 * @method \int remindActualSecondaryEntityId()
+	 * @method \int requireSecondaryEntityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity resetSecondaryEntityId()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unsetSecondaryEntityId()
+	 * @method \int fillSecondaryEntityId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity wakeUp($data)
+	 */
+	class EO_SpaceUserRecentActivity {
+		/* @var \Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
+	/**
+	 * EO_SpaceUserRecentActivity_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \int[] getSpaceIdList()
+	 * @method \int[] fillSpaceId()
+	 * @method \string[] getTypeIdList()
+	 * @method \string[] fillTypeId()
+	 * @method \int[] getEntityIdList()
+	 * @method \int[] fillEntityId()
+	 * @method \Bitrix\Main\Type\DateTime[] getDatetimeList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDatetime()
+	 * @method \int[] getSecondaryEntityIdList()
+	 * @method \int[] fillSecondaryEntityId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity $object)
+	 * @method bool has(\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection merge(?\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_SpaceUserRecentActivity_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable';
+	}
+}
+namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_SpaceUserRecentActivity_Result exec()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection fetchCollection()
+	 */
+	class EO_SpaceUserRecentActivity_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity fetchObject()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection fetchCollection()
+	 */
+	class EO_SpaceUserRecentActivity_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection wakeUpCollection($rows)
+	 */
+	class EO_SpaceUserRecentActivity_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Internals\Space\LiveWatch\LiveWatchTable:socialnetwork/lib/internals/space/livewatch/livewatchtable.php */
 namespace Bitrix\Socialnetwork\Internals\Space\LiveWatch {
@@ -4571,80 +3518,35 @@ namespace Bitrix\Socialnetwork\Internals\Space\Composition {
 	 */
 	class EO_SpaceComposition_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable:socialnetwork/lib/internals/space/recentactivity/spaceuserrecentactivitytable.php */
-namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupTagTable:socialnetwork/lib/workgrouptag.php */
+namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_SpaceUserRecentActivity
-	 * @see \Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable
+	 * EO_WorkgroupTag
+	 * @see \Bitrix\Socialnetwork\WorkgroupTagTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \int remindActualUserId()
-	 * @method \int requireUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity resetUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unsetUserId()
-	 * @method \int fillUserId()
-	 * @method \int getSpaceId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setSpaceId(\int|\Bitrix\Main\DB\SqlExpression $spaceId)
-	 * @method bool hasSpaceId()
-	 * @method bool isSpaceIdFilled()
-	 * @method bool isSpaceIdChanged()
-	 * @method \int remindActualSpaceId()
-	 * @method \int requireSpaceId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity resetSpaceId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unsetSpaceId()
-	 * @method \int fillSpaceId()
-	 * @method \string getTypeId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setTypeId(\string|\Bitrix\Main\DB\SqlExpression $typeId)
-	 * @method bool hasTypeId()
-	 * @method bool isTypeIdFilled()
-	 * @method bool isTypeIdChanged()
-	 * @method \string remindActualTypeId()
-	 * @method \string requireTypeId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity resetTypeId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unsetTypeId()
-	 * @method \string fillTypeId()
-	 * @method \int getEntityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
-	 * @method bool hasEntityId()
-	 * @method bool isEntityIdFilled()
-	 * @method bool isEntityIdChanged()
-	 * @method \int remindActualEntityId()
-	 * @method \int requireEntityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity resetEntityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unsetEntityId()
-	 * @method \int fillEntityId()
-	 * @method \Bitrix\Main\Type\DateTime getDatetime()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setDatetime(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $datetime)
-	 * @method bool hasDatetime()
-	 * @method bool isDatetimeFilled()
-	 * @method bool isDatetimeChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDatetime()
-	 * @method \Bitrix\Main\Type\DateTime requireDatetime()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity resetDatetime()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unsetDatetime()
-	 * @method \Bitrix\Main\Type\DateTime fillDatetime()
-	 * @method \int getSecondaryEntityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity setSecondaryEntityId(\int|\Bitrix\Main\DB\SqlExpression $secondaryEntityId)
-	 * @method bool hasSecondaryEntityId()
-	 * @method bool isSecondaryEntityIdFilled()
-	 * @method bool isSecondaryEntityIdChanged()
-	 * @method \int remindActualSecondaryEntityId()
-	 * @method \int requireSecondaryEntityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity resetSecondaryEntityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unsetSecondaryEntityId()
-	 * @method \int fillSecondaryEntityId()
+	 * @method \int getGroupId()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
+	 * @method bool hasGroupId()
+	 * @method bool isGroupIdFilled()
+	 * @method bool isGroupIdChanged()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity getGroup()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity remindActualGroup()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity requireGroup()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag setGroup(\Bitrix\Socialnetwork\Internals\Group\GroupEntity $object)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag resetGroup()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag unsetGroup()
+	 * @method bool hasGroup()
+	 * @method bool isGroupFilled()
+	 * @method bool isGroupChanged()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity fillGroup()
+	 * @method \string getName()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag setName(\string|\Bitrix\Main\DB\SqlExpression $name)
+	 * @method bool hasName()
+	 * @method bool isNameFilled()
+	 * @method bool isNameChanged()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -4660,9 +3562,9 @@ namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity unset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -4670,138 +3572,115 @@ namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
 	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag wakeUp($data)
 	 */
-	class EO_SpaceUserRecentActivity {
-		/* @var \Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable';
+	class EO_WorkgroupTag {
+		/* @var \Bitrix\Socialnetwork\WorkgroupTagTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupTagTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
 		public function __construct($setDefaultValues = true) {}
 	}
 }
-namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
+namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_SpaceUserRecentActivity_Collection
+	 * EO_WorkgroupTag_Collection
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getUserIdList()
-	 * @method \int[] fillUserId()
-	 * @method \int[] getSpaceIdList()
-	 * @method \int[] fillSpaceId()
-	 * @method \string[] getTypeIdList()
-	 * @method \string[] fillTypeId()
-	 * @method \int[] getEntityIdList()
-	 * @method \int[] fillEntityId()
-	 * @method \Bitrix\Main\Type\DateTime[] getDatetimeList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDatetime()
-	 * @method \int[] getSecondaryEntityIdList()
-	 * @method \int[] fillSecondaryEntityId()
+	 * @method \int[] getGroupIdList()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity[] getGroupList()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection getGroupCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection fillGroup()
+	 * @method \string[] getNameList()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity $object)
-	 * @method bool has(\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity $object)
+	 * @method void add(\Bitrix\Socialnetwork\EO_WorkgroupTag $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_WorkgroupTag $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity $object)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_WorkgroupTag $object)
 	 * @method void removeByPrimary($primary)
 	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity current() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection merge(?\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection $collection)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection merge(?\Bitrix\Socialnetwork\EO_WorkgroupTag_Collection $collection)
 	 * @method bool isEmpty()
 	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
-	class EO_SpaceUserRecentActivity_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable';
+	class EO_WorkgroupTag_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\WorkgroupTagTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupTagTable';
 	}
 }
-namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
+namespace Bitrix\Socialnetwork {
 	/**
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_SpaceUserRecentActivity_Result exec()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection fetchCollection()
+	 * @method EO_WorkgroupTag_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection fetchCollection()
 	 */
-	class EO_SpaceUserRecentActivity_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_WorkgroupTag_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection fetchCollection()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection fetchCollection()
 	 */
-	class EO_SpaceUserRecentActivity_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_WorkgroupTag_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserRecentActivity_Collection wakeUpCollection($rows)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection wakeUpCollection($rows)
 	 */
-	class EO_SpaceUserRecentActivity_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_WorkgroupTag_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserLatestActivityTable:socialnetwork/lib/internals/space/recentactivity/spaceuserlatestactivitytable.php */
-namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserTagTable:socialnetwork/lib/usertag.php */
+namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_SpaceUserLatestActivity
-	 * @see \Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserLatestActivityTable
+	 * EO_UserTag
+	 * @see \Bitrix\Socialnetwork\UserTagTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
 	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method \Bitrix\Socialnetwork\EO_UserTag setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
 	 * @method bool hasUserId()
 	 * @method bool isUserIdFilled()
 	 * @method bool isUserIdChanged()
-	 * @method \int remindActualUserId()
-	 * @method \int requireUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity resetUserId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity unsetUserId()
-	 * @method \int fillUserId()
-	 * @method \int getSpaceId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity setSpaceId(\int|\Bitrix\Main\DB\SqlExpression $spaceId)
-	 * @method bool hasSpaceId()
-	 * @method bool isSpaceIdFilled()
-	 * @method bool isSpaceIdChanged()
-	 * @method \int remindActualSpaceId()
-	 * @method \int requireSpaceId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity resetSpaceId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity unsetSpaceId()
-	 * @method \int fillSpaceId()
-	 * @method \int getActivityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity setActivityId(\int|\Bitrix\Main\DB\SqlExpression $activityId)
-	 * @method bool hasActivityId()
-	 * @method bool isActivityIdFilled()
-	 * @method bool isActivityIdChanged()
-	 * @method \int remindActualActivityId()
-	 * @method \int requireActivityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity resetActivityId()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity unsetActivityId()
-	 * @method \int fillActivityId()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Socialnetwork\EO_UserTag setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Socialnetwork\EO_UserTag resetUser()
+	 * @method \Bitrix\Socialnetwork\EO_UserTag unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 * @method \string getName()
+	 * @method \Bitrix\Socialnetwork\EO_UserTag setName(\string|\Bitrix\Main\DB\SqlExpression $name)
+	 * @method bool hasName()
+	 * @method bool isNameFilled()
+	 * @method bool isNameChanged()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -4817,9 +3696,9 @@ namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity unset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_UserTag set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_UserTag reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_UserTag unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -4827,87 +3706,449 @@ namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
 	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_UserTag wakeUp($data)
 	 */
-	class EO_SpaceUserLatestActivity {
-		/* @var \Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserLatestActivityTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserLatestActivityTable';
+	class EO_UserTag {
+		/* @var \Bitrix\Socialnetwork\UserTagTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\UserTagTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
 		public function __construct($setDefaultValues = true) {}
 	}
 }
-namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
+namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_SpaceUserLatestActivity_Collection
+	 * EO_UserTag_Collection
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
-	 * @method \int[] getIdList()
 	 * @method \int[] getUserIdList()
-	 * @method \int[] fillUserId()
-	 * @method \int[] getSpaceIdList()
-	 * @method \int[] fillSpaceId()
-	 * @method \int[] getActivityIdList()
-	 * @method \int[] fillActivityId()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Socialnetwork\EO_UserTag_Collection getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 * @method \string[] getNameList()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity $object)
-	 * @method bool has(\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity $object)
+	 * @method void add(\Bitrix\Socialnetwork\EO_UserTag $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_UserTag $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity $object)
+	 * @method \Bitrix\Socialnetwork\EO_UserTag getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_UserTag[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_UserTag $object)
 	 * @method void removeByPrimary($primary)
 	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_UserTag_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity current() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_UserTag current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection merge(?\Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection $collection)
+	 * @method \Bitrix\Socialnetwork\EO_UserTag_Collection merge(?\Bitrix\Socialnetwork\EO_UserTag_Collection $collection)
 	 * @method bool isEmpty()
 	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
-	class EO_SpaceUserLatestActivity_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserLatestActivityTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserLatestActivityTable';
+	class EO_UserTag_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\UserTagTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\UserTagTable';
 	}
 }
-namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity {
+namespace Bitrix\Socialnetwork {
 	/**
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_SpaceUserLatestActivity_Result exec()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection fetchCollection()
+	 * @method EO_UserTag_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_UserTag fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_UserTag_Collection fetchCollection()
 	 */
-	class EO_SpaceUserLatestActivity_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_UserTag_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity fetchObject()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection fetchCollection()
+	 * @method \Bitrix\Socialnetwork\EO_UserTag fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_UserTag_Collection fetchCollection()
 	 */
-	class EO_SpaceUserLatestActivity_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_UserTag_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\Internals\Space\RecentActivity\EO_SpaceUserLatestActivity_Collection wakeUpCollection($rows)
+	 * @method \Bitrix\Socialnetwork\EO_UserTag createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_UserTag_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_UserTag wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_UserTag_Collection wakeUpCollection($rows)
 	 */
-	class EO_SpaceUserLatestActivity_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_UserTag_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogSubscribeTable:socialnetwork/lib/logsubscribe.php */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogSubscribe
+	 * @see \Bitrix\Socialnetwork\LogSubscribeTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getUserId()
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int getLogId()
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
+	 * @method bool hasLogId()
+	 * @method bool isLogIdFilled()
+	 * @method bool isLogIdChanged()
+	 * @method \string getType()
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe setType(\string|\Bitrix\Main\DB\SqlExpression $type)
+	 * @method bool hasType()
+	 * @method bool isTypeFilled()
+	 * @method bool isTypeChanged()
+	 * @method \Bitrix\Main\Type\DateTime getEndDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe setEndDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $endDate)
+	 * @method bool hasEndDate()
+	 * @method bool isEndDateFilled()
+	 * @method bool isEndDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualEndDate()
+	 * @method \Bitrix\Main\Type\DateTime requireEndDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe resetEndDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe unsetEndDate()
+	 * @method \Bitrix\Main\Type\DateTime fillEndDate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\EO_LogSubscribe wakeUp($data)
+	 */
+	class EO_LogSubscribe {
+		/* @var \Bitrix\Socialnetwork\LogSubscribeTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogSubscribeTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogSubscribe_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getUserIdList()
+	 * @method \int[] getLogIdList()
+	 * @method \string[] getTypeList()
+	 * @method \Bitrix\Main\Type\DateTime[] getEndDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillEndDate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\EO_LogSubscribe $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_LogSubscribe $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogSubscribe $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\EO_LogSubscribe_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe_Collection merge(?\Bitrix\Socialnetwork\EO_LogSubscribe_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_LogSubscribe_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\LogSubscribeTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogSubscribeTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_LogSubscribe_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe_Collection fetchCollection()
+	 */
+	class EO_LogSubscribe_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe_Collection fetchCollection()
+	 */
+	class EO_LogSubscribe_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe_Collection wakeUpCollection($rows)
+	 */
+	class EO_LogSubscribe_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserRelationsTable:socialnetwork/lib/userrelations.php */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_UserRelations
+	 * @see \Bitrix\Socialnetwork\UserRelationsTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getFirstUserId()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations setFirstUserId(\int|\Bitrix\Main\DB\SqlExpression $firstUserId)
+	 * @method bool hasFirstUserId()
+	 * @method bool isFirstUserIdFilled()
+	 * @method bool isFirstUserIdChanged()
+	 * @method \int remindActualFirstUserId()
+	 * @method \int requireFirstUserId()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetFirstUserId()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetFirstUserId()
+	 * @method \int fillFirstUserId()
+	 * @method \int getSecondUserId()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations setSecondUserId(\int|\Bitrix\Main\DB\SqlExpression $secondUserId)
+	 * @method bool hasSecondUserId()
+	 * @method bool isSecondUserIdFilled()
+	 * @method bool isSecondUserIdChanged()
+	 * @method \int remindActualSecondUserId()
+	 * @method \int requireSecondUserId()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetSecondUserId()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetSecondUserId()
+	 * @method \int fillSecondUserId()
+	 * @method \string getRelation()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations setRelation(\string|\Bitrix\Main\DB\SqlExpression $relation)
+	 * @method bool hasRelation()
+	 * @method bool isRelationFilled()
+	 * @method bool isRelationChanged()
+	 * @method \string remindActualRelation()
+	 * @method \string requireRelation()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetRelation()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetRelation()
+	 * @method \string fillRelation()
+	 * @method \string getInitiatedBy()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations setInitiatedBy(\string|\Bitrix\Main\DB\SqlExpression $initiatedBy)
+	 * @method bool hasInitiatedBy()
+	 * @method bool isInitiatedByFilled()
+	 * @method bool isInitiatedByChanged()
+	 * @method \string remindActualInitiatedBy()
+	 * @method \string requireInitiatedBy()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetInitiatedBy()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetInitiatedBy()
+	 * @method \string fillInitiatedBy()
+	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
+	 * @method bool hasDateCreate()
+	 * @method bool isDateCreateFilled()
+	 * @method bool isDateCreateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetDateCreate()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime getDateUpdate()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations setDateUpdate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateUpdate)
+	 * @method bool hasDateUpdate()
+	 * @method bool isDateUpdateFilled()
+	 * @method bool isDateUpdateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateUpdate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateUpdate()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetDateUpdate()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetDateUpdate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateUpdate()
+	 * @method \string getMessage()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations setMessage(\string|\Bitrix\Main\DB\SqlExpression $message)
+	 * @method bool hasMessage()
+	 * @method bool isMessageFilled()
+	 * @method bool isMessageChanged()
+	 * @method \string remindActualMessage()
+	 * @method \string requireMessage()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetMessage()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetMessage()
+	 * @method \string fillMessage()
+	 * @method \Bitrix\Main\EO_User getFirstUser()
+	 * @method \Bitrix\Main\EO_User remindActualFirstUser()
+	 * @method \Bitrix\Main\EO_User requireFirstUser()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations setFirstUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetFirstUser()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetFirstUser()
+	 * @method bool hasFirstUser()
+	 * @method bool isFirstUserFilled()
+	 * @method bool isFirstUserChanged()
+	 * @method \Bitrix\Main\EO_User fillFirstUser()
+	 * @method \Bitrix\Main\EO_User getSecondUser()
+	 * @method \Bitrix\Main\EO_User remindActualSecondUser()
+	 * @method \Bitrix\Main\EO_User requireSecondUser()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations setSecondUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations resetSecondUser()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations unsetSecondUser()
+	 * @method bool hasSecondUser()
+	 * @method bool isSecondUserFilled()
+	 * @method bool isSecondUserChanged()
+	 * @method \Bitrix\Main\EO_User fillSecondUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\EO_UserRelations wakeUp($data)
+	 */
+	class EO_UserRelations {
+		/* @var \Bitrix\Socialnetwork\UserRelationsTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\UserRelationsTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_UserRelations_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getFirstUserIdList()
+	 * @method \int[] fillFirstUserId()
+	 * @method \int[] getSecondUserIdList()
+	 * @method \int[] fillSecondUserId()
+	 * @method \string[] getRelationList()
+	 * @method \string[] fillRelation()
+	 * @method \string[] getInitiatedByList()
+	 * @method \string[] fillInitiatedBy()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateUpdateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateUpdate()
+	 * @method \string[] getMessageList()
+	 * @method \string[] fillMessage()
+	 * @method \Bitrix\Main\EO_User[] getFirstUserList()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection getFirstUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillFirstUser()
+	 * @method \Bitrix\Main\EO_User[] getSecondUserList()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection getSecondUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillSecondUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\EO_UserRelations $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_UserRelations $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_UserRelations $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\EO_UserRelations_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection merge(?\Bitrix\Socialnetwork\EO_UserRelations_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_UserRelations_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\UserRelationsTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\UserRelationsTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_UserRelations_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection fetchCollection()
+	 */
+	class EO_UserRelations_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection fetchCollection()
+	 */
+	class EO_UserRelations_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_UserRelations_Collection wakeUpCollection($rows)
+	 */
+	class EO_UserRelations_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupFavoritesTable:socialnetwork/lib/workgroupfavorites.php */
 namespace Bitrix\Socialnetwork {
@@ -5067,6 +4308,539 @@ namespace Bitrix\Socialnetwork {
 	 * @method \Bitrix\Socialnetwork\EO_WorkgroupFavorites_Collection wakeUpCollection($rows)
 	 */
 	class EO_WorkgroupFavorites_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogFollowTable:socialnetwork/lib/logfollow.php */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogFollow
+	 * @see \Bitrix\Socialnetwork\LogFollowTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getUserId()
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \string getCode()
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow setCode(\string|\Bitrix\Main\DB\SqlExpression $code)
+	 * @method bool hasCode()
+	 * @method bool isCodeFilled()
+	 * @method bool isCodeChanged()
+	 * @method \boolean getType()
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow setType(\boolean|\Bitrix\Main\DB\SqlExpression $type)
+	 * @method bool hasType()
+	 * @method bool isTypeFilled()
+	 * @method bool isTypeChanged()
+	 * @method \boolean remindActualType()
+	 * @method \boolean requireType()
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow resetType()
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow unsetType()
+	 * @method \boolean fillType()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\EO_LogFollow wakeUp($data)
+	 */
+	class EO_LogFollow {
+		/* @var \Bitrix\Socialnetwork\LogFollowTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogFollowTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogFollow_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getUserIdList()
+	 * @method \string[] getCodeList()
+	 * @method \boolean[] getTypeList()
+	 * @method \boolean[] fillType()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\EO_LogFollow $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_LogFollow $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogFollow $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\EO_LogFollow_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow_Collection merge(?\Bitrix\Socialnetwork\EO_LogFollow_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_LogFollow_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\LogFollowTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogFollowTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_LogFollow_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow_Collection fetchCollection()
+	 */
+	class EO_LogFollow_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow_Collection fetchCollection()
+	 */
+	class EO_LogFollow_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_LogFollow_Collection wakeUpCollection($rows)
+	 */
+	class EO_LogFollow_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogPageTable:socialnetwork/lib/logpage.php */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogPage
+	 * @see \Bitrix\Socialnetwork\LogPageTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getUserId()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \string getSiteId()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
+	 * @method bool hasSiteId()
+	 * @method bool isSiteIdFilled()
+	 * @method bool isSiteIdChanged()
+	 * @method \string getGroupCode()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage setGroupCode(\string|\Bitrix\Main\DB\SqlExpression $groupCode)
+	 * @method bool hasGroupCode()
+	 * @method bool isGroupCodeFilled()
+	 * @method bool isGroupCodeChanged()
+	 * @method \int getPageSize()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage setPageSize(\int|\Bitrix\Main\DB\SqlExpression $pageSize)
+	 * @method bool hasPageSize()
+	 * @method bool isPageSizeFilled()
+	 * @method bool isPageSizeChanged()
+	 * @method \int getPageNum()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage setPageNum(\int|\Bitrix\Main\DB\SqlExpression $pageNum)
+	 * @method bool hasPageNum()
+	 * @method bool isPageNumFilled()
+	 * @method bool isPageNumChanged()
+	 * @method \Bitrix\Main\Type\DateTime getPageLastDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage setPageLastDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $pageLastDate)
+	 * @method bool hasPageLastDate()
+	 * @method bool isPageLastDateFilled()
+	 * @method bool isPageLastDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualPageLastDate()
+	 * @method \Bitrix\Main\Type\DateTime requirePageLastDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage resetPageLastDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage unsetPageLastDate()
+	 * @method \Bitrix\Main\Type\DateTime fillPageLastDate()
+	 * @method \int getTrafficAvg()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage setTrafficAvg(\int|\Bitrix\Main\DB\SqlExpression $trafficAvg)
+	 * @method bool hasTrafficAvg()
+	 * @method bool isTrafficAvgFilled()
+	 * @method bool isTrafficAvgChanged()
+	 * @method \int remindActualTrafficAvg()
+	 * @method \int requireTrafficAvg()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage resetTrafficAvg()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage unsetTrafficAvg()
+	 * @method \int fillTrafficAvg()
+	 * @method \int getTrafficCnt()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage setTrafficCnt(\int|\Bitrix\Main\DB\SqlExpression $trafficCnt)
+	 * @method bool hasTrafficCnt()
+	 * @method bool isTrafficCntFilled()
+	 * @method bool isTrafficCntChanged()
+	 * @method \int remindActualTrafficCnt()
+	 * @method \int requireTrafficCnt()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage resetTrafficCnt()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage unsetTrafficCnt()
+	 * @method \int fillTrafficCnt()
+	 * @method \Bitrix\Main\Type\DateTime getTrafficLastDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage setTrafficLastDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $trafficLastDate)
+	 * @method bool hasTrafficLastDate()
+	 * @method bool isTrafficLastDateFilled()
+	 * @method bool isTrafficLastDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualTrafficLastDate()
+	 * @method \Bitrix\Main\Type\DateTime requireTrafficLastDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage resetTrafficLastDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage unsetTrafficLastDate()
+	 * @method \Bitrix\Main\Type\DateTime fillTrafficLastDate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogPage set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_LogPage reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogPage unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\EO_LogPage wakeUp($data)
+	 */
+	class EO_LogPage {
+		/* @var \Bitrix\Socialnetwork\LogPageTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogPageTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogPage_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getUserIdList()
+	 * @method \string[] getSiteIdList()
+	 * @method \string[] getGroupCodeList()
+	 * @method \int[] getPageSizeList()
+	 * @method \int[] getPageNumList()
+	 * @method \Bitrix\Main\Type\DateTime[] getPageLastDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillPageLastDate()
+	 * @method \int[] getTrafficAvgList()
+	 * @method \int[] fillTrafficAvg()
+	 * @method \int[] getTrafficCntList()
+	 * @method \int[] fillTrafficCnt()
+	 * @method \Bitrix\Main\Type\DateTime[] getTrafficLastDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillTrafficLastDate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\EO_LogPage $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_LogPage $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogPage getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogPage[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogPage $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\EO_LogPage_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_LogPage current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\EO_LogPage_Collection merge(?\Bitrix\Socialnetwork\EO_LogPage_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_LogPage_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\LogPageTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogPageTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_LogPage_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage_Collection fetchCollection()
+	 */
+	class EO_LogPage_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogPage fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage_Collection fetchCollection()
+	 */
+	class EO_LogPage_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogPage createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_LogPage_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogPage wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_LogPage_Collection wakeUpCollection($rows)
+	 */
+	class EO_LogPage_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\FeatureTable:socialnetwork/lib/feature.php */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_Feature
+	 * @see \Bitrix\Socialnetwork\FeatureTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Socialnetwork\EO_Feature setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getEntityType()
+	 * @method \Bitrix\Socialnetwork\EO_Feature setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
+	 * @method bool hasEntityType()
+	 * @method bool isEntityTypeFilled()
+	 * @method bool isEntityTypeChanged()
+	 * @method \string remindActualEntityType()
+	 * @method \string requireEntityType()
+	 * @method \Bitrix\Socialnetwork\EO_Feature resetEntityType()
+	 * @method \Bitrix\Socialnetwork\EO_Feature unsetEntityType()
+	 * @method \string fillEntityType()
+	 * @method \int getEntityId()
+	 * @method \Bitrix\Socialnetwork\EO_Feature setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
+	 * @method bool hasEntityId()
+	 * @method bool isEntityIdFilled()
+	 * @method bool isEntityIdChanged()
+	 * @method \int remindActualEntityId()
+	 * @method \int requireEntityId()
+	 * @method \Bitrix\Socialnetwork\EO_Feature resetEntityId()
+	 * @method \Bitrix\Socialnetwork\EO_Feature unsetEntityId()
+	 * @method \int fillEntityId()
+	 * @method \string getFeature()
+	 * @method \Bitrix\Socialnetwork\EO_Feature setFeature(\string|\Bitrix\Main\DB\SqlExpression $feature)
+	 * @method bool hasFeature()
+	 * @method bool isFeatureFilled()
+	 * @method bool isFeatureChanged()
+	 * @method \string remindActualFeature()
+	 * @method \string requireFeature()
+	 * @method \Bitrix\Socialnetwork\EO_Feature resetFeature()
+	 * @method \Bitrix\Socialnetwork\EO_Feature unsetFeature()
+	 * @method \string fillFeature()
+	 * @method \string getFeatureName()
+	 * @method \Bitrix\Socialnetwork\EO_Feature setFeatureName(\string|\Bitrix\Main\DB\SqlExpression $featureName)
+	 * @method bool hasFeatureName()
+	 * @method bool isFeatureNameFilled()
+	 * @method bool isFeatureNameChanged()
+	 * @method \string remindActualFeatureName()
+	 * @method \string requireFeatureName()
+	 * @method \Bitrix\Socialnetwork\EO_Feature resetFeatureName()
+	 * @method \Bitrix\Socialnetwork\EO_Feature unsetFeatureName()
+	 * @method \string fillFeatureName()
+	 * @method \string getActive()
+	 * @method \Bitrix\Socialnetwork\EO_Feature setActive(\string|\Bitrix\Main\DB\SqlExpression $active)
+	 * @method bool hasActive()
+	 * @method bool isActiveFilled()
+	 * @method bool isActiveChanged()
+	 * @method \string remindActualActive()
+	 * @method \string requireActive()
+	 * @method \Bitrix\Socialnetwork\EO_Feature resetActive()
+	 * @method \Bitrix\Socialnetwork\EO_Feature unsetActive()
+	 * @method \string fillActive()
+	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
+	 * @method \Bitrix\Socialnetwork\EO_Feature setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
+	 * @method bool hasDateCreate()
+	 * @method bool isDateCreateFilled()
+	 * @method bool isDateCreateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
+	 * @method \Bitrix\Socialnetwork\EO_Feature resetDateCreate()
+	 * @method \Bitrix\Socialnetwork\EO_Feature unsetDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime getDateUpdate()
+	 * @method \Bitrix\Socialnetwork\EO_Feature setDateUpdate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateUpdate)
+	 * @method bool hasDateUpdate()
+	 * @method bool isDateUpdateFilled()
+	 * @method bool isDateUpdateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateUpdate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateUpdate()
+	 * @method \Bitrix\Socialnetwork\EO_Feature resetDateUpdate()
+	 * @method \Bitrix\Socialnetwork\EO_Feature unsetDateUpdate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateUpdate()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection getPermissions()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection requirePermissions()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection fillPermissions()
+	 * @method bool hasPermissions()
+	 * @method bool isPermissionsFilled()
+	 * @method bool isPermissionsChanged()
+	 * @method void addToPermissions(\Bitrix\Socialnetwork\EO_FeaturePerm $featurePerm)
+	 * @method void removeFromPermissions(\Bitrix\Socialnetwork\EO_FeaturePerm $featurePerm)
+	 * @method void removeAllPermissions()
+	 * @method \Bitrix\Socialnetwork\EO_Feature resetPermissions()
+	 * @method \Bitrix\Socialnetwork\EO_Feature unsetPermissions()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_Feature set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_Feature reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_Feature unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\EO_Feature wakeUp($data)
+	 */
+	class EO_Feature {
+		/* @var \Bitrix\Socialnetwork\FeatureTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\FeatureTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_Feature_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getEntityTypeList()
+	 * @method \string[] fillEntityType()
+	 * @method \int[] getEntityIdList()
+	 * @method \int[] fillEntityId()
+	 * @method \string[] getFeatureList()
+	 * @method \string[] fillFeature()
+	 * @method \string[] getFeatureNameList()
+	 * @method \string[] fillFeatureName()
+	 * @method \string[] getActiveList()
+	 * @method \string[] fillActive()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateUpdateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateUpdate()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection[] getPermissionsList()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection getPermissionsCollection()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection fillPermissions()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\EO_Feature $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_Feature $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_Feature getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_Feature[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_Feature $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\EO_Feature_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_Feature current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\EO_Feature_Collection merge(?\Bitrix\Socialnetwork\EO_Feature_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_Feature_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\FeatureTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\FeatureTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Feature_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_Feature fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_Feature_Collection fetchCollection()
+	 */
+	class EO_Feature_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_Feature fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_Feature_Collection fetchCollection()
+	 */
+	class EO_Feature_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_Feature createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_Feature_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_Feature wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_Feature_Collection wakeUpCollection($rows)
+	 */
+	class EO_Feature_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogIndexTable:socialnetwork/lib/logindex.php */
 namespace Bitrix\Socialnetwork {
@@ -5237,720 +5011,34 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_LogIndex_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable:socialnetwork/lib/collab/internals/collaboptiontable.php */
-namespace Bitrix\Socialnetwork\Collab\Internals {
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogViewTable:socialnetwork/lib/logview.php */
+namespace Bitrix\Socialnetwork {
 	/**
-	 * OptionEntity
-	 * @see \Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \int getCollabId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity setCollabId(\int|\Bitrix\Main\DB\SqlExpression $collabId)
-	 * @method bool hasCollabId()
-	 * @method bool isCollabIdFilled()
-	 * @method bool isCollabIdChanged()
-	 * @method \int remindActualCollabId()
-	 * @method \int requireCollabId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity resetCollabId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity unsetCollabId()
-	 * @method \int fillCollabId()
-	 * @method \string getName()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity setName(\string|\Bitrix\Main\DB\SqlExpression $name)
-	 * @method bool hasName()
-	 * @method bool isNameFilled()
-	 * @method bool isNameChanged()
-	 * @method \string remindActualName()
-	 * @method \string requireName()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity resetName()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity unsetName()
-	 * @method \string fillName()
-	 * @method \string getValue()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity setValue(\string|\Bitrix\Main\DB\SqlExpression $value)
-	 * @method bool hasValue()
-	 * @method bool isValueFilled()
-	 * @method bool isValueChanged()
-	 * @method \string remindActualValue()
-	 * @method \string requireValue()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity resetValue()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity unsetValue()
-	 * @method \string fillValue()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\Collab\Internals\OptionEntity wakeUp($data)
-	 */
-	class EO_CollabOption {
-		/* @var \Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork\Collab\Internals {
-	/**
-	 * OptionCollection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getCollabIdList()
-	 * @method \int[] fillCollabId()
-	 * @method \string[] getNameList()
-	 * @method \string[] fillName()
-	 * @method \string[] getValueList()
-	 * @method \string[] fillValue()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\Collab\Internals\OptionEntity $object)
-	 * @method bool has(\Bitrix\Socialnetwork\Collab\Internals\OptionEntity $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\Collab\Internals\OptionEntity $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\Collab\Internals\OptionCollection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionCollection merge(?\Bitrix\Socialnetwork\Collab\Internals\OptionCollection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_CollabOption_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable';
-	}
-}
-namespace Bitrix\Socialnetwork\Collab\Internals {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_CollabOption_Result exec()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity fetchObject()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionCollection fetchCollection()
-	 */
-	class EO_CollabOption_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity fetchObject()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionCollection fetchCollection()
-	 */
-	class EO_CollabOption_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionCollection createCollection()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionCollection wakeUpCollection($rows)
-	 */
-	class EO_CollabOption_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Collab\Internals\CollabLastActivityTable:socialnetwork/lib/collab/internals/collablastactivitytable.php */
-namespace Bitrix\Socialnetwork\Collab\Internals {
-	/**
-	 * LastActivityEntity
-	 * @see \Bitrix\Socialnetwork\Collab\Internals\CollabLastActivityTable
+	 * EO_LogView
+	 * @see \Bitrix\Socialnetwork\LogViewTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method \Bitrix\Socialnetwork\EO_LogView setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
 	 * @method bool hasUserId()
 	 * @method bool isUserIdFilled()
 	 * @method bool isUserIdChanged()
-	 * @method \int getCollabId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity setCollabId(\int|\Bitrix\Main\DB\SqlExpression $collabId)
-	 * @method bool hasCollabId()
-	 * @method bool isCollabIdFilled()
-	 * @method bool isCollabIdChanged()
-	 * @method \int remindActualCollabId()
-	 * @method \int requireCollabId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity resetCollabId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity unsetCollabId()
-	 * @method \int fillCollabId()
-	 * @method \Bitrix\Main\Type\DateTime getActivityDate()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity setActivityDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $activityDate)
-	 * @method bool hasActivityDate()
-	 * @method bool isActivityDateFilled()
-	 * @method bool isActivityDateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualActivityDate()
-	 * @method \Bitrix\Main\Type\DateTime requireActivityDate()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity resetActivityDate()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity unsetActivityDate()
-	 * @method \Bitrix\Main\Type\DateTime fillActivityDate()
-	 * @method \Bitrix\Main\EO_User getUser()
-	 * @method \Bitrix\Main\EO_User remindActualUser()
-	 * @method \Bitrix\Main\EO_User requireUser()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity setUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity resetUser()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity unsetUser()
-	 * @method bool hasUser()
-	 * @method bool isUserFilled()
-	 * @method bool isUserChanged()
-	 * @method \Bitrix\Main\EO_User fillUser()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity getCollab()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity remindActualCollab()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity requireCollab()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity setCollab(\Bitrix\Socialnetwork\Internals\Group\GroupEntity $object)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity resetCollab()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity unsetCollab()
-	 * @method bool hasCollab()
-	 * @method bool isCollabFilled()
-	 * @method bool isCollabChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity fillCollab()
-	 * @method \Bitrix\Socialnetwork\Space\Member getMember()
-	 * @method \Bitrix\Socialnetwork\Space\Member remindActualMember()
-	 * @method \Bitrix\Socialnetwork\Space\Member requireMember()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity setMember(\Bitrix\Socialnetwork\Space\Member $object)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity resetMember()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity unsetMember()
-	 * @method bool hasMember()
-	 * @method bool isMemberFilled()
-	 * @method bool isMemberChanged()
-	 * @method \Bitrix\Socialnetwork\Space\Member fillMember()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity wakeUp($data)
-	 */
-	class EO_CollabLastActivity {
-		/* @var \Bitrix\Socialnetwork\Collab\Internals\CollabLastActivityTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Internals\CollabLastActivityTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork\Collab\Internals {
-	/**
-	 * EO_CollabLastActivity_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getUserIdList()
-	 * @method \int[] getCollabIdList()
-	 * @method \int[] fillCollabId()
-	 * @method \Bitrix\Main\Type\DateTime[] getActivityDateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillActivityDate()
-	 * @method \Bitrix\Main\EO_User[] getUserList()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection getUserCollection()
-	 * @method \Bitrix\Main\EO_User_Collection fillUser()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity[] getCollabList()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection getCollabCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection fillCollab()
-	 * @method \Bitrix\Socialnetwork\Space\Member[] getMemberList()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection getMemberCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection fillMember()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity $object)
-	 * @method bool has(\Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection merge(?\Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_CollabLastActivity_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\Collab\Internals\CollabLastActivityTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Internals\CollabLastActivityTable';
-	}
-}
-namespace Bitrix\Socialnetwork\Collab\Internals {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_CollabLastActivity_Result exec()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity fetchObject()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection fetchCollection()
-	 */
-	class EO_CollabLastActivity_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity fetchObject()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection fetchCollection()
-	 */
-	class EO_CollabLastActivity_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection wakeUpCollection($rows)
-	 */
-	class EO_CollabLastActivity_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Collab\Internals\CollabLogTable:socialnetwork/lib/collab/internals/collablogtable.php */
-namespace Bitrix\Socialnetwork\Collab\Internals {
-	/**
-	 * EO_CollabLog
-	 * @see \Bitrix\Socialnetwork\Collab\Internals\CollabLogTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \int getCollabId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setCollabId(\int|\Bitrix\Main\DB\SqlExpression $collabId)
-	 * @method bool hasCollabId()
-	 * @method bool isCollabIdFilled()
-	 * @method bool isCollabIdChanged()
-	 * @method \int remindActualCollabId()
-	 * @method \int requireCollabId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetCollabId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetCollabId()
-	 * @method \int fillCollabId()
-	 * @method \Bitrix\Main\Type\DateTime getDatetime()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setDatetime(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $datetime)
-	 * @method bool hasDatetime()
-	 * @method bool isDatetimeFilled()
-	 * @method bool isDatetimeChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDatetime()
-	 * @method \Bitrix\Main\Type\DateTime requireDatetime()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetDatetime()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetDatetime()
-	 * @method \Bitrix\Main\Type\DateTime fillDatetime()
-	 * @method \string getType()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setType(\string|\Bitrix\Main\DB\SqlExpression $type)
-	 * @method bool hasType()
-	 * @method bool isTypeFilled()
-	 * @method bool isTypeChanged()
-	 * @method \string remindActualType()
-	 * @method \string requireType()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetType()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetType()
-	 * @method \string fillType()
-	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \int remindActualUserId()
-	 * @method \int requireUserId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetUserId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetUserId()
-	 * @method \int fillUserId()
-	 * @method \string getEntityType()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
-	 * @method bool hasEntityType()
-	 * @method bool isEntityTypeFilled()
-	 * @method bool isEntityTypeChanged()
-	 * @method \string remindActualEntityType()
-	 * @method \string requireEntityType()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetEntityType()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetEntityType()
-	 * @method \string fillEntityType()
-	 * @method \int getEntityId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
-	 * @method bool hasEntityId()
-	 * @method bool isEntityIdFilled()
-	 * @method bool isEntityIdChanged()
-	 * @method \int remindActualEntityId()
-	 * @method \int requireEntityId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetEntityId()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetEntityId()
-	 * @method \int fillEntityId()
-	 * @method array getData()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setData(array|\Bitrix\Main\DB\SqlExpression $data)
-	 * @method bool hasData()
-	 * @method bool isDataFilled()
-	 * @method bool isDataChanged()
-	 * @method array remindActualData()
-	 * @method array requireData()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetData()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetData()
-	 * @method array fillData()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog wakeUp($data)
-	 */
-	class EO_CollabLog {
-		/* @var \Bitrix\Socialnetwork\Collab\Internals\CollabLogTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Internals\CollabLogTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork\Collab\Internals {
-	/**
-	 * EO_CollabLog_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getCollabIdList()
-	 * @method \int[] fillCollabId()
-	 * @method \Bitrix\Main\Type\DateTime[] getDatetimeList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDatetime()
-	 * @method \string[] getTypeList()
-	 * @method \string[] fillType()
-	 * @method \int[] getUserIdList()
-	 * @method \int[] fillUserId()
-	 * @method \string[] getEntityTypeList()
-	 * @method \string[] fillEntityType()
-	 * @method \int[] getEntityIdList()
-	 * @method \int[] fillEntityId()
-	 * @method array[] getDataList()
-	 * @method array[] fillData()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog $object)
-	 * @method bool has(\Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection merge(?\Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_CollabLog_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\Collab\Internals\CollabLogTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Internals\CollabLogTable';
-	}
-}
-namespace Bitrix\Socialnetwork\Collab\Internals {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_CollabLog_Result exec()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog fetchObject()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection fetchCollection()
-	 */
-	class EO_CollabLog_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog fetchObject()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection fetchCollection()
-	 */
-	class EO_CollabLog_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection wakeUpCollection($rows)
-	 */
-	class EO_CollabLog_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupSubjectTable:socialnetwork/lib/workgroupsubject.php */
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_WorkgroupSubject
-	 * @see \Bitrix\Socialnetwork\WorkgroupSubjectTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \string getSiteId()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
-	 * @method bool hasSiteId()
-	 * @method bool isSiteIdFilled()
-	 * @method bool isSiteIdChanged()
-	 * @method \Bitrix\Main\EO_Site getSite()
-	 * @method \Bitrix\Main\EO_Site remindActualSite()
-	 * @method \Bitrix\Main\EO_Site requireSite()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject setSite(\Bitrix\Main\EO_Site $object)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject resetSite()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject unsetSite()
-	 * @method bool hasSite()
-	 * @method bool isSiteFilled()
-	 * @method bool isSiteChanged()
-	 * @method \Bitrix\Main\EO_Site fillSite()
-	 * @method \string getName()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject setName(\string|\Bitrix\Main\DB\SqlExpression $name)
-	 * @method bool hasName()
-	 * @method bool isNameFilled()
-	 * @method bool isNameChanged()
-	 * @method \string remindActualName()
-	 * @method \string requireName()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject resetName()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject unsetName()
-	 * @method \string fillName()
-	 * @method \int getSort()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject setSort(\int|\Bitrix\Main\DB\SqlExpression $sort)
-	 * @method bool hasSort()
-	 * @method bool isSortFilled()
-	 * @method bool isSortChanged()
-	 * @method \int remindActualSort()
-	 * @method \int requireSort()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject resetSort()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject unsetSort()
-	 * @method \int fillSort()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubject wakeUp($data)
-	 */
-	class EO_WorkgroupSubject {
-		/* @var \Bitrix\Socialnetwork\WorkgroupSubjectTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupSubjectTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_WorkgroupSubject_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \string[] getSiteIdList()
-	 * @method \Bitrix\Main\EO_Site[] getSiteList()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection getSiteCollection()
-	 * @method \Bitrix\Main\EO_Site_Collection fillSite()
-	 * @method \string[] getNameList()
-	 * @method \string[] fillName()
-	 * @method \int[] getSortList()
-	 * @method \int[] fillSort()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_WorkgroupSubject $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_WorkgroupSubject $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_WorkgroupSubject $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection merge(?\Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_WorkgroupSubject_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\WorkgroupSubjectTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupSubjectTable';
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_WorkgroupSubject_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection fetchCollection()
-	 */
-	class EO_WorkgroupSubject_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection fetchCollection()
-	 */
-	class EO_WorkgroupSubject_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection wakeUpCollection($rows)
-	 */
-	class EO_WorkgroupSubject_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogFollowTable:socialnetwork/lib/logfollow.php */
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_LogFollow
-	 * @see \Bitrix\Socialnetwork\LogFollowTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \string getCode()
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow setCode(\string|\Bitrix\Main\DB\SqlExpression $code)
-	 * @method bool hasCode()
-	 * @method bool isCodeFilled()
-	 * @method bool isCodeChanged()
+	 * @method \string getEventId()
+	 * @method \Bitrix\Socialnetwork\EO_LogView setEventId(\string|\Bitrix\Main\DB\SqlExpression $eventId)
+	 * @method bool hasEventId()
+	 * @method bool isEventIdFilled()
+	 * @method bool isEventIdChanged()
 	 * @method \boolean getType()
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow setType(\boolean|\Bitrix\Main\DB\SqlExpression $type)
+	 * @method \Bitrix\Socialnetwork\EO_LogView setType(\boolean|\Bitrix\Main\DB\SqlExpression $type)
 	 * @method bool hasType()
 	 * @method bool isTypeFilled()
 	 * @method bool isTypeChanged()
 	 * @method \boolean remindActualType()
 	 * @method \boolean requireType()
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow resetType()
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow unsetType()
+	 * @method \Bitrix\Socialnetwork\EO_LogView resetType()
+	 * @method \Bitrix\Socialnetwork\EO_LogView unsetType()
 	 * @method \boolean fillType()
 	 *
 	 * Common methods:
@@ -5967,9 +5055,9 @@ namespace Bitrix\Socialnetwork {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow unset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogView set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_LogView reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogView unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -5977,11 +5065,11 @@ namespace Bitrix\Socialnetwork {
 	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_LogFollow wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_LogView wakeUp($data)
 	 */
-	class EO_LogFollow {
-		/* @var \Bitrix\Socialnetwork\LogFollowTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogFollowTable';
+	class EO_LogView {
+		/* @var \Bitrix\Socialnetwork\LogViewTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogViewTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
@@ -5990,13 +5078,13 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_LogFollow_Collection
+	 * EO_LogView_Collection
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int[] getUserIdList()
-	 * @method \string[] getCodeList()
+	 * @method \string[] getEventIdList()
 	 * @method \boolean[] getTypeList()
 	 * @method \boolean[] fillType()
 	 *
@@ -6004,33 +5092,33 @@ namespace Bitrix\Socialnetwork {
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_LogFollow $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_LogFollow $object)
+	 * @method void add(\Bitrix\Socialnetwork\EO_LogView $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_LogView $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogFollow $object)
+	 * @method \Bitrix\Socialnetwork\EO_LogView getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogView[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogView $object)
 	 * @method void removeByPrimary($primary)
 	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_LogFollow_Collection wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_LogView_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow current() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_LogView current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow_Collection merge(?\Bitrix\Socialnetwork\EO_LogFollow_Collection $collection)
+	 * @method \Bitrix\Socialnetwork\EO_LogView_Collection merge(?\Bitrix\Socialnetwork\EO_LogView_Collection $collection)
 	 * @method bool isEmpty()
 	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
-	class EO_LogFollow_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\LogFollowTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogFollowTable';
+	class EO_LogView_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\LogViewTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogViewTable';
 	}
 }
 namespace Bitrix\Socialnetwork {
@@ -6038,23 +5126,23 @@ namespace Bitrix\Socialnetwork {
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_LogFollow_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow_Collection fetchCollection()
+	 * @method EO_LogView_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_LogView fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogView_Collection fetchCollection()
 	 */
-	class EO_LogFollow_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_LogView_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow_Collection fetchCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogView fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogView_Collection fetchCollection()
 	 */
-	class EO_LogFollow_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_LogView_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_LogFollow_Collection wakeUpCollection($rows)
+	 * @method \Bitrix\Socialnetwork\EO_LogView createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_LogView_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogView wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_LogView_Collection wakeUpCollection($rows)
 	 */
-	class EO_LogFollow_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_LogView_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupViewTable:socialnetwork/lib/workgroupview.php */
 namespace Bitrix\Socialnetwork {
@@ -6215,50 +5303,35 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_WorkgroupView_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserWelltoryDisclaimerTable:socialnetwork/lib/userwelltorydisclaimer.php */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogSiteTable:socialnetwork/lib/logsite.php */
 namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_UserWelltoryDisclaimer
-	 * @see \Bitrix\Socialnetwork\UserWelltoryDisclaimerTable
+	 * EO_LogSite
+	 * @see \Bitrix\Socialnetwork\LogSiteTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \int remindActualUserId()
-	 * @method \int requireUserId()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer resetUserId()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer unsetUserId()
-	 * @method \int fillUserId()
-	 * @method \Bitrix\Main\EO_User getUser()
-	 * @method \Bitrix\Main\EO_User remindActualUser()
-	 * @method \Bitrix\Main\EO_User requireUser()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer setUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer resetUser()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer unsetUser()
-	 * @method bool hasUser()
-	 * @method bool isUserFilled()
-	 * @method bool isUserChanged()
-	 * @method \Bitrix\Main\EO_User fillUser()
-	 * @method \Bitrix\Main\Type\DateTime getDateSigned()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer setDateSigned(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateSigned)
-	 * @method bool hasDateSigned()
-	 * @method bool isDateSignedFilled()
-	 * @method bool isDateSignedChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateSigned()
-	 * @method \Bitrix\Main\Type\DateTime requireDateSigned()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer resetDateSigned()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer unsetDateSigned()
-	 * @method \Bitrix\Main\Type\DateTime fillDateSigned()
+	 * @method \int getLogId()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
+	 * @method bool hasLogId()
+	 * @method bool isLogIdFilled()
+	 * @method bool isLogIdChanged()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log getLog()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log remindActualLog()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log requireLog()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite setLog(\Bitrix\Socialnetwork\Internals\Log\Log $object)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite resetLog()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite unsetLog()
+	 * @method bool hasLog()
+	 * @method bool isLogFilled()
+	 * @method bool isLogChanged()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log fillLog()
+	 * @method \string getSiteId()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
+	 * @method bool hasSiteId()
+	 * @method bool isSiteIdFilled()
+	 * @method bool isSiteIdChanged()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -6274,9 +5347,9 @@ namespace Bitrix\Socialnetwork {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer unset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -6284,11 +5357,11 @@ namespace Bitrix\Socialnetwork {
 	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_LogSite wakeUp($data)
 	 */
-	class EO_UserWelltoryDisclaimer {
-		/* @var \Bitrix\Socialnetwork\UserWelltoryDisclaimerTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\UserWelltoryDisclaimerTable';
+	class EO_LogSite {
+		/* @var \Bitrix\Socialnetwork\LogSiteTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogSiteTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
@@ -6297,51 +5370,48 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_UserWelltoryDisclaimer_Collection
+	 * EO_LogSite_Collection
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getUserIdList()
-	 * @method \int[] fillUserId()
-	 * @method \Bitrix\Main\EO_User[] getUserList()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection getUserCollection()
-	 * @method \Bitrix\Main\EO_User_Collection fillUser()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateSignedList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateSigned()
+	 * @method \int[] getLogIdList()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log[] getLogList()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection getLogCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection fillLog()
+	 * @method \string[] getSiteIdList()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer $object)
+	 * @method void add(\Bitrix\Socialnetwork\EO_LogSite $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_LogSite $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer $object)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogSite $object)
 	 * @method void removeByPrimary($primary)
 	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_LogSite_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer current() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_LogSite current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection merge(?\Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection $collection)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection merge(?\Bitrix\Socialnetwork\EO_LogSite_Collection $collection)
 	 * @method bool isEmpty()
 	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
-	class EO_UserWelltoryDisclaimer_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\UserWelltoryDisclaimerTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\UserWelltoryDisclaimerTable';
+	class EO_LogSite_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\LogSiteTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogSiteTable';
 	}
 }
 namespace Bitrix\Socialnetwork {
@@ -6349,23 +5419,466 @@ namespace Bitrix\Socialnetwork {
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_UserWelltoryDisclaimer_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection fetchCollection()
+	 * @method EO_LogSite_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection fetchCollection()
 	 */
-	class EO_UserWelltoryDisclaimer_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_LogSite_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection fetchCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection fetchCollection()
 	 */
-	class EO_UserWelltoryDisclaimer_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_LogSite_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection wakeUpCollection($rows)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection wakeUpCollection($rows)
 	 */
-	class EO_UserWelltoryDisclaimer_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_LogSite_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\FeaturePermTable:socialnetwork/lib/featureperm.php */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_FeaturePerm
+	 * @see \Bitrix\Socialnetwork\FeaturePermTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getFeatureId()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm setFeatureId(\int|\Bitrix\Main\DB\SqlExpression $featureId)
+	 * @method bool hasFeatureId()
+	 * @method bool isFeatureIdFilled()
+	 * @method bool isFeatureIdChanged()
+	 * @method \int remindActualFeatureId()
+	 * @method \int requireFeatureId()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm resetFeatureId()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm unsetFeatureId()
+	 * @method \int fillFeatureId()
+	 * @method \Bitrix\Socialnetwork\EO_Feature getFeature()
+	 * @method \Bitrix\Socialnetwork\EO_Feature remindActualFeature()
+	 * @method \Bitrix\Socialnetwork\EO_Feature requireFeature()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm setFeature(\Bitrix\Socialnetwork\EO_Feature $object)
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm resetFeature()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm unsetFeature()
+	 * @method bool hasFeature()
+	 * @method bool isFeatureFilled()
+	 * @method bool isFeatureChanged()
+	 * @method \Bitrix\Socialnetwork\EO_Feature fillFeature()
+	 * @method \string getOperationId()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm setOperationId(\string|\Bitrix\Main\DB\SqlExpression $operationId)
+	 * @method bool hasOperationId()
+	 * @method bool isOperationIdFilled()
+	 * @method bool isOperationIdChanged()
+	 * @method \string remindActualOperationId()
+	 * @method \string requireOperationId()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm resetOperationId()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm unsetOperationId()
+	 * @method \string fillOperationId()
+	 * @method \string getRole()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm setRole(\string|\Bitrix\Main\DB\SqlExpression $role)
+	 * @method bool hasRole()
+	 * @method bool isRoleFilled()
+	 * @method bool isRoleChanged()
+	 * @method \string remindActualRole()
+	 * @method \string requireRole()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm resetRole()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm unsetRole()
+	 * @method \string fillRole()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\EO_FeaturePerm wakeUp($data)
+	 */
+	class EO_FeaturePerm {
+		/* @var \Bitrix\Socialnetwork\FeaturePermTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\FeaturePermTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_FeaturePerm_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getFeatureIdList()
+	 * @method \int[] fillFeatureId()
+	 * @method \Bitrix\Socialnetwork\EO_Feature[] getFeatureList()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection getFeatureCollection()
+	 * @method \Bitrix\Socialnetwork\EO_Feature_Collection fillFeature()
+	 * @method \string[] getOperationIdList()
+	 * @method \string[] fillOperationId()
+	 * @method \string[] getRoleList()
+	 * @method \string[] fillRole()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\EO_FeaturePerm $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_FeaturePerm $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_FeaturePerm $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\EO_FeaturePerm_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection merge(?\Bitrix\Socialnetwork\EO_FeaturePerm_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_FeaturePerm_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\FeaturePermTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\FeaturePermTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_FeaturePerm_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection fetchCollection()
+	 */
+	class EO_FeaturePerm_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection fetchCollection()
+	 */
+	class EO_FeaturePerm_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection wakeUpCollection($rows)
+	 */
+	class EO_FeaturePerm_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogRightTable:socialnetwork/lib/logright.php */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogRight
+	 * @see \Bitrix\Socialnetwork\LogRightTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getLogId()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
+	 * @method bool hasLogId()
+	 * @method bool isLogIdFilled()
+	 * @method bool isLogIdChanged()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log getLog()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log remindActualLog()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log requireLog()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight setLog(\Bitrix\Socialnetwork\Internals\Log\Log $object)
+	 * @method \Bitrix\Socialnetwork\EO_LogRight resetLog()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight unsetLog()
+	 * @method bool hasLog()
+	 * @method bool isLogFilled()
+	 * @method bool isLogChanged()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log fillLog()
+	 * @method \string getGroupCode()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight setGroupCode(\string|\Bitrix\Main\DB\SqlExpression $groupCode)
+	 * @method bool hasGroupCode()
+	 * @method bool isGroupCodeFilled()
+	 * @method bool isGroupCodeChanged()
+	 * @method \string remindActualGroupCode()
+	 * @method \string requireGroupCode()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight resetGroupCode()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight unsetGroupCode()
+	 * @method \string fillGroupCode()
+	 * @method \Bitrix\Main\Type\DateTime getLogUpdate()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight setLogUpdate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $logUpdate)
+	 * @method bool hasLogUpdate()
+	 * @method bool isLogUpdateFilled()
+	 * @method bool isLogUpdateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualLogUpdate()
+	 * @method \Bitrix\Main\Type\DateTime requireLogUpdate()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight resetLogUpdate()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight unsetLogUpdate()
+	 * @method \Bitrix\Main\Type\DateTime fillLogUpdate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogRight set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_LogRight reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogRight unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\EO_LogRight wakeUp($data)
+	 */
+	class EO_LogRight {
+		/* @var \Bitrix\Socialnetwork\LogRightTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogRightTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogRight_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getLogIdList()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log[] getLogList()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight_Collection getLogCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection fillLog()
+	 * @method \string[] getGroupCodeList()
+	 * @method \string[] fillGroupCode()
+	 * @method \Bitrix\Main\Type\DateTime[] getLogUpdateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillLogUpdate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\EO_LogRight $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_LogRight $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogRight getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogRight[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogRight $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\EO_LogRight_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_LogRight current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\EO_LogRight_Collection merge(?\Bitrix\Socialnetwork\EO_LogRight_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_LogRight_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\LogRightTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogRightTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_LogRight_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight_Collection fetchCollection()
+	 */
+	class EO_LogRight_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogRight fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight_Collection fetchCollection()
+	 */
+	class EO_LogRight_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogRight createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_LogRight_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogRight wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_LogRight_Collection wakeUpCollection($rows)
+	 */
+	class EO_LogRight_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogFavoritesTable:socialnetwork/lib/logfavorites.php */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogFavorites
+	 * @see \Bitrix\Socialnetwork\LogFavoritesTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getUserId()
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int getLogId()
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
+	 * @method bool hasLogId()
+	 * @method bool isLogIdFilled()
+	 * @method bool isLogIdChanged()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\EO_LogFavorites wakeUp($data)
+	 */
+	class EO_LogFavorites {
+		/* @var \Bitrix\Socialnetwork\LogFavoritesTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogFavoritesTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogFavorites_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getUserIdList()
+	 * @method \int[] getLogIdList()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\EO_LogFavorites $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_LogFavorites $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogFavorites $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\EO_LogFavorites_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites_Collection merge(?\Bitrix\Socialnetwork\EO_LogFavorites_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_LogFavorites_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\LogFavoritesTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogFavoritesTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_LogFavorites_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites_Collection fetchCollection()
+	 */
+	class EO_LogFavorites_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites_Collection fetchCollection()
+	 */
+	class EO_LogFavorites_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_LogFavorites_Collection wakeUpCollection($rows)
+	 */
+	class EO_LogFavorites_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserWelltoryTable:socialnetwork/lib/userwelltory.php */
 namespace Bitrix\Socialnetwork {
@@ -6567,35 +6080,70 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_UserWelltory_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogPinnedTable:socialnetwork/lib/logpinned.php */
-namespace Bitrix\Socialnetwork {
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Collab\Internals\CollabLastActivityTable:socialnetwork/lib/Collab/Internals/CollabLastActivityTable.php */
+namespace Bitrix\Socialnetwork\Collab\Internals {
 	/**
-	 * EO_LogPinned
-	 * @see \Bitrix\Socialnetwork\LogPinnedTable
+	 * LastActivityEntity
+	 * @see \Bitrix\Socialnetwork\Collab\Internals\CollabLastActivityTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
-	 * @method \int getLogId()
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
-	 * @method bool hasLogId()
-	 * @method bool isLogIdFilled()
-	 * @method bool isLogIdChanged()
 	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
 	 * @method bool hasUserId()
 	 * @method bool isUserIdFilled()
 	 * @method bool isUserIdChanged()
-	 * @method \Bitrix\Main\Type\DateTime getPinnedDate()
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned setPinnedDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $pinnedDate)
-	 * @method bool hasPinnedDate()
-	 * @method bool isPinnedDateFilled()
-	 * @method bool isPinnedDateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualPinnedDate()
-	 * @method \Bitrix\Main\Type\DateTime requirePinnedDate()
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned resetPinnedDate()
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned unsetPinnedDate()
-	 * @method \Bitrix\Main\Type\DateTime fillPinnedDate()
+	 * @method \int getCollabId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity setCollabId(\int|\Bitrix\Main\DB\SqlExpression $collabId)
+	 * @method bool hasCollabId()
+	 * @method bool isCollabIdFilled()
+	 * @method bool isCollabIdChanged()
+	 * @method \int remindActualCollabId()
+	 * @method \int requireCollabId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity resetCollabId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity unsetCollabId()
+	 * @method \int fillCollabId()
+	 * @method \Bitrix\Main\Type\DateTime getActivityDate()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity setActivityDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $activityDate)
+	 * @method bool hasActivityDate()
+	 * @method bool isActivityDateFilled()
+	 * @method bool isActivityDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualActivityDate()
+	 * @method \Bitrix\Main\Type\DateTime requireActivityDate()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity resetActivityDate()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity unsetActivityDate()
+	 * @method \Bitrix\Main\Type\DateTime fillActivityDate()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity resetUser()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity getCollab()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity remindActualCollab()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity requireCollab()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity setCollab(\Bitrix\Socialnetwork\Internals\Group\GroupEntity $object)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity resetCollab()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity unsetCollab()
+	 * @method bool hasCollab()
+	 * @method bool isCollabFilled()
+	 * @method bool isCollabChanged()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity fillCollab()
+	 * @method \Bitrix\Socialnetwork\Space\Member getMember()
+	 * @method \Bitrix\Socialnetwork\Space\Member remindActualMember()
+	 * @method \Bitrix\Socialnetwork\Space\Member requireMember()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity setMember(\Bitrix\Socialnetwork\Space\Member $object)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity resetMember()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity unsetMember()
+	 * @method bool hasMember()
+	 * @method bool isMemberFilled()
+	 * @method bool isMemberChanged()
+	 * @method \Bitrix\Socialnetwork\Space\Member fillMember()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -6611,9 +6159,9 @@ namespace Bitrix\Socialnetwork {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned unset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -6621,286 +6169,179 @@ namespace Bitrix\Socialnetwork {
 	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_LogPinned wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity wakeUp($data)
 	 */
-	class EO_LogPinned {
-		/* @var \Bitrix\Socialnetwork\LogPinnedTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogPinnedTable';
+	class EO_CollabLastActivity {
+		/* @var \Bitrix\Socialnetwork\Collab\Internals\CollabLastActivityTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Internals\CollabLastActivityTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
 		public function __construct($setDefaultValues = true) {}
 	}
 }
-namespace Bitrix\Socialnetwork {
+namespace Bitrix\Socialnetwork\Collab\Internals {
 	/**
-	 * EO_LogPinned_Collection
+	 * EO_CollabLastActivity_Collection
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
-	 * @method \int[] getLogIdList()
 	 * @method \int[] getUserIdList()
-	 * @method \Bitrix\Main\Type\DateTime[] getPinnedDateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillPinnedDate()
+	 * @method \int[] getCollabIdList()
+	 * @method \int[] fillCollabId()
+	 * @method \Bitrix\Main\Type\DateTime[] getActivityDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillActivityDate()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity[] getCollabList()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection getCollabCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection fillCollab()
+	 * @method \Bitrix\Socialnetwork\Space\Member[] getMemberList()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection getMemberCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection fillMember()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_LogPinned $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_LogPinned $object)
+	 * @method void add(\Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity $object)
+	 * @method bool has(\Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogPinned $object)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity $object)
 	 * @method void removeByPrimary($primary)
 	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_LogPinned_Collection wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned current() Iterator
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection merge(?\Bitrix\Socialnetwork\EO_LogPinned_Collection $collection)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection merge(?\Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection $collection)
 	 * @method bool isEmpty()
 	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
-	class EO_LogPinned_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\LogPinnedTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogPinnedTable';
+	class EO_CollabLastActivity_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\Collab\Internals\CollabLastActivityTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Internals\CollabLastActivityTable';
 	}
 }
-namespace Bitrix\Socialnetwork {
+namespace Bitrix\Socialnetwork\Collab\Internals {
 	/**
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_LogPinned_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection fetchCollection()
+	 * @method EO_CollabLastActivity_Result exec()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity fetchObject()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection fetchCollection()
 	 */
-	class EO_LogPinned_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_CollabLastActivity_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection fetchCollection()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity fetchObject()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection fetchCollection()
 	 */
-	class EO_LogPinned_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_CollabLastActivity_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection wakeUpCollection($rows)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\LastActivityEntity wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLastActivity_Collection wakeUpCollection($rows)
 	 */
-	class EO_LogPinned_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_CollabLastActivity_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupSubjectSiteTable:socialnetwork/lib/workgroupsubjectsite.php */
-namespace Bitrix\Socialnetwork {
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Collab\Internals\CollabLogTable:socialnetwork/lib/Collab/Internals/CollabLogTable.php */
+namespace Bitrix\Socialnetwork\Collab\Internals {
 	/**
-	 * EO_WorkgroupSubjectSite
-	 * @see \Bitrix\Socialnetwork\WorkgroupSubjectSiteTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getSubjectId()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite setSubjectId(\int|\Bitrix\Main\DB\SqlExpression $subjectId)
-	 * @method bool hasSubjectId()
-	 * @method bool isSubjectIdFilled()
-	 * @method bool isSubjectIdChanged()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject getSubject()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject remindActualSubject()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject requireSubject()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite setSubject(\Bitrix\Socialnetwork\EO_WorkgroupSubject $object)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite resetSubject()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite unsetSubject()
-	 * @method bool hasSubject()
-	 * @method bool isSubjectFilled()
-	 * @method bool isSubjectChanged()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject fillSubject()
-	 * @method \string getSiteId()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
-	 * @method bool hasSiteId()
-	 * @method bool isSiteIdFilled()
-	 * @method bool isSiteIdChanged()
-	 * @method \Bitrix\Main\EO_Site getSite()
-	 * @method \Bitrix\Main\EO_Site remindActualSite()
-	 * @method \Bitrix\Main\EO_Site requireSite()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite setSite(\Bitrix\Main\EO_Site $object)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite resetSite()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite unsetSite()
-	 * @method bool hasSite()
-	 * @method bool isSiteFilled()
-	 * @method bool isSiteChanged()
-	 * @method \Bitrix\Main\EO_Site fillSite()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite wakeUp($data)
-	 */
-	class EO_WorkgroupSubjectSite {
-		/* @var \Bitrix\Socialnetwork\WorkgroupSubjectSiteTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupSubjectSiteTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_WorkgroupSubjectSite_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getSubjectIdList()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject[] getSubjectList()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection getSubjectCollection()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection fillSubject()
-	 * @method \string[] getSiteIdList()
-	 * @method \Bitrix\Main\EO_Site[] getSiteList()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection getSiteCollection()
-	 * @method \Bitrix\Main\EO_Site_Collection fillSite()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_WorkgroupSubjectSite $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_WorkgroupSubjectSite $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_WorkgroupSubjectSite $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection merge(?\Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_WorkgroupSubjectSite_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\WorkgroupSubjectSiteTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupSubjectSiteTable';
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_WorkgroupSubjectSite_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection fetchCollection()
-	 */
-	class EO_WorkgroupSubjectSite_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection fetchCollection()
-	 */
-	class EO_WorkgroupSubjectSite_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection wakeUpCollection($rows)
-	 */
-	class EO_WorkgroupSubjectSite_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\FeaturePermTable:socialnetwork/lib/featureperm.php */
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_FeaturePerm
-	 * @see \Bitrix\Socialnetwork\FeaturePermTable
+	 * EO_CollabLog
+	 * @see \Bitrix\Socialnetwork\Collab\Internals\CollabLogTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int getId()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setId(\int|\Bitrix\Main\DB\SqlExpression $id)
 	 * @method bool hasId()
 	 * @method bool isIdFilled()
 	 * @method bool isIdChanged()
-	 * @method \int getFeatureId()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm setFeatureId(\int|\Bitrix\Main\DB\SqlExpression $featureId)
-	 * @method bool hasFeatureId()
-	 * @method bool isFeatureIdFilled()
-	 * @method bool isFeatureIdChanged()
-	 * @method \int remindActualFeatureId()
-	 * @method \int requireFeatureId()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm resetFeatureId()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm unsetFeatureId()
-	 * @method \int fillFeatureId()
-	 * @method \Bitrix\Socialnetwork\EO_Feature getFeature()
-	 * @method \Bitrix\Socialnetwork\EO_Feature remindActualFeature()
-	 * @method \Bitrix\Socialnetwork\EO_Feature requireFeature()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm setFeature(\Bitrix\Socialnetwork\EO_Feature $object)
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm resetFeature()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm unsetFeature()
-	 * @method bool hasFeature()
-	 * @method bool isFeatureFilled()
-	 * @method bool isFeatureChanged()
-	 * @method \Bitrix\Socialnetwork\EO_Feature fillFeature()
-	 * @method \string getOperationId()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm setOperationId(\string|\Bitrix\Main\DB\SqlExpression $operationId)
-	 * @method bool hasOperationId()
-	 * @method bool isOperationIdFilled()
-	 * @method bool isOperationIdChanged()
-	 * @method \string remindActualOperationId()
-	 * @method \string requireOperationId()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm resetOperationId()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm unsetOperationId()
-	 * @method \string fillOperationId()
-	 * @method \string getRole()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm setRole(\string|\Bitrix\Main\DB\SqlExpression $role)
-	 * @method bool hasRole()
-	 * @method bool isRoleFilled()
-	 * @method bool isRoleChanged()
-	 * @method \string remindActualRole()
-	 * @method \string requireRole()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm resetRole()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm unsetRole()
-	 * @method \string fillRole()
+	 * @method \int getCollabId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setCollabId(\int|\Bitrix\Main\DB\SqlExpression $collabId)
+	 * @method bool hasCollabId()
+	 * @method bool isCollabIdFilled()
+	 * @method bool isCollabIdChanged()
+	 * @method \int remindActualCollabId()
+	 * @method \int requireCollabId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetCollabId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetCollabId()
+	 * @method \int fillCollabId()
+	 * @method \Bitrix\Main\Type\DateTime getDatetime()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setDatetime(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $datetime)
+	 * @method bool hasDatetime()
+	 * @method bool isDatetimeFilled()
+	 * @method bool isDatetimeChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDatetime()
+	 * @method \Bitrix\Main\Type\DateTime requireDatetime()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetDatetime()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetDatetime()
+	 * @method \Bitrix\Main\Type\DateTime fillDatetime()
+	 * @method \string getType()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setType(\string|\Bitrix\Main\DB\SqlExpression $type)
+	 * @method bool hasType()
+	 * @method bool isTypeFilled()
+	 * @method bool isTypeChanged()
+	 * @method \string remindActualType()
+	 * @method \string requireType()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetType()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetType()
+	 * @method \string fillType()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetUserId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \string getEntityType()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
+	 * @method bool hasEntityType()
+	 * @method bool isEntityTypeFilled()
+	 * @method bool isEntityTypeChanged()
+	 * @method \string remindActualEntityType()
+	 * @method \string requireEntityType()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetEntityType()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetEntityType()
+	 * @method \string fillEntityType()
+	 * @method \int getEntityId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
+	 * @method bool hasEntityId()
+	 * @method bool isEntityIdFilled()
+	 * @method bool isEntityIdChanged()
+	 * @method \int remindActualEntityId()
+	 * @method \int requireEntityId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetEntityId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetEntityId()
+	 * @method \int fillEntityId()
+	 * @method array getData()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog setData(array|\Bitrix\Main\DB\SqlExpression $data)
+	 * @method bool hasData()
+	 * @method bool isDataFilled()
+	 * @method bool isDataChanged()
+	 * @method array remindActualData()
+	 * @method array requireData()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog resetData()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unsetData()
+	 * @method array fillData()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -6916,9 +6357,9 @@ namespace Bitrix\Socialnetwork {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm unset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -6926,117 +6367,500 @@ namespace Bitrix\Socialnetwork {
 	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_FeaturePerm wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog wakeUp($data)
 	 */
-	class EO_FeaturePerm {
-		/* @var \Bitrix\Socialnetwork\FeaturePermTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\FeaturePermTable';
+	class EO_CollabLog {
+		/* @var \Bitrix\Socialnetwork\Collab\Internals\CollabLogTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Internals\CollabLogTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
 		public function __construct($setDefaultValues = true) {}
 	}
 }
-namespace Bitrix\Socialnetwork {
+namespace Bitrix\Socialnetwork\Collab\Internals {
 	/**
-	 * EO_FeaturePerm_Collection
+	 * EO_CollabLog_Collection
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int[] getIdList()
-	 * @method \int[] getFeatureIdList()
-	 * @method \int[] fillFeatureId()
-	 * @method \Bitrix\Socialnetwork\EO_Feature[] getFeatureList()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection getFeatureCollection()
-	 * @method \Bitrix\Socialnetwork\EO_Feature_Collection fillFeature()
-	 * @method \string[] getOperationIdList()
-	 * @method \string[] fillOperationId()
-	 * @method \string[] getRoleList()
-	 * @method \string[] fillRole()
+	 * @method \int[] getCollabIdList()
+	 * @method \int[] fillCollabId()
+	 * @method \Bitrix\Main\Type\DateTime[] getDatetimeList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDatetime()
+	 * @method \string[] getTypeList()
+	 * @method \string[] fillType()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \string[] getEntityTypeList()
+	 * @method \string[] fillEntityType()
+	 * @method \int[] getEntityIdList()
+	 * @method \int[] fillEntityId()
+	 * @method array[] getDataList()
+	 * @method array[] fillData()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_FeaturePerm $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_FeaturePerm $object)
+	 * @method void add(\Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog $object)
+	 * @method bool has(\Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_FeaturePerm $object)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog $object)
 	 * @method void removeByPrimary($primary)
 	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_FeaturePerm_Collection wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm current() Iterator
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection merge(?\Bitrix\Socialnetwork\EO_FeaturePerm_Collection $collection)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection merge(?\Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection $collection)
 	 * @method bool isEmpty()
 	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
-	class EO_FeaturePerm_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\FeaturePermTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\FeaturePermTable';
+	class EO_CollabLog_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\Collab\Internals\CollabLogTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Internals\CollabLogTable';
 	}
 }
-namespace Bitrix\Socialnetwork {
+namespace Bitrix\Socialnetwork\Collab\Internals {
 	/**
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_FeaturePerm_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection fetchCollection()
+	 * @method EO_CollabLog_Result exec()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog fetchObject()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection fetchCollection()
 	 */
-	class EO_FeaturePerm_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_CollabLog_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection fetchCollection()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog fetchObject()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection fetchCollection()
 	 */
-	class EO_FeaturePerm_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_CollabLog_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_FeaturePerm_Collection wakeUpCollection($rows)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\EO_CollabLog_Collection wakeUpCollection($rows)
 	 */
-	class EO_FeaturePerm_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_CollabLog_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupTagTable:socialnetwork/lib/workgrouptag.php */
-namespace Bitrix\Socialnetwork {
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable:socialnetwork/lib/Collab/Internals/CollabOptionTable.php */
+namespace Bitrix\Socialnetwork\Collab\Internals {
 	/**
-	 * EO_WorkgroupTag
-	 * @see \Bitrix\Socialnetwork\WorkgroupTagTable
+	 * OptionEntity
+	 * @see \Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
-	 * @method \int getGroupId()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
-	 * @method bool hasGroupId()
-	 * @method bool isGroupIdFilled()
-	 * @method bool isGroupIdChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity getGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity remindActualGroup()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity requireGroup()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag setGroup(\Bitrix\Socialnetwork\Internals\Group\GroupEntity $object)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag resetGroup()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag unsetGroup()
-	 * @method bool hasGroup()
-	 * @method bool isGroupFilled()
-	 * @method bool isGroupChanged()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity fillGroup()
+	 * @method \int getId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getCollabId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity setCollabId(\int|\Bitrix\Main\DB\SqlExpression $collabId)
+	 * @method bool hasCollabId()
+	 * @method bool isCollabIdFilled()
+	 * @method bool isCollabIdChanged()
+	 * @method \int remindActualCollabId()
+	 * @method \int requireCollabId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity resetCollabId()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity unsetCollabId()
+	 * @method \int fillCollabId()
 	 * @method \string getName()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag setName(\string|\Bitrix\Main\DB\SqlExpression $name)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity setName(\string|\Bitrix\Main\DB\SqlExpression $name)
+	 * @method bool hasName()
+	 * @method bool isNameFilled()
+	 * @method bool isNameChanged()
+	 * @method \string remindActualName()
+	 * @method \string requireName()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity resetName()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity unsetName()
+	 * @method \string fillName()
+	 * @method \string getValue()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity setValue(\string|\Bitrix\Main\DB\SqlExpression $value)
+	 * @method bool hasValue()
+	 * @method bool isValueFilled()
+	 * @method bool isValueChanged()
+	 * @method \string remindActualValue()
+	 * @method \string requireValue()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity resetValue()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity unsetValue()
+	 * @method \string fillValue()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\Collab\Internals\OptionEntity wakeUp($data)
+	 */
+	class EO_CollabOption {
+		/* @var \Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork\Collab\Internals {
+	/**
+	 * OptionCollection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getCollabIdList()
+	 * @method \int[] fillCollabId()
+	 * @method \string[] getNameList()
+	 * @method \string[] fillName()
+	 * @method \string[] getValueList()
+	 * @method \string[] fillValue()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\Collab\Internals\OptionEntity $object)
+	 * @method bool has(\Bitrix\Socialnetwork\Collab\Internals\OptionEntity $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\Collab\Internals\OptionEntity $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\Collab\Internals\OptionCollection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionCollection merge(?\Bitrix\Socialnetwork\Collab\Internals\OptionCollection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_CollabOption_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable';
+	}
+}
+namespace Bitrix\Socialnetwork\Collab\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_CollabOption_Result exec()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity fetchObject()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionCollection fetchCollection()
+	 */
+	class EO_CollabOption_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity fetchObject()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionCollection fetchCollection()
+	 */
+	class EO_CollabOption_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionCollection createCollection()
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionEntity wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\Collab\Internals\OptionCollection wakeUpCollection($rows)
+	 */
+	class EO_CollabOption_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\QueueTable:socialnetwork/lib/Collab/Onboarding/Internals/Model/QueueTable.php */
+namespace Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model {
+	/**
+	 * JobModel
+	 * @see \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\QueueTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getCollabId()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel setCollabId(\int|\Bitrix\Main\DB\SqlExpression $collabId)
+	 * @method bool hasCollabId()
+	 * @method bool isCollabIdFilled()
+	 * @method bool isCollabIdChanged()
+	 * @method \int remindActualCollabId()
+	 * @method \int requireCollabId()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel resetCollabId()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel unsetCollabId()
+	 * @method \int fillCollabId()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel resetUserId()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \string getType()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel setType(\string|\Bitrix\Main\DB\SqlExpression $type)
+	 * @method bool hasType()
+	 * @method bool isTypeFilled()
+	 * @method bool isTypeChanged()
+	 * @method \string remindActualType()
+	 * @method \string requireType()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel resetType()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel unsetType()
+	 * @method \string fillType()
+	 * @method \Bitrix\Main\Type\DateTime getCreatedDate()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel setCreatedDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $createdDate)
+	 * @method bool hasCreatedDate()
+	 * @method bool isCreatedDateFilled()
+	 * @method bool isCreatedDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualCreatedDate()
+	 * @method \Bitrix\Main\Type\DateTime requireCreatedDate()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel resetCreatedDate()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel unsetCreatedDate()
+	 * @method \Bitrix\Main\Type\DateTime fillCreatedDate()
+	 * @method \Bitrix\Main\Type\DateTime getNextExecution()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel setNextExecution(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $nextExecution)
+	 * @method bool hasNextExecution()
+	 * @method bool isNextExecutionFilled()
+	 * @method bool isNextExecutionChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualNextExecution()
+	 * @method \Bitrix\Main\Type\DateTime requireNextExecution()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel resetNextExecution()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel unsetNextExecution()
+	 * @method \Bitrix\Main\Type\DateTime fillNextExecution()
+	 * @method null|\Bitrix\Main\Type\DateTime getProcessedDate()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel setProcessedDate(null|\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $processedDate)
+	 * @method bool hasProcessedDate()
+	 * @method bool isProcessedDateFilled()
+	 * @method bool isProcessedDateChanged()
+	 * @method null|\Bitrix\Main\Type\DateTime remindActualProcessedDate()
+	 * @method null|\Bitrix\Main\Type\DateTime requireProcessedDate()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel resetProcessedDate()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel unsetProcessedDate()
+	 * @method null|\Bitrix\Main\Type\DateTime fillProcessedDate()
+	 * @method \boolean getIsProcessed()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel setIsProcessed(\boolean|\Bitrix\Main\DB\SqlExpression $isProcessed)
+	 * @method bool hasIsProcessed()
+	 * @method bool isIsProcessedFilled()
+	 * @method bool isIsProcessedChanged()
+	 * @method \boolean remindActualIsProcessed()
+	 * @method \boolean requireIsProcessed()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel resetIsProcessed()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel unsetIsProcessed()
+	 * @method \boolean fillIsProcessed()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel resetUser()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel wakeUp($data)
+	 */
+	class EO_Queue {
+		/* @var \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\QueueTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\QueueTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model {
+	/**
+	 * JobCollectionModel
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getCollabIdList()
+	 * @method \int[] fillCollabId()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \string[] getTypeList()
+	 * @method \string[] fillType()
+	 * @method \Bitrix\Main\Type\DateTime[] getCreatedDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillCreatedDate()
+	 * @method \Bitrix\Main\Type\DateTime[] getNextExecutionList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillNextExecution()
+	 * @method null|\Bitrix\Main\Type\DateTime[] getProcessedDateList()
+	 * @method null|\Bitrix\Main\Type\DateTime[] fillProcessedDate()
+	 * @method \boolean[] getIsProcessedList()
+	 * @method \boolean[] fillIsProcessed()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobCollectionModel getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel $object)
+	 * @method bool has(\Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobCollectionModel wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobCollectionModel merge(?\Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobCollectionModel $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_Queue_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\QueueTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\QueueTable';
+	}
+}
+namespace Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Queue_Result exec()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel fetchObject()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobCollectionModel fetchCollection()
+	 */
+	class EO_Queue_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel fetchObject()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobCollectionModel fetchCollection()
+	 */
+	class EO_Queue_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobCollectionModel createCollection()
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobModel wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\Collab\Onboarding\Internals\Model\JobCollectionModel wakeUpCollection($rows)
+	 */
+	class EO_Queue_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogTagTable:socialnetwork/lib/logtag.php */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogTag
+	 * @see \Bitrix\Socialnetwork\LogTagTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getLogId()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
+	 * @method bool hasLogId()
+	 * @method bool isLogIdFilled()
+	 * @method bool isLogIdChanged()
+	 * @method \int remindActualLogId()
+	 * @method \int requireLogId()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag resetLogId()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag unsetLogId()
+	 * @method \int fillLogId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log getLog()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log remindActualLog()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log requireLog()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag setLog(\Bitrix\Socialnetwork\Internals\Log\Log $object)
+	 * @method \Bitrix\Socialnetwork\EO_LogTag resetLog()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag unsetLog()
+	 * @method bool hasLog()
+	 * @method bool isLogFilled()
+	 * @method bool isLogChanged()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log fillLog()
+	 * @method \string getItemType()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag setItemType(\string|\Bitrix\Main\DB\SqlExpression $itemType)
+	 * @method bool hasItemType()
+	 * @method bool isItemTypeFilled()
+	 * @method bool isItemTypeChanged()
+	 * @method \string getItemId()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag setItemId(\string|\Bitrix\Main\DB\SqlExpression $itemId)
+	 * @method bool hasItemId()
+	 * @method bool isItemIdFilled()
+	 * @method bool isItemIdChanged()
+	 * @method \string getName()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag setName(\string|\Bitrix\Main\DB\SqlExpression $name)
 	 * @method bool hasName()
 	 * @method bool isNameFilled()
 	 * @method bool isNameChanged()
@@ -7055,9 +6879,9 @@ namespace Bitrix\Socialnetwork {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag unset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogTag set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_LogTag reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogTag unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -7065,11 +6889,11 @@ namespace Bitrix\Socialnetwork {
 	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_LogTag wakeUp($data)
 	 */
-	class EO_WorkgroupTag {
-		/* @var \Bitrix\Socialnetwork\WorkgroupTagTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupTagTable';
+	class EO_LogTag {
+		/* @var \Bitrix\Socialnetwork\LogTagTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogTagTable';
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
@@ -7078,48 +6902,51 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * EO_WorkgroupTag_Collection
+	 * EO_LogTag_Collection
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
-	 * @method \int[] getGroupIdList()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntity[] getGroupList()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection getGroupCollection()
-	 * @method \Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection fillGroup()
+	 * @method \int[] getLogIdList()
+	 * @method \int[] fillLogId()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\Log[] getLogList()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag_Collection getLogCollection()
+	 * @method \Bitrix\Socialnetwork\Internals\Log\LogCollection fillLog()
+	 * @method \string[] getItemTypeList()
+	 * @method \string[] getItemIdList()
 	 * @method \string[] getNameList()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_WorkgroupTag $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_WorkgroupTag $object)
+	 * @method void add(\Bitrix\Socialnetwork\EO_LogTag $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_LogTag $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_WorkgroupTag $object)
+	 * @method \Bitrix\Socialnetwork\EO_LogTag getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogTag[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogTag $object)
 	 * @method void removeByPrimary($primary)
 	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection wakeUp($data)
+	 * @method static \Bitrix\Socialnetwork\EO_LogTag_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
 	 * @method void offsetExists() ArrayAccess
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag current() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_LogTag current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection merge(?\Bitrix\Socialnetwork\EO_WorkgroupTag_Collection $collection)
+	 * @method \Bitrix\Socialnetwork\EO_LogTag_Collection merge(?\Bitrix\Socialnetwork\EO_LogTag_Collection $collection)
 	 * @method bool isEmpty()
 	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
-	class EO_WorkgroupTag_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\WorkgroupTagTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupTagTable';
+	class EO_LogTag_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\LogTagTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogTagTable';
 	}
 }
 namespace Bitrix\Socialnetwork {
@@ -7127,160 +6954,21 @@ namespace Bitrix\Socialnetwork {
 	 * Common methods:
 	 * ---------------
 	 *
-	 * @method EO_WorkgroupTag_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection fetchCollection()
+	 * @method EO_LogTag_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag_Collection fetchCollection()
 	 */
-	class EO_WorkgroupTag_Query extends \Bitrix\Main\ORM\Query\Query {}
+	class EO_LogTag_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection fetchCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag_Collection fetchCollection()
 	 */
-	class EO_WorkgroupTag_Result extends \Bitrix\Main\ORM\Query\Result {}
+	class EO_LogTag_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection wakeUpCollection($rows)
+	 * @method \Bitrix\Socialnetwork\EO_LogTag createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_LogTag_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogTag wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_LogTag_Collection wakeUpCollection($rows)
 	 */
-	class EO_WorkgroupTag_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogSubscribeTable:socialnetwork/lib/logsubscribe.php */
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_LogSubscribe
-	 * @see \Bitrix\Socialnetwork\LogSubscribeTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getUserId()
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \int getLogId()
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
-	 * @method bool hasLogId()
-	 * @method bool isLogIdFilled()
-	 * @method bool isLogIdChanged()
-	 * @method \string getType()
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe setType(\string|\Bitrix\Main\DB\SqlExpression $type)
-	 * @method bool hasType()
-	 * @method bool isTypeFilled()
-	 * @method bool isTypeChanged()
-	 * @method \Bitrix\Main\Type\DateTime getEndDate()
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe setEndDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $endDate)
-	 * @method bool hasEndDate()
-	 * @method bool isEndDateFilled()
-	 * @method bool isEndDateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualEndDate()
-	 * @method \Bitrix\Main\Type\DateTime requireEndDate()
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe resetEndDate()
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe unsetEndDate()
-	 * @method \Bitrix\Main\Type\DateTime fillEndDate()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe set($fieldName, $value)
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe reset($fieldName)
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Socialnetwork\EO_LogSubscribe wakeUp($data)
-	 */
-	class EO_LogSubscribe {
-		/* @var \Bitrix\Socialnetwork\LogSubscribeTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogSubscribeTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * EO_LogSubscribe_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getUserIdList()
-	 * @method \int[] getLogIdList()
-	 * @method \string[] getTypeList()
-	 * @method \Bitrix\Main\Type\DateTime[] getEndDateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillEndDate()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Socialnetwork\EO_LogSubscribe $object)
-	 * @method bool has(\Bitrix\Socialnetwork\EO_LogSubscribe $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe getByPrimary($primary)
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe[] getAll()
-	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogSubscribe $object)
-	 * @method void removeByPrimary($primary)
-	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Socialnetwork\EO_LogSubscribe_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe_Collection merge(?\Bitrix\Socialnetwork\EO_LogSubscribe_Collection $collection)
-	 * @method bool isEmpty()
-	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
-	 */
-	class EO_LogSubscribe_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Socialnetwork\LogSubscribeTable */
-		static public $dataClass = '\Bitrix\Socialnetwork\LogSubscribeTable';
-	}
-}
-namespace Bitrix\Socialnetwork {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_LogSubscribe_Result exec()
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe_Collection fetchCollection()
-	 */
-	class EO_LogSubscribe_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe fetchObject()
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe_Collection fetchCollection()
-	 */
-	class EO_LogSubscribe_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe createObject($setDefaultValues = true)
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe_Collection createCollection()
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe wakeUpObject($row)
-	 * @method \Bitrix\Socialnetwork\EO_LogSubscribe_Collection wakeUpCollection($rows)
-	 */
-	class EO_LogSubscribe_Entity extends \Bitrix\Main\ORM\Entity {}
+	class EO_LogTag_Entity extends \Bitrix\Main\ORM\Entity {}
 }

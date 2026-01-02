@@ -49,6 +49,25 @@ class HoldEntity
 		return $result;
 	}
 
+	public static function checkBlockCode(string $type): void
+	{
+		$data = static::get();
+		if (is_array($data[$type]))
+		{
+			$key = array_keys($data[$type])[0];
+			$code = $data[$type][$key];
+			$url = static::getUrl($type, $code);
+			if (!empty($url))
+			{
+				Notification::set(static::NOTIFICATION_CODE, $url);
+			}
+			else
+			{
+				Notification::reset();
+			}
+		}
+	}
+
 	private static function getUrl(string $type, string $code) : string
 	{
 		$url = '';

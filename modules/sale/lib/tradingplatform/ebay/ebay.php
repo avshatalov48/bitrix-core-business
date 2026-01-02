@@ -2,6 +2,7 @@
 
 namespace Bitrix\Sale\TradingPlatform\Ebay;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\TradingPlatform\Logger;
 use Bitrix\Sale\TradingPlatform\Platform;
@@ -26,7 +27,7 @@ class Ebay extends Platform
 
 	public static function getSftpTokenUrl($accountName)
 	{
-		return "https://".self::getServiceHost()."/buy_tmp/ebay/".
+		return "https://".self::getServiceHost()."/ebay/".
 			"?action=OAUTH_AUTH".
 			"&LICENCE_HASH=".self::getLicenseHash().
 			"&ACCOUNT_NAME=".htmlspecialcharsbx($accountName).
@@ -35,7 +36,7 @@ class Ebay extends Platform
 
 	public static function getApiTokenUrl()
 	{
-		return "https://".self::getServiceHost()."/buy_tmp/ebay/".
+		return "https://".self::getServiceHost()."/ebay/".
 			"?action=GET_AUTH_URL&LICENCE_HASH=".self::getLicenseHash().
 			"&BACK_URL=".urlencode((\CMain::IsHTTPS() ? "https://" : "http://").$_SERVER['HTTP_HOST']);
 	}
@@ -47,7 +48,20 @@ class Ebay extends Platform
 
 	protected static function getServiceHost()
 	{
-		return defined('SALE_EBAY_SERVICE_HOST') ? SALE_EBAY_SERVICE_HOST : 'www.1c-bitrix.ru';
+		if (defined('SALE_EBAY_SERVICE_HOST'))
+		{
+			return SALE_EBAY_SERVICE_HOST;
+		}
+
+		$region = Application::getInstance()->getLicense()->getRegion();
+		if ($region === 'ru' || $region === 'by' || $region === 'kz')
+		{
+			return 'util.1c-bitrix.ru';
+		}
+		else
+		{
+			return 'util.bitrixsoft.com';
+		}
 	}
 
 	/**

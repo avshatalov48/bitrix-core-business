@@ -10,7 +10,21 @@ use COption;
 
 if(!defined("BITRIX_CLOUD_ADV_URL"))
 {
-	define("BITRIX_CLOUD_ADV_URL", 'https://cloud-adv.bitrix.info');
+	$domain = 'bitrix.info';
+	if (
+		class_exists('\Bitrix\Main\License\UrlProvider')
+		&& method_exists('\Bitrix\Main\License\UrlProvider',
+			'getTechDomain'
+		)
+		&& \Bitrix\Sender\Integration\Bitrix24\Service::isRegionRussian(true)
+	)
+	{
+		$domain = (new \Bitrix\Main\License\UrlProvider())->getTechDomain();
+	}
+
+	$cloudAdvUrl = 'https://cloud-adv.' . $domain;
+
+	define("BITRIX_CLOUD_ADV_URL", $cloudAdvUrl);
 }
 
 if(!defined("SEO_BITRIX_API_URL"))

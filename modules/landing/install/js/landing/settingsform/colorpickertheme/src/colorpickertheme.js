@@ -23,7 +23,6 @@ export class ColorPickerTheme extends EventEmitter
 
 	init()
 	{
-		this.setMetric();
 		const color = this.initPreviewColor();
 		const active = this.isActive();
 
@@ -45,15 +44,6 @@ export class ColorPickerTheme extends EventEmitter
 		});
 
 		BX.bind(this.element, 'click', this.open.bind(this));
-	}
-
-	setMetric(): void
-	{
-		this.metrika = null;
-		if (typeof BX.Landing.Metrika !== 'undefined')
-		{
-			this.metrika = new BX.Landing.Metrika();
-		}
 	}
 
 	initPreviewColor(): string
@@ -122,20 +112,6 @@ export class ColorPickerTheme extends EventEmitter
 		this.emit('onSelectCustomColor', event);
 
 		this.input.setAttribute('value', color);
-
-		this.sendMetric(color);
-	}
-
-	sendMetric(color): void
-	{
-		if (this.metrika)
-		{
-			this.metrika.sendLabel(
-				null,
-				'Color::CustomSet',
-				color.substr(1)
-			);
-		}
 	}
 
 	open(): void

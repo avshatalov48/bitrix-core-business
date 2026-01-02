@@ -15,7 +15,7 @@ $MESS['BIZPROC_USER_PROCESSES_TEMPLATE_COUNTERS_COMMENT'] = 'Комментар�
 
 $MESS['BIZPROC_USER_PROCESSES_TEMPLATE_TASK_TOUCHED'] = 'Задание «#TASK_NAME#» выполнено';
 
-$MESS['BIZPROC_RENDERED_RESULT_NO_RIGHTS_VIEW'] = 'Недостаточно прав для просмотра результата';
-$MESS['BIZPROC_RENDERED_RESULT_NO_RIGHTS_TOOLTIP'] = 'Чтобы просматривать результаты бизнес-процессов, обратитесь к руководителю или администратору вашего Битрикс24';
-$MESS['BIZPROC_RENDERED_RESULT_POSITIVE_RESULT_FOR'] = 'Бизнес-процесс завершён для #USER#';
-$MESS['BIZPROC_RENDERED_RESULT_VALUE'] = 'Результат процесса:';
+$MESS['BIZPROC_USER_PROCESSES_POPUP_PUSH_TITLE'] = 'Управляйте процессами в мобильном приложении';
+$MESS['BIZPROC_USER_PROCESSES_POPUP_PUSH_DO_PROCESS'] = 'Выполняйте любые процессы на телефоне';
+$MESS['BIZPROC_USER_PROCESSES_POPUP_PUSH_REACT'] = 'Моментально реагируйте на комментарии';
+$MESS['BIZPROC_USER_PROCESSES_POPUP_PUSH_CONTROL'] = 'Контролируйте процессы из любой точки';

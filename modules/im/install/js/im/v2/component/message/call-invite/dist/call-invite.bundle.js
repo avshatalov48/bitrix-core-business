@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_public,im_v2_const,im_v2_lib_call,im_v2_lib_permission,main_core,im_v2_component_elements,im_v2_component_message_base,im_v2_component_message_elements,im_v2_lib_utils) {
+(function (exports,im_public,im_v2_const,im_v2_lib_call,im_v2_lib_permission,main_core,im_v2_component_elements_button,im_v2_component_message_base,im_v2_component_message_elements,im_v2_lib_utils) {
 	'use strict';
 
 	const BUTTON_COLOR = '#00ace3';
@@ -12,7 +12,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const CallInviteMessage = {
 	  name: 'CallInviteMessage',
 	  components: {
-	    ButtonComponent: im_v2_component_elements.Button,
+	    ChatButton: im_v2_component_elements_button.ChatButton,
 	    BaseMessage: im_v2_component_message_base.BaseMessage,
 	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
 	    MessageHeader: im_v2_component_message_elements.MessageHeader
@@ -32,8 +32,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  computed: {
-	    ButtonSize: () => im_v2_component_elements.ButtonSize,
-	    ButtonIcon: () => im_v2_component_elements.ButtonIcon,
+	    ButtonSize: () => im_v2_component_elements_button.ButtonSize,
+	    ButtonIcon: () => im_v2_component_elements_button.ButtonIcon,
 	    buttonColorScheme() {
 	      return {
 	        backgroundColor: 'transparent',
@@ -97,7 +97,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 						</div>
 						<div v-if="isAvailable" class="bx-im-message-call-invite__buttons_container">
 							<div class="bx-im-message-call-invite__buttons_item">
-								<ButtonComponent
+								<ChatButton
 									:size="ButtonSize.L"
 									:icon="ButtonIcon.Call"
 									:customColorScheme="buttonColorScheme"

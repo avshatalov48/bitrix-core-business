@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Localization;
 
 use Bitrix\Main;
@@ -10,12 +11,12 @@ use Bitrix\Main\Text\Encoding;
 final class Loc
 {
 	private static $currentLang = null;
-	private static $messages = array();
-	private static $customMessages = array();
-	private static $userMessages = array();
-	private static $includedFiles = array();
-	private static $lazyLoadFiles = array();
-	private static $triedFiles = array();
+	private static $messages = [];
+	private static $customMessages = [];
+	private static $userMessages = [];
+	private static $includedFiles = [];
+	private static $lazyLoadFiles = [];
+	private static $triedFiles = [];
 
 	/**
 	 * Returns translation by message code.
@@ -28,10 +29,10 @@ final class Loc
 	 */
 	public static function getMessage($code, $replace = null, $language = null)
 	{
-		if($language === null)
+		if ($language === null)
 		{
 			//function call optimization
-			if(self::$currentLang === null)
+			if (self::$currentLang === null)
 			{
 				$language = self::getCurrentLang();
 			}
@@ -41,7 +42,7 @@ final class Loc
 			}
 		}
 
-		if(!isset(self::$messages[$language][$code]))
+		if (!isset(self::$messages[$language][$code]))
 		{
 			self::loadLazy($code, $language);
 		}
@@ -63,7 +64,7 @@ final class Loc
 	 */
 	public static function loadMessages($file)
 	{
-		if(($realPath = realpath($file)) !== false)
+		if (($realPath = realpath($file)) !== false)
 		{
 			$file = $realPath;
 		}
@@ -77,19 +78,19 @@ final class Loc
 	 */
 	public static function getCurrentLang()
 	{
-		if(self::$currentLang === null)
+		if (self::$currentLang === null)
 		{
 			$context = Context::getCurrent();
-			if($context !== null)
+			if ($context !== null)
 			{
 				$language = $context->getLanguage();
-				if($language !== null)
+				if ($language !== null)
 				{
 					self::$currentLang = $language;
 				}
 			}
 		}
-		return (self::$currentLang !== null? self::$currentLang : 'en');
+		return (self::$currentLang !== null ? self::$currentLang : 'en');
 	}
 
 	public static function setCurrentLang($language)
@@ -108,7 +109,7 @@ final class Loc
 	 */
 	private static function includeLangFiles($file, $language, &$loadedLangFile)
 	{
-		static $langDirCache = array();
+		static $langDirCache = [];
 
 		// open_basedir restriction
 		static $openBasedir = [], $openBasedirRestriction;
@@ -140,7 +141,7 @@ final class Loc
 
 		$path = Path::getDirectory($file);
 
-		if(isset($langDirCache[$path]))
+		if (isset($langDirCache[$path]))
 		{
 			$langDir = $langDirCache[$path];
 			$fileName = mb_substr($file, (mb_strlen($langDir) - 5));
@@ -169,7 +170,7 @@ final class Loc
 						break;
 					}
 				}
-				$langPath = $filePath. '/lang';
+				$langPath = $filePath . '/lang';
 				if (is_dir($langPath))
 				{
 					$langDir = $langPath;
@@ -180,18 +181,18 @@ final class Loc
 			}
 		}
 
-		$mess = array();
-		if($langDir <> '')
+		$mess = [];
+		if ($langDir <> '')
 		{
 			//load messages for default lang first
 			$defaultLang = self::getDefaultLang($language);
-			if($defaultLang <> $language)
+			if ($defaultLang <> $language)
 			{
-				$langFile = $langDir. '/'. $defaultLang. $fileName;
+				$langFile = $langDir . '/' . $defaultLang . $fileName;
 
 				$langFile = Translation::convertLangPath($langFile, $defaultLang);
 
-				if(file_exists($langFile))
+				if (file_exists($langFile))
 				{
 					$mess = self::includeFile($langFile);
 					$loadedLangFile = $langFile;
@@ -199,11 +200,11 @@ final class Loc
 			}
 
 			//then load messages for specified lang
-			$langFile = $langDir. '/'. $language. $fileName;
+			$langFile = $langDir . '/' . $language . $fileName;
 
 			$langFile = Translation::convertLangPath($langFile, $language);
 
-			if(file_exists($langFile))
+			if (file_exists($langFile))
 			{
 				$mess = array_merge($mess, self::includeFile($langFile));
 				$loadedLangFile = $langFile;
@@ -223,23 +224,23 @@ final class Loc
 	 */
 	public static function loadLanguageFile($file, $language = null, $normalize = true)
 	{
-		if($language === null)
+		if ($language === null)
 		{
 			$language = self::getCurrentLang();
 		}
 
-		if($normalize)
+		if ($normalize)
 		{
 			$file = Path::normalize($file);
 		}
 
-		if(!isset(self::$messages[$language]))
+		if (!isset(self::$messages[$language]))
 		{
-			self::$messages[$language] = array();
+			self::$messages[$language] = [];
 		}
 
 		//first time call only for lang
-		if(!isset(self::$userMessages[$language]))
+		if (!isset(self::$userMessages[$language]))
 		{
 			self::$userMessages[$language] = self::loadUserMessages($language);
 		}
@@ -284,14 +285,14 @@ final class Loc
 	 */
 	public static function loadCustomMessages($file, $language = null)
 	{
-		if($language === null)
+		if ($language === null)
 		{
 			$language = self::getCurrentLang();
 		}
 
-		if(!isset(self::$customMessages[$language]))
+		if (!isset(self::$customMessages[$language]))
 		{
-			self::$customMessages[$language] = array();
+			self::$customMessages[$language] = [];
 		}
 
 		//let's find language folder and include lang files
@@ -319,13 +320,13 @@ final class Loc
 
 	private static function loadLazy($code, $language)
 	{
-		if($code == '')
+		if ($code == '')
 		{
 			return;
 		}
 
 		//control of duplicates
-		if(!isset(self::$triedFiles[$language]))
+		if (!isset(self::$triedFiles[$language]))
 		{
 			self::$triedFiles[$language] = [];
 		}
@@ -333,7 +334,7 @@ final class Loc
 		$trace = Main\Diag\Helper::getBackTrace(4, DEBUG_BACKTRACE_IGNORE_ARGS);
 
 		$currentFile = null;
-		for($i = 3; $i >= 1; $i--)
+		for ($i = 3; $i >= 1; $i--)
 		{
 			if (isset($trace[$i]) && stripos($trace[$i]["function"], "GetMessage") === 0)
 			{
@@ -345,10 +346,10 @@ final class Loc
 			}
 		}
 
-		if($currentFile !== null && isset(self::$lazyLoadFiles[$currentFile]))
+		if ($currentFile !== null && isset(self::$lazyLoadFiles[$currentFile]))
 		{
 			//in most cases we know the file containing the "code" - load it directly
-			if(!isset(self::$triedFiles[$language][$currentFile]))
+			if (!isset(self::$triedFiles[$language][$currentFile]))
 			{
 				self::loadLanguageFile($currentFile, $language, false);
 				self::$triedFiles[$language][$currentFile] = true;
@@ -356,41 +357,41 @@ final class Loc
 			unset(self::$lazyLoadFiles[$currentFile]);
 		}
 
-		if(!isset(self::$messages[$language][$code]))
+		if (!isset(self::$messages[$language][$code]))
 		{
 			//we still don't know which file contains the "code" - go through the files in the reverse order
-			$unset = array();
-			if(($file = end(self::$lazyLoadFiles)) !== false)
+			$unset = [];
+			if (($file = end(self::$lazyLoadFiles)) !== false)
 			{
 				do
 				{
-					if(!isset(self::$triedFiles[$language][$file]))
+					if (!isset(self::$triedFiles[$language][$file]))
 					{
 						self::loadLanguageFile($file, $language, false);
 						self::$triedFiles[$language][$file] = true;
 					}
 
 					$unset[] = $file;
-					if(isset(self::$messages[$language][$code]))
+					if (isset(self::$messages[$language][$code]))
 					{
-						if(defined("BX_MESS_LOG") && $currentFile !== null)
+						if (defined("BX_MESS_LOG") && $currentFile !== null)
 						{
-							file_put_contents(BX_MESS_LOG, 'CTranslateUtils::CopyMessage("'.$code.'", "'.$file.'", "'.$currentFile.'");'."\n", FILE_APPEND);
+							file_put_contents(BX_MESS_LOG, 'CTranslateUtils::CopyMessage("' . $code . '", "' . $file . '", "' . $currentFile . '");' . "\n", FILE_APPEND);
 						}
 						break;
 					}
 				}
-				while(($file = prev(self::$lazyLoadFiles)) !== false);
+				while (($file = prev(self::$lazyLoadFiles)) !== false);
 			}
-			foreach($unset as $file)
+			foreach ($unset as $file)
 			{
 				unset(self::$lazyLoadFiles[$file]);
 			}
 		}
 
-		if(!isset(self::$messages[$language][$code]) && defined("BX_MESS_LOG"))
+		if (!isset(self::$messages[$language][$code]) && defined("BX_MESS_LOG"))
 		{
-			file_put_contents(BX_MESS_LOG, $code.": not found for ".$currentFile."\n", FILE_APPEND);
+			file_put_contents(BX_MESS_LOG, $code . ": not found for " . $currentFile . "\n", FILE_APPEND);
 		}
 	}
 
@@ -402,16 +403,18 @@ final class Loc
 	 */
 	private static function loadUserMessages($lang)
 	{
-		$userMess = array();
+		$userMess = [];
 		$documentRoot = Main\Application::getDocumentRoot();
-		if(($fname = Main\Loader::getLocal("php_interface/user_lang/".$lang."/lang.php", $documentRoot)) !== false)
+		if (($fname = Main\Loader::getLocal("php_interface/user_lang/" . $lang . "/lang.php", $documentRoot)) !== false)
 		{
 			$mess = self::includeFile($fname);
 
 			// typical call is Loc::loadMessages(__FILE__)
 			// __FILE__ can differ from path used in the user file
-			foreach($mess as $key => $val)
-				$userMess[str_replace("\\", "/", realpath($documentRoot.$key))] = $val;
+			foreach ($mess as $key => $val)
+			{
+				$userMess[str_replace("\\", "/", realpath($documentRoot . $key))] = $val;
+			}
 		}
 		return $userMess;
 	}
@@ -427,20 +430,20 @@ final class Loc
 		self::$includedFiles[$path] = $path;
 
 		//the name $MESS is predefined in language files
-		$MESS = array();
+		$MESS = [];
 		include($path);
 
 		//redefine messages from user lang file
-		if(!empty(self::$userMessages))
+		if (!empty(self::$userMessages))
 		{
 			$path = str_replace("\\", "/", realpath($path));
 
 			//cycle through languages
-			foreach(self::$userMessages as $messages)
+			foreach (self::$userMessages as $messages)
 			{
-				if(isset($messages[$path]) && is_array($messages[$path]))
+				if (isset($messages[$path]) && is_array($messages[$path]))
 				{
-					foreach($messages[$path] as $key => $val)
+					foreach ($messages[$path] as $key => $val)
 					{
 						$MESS[$key] = $val;
 					}
@@ -460,13 +463,13 @@ final class Loc
 	public static function getDefaultLang($lang)
 	{
 		static $subst = ['ua' => 'en', 'kz' => 'ru', 'by' => 'ru', 'ru' => 'ru', 'en' => 'en', 'de' => 'en'];
-		if(isset($subst[$lang]))
+		if (isset($subst[$lang]))
 		{
 			return $subst[$lang];
 		}
 
 		$options = Configuration::getValue("default_language");
-		if(isset($options[$lang]))
+		if (isset($options[$lang]))
 		{
 			return $options[$lang];
 		}
@@ -484,16 +487,7 @@ final class Loc
 	}
 
 	/**
-	 * Gets plural message by id and number
-	 * @param {string} messageId
-	 * @param {number} value
-	 * @param {object} [replacements]
-	 * @return {?string}
-	 */
-
-	/**
 	 * Returns plural message by message code and number.
-	 * Loc::loadMessages(__FILE__) should be called first once per php file
 	 *
 	 * @param string $code
 	 * @param int $value
@@ -501,14 +495,8 @@ final class Loc
 	 * @param string|null $language
 	 * @return string|null
 	 */
-	public static function getMessagePlural(string $code, int $value, array $replace = null, string $language = null): ?string
+	public static function getMessagePlural(string $code, int $value, ?array $replace = null, ?string $language = null): ?string
 	{
-		$language = (string)$language;
-		if ($language === '')
-		{
-			$language = LANGUAGE_ID;
-		}
-
 		$result = self::getMessage($code . '_PLURAL_' . self::getPluralForm($value, $language), $replace);
 		if ($result === null)
 		{
@@ -520,18 +508,17 @@ final class Loc
 
 	/**
 	 * Return language plural form id by number
-	 * see http://docs.translatehouse.org/projects/localization-guide/en/latest/l10n/pluralforms.html
-	 * @param {number} value
-	 * @param {string} languageId
-	 * @return integer
+	 * @see http://docs.translatehouse.org/projects/localization-guide/en/latest/l10n/pluralforms.html
+	 * @param int $value
+	 * @param string | null $language
+	 * @return int
 	 */
-	public static function getPluralForm($value, $language = ''): int
+	public static function getPluralForm($value, $language = null): int
 	{
 		$value = (int)$value;
-		$language = (string)$language;
-		if ($language === '')
+		if ($language === null)
 		{
-			$language = LANGUAGE_ID;
+			$language = self::getCurrentLang();
 		}
 
 		if ($value < 0)
@@ -542,36 +529,26 @@ final class Loc
 		switch ($language)
 		{
 			case 'ar':
-				$pluralForm = (($value !== 1) ? 1 : 0);
-/*
-				if ($value === 0)
+				if ($value == 0)
 				{
 					$pluralForm = 0;
 				}
-				else if ($value === 1)
+				elseif ($value == 1 || $value % 100 == 0)
 				{
 					$pluralForm = 1;
 				}
-				else if ($value === 2)
+				elseif ($value == 2)
 				{
 					$pluralForm = 2;
 				}
-				else if (
-					$value % 100 >= 3
-					&& $value % 100 <= 10
-				)
+				elseif (($value % 100) >= 3 && ($value % 100) <= 10)
 				{
 					$pluralForm = 3;
 				}
-				else if ($value % 100 >= 11)
+				else
 				{
 					$pluralForm = 4;
 				}
-				else
-				{
-					$pluralForm = 5;
-				}
-*/
 				break;
 
 			case 'br':
@@ -597,7 +574,7 @@ final class Loc
 				{
 					$pluralForm = 0;
 				}
-				else if (
+				elseif (
 					($value % 10 >= 2)
 					&& ($value % 10 <= 4)
 					&& (
@@ -619,7 +596,7 @@ final class Loc
 				{
 					$pluralForm = 0;
 				}
-				else if (
+				elseif (
 					$value % 10 >= 2
 					&& $value % 10 <= 4
 					&& (
@@ -652,7 +629,5 @@ final class Loc
 		}
 
 		return $pluralForm;
-
 	}
-
 }

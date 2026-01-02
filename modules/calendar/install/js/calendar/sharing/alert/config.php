@@ -8,8 +8,8 @@ return [
 	'css' => 'dist/alert.bundle.css',
 	'js' => 'dist/alert.bundle.js',
 	'rel' => [
-		'main.polyfill.core',
+		'main.core',
 		'ui.vue3',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

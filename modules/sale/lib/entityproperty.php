@@ -159,7 +159,10 @@ abstract class EntityProperty
 			}
 		}
 
-		$this->fields['DEFAULT_VALUE'] = $this->normalizeValue($this->fields['DEFAULT_VALUE']);
+		if (isset($this->fields['DEFAULT_VALUE']))
+		{
+			$this->fields['DEFAULT_VALUE'] = $this->normalizeValue($this->fields['DEFAULT_VALUE']);
+		}
 	}
 
 	/**
@@ -216,7 +219,7 @@ abstract class EntityProperty
 		}
 		elseif ($this->fields['TYPE'] === "STRING")
 		{
-			if ($this->fields['IS_EMAIL'] === "Y" && !empty($value))
+			if (isset($this->fields['IS_EMAIL']) && $this->fields['IS_EMAIL'] === "Y" && !empty($value))
 			{
 				$value = trim((string)$value);
 			}

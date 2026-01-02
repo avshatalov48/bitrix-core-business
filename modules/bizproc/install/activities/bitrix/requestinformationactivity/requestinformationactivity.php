@@ -203,14 +203,14 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 		{
 			$taskParameters["TaskButtonMessage"] = Loc::getMessage("BPRIA_ACT_BUTTON1");
 		}
-		$taskParameters["CommentLabelMessage"] =
-			$this->isPropertyExists("CommentLabelMessage")
+		$taskParameters['CommentLabelMessage'] =
+			$this->isPropertyExists('CommentLabelMessage')
 				? $this->CommentLabelMessage
-				: Loc::getMessage("BPRIA_ACT_COMMENT")
+				: Loc::getMessage('BPRIA_ACT_COMMENT_1')
 		;
-		if ($taskParameters["CommentLabelMessage"] == '')
+		if ($taskParameters['CommentLabelMessage'] == '')
 		{
-			$taskParameters["CommentLabelMessage"] = Loc::getMessage("BPRIA_ACT_COMMENT");
+			$taskParameters['CommentLabelMessage'] = Loc::getMessage('BPRIA_ACT_COMMENT_1');
 		}
 		$taskParameters["ShowComment"] = $this->isPropertyExists("ShowComment") ? $this->ShowComment : "Y";
 		if ($taskParameters["ShowComment"] != "Y" && $taskParameters["ShowComment"] != "N")
@@ -492,7 +492,7 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 
 			$form .= sprintf(
 				$rowHtml,
-				$arTask["PARAMETERS"]["CommentLabelMessage"] ?: Loc::getMessage("BPRIA_ACT_COMMENT"),
+				$arTask['PARAMETERS']['CommentLabelMessage'] ?: Loc::getMessage('BPRIA_ACT_COMMENT_1'),
 				$required,
 				htmlspecialcharsbx($commentText)
 			);
@@ -556,11 +556,19 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 
 		if (($task["PARAMETERS"]["ShowComment"] ?? 'N') !== "N")
 		{
+			$description = match ($task['PARAMETERS']['CommentRequired'] ?? '')
+			{
+				'YA' => Loc::getMessage('BPRIA_COMMENT_REQUIRED_TO_APPROVE'),
+				'YR' => Loc::getMessage('BPRIA_COMMENT_REQUIRED_TO_REJECT'),
+				default => '',
+			};
+
 			$fields[] = [
 				'Id' => 'task_comment',
 				'Type' => 'text',
-				'Name' => $task["PARAMETERS"]["CommentLabelMessage"] ?: Loc::getMessage("BPRIA_ACT_COMMENT"),
+				'Name' => $task['PARAMETERS']['CommentLabelMessage'] ?: Loc::getMessage('BPRIA_ACT_COMMENT_1'),
 				'Required' => (($task['PARAMETERS']['CommentRequired'] ?? '') === 'Y'),
+				'Description' => $description,
 			];
 		}
 
@@ -916,9 +924,9 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 	protected static function getDefaultLabels()
 	{
 		return [
-			'comment_label_message' => Loc::getMessage("BPRIA_ACT_COMMENT"),
-			'task_button_message' => Loc::getMessage("BPRIA_ACT_BUTTON1"),
-			'status_message' => Loc::getMessage("BPRIA_ACT_INFO"),
+			'comment_label_message' => Loc::getMessage('BPRIA_ACT_COMMENT_1'),
+			'task_button_message' => Loc::getMessage('BPRIA_ACT_BUTTON1'),
+			'status_message' => Loc::getMessage('BPRIA_ACT_INFO'),
 		];
 	}
 
@@ -1057,7 +1065,7 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 				'Default' => static::getDefaultLabels()['task_button_message'],
 			],
 			"ShowComment" => [
-				'Name' => Loc::getMessage('BPAR_SHOW_COMMENT'),
+				'Name' => Loc::getMessage('BPAR_SHOW_COMMENT_1'),
 				'FieldName' => "show_comment",
 				'Type' => Bizproc\FieldType::SELECT,
 				'Options' => [
@@ -1067,7 +1075,7 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 				'Default' => 'Y',
 			],
 			'CommentRequired' => [
-				'Name' => Loc::getMessage('BPAR_COMMENT_REQUIRED'),
+				'Name' => Loc::getMessage('BPAR_COMMENT_REQUIRED_1'),
 				'FieldName' => 'comment_required',
 				'Type' => Bizproc\FieldType::SELECT,
 				'Options' => [
@@ -1076,9 +1084,9 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 				],
 				'Default' => 'N',
 			],
-			"CommentLabelMessage" => [
-				'Name' => Loc::getMessage('BPAR_COMMENT_LABEL_MESSAGE'),
-				'FieldName' => "comment_label_message",
+			'CommentLabelMessage' => [
+				'Name' => Loc::getMessage('BPAR_COMMENT_LABEL_MESSAGE_1'),
+				'FieldName' => 'comment_label_message',
 				'Type' => Bizproc\FieldType::STRING,
 				'Default' => static::getDefaultLabels()['comment_label_message'],
 			],

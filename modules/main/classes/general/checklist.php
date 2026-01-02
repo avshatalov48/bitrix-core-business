@@ -3,12 +3,13 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 use Bitrix\Main;
 use Bitrix\Main\Authentication\Policy;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Service\Version\BitrixVm;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -20,19 +21,23 @@ class CCheckList
 		$this->started = false;
 		$this->report_id = false;
 		$this->report_info = "";
-		$this->checklist_path = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/checklist_structure.php";
+		$this->checklist_path = $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/checklist_structure.php";
 		if (file_exists($this->checklist_path))
-			$arCheckList = include($this->checklist_path);
-		else
-			return;
-		//bind custom checklist
-		foreach(GetModuleEvents('main', 'OnCheckListGet', true) as $arEvent)
 		{
-			$arCustomChecklist = ExecuteModuleEventEx($arEvent, array($arCheckList));
+			$arCheckList = include($this->checklist_path);
+		}
+		else
+		{
+			return;
+		}
+		//bind custom checklist
+		foreach (GetModuleEvents('main', 'OnCheckListGet', true) as $arEvent)
+		{
+			$arCustomChecklist = ExecuteModuleEventEx($arEvent, [$arCheckList]);
 
 			if (is_array($arCustomChecklist["CATEGORIES"]))
 			{
-				foreach($arCustomChecklist["CATEGORIES"] as $section_id => $arSectionFields)
+				foreach ($arCustomChecklist["CATEGORIES"] as $section_id => $arSectionFields)
 				{
 					if (!$arCheckList["CATEGORIES"][$section_id])
 					{
@@ -42,7 +47,7 @@ class CCheckList
 			}
 			if (is_array($arCustomChecklist["POINTS"]))
 			{
-				foreach($arCustomChecklist["POINTS"] as $point_id => $arPointFields)
+				foreach ($arCustomChecklist["POINTS"] as $point_id => $arPointFields)
 				{
 					$parent = $arCustomChecklist["POINTS"][$point_id]["PARENT"];
 					if (!$arCheckList["POINTS"][$point_id] && array_key_exists($parent, $arCheckList["CATEGORIES"]))
@@ -55,45 +60,51 @@ class CCheckList
 		//end bind custom checklist
 		$this->checklist = $arCheckList;
 		$arFilter["REPORT"] = "N";
-		if (intval($ID)>0)
+		if (intval($ID) > 0)
 		{
 			$arFilter["ID"] = $ID;
 			$arFilter["REPORT"] = "Y";
 		}
 
-		$dbResult = CCheckListResult::GetList(array(), $arFilter);
+		$dbResult = CCheckListResult::GetList([], $arFilter);
 		if ($arCurrentResult = $dbResult->Fetch())
 		{
 			$this->current_result = unserialize($arCurrentResult["STATE"], ['allowed_classes' => false]);
-			if (intval($ID)>0)
+			if (intval($ID) > 0)
 			{
 				$this->report_id = intval($ID);
 				unset($arCurrentResult["STATE"]);
 				$this->report_info = $arCurrentResult;
 			}
 
-			foreach($arCheckList["POINTS"] as $key => $arFields)
+			foreach ($arCheckList["POINTS"] as $key => $arFields)
 			{
 				if (empty($this->current_result[$key]))
 				{
 					if ($this->report_id)
+					{
 						unset($this->checklist["POINTS"][$key]);
+					}
 					else
-						$this->current_result[$key] = array(
-							"STATUS" => "W");
+					{
+						$this->current_result[$key] = [
+							"STATUS" => "W"];
+					}
 				}
 				////$this->current_result[$key] = array("STATUS" => "A");
 			}
 		}
 		if ($this->current_result != false && $this->report_id == false)
+		{
 			$this->started = true;
+		}
 	}
 
 	function GetSections()
 	{
 		$arSections = $this->checklist["CATEGORIES"];
-		$arResult = array();
-		foreach($arSections as $key => $arFields)
+		$arResult = [];
+		foreach ($arSections as $key => $arFields)
 		{
 			$arResult[$key] = array_merge($this->GetDescription($key), $arFields);
 			$arResult[$key]["STATS"] = $this->GetSectionStat($key);
@@ -104,7 +115,7 @@ class CCheckList
 	//getting sections statistic
 	function GetSectionStat($ID = false)
 	{
-		$arResult = array(
+		$arResult = [
 			"CHECK" => 0,
 			"CHECK_R" => 0,
 			"FAILED" => 0,
@@ -112,61 +123,77 @@ class CCheckList
 			"TOTAL" => 0,
 			"REQUIRE_CHECK" => 0,
 			"REQUIRE_SKIP" => 0,
-			"NOT_REQUIRE_CHECK"=>0,
-			"NOT_REQUIRE_SKIP"=>0,
+			"NOT_REQUIRE_CHECK" => 0,
+			"NOT_REQUIRE_SKIP" => 0,
 			"CHECKED" => "N",
 			"REQUIRE" => 0,
-		);
+		];
 
-		if (($ID!=false && array_key_exists($ID, $this->checklist["CATEGORIES"])) || $ID == false)
+		if (($ID != false && array_key_exists($ID, $this->checklist["CATEGORIES"])) || $ID == false)
 		{
 			$arPoints = $this->GetPoints($ID);
 			$arSections = $this->checklist["CATEGORIES"];
 			if (!empty($arPoints))
+			{
 				foreach ($arPoints as $arPointFields)
 				{
 					if ($arPointFields["STATE"]["STATUS"] == "A")
 					{
 						$arResult["CHECK"]++;
-						if (isset($arPointFields['REQUIRE']) && $arPointFields['REQUIRE']=='Y')
+						if (isset($arPointFields['REQUIRE']) && $arPointFields['REQUIRE'] == 'Y')
+						{
 							$arResult["CHECK_R"]++;
+						}
 					}
 					if ($arPointFields["STATE"]["STATUS"] == "F")
+					{
 						$arResult["FAILED"]++;
+					}
 					if ($arPointFields["STATE"]["STATUS"] == "W")
+					{
 						$arResult["WAITING"]++;
+					}
 					if (isset($arPointFields["REQUIRE"]) && $arPointFields["REQUIRE"] == "Y")
 					{
 						$arResult["REQUIRE"]++;
 						if ($arPointFields["STATE"]["STATUS"] == "A")
+						{
 							$arResult["REQUIRE_CHECK"]++;
-						elseif($arPointFields["STATE"]["STATUS"] == "S")
+						}
+						elseif ($arPointFields["STATE"]["STATUS"] == "S")
+						{
 							$arResult["REQUIRE_SKIP"]++;
+						}
 					}
 					else
 					{
 						if ($arPointFields["STATE"]["STATUS"] == "A")
+						{
 							$arResult["NOT_REQUIRE_CHECK"]++;
-						elseif($arPointFields["STATE"]["STATUS"] == "S")
+						}
+						elseif ($arPointFields["STATE"]["STATUS"] == "S")
+						{
 							$arResult["NOT_REQUIRE_SKIP"]++;
+						}
 					}
 				}
+			}
 			$arResult["TOTAL"] = count($arPoints);
 
 			if ($ID)
 			{
-				foreach($arSections as $key => $arFields)
+				foreach ($arSections as $key => $arFields)
 				{
 					if (isset($arFields["PARENT"]) && $arFields["PARENT"] == $ID)
 					{
 						$arSubSectionStat = $this->GetSectionStat($key);
-						$arResult["TOTAL"]+=$arSubSectionStat["TOTAL"];
-						$arResult["CHECK"]+=$arSubSectionStat["CHECK"];
-						$arResult["FAILED"]+=$arSubSectionStat["FAILED"];
-						$arResult["WAITING"]+=$arSubSectionStat["WAITING"];
-						$arResult["REQUIRE"]+=$arSubSectionStat["REQUIRE"];
-						$arResult["REQUIRE_CHECK"]+=$arSubSectionStat["REQUIRE_CHECK"];
-						$arResult["REQUIRE_SKIP"]+=$arSubSectionStat["REQUIRE_SKIP"];
+						$arResult["TOTAL"] += $arSubSectionStat["TOTAL"];
+						$arResult["CHECK"] += $arSubSectionStat["CHECK"];
+						$arResult["FAILED"] += $arSubSectionStat["FAILED"];
+						$arResult["WAITING"] += $arSubSectionStat["WAITING"];
+						$arResult["REQUIRE"] += $arSubSectionStat["REQUIRE"];
+						$arResult["REQUIRE_CHECK"] += $arSubSectionStat["REQUIRE_CHECK"];
+						$arResult["REQUIRE_SKIP"] += $arSubSectionStat["REQUIRE_SKIP"];
 					}
 				}
 			}
@@ -176,7 +203,7 @@ class CCheckList
 				|| ($arResult["CHECK"] == $arResult["TOTAL"] && $arResult["TOTAL"] > 0)
 			)
 			{
-					$arResult["CHECKED"] = "Y";
+				$arResult["CHECKED"] = "Y";
 			}
 		}
 
@@ -186,17 +213,21 @@ class CCheckList
 	function GetPoints($arSectionCode = false)
 	{
 		$arCheckList = $this->GetCurrentState();
-		$arResult = array();
+		$arResult = [];
 		if (is_array($arCheckList) && !empty($arCheckList))
 		{
 			foreach ($arCheckList["POINTS"] as $key => $arFields)
 			{
 				$arFields = array_merge($this->GetDescription($key), $arFields);
 
-				if ($arFields["PARENT"] == $arSectionCode || $arSectionCode  == false)
+				if ($arFields["PARENT"] == $arSectionCode || $arSectionCode == false)
+				{
 					$arResult[$key] = $arFields;
+				}
 				if (isset($arResult[$key]["STATE"]['COMMENTS']) && is_array($arResult[$key]["STATE"]['COMMENTS']))
+				{
 					$arResult[$key]["STATE"]['COMMENTS_COUNT'] = count($arResult[$key]["STATE"]['COMMENTS']);
+				}
 			}
 		}
 
@@ -210,8 +241,8 @@ class CCheckList
 		{
 			if (empty($arSectionFields["CATEGORIES"]))
 			{
-				$arSections[$key]["CATEGORIES"] = array();
-				$arSectionFields["CATEGORIES"] = array();
+				$arSections[$key]["CATEGORIES"] = [];
+				$arSectionFields["CATEGORIES"] = [];
 			}
 			if (empty($arSectionFields["PARENT"]))
 			{
@@ -232,21 +263,22 @@ class CCheckList
 		return $arResult;
 	}
 
-
-
-	function PointUpdate($arTestID, $arPointFields = array())
+	function PointUpdate($arTestID, $arPointFields = [])
 	{//update test info in the object property
 		if (!$arTestID || empty($arPointFields) || $this->report_id)
+		{
 			return false;
+		}
 
 		$currentFields =
 			is_array($this->current_result) && isset($this->current_result[$arTestID])
 				? $this->current_result[$arTestID]
-				: []
-		;
+				: [];
 
 		if (!$arPointFields["STATUS"])
+		{
 			$arPointFields["STATUS"] = $currentFields["STATUS"];
+		}
 
 		$this->current_result[$arTestID] = $arPointFields;
 
@@ -256,7 +288,7 @@ class CCheckList
 	function GetDescription($ID)
 	{
 		//getting description of sections and points
-		$file = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/".LANG."/admin/checklist/".$ID.".html";
+		$file = $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/lang/" . LANG . "/admin/checklist/" . $ID . ".html";
 		$howTo = "";
 		if (file_exists($file))
 		{
@@ -274,25 +306,26 @@ class CCheckList
 			}
 		}
 
-		$arDesc = array(
-			"NAME" => GetMessage("CL_".$ID),
-			"DESC" => GetMessage("CL_".$ID."_DESC", array('#LANG#' => LANG)),
-			"AUTOTEST_DESC" => GetMessage("CL_".$ID."_AUTOTEST_DESC"),
-			"HOWTO" => ($howTo <> '')?(str_ireplace('#LANG#', LANG, $howTo)):"",
-			"LINKS" => GetMessage("CL_".$ID."_LINKS")
-		);
+		$arDesc = [
+			"NAME" => GetMessage("CL_" . $ID),
+			"DESC" => GetMessage("CL_" . $ID . "_DESC", ['#LANG#' => LANG]),
+			"AUTOTEST_DESC" => GetMessage("CL_" . $ID . "_AUTOTEST_DESC"),
+			"HOWTO" => ($howTo <> '') ? (str_ireplace('#LANG#', LANG, $howTo)) : "",
+			"LINKS" => GetMessage("CL_" . $ID . "_LINKS"),
+		];
 
 		return $arDesc;
 	}
-
 
 	function Save()
 	{//saving current state
 		if (!$this->report_id)
 		{
-			$res = CCheckListResult::Save(array("STATE" => $this->current_result));
-			if(!is_array($res))
+			$res = CCheckListResult::Save(["STATE" => $this->current_result]);
+			if (!is_array($res))
+			{
 				CUserOptions::SetOption("checklist", "autotest_start", "Y", true, false);
+			}
 			return $res;
 		}
 		return false;
@@ -305,115 +338,140 @@ class CCheckList
 		foreach ($arCheckList["POINTS"] as $testID => $arTestFields)
 		{
 			if (!empty($currentState[$testID]))
+			{
 				$arCheckList["POINTS"][$testID]["STATE"] = $currentState[$testID];
+			}
 			else
-				$arCheckList["POINTS"][$testID]["STATE"] = array(
-					"STATUS" => "W"
-				);
+			{
+				$arCheckList["POINTS"][$testID]["STATE"] = [
+					"STATUS" => "W",
+				];
+			}
 		}
 
 		return $arCheckList;
 	}
 
-	function AutoCheck($arTestID, $arParams = array())
+	function AutoCheck($arTestID, $arParams = [])
 	{//execute point autotest
 		$arParams["TEST_ID"] = $arTestID;
 		$arPoints = $this->GetPoints();
 		$arPoint = $arPoints[$arTestID];
 		$result = false;
-		if (!$arPoint || $arPoint["AUTO"] !="Y")
+		if (!$arPoint || $arPoint["AUTO"] != "Y")
+		{
 			return false;
+		}
 		if (isset($arPoints[$arTestID]["PARAMS"]) && is_array($arPoints[$arTestID]["PARAMS"]))
+		{
 			$arParams = array_merge($arParams, $arPoints[$arTestID]["PARAMS"]);
-		$arClass = 	$arPoint["CLASS_NAME"];
+		}
+		$arClass = $arPoint["CLASS_NAME"];
 		$arMethod = $arPoint["METHOD_NAME"];
 
-		if (!empty($arPoint["FILE_PATH"]) && file_exists($_SERVER["DOCUMENT_ROOT"].$arPoint["FILE_PATH"]))
-			include($_SERVER["DOCUMENT_ROOT"].$arPoint["FILE_PATH"]);
+		if (!empty($arPoint["FILE_PATH"]) && file_exists($_SERVER["DOCUMENT_ROOT"] . $arPoint["FILE_PATH"]))
+		{
+			include($_SERVER["DOCUMENT_ROOT"] . $arPoint["FILE_PATH"]);
+		}
 
-		if(is_callable(array($arClass, $arMethod)))
-			$result = call_user_func_array(array($arClass, $arMethod), array($arParams));
+		if (is_callable([$arClass, $arMethod]))
+		{
+			$result = call_user_func_array([$arClass, $arMethod], [$arParams]);
+		}
 
-		$arResult = array();
+		$arResult = [];
 		if ($result && is_array($result))
 		{
 			if (array_key_exists("STATUS", $result))
 			{
 				$arFields["STATUS"] = "F";
 				if ($result['STATUS'] == "true")
+				{
 					$arFields["STATUS"] = "A";
+				}
 
 				$arFields["COMMENTS"] = $arPoint["STATE"]["COMMENTS"] ?? [];
-				$arFields["COMMENTS"]["SYSTEM"] = array();
+				$arFields["COMMENTS"]["SYSTEM"] = [];
 				if (isset($result["MESSAGE"]["PREVIEW"]))
-					$arFields["COMMENTS"]["SYSTEM"]["PREVIEW"]= $result["MESSAGE"]["PREVIEW"];
+				{
+					$arFields["COMMENTS"]["SYSTEM"]["PREVIEW"] = $result["MESSAGE"]["PREVIEW"];
+				}
 				if (isset($result["MESSAGE"]["DETAIL"]))
-					$arFields["COMMENTS"]["SYSTEM"]["DETAIL"]= $result["MESSAGE"]["DETAIL"];
+				{
+					$arFields["COMMENTS"]["SYSTEM"]["DETAIL"] = $result["MESSAGE"]["DETAIL"];
+				}
 
 				if ($this->PointUpdate($arTestID, $arFields))
+				{
 					if ($this->Save())
 					{
-						$arResult = array(
+						$arResult = [
 							"STATUS" => $arFields["STATUS"],
 							"COMMENTS_COUNT" => count($arFields["COMMENTS"] ?? []),
 							"ERROR" => $result["ERROR"] ?? null,
 							"SYSTEM_MESSAGE" => $arFields["COMMENTS"]["SYSTEM"] ?? '',
-						);
-
+						];
 					}
+				}
 			}
-			elseif($result["IN_PROGRESS"] == "Y")
+			elseif ($result["IN_PROGRESS"] == "Y")
 			{
-				$arResult= array(
-						"IN_PROGRESS" => "Y",
-						"PERCENT" => $result["PERCENT"]
-					);
+				$arResult = [
+					"IN_PROGRESS" => "Y",
+					"PERCENT" => $result["PERCENT"],
+				];
 			}
 		}
 		else
-			$arResult = array("STATUS" => "W");
+		{
+			$arResult = ["STATUS" => "W"];
+		}
 
 		return $arResult;
 	}
 
-	function AddReport($arReportFields = array(), $errorCheck = false)
+	function AddReport($arReportFields = [], $errorCheck = false)
 	{//saving current state to a report
 		if ($this->report_id)
+		{
 			return false;
+		}
 
 		if ($errorCheck && !$arReportFields["TESTER"] && !$arReportFields["COMPANY_NAME"])
-			return array("ERROR" => GetMessage("EMPTY_NAME"));
+		{
+			return ["ERROR" => GetMessage("EMPTY_NAME")];
+		}
 
 		$arStats = $this->GetSectionStat();
-		$arFields = array(
-				"TESTER" => $arReportFields["TESTER"],
-				"COMPANY_NAME" => $arReportFields["COMPANY_NAME"],
-				"PHONE" => $arReportFields["PHONE"],
-				"EMAIL" => $arReportFields["EMAIL"],
-				"PICTURE" => $arReportFields["PICTURE"],
-				"REPORT_COMMENT" => $arReportFields["COMMENT"],
-				"STATE" => $this->current_result,
-				"TOTAL" => $arStats["TOTAL"],
-				"SUCCESS" => $arStats["CHECK"],
-				"SUCCESS_R" => $arStats["CHECK_R"],
-				"FAILED" => $arStats["FAILED"],
-				"PENDING" => $arStats["WAITING"],
-				"REPORT" => true
-			);
+		$arFields = [
+			"TESTER" => $arReportFields["TESTER"],
+			"COMPANY_NAME" => $arReportFields["COMPANY_NAME"],
+			"PHONE" => $arReportFields["PHONE"],
+			"EMAIL" => $arReportFields["EMAIL"],
+			"PICTURE" => $arReportFields["PICTURE"],
+			"REPORT_COMMENT" => $arReportFields["COMMENT"],
+			"STATE" => $this->current_result,
+			"TOTAL" => $arStats["TOTAL"],
+			"SUCCESS" => $arStats["CHECK"],
+			"SUCCESS_R" => $arStats["CHECK_R"],
+			"FAILED" => $arStats["FAILED"],
+			"PENDING" => $arStats["WAITING"],
+			"REPORT" => true,
+		];
 
-			$arReportID = CCheckListResult::Save($arFields);
-			if ($arReportID>0)
+		$arReportID = CCheckListResult::Save($arFields);
+		if ($arReportID > 0)
+		{
+			$dbres = CCheckListResult::GetList([], ["REPORT" => "N"]);
+			if ($res = $dbres->Fetch())
 			{
-				$dbres = CCheckListResult::GetList(array(), array("REPORT" => "N"));
-				if ($res = $dbres->Fetch())
-				{
-					CCheckListResult::Delete($res["ID"]);
-					CUserOptions::SetOption("checklist", "autotest_start", "N", true, false);
-				}
-				return $arReportID;
+				CCheckListResult::Delete($res["ID"]);
+				CUserOptions::SetOption("checklist", "autotest_start", "N", true, false);
 			}
+			return $arReportID;
+		}
 
-			return false;
+		return false;
 	}
 
 	function GetReportInfo()
@@ -422,7 +480,9 @@ class CCheckList
 		{
 			$checklist = new CCheckList($this->report_id);
 			if ($checklist->current_result == false)
+			{
 				return false;
+			}
 			$arResult = $checklist->GetStructure();
 
 			//removing empty sections
@@ -452,15 +512,19 @@ class CCheckList
 
 class CCheckListResult
 {
-	public static function Save($arFields = array())
+	public static function Save($arFields = [])
 	{
 		global $DB;
 
-		$arResult = array();
+		$arResult = [];
 		if ($arFields["STATE"] && is_array($arFields["STATE"]))
+		{
 			$arFields["STATE"] = serialize($arFields["STATE"]);
+		}
 		else
+		{
 			$arResult["ERRORS"][] = GetMessage("ERROR_DATA_RECEIVED");
+		}
 
 		$currentState = false;
 		if (!isset($arFields["REPORT"]) || $arFields["REPORT"] != true)
@@ -470,46 +534,49 @@ class CCheckListResult
 			$currentState = $db_result->Fetch();
 		}
 		else
+		{
 			$arFields["REPORT"] = "Y";
+		}
 
 		if (!empty($arResult["ERRORS"]))
+		{
 			return $arResult;
+		}
 
 		if ($currentState)
 		{
 			$strUpdate = $DB->PrepareUpdate("b_checklist", $arFields);
-			$strSql = "UPDATE b_checklist SET ".$strUpdate." WHERE ID=".$currentState["ID"];
+			$strSql = "UPDATE b_checklist SET " . $strUpdate . " WHERE ID=" . $currentState["ID"];
 		}
 		else
 		{
 			$arInsert = $DB->PrepareInsert("b_checklist", $arFields);
-			$strSql ="INSERT INTO b_checklist(".$arInsert[0].", DATE_CREATE) ".
-					"VALUES(".$arInsert[1].", '".ConvertTimeStamp(time(), "FULL")."')";
+			$strSql = "INSERT INTO b_checklist(" . $arInsert[0] . ", DATE_CREATE) " .
+				"VALUES(" . $arInsert[1] . ", '" . ConvertTimeStamp(time(), "FULL") . "')";
 		}
 
-		$arBinds = array(
-				"STATE" => $arFields["STATE"],
-			);
+		$arBinds = [
+			"STATE" => $arFields["STATE"],
+		];
 		$arResult = $DB->QueryBind($strSql, $arBinds);
 
 		return $arResult;
-
 	}
 
-	public static function GetList($arOrder = array(), $arFilter = array())
+	public static function GetList($arOrder = [], $arFilter = [])
 	{
 		global $DB;
 
 		$arSqlWhereStr = '';
 		if (is_array($arFilter) && !empty($arFilter))
 		{
-			$arSqlWhere = array();
-			$arSqlFields = array("ID", "REPORT", "HIDDEN", "SENDED_TO_BITRIX");
-			foreach($arFilter as $key => $value)
+			$arSqlWhere = [];
+			$arSqlFields = ["ID", "REPORT", "HIDDEN", "SENDED_TO_BITRIX"];
+			foreach ($arFilter as $key => $value)
 			{
 				if (in_array($key, $arSqlFields))
 				{
-					$arSqlWhere[] = $key."='".$DB->ForSql($value)."'";
+					$arSqlWhere[] = $key . "='" . $DB->ForSql($value) . "'";
 				}
 			}
 			$arSqlWhereStr = GetFilterSqlSearch($arSqlWhere);
@@ -518,9 +585,9 @@ class CCheckListResult
 		$strSql = "SELECT * FROM b_checklist";
 		if ($arSqlWhereStr <> '')
 		{
-			$strSql.= " WHERE ".$arSqlWhereStr;
+			$strSql .= " WHERE " . $arSqlWhereStr;
 		}
-		$strSql.= " ORDER BY ID desc";
+		$strSql .= " ORDER BY ID desc";
 		$arResult = $DB->Query($strSql);
 
 		return $arResult;
@@ -534,7 +601,7 @@ class CCheckListResult
 		$strUpdate = $DB->PrepareUpdate("b_checklist", $arFields);
 
 		$strSql =
-			"UPDATE b_checklist SET ".$strUpdate." WHERE ID = ".$ID." ";
+			"UPDATE b_checklist SET " . $strUpdate . " WHERE ID = " . $ID . " ";
 		$DB->Query($strSql);
 		return $ID;
 	}
@@ -543,14 +610,17 @@ class CCheckListResult
 	{
 		global $DB;
 		$ID = intval($ID);
-		if (!$ID>0)
+		if (!$ID > 0)
+		{
 			return false;
-		$strSql = "DELETE FROM b_checklist where ID=".$ID;
+		}
+		$strSql = "DELETE FROM b_checklist where ID=" . $ID;
 		if ($arResult = $DB->Query($strSql))
+		{
 			return true;
+		}
 		return false;
 	}
-
 }
 
 class CAutoCheck
@@ -558,43 +628,47 @@ class CAutoCheck
 	public static function CheckCustomComponents($arParams)
 	{
 		$arResult["STATUS"] = false;
-		$arComponentFolders = array(
+		$arComponentFolders = [
 			"/bitrix/components",
-			"/local/components"
-		);
-		$components = array();
-		foreach($arComponentFolders as $componentFolder)
+			"/local/components",
+		];
+		$components = [];
+		foreach ($arComponentFolders as $componentFolder)
 		{
-			if (file_exists($_SERVER['DOCUMENT_ROOT'].$componentFolder) && ($handle = opendir($_SERVER['DOCUMENT_ROOT'].$componentFolder)))
+			if (file_exists($_SERVER['DOCUMENT_ROOT'] . $componentFolder) && ($handle = opendir($_SERVER['DOCUMENT_ROOT'] . $componentFolder)))
 			{
 				while (($file = readdir($handle)) !== false)
 				{
-					if ($file == "bitrix" || $file ==".." || $file == ".")
-						continue;
-
-					$dir = $componentFolder."/".$file;
-					if (is_dir($_SERVER['DOCUMENT_ROOT'].$dir))
+					if ($file == "bitrix" || $file == ".." || $file == ".")
 					{
-						if(CComponentUtil::isComponent($dir))
+						continue;
+					}
+
+					$dir = $componentFolder . "/" . $file;
+					if (is_dir($_SERVER['DOCUMENT_ROOT'] . $dir))
+					{
+						if (CComponentUtil::isComponent($dir))
 						{
-							$components[] = array(
+							$components[] = [
 								"path" => $dir,
 								"name" => $file,
-							);
+							];
 						}
-						elseif($comp_handle = opendir($_SERVER['DOCUMENT_ROOT'].$dir))
+						elseif ($comp_handle = opendir($_SERVER['DOCUMENT_ROOT'] . $dir))
 						{
 							while (($subdir = readdir($comp_handle)) !== false)
 							{
 								if ($subdir == ".." || $subdir == "." || $subdir == ".svn")
-									continue;
-
-								if(CComponentUtil::isComponent($dir."/".$subdir))
 								{
-									$components[] = array(
-										"path" => $dir."/".$subdir,
-										"name" => $file.":".$subdir,
-									);
+									continue;
+								}
+
+								if (CComponentUtil::isComponent($dir . "/" . $subdir))
+								{
+									$components[] = [
+										"path" => $dir . "/" . $subdir,
+										"name" => $file . ":" . $subdir,
+									];
 								}
 							}
 							closedir($comp_handle);
@@ -606,9 +680,9 @@ class CAutoCheck
 		}
 		if (isset($arParams["ACTION"]) && $arParams["ACTION"] == "FIND")
 		{
-			foreach($components as $component)
+			foreach ($components as $component)
 			{
-				$arResult["MESSAGE"]["DETAIL"] .= $component["name"]." \n";
+				$arResult["MESSAGE"]["DETAIL"] .= $component["name"] . " \n";
 			}
 
 			if ($arResult["MESSAGE"]["DETAIL"] == '')
@@ -617,22 +691,24 @@ class CAutoCheck
 			}
 			else
 			{
-				$arResult = array(
+				$arResult = [
 					"STATUS" => true,
-					"MESSAGE" => array(
-						"PREVIEW" => GetMessage("CL_HAVE_CUSTOM_COMPONENTS")." (".count($components).")",
-						"DETAIL" => $arResult["MESSAGE"]["DETAIL"]
-					)
-				);
+					"MESSAGE" => [
+						"PREVIEW" => GetMessage("CL_HAVE_CUSTOM_COMPONENTS") . " (" . count($components) . ")",
+						"DETAIL" => $arResult["MESSAGE"]["DETAIL"],
+					],
+				];
 			}
 		}
 		else
 		{
-			foreach($components as $component)
+			foreach ($components as $component)
 			{
-				$desc = $_SERVER['DOCUMENT_ROOT'].$component["path"]."/.description.php";
+				$desc = $_SERVER['DOCUMENT_ROOT'] . $component["path"] . "/.description.php";
 				if (!file_exists($desc) || filesize($desc) === 0)
-					$arResult["MESSAGE"]["DETAIL"] .= GetMessage("CL_EMPTY_DESCRIPTION")." ".$component["name"]." \n";
+				{
+					$arResult["MESSAGE"]["DETAIL"] .= GetMessage("CL_EMPTY_DESCRIPTION") . " " . $component["name"] . " \n";
+				}
 			}
 
 			if (!isset($arResult["MESSAGE"]["DETAIL"]) || $arResult["MESSAGE"]["DETAIL"] == '')
@@ -642,13 +718,13 @@ class CAutoCheck
 			}
 			else
 			{
-				$arResult = array(
+				$arResult = [
 					"STATUS" => false,
-					"MESSAGE" => array(
+					"MESSAGE" => [
 						"PREVIEW" => GetMessage("CL_ERROR_FOUND_SHORT"),
-						"DETAIL" => $arResult["MESSAGE"]["DETAIL"]
-					)
-				);
+						"DETAIL" => $arResult["MESSAGE"]["DETAIL"],
+					],
+				];
 			}
 		}
 		return $arResult;
@@ -657,20 +733,22 @@ class CAutoCheck
 	public static function CheckBackup()
 	{
 		$arCount = 0;
-		$arResult = array();
+		$arResult = [];
 		$arResult["STATUS"] = false;
 		$bBitrixCloud = function_exists('openssl_encrypt') && CModule::IncludeModule('bitrixcloud') && CModule::IncludeModule('clouds');
 
 		$site = CSite::GetSiteByFullPath($_SERVER['DOCUMENT_ROOT']);
-		$path = BX_ROOT."/backup";
-		$arTmpFiles = array();
-		$arFilter = array();
-		GetDirList(array($site, $path), $arDir, $arTmpFiles, $arFilter, array('sort' => 'asc'), "F");
+		$path = BX_ROOT . "/backup";
+		$arTmpFiles = [];
+		$arFilter = [];
+		GetDirList([$site, $path], $arDir, $arTmpFiles, $arFilter, ['sort' => 'asc'], "F");
 
-		foreach($arTmpFiles as $ar)
+		foreach ($arTmpFiles as $ar)
 		{
 			if (mb_strpos($ar['NAME'], ".enc.gz") || mb_strpos($ar['NAME'], ".tar.gz") || mb_strpos($ar['NAME'], ".tar") || mb_strpos($ar['NAME'], ".enc"))
+			{
 				$arCount++;
+			}
 		}
 
 		if ($bBitrixCloud)
@@ -678,20 +756,22 @@ class CAutoCheck
 			$backup = CBitrixCloudBackup::getInstance();
 			try
 			{
-				foreach($backup->listFiles() as $ar)
+				foreach ($backup->listFiles() as $ar)
 				{
 					if (mb_strpos($ar['FILE_NAME'], ".enc.gz") || mb_strpos($ar['FILE_NAME'], ".tar.gz") || mb_strpos($ar['FILE_NAME'], ".tar") || mb_strpos($ar['FILE_NAME'], ".enc"))
+					{
 						$arCount++;
+					}
 				}
 			}
 			catch (Exception $e)
 			{
 			}
 		}
-		if ($arCount>0)
+		if ($arCount > 0)
 		{
 			$arResult["STATUS"] = true;
-			$arResult["MESSAGE"]["PREVIEW"] = GetMessage("CL_FOUND_BACKUP", array("#count#" => $arCount));
+			$arResult["MESSAGE"]["PREVIEW"] = GetMessage("CL_FOUND_BACKUP", ["#count#" => $arCount]);
 		}
 		else
 		{
@@ -702,31 +782,33 @@ class CAutoCheck
 
 	public static function CheckTemplates()
 	{
-		$arFolders = array(
-			$_SERVER['DOCUMENT_ROOT']."/bitrix/templates",
-			$_SERVER['DOCUMENT_ROOT']."/local/templates",
-		);
+		$arFolders = [
+			$_SERVER['DOCUMENT_ROOT'] . "/bitrix/templates",
+			$_SERVER['DOCUMENT_ROOT'] . "/local/templates",
+		];
 		$arResult["STATUS"] = false;
 		$arCount = 0;
-		$arRequireFiles = array("header.php", "footer.php");
-		$arFilter = array(".svn", ".", "..");
+		$arRequireFiles = ["header.php", "footer.php"];
+		$arFilter = [".svn", ".", ".."];
 		$arMessage = '';
-		foreach($arFolders as $folder)
+		foreach ($arFolders as $folder)
 		{
 			if (file_exists($folder) && ($arTemplates = scandir($folder)))
 			{
 				foreach ($arTemplates as $dir)
 				{
-					$arTemplateFolder = $folder."/".$dir;
+					$arTemplateFolder = $folder . "/" . $dir;
 					if (in_array($dir, $arFilter) || !is_dir($arTemplateFolder))
+					{
 						continue;
+					}
 					$arRequireFilesTmp = $arRequireFiles;
 
-					foreach($arRequireFilesTmp as $k => $file)
+					foreach ($arRequireFilesTmp as $k => $file)
 					{
-						if (!file_exists($arTemplateFolder."/".$file))
+						if (!file_exists($arTemplateFolder . "/" . $file))
 						{
-							$arMessage .= GetMessage("NOT_FOUND_FILE", array("#template#" => $dir, "#file_name#" => $file))."\n";
+							$arMessage .= GetMessage("NOT_FOUND_FILE", ["#template#" => $dir, "#file_name#" => $file]) . "\n";
 							unset($arRequireFilesTmp[$k]);
 						}
 					}
@@ -742,21 +824,21 @@ class CAutoCheck
 								preg_match('/\$APPLICATION->ShowHead\(/im', $header, $arShowHead);
 								preg_match('/\$APPLICATION->ShowTitle\(/im', $header, $arShowTitle);
 								preg_match('/\$APPLICATION->ShowPanel\(/im', $header, $arShowPanel);
-								if (!in_array($dir, array('mail_join')) && empty($arShowHead))
+								if (!in_array($dir, ['mail_join']) && empty($arShowHead))
 								{
 									preg_match_all('/\$APPLICATION->(ShowCSS|ShowHeadScripts|ShowHeadStrings)\(/im', $header, $arShowHead);
 									if (!$arShowHead[0] || count($arShowHead[0]) != 3)
 									{
-										$arMessage .= GetMessage("NO_SHOWHEAD", array("#template#" => $dir))."\n";
+										$arMessage .= GetMessage("NO_SHOWHEAD", ["#template#" => $dir]) . "\n";
 									}
 								}
-								if (!in_array($dir, array('empty', 'mail_join')) && empty($arShowTitle))
+								if (!in_array($dir, ['empty', 'mail_join']) && empty($arShowTitle))
 								{
-									$arMessage .= GetMessage("NO_SHOWTITLE", array("#template#" => $dir))."\n";
+									$arMessage .= GetMessage("NO_SHOWTITLE", ["#template#" => $dir]) . "\n";
 								}
-								if (!in_array($dir, array('mobile_app', 'desktop_app', 'empty', 'learning_10_0_0', 'call_app', 'mail_join')) && empty($arShowPanel))
+								if (!in_array($dir, ['mobile_app', 'desktop_app', 'empty', 'learning_10_0_0', 'call_app', 'mail_join', 'dashboard_detail', 'booking_pub']) && empty($arShowPanel))
 								{
-									$arMessage .= GetMessage("NO_SHOWPANEL", array("#template#" => $dir))."\n";
+									$arMessage .= GetMessage("NO_SHOWPANEL", ["#template#" => $dir]) . "\n";
 								}
 							}
 						}
@@ -776,10 +858,10 @@ class CAutoCheck
 			$arResult["STATUS"] = true;
 		}
 
-		$arResult["MESSAGE"] = array (
-			"PREVIEW" => GetMessage("TEMPLATE_CHECK_COUNT", array("#count#" => $arCount)),
-			"DETAIL" => $arMessage
-		);
+		$arResult["MESSAGE"] = [
+			"PREVIEW" => GetMessage("TEMPLATE_CHECK_COUNT", ["#count#" => $arCount]),
+			"DETAIL" => $arMessage,
+		];
 
 		return $arResult;
 	}
@@ -789,23 +871,23 @@ class CAutoCheck
 		global $DB;
 
 		$startTime = time();
-		$installFilesMapping = array(
+		$installFilesMapping = [
 			"install/components/bitrix/" => "/bitrix/components/bitrix/",
 			"install/js/" => "/bitrix/js/",
 			"install/activities/" => "/bitrix/activities/",
 			"install/admin/" => "/bitrix/admin/",
 			"install/wizards/" => "/bitrix/wizards/",
-		);
+		];
 
 		$events = \Bitrix\Main\EventManager::getInstance()->findEventHandlers("main", "onKernelCheckInstallFilesMappingGet");
 		foreach ($events as $event)
 		{
 			$pathList = ExecuteModuleEventEx($event);
-			if(is_array($pathList))
+			if (is_array($pathList))
 			{
-				foreach ($pathList as $pathFrom=>$pathTo)
+				foreach ($pathList as $pathFrom => $pathTo)
 				{
-					if(!array_key_exists($pathFrom, $installFilesMapping))
+					if (!array_key_exists($pathFrom, $installFilesMapping))
 					{
 						$installFilesMapping[$pathFrom] = $pathTo;
 					}
@@ -813,47 +895,51 @@ class CAutoCheck
 			}
 		}
 
-		if(empty(\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"][$arParams["TEST_ID"]]))
-			\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"][$arParams["TEST_ID"]] = array();
+		if (empty(\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"][$arParams["TEST_ID"]]))
+		{
+			\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"][$arParams["TEST_ID"]] = [];
+		}
 		$NS = &\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"][$arParams["TEST_ID"]];
 		if ($arParams["STEP"] == false)
 		{
-			$NS = array();
+			$NS = [];
 			$rsInstalledModules = CModule::GetList();
 			while ($ar = $rsInstalledModules->Fetch())
 			{
 				if (!mb_strpos($ar["ID"], "."))
+				{
 					$NS["MLIST"][] = $ar["ID"];
+				}
 			}
 			$NS["MNUM"] = 0;
-			$NS["FILE_LIST"] = array();
+			$NS["FILE_LIST"] = [];
 			$NS["FILES_COUNT"] = 0;
 			$NS["MODFILES_COUNT"] = 0;
 		}
 
 		$arError = false;
 		$moduleId = $NS["MLIST"][$NS["MNUM"]];
-		$moduleFolder = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$moduleId."/";
+		$moduleFolder = $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/" . $moduleId . "/";
 		$dbtype = mb_strtolower($DB->type);
 		$fileCount = 0;
 		$modifiedFileCount = 0;
-		$state = array();
+		$state = [];
 		$skip = false;
 
 		$ver = \Bitrix\Main\ModuleManager::getVersion($moduleId);
 		if ($ver === false)
 		{
-			$state = array(
+			$state = [
 				"STATUS" => false,
-				"MESSAGE" =>  GetMessage("CL_MODULE_VERSION_ERROR", array("#module_id#" => $moduleId))."\n"
-			);
+				"MESSAGE" => GetMessage("CL_MODULE_VERSION_ERROR", ["#module_id#" => $moduleId]) . "\n",
+			];
 			$arError = true;
 		}
 		else
 		{
-			if(empty($NS["FILE_LIST"]))
+			if (empty($NS["FILE_LIST"]))
 			{
-				$sHost = COption::GetOptionString("main", "update_site", "www.bitrixsoft.com");
+				$sHost = COption::GetOptionString("main", "update_site", "www.1c-bitrix.ru");
 				$proxyAddr = COption::GetOptionString("main", "update_site_proxy_addr", "");
 				$proxyPort = COption::GetOptionString("main", "update_site_proxy_port", "");
 				$proxyUserName = COption::GetOptionString("main", "update_site_proxy_user", "");
@@ -862,7 +948,7 @@ class CAutoCheck
 				$http = new \Bitrix\Main\Web\HttpClient();
 				$http->setProxy($proxyAddr, $proxyPort, $proxyUserName, $proxyPassword);
 
-				$data = $http->get("https://".$sHost."/bitrix/updates/checksum.php?check_sum=Y&module_id=".$moduleId."&ver=".$ver."&dbtype=".$dbtype."&mode=2");
+				$data = $http->get("https://" . $sHost . "/bitrix/updates/checksum.php?check_sum=Y&module_id=" . $moduleId . "&ver=" . $ver . "&dbtype=" . $dbtype . "&mode=2");
 
 				$result = unserialize(gzinflate($data), ['allowed_classes' => false]);
 				if (is_array($result))
@@ -880,18 +966,20 @@ class CAutoCheck
 			$timeout = COption::GetOptionString("main", "update_load_timeout", "30");
 			if (is_array($result) && empty($result["error"]))
 			{
-				foreach($result as $file => $checksum)
+				foreach ($result as $file => $checksum)
 				{
-					$filePath = $moduleFolder.$file;
+					$filePath = $moduleFolder . $file;
 					unset($NS["FILE_LIST"][$file]);
 
 					if (!file_exists($filePath))
+					{
 						continue;
+					}
 
 					$fileCount++;
-					if (md5_file($filePath)!=$checksum)
+					if (md5_file($filePath) != $checksum)
 					{
-						$message.= str_replace(array("//", "\\\\"), array("/", "\\"), $filePath)."\n";
+						$message .= str_replace(["//", "\\\\"], ["/", "\\"], $filePath) . "\n";
 						$modifiedFileCount++;
 					}
 
@@ -899,36 +987,40 @@ class CAutoCheck
 					{
 						if (mb_strpos($file, $key) === 0)
 						{
-							$filePath = str_replace($key, $_SERVER["DOCUMENT_ROOT"].$value, $file);
-							if (file_exists($filePath) && md5_file($filePath)!=$checksum)
+							$filePath = str_replace($key, $_SERVER["DOCUMENT_ROOT"] . $value, $file);
+							if (file_exists($filePath) && md5_file($filePath) != $checksum)
 							{
 								$modifiedFileCount++;
-								$message.= str_replace(array("//", "\\\\"), array("/", "\\"), $filePath)."\n";
+								$message .= str_replace(["//", "\\\\"], ["/", "\\"], $filePath) . "\n";
 							}
 							$fileCount++;
 						}
 					}
 
-					if ((time()-$startTime)>=$timeout)
+					if ((time() - $startTime) >= $timeout)
+					{
 						break;
+					}
 				}
 				if ($message <> '')
 				{
-					$state = array(
+					$state = [
 						"MESSAGE" => $message,
-						"STATUS" => false
-					);
+						"STATUS" => false,
+					];
 				}
 			}
 			else
 			{
-				if($result["error"]!= "unknow module id")
+				if ($result["error"] != "unknow module id")
 				{
-					$state["MESSAGE"] = GetMessage("CL_CANT_CHECK", array("#module_id#" => $moduleId))."\n";
+					$state["MESSAGE"] = GetMessage("CL_CANT_CHECK", ["#module_id#" => $moduleId]) . "\n";
 					$arError = true;
 				}
 				else
+				{
 					$skip = true;
+				}
 			}
 		}
 		if (!empty($state["MESSAGE"]))
@@ -938,55 +1030,64 @@ class CAutoCheck
 				$NS["MESSAGE"][$moduleId] = '';
 			}
 
-			$NS["MESSAGE"][$moduleId].=$state["MESSAGE"];
+			$NS["MESSAGE"][$moduleId] .= $state["MESSAGE"];
 		}
 		if (!$arError && !$skip)
 		{
 			if (empty($NS["FILE_LIST"]))
 			{
 				if (!isset($NS["MESSAGE"][$moduleId]) || $NS["MESSAGE"][$moduleId] == '')
-					$NS["MESSAGE"][$moduleId] = GetMessage("CL_NOT_MODIFIED", array("#module_id#" => $moduleId))."\n";
+				{
+					$NS["MESSAGE"][$moduleId] = GetMessage("CL_NOT_MODIFIED", ["#module_id#" => $moduleId]) . "\n";
+				}
 				else
-					$NS["MESSAGE"][$moduleId] = GetMessage("CL_MODIFIED_FILES", array("#module_id#" => $moduleId))."\n".$NS["MESSAGE"][$moduleId];
+				{
+					$NS["MESSAGE"][$moduleId] = GetMessage("CL_MODIFIED_FILES", ["#module_id#" => $moduleId]) . "\n" . $NS["MESSAGE"][$moduleId];
+				}
 			}
-			$NS["FILES_COUNT"]+=$fileCount;
-			$NS["MODFILES_COUNT"]+=$modifiedFileCount;
+			$NS["FILES_COUNT"] += $fileCount;
+			$NS["MODFILES_COUNT"] += $modifiedFileCount;
 		}
 		if ((isset($state["STATUS"]) && $state["STATUS"] === false) || $arError == true || $skip)
 		{
 			if ((isset($state["STATUS"]) && $state["STATUS"] === false) || $arError == true)
+			{
 				$NS["STATUS"] = false;
-			$NS["FILE_LIST"] = array();
+			}
+			$NS["FILE_LIST"] = [];
 			$NS["MODULE_FILES_COUNT"] = 0;
 		}
 
-		if (($NS["MNUM"]+1)>=(count($NS["MLIST"])) && empty($NS["LAST_FILE"]))
+		if (($NS["MNUM"] + 1) >= (count($NS["MLIST"])) && empty($NS["LAST_FILE"]))
 		{
 			$arDetailReport = "";
-			foreach($NS["MESSAGE"] as $module_message)
-				$arDetailReport.="<div class=\"checklist-dot-line\"></div>".$module_message;
-			$arResult = array(
-				"MESSAGE" => array(
-					"PREVIEW" => GetMessage("CL_KERNEL_CHECK_FILES").$NS["FILES_COUNT"]."\n".
-					GetMessage("CL_KERNEL_CHECK_MODULE").count($NS["MLIST"])."\n".
-					GetMessage("CL_KERNEL_CHECK_MODIFIED").$NS["MODFILES_COUNT"],
-					"DETAIL" => $arDetailReport
-					),
-				"STATUS" => ($NS["STATUS"] === false?false:true)
-			);
-
+			foreach ($NS["MESSAGE"] as $module_message)
+			{
+				$arDetailReport .= "<div class=\"checklist-dot-line\"></div>" . $module_message;
+			}
+			$arResult = [
+				"MESSAGE" => [
+					"PREVIEW" => GetMessage("CL_KERNEL_CHECK_FILES") . $NS["FILES_COUNT"] . "\n" .
+						GetMessage("CL_KERNEL_CHECK_MODULE") . count($NS["MLIST"]) . "\n" .
+						GetMessage("CL_KERNEL_CHECK_MODIFIED") . $NS["MODFILES_COUNT"],
+					"DETAIL" => $arDetailReport,
+				],
+				"STATUS" => ($NS["STATUS"] === false ? false : true),
+			];
 		}
 		else
 		{
-			$percent =  round(($NS["MNUM"])/(count($NS["MLIST"])*0.01), 0);
+			$percent = round(($NS["MNUM"]) / (count($NS["MLIST"]) * 0.01), 0);
 			$module_percent = 0;
-			if ($NS["MODULE_FILES_COUNT"]>0)
-				$module_percent =  (1/(count($NS["MLIST"])*0.01))*((($NS["MODULE_FILES_COUNT"]-count($NS["FILE_LIST"]))/($NS["MODULE_FILES_COUNT"]*0.01))*0.01);
+			if ($NS["MODULE_FILES_COUNT"] > 0)
+			{
+				$module_percent = (1 / (count($NS["MLIST"]) * 0.01)) * ((($NS["MODULE_FILES_COUNT"] - count($NS["FILE_LIST"])) / ($NS["MODULE_FILES_COUNT"] * 0.01)) * 0.01);
+			}
 			$percent += $module_percent;
-			$arResult = array(
+			$arResult = [
 				"IN_PROGRESS" => "Y",
 				"PERCENT" => number_format($percent, 2),
-			);
+			];
 			if (empty($NS["FILE_LIST"]))
 			{
 				$NS["MNUM"]++;
@@ -1007,54 +1108,72 @@ class CAutoCheck
 			case "SECURITY_LEVEL":
 				if (CModule::IncludeModule("security"))
 				{
-						if ($arMask = CSecurityFilterMask::GetList()->Fetch())
-							$arMessage .= (++$err).". ".GetMessage("CL_FILTER_EXEPTION_FOUND")."\n";
-						if(!CSecurityFilter::IsActive())
-							$arMessage .= (++$err).". ".GetMessage("CL_FILTER_NON_ACTIVE")."\n";
-						if(COption::GetOptionString("main", "captcha_registration", "N") == "N")
-							$arMessage .= (++$err).". ".GetMessage("CL_CAPTCHA_NOT_USE")."\n";
+					if ($arMask = CSecurityFilterMask::GetList()->Fetch())
+					{
+						$arMessage .= (++$err) . ". " . GetMessage("CL_FILTER_EXEPTION_FOUND") . "\n";
+					}
+					if (!CSecurityFilter::IsActive())
+					{
+						$arMessage .= (++$err) . ". " . GetMessage("CL_FILTER_NON_ACTIVE") . "\n";
+					}
+					if (COption::GetOptionString("main", "captcha_registration", "N") == "N")
+					{
+						$arMessage .= (++$err) . ". " . GetMessage("CL_CAPTCHA_NOT_USE") . "\n";
+					}
 
 					if (CCheckListTools::AdminPolicyLevel() != "high")
-						$arMessage .= (++$err).". ".GetMessage("CL_ADMIN_SECURITY_LEVEL")."\n";
-					if (COption::GetOptionInt("main", "error_reporting", E_COMPILE_ERROR|E_ERROR|E_CORE_ERROR|E_PARSE) != (E_COMPILE_ERROR|E_ERROR|E_CORE_ERROR|E_PARSE) && COption::GetOptionString("main","error_reporting","") != 0)
-						$arMessage .= (++$err).". ".GetMessage("CL_ERROR_REPORTING_LEVEL")."\n";
-					if($DB->debug)
-						$arMessage .= (++$err).". ".GetMessage("CL_DBDEBUG_TURN_ON")."\n";
+					{
+						$arMessage .= (++$err) . ". " . GetMessage("CL_ADMIN_SECURITY_LEVEL") . "\n";
+					}
+					if (COption::GetOptionInt("main", "error_reporting", E_COMPILE_ERROR | E_ERROR | E_CORE_ERROR | E_PARSE) != (E_COMPILE_ERROR | E_ERROR | E_CORE_ERROR | E_PARSE) && COption::GetOptionString("main", "error_reporting", "") != 0)
+					{
+						$arMessage .= (++$err) . ". " . GetMessage("CL_ERROR_REPORTING_LEVEL") . "\n";
+					}
+					if ($DB->debug)
+					{
+						$arMessage .= (++$err) . ". " . GetMessage("CL_DBDEBUG_TURN_ON") . "\n";
+					}
 					if ($arMessage)
 					{
 						$arResult["STATUS"] = false;
-						$arResult["MESSAGE"]=array(
-								"PREVIEW" => GetMessage("CL_MIN_LEVEL_SECURITY"),
-								"DETAIL" => GetMessage("CL_ERROR_FOUND")."\n".$arMessage
-						);
+						$arResult["MESSAGE"] = [
+							"PREVIEW" => GetMessage("CL_MIN_LEVEL_SECURITY"),
+							"DETAIL" => GetMessage("CL_ERROR_FOUND") . "\n" . $arMessage,
+						];
 					}
 					else
 					{
 						$arResult["STATUS"] = true;
-						$arResult["MESSAGE"]=array(
-								"PREVIEW" => GetMessage("CL_LEVEL_SECURITY")."\n"
-						);
+						$arResult["MESSAGE"] = [
+							"PREVIEW" => GetMessage("CL_LEVEL_SECURITY") . "\n",
+						];
 					}
 				}
 				else
-					$arResult = array(
+				{
+					$arResult = [
 						"STATUS" => false,
-						"MESSAGE" => array(
-							"PREVIEW" => GetMessage("CL_SECURITY_MODULE_NOT_INSTALLED")."\n"
-						)
-					);
-			break;
+						"MESSAGE" => [
+							"PREVIEW" => GetMessage("CL_SECURITY_MODULE_NOT_INSTALLED") . "\n",
+						],
+					];
+				}
+				break;
 			case "ADMIN_POLICY":
 				if (CCheckListTools::AdminPolicyLevel() != "high")
-					$arResult["MESSAGE"]["PREVIEW"] = GetMessage("CL_ADMIN_SECURITY_LEVEL")."\n";
+				{
+					$arResult["MESSAGE"]["PREVIEW"] = GetMessage("CL_ADMIN_SECURITY_LEVEL") . "\n";
+				}
 				else
-					$arResult = array(
+				{
+					$arResult = [
 						"STATUS" => true,
-						"MESSAGE" => array(
-							"PREVIEW" => GetMessage("CL_ADMIN_SECURITY_LEVEL_IS_HIGH")."\n"
-						)
-					);
-			break;
+						"MESSAGE" => [
+							"PREVIEW" => GetMessage("CL_ADMIN_SECURITY_LEVEL_IS_HIGH") . "\n",
+						],
+					];
+				}
+				break;
 		}
 
 		return $arResult;
@@ -1067,17 +1186,21 @@ class CAutoCheck
 		$arResult["STATUS"] = true;
 		$arMessage = '';
 		if ($DBDebug)
-			$arMessage .= (++$err).". ".GetMessage("CL_DBDEBUG_TURN_ON")."\n";
-		if (COption::GetOptionString("main", "error_reporting", "")!=0 && ini_get("display_errors"))
-			$arMessage .= (++$err).". ".GetMessage("CL_ERROR_REPORT_TURN_ON")."\n";
+		{
+			$arMessage .= (++$err) . ". " . GetMessage("CL_DBDEBUG_TURN_ON") . "\n";
+		}
+		if (COption::GetOptionString("main", "error_reporting", "") != 0 && ini_get("display_errors"))
+		{
+			$arMessage .= (++$err) . ". " . GetMessage("CL_ERROR_REPORT_TURN_ON") . "\n";
+		}
 
-		if($arMessage)
+		if ($arMessage)
 		{
 			$arResult["STATUS"] = false;
-			$arResult["MESSAGE"] = array(
-				"PREVIEW" => GetMessage("CL_ERROR_FOUND_SHORT")."\n",
-				"DETAIL" => $arMessage
-			);
+			$arResult["MESSAGE"] = [
+				"PREVIEW" => GetMessage("CL_ERROR_FOUND_SHORT") . "\n",
+				"DETAIL" => $arMessage,
+			];
 		}
 		return $arResult;
 	}
@@ -1088,14 +1211,16 @@ class CAutoCheck
 		if (COption::GetOptionString("main", "component_cache_on", "Y") == "N")
 		{
 			$arResult["STATUS"] = false;
-			$arResult["MESSAGE"]=array(
-				"PREVIEW" => GetMessage("CL_TURNOFF_AUTOCACHE")."\n"
-			);
+			$arResult["MESSAGE"] = [
+				"PREVIEW" => GetMessage("CL_TURNOFF_AUTOCACHE") . "\n",
+			];
 		}
 		else
-			$arResult["MESSAGE"]=array(
-				"PREVIEW" => GetMessage("CL_TURNON_AUTOCACHE")."\n"
-			);
+		{
+			$arResult["MESSAGE"] = [
+				"PREVIEW" => GetMessage("CL_TURNON_AUTOCACHE") . "\n",
+			];
+		}
 
 		return $arResult;
 	}
@@ -1115,130 +1240,148 @@ class CAutoCheck
 
 		if ($password == '')
 		{
-			$arMessage.=GetMessage("CL_EMPTY_PASS")."\n";
+			$arMessage .= GetMessage("CL_EMPTY_PASS") . "\n";
 		}
 		else
 		{
 			if ($password == mb_strtolower($password))
-				$arMessage .= (++$err).". ".GetMessage("CL_SAME_REGISTER")."\n";
+			{
+				$arMessage .= (++$err) . ". " . GetMessage("CL_SAME_REGISTER") . "\n";
+			}
 
-			for($j=0, $c = mb_strlen($password); $j<$c; $j++)
+			for ($j = 0, $c = mb_strlen($password); $j < $c; $j++)
 			{
 				if (mb_strpos($sign, $password[$j]) !== false)
+				{
 					$have_sign = true;
+				}
 				if (mb_strpos($dit, $password[$j]) !== false)
+				{
 					$have_dit = true;
+				}
 				if ($have_dit == true && $have_sign == true)
+				{
 					break;
+				}
 			}
 
 			if (!$have_dit)
-				$arMessage .= (++$err).". ".GetMessage("CL_HAVE_NO_DIT")."\n";
+			{
+				$arMessage .= (++$err) . ". " . GetMessage("CL_HAVE_NO_DIT") . "\n";
+			}
 			if (!$have_sign)
-				$arMessage .= (++$err).". ".GetMessage("CL_HAVE_NO_SIGN")."\n";
+			{
+				$arMessage .= (++$err) . ". " . GetMessage("CL_HAVE_NO_SIGN") . "\n";
+			}
 			if (mb_strlen($password) < 8)
-				$arMessage .= (++$err).". ".GetMessage("CL_LEN_MIN")."\n";
+			{
+				$arMessage .= (++$err) . ". " . GetMessage("CL_LEN_MIN") . "\n";
+			}
 		}
-		if($arMessage)
+		if ($arMessage)
 		{
 			$arResult["STATUS"] = false;
-			$arResult["MESSAGE"]=array(
+			$arResult["MESSAGE"] = [
 				"PREVIEW" => GetMessage("CL_ERROR_FOUND_SHORT"),
-				"DETAIL" => $arMessage
-			);
+				"DETAIL" => $arMessage,
+			];
 		}
 		else
-			$arResult["MESSAGE"]=array(
+		{
+			$arResult["MESSAGE"] = [
 				"PREVIEW" => GetMessage("CL_NO_ERRORS"),
-			);
+			];
+		}
 		return $arResult;
 	}
 
 	public static function CheckPerfomance($arParams)
 	{
 		if (!IsModuleInstalled("perfmon"))
-			return array(
+		{
+			return [
 				"STATUS" => false,
-				"MESSAGE" => array(
-					"PREVIEW" => GetMessage("CL_CHECK_PERFOM_NOT_INSTALLED")
-				)
-			);
-		$arResult = array(
-			"STATUS" => true
-		);
-		switch($arParams["ACTION"])
+				"MESSAGE" => [
+					"PREVIEW" => GetMessage("CL_CHECK_PERFOM_NOT_INSTALLED"),
+				],
+			];
+		}
+		$arResult = [
+			"STATUS" => true,
+		];
+		switch ($arParams["ACTION"])
 		{
 			case "PHPCONFIG":
-				if(COption::GetOptionString("perfmon", "mark_php_is_good", "N") == "N")
+				if (COption::GetOptionString("perfmon", "mark_php_is_good", "N") == "N")
 				{
 					$arResult["STATUS"] = false;
-					$arResult["MESSAGE"]=array(
-						"PREVIEW" => GetMessage("CL_PHP_NOT_OPTIMAL", array("#LANG#" => LANG))."\n"
-					);
+					$arResult["MESSAGE"] = [
+						"PREVIEW" => GetMessage("CL_PHP_NOT_OPTIMAL", ["#LANG#" => LANG]) . "\n",
+					];
 				}
 				else
 				{
-					$arResult["MESSAGE"]=array(
-						"PREVIEW" => GetMessage("CL_PHP_OPTIMAL")."\n"
-					);
+					$arResult["MESSAGE"] = [
+						"PREVIEW" => GetMessage("CL_PHP_OPTIMAL") . "\n",
+					];
 				}
-			break;
+				break;
 			case "PERF_INDEX":
-			$arPerfIndex = COption::GetOptionString("perfmon", "mark_php_page_rate", "N");
-			if($arPerfIndex == "N")
-			{
-				$arResult["STATUS"] = false;
-				$arResult["MESSAGE"]=array(
-					"PREVIEW" => GetMessage("CL_CHECK_PERFOM_FAILED", array("#LANG#" => LANG))."\n"
-				);
-			}
-			elseif($arPerfIndex<15)
-			{
-				$arResult["STATUS"] = false;
-				$arResult["MESSAGE"]=array(
-					"PREVIEW" => GetMessage("CL_CHECK_PERFOM_LOWER_OPTIMAL", array("#LANG#" => LANG))."\n"
-				);
-			}
-			else
-			{
-				$arResult["MESSAGE"]=array(
-					"PREVIEW" => GetMessage("CL_CHECK_PERFOM_PASSED")."\n"
-				);
-			}
-			break;
+				$arPerfIndex = COption::GetOptionString("perfmon", "mark_php_page_rate", "N");
+				if ($arPerfIndex == "N")
+				{
+					$arResult["STATUS"] = false;
+					$arResult["MESSAGE"] = [
+						"PREVIEW" => GetMessage("CL_CHECK_PERFOM_FAILED", ["#LANG#" => LANG]) . "\n",
+					];
+				}
+				elseif ($arPerfIndex < 15)
+				{
+					$arResult["STATUS"] = false;
+					$arResult["MESSAGE"] = [
+						"PREVIEW" => GetMessage("CL_CHECK_PERFOM_LOWER_OPTIMAL", ["#LANG#" => LANG]) . "\n",
+					];
+				}
+				else
+				{
+					$arResult["MESSAGE"] = [
+						"PREVIEW" => GetMessage("CL_CHECK_PERFOM_PASSED") . "\n",
+					];
+				}
+				break;
 		}
 		return $arResult;
 	}
 
-	public static function CheckQueryString($arParams = array())
+	public static function CheckQueryString($arParams = [])
 	{
 		$time = time();
-		$arPath = array(
+		$arPath = [
 			$_SERVER["DOCUMENT_ROOT"],
-			$_SERVER["DOCUMENT_ROOT"]."/bitrix/templates/",
-			$_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/",
-			$_SERVER["DOCUMENT_ROOT"]."/bitrix/components/"
-		);
-		$arExept = array(
-			"FOLDERS" => array("images", "bitrix", "upload", ".svn"),
-			"EXT" => array("php"),
-			"FILES" => array(
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/dbconn.php",
-				"after_connect.php"
-			)
-		);
+			$_SERVER["DOCUMENT_ROOT"] . "/bitrix/templates/",
+			$_SERVER["DOCUMENT_ROOT"] . "/bitrix/php_interface/",
+			$_SERVER["DOCUMENT_ROOT"] . "/bitrix/components/",
+		];
+		$arExept = [
+			"FOLDERS" => ["images", "bitrix", "upload", ".svn"],
+			"EXT" => ["php"],
+			"FILES" => [
+				$_SERVER["DOCUMENT_ROOT"] . "/bitrix/php_interface/dbconn.php",
+				"after_connect.php",
+			],
+		];
 
-		$arParams["STEP"] = (intval($arParams["STEP"])>=0)?intval($arParams["STEP"]):0;
+		$arParams["STEP"] = (intval($arParams["STEP"]) >= 0) ? intval($arParams["STEP"]) : 0;
 		if (!\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"] || $arParams["STEP"] == 0)
 		{
-			\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"] = array(
+			\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"] = [
 				"LAST_FILE" => "",
 				"FOUND" => "",
 				"PERCENT" => 0,
-			);
-			$files = array();
+			];
+			$files = [];
 			$arPathTmp = $arPath;
-			foreach($arPathTmp as $path)
+			foreach ($arPathTmp as $path)
 			{
 				CCheckListTools::__scandir($path, $files, $arExept);
 			}
@@ -1248,16 +1391,18 @@ class CAutoCheck
 		$arFileNum = 0;
 		foreach ($arPath as $namespace)
 		{
-			$files = array();
+			$files = [];
 			CCheckListTools::__scandir($namespace, $files, $arExept);
-			foreach($files as $file)
+			foreach ($files as $file)
 			{
 				$arFileNum++;
 				//this is not first step?
 				if (\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"]["LAST_FILE"] <> '')
 				{
 					if (\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"]["LAST_FILE"] == $file)
+					{
 						\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"]["LAST_FILE"] = "";
+					}
 					continue;
 				}
 
@@ -1268,34 +1413,34 @@ class CAutoCheck
 
 					if ($queries && !empty($queries[0]))
 					{
-						\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"]["FOUND"] .= str_replace(array("//", "\\\\"), array("/", "\\"), $file)."\n";
+						\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"]["FOUND"] .= str_replace(["//", "\\\\"], ["/", "\\"], $file) . "\n";
 					}
 				}
 
-				if (time()-$time>=20)
+				if (time() - $time >= 20)
 				{
 					\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"]["LAST_FILE"] = $file;
-					return array(
+					return [
 						"IN_PROGRESS" => "Y",
-						"PERCENT" => round($arFileNum/(\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"]["COUNT"]*0.01), 2)
-					);
+						"PERCENT" => round($arFileNum / (\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"]["COUNT"] * 0.01), 2),
+					];
 				}
 			}
 		}
-		$arResult = array("STATUS" => true);
+		$arResult = ["STATUS" => true];
 		if (\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"]["FOUND"] <> '')
 		{
 			$arResult["STATUS"] = false;
-			$arResult["MESSAGE"]=array(
-				"PREVIEW" => GetMessage("CL_KERNEL_CHECK_FILES").$arFileNum.".\n".GetMessage("CL_ERROR_FOUND_SHORT")."\n",
-				"DETAIL" => GetMessage("CL_DIRECT_QUERY_TO_DB")."\n".\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"]["FOUND"],
-			);
+			$arResult["MESSAGE"] = [
+				"PREVIEW" => GetMessage("CL_KERNEL_CHECK_FILES") . $arFileNum . ".\n" . GetMessage("CL_ERROR_FOUND_SHORT") . "\n",
+				"DETAIL" => GetMessage("CL_DIRECT_QUERY_TO_DB") . "\n" . \Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"]["FOUND"],
+			];
 		}
 		else
 		{
-			$arResult["MESSAGE"]=array(
-				"PREVIEW" => GetMessage("CL_KERNEL_CHECK_FILES").$arFileNum."\n"
-			);
+			$arResult["MESSAGE"] = [
+				"PREVIEW" => GetMessage("CL_KERNEL_CHECK_FILES") . $arFileNum . "\n",
+			];
 		}
 		unset(\Bitrix\Main\Application::getInstance()->getSession()["BX_CHECKLIST"]);
 		return $arResult;
@@ -1303,69 +1448,76 @@ class CAutoCheck
 
 	public static function KeyCheck()
 	{
-		$arResult = array("STATUS" => false);
+		$arResult = ["STATUS" => false];
 		$arUpdateList = CUpdateClient::GetUpdatesList($errorMessage, LANG);
-		if(array_key_exists("CLIENT", $arUpdateList)&&$arUpdateList["CLIENT"][0]["@"]["RESERVED"] == "N")
+		if (array_key_exists("CLIENT", $arUpdateList) && $arUpdateList["CLIENT"][0]["@"]["RESERVED"] == "N")
 		{
-			$arResult = array(
+			$arResult = [
 				"STATUS" => true,
-				"MESSAGE" => array("PREVIEW" => GetMessage("CL_LICENSE_KEY_ACTIVATE"))
-			);
-		}
-		else
-			$arResult["MESSAGE"] = array("PREVIEW" => GetMessage("CL_LICENSE_KEY_NONE_ACTIVATE", array("#LANG#" => LANG)));
-
-		return $arResult;
-	}
-
-	public static function CheckVMBitrix(){
-		$arResult = array();
-		$arResult["STATUS"] = false;
-
-		$http = new \Bitrix\Main\Web\HttpClient();
-		$ver = $http->get("https://www.1c-bitrix.ru/download/vm_bitrix.ver");
-
-		if (version_compare(getenv('BITRIX_VA_VER'), $ver) >= 0)
-		{
-			$arResult["STATUS"] = true;
-			$arResult["MESSAGE"] = array(
-				'PREVIEW' => GetMessage("CL_VMBITRIX_ACTUAL"),
-			);
+				"MESSAGE" => ["PREVIEW" => GetMessage("CL_LICENSE_KEY_ACTIVATE")],
+			];
 		}
 		else
 		{
-			$arResult["MESSAGE"] = array(
-				'PREVIEW' => GetMessage("CL_VMBITRIX_NOT_ACTUAL"),
-			);
+			$arResult["MESSAGE"] = ["PREVIEW" => GetMessage("CL_LICENSE_KEY_NONE_ACTIVATE", ["#LANG#" => LANG])];
 		}
 
 		return $arResult;
 	}
 
-	public static function CheckSiteCheckerStatus(){
-		$arResult = array();
+	public static function CheckVMBitrix()
+	{
+		$arResult = ["STATUS" => true];
+
+		$vm = new BitrixVm();
+		$ver = $vm->getVersion();
+
+		if ($ver)
+		{
+			if (version_compare($ver, $vm->getAvailableVersion()) >= 0)
+			{
+				$arResult["MESSAGE"] = [
+					'PREVIEW' => GetMessage("CL_VMBITRIX_ACTUAL"),
+				];
+			}
+			else
+			{
+				$arResult["STATUS"] = false;
+				$arResult["MESSAGE"] = [
+					'PREVIEW' => GetMessage("CL_VMBITRIX_NOT_ACTUAL"),
+				];
+			}
+		}
+
+		return $arResult;
+	}
+
+	public static function CheckSiteCheckerStatus()
+	{
+		$arResult = [];
 		$arResult["STATUS"] = false;
 
 		$checkerStatus = COption::GetOptionString('main', 'site_checker_success', 'N');
 		if ($checkerStatus == 'Y')
 		{
 			$arResult["STATUS"] = true;
-			$arResult["MESSAGE"] = array(
-				'PREVIEW' => GetMessage("CL_SITECHECKER_OK", array("#LANG#" => LANG)),
-			);
+			$arResult["MESSAGE"] = [
+				'PREVIEW' => GetMessage("CL_SITECHECKER_OK", ["#LANG#" => LANG]),
+			];
 		}
 		else
 		{
-			$arResult["MESSAGE"] = array(
-				'PREVIEW' => GetMessage("CL_SITECHECKER_NOT_OK", array("#LANG#" => LANG)),
-			);
+			$arResult["MESSAGE"] = [
+				'PREVIEW' => GetMessage("CL_SITECHECKER_NOT_OK", ["#LANG#" => LANG]),
+			];
 		}
 
 		return $arResult;
 	}
 
-	public static function CheckSecurityScannerStatus(){
-		$arResult = array();
+	public static function CheckSecurityScannerStatus()
+	{
+		$arResult = [];
 		$arResult["STATUS"] = false;
 
 		if (!Loader::includeModule('security'))
@@ -1376,24 +1528,24 @@ class CAutoCheck
 		$lastTestingInfo = CSecuritySiteChecker::getLastTestingInfo();
 		$criticalResultsCount = CSecuritySiteChecker::calculateCriticalResults($lastTestingInfo["results"] ?? []);
 
-		if ( (time()-MakeTimeStamp($lastTestingInfo['test_date'] ?? '', FORMAT_DATE)) > 60*60*24*30 )
+		if ((time() - MakeTimeStamp($lastTestingInfo['test_date'] ?? '', FORMAT_DATE)) > 60 * 60 * 24 * 30)
 		{
-			$arResult["MESSAGE"] = array(
-				'PREVIEW' => GetMessage("CL_SECURITYSCANNER_OLD", array("#LANG#" => LANG)),
-			);
+			$arResult["MESSAGE"] = [
+				'PREVIEW' => GetMessage("CL_SECURITYSCANNER_OLD", ["#LANG#" => LANG]),
+			];
 		}
 		elseif ($criticalResultsCount === 0)
 		{
 			$arResult["STATUS"] = true;
-			$arResult["MESSAGE"] = array(
+			$arResult["MESSAGE"] = [
 				'PREVIEW' => GetMessage("CL_SECURITYSCANNER_OK"),
-			);
+			];
 		}
 		else
 		{
-			$arResult["MESSAGE"] = array(
-				'PREVIEW' => GetMessage("CL_SECURITYSCANNER_NOT_OK", array("#LANG#" => LANG)),
-			);
+			$arResult["MESSAGE"] = [
+				'PREVIEW' => GetMessage("CL_SECURITYSCANNER_NOT_OK", ["#LANG#" => LANG]),
+			];
 		}
 
 		return $arResult;
@@ -1404,24 +1556,28 @@ class CCheckListTools
 {
 	public static function __scandir($pwd, &$arFiles, $arExept = false)
 	{
-		if(file_exists($pwd))
+		if (file_exists($pwd))
 		{
 			$dir = scandir($pwd);
 			foreach ($dir as $file)
 			{
 				if ($file == ".." || $file == ".")
+				{
 					continue;
-				if (is_dir($pwd."$file"))
+				}
+				if (is_dir($pwd . "$file"))
 				{
 					if (!in_array($file, $arExept["FOLDERS"]))
-						CCheckListTools::__scandir($pwd."$file/", $arFiles, $arExept);
+					{
+						CCheckListTools::__scandir($pwd . "$file/", $arFiles, $arExept);
+					}
 				}
-				elseif(in_array(mb_substr(strrchr($file, '.'), 1), $arExept["EXT"])
-					&& !in_array($pwd.$file, $arExept["FILES"])
+				elseif (in_array(mb_substr(strrchr($file, '.'), 1), $arExept["EXT"])
+					&& !in_array($pwd . $file, $arExept["FILES"])
 					&& !in_array($file, $arExept["FILES"])
-					)
+				)
 				{
-					$arFiles[] = $pwd."/$file";
+					$arFiles[] = $pwd . "/$file";
 				}
 			}
 		}

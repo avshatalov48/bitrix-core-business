@@ -1,0 +1,25 @@
+<?php
+$MESS["BIZPROC_AUTOMATION_SCHEME_CATEGORIES_NOT_EXISTS_MSGVER_1"] = "Сіз таңдаған нұсқада бағыттар жоқ. Бұл қадамды өткізіп жіберуге болады";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_COPY"] = "Роботтарды қайда көшіру керектігін таңдаңыз";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_COPY_ROBOTS_AND_TRIGGERS"] = "Роботтар мен триггерлерді қайда көшіру керектігін таңдаңыз";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_COPY_TRIGGERS"] = "Триггерлерді қайда көшіру керектігін таңдаңыз";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_MOVE"] = "Роботтарды қайда ауыстыру керектігін таңдаңыз";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_MOVE_ROBOTS_AND_TRIGGERS"] = "Роботтар мен триггерлерді қайда ауыстыру керектігін таңдаңыз";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DESTINATION_SCOPE_ERROR_ACTION_MOVE_TRIGGERS"] = "Триггерлерді қайда ауыстыру керектігін таңдаңыз";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DROPDOWN_PLACEHOLDER"] = "Таңдаңыз";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_CATEGORY"] = "Қай бағытта";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_STAGE"] = "Қай сатыға";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_COPY"] = "Роботтарды қайда көшіру керек?";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_COPY_1_MSGVER_1"] = "Роботтарды қалай көшіру керек?";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_COPY_ROBOTS_AND_TRIGGERS_MSGVER_1"] = "Роботтар мен триггерлерді қайда көшіру керек?";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_COPY_TRIGGERS_MSGVER_1"] = "Триггерлерді қайда көшіру керек?";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_MOVE_MSGVER_1"] = "Роботтардың орнын қайда ауыстыру керек?";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_MOVE_ROBOTS_AND_TRIGGERS_MSGVER_1"] = "Роботтар мен триггерлердің орын қайда ауыстыру керек?";
+$MESS["BIZPROC_AUTOMATION_SCHEME_DST_TYPE_ACTION_MOVE_TRIGGERS_MSGVER_1"] = "Триггерлердің орнын қайда ауыстыру керек?";
+$MESS["BIZPROC_AUTOMATION_SCHEME_EXECUTE_BUTTON"] = "Орындау";
+$MESS["BIZPROC_AUTOMATION_SCHEME_HELP_BUTTON"] = "көмек";
+$MESS["BIZPROC_AUTOMATION_SCHEME_TITLE_ACTION_COPY_1"] = "Көшіру";
+$MESS["BIZPROC_AUTOMATION_SCHEME_TITLE_ACTION_MOVE"] = "Роботтардың орнын ауыстыру";
+$MESS["BIZPROC_AUTOMATION_SCHEME_TITLE_ACTION_MOVE_1"] = "Орын ауыстыру";
+$MESS["BIZPROC_AUTOMATION_SCHEME_TITLE_ACTION_MOVE_ROBOTS_AND_TRIGGERS"] = "Роботтар мен триггерлердің орнын ауыстыру";
+$MESS["BIZPROC_AUTOMATION_SCHEME_TITLE_ACTION_MOVE_TRIGGERS"] = "Триггерлердің орнын ауыстыру";

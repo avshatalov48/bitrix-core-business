@@ -19,7 +19,7 @@ type RestResponse = {
 type UrlGetQueryParams = {
 	CHAT_ID: number,
 	LIMIT: number,
-	SUBTYPE: string,
+	GROUP: string,
 	SEARCH_FILE_NAME?: string,
 	LAST_ID?: number,
 };
@@ -42,7 +42,7 @@ export class FileSearch
 		this.userManager = new UserManager();
 	}
 
-	searchOnServer(query: string, subType: string): Promise<number[]>
+	searchOnServer(query: string, group: string): Promise<number[]>
 	{
 		if (this.#query !== query)
 		{
@@ -50,7 +50,7 @@ export class FileSearch
 			this.hasMoreItemsToLoad = true;
 		}
 
-		return this.request(subType);
+		return this.request(group);
 	}
 
 	resetSearchState()
@@ -60,9 +60,9 @@ export class FileSearch
 		void this.store.dispatch('sidebar/files/clearSearch', {});
 	}
 
-	async request(subType: string): Promise<number[]>
+	async request(group: string): Promise<number[]>
 	{
-		const queryParams = this.getQueryParams(subType);
+		const queryParams = this.getQueryParams(group);
 		let responseData: RestResponse = {};
 		try
 		{
@@ -96,32 +96,32 @@ export class FileSearch
 		const addUsersPromise = this.userManager.setUsersToModel(users);
 		const setFilesPromise = this.store.dispatch('files/set', files);
 
-		const sortedList = {};
+		const sortedGroups = {};
 		list.forEach((file) => {
-			if (!sortedList[file.subType])
+			if (!sortedGroups[file.group])
 			{
-				sortedList[file.subType] = [];
+				sortedGroups[file.group] = [];
 			}
-			sortedList[file.subType].push(file);
+			sortedGroups[file.group].push(file);
 		});
 
 		const setSidebarFilesPromises = [];
-		Object.keys(sortedList).forEach((subType) => {
-			const listByType = sortedList[subType];
+		Object.keys(sortedGroups).forEach((group) => {
+			const listByType = sortedGroups[group];
 			setSidebarFilesPromises.push(
 				this.store.dispatch('sidebar/files/setSearch', {
 					chatId: this.chatId,
 					files: listByType,
-					subType,
+					group,
 				}),
 				this.store.dispatch('sidebar/files/setHasNextPageSearch', {
 					chatId: this.chatId,
-					subType,
+					group,
 					hasNextPage: listByType.length === REQUEST_ITEMS_LIMIT,
 				}),
 				this.store.dispatch('sidebar/files/setLastIdSearch', {
 					chatId: this.chatId,
-					subType,
+					group,
 					lastId: getLastElementId(listByType),
 				}),
 			);
@@ -132,26 +132,26 @@ export class FileSearch
 		]);
 	}
 
-	loadNextPage(subType: string, searchQuery: string): Promise
+	loadNextPage(group: string, searchQuery: string): Promise
 	{
 		if (this.#query !== searchQuery)
 		{
 			this.#query = searchQuery;
 		}
 
-		return this.request(subType);
+		return this.request(group);
 	}
 
-	getQueryParams(subType: string): UrlGetQueryParams
+	getQueryParams(group: string): UrlGetQueryParams
 	{
 		const queryParams = {
 			CHAT_ID: this.chatId,
 			SEARCH_FILE_NAME: this.#query,
-			SUBTYPE: subType.toUpperCase(),
+			GROUP: group.toUpperCase(),
 			LIMIT: REQUEST_ITEMS_LIMIT,
 		};
 
-		const lastId = this.store.getters['sidebar/files/getSearchResultCollectionLastId'](this.chatId, subType);
+		const lastId = this.store.getters['sidebar/files/getSearchResultCollectionLastId'](this.chatId, group);
 		if (lastId > 0)
 		{
 			queryParams.LAST_ID = lastId;

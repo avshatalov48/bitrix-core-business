@@ -4,7 +4,7 @@ import { ThemeManager } from 'im.v2.lib.theme';
 
 import { ChatBackground } from '../blocks/background';
 import { ChatAlignment } from '../blocks/alignment';
-import { DemoManager } from './classes/demo-manager';
+import { initDemoData } from './functions/init-demo-data';
 
 import type { BackgroundStyle } from 'im.v2.lib.theme';
 
@@ -14,9 +14,11 @@ import './css/appearance.css';
 export const AppearanceSection = {
 	name: 'AppearanceSection',
 	components: { ChatDialog, ChatBackground, ChatAlignment },
-	data(): {}
+	data(): { fakeDialogId: string }
 	{
-		return {};
+		return {
+			fakeDialogId: '',
+		};
 	},
 	computed:
 	{
@@ -33,7 +35,7 @@ export const AppearanceSection = {
 	},
 	created()
 	{
-		DemoManager.initModels();
+		this.fakeDialogId = initDemoData();
 	},
 	methods:
 	{
@@ -46,7 +48,7 @@ export const AppearanceSection = {
 		<div class="bx-im-settings-section-content__body">
 			<div class="bx-im-settings-section-content__block">
 				<div class="bx-im-content-chat__container bx-im-settings-appearance__demo-chat_container" :class="containerClasses" :style="backgroundStyle">
-					<ChatDialog :dialogId="'settings'" />
+					<ChatDialog :dialogId="fakeDialogId" />
 				</div>
 			</div>
 			<div class="bx-im-settings-section-content__block">

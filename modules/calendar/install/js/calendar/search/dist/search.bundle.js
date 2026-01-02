@@ -6,15 +6,14 @@ this.BX = this.BX || {};
 	let _ = t => t,
 	  _t;
 	class Search {
-	  constructor(filterId) {
+	  constructor(filterId, filter) {
 	    this.PRESET_INVITED = 'filter_calendar_meeting_status_q';
 	    this.EMPTY_RESULT_POPUP_WIDTH = 466;
 	    this.MIN_QUERY_LENGTH = 3;
 	    this.SHOW_LOADER_DELAY = 500;
 	    this.MIN_LOADER_DURATION = 1000;
-	    this.BX = BX; // for calendar in slider
 	    this.filterId = filterId;
-	    this.filter = this.BX.Main.filterManager.getById(this.filterId);
+	    this.filter = filter;
 	    this.filterApi = this.filter.getApi();
 	    this.isActive = false;
 	    this.isInvitationEnabled = false;

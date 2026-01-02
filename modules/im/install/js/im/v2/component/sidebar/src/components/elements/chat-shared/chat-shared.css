@@ -1,0 +1,54 @@
+.bx-im-sidebar-chat-shared__container {
+	--im-sidebar-chat-shared__background_link-icon: url('data:image/svg+xml, <svg width="15" height="12" viewBox="0 0 15 12" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M2.05369 0.138184C1.13322 0.138184 0.387024 0.884376 0.387024 1.80485V5.97152C0.387024 6.89199 1.13322 7.63818 2.05369 7.63818H2.26831V8.93108C2.26831 9.37653 2.80688 9.59961 3.12186 9.28463L4.12736 8.27913V5.10657C4.12736 3.72586 5.24665 2.60657 6.62736 2.60657H10.387V1.80485C10.387 0.884376 9.64083 0.138184 8.72036 0.138184H2.05369Z" fill="#008DBA"/> <path d="M5.3768 5.37314C5.3768 4.45267 6.12299 3.70648 7.04347 3.70648H12.655C13.5754 3.70648 14.3216 4.45267 14.3216 5.37314V8.65592C14.3216 9.57528 13.5773 10.3208 12.6583 10.3226V11.3945C12.6583 11.8674 12.0625 12.076 11.7675 11.7064L10.6632 10.3226H7.04347C6.12299 10.3226 5.3768 9.5764 5.3768 8.65592V5.37314Z" fill="#008DBA"/> </svg> ') no-repeat center;
+	--im-sidebar-chat-shared__background_hover-link-icon: url('data:image/svg+xml, <svg width="15" height="12" viewBox="0 0 15 12" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M2.05369 0.138184C1.13322 0.138184 0.387024 0.884376 0.387024 1.80485V5.97152C0.387024 6.89199 1.13322 7.63818 2.05369 7.63818H2.26831V8.93108C2.26831 9.37653 2.80688 9.59961 3.12186 9.28463L4.12736 8.27913V5.10657C4.12736 3.72586 5.24665 2.60657 6.62736 2.60657H10.387V1.80485C10.387 0.884376 9.64083 0.138184 8.72036 0.138184H2.05369Z" fill="#00789e"/> <path d="M5.3768 5.37314C5.3768 4.45267 6.12299 3.70648 7.04347 3.70648H12.655C13.5754 3.70648 14.3216 4.45267 14.3216 5.37314V8.65592C14.3216 9.57528 13.5773 10.3208 12.6583 10.3226V11.3945C12.6583 11.8674 12.0625 12.076 11.7675 11.7064L10.6632 10.3226H7.04347C6.12299 10.3226 5.3768 9.5764 5.3768 8.65592V5.37314Z" fill="#00789e"/> </svg> ') no-repeat center;
+	--im-sidebar-chat-shared__background_link-icon_arrow: url('data:image/svg+xml, <svg width="7" height="10" viewBox="0 0 7 10" fill="none" xmlns="http://www.w3.org/2000/svg"> <path fill-rule="evenodd" clip-rule="evenodd" d="M0.440308 1.22895L3.45834 4.24699L4.24006 4.9999L3.45834 5.75326L0.440308 8.7713L1.50529 9.83627L6.34139 5.00017L1.50529 0.164062L0.440308 1.22895Z" fill="#BDC1C6"/> </svg> ') no-repeat center;
+	--im-sidebar-chat-shared__color_title: #008dba;
+	--im-sidebar-chat-shared__color_title-hover: #00789e;
+	--im-sidebar-chat-shared__color_counter: #fff;
+	--im-sidebar-chat-shared__background-color_counter: #c9ccd0;
+
+	display: flex;
+	justify-content: space-between;
+	cursor: pointer;
+	height: 20px;
+	position: relative;
+}
+
+.bx-im-sidebar-chat-shared__container:not(:last-child) {
+	margin-bottom: 8px;
+}
+
+.bx-im-sidebar-chat-shared__title-container {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-sidebar-chat-shared__icon {
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	background: var(--im-sidebar-chat-shared__background_link-icon);
+}
+
+.bx-im-sidebar-chat-shared__icon:hover,
+.bx-im-sidebar-chat-shared__title-container:hover .bx-im-sidebar-chat-shared__icon {
+	background: var(--im-sidebar-chat-shared__background_hover-link-icon);
+}
+
+.bx-im-sidebar-chat-shared__title-text {
+	font: var(--im-font-size-md)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-sidebar-chat-shared__color_title);
+	margin-left: 10px;
+}
+
+.bx-im-sidebar-chat-shared__title-text:hover {
+	color: var(--im-sidebar-chat-shared__color_title-hover)
+}
+
+.bx-im-sidebar-chat-shared__arrow {
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	background: var(--im-sidebar-chat-shared__background_link-icon_arrow);
+}

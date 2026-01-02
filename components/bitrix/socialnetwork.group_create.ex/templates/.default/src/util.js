@@ -12,7 +12,6 @@ export class Util
 	static initExpandSwitches()
 	{
 		const expandSwitchers = document.querySelectorAll('[data-role="socialnetwork-group-create-ex__expandable"]');
-
 		expandSwitchers.forEach((switcher) => {
 
 			switcher.addEventListener('click', (e) => {
@@ -23,6 +22,8 @@ export class Util
 
 				if (target.offsetHeight === 0)
 				{
+					this.#sendAnalytics();
+
 					target.style.height = switcherWrapper.offsetHeight + 'px';
 					target.classList.add('--open');
 
@@ -60,6 +61,56 @@ export class Util
 				}
 			});
 		});
+	}
+
+	static #sendAnalytics()
+	{
+		const workgroupForm = WorkgroupForm.getInstance();
+		let analyticsData = {};
+
+		const isScrumForm = workgroupForm.isScrumForm;
+		if (isScrumForm)
+		{
+			const isScrumTrialEnabled = workgroupForm.isScrumTrialEnabled;
+
+			analyticsData = {
+				event: 'scrum_edit_settings',
+				category: 'scrum',
+				c_section: 'scrum',
+				c_sub_section: 'scrum_grid',
+				c_element: 'settings_button',
+				tool: 'tasks',
+				status: 'success',
+				p1: `isDemo_${isScrumTrialEnabled ? 'Y' : 'N'}`,
+			};
+		}
+		else
+		{
+			const isProjectsTrialEnabled = workgroupForm.isProjectsTrialEnabled;
+
+			analyticsData = {
+				event: 'project_edit_settings',
+				category: 'project',
+				c_section: 'project',
+				c_sub_section: 'project_grid',
+				c_element: 'settings_button',
+				tool: 'tasks',
+				status: 'success',
+				p1: `isDemo_${isProjectsTrialEnabled ? 'Y' : 'N'}`,
+			};
+		}
+
+		if (BX.UI.Analytics)
+		{
+			BX.UI.Analytics.sendData(analyticsData);
+		}
+		else
+		{
+			// eslint-disable-next-line promise/catch-or-return
+			BX.Runtime.loadExtension('ui.analytics').then(() => {
+				BX.UI.Analytics.sendData(analyticsData);
+			});
+		}
 	}
 
 	static initDropdowns()

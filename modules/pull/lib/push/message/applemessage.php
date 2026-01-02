@@ -4,14 +4,14 @@ namespace Bitrix\Pull\Push\Message;
 
 class AppleMessage extends BaseMessage
 {
-	protected const DEFAULT_PAYLOAD_MAXIMUM_SIZE = 2048;
+	protected const DEFAULT_PAYLOAD_MAXIMUM_SIZE = 4096;
 	protected const APPLE_RESERVED_NAMESPACE = 'aps';
 	protected const JSON_OPTIONS = JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE;
 
 	protected $_bAutoAdjustLongPayload = true;
 	protected $payloadMaxSize;
 
-	public function __construct($sDeviceToken = null, $maxPayloadSize = 2048)
+	public function __construct($sDeviceToken = null, $maxPayloadSize = 4096)
 	{
 		if (isset($sDeviceToken))
 		{

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_XML_IMPORT_ERR_BAD_STEP_ID"] = "Неверный идентификатор операции импорта.";
 $MESS["IBLOCK_XML_IMPORT_ERR_PARAMETER_FILE_IS_EMPTY"] = "Не указан файл импорта.";
 $MESS["IBLOCK_XML_IMPORT_ERR_CANNOT_PREPARE_TEMPORARY_TABLES"] = "Ошибка подготовки временных таблиц.";
@@ -19,4 +19,3 @@ $MESS["IBLOCK_XML_IMPORT_MESS_FINAL_SUCCESS"] = "Импорт успешно з�
 $MESS["IBLOCK_XML_IMPORT_MESS_IBLOCK_ELEMENTS_IMPORT_COMPLETE"] = "Загрузка элементов завершена.";
 $MESS["IBLOCK_XML_IMPORT_MESS_IBLOCK_ELEMENTS_IMPORT_PROGRESS"] = "Обработано #DONE# из #TOTAL# элементов.";
 $MESS["IBLOCK_XML_IMPORT_MESS_PROCESS_MISSING_IBLOCK_ELEMENTS_COMPLETE"] = "Деактивация/Удаление элементов завершены.";
-?>

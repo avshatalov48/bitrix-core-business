@@ -1,0 +1,20 @@
+<?php
+$MESS["IBLOCK_MENU_ADMIN_TOOLS"] = "Құралдар";
+$MESS["IBLOCK_MENU_ADMIN_TOOLS_REDIRECT_IBLOCK_EXT"] = "Ақпараттық блокқа / бөлімге / элементке өту";
+$MESS["IBLOCK_MENU_ADMIN_TOOLS_REDIRECT_IBLOCK_TITLE_EXT"] = "Ақпараттық блок элементтерінің тізімі бетіне / ақпараттық блок бөлімін немесе элементін редакциялау бетіне өту";
+$MESS["IBLOCK_MENU_ADMIN_TOOLS_TITLE"] = "Құралдар";
+$MESS["IBLOCK_MENU_ALL_EL"] = "Барлық элементтер";
+$MESS["IBLOCK_MENU_ALL_OTH"] = "Басқасы...";
+$MESS["IBLOCK_MENU_ALL_OTH_TITLE"] = "Бөлімдердің толық тізімі";
+$MESS["IBLOCK_MENU_ELEMENTS"] = "Элементтер";
+$MESS["IBLOCK_MENU_EXPORT"] = "Экспорт";
+$MESS["IBLOCK_MENU_EXPORT_ALT"] = "Деректерді CSV пішіміне экспорттау";
+$MESS["IBLOCK_MENU_IMPORT"] = "Импорттау";
+$MESS["IBLOCK_MENU_IMPORT_ALT"] = "Деректерді CSV пішіміне импорттау";
+$MESS["IBLOCK_MENU_ITYPE"] = "Ақпараттық блок түрлері";
+$MESS["IBLOCK_MENU_ITYPE_TITLE"] = "Ақпараттық блоктардың түрлері";
+$MESS["IBLOCK_MENU_REINDEX"] = "Фасеттік индекстер";
+$MESS["IBLOCK_MENU_REINDEX_TITLE"] = "Қасиеттер мәндері үшін фасеттік индекстерді жасау";
+$MESS["IBLOCK_MENU_SEC_EL"] = "Осы топтың элементтері";
+$MESS["IBLOCK_MENU_SEPARATOR"] = "Ақпараттық блоктар";
+$MESS['IBLOCK_MENU_SETTINGS_TITLE'] = "Ақпараттық блоктарды баптау";

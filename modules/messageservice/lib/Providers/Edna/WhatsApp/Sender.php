@@ -14,6 +14,8 @@ use Bitrix\MessageService\Providers\Constants\InternalOption;
 
 class Sender extends Providers\Edna\Sender
 {
+	protected const RU_REGIONS = ['ru'];
+
 	public const AVAILABLE_CONTENT_TYPES = [
 		'image/jpeg' => 5 * 1024 * 1024,
 		'image/png' => 5 * 1024 * 1024,
@@ -183,9 +185,9 @@ class Sender extends Providers\Edna\Sender
 	private function getSimpleMessageContent(array $messageFields): array
 	{
 		$contentType = Constants::CONTENT_TYPE_TEXT;
-		$messageBody = $messageFields['MESSAGE_BODY'];
+		$messageBody = trim($messageFields['MESSAGE_BODY']);
 
-		if (Loader::includeModule('disk') && preg_match('/^http.+~.+$/', trim($messageBody)))
+		if (!$this->isRuRegion() && Loader::includeModule('disk') && preg_match('/^http.+~.+$/', $messageBody))
 		{
 			$fileUri = \CBXShortUri::GetUri($messageBody);
 			if ($fileUri)
@@ -349,5 +351,12 @@ class Sender extends Providers\Edna\Sender
 			$this->optionManager->getSocketTimeout(),
 			$this->optionManager->getStreamTimeout()
 		);
+	}
+
+	private function isRuRegion(): bool
+	{
+		$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion() ?? 'en';
+
+		return in_array($region, static::RU_REGIONS, true);
 	}
 }

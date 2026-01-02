@@ -147,6 +147,8 @@ Loc::loadMessages(__FILE__);
 						return 'uk';
 					case 'vn':
 						return 'vn';
+					case 'uz':
+						return 'uz';
 					default:
 						return 'com';
 				}

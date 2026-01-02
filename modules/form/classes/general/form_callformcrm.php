@@ -1239,10 +1239,10 @@ class CFormCrmSender
 
 			$arPostFields = array_merge($params, $arPostFields);
 
-			$obHTTP = new CHTTP();
-			$result_text = $obHTTP->Post($this->arLink['URL'], $arPostFields);
+			$httpClient = new \Bitrix\Main\Web\HttpClient();
+			$result_text = $httpClient->post($this->arLink['URL'], $arPostFields);
 
-			$version_header = $obHTTP->headers['X-CRM-Version'];
+			$version_header = $httpClient->getHeaders()->get('X-CRM-Version');
 			if ($version_header == '' || version_compare($version_header, "11.5.0") < 0)
 			{
 				$result_text = '{"error":"500","error_message":"'.GetMessage('FORM_CRM_VERSION_FAILURE').'"}';

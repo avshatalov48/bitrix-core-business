@@ -1,4 +1,4 @@
-import { MessengerPopup } from 'im.v2.component.elements';
+import { MessengerPopup } from 'im.v2.component.elements.popup';
 
 import { RoleSelectorMiniContent } from './components/role-selector-mini-content';
 
@@ -37,10 +37,9 @@ export const RoleSelectorMini = {
 	},
 	template: `
 		<MessengerPopup
-			v-slot="{enableAutoHide, disableAutoHide}"
 			:config="config"
-			@close="$emit('close')"
 			:id="POPUP_ID"
+			@close="$emit('close')"
 		>
 			<RoleSelectorMiniContent
 				@selectedRole="$emit('selectedRole', $event)"

@@ -4,6 +4,10 @@
 	max-width: 285px;
 }
 
+.--has-error .bx-im-message-file-collection__container .bx-im-progress-bar__container {
+	display: none;
+}
+
 .bx-im-message-file-collection__author-title {
 	padding-bottom: 6px;
 }

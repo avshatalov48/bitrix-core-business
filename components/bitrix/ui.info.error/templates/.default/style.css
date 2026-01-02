@@ -19,6 +19,7 @@
 }
 
 .ui-info-error {
+	height: 100%;
 	display: flex;
 	justify-content: center;
 	text-align: center;
@@ -30,6 +31,10 @@
 .ui-page-slider-workarea-content-padding > .ui-info-error,
 .workarea-content-paddings > .ui-info-error {
 	margin: -15px -15px -20px;
+}
+
+.template-air .ui-page-slider-workarea-content-padding > .ui-info-error {
+	margin: 0;
 }
 
 .ui-info-error-inner {

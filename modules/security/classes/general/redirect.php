@@ -129,6 +129,15 @@ class CSecurityRedirect
 				$good &=  static::Sign($sid, $url) === $_GET["af"];
 			}
 
+			$host = (new \Bitrix\Main\Web\Uri($url))->getHost();
+
+			if (!$good || ($host != '' && $host != $_SERVER['HTTP_HOST'])){
+				\Bitrix\Main\Application::getInstance()->getKernelSession()["LOCAL_REDIRECTS"] = [
+					"C" => 0,
+					"R" => ''
+				];
+			}
+
 			if (!$good)
 			{
 				global $APPLICATION;

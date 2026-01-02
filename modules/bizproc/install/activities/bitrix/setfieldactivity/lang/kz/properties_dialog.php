@@ -1,0 +1,22 @@
+<?php
+$MESS["BPSFA_PD_ADD"] = "Шартты қосу";
+$MESS["BPSFA_PD_CALENDAR"] = "Күнтізбе";
+$MESS["BPSFA_PD_CANCEL"] = "Болдырмау";
+$MESS["BPSFA_PD_CANCEL_HINT"] = "Болдырмау";
+$MESS["BPSFA_PD_CREATE"] = "Өрісті қосу";
+$MESS["BPSFA_PD_DELETE"] = "Жою";
+$MESS["BPSFA_PD_EMPTY_CODE"] = "Өрістің коды көрсетілмеген";
+$MESS["BPSFA_PD_EMPTY_NAME"] = "Өрістің атауы көрсетілмеген";
+$MESS["BPSFA_PD_FIELD"] = "Өріс";
+$MESS["BPSFA_PD_F_CODE"] = "Код";
+$MESS["BPSFA_PD_F_LIST"] = "Мәндер тізімі";
+$MESS["BPSFA_PD_F_MULT"] = "Көптік";
+$MESS["BPSFA_PD_F_NAME"] = "Атауы";
+$MESS["BPSFA_PD_F_REQ"] = "Міндетті";
+$MESS["BPSFA_PD_F_TYPE"] = "Түрі";
+$MESS["BPSFA_PD_MODIFIED_BY"] = "Атынан өзгерту";
+$MESS["BPSFA_PD_NO"] = "Жоқ";
+$MESS["BPSFA_PD_SAVE"] = "Сақтау";
+$MESS["BPSFA_PD_SAVE_HINT"] = "Өрісті құру";
+$MESS["BPSFA_PD_WRONG_CODE"] = "Өріс кодында тек латын әріптері мен сандар қоданылады және саннан басталмауы керек";
+$MESS["BPSFA_PD_YES"] = "Иә";

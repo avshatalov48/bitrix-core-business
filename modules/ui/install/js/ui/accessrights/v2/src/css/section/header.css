@@ -22,23 +22,22 @@
 .ui-access-rights-v2-section-header-expander {
 	width: 18px;
 	height: 18px;
-	background-color: var(--ui-color-palette-white-base);
+	border: 1px solid var(--ui-color-base-7);
 	border-radius: var(--ui-border-radius-circle);
-	box-shadow: var(--ui-shadow-bottom-s);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	margin-right: 9px;
+	background-color: var(--ui-color-bg-content-primary);
+}
+
+.ui-access-rights-v2-section-header-expander:hover {
+	background-color: var(--ui-color-base-7);
 }
 
 .ui-access-rights-v2-section-header-expander .ui-icon-set {
 	--ui-icon-set__icon-size: 12px;
-	--ui-icon-set__icon-color: var(--ui-color-palette-gray-40);
-}
-
-.ui-access-rights-v2-section-header.--expanded .ui-access-rights-v2-section-header-expander .ui-icon-set {
-	--ui-icon-set__icon-size: 12px;
-	--ui-icon-set__icon-color: var(--ui-color-palette-black-base);
+	--ui-icon-set__icon-color: var(--ui-color-accent-main-primary);
 }
 
 .ui-access-rights-v2-section-header-icon {
@@ -55,16 +54,21 @@
 }
 
 .ui-access-rights-v2-section-title {
-	color: var(--ui-color-palette-gray-80);
+	color: var(--ui-color-palette-gray-90);
 	max-width: 70%;
 }
 
 .ui-access-rights-v2-section-header.--expanded .ui-access-rights-v2-section-title {
-	color: var(--ui-color-palette-black-base);
+	color: var(--ui-color-palette-gray-90);
 }
 
 .ui-access-rights-v2-section-subtitle {
-	color: var(--ui-color-palette-gray-70);
+	color: var(--ui-color-palette-gray-90);
 	margin-left: 3px;
 	max-width: 200px;
+}
+
+.ui-access-rights-v2-section-action {
+	margin-left: 12px;
+	cursor: pointer;
 }

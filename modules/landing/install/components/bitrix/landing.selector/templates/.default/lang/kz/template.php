@@ -1,0 +1,10 @@
+<?php
+$MESS["LANDING_SELECTOR_ADD_FOLDER"] = "бума құру";
+$MESS["LANDING_SELECTOR_ADD_FORM"] = "Нысан құру";
+$MESS["LANDING_SELECTOR_ADD_OR"] = "немесе";
+$MESS["LANDING_SELECTOR_ADD_PAGE"] = "Парақшаны құру";
+$MESS["LANDING_SELECTOR_HINT_SEARCH_PAGE"] = "Парақшаларды іздеу және таңдау";
+$MESS["LANDING_SELECTOR_PREVIEW_TEXT"] = "Қарап шығу";
+$MESS["LANDING_SELECTOR_TYPE_FOLDER"] = "Бума";
+$MESS["LANDING_SELECTOR_TYPE_FORM"] = "Нысан";
+$MESS["LANDING_SELECTOR_TYPE_PAGE"] = "Парақша";

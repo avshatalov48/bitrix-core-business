@@ -1371,7 +1371,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 					$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_MEMBERS');
 			}
 
-			if (SITE_TEMPLATE_ID !== 'bitrix24')
+			if (SITE_TEMPLATE_ID !== 'bitrix24' && SITE_TEMPLATE_ID !== 'air')
 			{
 				if ($this->arParams['MODE'] === 'REQUESTS_IN')
 				{

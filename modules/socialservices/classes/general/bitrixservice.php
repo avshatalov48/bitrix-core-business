@@ -44,6 +44,7 @@ class CBitrixServiceTransport
 	protected $clientSecret = '';
 	protected $httpTimeout = SOCSERV_DEFAULT_HTTP_TIMEOUT;
 	protected ?int $streamTimeout = null;
+	protected bool $listenHttpErrors = false;
 
 	protected $serviceHost = '';
 
@@ -108,6 +109,13 @@ class CBitrixServiceTransport
 
 			}
 
+			if ($this->listenHttpErrors && !$res && $http->getError())
+			{
+				$res = [
+					'error' => $this->parseHttpError($http->getError())
+				];
+			}
+
 			if($res)
 			{
 				if(!$licenseCheck && is_array($res) && isset($res['error']) && $res['error'] === 'verification_needed')
@@ -126,6 +134,30 @@ class CBitrixServiceTransport
 		{
 			throw new \Bitrix\Main\SystemException("No client credentials");
 		}
+	}
+
+	/**
+	 * Parse errors from HttpClient
+	 *
+	 * @param array $errors must be key-value, where key is tag and value is error message
+	 * @return string
+	 */
+	private function parseHttpError(array $errors): string
+	{
+		$errorsMsg = [];
+		foreach ($errors as $key => $value)
+		{
+			if (is_string($key))
+			{
+				$errorsMsg[] = "[{$key}] {$value}";
+			}
+			else
+			{
+				$errorsMsg[] = $value;
+			}
+		}
+
+		return implode(', ', $errorsMsg);
 	}
 
 	public function batch($actions)
@@ -157,6 +189,21 @@ class CBitrixServiceTransport
 	public function setStreamTimeout(int $streamTimeout): void
 	{
 		$this->streamTimeout = $streamTimeout;
+	}
+
+	/**
+	 * If transport has this flag - method `call` will return error if httpClient end his request by own error.
+	 *
+	 * Example: `call` returns error if 'NETWORK: Stream time out' will occur.
+	 *
+	 * @param bool $listen
+	 * @return $this
+	 */
+	public function listenHttpErrors(bool $listen = true): static
+	{
+		$this->listenHttpErrors = $listen;
+
+		return $this;
 	}
 
 	protected static function getLicense()

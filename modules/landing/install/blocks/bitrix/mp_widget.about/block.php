@@ -10,7 +10,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 ?>
 
 <section
-	class="landing-block g-bg-image"
+	class="landing-block g-bg-image g-font-roboto"
 	style="--bg: ;--bg-url: url('https://cdn.bitrix24.site/bitrix/images/landing/widget/about/bg.jpg');--bg-url-2x: url('https://cdn.bitrix24.site/bitrix/images/landing/widget/about/bg.jpg');--bg-overlay: hsla(212, 18%, 18%, 0.75);--bg-size: cover;--bg-attachment: scroll;"
 >
 	<?php

@@ -76,7 +76,7 @@ class Informer
 
 		EventEmitter.subscribe('onImUpdateCounter', (event: BaseEvent) =>
 		{
-			const [ counterData ] = event.getData();
+			const [counterData] = event.getCompatData();
 
 			if (
 				this.isSpaceFeatureEnabled

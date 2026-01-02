@@ -76,13 +76,6 @@ export class MentionManager extends EventEmitter
 
 	#onOpenedMentionKeyDown(event: KeyboardEvent)
 	{
-		if (this.#isCloseMentionCombination(event))
-		{
-			this.#sendHidePopupEvent();
-
-			return;
-		}
-
 		if (this.#isNavigateCombination(event))
 		{
 			event.preventDefault();
@@ -146,11 +139,6 @@ export class MentionManager extends EventEmitter
 		}
 
 		return !this.#hasWhitespace(firstQuerySymbol);
-	}
-
-	#isCloseMentionCombination(event: KeyboardEvent): boolean
-	{
-		return event.key === 'Escape';
 	}
 
 	#isInsertMentionCombination(event: KeyboardEvent): boolean

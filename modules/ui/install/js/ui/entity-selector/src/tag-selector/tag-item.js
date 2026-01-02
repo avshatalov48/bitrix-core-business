@@ -1,4 +1,5 @@
 import { Cache, Tag, Type, Dom } from 'main.core';
+import { Icon } from 'ui.icon-set.api.core';
 import Entity from '../entity/entity';
 import TextNode from '../common/text-node';
 import Animation from '../common/animation';
@@ -287,6 +288,11 @@ export default class TagItem
 		if (Type.isBoolean(flag))
 		{
 			this.deselectable = flag;
+
+			if (this.isRendered())
+			{
+				Dom.toggleClass(this.getContainer(), 'ui-tag-selector-tag-readonly', !flag);
+			}
 		}
 	}
 
@@ -377,6 +383,7 @@ export default class TagItem
 		const outline = this.getAvatarOption('outline');
 		const outlineOffset = this.getAvatarOption('outlineOffset');
 
+		Dom.clean(this.getAvatarContainer());
 		Dom.style(this.getAvatarContainer(), 'background-color', bgColor);
 		Dom.style(this.getAvatarContainer(), 'background-size', bgSize);
 		Dom.style(this.getAvatarContainer(), 'border', border);
@@ -384,7 +391,18 @@ export default class TagItem
 		Dom.style(this.getAvatarContainer(), 'outline', outline);
 		Dom.style(this.getAvatarContainer(), 'outline-offset', outlineOffset);
 
-		const hasAvatar = avatar || (bgColor && bgColor !== 'none') || (bgImage && bgImage !== 'none');
+		const icon = {
+			icon: this.getAvatarOption('icon'),
+			size: bgSize ?? undefined,
+			color: this.getAvatarOption('iconColor') ?? undefined,
+		};
+		if (Icon.isValid(icon))
+		{
+			Dom.style(this.getAvatarContainer(), 'background-image', 'none');
+			Dom.append(new Icon(icon).render(), this.getAvatarContainer());
+		}
+
+		const hasAvatar = avatar || (bgColor && bgColor !== 'none') || (bgImage && bgImage !== 'none') || Icon.isValid(icon);
 		if (hasAvatar)
 		{
 			Dom.addClass(this.getContainer(), 'ui-tag-selector-tag--has-avatar');
@@ -491,7 +509,7 @@ export default class TagItem
 	{
 		return this.cache.remember('remove-icon', () => {
 			return Tag.render`
-				<div class="ui-tag-selector-tag-remove" onclick="${this.handleRemoveIconClick.bind(this)}"></div>
+				<div class="ui-tag-selector-tag-remove ui-icon-set__scope" onclick="${this.handleRemoveIconClick.bind(this)}"></div>
 			`;
 		});
 	}

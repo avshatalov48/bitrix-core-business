@@ -1,0 +1,41 @@
+.bx-im-content-chat__service-health-panel {
+	--im-content-chat__service-health-panel_background-color : var(--im-color-palette-red-50);
+	--im-content-chat__service-health-panel_title-color : var(--im-color-palette-white-base);
+	--im-content-chat__service-health-panel_text-color : rgba(var(--im-color-palette-white-base-rgb), 0.7);
+
+	background-color: var(--im-content-chat__service-health-panel_background-color);
+	display: flex;
+	padding: 8px 16px;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 2px;
+}
+
+.bx-im-content-chat__service-health-panel_content {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	width: 100%;
+}
+
+.bx-im-content-chat__service-health-panel_title {
+	color: var(--im-content-chat__service-health-panel_title-color);
+	font-size: var(--im-font-size-sm);
+	font-weight: var(--im-font-weight-medium);
+	line-height: var(--im-font-line-height-sm);
+}
+
+.bx-im-content-chat__service-health-panel_text {
+	color: var(--im-content-chat__service-health-panel_text-color);
+	font-size: var(--im-font-size-xs);
+	line-height: var(--im-font-line-height-2xs);
+	width: 100%;
+}
+
+.bx-im-content-chat__service-health-panel_close-button {
+	cursor: pointer;
+	border: none;
+	background-color: transparent;
+	width: 18px;
+	height: 18px;
+}

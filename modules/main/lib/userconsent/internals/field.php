@@ -7,8 +7,8 @@
  */
 namespace Bitrix\Main\UserConsent\Internals;
 
-use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -28,7 +28,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Main\UserConsent\Internals\EO_Field wakeUpObject($row)
  * @method static \Bitrix\Main\UserConsent\Internals\EO_Field_Collection wakeUpCollection($rows)
  */
-class FieldTable extends Entity\DataManager
+class FieldTable extends DataManager
 {
 	/**
 	 * Get table name.

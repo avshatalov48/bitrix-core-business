@@ -1,15 +1,16 @@
-import {Button as MessengerButton, ButtonSize, ButtonColor} from 'im.v2.component.elements';
+import { ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements.button';
+
 import '../css/notification-quick-answer.css';
 
 // @vue/component
 export const NotificationQuickAnswer = {
 	name: 'NotificationQuickAnswer',
-	components: {MessengerButton},
+	components: { ChatButton },
 	props: {
 		notification: {
 			type: Object,
 			required: true,
-		}
+		},
 	},
 	emits: ['sendQuickAnswer'],
 	data()
@@ -19,13 +20,13 @@ export const NotificationQuickAnswer = {
 			quickAnswerResultMessage: '',
 			showQuickAnswer: false,
 			isSending: false,
-			successSentQuickAnswer: false
+			successSentQuickAnswer: false,
 		};
 	},
 	computed:
 	{
 		ButtonSize: () => ButtonSize,
-		ButtonColor: () => ButtonColor
+		ButtonColor: () => ButtonColor,
 	},
 	methods:
 	{
@@ -103,7 +104,7 @@ export const NotificationQuickAnswer = {
 						v-if="!successSentQuickAnswer" 
 						class="bx-im-content-notification-quick-answer__buttons-container"
 					>
-						<MessengerButton
+						<ChatButton
 							:color="ButtonColor.Primary"
 							:size="ButtonSize.M"
 							:isRounded="true"
@@ -112,7 +113,7 @@ export const NotificationQuickAnswer = {
 							:isLoading="isSending"
 							@click="sendQuickAnswer"
 						/>
-						<MessengerButton
+						<ChatButton
 							:color="ButtonColor.LightBorder"
 							:size="ButtonSize.M"
 							:isRounded="true"
@@ -129,5 +130,5 @@ export const NotificationQuickAnswer = {
 				<div class="bx-im-content-notification-quick-answer__success-text">{{ quickAnswerResultMessage }}</div>
 			</div>
 		</div>
-	`
+	`,
 };

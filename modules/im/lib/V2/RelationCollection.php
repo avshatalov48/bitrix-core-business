@@ -5,6 +5,10 @@ namespace Bitrix\Im\V2;
 use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\V2\Chat\OpenLineLiveChat;
 use Bitrix\Im\V2\Entity\User\UserCollection;
+use Bitrix\Im\V2\Entity\User\UserPopupItem;
+use Bitrix\Im\V2\Rest\PopupData;
+use Bitrix\Im\V2\Rest\PopupDataAggregatable;
+use Bitrix\Im\V2\Rest\RestConvertible;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\UserTable;
@@ -14,7 +18,7 @@ use Bitrix\Main\UserTable;
  * @implements Registry<Relation>
  * @method Relation offsetGet($key)
  */
-class RelationCollection extends Collection
+class RelationCollection extends Collection implements RestConvertible, PopupDataAggregatable
 {
 	public const COMMON_FIELDS = [
 		'ID',
@@ -29,6 +33,7 @@ class RelationCollection extends Collection
 		'NOTIFY_BLOCK',
 		'MANAGER',
 		'REASON',
+		'IS_HIDDEN',
 	];
 
 	protected static array $startIdStaticCache = [];
@@ -62,6 +67,27 @@ class RelationCollection extends Collection
 		return new static($query->fetchAll());
 	}
 
+	public function toRestFormat(array $option = []): ?array
+	{
+		$rest = [];
+		foreach ($this as $relation)
+		{
+			$rest[] = $relation->toRestFormat($option);
+		}
+
+		return $rest;
+	}
+
+	public static function getRestEntityName(): string
+	{
+		return 'relations';
+	}
+
+	public function getPopupData(array $excludedList = []): PopupData
+	{
+		return new PopupData([new UserPopupItem($this->getUserIds())], $excludedList);
+	}
+
 	public static function createFake(array $userIds, Chat $chat): self
 	{
 		$relations = new static();
@@ -75,6 +101,7 @@ class RelationCollection extends Collection
 				->setChatId($chat->getId())
 				->setMessageType($chat->getType())
 				->setNotifyBlock(false)
+				->markAsFake()
 			;
 			$relations->add($relation);
 		}
@@ -263,6 +290,11 @@ class RelationCollection extends Collection
 		{
 			$query->where('REASON', (string)$filter['REASON']);
 		}
+
+		if (isset($filter['IS_HIDDEN']))
+		{
+			$query->where('IS_HIDDEN', $filter['IS_HIDDEN']);
+		}
 	}
 
 	public function offsetSet($key, $value): void
@@ -280,17 +312,31 @@ class RelationCollection extends Collection
 		}
 
 		$this->activeOnly = null;
+		$this->notifyOnly = null;
 	}
 
 	public function offsetUnset(mixed $key)
 	{
+		/** @var Relation|null $value */
+		$value = $this[$key] ?? null;
+		if ($value)
+		{
+			unset($this->relationsByUserId[$value->getChatId()][$value->getUserId()]);
+			unset(static::$startIdStaticCache[$value->getChatId()][$value->getUserId()]);
+		}
 		parent::offsetUnset($key);
 
 		$this->activeOnly = null;
+		$this->notifyOnly = null;
 	}
 
 	public function onAfterRelationDelete(int $chatId, int $userId): void
 	{
+		$relation = $this->getByUserId($userId, $chatId);
+		if ($relation)
+		{
+			unset($this[$relation->getId()]);
+		}
 		unset($this->relationsByUserId[$chatId][$userId]);
 		unset(self::$startIdStaticCache[$chatId][$userId]);
 	}

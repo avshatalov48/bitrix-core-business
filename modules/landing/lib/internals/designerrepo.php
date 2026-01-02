@@ -13,9 +13,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_DesignerRepo_Query query()
- * @method static EO_DesignerRepo_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_DesignerRepo_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_DesignerRepo_Result getById($id)
- * @method static EO_DesignerRepo_Result getList(array $parameters = array())
+ * @method static EO_DesignerRepo_Result getList(array $parameters = [])
  * @method static EO_DesignerRepo_Entity getEntity()
  * @method static \Bitrix\Landing\Internals\EO_DesignerRepo createObject($setDefaultValues = true)
  * @method static \Bitrix\Landing\Internals\EO_DesignerRepo_Collection createCollection()

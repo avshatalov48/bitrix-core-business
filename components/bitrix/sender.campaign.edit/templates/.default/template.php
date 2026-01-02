@@ -4,40 +4,59 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Internals\PrettyDate;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 /** @var CMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
 $containerId = 'bx-sender-campaign-edit';
+if(
+	($arParams['IFRAME'] === true)
+	&& Loader::includeModule('ui')
+)
+{
+	$title = (trim(htmlspecialcharsbx($arResult['ROW']['NAME'])) !== '')
+		? htmlspecialcharsbx($arResult['ROW']['NAME'])
+		: Loc::getMessage('SENDER_CAMPAIGN_EDIT_TMPL_PATTERN_TITLE', [
+			'%name%' => Loc::getMessage('SENDER_CAMPAIGN_EDIT_TMPL_NEW_TITLE'),
+			'%date%' => FormatDate(PrettyDate::getDateFormat(), (new DateTime())->getTimestamp()),
+		]);
+
+	$APPLICATION->SetTitle($title);
+	Toolbar::deleteFavoriteStar();
+	Toolbar::addEditableTitle();
+}
 ?>
 <script>
 	BX.ready(function () {
-		BX.Sender.CampaignEditor.init(<?=Json::encode(array(
+		BX.Sender.CampaignEditor.init(<?=Json::encode([
 			'containerId' => $containerId,
+			'toolbarId' => Toolbar::getId(),
 			'actionUrl' => $arResult['ACTION_URL'],
-			'isFrame' => $arParams['IFRAME'] == 'Y',
+			'isFrame' => $arParams['IFRAME'] === true,
 			'isSaved' => $arResult['IS_SAVED'],
 			'campaignTile' => $arResult['CAMPAIGN_TILE'],
 			'prettyDateFormat' => PrettyDate::getDateFormat(),
-			'mess' => array(
+			'mess' => [
 				'patternTitle' => Loc::getMessage('SENDER_CAMPAIGN_EDIT_TMPL_PATTERN_TITLE'),
 				'newTitle' => Loc::getMessage('SENDER_CAMPAIGN_EDIT_TMPL_NEW_TITLE'),
-			)
-		))?>);
+			]
+		])?>);
 	});
 </script>
 
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="sender-template-edit-wrap">
 
-	<?
-	$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' => array(
-		array('type' => 'buttons', 'list' => array(
-			array('type' => 'feedback')
-		)),
-	)));
+	<?php
+	$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", ['LIST' => [
+		['type' => 'buttons', 'list' => [
+			['type' => 'feedback'],
+		]],
+	]]);
 	?>
 
 	<form method="post" action="<?=htmlspecialcharsbx($arResult['SUBMIT_FORM_URL'])?>">
@@ -47,7 +66,7 @@ $containerId = 'bx-sender-campaign-edit';
 			<div class="bx-sender-caption">
 				<?=Loc::getMessage('SENDER_CAMPAIGN_EDIT_TMPL_FIELD_NAME')?>:
 			</div>
-			<div class="bx-sender-value">
+			<div id="compaign-edit-title" class="bx-sender-value">
 				<input data-role="campaign-title" type="text" name="NAME"
 					value="<?=htmlspecialcharsbx($arResult['ROW']['NAME'])?>"
 					class="bx-sender-form-control bx-sender-letter-field-input"
@@ -101,7 +120,7 @@ $containerId = 'bx-sender-campaign-edit';
 			</div>
 		</div>
 
-		<?
+		<?php
 		$APPLICATION->IncludeComponent(
 			"bitrix:sender.ui.button.panel",
 			"",

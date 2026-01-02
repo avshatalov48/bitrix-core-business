@@ -1,0 +1,8 @@
+<?php
+$MESS["LOCATION_WIDGET_AUI_ADDRESS_APPLY"] = "Қолдану";
+$MESS["LOCATION_WIDGET_AUI_ADDRESS_CHANGED"] = "Мекенжай өзгерді, алдыңғы мекенжай";
+$MESS["LOCATION_WIDGET_AUI_ADDRESS_CHANGED_NEW_ADDRESS"] = "Мекенжай өзгерді, жаңа мекенжай";
+$MESS["LOCATION_WIDGET_AUI_ADDRESS_RESTORE"] = "Қайтару";
+$MESS["LOCATION_WIDGET_AUI_BRIEFLY"] = "қысқаша";
+$MESS["LOCATION_WIDGET_AUI_MORE"] = "толығырақ";
+$MESS["LOCATION_WIDGET_AUI_UNKNOWN_ERROR"] = "Белгісіз қате";

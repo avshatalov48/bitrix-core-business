@@ -1,8 +1,6 @@
 import { AccessService, type AccessCheckResult } from './classes/access-service';
 import { HistoryLimitPopup } from './classes/history-limit-popup';
 
-export { AccessErrorCode } from './classes/access-service';
-
 export const AccessManager = {
 	checkMessageAccess(messageId: number): Promise<AccessCheckResult>
 	{

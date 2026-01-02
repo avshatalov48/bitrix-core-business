@@ -177,13 +177,13 @@ class CReportComponent extends \CBitrixComponent
 		if (is_array($ufInfo['SETTINGS']))
 		{
 			$selectorEntityTypes = ElementType::getSelectorEntityTypes();
-			$userPermissions = Container::getInstance()->getUserPermissions(CCrmPerms::GetCurrentUserID());
+			$userPermissions = Container::getInstance()->getUserPermissions();
 			foreach (ElementType::getPossibleEntityTypes() as $entityTypeName => $entityTypeTitle)
 			{
 				if (isset($ufInfo['SETTINGS'][$entityTypeName]) && $ufInfo['SETTINGS'][$entityTypeName] === 'Y')
 				{
 					$entityTypeId = CCrmOwnerType::ResolveID($entityTypeName);
-					if ($entityTypeId !== CCrmOwnerType::Undefined && $userPermissions->canReadType($entityTypeId))
+					if ($entityTypeId !== CCrmOwnerType::Undefined && $userPermissions->entityType()->canReadItems($entityTypeId))
 					{
 						$permittedEntityTypeCount++;
 						$entityTypeNameLower = mb_strtolower($entityTypeName);

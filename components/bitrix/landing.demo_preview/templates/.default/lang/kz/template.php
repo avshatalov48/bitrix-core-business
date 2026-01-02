@@ -1,0 +1,26 @@
+<?php
+$MESS["LANDING_404_ERROR"] = "Қалып табылмады";
+$MESS["LANDING_LOADER_WAIT_MSGVER_1"] = "Күте тұрыңыз, дүкен құрылып жатыр...";
+$MESS["LANDING_PREVIEW_MAINPAGE_BUTTON_CANCEL_TEXT"] = "Болдырмау";
+$MESS["LANDING_PREVIEW_MAINPAGE_BUTTON_OK_TEXT"] = "Иә, импорттау";
+$MESS["LANDING_PREVIEW_MAINPAGE_MESSAGE"] = "Сізде Басты бет қалыбы бар. Жаңа қалыпты импорттау, ағымдағыны барлық өзгерістермен бірге жою. Оны қалпына келтіру жұмыс істемейді";
+$MESS["LANDING_PREVIEW_MAINPAGE_TITLE"] = "Ағымдағы қалыпты жойып, жаңасын орнатыңыз?";
+$MESS["LANDING_TPL_BUTTON_CANCEL"] = "Болдырмау";
+$MESS["LANDING_TPL_BUTTON_CREATE"] = "Құру";
+$MESS["LANDING_TPL_BUTTON_CREATE_KB"] = "Білім қорын құру";
+$MESS["LANDING_TPL_BUTTON_CREATE_PAGE"] = "Парақшаны құру";
+$MESS["LANDING_TPL_BUTTON_CREATE_SITE"] = "Сайтты құру";
+$MESS["LANDING_TPL_BUTTON_CREATE_STORE"] = "Дүкенді құру";
+$MESS["LANDING_TPL_BUTTON_REPLACE_PAGE"] = "Қалыпты қолдану";
+$MESS["LANDING_TPL_BUTTON_SHOW_IN_MOBILE"] = "Мобильді құрылғыда ашу";
+$MESS["LANDING_TPL_HEADER_LOGO_BITRIX"] = "Битрикс";
+$MESS["LANDING_TPL_HEADER_LOGO_KB"] = "Білім қорлары";
+$MESS["LANDING_TPL_HEADER_LOGO_MAINPAGE"] = "Вайб";
+$MESS["LANDING_TPL_HEADER_LOGO_SITE"] = "Сайттар";
+$MESS["LANDING_TPL_HEADER_RIGHT_CREATE_HINT_MSGVER_1"] = "Сіздің сайттарды құруға құқығыңыз жоқ Өз Битрикс24 әкімшісіне хабарласыңыз.";
+$MESS["LANDING_TPL_POPUP_REPEAT_BUTTON"] = "Қайта қосу";
+$MESS["LANDING_TPL_POPUP_REPEAT_TEXT"] = "Бірдеңе дұрыс болмады, процесті қайта бастап көріңіз";
+$MESS["LANDING_TPL_POPUP_TEXT"] = "Сайтты ашу үшін телефон камерасын QR кодына бағыттаңыз";
+$MESS["LANDING_TPL_POPUP_TEXT_KB"] = "Білім қорын ашу үшін телефон камерасын QR кодына бағыттаңыз";
+$MESS["LANDING_TPL_POPUP_TEXT_STORE"] = "Дүкенді ашу үшін телефон камерасын QR кодына бағыттаңыз";
+$MESS["LANDING_TPL_TITLE"] = "Қалыпты алдын ала қарау";

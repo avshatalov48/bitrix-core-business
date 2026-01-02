@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Diag;
@@ -13,7 +13,6 @@ use Psr\Log;
 use Psr\Log\LogLevel;
 use Bitrix\Main\Config;
 use Bitrix\Main\DI;
-use Bitrix\Main\Type;
 
 abstract class Logger extends Log\AbstractLogger
 {
@@ -38,16 +37,6 @@ abstract class Logger extends Log\AbstractLogger
 
 	protected function interpolate()
 	{
-		if (!isset($this->context['date']))
-		{
-			$this->context['date'] = new Type\DateTime();
-		}
-
-		if (!isset($this->context['host']))
-		{
-			$this->context['host'] = $_SERVER['HTTP_HOST'] ?? '';
-		}
-
 		$formatter = $this->getFormatter();
 
 		return $formatter->format($this->message, $this->context);

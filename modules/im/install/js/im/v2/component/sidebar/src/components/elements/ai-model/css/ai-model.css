@@ -1,0 +1,25 @@
+.bx-im-sidebar-ai-model__container {
+	--im-sidebar-main-preview-settings__color_ai-model-chip_text: var(--im-color-palette-copilot-primary);
+	--im-sidebar-main-preview-settings__color_ai-model-chip_border: var(--im-color-palette-copilot-light);
+
+	display: flex;
+	width: fit-content;
+	justify-content: space-between;
+	align-items: center;
+	min-height: 20px;
+	cursor: pointer;
+	font: var(--im-font-size-xs)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-normal);
+	color: var(--im-sidebar-main-preview-settings__color_ai-model-chip_text);
+	border: var(--ui-border-width-thin) solid var(--im-sidebar-main-preview-settings__color_ai-model-chip_border);
+	border-radius: var(--im-border-radius-xs);
+	padding: 1px 4px 1px 10px;
+	margin-left: 30px;
+}
+
+.bx-im-sidebar-ai-model__arrow-icon {
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+	background: url("./images/arrow.svg") no-repeat center;
+}

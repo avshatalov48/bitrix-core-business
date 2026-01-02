@@ -15,6 +15,11 @@ use Bitrix\Rest\Integration\Externalizer;
 
 abstract class Base
 {
+	protected const OPERATION_CONTEXT_MODIFY = 'modify';
+	protected const OPERATION_CONTEXT_GET = 'get';
+	protected const OPERATION_CONTEXT_FILTER = 'filter';
+	protected const OPERATION_CONTEXT_ORDER = 'order';
+
 	abstract public function getFields();
 
 	final public function prepareFieldInfos($fields): array
@@ -134,20 +139,55 @@ abstract class Base
 		throw new NotImplementedException('Internalize arguments. The method '.$name.' is not implemented.');
 	}
 
-	public function internalizeFieldsList($arguments, $fieldsInfo=[]): array
+	public function internalizeFieldsList($arguments, $fieldsInfo = []): array
 	{
-		$fieldsInfo = empty($fieldsInfo) ? $this->getFields():$fieldsInfo;
+		$fieldsInfo = empty($fieldsInfo) ? $this->getFields() : $fieldsInfo;
+		$filterFields = $fieldsInfo;
+		$orderFields = $fieldsInfo;
 
-		$fieldsInfo = $this->getListFieldInfo($fieldsInfo, ['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN]]]);
+		$fieldsInfo = $this->getListFieldInfo(
+			$fieldsInfo,
+			[
+				'filter' => [
+					'ignoredAttributes' => [
+						Attributes::HIDDEN,
+					],
+				],
+			]
+		);
+		$filterFields = $this->getListFieldInfo(
+			$filterFields,
+			[
+				'filter' => [
+					'ignoredAttributes' => [
+						Attributes::HIDDEN,
+						Attributes::DISABLED_FILTER,
+						Attributes::SELECT_ONLY,
+					],
+				],
+			]
+		);
+		$orderFields = $this->getListFieldInfo(
+			$orderFields,
+			[
+				'filter' => [
+					'ignoredAttributes' => [
+						Attributes::HIDDEN,
+						Attributes::DISABLED_ORDER,
+						Attributes::SELECT_ONLY,
+					],
+				],
+			]
+		);
 
-		$filter = isset($arguments['filter']) ? $this->internalizeFilterFields($arguments['filter'], $fieldsInfo):[];
-		$select = isset($arguments['select']) ? $this->internalizeSelectFields($arguments['select'], $fieldsInfo):[];
-		$order = isset($arguments['order']) ? $this->internalizeOrderFields($arguments['order'], $fieldsInfo):[];
+		$filter = isset($arguments['filter']) ? $this->internalizeFilterFields($arguments['filter'], $filterFields) : [];
+		$select = isset($arguments['select']) ? $this->internalizeSelectFields($arguments['select'], $fieldsInfo) : [];
+		$order = isset($arguments['order']) ? $this->internalizeOrderFields($arguments['order'], $orderFields) : [];
 
 		return [
-			'filter'=>$filter,
-			'select'=>$select,
-			'order'=>$order,
+			'filter' => $filter,
+			'select' => $select,
+			'order' => $order,
 		];
 	}
 
@@ -157,9 +197,11 @@ abstract class Base
 
 		return $this->internalizeFields(
 			$fields,
-			$this->getListFieldInfo(
-				$fieldsInfo,
-				['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN, Attributes::READONLY]]]
+			$this->setModifyOperation(
+				$this->getListFieldInfo(
+					$fieldsInfo,
+					['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN, Attributes::READONLY]]]
+				)
 			)
 		);
 	}
@@ -170,9 +212,11 @@ abstract class Base
 
 		return $this->internalizeFields(
 			$fields,
-			$this->getListFieldInfo(
-				$fieldsInfo,
-				['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN, Attributes::READONLY, Attributes::IMMUTABLE]]]
+			$this->setModifyOperation(
+				$this->getListFieldInfo(
+					$fieldsInfo,
+					['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN, Attributes::READONLY, Attributes::IMMUTABLE]]]
+				)
 			)
 		);
 	}
@@ -226,6 +270,19 @@ abstract class Base
 				$value = (int)$value;
 			}
 		}
+		elseif($type === DataType::TYPE_BOOLEAN)
+		{
+			$boolean = $this->internalizeBooleanValue($value);
+
+			if ($boolean->isSuccess())
+			{
+				$value = $boolean->getData()[0];
+			}
+			else
+			{
+				$r->addErrors($boolean->getErrors());
+			}
+		}
 		elseif($type === DataType::TYPE_DATETIME)
 		{
 			$date = $this->internalizeDateTimeValue($value);
@@ -269,6 +326,26 @@ abstract class Base
 		{
 			$r->setData([$value]);
 		}
+
+		return $r;
+	}
+
+	protected function internalizeBooleanValue($value): Result
+	{
+		$r = new Result();
+
+		if (
+			!is_string($value)
+			|| !in_array($value, ['Y', 'N'])
+		)
+		{
+			$r->addError(new Error('Boolean value must be Y or N'));
+
+			return $r;
+		}
+
+		$value = $value === 'Y';
+		$r->setData([$value]);
 
 		return $r;
 	}
@@ -421,7 +498,19 @@ abstract class Base
 
 		if (is_array($fields) && !empty($fields))
 		{
-			$listFieldsInfo = $this->getListFieldInfo($fieldsInfo, ['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN]]]);
+			$listFieldsInfo = $this->getListFieldInfo(
+				$fieldsInfo,
+				[
+					'filter' => [
+						'ignoredAttributes' => [
+							Attributes::HIDDEN,
+							Attributes::DISABLED_FILTER,
+							Attributes::SELECT_ONLY,
+						],
+					],
+				]
+			);
+			$listFieldsInfo = $this->setFilterOperation($listFieldsInfo);
 
 			foreach ($fields as $rawName=>$value)
 			{
@@ -496,7 +585,18 @@ abstract class Base
 
 		if (is_array($fields) && count($fields)>0)
 		{
-			$listFieldsInfo = $this->getListFieldInfo($fieldsInfo, ['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN]]]);
+			$listFieldsInfo = $this->getListFieldInfo(
+				$fieldsInfo,
+				[
+					'filter' => [
+						'ignoredAttributes' => [
+							Attributes::HIDDEN,
+							Attributes::DISABLED_ORDER,
+							Attributes::SELECT_ONLY,
+						],
+					],
+				]
+			);
 
 			foreach ($fields as $field => $order)
 			{
@@ -539,7 +639,7 @@ abstract class Base
 
 		$type = isset($fieldsInfo[$name]['TYPE']) ? $fieldsInfo[$name]['TYPE']:'';
 
-		if(empty($value))
+		if($this->isEmptyValue($value, $type))
 		{
 			$value = $this->externalizeEmptyValue($name, $value, $fields, $fieldsInfo);
 		}
@@ -552,6 +652,19 @@ abstract class Base
 			elseif($type === DataType::TYPE_INT)
 			{
 				$value = (int)$value;
+			}
+			elseif($type === DataType::TYPE_BOOLEAN)
+			{
+				$externalizedValue = $this->externalizeBooleanValue($value);
+
+				if($externalizedValue->isSuccess())
+				{
+					$value = $externalizedValue->getData()[0];
+				}
+				else
+				{
+					$r->addErrors($externalizedValue->getErrors());
+				}
 			}
 			elseif($type === DataType::TYPE_DATE)
 			{
@@ -601,6 +714,19 @@ abstract class Base
 		return $r;
 	}
 
+	private function isEmptyValue(mixed $value, string $type): bool
+	{
+		if (
+			$type === DataType::TYPE_BOOLEAN
+			&& $value === false
+		)
+		{
+			return false;
+		}
+
+		return empty($value);
+	}
+
 	final protected function externalizeFields($fields, $fieldsInfo): array
 	{
 		$result = [];
@@ -633,6 +759,23 @@ abstract class Base
 	protected function externalizeEmptyValue($name, $value, $fields, $fieldsInfo)
 	{
 		return null;
+	}
+
+	final protected function externalizeBooleanValue($value): Result
+	{
+		$r = new Result();
+
+		if (!is_bool($value))
+		{
+			$r->addError(new Error('Boolean value must be true of false'));
+
+			return $r;
+		}
+
+		$value = $value ? 'Y' : 'N';
+		$r->setData([$value]);
+
+		return $r;
 	}
 
 	final protected function externalizeDateValue($value): Result
@@ -766,7 +909,7 @@ abstract class Base
 		return new Result();
 	}
 
-	final protected function checkRequiredFieldsAdd($fields): Result
+	protected function checkRequiredFieldsAdd($fields): Result
 	{
 		return $this->checkRequiredFields($fields, $this->getListFieldInfo(
 			$this->getFields(),
@@ -774,7 +917,7 @@ abstract class Base
 		));
 	}
 
-	final protected function checkRequiredFieldsUpdate($fields): Result
+	protected function checkRequiredFieldsUpdate($fields): Result
 	{
 		return $this->checkRequiredFields($fields, $this->getListFieldInfo(
 			$this->getFields(),
@@ -807,6 +950,21 @@ abstract class Base
 	//endregion
 
 	//region canonical
+	public function getCanonicalNames(): array
+	{
+		$result = [];
+		foreach ($this->getFields() as $fieldName => $field)
+		{
+			if (!isset($field['CANONICAL_NAME']))
+			{
+				continue;
+			}
+			$result[$fieldName] = $field['CANONICAL_NAME'];
+		}
+
+		return $result;
+	}
+
 	final protected function canonicalizeField($name, $info): string
 	{
 		$canonical = $info['CANONICAL_NAME'] ?? null;
@@ -844,4 +1002,71 @@ abstract class Base
 		return $alias;
 	}
 	//endregion
+
+	// region field context
+	protected function setOperationContext(array $fieldList, string $context): array
+	{
+		if (
+			$context === self::OPERATION_CONTEXT_MODIFY
+			|| $context === self::OPERATION_CONTEXT_GET
+			|| $context === self::OPERATION_CONTEXT_FILTER
+			|| $context === self::OPERATION_CONTEXT_ORDER
+		)
+		{
+			foreach (array_keys($fieldList) as $index)
+			{
+				$fieldList[$index]['OPERATION_CONTEXT'] = $context;
+			}
+		}
+
+		return $fieldList;
+	}
+
+	protected function setModifyOperation(array $fieldList): array
+	{
+		return $this->setOperationContext($fieldList, self::OPERATION_CONTEXT_MODIFY);
+	}
+
+	protected function setGetOperation(array $fieldList): array
+	{
+		return $this->setOperationContext($fieldList, self::OPERATION_CONTEXT_GET);
+	}
+
+	protected function setFilterOperation(array $fieldList): array
+	{
+		return $this->setOperationContext($fieldList, self::OPERATION_CONTEXT_FILTER);
+	}
+
+	protected function setOrderOperation(array $fieldList): array
+	{
+		return $this->setOperationContext($fieldList, self::OPERATION_CONTEXT_ORDER);
+	}
+
+	protected function getOperationContext(array $field): ?string
+	{
+		return $field['OPERATION_CONTEXT'] ?? null;
+	}
+
+	protected function isModifyOperation(array $field): bool
+	{
+		$operation = $this->getOperationContext($field);
+
+		return $operation === self::OPERATION_CONTEXT_MODIFY || $operation === null;
+	}
+
+	protected function isGetOperation(array $field): bool
+	{
+		return $this->getOperationContext($field) === self::OPERATION_CONTEXT_GET;
+	}
+
+	protected function isFilterOperation(array $field): bool
+	{
+		return $this->getOperationContext($field) === self::OPERATION_CONTEXT_FILTER;
+	}
+
+	protected function isOrderOperation(array $field): bool
+	{
+		return $this->getOperationContext($field) === self::OPERATION_CONTEXT_ORDER;
+	}
+	// endregion
 }

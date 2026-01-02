@@ -18,6 +18,7 @@ if ($request['IFRAME'] === 'Y' && $request['IFRAME_TYPE'] === 'SIDE_SLIDER')
 				'workflowId' => $request->getQuery('workflowId'),
 				'taskId' => $request->getQuery('taskId'),
 			],
+			"USE_UI_TOOLBAR" => "Y",
 		]
 	);
 }

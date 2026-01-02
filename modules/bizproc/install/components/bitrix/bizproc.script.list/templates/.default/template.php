@@ -1,5 +1,11 @@
 <?php
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+
+use Bitrix\Main\Localization\Loc;
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 \Bitrix\Main\UI\Extension::load(['ui.buttons', 'ui.buttons.icons', 'bizproc.script']);
 
@@ -10,39 +16,12 @@ if ($useMarket)
 	$marketImportUrl = \Bitrix\Rest\Marketplace\Url::getConfigurationImportManifestUrl($arParams['PLACEMENT']);
 	$marketExportUrl = \Bitrix\Rest\Marketplace\Url::getConfigurationExportElementUrl(
 		$arParams['PLACEMENT'],
-		$arParams['DOCUMENT_TYPE'][2]
+		$arParams['DOCUMENT_TYPE'][2],
 	);
 }
 
-$canCreateScript = $arResult['canCreateScript'];
-
 global $APPLICATION;
-?>
 
-<?php $this->SetViewTarget('pagetitle') ?>
-<div class="ui-btn-container">
-	<?if ($useMarket):?>
-	<a class="ui-btn ui-btn-light-border" href="<?= htmlspecialcharsbx($marketImportUrl) ?>">
-		<?= GetMessage('BIZPROC_SCRIPT_LIST_TITLE_MARKETPLACE_IMPORT') ?>
-	</a>
-	<button class="ui-btn ui-btn-light-border" data-url="<?= htmlspecialcharsbx($marketExportUrl) ?>" id="bp_export_scenario">
-		<?= GetMessage('BIZPROC_SCRIPT_LIST_TITLE_MARKETPLACE_EXPORT') ?>
-	</button>
-	<?endif;?>
-
-	<?php if ($canCreateScript): ?>
-		<button class="ui-btn ui-btn-icon-add ui-btn-primary" id="bp_add_scenario">
-			<?= GetMessage('BIZPROC_SCRIPT_LIST_TITLE_BUTTON_ADD_SCENARIO') ?>
-		</button>
-	<?php else:?>
-		<button class="ui-btn ui-btn-icon-add ui-btn-primary" disabled>
-			<?= GetMessage('BIZPROC_SCRIPT_LIST_TITLE_BUTTON_ADD_SCENARIO') ?>
-		</button>
-	<?php endif ?>
-</div>
-<?php $this->EndViewTarget() ?>
-
-<?php
 $APPLICATION->IncludeComponent(
 	'bitrix:main.ui.grid',
 	'',

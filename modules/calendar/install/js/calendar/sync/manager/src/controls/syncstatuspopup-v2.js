@@ -61,7 +61,7 @@ export default class SyncStatusPopupV2 extends EventEmitter
 		return (isFailed && syncErrors && failedConnection)
 			? new this({ failedConnection, ...options })
 			: null
-			;
+		;
 	}
 
 	static getNotShownFailedConnection(options): ConnectionItem | null

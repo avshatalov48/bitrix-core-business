@@ -7,25 +7,24 @@ use Bitrix\Main\Web\Json;
 
 class Application
 {
-	private bool $isDesktop;
-	private string $name;
+	public const MESSENGER_APP_NAME = 'messenger';
+	public const QUICK_ACCESS_APP_NAME = 'quickAccess';
+
 	private Config $config;
 
-	public function __construct(bool $isDesktop)
+	public function __construct(?Config $config = null)
 	{
-		$this->isDesktop = $isDesktop;
-		$this->name = $isDesktop ? 'messenger' : 'quickAccess';
-		$this->initConfig();
+		$this->config = $config ?? new Config();
 	}
 
-	public function getTemplate(): string
+	public function getTemplate(string $appName): string
 	{
 		$preparedConfig = Json::encode($this->config);
-		$then = $this->getThen();
+		$then = $this->getThen($appName);
 
 		return "
 			BX.ready(function() {
-				BX.Messenger.v2.Application.Launch('{$this->name}', {$preparedConfig})
+				BX.Messenger.v2.Application.Launch('{$appName}', {$preparedConfig})
 					.then((application) => {
 						{$then}
 					});
@@ -33,14 +32,28 @@ class Application
 		";
 	}
 
-	protected function getThen(): string
+	public function getConfig(): Config
 	{
-		return $this->isDesktop ? "application.initComponent('body')" : '';
+		return $this->config;
 	}
 
-	protected function initConfig(): void
+	public function isAirDesignEnabled(): bool
 	{
-		$this->config = new Config();
-		$this->config->setDesktopFlag($this->isDesktop);
+		return (
+			\Bitrix\Main\Loader::includeModule('intranet')
+			&& class_exists(\Bitrix\Intranet\Integration\Templates\Air\AirTemplate::class)
+			&& method_exists(\Bitrix\Intranet\Integration\Templates\Air\AirTemplate::class, 'isEnabled')
+			&& \Bitrix\Intranet\Integration\Templates\Air\AirTemplate::isEnabled()
+		);
+	}
+
+	public function shouldHideQuickAccess(): bool
+	{
+		return defined('BX_IM_FULLSCREEN') && BX_IM_FULLSCREEN;
+	}
+
+	protected function getThen(string $appName): string
+	{
+		return $appName === self::MESSENGER_APP_NAME ? "application.initComponent('body')" : '';
 	}
 }

@@ -1,6 +1,7 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports,landing_node_base,landing_env) {
+(function (exports,landing_node_base,landing_env,landing_ui_field_image) {
 	'use strict';
 
 	const attr = BX.Landing.Utils.attr;
@@ -108,7 +109,8 @@ this.BX.Landing = this.BX.Landing || {};
 	      const disableLink = !!this.node.closest('a') || !!this.manifest.disableLink;
 	      if (this.manifest.editInStyle !== true) {
 	        var _this$manifest$dimens;
-	        this.field = new BX.Landing.UI.Field.Image({
+	        this.field = new landing_ui_field_image.Image({
+	          contextType: landing_ui_field_image.Image.CONTEXT_TYPE_CONTENT,
 	          selector: this.selector,
 	          title: this.manifest.name,
 	          description: description,
@@ -391,5 +393,5 @@ this.BX.Landing = this.BX.Landing || {};
 
 	exports.Img = Img;
 
-}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing.Node,BX.Landing));
+}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing.Node,BX.Landing,BX.Landing.UI.Field));
 //# sourceMappingURL=img.bundle.js.map

@@ -105,11 +105,22 @@ class QueryHelper
 		// original sort
 		if (!empty($rows))
 		{
+			/**
+			 * @var \Bitrix\Main\ORM\Objectify\Collection $sortedCollection
+			 */
 			$sortedCollection = $query->getEntity()->createCollection();
 
 			foreach ($rows as $row)
 			{
-				$sortedCollection->add($collection->getByPrimary($row));
+				$collectionItem = $collection->getByPrimary($row);
+				if ($collectionItem)
+				{
+					$sortedCollection->add($collectionItem);
+				}
+				else
+				{
+					trigger_error('Phantom reading', E_USER_WARNING);
+				}
 			}
 
 			$collection = $sortedCollection;

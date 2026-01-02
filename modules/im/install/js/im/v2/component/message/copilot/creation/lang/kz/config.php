@@ -1,0 +1,4 @@
+<?php
+$MESS["IM_MESSAGE_COPILOT_CREATION_HEADER_DESC"] = "Маған сұрақ қойыңыз немесе дайын сұраулардың бірін таңдаңыз";
+$MESS["IM_MESSAGE_COPILOT_CREATION_HEADER_TITLE"] = "Сәлем! Мен — #COPILOT_ROLE_NAME#";
+$MESS["IM_MESSAGE_COPILOT_CREATION_HEADER_TITLE_AFTER_CHANGE"] = "Енді мен — #COPILOT_ROLE_NAME#";

@@ -80,6 +80,10 @@ Class mail extends CModule
 			$eventManager->registerEventHandler('ai', 'onTuningLoad', 'mail', '\Bitrix\Mail\Integration\AI\EventHandler', 'onTuningLoad');
 			$eventManager->registerEventHandler('ai', 'onContextGetMessages', 'mail', '\Bitrix\Mail\Integration\AI\Controller', 'onContextGetMessages');
 
+			$eventManager->registerEventHandler('humanresources', 'OnMemberUpdated', 'mail', '\Bitrix\Mail\Integration\HumanResources\StructureEventHandler', 'onMemberUpdated');
+			$eventManager->registerEventHandler('humanresources', 'OnMemberAdded', 'mail', '\Bitrix\Mail\Integration\HumanResources\StructureEventHandler', 'onMemberAdded');
+			$eventManager->registerEventHandler('humanresources', 'OnMemberDeleted', 'mail', '\Bitrix\Mail\Integration\HumanResources\StructureEventHandler', 'onMemberDeleted');
+
 			RegisterModule("mail");
 
 			if (CModule::IncludeModule("mail"))
@@ -114,19 +118,8 @@ Class mail extends CModule
 
 				$group = new CGroup;
 
-				$dbResult = CGroup::GetList(
-					'id',
-					'asc',
-					array(
-						"STRING_ID" => $arGroup["STRING_ID"],
-						"STRING_ID_EXACT_MATCH" => "Y"
-					)
-				);
-				if ($arExistsGroup = $dbResult->Fetch())
-				{
-					$groupID = $arExistsGroup["ID"];
-				}
-				else
+				$groupID = CGroup::GetIDByCode($arGroup["STRING_ID"]);
+				if (!$groupID)
 				{
 					if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrix24"))
 					{
@@ -298,6 +291,10 @@ Class mail extends CModule
 
 		$eventManager->unRegisterEventHandler('ai', 'onTuningLoad', 'mail', '\Bitrix\Mail\Integration\AI\EventHandler', 'onTuningLoad');
 		$eventManager->unRegisterEventHandler('ai', 'onContextGetMessages', 'mail', '\Bitrix\Mail\Integration\AI\Controller', 'onContextGetMessages');
+
+		$eventManager->unRegisterEventHandler('humanresources', 'OnMemberUpdated', 'mail', '\Bitrix\Mail\Integration\HumanResources\StructureEventHandler', 'onMemberUpdated');
+		$eventManager->unRegisterEventHandler('humanresources', 'OnMemberAdded', 'mail', '\Bitrix\Mail\Integration\HumanResources\StructureEventHandler', 'onMemberAdded');
+		$eventManager->unRegisterEventHandler('humanresources', 'OnMemberDeleted', 'mail', '\Bitrix\Mail\Integration\HumanResources\StructureEventHandler', 'onMemberDeleted');
 
 		//delete agents
 		CAgent::RemoveModuleAgents("mail");

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core_events) {
 	'use strict';
@@ -5,43 +6,32 @@ this.BX = this.BX || {};
 	/**
 	 * ColorPicker for Theme site.
 	 */
-
 	var ColorPickerTheme = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(ColorPickerTheme, _EventEmitter);
-
 	  function ColorPickerTheme(node, allColors, currentColor) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, ColorPickerTheme);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ColorPickerTheme).call(this));
-
 	    _this.setEventNamespace('BX.Landing.ColorPickerTheme');
-
 	    _this.element = node;
 	    _this.input = _this.element.firstElementChild;
 	    _this.allColors = allColors;
 	    _this.currentColor = currentColor;
-
 	    _this.init();
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(ColorPickerTheme, [{
 	    key: "init",
 	    value: function init() {
-	      this.setMetric();
 	      var color = this.initPreviewColor();
 	      var active = this.isActive();
 	      this.element.style.backgroundColor = color;
 	      this.element.dataset.value = color;
 	      this.element.classList.add('landing-colorpicker-theme');
-
 	      if (active) {
 	        this.input.setAttribute('value', color);
 	        this.element.classList.add('active');
 	      }
-
 	      this.colorPicker = new BX.ColorPicker({
 	        bindElement: this.element,
 	        popupOptions: {
@@ -55,19 +45,9 @@ this.BX = this.BX || {};
 	      BX.bind(this.element, 'click', this.open.bind(this));
 	    }
 	  }, {
-	    key: "setMetric",
-	    value: function setMetric() {
-	      this.metrika = null;
-
-	      if (typeof BX.Landing.Metrika !== 'undefined') {
-	        this.metrika = new BX.Landing.Metrika();
-	      }
-	    }
-	  }, {
 	    key: "initPreviewColor",
 	    value: function initPreviewColor() {
 	      var color;
-
 	      if (this.currentColor) {
 	        if (this.isHex(this.currentColor)) {
 	          color = this.isBaseColor() ? ColorPickerTheme.DEFAULT_COLOR_PICKER_COLOR : this.currentColor;
@@ -77,7 +57,6 @@ this.BX = this.BX || {};
 	      } else {
 	        color = ColorPickerTheme.DEFAULT_COLOR_PICKER_COLOR;
 	      }
-
 	      return color;
 	    }
 	  }, {
@@ -86,7 +65,6 @@ this.BX = this.BX || {};
 	      if (!this.isHex(this.currentColor)) {
 	        return false;
 	      }
-
 	      return !this.isBaseColor();
 	    }
 	  }, {
@@ -98,17 +76,13 @@ this.BX = this.BX || {};
 	    key: "getSelectedColor",
 	    value: function getSelectedColor() {
 	      var color;
-
 	      if (this.element.dataset.value) {
 	        color = this.element.dataset.value;
 	      }
-
 	      color = this.prepareColor(color);
-
 	      if (!this.isHex(color)) {
 	        color = '';
 	      }
-
 	      return color;
 	    }
 	  }, {
@@ -126,14 +100,6 @@ this.BX = this.BX || {};
 	      this.emit('onSelectColor', event);
 	      this.emit('onSelectCustomColor', event);
 	      this.input.setAttribute('value', color);
-	      this.sendMetric(color);
-	    }
-	  }, {
-	    key: "sendMetric",
-	    value: function sendMetric(color) {
-	      if (this.metrika) {
-	        this.metrika.sendLabel(null, 'Color::CustomSet', color.substr(1));
-	      }
 	    }
 	  }, {
 	    key: "open",
@@ -155,20 +121,17 @@ this.BX = this.BX || {};
 	      if (color[0] !== '#') {
 	        color = '#' + color;
 	      }
-
 	      return color;
 	    }
 	  }, {
 	    key: "isHex",
 	    value: function isHex(color) {
 	      var isCorrect = false;
-
 	      if (color.length === 4 || color.length === 7) {
 	        if (color.match(ColorPickerTheme.MATCH_HEX)) {
 	          isCorrect = true;
 	        }
 	      }
-
 	      return isCorrect;
 	    }
 	  }]);

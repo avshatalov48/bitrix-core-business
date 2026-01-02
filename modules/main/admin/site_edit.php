@@ -500,13 +500,11 @@ endforeach;
 			<input type="radio" name="START_SITE_WIZARD" value="Y"<?= ($str_START_SITE_WIZARD != "N") ? " checked" : "" ?> onclick="TurnStartSiteWizardOn(false)" id="ID_START_SITE_WIZARD_Y"> <label for="ID_START_SITE_WIZARD_Y"><?= GetMessage("M_START_SITE_WIZARD_Y") ?></label><br />
 			<input type="radio" name="START_SITE_WIZARD" value="N"<?= ($str_START_SITE_WIZARD == "N") ? " checked" : "" ?> onclick="TurnStartSiteWizardOn(true)" id="ID_START_SITE_WIZARD_N"> <label for="ID_START_SITE_WIZARD_N"><?= GetMessage("M_START_SITE_WIZARD_N") ?></label><br />
 			<script>
-			<!--
 				function TurnStartSiteWizardOn(bOn)
 				{
 					document.getElementById("ID_HIDDENABLE_TR").style.display = (bOn ? "" : "none");
 					document.getElementById("ID_START_SITE_WIZARD_REWRITE").disabled = (bOn ? true : false);
 				}
-			//-->
 			</script>
 			<input type="checkbox" name="START_SITE_WIZARD_REWRITE" value="Y" id="ID_START_SITE_WIZARD_REWRITE"><label for="ID_START_SITE_WIZARD_REWRITE"><?= GetMessage("M_START_SITE_WIZARD_REWRITE") ?></label>
 		</td>

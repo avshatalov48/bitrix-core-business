@@ -1,6 +1,6 @@
-import { SendingService } from 'im.v2.provider.service';
+import { SendingService } from 'im.v2.provider.service.sending';
 import { BaseMessage } from 'im.v2.component.message.base';
-import { AvatarSize, MessageAvatar } from 'im.v2.component.elements';
+import { AvatarSize, MessageAvatar } from 'im.v2.component.elements.avatar';
 
 import './css/copilot-creation-message.css';
 

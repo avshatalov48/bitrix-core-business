@@ -6,6 +6,7 @@ use Bitrix\Main\Application;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\SystemException;
+use Bitrix\Vote\Attach;
 
 abstract class Connector
 {
@@ -106,4 +107,6 @@ abstract class Connector
 		global $USER;
 		return $USER;
 	}
+
+	public function onVoteStop(Attach $attach): void {}
 }

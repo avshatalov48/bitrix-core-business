@@ -1,0 +1,14 @@
+<?php
+$MESS["UI_TIMELINE_ACTION_DELETE"] = "Жою";
+$MESS["UI_TIMELINE_ACTION_MODIFY"] = "Өзгерту";
+$MESS["UI_TIMELINE_COLLAPSE_SM"] = "орау";
+$MESS["UI_TIMELINE_COMMENT_DELETE_CONFIRM"] = "Бұл пікірді шынымен жойғыңыз келе ме?";
+$MESS["UI_TIMELINE_EDITOR_COMMENT"] = "Пікір";
+$MESS["UI_TIMELINE_EDITOR_COMMENT_CANCEL"] = "Болдырмау";
+$MESS["UI_TIMELINE_EDITOR_COMMENT_SEND"] = "Жіберу";
+$MESS["UI_TIMELINE_EDITOR_COMMENT_TEXTAREA"] = "Пікір қалдырыңыз";
+$MESS["UI_TIMELINE_EMPTY_COMMENT_NOTIFICATION"] = "Хабарлама мәтіні көрсетілмеген";
+$MESS["UI_TIMELINE_EXPAND_SM"] = "ашу";
+$MESS["UI_TIMELINE_FIELDS_CHANGE_SUBTITLE"] = "Өрістер толтырылды";
+$MESS["UI_TIMELINE_STAGE_CHANGE_SUBTITLE"] = "Саты өзгертілді";
+$MESS["UI_TIMELINE_TASKS_TITLE"] = "Жоспарланған";

@@ -16,6 +16,9 @@ class FileError extends Error
 	public const NOT_FOUND = 'FILE_NOT_FOUND';
 	public const CREATE_SYMLINK = 'CREATE_SYMLINK_ERROR';
 	public const SAVE_BEFORE_MIGRATION_ERROR = 'FILE_SAVE_BEFORE_MIGRATION_ERROR';
+	public const UPLOAD_FILE_INCORRECT_FOLDER = 'UPLOAD_FILE_INCORRECT_FOLDER';
+	public const UPLOAD_FILE_INCORRECT_AUTHOR = 'UPLOAD_FILE_INCORRECT_AUTHOR';
+	public const FILE_SIZE_EXCEEDED = 'FILE_SIZE_EXCEEDED';
 
 	protected function loadErrorMessage($code, $replacements): string
 	{

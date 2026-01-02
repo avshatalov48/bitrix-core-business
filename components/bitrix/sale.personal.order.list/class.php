@@ -1099,6 +1099,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 		/** @var Main\DB\Result $listShipments */
 		$listShipments = $shipmentClassName::getList(array(
 			'select' => array(
+				'ID',
 				'STATUS_ID',
 				'DELIVERY_NAME',
 				'SYSTEM',

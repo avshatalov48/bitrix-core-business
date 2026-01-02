@@ -6,7 +6,7 @@ IncludeModuleLangFile(__FILE__);
 
 global $errors;
 
-echo CAdminMessage::ShowNote(GetMessage('MOD_UNINST_OK'));
+CAdminMessage::ShowNote(GetMessage('MOD_UNINST_OK'));
 
 ?>
 

@@ -76,7 +76,7 @@ class PixelVk extends \Bitrix\Landing\Hook\Page
 					var t=document.createElement("script");
 					t.type="text/javascript",
 					t.async=!0,
-					t.src="https://vk.com/js/api/openapi.js?160",
+					t.src="https://vk.ru/js/api/openapi.js?160",
 					t.onload=function(){VK.Retargeting.Init("' . $counter . '"),
 					VK.Retargeting.Hit()},document.head.appendChild(t)
 				}();'
@@ -84,7 +84,7 @@ class PixelVk extends \Bitrix\Landing\Hook\Page
 			Manager::setPageView(
 				'Noscript',
 				'<noscript>
-					<img src="https://vk.com/rtrg?p=' . $counter . '" style="position:fixed; left:-999px;" alt=""/>
+					<img src="https://vk.ru/rtrg?p=' . $counter . '" style="position:fixed; left:-999px;" alt=""/>
 				</noscript>'
 			);
 		}

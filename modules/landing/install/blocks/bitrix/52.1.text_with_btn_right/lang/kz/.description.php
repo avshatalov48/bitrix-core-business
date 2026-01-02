@@ -1,0 +1,6 @@
+<?php
+$MESS["LANDING_BLOCK_52_1_BTN_AREA"] = "Батырма аумағы";
+$MESS["LANDING_BLOCK_52_TEXT_WITH_BTN_RIGHT-BTN"] = "Батырма";
+$MESS["LANDING_BLOCK_52_TEXT_WITH_BTN_RIGHT-NAME"] = "Оң жақтағы батырмасы бар мәтін";
+$MESS["LANDING_BLOCK_52_TEXT_WITH_BTN_RIGHT-TEXT"] = "Мәтін";
+$MESS["LANDING_BLOCK_52_TEXT_WITH_BTN_RIGHT_CONTAINER"] = "Элементтер жиынтығы";

@@ -43,7 +43,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 	<div class="bx-otp-section bx-otp-step-1 /*amination1s1s*/">
 		<div class="bx-otp-step-num"></div>
-		<h3 class="bx-otp-section-title"><?=GetMessage("SECURITY_OTP_MANDATORY_AUTH_MOBILE")?></h3>
+		<h3 class="bx-otp-section-title"><?=GetMessage("SECURITY_OTP_MANDATORY_AUTH_MOBILE_MSGVER_1")?></h3>
 		<span class="bx-otp-section-desc"><?=GetMessage("SECURITY_OTP_MANDATORY_AUTH_MOBILE2")?></span>
 
 		<ul class="bx-otp-section-market-list">

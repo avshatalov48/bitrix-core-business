@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SOD_HIST_NULL"] = "No updates to this order.";
 $MESS["SOD_HIST_H_DATE"] = "Modified on";
 $MESS["SOD_HIST_H_USER"] = "User";
@@ -53,4 +53,3 @@ $MESS["SOD_HIST_ENTITY_SHIPMENT"] = "Shipment";
 $MESS["SOD_HIST_ENTITY_PAYMENT"] = "Payment";
 $MESS["SOD_HIST_ALL"] = "(All)";
 $MESS["SOD_HIST_IMPORTANT_TYPES"] = "Show important actions";
-?>

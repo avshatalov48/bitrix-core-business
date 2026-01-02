@@ -27,6 +27,7 @@ $MESS["BPWI_OWNED_UNTIL"] = "Locked until";
 $MESS["BPWI_PAGE_TITLE"] = "Running Workflows";
 $MESS["BPWI_TERMINATE_LABEL"] = "Stop";
 $MESS["BPWI_WORKFLOW_ID_ANY"] = "(any)";
+$MESS["BPWI_WS_DOCUMENT_ID"] = "CRM item";
 $MESS["BPWI_WS_MODULE_ID"] = "Module";
 $MESS["BPWI_WS_STARTED"] = "Started on";
 $MESS["BPWI_WS_STARTED_BY"] = "Started by";

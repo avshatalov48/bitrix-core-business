@@ -1,21 +1,25 @@
 import MenuItem from './menu-item';
 import Popup from '../popup/popup';
 import { Type, Text, Tag } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 import { type MenuOptions, type MenuItemOptions } from './menu-types';
 import { type PopupTargetOptions } from '../popup/popup-types';
 
 /**
  * @memberof BX.Main
  */
-export default class Menu
+export default class Menu extends EventEmitter
 {
 	constructor(options: MenuOptions)
 	{
+		super();
+		this.setEventNamespace('BX.Main.Menu');
+
 		let [
 			id: string,
 			bindElement: PopupTargetOptions,
 			menuItems: MenuItemOptions[],
-			params: MenuOptions
+			params: MenuOptions,
 		] = arguments;
 
 		if (Type.isPlainObject(options) && !bindElement && !menuItems && !params)
@@ -29,9 +33,11 @@ export default class Menu
 
 			if (!Type.isStringFilled(id))
 			{
-				id = 'menu-popup-' + Text.getRandom();
+				id = `menu-popup-${Text.getRandom()}`;
 			}
 		}
+
+		this.emit('onInit', { id, bindElement, menuItems, params });
 
 		this.id = id;
 		this.bindElement = bindElement;

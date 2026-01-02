@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
 this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
@@ -46,24 +47,19 @@ this.BX.Sale.Checkout.View.Element = this.BX.Sale.Checkout.View.Element || {};
 	    },
 	    onKeyDown: function onKeyDown(e) {
 	      var value = e.key;
-
 	      if (ui_type.PhoneFilter.replace(value) !== '') {
 	        return;
 	      }
-
 	      if (['Esc', 'Delete', 'Backspace', 'Tab'].indexOf(e.key) >= 0) {
 	        return;
 	      }
-
 	      if (e.ctrlKey || e.metaKey) {
 	        return;
 	      }
-
 	      e.preventDefault();
 	    },
 	    onInput: function onInput() {
 	      var value = ui_type.PhoneFormatter.formatValue(this.value);
-
 	      if (this.value !== value) {
 	        this.validate();
 	        this.value = value;
@@ -116,16 +112,13 @@ this.BX.Sale.Checkout.View.Element = this.BX.Sale.Checkout.View.Element || {};
 	      if (['Esc', 'Tab'].indexOf(e.key) >= 0) {
 	        return;
 	      }
-
 	      if (e.ctrlKey || e.metaKey) {
 	        return;
 	      }
-
 	      if (this.isKeyAndroidChrome(e.key)) {
 	        this.hideAsteriskAndroid();
 	        return;
 	      }
-
 	      this.validate();
 	    },
 	    isKeyAndroidChrome: function isKeyAndroidChrome(key) {
@@ -169,16 +162,13 @@ this.BX.Sale.Checkout.View.Element = this.BX.Sale.Checkout.View.Element || {};
 	      if (['Esc', 'Tab'].indexOf(e.key) >= 0) {
 	        return;
 	      }
-
 	      if (e.ctrlKey || e.metaKey) {
 	        return;
 	      }
-
 	      if (this.isKeyAndroidChrome(e.key)) {
 	        this.hideAsteriskAndroid();
 	        return;
 	      }
-
 	      this.validate();
 	    },
 	    isKeyAndroidChrome: function isKeyAndroidChrome(key) {
@@ -222,21 +212,17 @@ this.BX.Sale.Checkout.View.Element = this.BX.Sale.Checkout.View.Element || {};
 	      if (!isNaN(Number(e.key)) && e.key !== ' ') {
 	        return;
 	      }
-
 	      if (e.ctrlKey || e.metaKey || ['Esc', 'Tab', 'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', '.'].indexOf(e.key) >= 0) {
 	        return;
 	      }
-
 	      e.preventDefault();
 	    },
 	    onPaste: function onPaste(e) {
 	      e.preventDefault();
 	      var pastedText = e.clipboardData.getData('Text');
-
 	      if (!isNaN(Number(pastedText))) {
 	        this.item.value = pastedText.trim();
 	      }
-
 	      this.validate();
 	    }
 	  },
@@ -295,7 +281,6 @@ this.BX.Sale.Checkout.View.Element = this.BX.Sale.Checkout.View.Element || {};
 	          this.item.value = 'N';
 	          this.showValue = false;
 	        }
-
 	        this.validate();
 	      }
 	    },
@@ -320,7 +305,6 @@ this.BX.Sale.Checkout.View.Element = this.BX.Sale.Checkout.View.Element || {};
 	    },
 	    showCalendar: function showCalendar() {
 	      var _this = this;
-
 	      BX.calendar({
 	        node: this.item.name,
 	        field: this.item.name,
@@ -355,11 +339,9 @@ this.BX.Sale.Checkout.View.Element = this.BX.Sale.Checkout.View.Element || {};
 	    },
 	    changeValue: function changeValue(value) {
 	      var changeValue = '';
-
 	      if (main_core.Type.isStringFilled(value)) {
 	        changeValue = this.validateDate(value) ? this.prepareDate(BX.parseDate(value)) : this.previousValue;
 	      }
-
 	      this.setDate(changeValue);
 	      this.validate();
 	    },
@@ -426,7 +408,6 @@ this.BX.Sale.Checkout.View.Element = this.BX.Sale.Checkout.View.Element || {};
 	    },
 	    getMenuItems: function getMenuItems() {
 	      var items = [];
-
 	      for (var index in this.variants) {
 	        var variant = this.variants[index];
 	        items.push({
@@ -440,7 +421,6 @@ this.BX.Sale.Checkout.View.Element = this.BX.Sale.Checkout.View.Element || {};
 	          }
 	        });
 	      }
-
 	      return items;
 	    },
 	    deselectAll: function deselectAll() {
@@ -472,7 +452,6 @@ this.BX.Sale.Checkout.View.Element = this.BX.Sale.Checkout.View.Element || {};
 	      if (['Esc', 'Tab'].indexOf(e.key) >= 0) {
 	        return;
 	      }
-
 	      e.preventDefault();
 	    },
 	    render: function render() {
@@ -514,13 +493,11 @@ this.BX.Sale.Checkout.View.Element = this.BX.Sale.Checkout.View.Element || {};
 	    },
 	    defaultValue: function defaultValue() {
 	      var _this = this;
-
 	      if (this.item.value !== '') {
 	        return this.variants.find(function (e) {
 	          return e.value === _this.item.value;
 	        }).name;
 	      }
-
 	      return '';
 	    },
 	    isEmpty: function isEmpty() {

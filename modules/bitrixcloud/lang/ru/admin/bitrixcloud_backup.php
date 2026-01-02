@@ -1,10 +1,10 @@
-<?
-$MESS ['BCL_BACKUP_TITLE'] = "Резервные копии";
-$MESS ['BCL_BACKUP_USAGE'] = "Использование места: #USAGE# из #QUOTA#.";
-$MESS ['BCL_BACKUP_FILE_NAME'] = "Имя файла";
-$MESS ['BCL_BACKUP_FILE_SIZE'] = "Размер файла";
-$MESS ['BCL_BACKUP_DO_BACKUP'] = "Выполнить резервное копирование";
-$MESS ['BCL_BACKUP_NOTE'] = "
+<?php
+$MESS['BCL_BACKUP_TITLE'] = "Резервные копии";
+$MESS['BCL_BACKUP_USAGE'] = "Использование места: #USAGE# из #QUOTA#.";
+$MESS['BCL_BACKUP_FILE_NAME'] = "Имя файла";
+$MESS['BCL_BACKUP_FILE_SIZE'] = "Размер файла";
+$MESS['BCL_BACKUP_DO_BACKUP'] = "Выполнить резервное копирование";
+$MESS['BCL_BACKUP_NOTE'] = "
 <p>
 Хранение резервных копий предоставляется для всех лицензий на \"1С-Битрикс: Управление сайтом\" (кроме редакции \"Первый сайт\"). Для разных редакций продукта предоставляется определенное место в <a target=\"_blank\" href=\"https://www.1c-bitrix.ru/products/cms/features/cdn.php#tab-backup-link\">облаке \"1С-Битрикс\"</a>. Хранение резервных копий доступно для сайтов с активной коммерческой лицензией (технической поддержкой).
 </p>
@@ -18,4 +18,3 @@ $MESS ['BCL_BACKUP_NOTE'] = "
 Условия хранения резервных копий могут быть изменены по усмотрению компании \"1С-Битрикс\".
 </p>
 ";
-?>

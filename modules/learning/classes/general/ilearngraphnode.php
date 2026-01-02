@@ -247,6 +247,8 @@ abstract class CLearnGraphNode implements ILearnGraphNode
 
 		if ($isInsert)
 		{
+			$arFieldsToDb['~DATE_CREATE'] = $DB->GetNowFunction();
+			$arFieldsToDb['CREATED_BY'] = $createdBy;
 			return $DB->Add('b_learn_lesson', $arFieldsToDb);
 		}
 		else

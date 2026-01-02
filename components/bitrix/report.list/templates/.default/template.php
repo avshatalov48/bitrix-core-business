@@ -329,20 +329,35 @@ $deleteConfirmUrl = CComponentEngine::MakePathFromTemplate(
 	<?php unset($_SESSION['REPORT_LIST_ERROR']); ?>
 <?php endif ?>
 
-<?php if (!defined("REPORT_LIST_CREATE_BUTTON")):
-	define("REPORT_LIST_CREATE_BUTTON", true);?>
-	<div id="form-container" style="display: none;">
+<?php
 
-	</div>
-	<?php $this->SetViewTarget("pagetitle", 100);?>
-	<a class="ui-btn ui-btn-primary"
-	onclick="BX.Report['<?=$jsClass?>'].import()"><?=GetMessage('REPORT_IMPORT_BUTTON')?></a>
-	<a class="ui-btn ui-btn-primary ui-btn-icon-add"
-	href="<?=CComponentEngine::MakePathFromTemplate(
-		$arParams["PATH_TO_REPORT_CONSTRUCT"],
-		array("report_id" => 0, 'action' => 'create'));?>
-	"><?=GetMessage('REPORT_ADD')?></a>
-	<?php
+if (!defined("REPORT_LIST_CREATE_BUTTON"))
+{
+	define('REPORT_LIST_CREATE_BUTTON', true);
 
-	$this->EndViewTarget();
-endif;
+	echo '<div id="form-container" style="display: none;"></div>';
+
+	if (\Bitrix\Main\Loader::includeModule('ui'))
+	{
+		\Bitrix\UI\Toolbar\Facade\Toolbar::addButton(
+			new \Bitrix\UI\Buttons\Button([
+				'color' => \Bitrix\UI\Buttons\Color::PRIMARY,
+				'onclick' => new \Bitrix\UI\Buttons\JsCode("BX.Report['{$jsClass}'].import()"),
+				'text' => GetMessage('REPORT_IMPORT_BUTTON'),
+			])
+		);
+
+		\Bitrix\UI\Toolbar\Facade\Toolbar::addButton(
+			new \Bitrix\UI\Buttons\Button([
+				'color' => \Bitrix\UI\Buttons\Color::PRIMARY,
+				'icon' => \Bitrix\UI\Buttons\Icon::ADD,
+				'link' => CComponentEngine::makePathFromTemplate(
+					$arParams['PATH_TO_REPORT_CONSTRUCT'],
+					['report_id' => 0, 'action' => 'create']
+				),
+				'text' => GetMessage('REPORT_ADD'),
+			])
+		);
+	}
+
+}

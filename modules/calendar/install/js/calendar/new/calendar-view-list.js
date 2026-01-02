@@ -66,7 +66,7 @@
 				},
 		}));
 		this.streamScrollWrap.addEventListener('scroll', this.scrollHandle.bind(this));
-		this.streamScrollWrap.addEventListener('wheel', this.mouseWheelHandle.bind(this));
+		this.streamScrollWrap.addEventListener('wheel', this.mouseWheelHandle.bind(this), { passive: true });
 
 		this.streamContentWrap = this.streamScrollWrap.appendChild(BX.create('DIV', {
 			props: {
@@ -179,7 +179,7 @@
 	{
 		if (this.filterMode)
 		{
-			if (!this.calendar.search.isFilterEmpty())
+			if (this.calendar.search && !this.calendar.search.isFilterEmpty())
 			{
 				this.calendar.search.applyFilter();
 			}
@@ -530,6 +530,10 @@
 			{
 				wrapAdditionalClass = 'calendar-timeline-stream-content-event-collab';
 			}
+			else if (this.shouldEntryLookLineBooking(entry))
+			{
+				wrapAdditionalClass = 'calendar-timeline-stream-content-event-booking';
+			}
 			wrap = group.content.appendChild(BX.create('DIV', {
 				attrs: {
 					'data-bx-calendar-entry': entry.uid
@@ -715,6 +719,7 @@
 								id: 'simple_view_popup_' + user.ID,
 								src: encodeURI(user.AVATAR) || '',
 								'bx-tooltip-user-id': user.ID,
+								'bx-tooltip-context': 'b24',
 							},
 							props: {
 								className: 'calendar-member'
@@ -729,6 +734,7 @@
 								attrs: {
 									id: 'simple_view_popup_' + user.ID,
 									'bx-tooltip-user-id': user.ID,
+									'bx-tooltip-context': 'b24',
 								},
 								props: {
 									className: 'calendar-event-block-icon-sharing calendar-event-block-icon-sharing-view-list',
@@ -1263,7 +1269,6 @@
 			this.streamScrollWrap.style.height = this.calendar.viewsCont.style.height;
 			this.loadMoreEntriesDebounce({mode: 'next'});
 		}
-		event.preventDefault();
 	};
 
 	ListView.prototype.getFirstVisibleDate = function()
@@ -1628,7 +1633,7 @@
 		{
 			return;
 		}
-		
+
 		this.filterMode = false;
 		this.resultEntries = [];
 
@@ -1637,7 +1642,7 @@
 
 		if (!params || params.resetSearchFilter !== false)
 		{
-			this.calendar.search.resetFilter();
+			this.calendar.search?.resetFilter();
 		}
 
 		if (BX.Type.isUndefined(params.viewName) && this.calendar.viewNameBeforeFilter !== this.name)

@@ -66,6 +66,12 @@
 	border-radius: var(--feed-post-block-border-radius, var(--ui-border-radius-md, 0));
 }
 
+.bitrix24-light-theme .feed-add-post-block,
+.bitrix24-dark-theme .feed-add-post-block {
+	padding-top: 4px;
+	background: #fff;
+}
+
 .bitrix24-default-theme.start-page .feed-add-post-block {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
@@ -952,6 +958,11 @@
 	z-index: 140;
 }
 
+.bitrix24-light-theme .feed-new-message-informer-place,
+.bitrix24-dark-theme .feed-new-message-informer-place {
+	background-color: transparent;
+}
+
 .feed-new-message-informer-place.--spaces {
 	height: 0;
 }
@@ -1173,6 +1184,11 @@
 	min-height: 87px;
 	position: relative;
 	border-radius: var(--feed-post-block-border-radius, var(--ui-border-radius-md));
+}
+
+.bitrix24-light-theme .feed-post-block,
+.bitrix24-dark-theme .feed-post-block {
+	background-color: #fff;
 }
 
 .feed-item-wrap .feed-post-block {
@@ -4672,4 +4688,26 @@ a.crm-feed-client-company:hover {
 
 .feed-promo-ai-text-colored {
 	color: var(--ui-color-copilot-primary);
+}
+
+.bx-placeholder {
+	max-width: none;
+}
+
+.bx-placeholder:first-child {
+	margin-top: 0;
+}
+
+.bx-placeholder:before {
+	content: '';
+	display: block;
+	height: 20px;
+	position: relative;
+	z-index: 1;
+	background: #fff;
+}
+
+.bx-placeholder-wrap {
+	padding-bottom: 0;
+	border-bottom: 0;
 }

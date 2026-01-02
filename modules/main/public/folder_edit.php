@@ -120,17 +120,9 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 	{
 		$APPLICATION->SaveFileContent($absolutePath."/.section.php", "<"."?\n".$strSectionName.$strDirProperties."?".">");
 
-		$module_id = "fileman";
-		if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
+		if(COption::GetOptionString("fileman", "log_page", "Y")=="Y")
 		{
-			$res_log['path'] = mb_substr($path, 1);
-			CEventLog::Log(
-				"content",
-				"SECTION_EDIT",
-				"main",
-				"",
-				serialize($res_log)
-			);
+			CEventLog::Log("content", "SECTION_EDIT", "fileman", $path);
 		}
 	}
 	else

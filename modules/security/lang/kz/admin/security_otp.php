@@ -1,0 +1,21 @@
+<?php
+$MESS["SEC_OTP_ALLOW_RECOVERY_CODES"] = "Резервтік кодтарды пайдалануға рұқсат ету";
+$MESS["SEC_OTP_ALLOW_REMEMBER"] = "Бір реттік құпиясөзді есте сақтауға рұқсат ету";
+$MESS["SEC_OTP_DEFAULT_YPE"] = "Әдепкі құпиясөзді құру алгоритмі";
+$MESS["SEC_OTP_LOG"] = "Журналдау";
+$MESS["SEC_OTP_LOG_ENABLE"] = "OTP кодын сұрау әрекетін журналға енгізу:";
+$MESS["SEC_OTP_MANDATORY_RIGHTS_SELECT"] = "Пайдаланушыларды қосу";
+$MESS["SEC_OTP_MANDATORY_SKIP_DAYS"] = "Қосылу үшін күндер саны";
+$MESS["SEC_OTP_NEW_BUTTON_OFF"] = "Екі сатылы авторландыруды өшіру";
+$MESS["SEC_OTP_NEW_BUTTON_ON"] = "Екі сатылы авторландыруды қосу";
+$MESS["SEC_OTP_NEW_MAIN_TAB"] = "Екі сатылы авторландыру";
+$MESS["SEC_OTP_NEW_MAIN_TAB_TITLE"] = "Екі сатылы авторландыруды қосу";
+$MESS["SEC_OTP_NEW_MANDATORY_HEADER"] = "Екі сатылы авторландыру міндеттілігі";
+$MESS["SEC_OTP_NEW_MANDATORY_RIGHTS"] = "Міндетті екі сатылы авторландыру бар пайдаланушылар";
+$MESS["SEC_OTP_NEW_MANDATORY_USING"] = "Екі сатылы авторландыруды талап ету";
+$MESS["SEC_OTP_NEW_OFF"] = "Екі сатылы авторландыру өшірулі";
+$MESS["SEC_OTP_NEW_ON"] = "Екі сатылы авторландыру қосулы";
+$MESS["SEC_OTP_NEW_PARAMETERS_TAB_TITLE"] = "Екі сатылы авторландыру параметрлерін баптау";
+$MESS["SEC_OTP_NEW_TITLE"] = "Екі сатылы авторландыру";
+$MESS["SEC_OTP_PARAMETERS_TAB"] = "Параметрлер";
+$MESS["SEC_OTP_WINDOW_SIZE"] = "Құпиясөзді тексеру терезесінің өлшемі";

@@ -172,6 +172,19 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 		return true;
 	}
 
+	protected function areCompatibleManifests(array $manifestData1, $manifestData2): bool
+	{
+		foreach ([$manifestData1, $manifestData2] as $manifestData)
+		{
+			if (!is_array($manifestData['COMPATIBILITY_TAGS']) || empty($manifestData['COMPATIBILITY_TAGS']))
+			{
+				return false;
+			}
+		}
+
+		return !empty(array_intersect($manifestData['COMPATIBILITY_TAGS'], $manifestData['COMPATIBILITY_TAGS']));
+	}
+
 	protected function prepareResult()
 	{
 		$result = [
@@ -460,9 +473,19 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 					{
 						if(!empty($result['MANIFEST']))
 						{
-							if($result['IMPORT_MANIFEST_FILE']['CODE'] != $result['MANIFEST']['CODE'])
+							if (
+								$result['IMPORT_MANIFEST_FILE']['CODE'] != $result['MANIFEST']['CODE']
+								&&
+								!$this->areCompatibleManifests(
+									$result['MANIFEST'],
+									$result['IMPORT_MANIFEST_FILE']
+								)
+							)
 							{
-								$this->errors->setError(new Error(Loc::getMessage('REST_CONFIGURATION_IMPORT_MANIFEST_NOT_CURRENT')));
+								$this->errors->setError(
+									new Error(Loc::getMessage('REST_CONFIGURATION_IMPORT_MANIFEST_NOT_CURRENT'))
+								);
+
 								return false;
 							}
 							else

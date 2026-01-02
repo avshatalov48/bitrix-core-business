@@ -275,4 +275,11 @@ class FileCollection extends EntityCollection implements DateFilterable
 	{
 		return $this->getAny()?->getChatId();
 	}
+
+	public function toRestFormat(array $option = []): array
+	{
+		ParamCollection::loadByFileIds($this->getIds());
+
+		return parent::toRestFormat($option);
+	}
 }

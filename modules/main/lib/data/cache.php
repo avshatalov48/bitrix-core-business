@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2024 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Data;
@@ -33,15 +33,22 @@ class Cache
 	protected bool $forceRewriting = false;
 	protected bool $hasOutput = true;
 
+	public function __construct($cacheEngine)
+	{
+		$this->cacheEngine = $cacheEngine;
+	}
+
 	public static function createCacheEngine($params = [])
 	{
-		$hash = sha1(serialize($params));
+		static $instances = [];
 
-		static $cacheEngine = [];
-		if (!empty($cacheEngine[$hash]))
+		$hash = sha1(serialize($params));
+		if (isset($instances[$hash]))
 		{
-			return clone $cacheEngine[$hash];
+			return clone $instances[$hash];
 		}
+
+		$cacheEngine = null;
 
 		// Events can't be used here because events use cache
 		$cacheType = 'files';
@@ -70,7 +77,7 @@ class Cache
 					$className = $cacheType['class_name'];
 					if (class_exists($className))
 					{
-						$cacheEngine[$hash] = new $className($params);
+						$cacheEngine = new $className($params);
 					}
 				}
 			}
@@ -80,40 +87,42 @@ class Cache
 			switch ($cacheType)
 			{
 				case 'redis':
-					$cacheEngine[$hash] = new CacheEngineRedis($params);
+					$cacheEngine = new CacheEngineRedis($params);
 					break;
 				case 'memcached':
-					$cacheEngine[$hash] = new CacheEngineMemcached($params);
+					$cacheEngine = new CacheEngineMemcached($params);
 					break;
 				case 'memcache':
-					$cacheEngine[$hash] = new CacheEngineMemcache($params);
+					$cacheEngine = new CacheEngineMemcache($params);
 					break;
 				case 'apc':
 				case 'apcu':
-					$cacheEngine[$hash] = new CacheEngineApc($params);
+					$cacheEngine = new CacheEngineApc($params);
 					break;
 				case 'files':
-					$cacheEngine[$hash] = new CacheEngineFiles($params);
+					$cacheEngine = new CacheEngineFiles($params);
 					break;
 				default:
-					$cacheEngine[$hash] = new CacheEngineNone();
+					$cacheEngine = new CacheEngineNone();
 					break;
 			}
 		}
 
-		if (empty($cacheEngine[$hash]))
+		if ($cacheEngine === null)
 		{
-			$cacheEngine[$hash] = new CacheEngineNone();
+			$cacheEngine = new CacheEngineNone();
 			trigger_error('Cache engine is not found', E_USER_WARNING);
 		}
 
-		if (!$cacheEngine[$hash]->isAvailable())
+		if (!$cacheEngine->isAvailable())
 		{
-			$cacheEngine[$hash] = new CacheEngineNone();
+			$cacheEngine = new CacheEngineNone();
 			trigger_error('Cache engine is not available', E_USER_WARNING);
 		}
 
-		return clone $cacheEngine[$hash];
+		$instances[$hash] = $cacheEngine;
+
+		return $cacheEngine;
 	}
 
 	public static function getCacheEngineType()
@@ -136,16 +145,6 @@ class Cache
 	{
 		$cacheEngine = static::createCacheEngine($params);
 		return new static($cacheEngine);
-	}
-
-	public function __construct($cacheEngine)
-	{
-		$this->cacheEngine = $cacheEngine;
-	}
-
-	public function getConfig(): array
-	{
-		return $this->cacheEngine->getConfig();
 	}
 
 	public static function setShowCacheStat($showCacheStat)
@@ -309,7 +308,7 @@ class Cache
 		{
 			$read = 0;
 			$path = '';
-			if ($this->cacheEngine instanceof ICacheEngineStat)
+			if ($this->cacheEngine instanceof CacheEngineStatInterface)
 			{
 				$read = $this->cacheEngine->getReadBytes();
 				$path = $this->cacheEngine->getCachePath();
@@ -421,7 +420,7 @@ class Cache
 		{
 			$written = 0;
 			$path = '';
-			if ($this->cacheEngine instanceof ICacheEngineStat)
+			if ($this->cacheEngine instanceof CacheEngineStatInterface)
 			{
 				$written = $this->cacheEngine->getWrittenBytes();
 				$path = $this->cacheEngine->getCachePath();
@@ -470,7 +469,7 @@ class Cache
 		if ($full === true)
 		{
 			$cache = static::createInstance();
-			$cache->cleanDir($initDir, 'cache');
+			$cache->cleanDir($initDir);
 		}
 	}
 
@@ -481,15 +480,5 @@ class Cache
 	public function forceRewriting($mode)
 	{
 		$this->forceRewriting = (bool) $mode;
-	}
-
-	public static function delayedDelete(): void
-	{
-		static::createInstance()->cacheEngine->delayedDelete();
-	}
-
-	public static function addCleanPath(): void
-	{
-		static::createInstance()->cacheEngine->addCleanPath();
 	}
 }

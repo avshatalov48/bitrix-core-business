@@ -107,8 +107,8 @@ final class WorkgroupDeptSync extends Stepper
 		}
 
 		$result = [
-			'PLUS' => array_diff($newUserList, $membersList),
-			'MINUS' => array_diff($oldUserList, $newUserList),
+			'PLUS' => array_unique(array_diff($newUserList, $membersList)),
+			'MINUS' => array_unique(array_diff($oldUserList, $newUserList)),
 			'OLD_RELATIONS' => $oldRelationList,
 		];
 

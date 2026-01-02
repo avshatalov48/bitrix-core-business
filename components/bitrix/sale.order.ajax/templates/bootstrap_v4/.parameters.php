@@ -223,7 +223,7 @@ $arTemplateParameters = array(
 		"DEFAULT" => "N",
 		"REFRESH" => "Y",
 		"PARENT" => "ANALYTICS_SETTINGS"
-	)
+	),
 );
 
 if (!isset($arCurrentValues['SHOW_COUPONS']) || $arCurrentValues['SHOW_COUPONS'] === 'Y')
@@ -624,7 +624,10 @@ $arTemplateParameters["USE_CUSTOM_ADDITIONAL_MESSAGES"] =  array(
 	"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 );
 
-if (isset($arCurrentValues['USE_CUSTOM_ADDITIONAL_MESSAGES']) && $arCurrentValues['USE_CUSTOM_ADDITIONAL_MESSAGES'] === 'Y')
+if (
+	(isset($arCurrentValues['USE_CUSTOM_ADDITIONAL_MESSAGES']) && $arCurrentValues['USE_CUSTOM_ADDITIONAL_MESSAGES'] === 'Y')
+	|| (isset($arCurrentValues['LANDING_MODE']) && $arCurrentValues['LANDING_MODE'] === 'Y')
+)
 {
 	$arTemplateParameters["MESS_PRICE_FREE"] =  array(
 		"NAME" => GetMessage("PRICE_FREE"),
@@ -693,9 +696,10 @@ if (isset($arCurrentValues['USE_CUSTOM_ADDITIONAL_MESSAGES']) && $arCurrentValue
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
 	$arTemplateParameters["MESS_REGION_REFERENCE"] =  array(
-		"NAME" => GetMessage("REGION_REFERENCE"),
+		"NAME" => GetMessage("REGION_REFERENCE_NAME"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("REGION_REFERENCE_DEFAULT"),
+		"PLACEHOLDER" => GetMessage("REGION_REFERENCE_PLACEHOLDER"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
 	$arTemplateParameters["MESS_PICKUP_LIST"] =  array(

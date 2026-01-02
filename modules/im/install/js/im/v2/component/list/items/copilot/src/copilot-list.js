@@ -1,6 +1,6 @@
-import { CopilotDraftManager } from 'im.v2.lib.draft';
+import { DraftManager } from 'im.v2.lib.draft';
 import { Utils } from 'im.v2.lib.utils';
-import { ListLoadingState as LoadingState } from 'im.v2.component.elements';
+import { ListLoadingState as LoadingState } from 'im.v2.component.elements.list-loading-state';
 
 import { CopilotItem } from './components/copilot-item';
 import { CopilotRecentService } from './classes/copilot-service';
@@ -62,7 +62,7 @@ export const CopilotList = {
 		this.isLoading = true;
 		await this.getRecentService().loadFirstPage();
 		this.isLoading = false;
-		void CopilotDraftManager.getInstance().initDraftHistory();
+		void DraftManager.getInstance().initDraftHistory();
 	},
 	beforeUnmount()
 	{
@@ -86,10 +86,15 @@ export const CopilotList = {
 		{
 			this.$emit('chatClick', item.dialogId);
 		},
-		onRightClick(item, event)
+		onRightClick(item: ImModelRecentItem, event: PointerEvent)
 		{
 			event.preventDefault();
-			this.contextMenuManager.openMenu(item, event.currentTarget);
+
+			const context = {
+				dialogId: item.dialogId,
+				recentItem: item,
+			};
+			this.contextMenuManager.openMenu(context, event.currentTarget);
 		},
 		getRecentService(): CopilotRecentService
 		{

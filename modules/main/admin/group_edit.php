@@ -7,6 +7,7 @@
  */
 
 use Bitrix\Main\Authentication\Policy;
+use Bitrix\Main\UserGroupTable;
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 define("HELP_FILE", "users/group_edit.php");
@@ -40,8 +41,8 @@ while ($arSite = $rsSites->GetNext())
 	$arSites["reference"][] = "[".$arSite["ID"]."] ".$arSite["NAME"];
 }
 
-$USER_COUNT = CUser::GetCount();
 $USER_COUNT_MAX = 25;
+$USER_COUNT = CUser::GetCount($USER_COUNT_MAX + 1);
 
 $aTabs = array(
 	array("DIV" => "edit1", "TAB" => GetMessage("MAIN_TAB"), "ICON" => "group_edit", "TITLE" => GetMessage("MAIN_TAB_TITLE")),
@@ -211,19 +212,26 @@ if($z->ExtractFields())
 {
 	if($USER_COUNT <= $USER_COUNT_MAX && $ID <> 2)
 	{
-		$dbUserGroup = CGroup::GetGroupUserEx($ID);
-		while ($arUserGroup = $dbUserGroup->Fetch())
+		$users = UserGroupTable::getList([
+			'filter' => ['=GROUP_ID' => $ID],
+		]);
+		while ($arUserGroup = $users->fetch())
 		{
-			$str_USER_ID[intval($arUserGroup["USER_ID"])]["DATE_ACTIVE_FROM"] = $arUserGroup["DATE_ACTIVE_FROM"];
-			$str_USER_ID[intval($arUserGroup["USER_ID"])]["DATE_ACTIVE_TO"] = $arUserGroup["DATE_ACTIVE_TO"];
+			$str_USER_ID[(int)$arUserGroup["USER_ID"]]["DATE_ACTIVE_FROM"] = (string)$arUserGroup["DATE_ACTIVE_FROM"];
+			$str_USER_ID[(int)$arUserGroup["USER_ID"]]["DATE_ACTIVE_TO"] = (string)$arUserGroup["DATE_ACTIVE_TO"];
 		}
 	}
 }
 else
 {
-	$ID=0;
-	$str_ACTIVE="Y";
+	$ID = 0;
+	$str_ACTIVE = "Y";
 	$str_C_SORT = 100;
+	$str_TIMESTAMP_X = '';
+	$str_NAME = '';
+	$str_STRING_ID = '';
+	$str_DESCRIPTION = '';
+	$str_SECURITY_POLICY = '';
 }
 
 if ($strError <> '')
@@ -532,7 +540,7 @@ $arBXGroupPolicy = [
 				$arRes['ID'] = intval($arRes['ID']);
 				if ($arRes['ID'] == $ID)
 					continue;
-				if($strError <> '' && is_array($_REQUEST["subordinate_groups"]))
+				if($strError <> '' && is_array($_REQUEST["subordinate_groups"] ?? null))
 				{
 					$bSel = (in_array($arRes['ID'], $_REQUEST["subordinate_groups"]));
 				}

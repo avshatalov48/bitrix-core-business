@@ -1,0 +1,31 @@
+.bx-im-dialog-chat__pinned_counter_control {
+	--im-dialog-chat__pin_button_border: #f7f7f7;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 40px;
+	height: 37px;
+	cursor: pointer;
+	border-radius: 8px;
+	border: 1px solid var(--im-dialog-chat__pin_button_border);
+	background-color: transparent;
+	font-size: var(--ui-font-size-4xs);
+	white-space: nowrap;
+}
+
+.bx-im-dialog-chat__pinned_counter_control-total {
+	color: var(--im-dialog-chat__font-color_pinned-info);
+}
+
+.bx-im-dialog-chat__pinned_icon-dropdown {
+	display: block;
+	width: 24px;
+	height: 20px;
+	background-image: url('./images/unpin-small.svg');
+	background-color: transparent;
+	background-repeat: no-repeat;
+	background-position: top;
+	cursor: pointer;
+	border: none;
+}

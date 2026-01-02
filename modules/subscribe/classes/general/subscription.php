@@ -775,7 +775,7 @@ class CSubscription
 				SELECT ID
 				FROM b_subscription
 				WHERE CONFIRMED <> 'Y'
-				AND DATE_CONFIRM < " . $helper->addDaysToDateTime(1) . "
+				AND DATE_CONFIRM < " . $helper->addDaysToDateTime(-$interval) . "
 			";
 			$res = $connection->query($sql);
 			$sIn = '0';

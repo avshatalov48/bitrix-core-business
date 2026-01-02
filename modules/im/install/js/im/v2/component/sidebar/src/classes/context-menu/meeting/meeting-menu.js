@@ -4,7 +4,7 @@ import { Loc } from 'main.core';
 import { SidebarMenu } from '../sidebar-base-menu';
 import { MeetingManager } from './meeting-manager';
 
-import type { MenuItem } from 'im.v2.lib.menu';
+import type { MenuItemOptions } from 'ui.system.menu';
 import type { ImModelSidebarMeetingItem } from 'im.v2.model';
 
 type MeetingMenuContext = {
@@ -26,7 +26,7 @@ export class MeetingMenu extends SidebarMenu
 		this.meetingManager = new MeetingManager();
 	}
 
-	getMenuItems(): MenuItem[]
+	getMenuItems(): MenuItemOptions | null[]
 	{
 		return [
 			this.getOpenContextMessageItem(),
@@ -35,11 +35,11 @@ export class MeetingMenu extends SidebarMenu
 		];
 	}
 
-	getDeleteItem(): MenuItem
+	getDeleteItem(): MenuItemOptions
 	{
 		return {
-			text: Loc.getMessage('IM_SIDEBAR_MENU_DELETE_MEETING_CONNECTION'),
-			onclick: function() {
+			title: Loc.getMessage('IM_SIDEBAR_MENU_DELETE_MEETING_CONNECTION'),
+			onClick: function() {
 				this.meetingManager.delete(this.context.meeting);
 				this.menuInstance.close();
 			}.bind(this),

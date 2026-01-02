@@ -99,5 +99,16 @@ final class Manager
 		foreach ($votes as $v)
 			$v->delete();
 	}
+
+	public static function loadFirstFromEntity(string $moduleId, string $entityType, int $entityId): ?Attach
+	{
+		$attaches = Manager::loadFromEntity([
+			'=MODULE_ID' => $moduleId,
+			'=ENTITY_TYPE' => $entityType,
+			'=ENTITY_ID' => $entityId,
+		]);
+
+		return $attaches[array_key_first($attaches)] ?? null;
+	}
 }
 

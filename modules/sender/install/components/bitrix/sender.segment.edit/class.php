@@ -96,6 +96,7 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 			if(
 				$endpoint["CODE"] === 'crm_client'
 				&& !empty($endpoint["FIELDS"])
+				&& is_array($endpoint["FIELDS"])
 				&& !isset($endpoint["FIELDS"]["DEAL_CATEGORY_ID"])
 			)
 			{

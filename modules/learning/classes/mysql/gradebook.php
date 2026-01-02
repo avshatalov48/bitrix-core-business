@@ -23,7 +23,15 @@ class CGradeBook extends CAllGradeBook
 				OR TM.SCORE =
 					(SELECT SCORE
 					FROM b_learn_test_mark
-					WHERE SCORE >= (G.RESULT/G.MAX_RESULT*100) AND TEST_ID = G.TEST_ID
+					WHERE TEST_ID = G.TEST_ID
+							AND
+						SCORE >=
+							CASE WHEN G.MAX_RESULT > 0
+							THEN
+								(G.RESULT/G.MAX_RESULT*100)
+							ELSE
+								0
+							END
 					ORDER BY SCORE ASC
 					LIMIT 1)
 				) ";

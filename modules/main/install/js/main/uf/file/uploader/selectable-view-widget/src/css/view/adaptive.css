@@ -1,0 +1,17 @@
+.main-file-field-selectable-view__adaptive-list {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--ui-size-2xs);
+}
+
+.main-file-field-selectable-view__adaptive-list .main-file-field-selectable-view__viewer-decorator.--image {
+	align-self: stretch;
+}
+
+.main-file-field-selectable-view__adaptive-item-image-container {
+	max-height: 357px;
+	width: 100%;
+	border-radius: var(--ui-border-radius-sm);
+	overflow: hidden;
+}

@@ -1,5 +1,5 @@
 <?php
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -18,16 +18,17 @@ $arParams['PAGE_URL_SITE_EDIT'] = str_replace(
 );
 
 $template = $request->get('tpl');
-$notRedirectToEdit = ($request->get('no_redirect') == 'Y') ? 'Y' : 'N';
-if ($arParams['TYPE'] != 'STORE')
+$notRedirectToEdit = ($request->get('no_redirect') === 'Y') ? 'Y' : 'N';
+if ($arParams['TYPE'] !== 'STORE')
 {
 	$template = '';
 }
 ?>
 
-<?if ($arResult['VARS']['site_edit']):?>
-
-	<?$APPLICATION->IncludeComponent(
+<?php
+if ($arResult['VARS']['site_edit'])
+{
+	$APPLICATION->IncludeComponent(
 		'bitrix:landing.site_edit',
 		'.default',
 		array(
@@ -37,14 +38,15 @@ if ($arParams['TYPE'] != 'STORE')
 			'PAGE_URL_LANDING_VIEW' => $arParams['PAGE_URL_LANDING_VIEW'],
 			'PAGE_URL_SITE_DOMAIN' => $arParams['PAGE_URL_SITE_DOMAIN'],
 			'PAGE_URL_SITE_COOKIES' => $arParams['PAGE_URL_SITE_COOKIES'],
-			'TEMPLATE' => $template
+			'TEMPLATE' => $template,
 		),
 		$component
-	);?>
+	);
+}
 
-<?elseif ($template = $request->get('tpl')):?>
-
-	<?$APPLICATION->IncludeComponent(
+elseif ($template = $request->get('tpl'))
+{
+	$APPLICATION->IncludeComponent(
 		'bitrix:landing.demo_preview',
 		'.default',
 		array(
@@ -52,37 +54,45 @@ if ($arParams['TYPE'] != 'STORE')
 			'TYPE' => $arParams['TYPE'],
 			'PAGE_URL_BACK' => $arParams['PAGE_URL_SITE_EDIT'],
 			'DISABLE_REDIRECT' => $notRedirectToEdit,
-			'DONT_LEAVE_FRAME' => $arParams['EDIT_DONT_LEAVE_FRAME']
+			'DONT_LEAVE_FRAME' => $arParams['EDIT_DONT_LEAVE_FRAME'],
 		),
 		$component
-	);?>
+	);
+}
 
-<?elseif ($request->get('super') == 'Y'):?>
-
-	<?$APPLICATION->IncludeComponent(
+elseif ($request->get('super') === 'Y')
+{
+	$APPLICATION->IncludeComponent(
 		'bitrix:landing.site_master',
 		'teaser',
 		array(
 			'TYPE' => $arParams['TYPE'],
 			'GET_DATA' => 'N',
-			'PAGE_URL_SITE_MASTER' => $arParams['PAGE_URL_SITE_MASTER']
+			'PAGE_URL_SITE_MASTER' => $arParams['PAGE_URL_SITE_MASTER'],
 		),
 		$component
-	);?>
+	);
+}
 
-<?else:?>
-
-	<?$APPLICATION->IncludeComponent(
-		'bitrix:landing.demo',
-		'.default',
-		array(
-			'TYPE' => $arParams['TYPE'],
-			'DISABLE_REDIRECT' => $notRedirectToEdit,
-			'PAGE_URL_SITES' => $arParams['PAGE_URL_SITES'],
-			'PAGE_URL_LANDING_VIEW' => $arParams['PAGE_URL_LANDING_VIEW'],
-			'DONT_LEAVE_FRAME' => $arParams['EDIT_DONT_LEAVE_FRAME']
-		),
-		$component
-	);?>
-
-<?endif;?>
+else
+{
+	$APPLICATION->includeComponent(
+		'bitrix:ui.sidepanel.wrapper',
+		'',
+		[
+			'POPUP_COMPONENT_NAME' => 'bitrix:landing.demo',
+			'POPUP_COMPONENT_TEMPLATE_NAME' => '.default',
+			'POPUP_COMPONENT_PARAMS' => [
+				'TYPE' => $arParams['TYPE'],
+				'DISABLE_REDIRECT' => $notRedirectToEdit,
+				'PAGE_URL_SITES' => $arParams['PAGE_URL_SITES'],
+				'PAGE_URL_LANDING_VIEW' => $arParams['PAGE_URL_LANDING_VIEW'],
+				'DONT_LEAVE_FRAME' => $arParams['EDIT_DONT_LEAVE_FRAME'],
+			],
+			'POPUP_COMPONENT_PARENT' => $component,
+			'USE_PADDING' => false,
+			'USE_UI_TOOLBAR' => 'Y',
+		]
+	);
+}
+?>

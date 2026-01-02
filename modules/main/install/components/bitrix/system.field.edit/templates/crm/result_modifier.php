@@ -4,14 +4,14 @@ if(!CModule::IncludeModule("crm"))
 	return;
 
 global $USER;
-$userPermissions = CCrmPerms::GetCurrentUserPermissions();
+$crmEntityUserPermissions = \Bitrix\Crm\Service\Container::getInstance()->getUserPermissions()->entityType();
 $arSupportedTypes = array(); // all entity types are defined in settings
 $arParams['ENTITY_TYPE'] = array(); // only entity types are allowed for current user
 $arSettings = $arParams['arUserField']['SETTINGS'];
 if (isset($arSettings['LEAD']) && $arSettings['LEAD'] === 'Y')
 {
 	$arSupportedTypes[] = CCrmOwnerType::LeadName;
-	if(CCrmLead::CheckReadPermission(0, $userPermissions))
+	if($crmEntityUserPermissions->canReadItems(CCrmOwnerType::Lead))
 	{
 		$arParams['ENTITY_TYPE'][] = CCrmOwnerType::LeadName;
 	}
@@ -19,7 +19,7 @@ if (isset($arSettings['LEAD']) && $arSettings['LEAD'] === 'Y')
 if (isset($arSettings['CONTACT']) && $arSettings['CONTACT'] === 'Y')
 {
 	$arSupportedTypes[] = 'CONTACT';
-	if(CCrmContact::CheckReadPermission(0, $userPermissions))
+	if($crmEntityUserPermissions->canReadItems(CCrmOwnerType::Contact))
 	{
 		$arParams['ENTITY_TYPE'][] = CCrmOwnerType::ContactName;
 	}
@@ -27,7 +27,7 @@ if (isset($arSettings['CONTACT']) && $arSettings['CONTACT'] === 'Y')
 if (isset($arSettings['COMPANY']) && $arSettings['COMPANY'] === 'Y')
 {
 	$arSupportedTypes[] = 'COMPANY';
-	if(CCrmCompany::CheckReadPermission(0, $userPermissions))
+	if($crmEntityUserPermissions->canReadItems(CCrmOwnerType::Company))
 	{
 		$arParams['ENTITY_TYPE'][] = CCrmOwnerType::CompanyName;
 	}
@@ -35,7 +35,7 @@ if (isset($arSettings['COMPANY']) && $arSettings['COMPANY'] === 'Y')
 if (isset($arSettings['DEAL']) && $arSettings['DEAL'] === 'Y')
 {
 	$arSupportedTypes[] = 'DEAL';
-	if(CCrmDeal::CheckReadPermission(0, $userPermissions))
+	if($crmEntityUserPermissions->canReadItems(CCrmOwnerType::Deal))
 	{
 		$arParams['ENTITY_TYPE'][] = CCrmOwnerType::DealName;
 	}
@@ -43,7 +43,7 @@ if (isset($arSettings['DEAL']) && $arSettings['DEAL'] === 'Y')
 if (isset($arSettings['QUOTE']) && $arSettings['QUOTE'] === 'Y')
 {
 	$arSupportedTypes[] = CCrmOwnerType::QuoteName;
-	if(CCrmQuote::CheckReadPermission(0, $userPermissions))
+	if($crmEntityUserPermissions->canReadItems(CCrmOwnerType::Quote))
 	{
 		$arParams['ENTITY_TYPE'][] = CCrmOwnerType::DealName;
 	}
@@ -51,7 +51,7 @@ if (isset($arSettings['QUOTE']) && $arSettings['QUOTE'] === 'Y')
 if (isset($arSettings['ORDER']) && $arSettings['ORDER'] === 'Y')
 {
 	$arSupportedTypes[] = CCrmOwnerType::OrderName;
-	if(\Bitrix\Crm\Order\Permissions\Order::checkReadPermission(0, $userPermissions))
+	if($crmEntityUserPermissions->canReadItems(CCrmOwnerType::Order))
 	{
 		$arParams['ENTITY_TYPE'][] = CCrmOwnerType::OrderName;
 	}
@@ -59,7 +59,7 @@ if (isset($arSettings['ORDER']) && $arSettings['ORDER'] === 'Y')
 if (isset($arSettings['PRODUCT']) && $arSettings['PRODUCT'] === 'Y')
 {
 	$arSupportedTypes[] = 'PRODUCT';
-	if(CCrmProduct::CheckReadPermission())
+	if(\Bitrix\Crm\Service\Container::getInstance()->getUserPermissions()->product()->canRead())
 	{
 		$arParams['ENTITY_TYPE'][] = 'PRODUCT';
 	}
@@ -171,7 +171,7 @@ if (in_array('LEAD', $arParams['ENTITY_TYPE'], true))
 
 	if (method_exists('CCrmLead', 'GetTopIDs'))
 	{
-		$IDs = CCrmLead::GetTopIDs(50, 'DESC', $userPermissions);
+		$IDs = CCrmLead::GetTopIDs(50, 'DESC');
 		if (empty($IDs))
 		{
 			$obRes = new CDBResult();
@@ -258,7 +258,7 @@ if (in_array('CONTACT', $arParams['ENTITY_TYPE'], true))
 
 	if (method_exists('CCrmContact', 'GetTopIDsInCategory'))
 	{
-		$IDs = CCrmContact::GetTopIDsInCategory(0, 50, 'DESC', $userPermissions);
+		$IDs = CCrmContact::GetTopIDsInCategory(0, 50, 'DESC');
 		if (empty($IDs))
 		{
 			$obRes = new CDBResult();
@@ -355,7 +355,7 @@ if (in_array('COMPANY', $arParams['ENTITY_TYPE'], true))
 
 	if (method_exists('CCrmCompany', 'GetTopIDsInCategory'))
 	{
-		$IDs = CCrmCompany::GetTopIDsInCategory(0, 50, 'DESC', $userPermissions);
+		$IDs = CCrmCompany::GetTopIDsInCategory(0, 50, 'DESC');
 		if (empty($IDs))
 		{
 			$obRes = new CDBResult();
@@ -445,7 +445,7 @@ if (in_array('DEAL', $arParams['ENTITY_TYPE'], true))
 
 	if (method_exists('CCrmDeal', 'GetTopIDs'))
 	{
-		$IDs = CCrmDeal::GetTopIDs(50, 'DESC', $userPermissions);
+		$IDs = CCrmDeal::GetTopIDs(50, 'DESC');
 		if (empty($IDs))
 		{
 			$obRes = new CDBResult();
@@ -517,7 +517,7 @@ if (in_array('QUOTE', $arParams['ENTITY_TYPE'], true))
 
 	if (method_exists('CCrmQuote', 'GetTopIDs'))
 	{
-		$IDs = CCrmQuote::GetTopIDs(50, 'DESC', $userPermissions);
+		$IDs = CCrmQuote::GetTopIDs(50, 'DESC');
 		if (empty($IDs))
 		{
 			$obRes = new CDBResult();
@@ -1115,7 +1115,7 @@ if(!empty($arParams['createNewEntity']))
 			$arResult['CURRENT_ENTITY_TYPE'] = current($arResult['ENTITY_TYPE']);
 		}
 	}
-	
+
 	$arResult['LIST_ENTITY_CREATE_URL'] = array();
 	foreach($arResult['ENTITY_TYPE'] as $entityType)
 	{
@@ -1131,4 +1131,3 @@ if(!empty($arParams['createNewEntity']))
 		);
 	}
 }
-?>

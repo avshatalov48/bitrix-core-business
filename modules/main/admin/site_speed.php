@@ -212,7 +212,7 @@ foreach ($mapIframeLangKeys as $key)
 			}
 		);
 
-		BX('site-speed-clients-map').src = "https://analytics.bitrix.info/cstats/v1_0/maps_client/index.php?"
+		BX('site-speed-clients-map').src = "https://sitespeed.bitrix24.tech/cstats/v1_0/maps_client/index.php?"
 			+ "aid=<?=Analytics\Counter::getAccountId()?>"
 			+ "&aid_check=<?=Analytics\Counter::getPrivateKey()?>"
 			+ "&domain=" + host

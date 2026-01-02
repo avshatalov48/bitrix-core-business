@@ -3,6 +3,7 @@ import type { BaseEvent } from 'main.core.events';
 import type { Copilot, CopilotOptions } from 'ai.copilot';
 import { DIALOG_VISIBILITY_COMMAND, HIDE_DIALOG_COMMAND } from '../../commands';
 import { $createNodesFromText } from '../../helpers/create-nodes-from-text';
+import { getEditorPaddings } from '../../helpers/get-editor-paddings';
 import { $getSelectionPosition } from '../../helpers/get-selection-position';
 
 import {
@@ -388,17 +389,19 @@ export class CopilotPlugin extends BasePlugin
 			const scrollerRect: DOMRect = Dom.getPosition(this.getEditor().getScrollerContainer());
 			const popupWidth = Math.min(scrollerRect.width, 600);
 
+			const editorPaddings = getEditorPaddings(this.getEditor());
+
 			let offsetLeft = popupWidth / 2;
 			if (left - offsetLeft < scrollerRect.left)
 			{
 				// Left boundary
 				const overflow = scrollerRect.left - (left - offsetLeft);
-				offsetLeft -= overflow + 16;
+				offsetLeft -= overflow + editorPaddings.left;
 			}
 			else if (scrollerRect.right < (left + popupWidth - offsetLeft))
 			{
 				// Right boundary
-				offsetLeft += (left + popupWidth - offsetLeft) - scrollerRect.right + 16;
+				offsetLeft += (left + popupWidth - offsetLeft) - scrollerRect.right + editorPaddings.right;
 			}
 
 			if (bottom < scrollerRect.top || top > scrollerRect.bottom)

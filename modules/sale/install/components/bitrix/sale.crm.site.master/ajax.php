@@ -34,7 +34,7 @@ class SaleCrmSiteMasterAjaxController extends Bitrix\Main\Engine\Controller
 	private function isLicenseKey($key)
 	{
 		return preg_match(
-			'/^([A-Z0-9]{3}-[A-Z0-9]{2}-[A-Z0-9]{12,16})$/',
+			'/^([A-Z0-9]{3}-[A-Z0-9]{2}-[A-Z0-9]{12,20})$/',
 			$key
 		);
 	}

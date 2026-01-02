@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Socialnetwork\FeatureTable;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/group_features.php");
 
 class CSocNetFeatures extends CAllSocNetFeatures
@@ -59,6 +62,8 @@ class CSocNetFeatures extends CAllSocNetFeatures
 				$CACHE_MANAGER->ClearByTag('sonet_features');
 				$CACHE_MANAGER->ClearByTag("sonet_features_".$arFields["ENTITY_TYPE"]."_".$arFields["ENTITY_ID"]);
 			}
+
+			FeatureTable::cleanCache();
 		}
 
 		return $ID;

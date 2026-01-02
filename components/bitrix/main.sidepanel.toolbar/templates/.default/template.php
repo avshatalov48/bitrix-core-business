@@ -19,67 +19,6 @@ $frame = $this->createFrame()->begin('');
 		const toolbar = BX.SidePanel.Instance.createToolbar(
 			<?= Json::encode($arResult['options']) ?>
 		);
-		const shouldShowSpotlight = <?= Json::encode($arResult['spotlight']) ?>;
-
-		let spotlight = null;
-		const showSpotlight = () => {
-			const slider = BX.SidePanel.Instance.getTopSlider();
-			if (slider && slider.getMinimizeLabel() !== null)
-			{
-				BX.Runtime.loadExtension(['spotlight', 'ui.tour']).then(() => {
-					let guide = null;
-					spotlight = new BX.SpotLight({
-						id: 'sidepanel_toolbar',
-						autoSave: true,
-						color: '#3bc8f5',
-						targetElement: slider.getMinimizeLabel().getIconContainer(),
-						targetVertex: 'middle-center',
-						events: {
-							onTargetEnter: () => {
-								if (guide)
-								{
-									return;
-								}
-
-								guide = new BX.UI.Tour.Guide({
-									onEvents: true,
-									steps: [{
-											target: slider.getMinimizeLabel().getIconContainer(),
-											text: '<?= CUtil::JSEscape($arResult['spotlightHint']) ?>',
-											title: '<?= CUtil::JSEscape($arResult['spotlightTitle']) ?>',
-									}],
-								});
-
-								guide.getPopup().setAutoHide(true);
-								guide.getPopup().setOverlay(true);
-								guide.getPopup().setWidth(400);
-								guide.getPopup().subscribe('onClose', () => { spotlight.close(); });
-								guide.getPopup().subscribe('onDestroy', () => { spotlight.close(); });
-								guide.showNextStep();
-								guide.getPopup().adjustPosition();
-							}
-						}
-					});
-
-					spotlight.show();
-				});
-			}
-		};
-
-		const hideSpotlight = () => {
-			if (spotlight)
-			{
-				spotlight.close();
-				BX.Event.EventEmitter.unsubscribe('SidePanel.Slider:onOpenComplete', showSpotlight);
-				BX.Event.EventEmitter.unsubscribe('SidePanel.Slider:onClose', hideSpotlight);
-			}
-		};
-
-		if (shouldShowSpotlight)
-		{
-			BX.Event.EventEmitter.subscribe('SidePanel.Slider:onOpenComplete', showSpotlight);
-			BX.Event.EventEmitter.subscribe('SidePanel.Slider:onClose', hideSpotlight);
-		}
 
 		if (toolbar.getItems().length > 0)
 		{

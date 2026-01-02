@@ -36,6 +36,23 @@ class MarketOption
 		return $this->option->get('isMarketDiscountAvailable', 'N') === 'Y';
 	}
 
+	public function getDiscountPercentage(): int
+	{
+		$option = (int)$this->option->get('marketDiscountPercentage', 0);
+
+		if ($option > 0 && $option <= 100)
+		{
+			return $option;
+		}
+
+		return 0;
+	}
+
+	public function getDiscountTermsUrl(): string
+	{
+		return $this->option->get('marketDiscountTermsUrl', '');
+	}
+
 	public function getSavedTransitionPeriodEndDate(): Date
 	{
 		$endDateValue = $this->option->get('marketTransitionPeriodEndDate', self::DEFAULT_TRANSITION_PERIOD_END_DATE);

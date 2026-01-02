@@ -1,3 +1,2 @@
-<?
-$MESS ['SUBSCRIBE_INSTALL_PUBLIC_TITLE'] = "Рассылки";
-?>
+<?php
+$MESS['SUBSCRIBE_INSTALL_PUBLIC_TITLE'] = "Рассылки";

@@ -532,8 +532,10 @@ export class SettingsInterface
 		}
 
 		// Access
-		if (this.showAccessControl
-			&& Type.isElementNode(this.DOM.accessOuterWrap))
+		if (
+			this.showAccessControl
+			&& Type.isElementNode(this.DOM.accessOuterWrap)
+		)
 		{
 			const typeAccess = this.calendarContext.util.config.TYPE_ACCESS;
 			for (const code in typeAccess)

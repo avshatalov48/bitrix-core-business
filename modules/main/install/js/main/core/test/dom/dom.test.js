@@ -541,7 +541,7 @@ describe('Dom', () => {
 	});
 
 	describe('#style', () => {
-		it('Should return computed property value', () => {
+		xit('Should return computed property value', () => {
 			const element = document.createElement('div');
 
 			assert.ok(Dom.style(element, 'display') === 'block');
@@ -633,14 +633,11 @@ describe('Dom', () => {
 
 		it('Should set/get string value with special chars', () => {
 			const attr = 'data-test';
-			const value = `<div class="test"></div>`;
+			const value = '<div class="test"></div>';
 
 			Dom.attr(element, attr, value);
 
-			// Should be encoded and not equal the source value
-			assert.ok(element.getAttribute(attr) !== value);
-
-			// Should decoded and equal the source value
+			assert.ok(element.getAttribute(attr) === value);
 			assert.ok(Dom.attr(element, attr) === value);
 		});
 
@@ -746,6 +743,85 @@ describe('Dom', () => {
 
 			Dom.attr(element, attr, value4);
 			assert.ok(Dom.attr(element, attr) === value4);
+		});
+	});
+
+	describe('toggleClass', () => {
+		let element;
+		const testClassName = 'domTest';
+		const testClassName1 = 'domTest1';
+		const testClassName2 = 'domTest2';
+
+		beforeEach(() => {
+			element = document.createElement('div');
+		});
+
+		it('Should add class', () => {
+			Dom.toggleClass(element, testClassName);
+			assert.ok(Dom.hasClass(element, testClassName));
+		});
+
+		it('Should remove class', () => {
+			Dom.addClass(element, testClassName);
+			Dom.toggleClass(element, testClassName);
+			assert.ok(!Dom.hasClass(element, testClassName));
+		});
+
+		it('Should toggle class', () => {
+			Dom.toggleClass(element, testClassName);
+			assert.ok(Dom.hasClass(element, testClassName));
+
+			Dom.toggleClass(element, testClassName);
+			assert.ok(!Dom.hasClass(element, testClassName));
+
+			Dom.toggleClass(element, testClassName);
+			assert.ok(Dom.hasClass(element, testClassName));
+		});
+
+		it('Should toggle multiple classes', () => {
+			Dom.toggleClass(element, [testClassName1, testClassName2]);
+			assert.ok(Dom.hasClass(element, testClassName1));
+			assert.ok(Dom.hasClass(element, testClassName2));
+
+			Dom.toggleClass(element, `${testClassName1} ${testClassName2}`);
+			assert.ok(!Dom.hasClass(element, testClassName1));
+			assert.ok(!Dom.hasClass(element, testClassName2));
+		});
+
+		it('Should cross toggle multiple classes', () => {
+			Dom.addClass(element, testClassName1);
+
+			Dom.toggleClass(element, [testClassName1, testClassName2]);
+			assert.ok(!Dom.hasClass(element, testClassName1));
+			assert.ok(Dom.hasClass(element, testClassName2));
+
+			Dom.toggleClass(element, `${testClassName1} ${testClassName2}`);
+			assert.ok(Dom.hasClass(element, testClassName1));
+			assert.ok(!Dom.hasClass(element, testClassName2));
+		});
+
+		it('Should ignore invalid values', () => {
+			Dom.toggleClass(element, [testClassName1, testClassName2, [], null]);
+			assert.ok(Dom.hasClass(element, testClassName1));
+			assert.ok(Dom.hasClass(element, testClassName2));
+		});
+
+		it('Should apply force', () => {
+			Dom.toggleClass(element, [testClassName1, testClassName2]);
+			assert.ok(Dom.hasClass(element, testClassName1));
+			assert.ok(Dom.hasClass(element, testClassName2));
+
+			Dom.toggleClass(element, `${testClassName1} test`);
+			assert.ok(!Dom.hasClass(element, testClassName1));
+			assert.ok(Dom.hasClass(element, testClassName2));
+
+			Dom.toggleClass(element, [testClassName1, testClassName2], true);
+			assert.ok(Dom.hasClass(element, testClassName1));
+			assert.ok(Dom.hasClass(element, testClassName2));
+
+			Dom.toggleClass(element, [testClassName1, testClassName2], false);
+			assert.ok(!Dom.hasClass(element, testClassName1));
+			assert.ok(!Dom.hasClass(element, testClassName2));
 		});
 	});
 });

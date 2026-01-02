@@ -1,8 +1,8 @@
 <?php
-$MESS["BIZPROC_RENDERED_RESULT_NO_RIGHTS_TOOLTIP"] = "Bitte wenden Sie sich an Ihren Vorgesetzten oder Bitrix24 Administrator, um Workflow-Ergebnisse anzeigen zu können.";
-$MESS["BIZPROC_RENDERED_RESULT_NO_RIGHTS_VIEW"] = "Sie haben nicht genügend Rechte, um Workflow-Ergebnis anzuzeigen.";
-$MESS["BIZPROC_RENDERED_RESULT_POSITIVE_RESULT_FOR"] = "Workflow abgeschlossen für #USER#.";
-$MESS["BIZPROC_RENDERED_RESULT_VALUE"] = "Workflow-Ergebnis:";
+$MESS["BIZPROC_USER_PROCESSES_POPUP_PUSH_CONTROL"] = "Verwalten Sie die Workflows von überall aus";
+$MESS["BIZPROC_USER_PROCESSES_POPUP_PUSH_DO_PROCESS"] = "Arbeiten Sie von Ihrem Mobilgerät aus";
+$MESS["BIZPROC_USER_PROCESSES_POPUP_PUSH_REACT"] = "Reagieren Sie auf Kommentare";
+$MESS["BIZPROC_USER_PROCESSES_POPUP_PUSH_TITLE"] = "Verwalten Sie die Workflows in der mobilen App";
 $MESS["BIZPROC_USER_PROCESSES_TEMPLATE_COUNTERS_COMMENT"] = "Kommentare";
 $MESS["BIZPROC_USER_PROCESSES_TEMPLATE_COUNTERS_LABEL"] = "Aufgaben:";
 $MESS["BIZPROC_USER_PROCESSES_TEMPLATE_COUNTERS_TASK"] = "Anstehend";

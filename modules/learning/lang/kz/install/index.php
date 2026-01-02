@@ -1,0 +1,23 @@
+<?php
+$MESS["COPY_PUBLIC_FILES"] = "Сайтқа арналған жария файлдар мен қалыпты көшіру";
+$MESS["LEARNING_ADMIN_NOTIFY_CONVERT_DB"] = "Сіз \"Оқыту\" модулін жаңарттыңыз, оның дұрыс жұмыс істеуі үшін <a href=\"/bitrix/admin/learning_convert.php?lang=#LANG#\">деректерді түрлендіру</a> қажет.";
+$MESS["LEARNING_INSTALL_BACK"] = "Модульдерді басқаруға оралу";
+$MESS["LEARNING_INSTALL_COMPLETE_ERROR"] = "Орнату қателермен аяқталды";
+$MESS["LEARNING_INSTALL_COMPLETE_OK"] = "Орнату аяқталды.";
+$MESS["LEARNING_INSTALL_COPY_PUBLIC"] = "Жария бөлімінің скрипттерін көшіру";
+$MESS["LEARNING_INSTALL_PUBLIC_SETUP"] = "Орнату";
+$MESS["LEARNING_INSTALL_TEMPLATE_NAME"] = "Қалып ID-і";
+$MESS["LEARNING_INSTALL_TITLE"] = "Қашықтықтан оқыту модулін орнату";
+$MESS["LEARNING_MODULE_DESC"] = "Қашықтықтан оқыту модулі";
+$MESS["LEARNING_MODULE_NAME"] = "Оқыту";
+$MESS["LEARNING_PERM_ADMIN_D"] = "Баптауларға қолжетімділік жоқ";
+$MESS["LEARNING_PERM_ADMIN_W"] = "Баптауларға толық қолжетімділік";
+$MESS["LEARNING_PERM_D"] = "курстарды оқу";
+$MESS["LEARNING_PERM_W"] = "толық қолжетімділік";
+$MESS["LEARNING_UNINSTALL_COMPLETE"] = "Жою аяқталды.";
+$MESS["LEARNING_UNINSTALL_DEL"] = "Жою";
+$MESS["LEARNING_UNINSTALL_ERROR"] = "Жою кезіндегі қате:";
+$MESS["LEARNING_UNINSTALL_SAVEDATA"] = "Егер сіз &quot;Кестелерді сақтау&quot; құсбелгісін орнатсаңыз, деректерді дерекқор кестелерінде сақтай аласыз";
+$MESS["LEARNING_UNINSTALL_SAVETABLE"] = "Кестелерді сақтау";
+$MESS["LEARNING_UNINSTALL_TITLE"] = "Қашықтықтан оқыту модулін жою";
+$MESS["LEARNING_UNINSTALL_WARNING"] = "Назар аударыңыз! Модуль жүйеден жойылатын болады.";

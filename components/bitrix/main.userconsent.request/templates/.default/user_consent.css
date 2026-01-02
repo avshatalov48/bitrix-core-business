@@ -178,6 +178,9 @@
 .main-user-consent-request-announce-link{
 	cursor: pointer;
 }
+.main-user-consent-request-announce-required {
+	color: red;
+}
 
 @keyframes rotate {
 	100% {

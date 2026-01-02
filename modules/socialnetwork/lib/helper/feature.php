@@ -69,7 +69,10 @@ class Feature
 
 	public static function canTurnOnTrial(string $featureName): bool
 	{
-		if (self::isFeatureEnabled(self::FIRST_ERA))
+		if (
+			self::isFeatureEnabled(self::FIRST_ERA)
+			|| self::isFeatureEnabled($featureName)
+		)
 		{
 			return false;
 		}

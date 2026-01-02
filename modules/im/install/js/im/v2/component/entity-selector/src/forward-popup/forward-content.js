@@ -1,27 +1,29 @@
 import { EventEmitter } from 'main.core.events';
 
+import { SoundNotificationManager } from 'im.v2.lib.sound-notification';
+import { SendingService } from 'im.v2.provider.service.sending';
 import { Messenger } from 'im.public';
-import { EventType } from 'im.v2.const';
-import { ChatSearchInput } from 'im.v2.component.search.chat-search-input';
-import { ChatSearch } from 'im.v2.component.search.chat-search';
+import { EventType, SoundType } from 'im.v2.const';
+import { Analytics } from 'im.v2.lib.analytics';
+import { ForwardSearch, ChatSearchInput } from 'im.v2.component.search';
+import { Notifier } from 'im.v2.lib.notifier';
 
 import type { JsonObject } from 'main.core';
 
 import './forward-content.css';
 
-const searchConfig = Object.freeze({
-	chats: true,
-	users: true,
-});
-
 // @vue/component
 export const ForwardContent = {
 	name: 'ForwardContent',
-	components: { ChatSearch, ChatSearchInput },
+	components: { ForwardSearch, ChatSearchInput },
 	props:
 	{
 		messagesIds: {
 			type: Array,
+			required: true,
+		},
+		dialogId: {
+			type: String,
 			required: true,
 		},
 	},
@@ -33,9 +35,9 @@ export const ForwardContent = {
 			isLoading: false,
 		};
 	},
-	computed:
+	beforeUnmount()
 	{
-		searchConfig: () => searchConfig,
+		Analytics.getInstance().messageForward.onClosePopup();
 	},
 	methods:
 	{
@@ -45,20 +47,46 @@ export const ForwardContent = {
 		},
 		onUpdateSearch(query: string)
 		{
-			this.searchQuery = query;
+			Analytics.getInstance().messageForward.onStartSearch({ dialogId: this.dialogId });
+			this.searchQuery = query.trim().toLowerCase();
 		},
-		async onSelectItem(event)
+		isNotes(dialogId: string): boolean
 		{
-			const { dialogId } = event;
-
-			EventEmitter.emit(EventType.dialog.closeBulkActionsMode);
-
-			await Messenger.openChat(dialogId);
-
-			EventEmitter.emit(EventType.textarea.insertForward, {
-				messagesIds: this.messagesIds,
-				dialogId,
+			return this.$store.getters['chats/isNotes'](dialogId);
+		},
+		async forwardToNotes(forwardDialogId: string)
+		{
+			await SendingService.getInstance().forwardMessages({
+				forwardIds: this.messagesIds,
+				dialogId: forwardDialogId,
 			});
+
+			Notifier.message.onForwardNotesComplete(this.messagesIds);
+
+			SoundNotificationManager.getInstance().playOnce(SoundType.send);
+		},
+		async onSelectItem(event: {dialogId: string, nativeEvent: KeyboardEvent})
+		{
+			const { dialogId: forwardDialogId } = event;
+
+			EventEmitter.emit(EventType.dialog.closeBulkActionsMode, {
+				dialogId: this.dialogId,
+			});
+
+			const isNotesForward = this.isNotes(forwardDialogId);
+			const isNotesOpen = this.isNotes(this.dialogId);
+			if (isNotesForward && !isNotesOpen)
+			{
+				void this.forwardToNotes(forwardDialogId);
+			}
+			else
+			{
+				await Messenger.openChat(forwardDialogId);
+				EventEmitter.emit(EventType.textarea.insertForward, {
+					messagesIds: this.messagesIds,
+					dialogId: forwardDialogId,
+				});
+			}
 
 			this.$emit('close');
 		},
@@ -75,10 +103,9 @@ export const ForwardContent = {
 				/>
 			</div>
 			<div class="bx-im-entity-selector-forward__search-result-container">
-				<ChatSearch
-					:searchMode="true"
-					:searchQuery="searchQuery"
-					:searchConfig="searchConfig"
+				<ForwardSearch
+					:query="searchQuery"
+					:dialogId="dialogId"
 					@clickItem="onSelectItem"
 					@loading="onLoading"
 				/>

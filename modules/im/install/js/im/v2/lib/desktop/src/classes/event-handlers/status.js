@@ -1,19 +1,13 @@
+import { Browser, Event } from 'main.core';
+
 import { Core } from 'im.v2.application.core';
-import { CallManager } from 'im.v2.lib.call';
-import { Logger } from 'im.v2.lib.logger';
-import { DesktopManager } from '../../desktop-manager';
-import { Utils } from 'im.v2.lib.utils';
 import { EventType, RestMethod, Settings } from 'im.v2.const';
 import { DesktopApi } from 'im.v2.lib.desktop-api';
-import { Browser, Event } from 'main.core';
-import { CheckUtils } from '../check-utils';
+
+import { DesktopManager } from '../../desktop-manager';
 
 export class StatusHandler
 {
-	#initDate: Date;
-	#wakeUpTimer = null;
-	sidePanelManager: Object = BX.SidePanel.Instance;
-
 	static init(): StatusHandler
 	{
 		return new StatusHandler();
@@ -21,9 +15,6 @@ export class StatusHandler
 
 	constructor()
 	{
-		this.#initDate = new Date();
-
-		this.#subscribeToWakeUpEvent();
 		this.#subscribeToAwayEvent();
 		this.#subscribeToFocusEvent();
 		this.#subscribeToBlurEvent();
@@ -32,58 +23,6 @@ export class StatusHandler
 		this.#setInitialStatus();
 		this.#subscribeToStatusChange();
 	}
-
-	// region wake up
-	#subscribeToWakeUpEvent()
-	{
-		DesktopApi.subscribe(EventType.desktop.onWakeUp, this.#onWakeUp.bind(this));
-	}
-
-	async #onWakeUp()
-	{
-		const hasConnection = await CheckUtils.testInternetConnection();
-		if (!hasConnection)
-		{
-			Logger.desktop('StatusHandler: onWakeUp event, no internet connection, delay 60 sec');
-
-			clearTimeout(this.#wakeUpTimer);
-			this.#wakeUpTimer = setTimeout(this.#onWakeUp.bind(this), 60 * 1000);
-
-			return;
-		}
-
-		if (Utils.date.isSameHour(new Date(), this.#initDate))
-		{
-			Logger.desktop('StatusHandler: onWakeUp event, same hour - restart pull client');
-			Core.getPullClient().restart();
-		}
-		else
-		{
-			if (this.sidePanelManager.opened)
-			{
-				clearTimeout(this.#wakeUpTimer);
-				this.#wakeUpTimer = setTimeout(this.#onWakeUp.bind(this), 60 * 1000);
-
-				Logger.desktop('StatusHandler: onWakeUp event, slider is open, delay 60 sec');
-
-				return;
-			}
-
-			if (CallManager.getInstance().hasCurrentCall())
-			{
-				clearTimeout(this.#wakeUpTimer);
-				this.#wakeUpTimer = setTimeout(this.#onWakeUp.bind(this), 60 * 1000);
-
-				Logger.desktop('StatusHandler: onWakeUp event, call is active, delay 60 sec');
-
-				return;
-			}
-
-			Logger.desktop('StatusHandler: onWakeUp event, reload window');
-			DesktopApi.reloadWindow();
-		}
-	}
-	// endregion wake up
 
 	// region icon click
 	#subscribeToIconClickEvent()

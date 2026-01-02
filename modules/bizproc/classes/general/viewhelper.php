@@ -158,6 +158,20 @@ class CBPViewHelper
 		return $arFileTmp['src'];
 	}
 
+	public static function getUserFullNameById(int $userId): ?string
+	{
+		$user = \Bitrix\Main\UserTable::getRow([
+			'filter' => ['ID' => $userId],
+			'select' => ['ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN'],
+		]);
+		if ($user)
+		{
+			return self::getUserFullName($user);
+		}
+
+		return null;
+	}
+
 	public static function getUserFullName(array $user)
 	{
 		return \CUser::FormatName(\CSite::GetNameFormat(false), $user, true, false);
@@ -388,24 +402,22 @@ class CBPViewHelper
 		string $workflowId,
 		int $userId,
 		string $context = self::DESKTOP_CONTEXT
-	): ?array
+	): array
 	{
 		static $cache = [];
 
-		$cacheKey = $workflowId . '|' . $userId . '|' . $context;
-
-		if (array_key_exists($cacheKey, $cache))
+		if (!isset($cache[$workflowId]))
 		{
-			return $cache[$cacheKey];
+			$cache[$workflowId] = ResultTable::getList([
+				'filter' => [
+					'=WORKFLOW_ID' => $workflowId,
+				],
+				'select' => ['ACTIVITY', 'RESULT'],
+			])->fetch();
 		}
 
-		$result = ResultTable::getList([
-			'filter' => [
-				'=WORKFLOW_ID' => $workflowId,
-			],
-			'select' => ['ACTIVITY', 'RESULT'],
-		])->fetch();
-
+		$result = $cache[$workflowId];
+		$renderedResult = null;
 		if ($result)
 		{
 			$renderedResult = \CBPActivity::callStaticMethod(
@@ -417,16 +429,15 @@ class CBPViewHelper
 					$userId,
 				],
 			);
-
-			if ($context === self::MOBILE_CONTEXT)
-			{
-				return $cache[$cacheKey] = (new \Bitrix\Bizproc\Result\MobileResultHandler())->handle($renderedResult);
-			}
-
-			return $cache[$cacheKey] = (new \Bitrix\Bizproc\Result\WebResultHandler())->handle($renderedResult);
 		}
 
-		return $cache[$cacheKey] = null;
+		$processedResult =
+			($context === self::MOBILE_CONTEXT)
+				? (new \Bitrix\Bizproc\Result\MobileResultHandler($workflowId))->handle($renderedResult)
+				: (new \Bitrix\Bizproc\Result\WebResultHandler($workflowId))->handle($renderedResult)
+		;
+
+		return $processedResult;
 	}
 
 	public static function formatDateTime(?DateTime $date): string

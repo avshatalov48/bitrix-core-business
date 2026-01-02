@@ -1,0 +1,24 @@
+<?php
+$MESS["IM_CHANNEL_AVATAR_CHANGE_F"] = "#USER_NAME# арна белгішесін өзгертті";
+$MESS["IM_CHANNEL_AVATAR_CHANGE_M"] = "#USER_NAME# арна белгішесін өзгертті";
+$MESS["IM_CHANNEL_JOIN_F"] = "#USER_1_NAME# арнаға #USER_2_NAME# шақырды";
+$MESS["IM_CHANNEL_JOIN_M"] = "#USER_1_NAME# арнаға #USER_2_NAME# шақырды";
+$MESS["IM_CHAT_AVATAR_CHANGE_F"] = "#USER_NAME# чат белгішесін өзгертті";
+$MESS["IM_CHAT_AVATAR_CHANGE_M"] = "#USER_NAME# чат белгішесін өзгертті";
+$MESS["IM_CHAT_CAN_POST_ALL_MSGVER_1"] = "Барлық қатысушы";
+$MESS["IM_CHAT_CAN_POST_MANAGERS_MSGVER_1"] = "Иесі және әкімшілер";
+$MESS["IM_CHAT_CAN_POST_NONE"] = "Ешкім";
+$MESS["IM_CHAT_CAN_POST_OWNER_MSGVER_1"] = "Иесі";
+$MESS["IM_CHAT_JOIN_F"] = "#USER_1_NAME# #USER_2_NAME# чатқа шақырды ";
+$MESS["IM_CHAT_JOIN_M"] = "#USER_1_NAME# #USER_2_NAME# чатқа шақырды ";
+$MESS["IM_CHAT_KICK_F_MSGVER_1"] = "[USER=#CURRENT_USER_ID#][/USER] [USER=#DELETED_USER_ID#][/USER] чаттан шығарды";
+$MESS["IM_CHAT_KICK_M_MSGVER_1"] = "[USER=#CURRENT_USER_ID#][/USER] [USER=#DELETED_USER_ID#][/USER] чаттан шығарды";
+$MESS["IM_CHAT_KICK_NOTIFICATION_F"] = "#USER_NAME# сізді чаттан шығарды";
+$MESS["IM_CHAT_KICK_NOTIFICATION_M"] = "#USER_NAME# сізді чаттан шығарды";
+$MESS["IM_CHAT_LEAVE_F_MSGVER_1"] = "[USER=#USER_ID#][/USER] чаттан шықты";
+$MESS["IM_CHAT_LEAVE_M_MSGVER_1"] = "[USER=#USER_ID#][/USER] чаттан шықты";
+$MESS["IM_CHAT_NAME_FORMAT"] = "№#NUMBER# #COLOR# чат";
+$MESS["IM_CHAT_OVERFLOW_DELETE_MESSAGE"] = "Чаттан алып тастау және шығарып жіберу туралы хабарламалар өшірілген, себебі чатта #USER_COUNT# қатысушадан көп адам бар. Бұл мәлімдемелердің  санын азайтуға көмектеседі";
+$MESS["IM_CHAT_SELF_JOIN"] = "Чатқа #USERS_NAME# қосылды (бірнеше адам)";
+$MESS["IM_CHAT_SELF_JOIN_F"] = "Чатқа #USERS_NAME# қосылды";
+$MESS["IM_CHAT_SELF_JOIN_M"] = "Чатқа #USERS_NAME# қосылды";

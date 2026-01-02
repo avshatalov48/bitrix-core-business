@@ -1,0 +1,21 @@
+<?php
+$MESS["IM_RECENT_CREATE_CHANNEL_SUBTITLE_MSGVER_1"] = "Жаңалықтарды жариялау үшін";
+$MESS["IM_RECENT_CREATE_CHANNEL_TITLE_V2"] = "Арна";
+$MESS["IM_RECENT_CREATE_CHAT_WHAT_TO_CHOOSE"] = "Нені таңдау керек?";
+$MESS["IM_RECENT_CREATE_COLLAB_DESCRIPTION_BANNER"] = "Ішінде [color_highlight]міндеттер, файлдар, күнтізбелер[/color_highlight] және басқа құралдар бар";
+$MESS["IM_RECENT_CREATE_COLLAB_NEW_BADGE"] = "Жаңа";
+$MESS["IM_RECENT_CREATE_COLLAB_SUBTITLE_MSGVER_1"] = "Сыртқы командалармен және клиенттермен бірлесіп жұмыс істеу үшін";
+$MESS["IM_RECENT_CREATE_COLLAB_TITLE"] = "Коллаб";
+$MESS["IM_RECENT_CREATE_CONFERENCE_SUBTITLE_MSGVER_1"] = "Сыртқы қатысушылармен кездесу үшін";
+$MESS["IM_RECENT_CREATE_CONFERENCE_TITLE"] = "Бейнеконференция";
+$MESS["IM_RECENT_CREATE_COPILOT_ROLE_SELECTION_TITLE"] = "CoPilot үшін рөлді таңдаңыз";
+$MESS["IM_RECENT_CREATE_COPILOT_SUBTITLE_MSGVER_1"] = "AI көмегімен міндеттерді шешу және идеяларды жасау";
+$MESS["IM_RECENT_CREATE_COPILOT_TITLE"] = "CoPilot-пен чат";
+$MESS["IM_RECENT_CREATE_GROUP_CHAT_SUBTITLE_MSGVER_1"] = "Сұрақтарды талқылау үшін";
+$MESS["IM_RECENT_CREATE_GROUP_CHAT_TITLE_V2"] = "Топтық чат";
+$MESS["IM_RECENT_CREATE_INVITE_SUBTITLE"] = "Жұмысты тезірек бастау үшін";
+$MESS["IM_RECENT_CREATE_INVITE_TITLE"] = "Команданы шақырыңыз";
+$MESS["IM_RECENT_HEADER_MENU_CHAT_GROUPS_SUBTITLE"] = "Қажетті диалогқа жылдам қол жеткізу үшін чаттарды бумалар бойынша топтаңыз";
+$MESS["IM_RECENT_HEADER_MENU_CHAT_GROUPS_TITLE"] = "Бумаларды жасау";
+$MESS["IM_RECENT_HEADER_MENU_READ_ALL_MSGVER_1"] = "Барлығын оқыңыз";
+$MESS["IM_RECENT_HEADER_MENU_SHOW_UNREAD_ONLY"] = "Оқылмаған чаттарды көрсету";

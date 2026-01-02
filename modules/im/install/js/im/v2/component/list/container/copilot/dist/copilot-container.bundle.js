@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_public,im_v2_component_list_items_copilot,im_v2_const,im_v2_lib_analytics,im_v2_lib_logger,im_v2_provider_service,im_v2_lib_permission,im_v2_component_elements) {
+(function (exports,im_public,im_v2_component_elements_copilotRolesDialog,im_v2_component_list_items_copilot,im_v2_const,im_v2_lib_analytics,im_v2_lib_logger,im_v2_provider_service_copilot,im_v2_lib_permission,im_v2_component_elements_popup) {
 	'use strict';
 
 	// @vue/component
@@ -113,7 +113,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const RoleSelectorMini = {
 	  name: 'RoleSelectorMini',
 	  components: {
-	    MessengerPopup: im_v2_component_elements.MessengerPopup,
+	    MessengerPopup: im_v2_component_elements_popup.MessengerPopup,
 	    RoleSelectorMiniContent
 	  },
 	  props: {
@@ -140,10 +140,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<MessengerPopup
-			v-slot="{enableAutoHide, disableAutoHide}"
 			:config="config"
-			@close="$emit('close')"
 			:id="POPUP_ID"
+			@close="$emit('close')"
 		>
 			<RoleSelectorMiniContent
 				@selectedRole="$emit('selectedRole', $event)"
@@ -160,7 +159,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  components: {
 	    CopilotList: im_v2_component_list_items_copilot.CopilotList,
 	    RoleSelectorMini,
-	    CopilotRolesDialog: im_v2_component_elements.CopilotRolesDialog
+	    CopilotRolesDialog: im_v2_component_elements_copilotRolesDialog.CopilotRolesDialog
 	  },
 	  emits: ['selectEntity'],
 	  data() {
@@ -189,18 +188,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    onChatClick(dialogId) {
 	      this.$emit('selectEntity', {
-	        layoutName: im_v2_const.Layout.copilot.name,
+	        layoutName: im_v2_const.Layout.copilot,
 	        entityId: dialogId
-	      });
-	    },
-	    showCreateChatError() {
-	      BX.UI.Notification.Center.notify({
-	        content: this.loc('IM_LIST_CONTAINER_COPILOT_CREATE_CHAT_ERROR')
 	      });
 	    },
 	    getCopilotService() {
 	      if (!this.copilotService) {
-	        this.copilotService = new im_v2_provider_service.CopilotService();
+	        this.copilotService = new im_v2_provider_service_copilot.CopilotService();
 	      }
 	      return this.copilotService;
 	    },
@@ -212,7 +206,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        roleCode
 	      }).catch(() => {
 	        this.isCreatingChat = false;
-	        this.showCreateChatError();
 	      });
 	      this.isCreatingChat = false;
 	      void im_public.Messenger.openCopilot(newDialogId);
@@ -265,5 +258,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.CopilotListContainer = CopilotListContainer;
 
-}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Component.List,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements));
+}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.List,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements));
 //# sourceMappingURL=copilot-container.bundle.js.map

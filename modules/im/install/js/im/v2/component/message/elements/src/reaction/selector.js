@@ -1,4 +1,3 @@
-import { Type } from 'main.core';
 import { ReactionsSelect, reactionType as ReactionType } from 'ui.reactions-select';
 
 import { ActionByRole, UserType } from 'im.v2.const';
@@ -8,7 +7,7 @@ import { ReactionService } from './classes/reaction-service';
 
 import './selector.css';
 
-import type { ImModelChat, ImModelMessage, ImModelReactions, ImModelUser } from 'im.v2.model';
+import type { ImModelChat, ImModelMessage, ImModelReactions, ImModelUser, ImModelBot } from 'im.v2.model';
 
 const SHOW_DELAY = 500;
 const HIDE_DELAY = 800;
@@ -41,22 +40,43 @@ export const ReactionSelector = {
 		{
 			return this.reactionsData?.ownReactions?.size > 0;
 		},
-		isBot(): boolean
+		isChatWithBot(): boolean
 		{
 			const user: ImModelUser = this.$store.getters['users/get'](this.dialog.dialogId);
 
 			return user?.type === UserType.bot;
 		},
+		areBotReactionsEnabled(): boolean
+		{
+			const bot: ImModelBot = this.$store.getters['users/bots/getByUserId'](this.message.authorId);
+			if (!bot)
+			{
+				return false;
+			}
+
+			return bot.reactionsEnabled;
+		},
 		hasError(): boolean
 		{
 			return this.message.error;
 		},
+		isRealMessage(): boolean
+		{
+			return this.$store.getters['messages/isRealMessage'](this.messageId);
+		},
 		canSetReactions(): boolean
 		{
-			return Type.isNumber(this.messageId)
-				&& this.canSetReactionsByRole
-				&& !this.isBot
-				&& !this.hasError;
+			if (!this.isRealMessage || !this.canSetReactionsByRole || this.hasError)
+			{
+				return false;
+			}
+
+			if (this.isChatWithBot)
+			{
+				return this.areBotReactionsEnabled;
+			}
+
+			return true;
 		},
 		canSetReactionsByRole(): boolean
 		{

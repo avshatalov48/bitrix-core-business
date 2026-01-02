@@ -525,7 +525,7 @@ class Logger
 			),
 			"VK_NOT_AVAILABLE" => array(
 				"MESSAGE" => Loc::getMessage("SALE_VK_ERROR__VK_NOT_AVAILABLE", array(
-					'#A1' => '<a href="http://vk.com">http://vk.com</a>',
+					'#A1' => '<a href="https://vk.ru">https://vk.ru</a>',
 				)),
 				"CRITICAL" => true,
 				"CODE" => "VK_NOT_AVAILABLE",

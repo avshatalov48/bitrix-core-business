@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/textarea.bundle.css',
 	'js' => 'dist/textarea.bundle.js',
 	'rel' => [
+		'im.v2.lib.utils',
 		'main.core',
 		'main.core.events',
 	],

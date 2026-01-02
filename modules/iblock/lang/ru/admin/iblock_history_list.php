@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_ADM_HISTORY_TITLE"] = "История изменений записи # #ID#";
 $MESS["IBLOCK_ADM_HISTORY_BAD_IBLOCK"] = "Информационный блок не найден или доступ к нему запрещен.";
 $MESS["IBLOCK_ADM_HISTORY_BAD_ELEMENT"] = "Элемент не найден или доступ к нему запрещен.";
@@ -18,4 +18,3 @@ $MESS["IBLOCK_ADM_HISTORY_COMPARE"] = "Сравнить";
 $MESS["IBLOCK_ADM_HISTORY_COMPARE_ALERT"] = "Для сравнения необходимо выбрать два документа.";
 $MESS["IBLOCK_ADM_HISTORY_ORIGINAL"] = "Текущая версия";
 $MESS["IBLOCK_ADM_HISTORY_ORIGINAL_TITLE"] = "Нажмите для просмотра текущей версии элемента";
-?>

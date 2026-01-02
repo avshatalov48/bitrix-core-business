@@ -9,12 +9,12 @@ export const CopilotInfoPreview = {
 	name: 'CopilotInfoPreview',
 	components: { ChatDescription, ChatLinks, ChatFavourites },
 	props:
-		{
-			dialogId: {
-				type: String,
-				required: true,
-			},
+	{
+		dialogId: {
+			type: String,
+			required: true,
 		},
+	},
 	template: `
 		<div class="bx-im-sidebar-info-preview__container">
 			<ChatDescription :dialogId="dialogId" />

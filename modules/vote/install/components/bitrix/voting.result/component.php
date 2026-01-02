@@ -200,10 +200,12 @@ elseif (CModule::IncludeModule("vote"))
 		"Q" => array_keys($arResult["QUESTIONS"])));
 	$obCache->EndDataCache(array("arResult" => $arResult));
 }
+$voteIsHidden = ($arResult['VOTE']['CHANNEL_HIDDEN'] ?? 'N') === 'Y';
+$hiddenNotAllowed = ($arParams['WITH_HIDDEN'] ?? 'N') !== 'Y';
 
 $arParams["PERMISSION"] = (($arParams["PERMISSION"] === false && CModule::IncludeModule("vote")) ?
 	CVoteChannel::GetGroupPermission($arResult["CHANNEL"]["ID"]) : $arParams["PERMISSION"]);
-if ($arParams["PERMISSION"] < 1):
+if ($arParams["PERMISSION"] < 1 || ($voteIsHidden && $hiddenNotAllowed)):
 	ShowError(GetMessage("VOTE_ACCESS_DENIED"));
 	return false;
 endif;

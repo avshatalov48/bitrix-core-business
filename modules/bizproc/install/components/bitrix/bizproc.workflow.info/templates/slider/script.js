@@ -1,20 +1,153 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Bizproc = this.BX.Bizproc || {};
-(function (exports,main_core,main_core_events,ui_buttons,bizproc_task,ui_dialogs_messagebox) {
+(function (exports,main_core_events,ui_buttons,bizproc_task,ui_dialogs_messagebox,main_core) {
 	'use strict';
+
+	var _NEED_PATTERN = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("NEED_PATTERN");
+	var _MULTIPLE_WITH_NO_BRACKETS = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("MULTIPLE_WITH_NO_BRACKETS");
+	var _getFieldId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFieldId");
+	var _getFieldValues = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFieldValues");
+	var _isFieldEmpty = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isFieldEmpty");
+	var _isValueEmpty = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isValueEmpty");
+	var _getPattern = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPattern");
+	var _getPatternValues = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPatternValues");
+	class ValidateHelper {
+	  static checkRequiredFieldsFilled(formData, requiredFields) {
+	    const errors = [];
+	    for (const requiredField of requiredFields) {
+	      const fieldId = babelHelpers.classPrivateFieldLooseBase(this, _getFieldId)[_getFieldId](requiredField);
+	      const values = babelHelpers.classPrivateFieldLooseBase(this, _getFieldValues)[_getFieldValues](formData, requiredField, fieldId);
+	      if (!main_core.Type.isArrayFilled(values)) {
+	        var _requiredField$FieldI;
+	        const originalFieldId = (_requiredField$FieldI = requiredField.FieldId) != null ? _requiredField$FieldI : requiredField.Id;
+	        if (!formData.keys().every(key => !key.includes(originalFieldId))) {
+	          continue;
+	        }
+	      }
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _isFieldEmpty)[_isFieldEmpty](requiredField, values)) {
+	        errors.push({
+	          message: main_core.Loc.getMessage('BPWFI_SLIDER_ARGUMENT_NULL', {
+	            '#PARAM#': requiredField.Name
+	          }),
+	          fieldId: requiredField.Id
+	        });
+	      }
+	    }
+	    return errors;
+	  }
+	}
+	function _getFieldId2(field) {
+	  let fieldId = main_core.Type.isNil(field.FieldId) ? field.Id : field.FieldId;
+	  if (field.Multiple || field.Type === 'S:DiskFile') {
+	    fieldId = babelHelpers.classPrivateFieldLooseBase(ValidateHelper, _MULTIPLE_WITH_NO_BRACKETS)[_MULTIPLE_WITH_NO_BRACKETS].has(field.Type) ? fieldId : `${fieldId}[]`;
+	  }
+	  return fieldId;
+	}
+	function _getFieldValues2(formData, field, fieldId) {
+	  return babelHelpers.classPrivateFieldLooseBase(ValidateHelper, _NEED_PATTERN)[_NEED_PATTERN].has(field.Type) ? babelHelpers.classPrivateFieldLooseBase(this, _getPatternValues)[_getPatternValues](formData, babelHelpers.classPrivateFieldLooseBase(this, _getPattern)[_getPattern](field, fieldId)) : formData.getAll(fieldId);
+	}
+	function _isFieldEmpty2(field, values) {
+	  if (field.Multiple || field.Type === 'S:DiskFile' || babelHelpers.classPrivateFieldLooseBase(ValidateHelper, _NEED_PATTERN)[_NEED_PATTERN].has(field.Type)) {
+	    return !main_core.Type.isArrayFilled(values) || values.every(value => babelHelpers.classPrivateFieldLooseBase(this, _isValueEmpty)[_isValueEmpty](field, value));
+	  }
+	  return babelHelpers.classPrivateFieldLooseBase(this, _isValueEmpty)[_isValueEmpty](field, values[0]);
+	}
+	function _isValueEmpty2(field, value) {
+	  if (field.Type === 'file') {
+	    return main_core.Type.isFile(value) && value.name === '';
+	  }
+	  return !main_core.Type.isStringFilled(value);
+	}
+	function _getPattern2(field, fieldId) {
+	  if (field.Type === 'S:HTML') {
+	    return field.Multiple ? `${fieldId}\\[n\\d+\\]\\[TEXT\\]` : `${fieldId}\\[TEXT\\]`;
+	  }
+	  if (field.Type === 'E:EList') {
+	    return field.Multiple ? `${fieldId}\\[[n]?\\d+\\]\\[VALUE\\]` : `^${fieldId}$`;
+	  }
+	  if (field.Type === 'email' || field.Type === 'phone' || field.Type === 'web' || field.Type === 'im') {
+	    return `${fieldId}\\[${field.Type.toUpperCase()}\\]\\[n\\d+\\]\\[VALUE\\]`;
+	  }
+	  return '';
+	}
+	function _getPatternValues2(formData, pattern) {
+	  const values = [];
+	  for (const [key, value] of formData.entries()) {
+	    if (new RegExp(pattern).test(key)) {
+	      values.push(value);
+	    }
+	  }
+	  return values;
+	}
+	Object.defineProperty(ValidateHelper, _getPatternValues, {
+	  value: _getPatternValues2
+	});
+	Object.defineProperty(ValidateHelper, _getPattern, {
+	  value: _getPattern2
+	});
+	Object.defineProperty(ValidateHelper, _isValueEmpty, {
+	  value: _isValueEmpty2
+	});
+	Object.defineProperty(ValidateHelper, _isFieldEmpty, {
+	  value: _isFieldEmpty2
+	});
+	Object.defineProperty(ValidateHelper, _getFieldValues, {
+	  value: _getFieldValues2
+	});
+	Object.defineProperty(ValidateHelper, _getFieldId, {
+	  value: _getFieldId2
+	});
+	Object.defineProperty(ValidateHelper, _NEED_PATTERN, {
+	  writable: true,
+	  value: new Set(['S:HTML', 'email', 'phone', 'web', 'im', 'E:EList'])
+	});
+	Object.defineProperty(ValidateHelper, _MULTIPLE_WITH_NO_BRACKETS, {
+	  writable: true,
+	  value: new Set([...babelHelpers.classPrivateFieldLooseBase(ValidateHelper, _NEED_PATTERN)[_NEED_PATTERN], 'user', 'S:employee', 'sms_sender', 'mail_sender'])
+	});
+
+	function doTaskAction(data, slider, isLast) {
+	  BX.SidePanel.Instance.postMessage(window, 'try-do-bp-task-event', {
+	    workflowId: data.get('workflowId')
+	  });
+	  return new Promise((resolve, reject) => {
+	    main_core.ajax.runAction('bizproc.task.do', {
+	      data
+	    }).then(response => {
+	      if (isLast) {
+	        BX.SidePanel.Instance.postMessage(slider, 'success-do-bp-task-event', {
+	          taskName: data.get('taskName')
+	        });
+	      }
+	      resolve(response);
+	    }).catch(response => {
+	      BX.SidePanel.Instance.postMessage(slider, 'error-do-bp-task-event', {
+	        workflowId: data.get('workflowId')
+	      });
+	      reject(response);
+	    });
+	  });
+	}
 
 	let _ = t => t,
 	  _t;
 	var _isChanged = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isChanged");
 	var _messageBox = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("messageBox");
 	var _canClose = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("canClose");
+	var _workflowResult = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("workflowResult");
+	var _canUseHumanResources = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("canUseHumanResources");
 	var _renderButtons = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderButtons");
 	var _handleTaskButtonClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleTaskButtonClick");
+	var _isNeedValidate = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isNeedValidate");
+	var _getRequiredFields = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getRequiredFields");
+	var _getNextTaskOrClose = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getNextTaskOrClose");
+	var _prepareErrors = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareErrors");
 	var _handleDelegateButtonClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleDelegateButtonClick");
 	var _delegateTask = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("delegateTask");
 	var _sendMarkAsRead = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendMarkAsRead");
 	var _clearError = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("clearError");
+	var _showErrors = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showErrors");
 	var _showError = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showError");
 	var _renderNextTask = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderNextTask");
 	var _renderTaskFields = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderTaskFields");
@@ -33,6 +166,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    Object.defineProperty(this, _showError, {
 	      value: _showError2
 	    });
+	    Object.defineProperty(this, _showErrors, {
+	      value: _showErrors2
+	    });
 	    Object.defineProperty(this, _clearError, {
 	      value: _clearError2
 	    });
@@ -44,6 +180,18 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    });
 	    Object.defineProperty(this, _handleDelegateButtonClick, {
 	      value: _handleDelegateButtonClick2
+	    });
+	    Object.defineProperty(this, _prepareErrors, {
+	      value: _prepareErrors2
+	    });
+	    Object.defineProperty(this, _getNextTaskOrClose, {
+	      value: _getNextTaskOrClose2
+	    });
+	    Object.defineProperty(this, _getRequiredFields, {
+	      value: _getRequiredFields2
+	    });
+	    Object.defineProperty(this, _isNeedValidate, {
+	      value: _isNeedValidate2
 	    });
 	    Object.defineProperty(this, _handleTaskButtonClick, {
 	      value: _handleTaskButtonClick2
@@ -63,16 +211,30 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      writable: true,
 	      value: false
 	    });
+	    Object.defineProperty(this, _workflowResult, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _canUseHumanResources, {
+	      writable: true,
+	      value: void 0
+	    });
 	    this.currentUserId = options.currentUserId;
 	    this.workflowId = options.workflowId;
 	    this.taskId = options.taskId;
 	    this.taskUserId = options.taskUserId;
 	    this.taskButtons = options.taskButtons;
 	    this.taskForm = options.taskForm;
+	    this.taskFields = options.taskFields;
+	    this.taskName = options.taskName;
 	    this.buttonsPanel = options.buttonsPanel;
 	    this.workflowContent = options.workflowContent;
 	    this.canDelegateTask = options.canDelegateTask;
+	    this.fastClose = options.fastClose;
+	    this.saveVariables = options.saveVariables;
+	    babelHelpers.classPrivateFieldLooseBase(this, _canUseHumanResources)[_canUseHumanResources] = main_core.Text.toBoolean(options.canUseHumanResources);
 	    this.handleMarkAsRead = main_core.Runtime.debounce(babelHelpers.classPrivateFieldLooseBase(this, _sendMarkAsRead)[_sendMarkAsRead], 100, this);
+	    babelHelpers.classPrivateFieldLooseBase(this, _workflowResult)[_workflowResult] = main_core.Type.isNil(options.workflowResult) ? null : options.workflowResult;
 	  }
 	  init() {
 	    if (this.buttonsPanel) {
@@ -159,6 +321,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    if (desc) {
 	      BX.UI.Hint.init(desc);
 	    }
+	    const resultNode = this.workflowContent.querySelector('[data-role="bp-workflow-result"]');
+	    if (resultNode && babelHelpers.classPrivateFieldLooseBase(this, _workflowResult)[_workflowResult]) {
+	      main_core.Runtime.loadExtension('bizproc.workflow.result').then(exports => {
+	        if (exports != null && exports.WorkflowResult) {
+	          new exports.WorkflowResult(babelHelpers.classPrivateFieldLooseBase(this, _workflowResult)[_workflowResult]).renderTo(resultNode);
+	        }
+	      }).catch(() => {});
+	    }
 	  }
 	}
 	function _renderButtons2() {
@@ -197,49 +367,65 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	}
 	function _handleTaskButtonClick2(taskButton, uiButton) {
 	  const formData = new FormData(this.taskForm);
+	  const errors = babelHelpers.classPrivateFieldLooseBase(this, _isNeedValidate)[_isNeedValidate](taskButton.NAME) ? ValidateHelper.checkRequiredFieldsFilled(formData, babelHelpers.classPrivateFieldLooseBase(this, _getRequiredFields)[_getRequiredFields]()) : [];
+	  if (main_core.Type.isArrayFilled(errors)) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _showErrors)[_showErrors](errors);
+	    return;
+	  }
 	  formData.append('taskId', this.taskId);
 	  formData.append('workflowId', this.workflowId);
+	  formData.append('taskName', this.taskName);
 	  formData.append(taskButton.NAME, taskButton.VALUE);
+	  const slider = BX.SidePanel.Instance.getSliderByWindow(window);
 	  uiButton.setDisabled(true);
-	  main_core.ajax.runAction('bizproc.task.do', {
-	    data: formData
-	  }).then(() => {
-	    uiButton.setDisabled(false);
+	  if (this.fastClose) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _canClose)[_canClose] = true;
+	    slider == null ? void 0 : slider.close();
+	    slider.setCacheable(true);
+	  }
+	  doTaskAction(formData, slider, this.fastClose).then(() => {
+	    slider == null ? void 0 : slider.setCacheable(false);
 	    main_core.Dom.addClass(this.workflowContent, 'fade-out');
-	    main_core.ajax.runAction('bizproc.task.getUserTaskByWorkflowId', {
-	      data: formData
-	    }).then(res => {
-	      if (BX.type.isArray(res.data.additionalParams) && res.data.additionalParams.length === 0) {
-	        var _BX$SidePanel$Instanc;
-	        babelHelpers.classPrivateFieldLooseBase(this, _canClose)[_canClose] = true;
-	        (_BX$SidePanel$Instanc = BX.SidePanel.Instance.getSliderByWindow(window)) == null ? void 0 : _BX$SidePanel$Instanc.close();
-	      } else {
-	        babelHelpers.classPrivateFieldLooseBase(this, _renderNextTask)[_renderNextTask](res.data);
-	      }
-	    }).catch(response => {
-	      main_core.Dom.toggleClass(this.workflowContent, 'fade-out fade-in');
-	      ui_dialogs_messagebox.MessageBox.alert(response.errors.pop().message);
-	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _getNextTaskOrClose)[_getNextTaskOrClose](formData);
 	  }).catch(response => {
-	    if (BX.type.isArray(response.errors)) {
-	      const popupErrors = [];
-	      response.errors.forEach(error => {
-	        const fieldName = error.customData;
-	        if (this.taskForm && fieldName) {
-	          const field = this.taskForm.querySelector(`[data-cid="${fieldName}"]`);
-	          if (field) {
-	            babelHelpers.classPrivateFieldLooseBase(this, _showError)[_showError](error, field);
-	          }
-	        } else {
-	          popupErrors.push(error.message);
-	        }
-	      });
-	      if (popupErrors.length > 0) {
-	        ui_dialogs_messagebox.MessageBox.alert(popupErrors.join(', '));
-	      }
+	    babelHelpers.classPrivateFieldLooseBase(this, _showErrors)[_showErrors](babelHelpers.classPrivateFieldLooseBase(this, _prepareErrors)[_prepareErrors](response.errors));
+	  }).finally(() => uiButton.setDisabled(false));
+	}
+	function _isNeedValidate2(buttonName) {
+	  return !(buttonName === 'cancel' && !this.saveVariables);
+	}
+	function _getRequiredFields2() {
+	  if (main_core.Type.isNil(this.taskFields)) {
+	    return [];
+	  }
+	  return this.taskFields.filter(field => field.Required);
+	}
+	function _getNextTaskOrClose2(formData) {
+	  main_core.ajax.runAction('bizproc.task.getUserTaskByWorkflowId', {
+	    data: formData
+	  }).then(res => {
+	    if (BX.type.isArray(res.data.additionalParams) && res.data.additionalParams.length === 0) {
+	      var _BX$SidePanel$Instanc;
+	      babelHelpers.classPrivateFieldLooseBase(this, _canClose)[_canClose] = true;
+	      (_BX$SidePanel$Instanc = BX.SidePanel.Instance.getSliderByWindow(window)) == null ? void 0 : _BX$SidePanel$Instanc.close();
+	    } else {
+	      babelHelpers.classPrivateFieldLooseBase(this, _renderNextTask)[_renderNextTask](res.data);
 	    }
-	    uiButton.setDisabled(false);
+	  }).catch(response => {
+	    main_core.Dom.toggleClass(this.workflowContent, 'fade-out fade-in');
+	    ui_dialogs_messagebox.MessageBox.alert(response.errors.pop().message);
 	  });
+	}
+	function _prepareErrors2(responseErrors) {
+	  const errors = [];
+	  for (const error of responseErrors) {
+	    var _error$customData;
+	    errors.push({
+	      fieldId: (_error$customData = error.customData) != null ? _error$customData : null,
+	      message: error.message
+	    });
+	  }
+	  return errors;
 	}
 	function _handleDelegateButtonClick2(uiButton) {
 	  uiButton.setDisabled(true);
@@ -260,7 +446,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          inviteGuestLink: false
 	        }
 	      }, {
-	        id: 'department',
+	        id: babelHelpers.classPrivateFieldLooseBase(this, _canUseHumanResources)[_canUseHumanResources] ? 'structure-node' : 'department',
 	        options: {
 	          selectMode: 'usersOnly'
 	        }
@@ -321,7 +507,27 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    BX.Dom.remove(errorContainer);
 	  }
 	}
-	function _showError2(error, field) {
+	function _showErrors2(errors) {
+	  if (BX.type.isArray(errors)) {
+	    const popupErrors = [];
+	    errors.forEach(error => {
+	      const fieldName = error.fieldId;
+	      if (this.taskForm && fieldName) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _showError)[_showError](error.message, fieldName);
+	      } else {
+	        popupErrors.push(error.message);
+	      }
+	    });
+	    if (popupErrors.length > 0) {
+	      ui_dialogs_messagebox.MessageBox.alert(popupErrors.join(', '));
+	    }
+	  }
+	}
+	function _showError2(message, id) {
+	  const field = this.taskForm.querySelector(`[data-cid="${id}"]`);
+	  if (!field) {
+	    return;
+	  }
 	  const parentContainer = field.querySelector('.ui-form-content');
 	  let errorContainer = field.querySelector('.ui-form-notice');
 	  if (!errorContainer) {
@@ -330,7 +536,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        className: 'ui-form-notice'
 	      }
 	    });
-	    errorContainer.innerText = error.message;
+	    errorContainer.innerText = message;
 	    if (parentContainer) {
 	      BX.Dom.append(errorContainer, parentContainer);
 	    }
@@ -341,6 +547,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _renderTaskFields)[_renderTaskFields](data);
 	  if (data.additionalParams) {
 	    this.taskId = data.additionalParams.ID;
+	    this.fastClose = data.additionalParams.IS_LAST_TASK_FOR_USER;
+	    this.saveVariables = data.additionalParams.saveVariables;
+	    this.taskFields = data.additionalParams.FIELDS;
 	    const subject = this.workflowContent.querySelector('.bp-workflow-info__subject');
 	    if (subject) {
 	      subject.innerText = data.additionalParams.NAME;
@@ -413,5 +622,5 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	exports.WorkflowInfo = WorkflowInfo;
 
-}((this.BX.Bizproc.Component = this.BX.Bizproc.Component || {}),BX,BX.Event,BX.UI,BX.Bizproc,BX.UI.Dialogs));
+}((this.BX.Bizproc.Component = this.BX.Bizproc.Component || {}),BX.Event,BX.UI,BX.Bizproc,BX.UI.Dialogs,BX));
 //# sourceMappingURL=script.js.map

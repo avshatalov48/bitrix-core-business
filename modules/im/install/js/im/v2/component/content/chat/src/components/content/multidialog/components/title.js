@@ -1,4 +1,4 @@
-import { ChatTitle, EditableChatTitle } from 'im.v2.component.elements';
+import { ChatTitle, EditableChatTitle } from 'im.v2.component.elements.chat-title';
 
 // @vue/component
 export const MultidialogChatTitle = {

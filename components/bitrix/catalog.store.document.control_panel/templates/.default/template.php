@@ -40,5 +40,6 @@ $APPLICATION->IncludeComponent(
 	[
 		'ID' => 'store_documents',
 		'ITEMS' => $arResult['ITEMS'],
+		'THEME' => defined('AIR_SITE_TEMPLATE') ? 'air' : null,
 	]
 );

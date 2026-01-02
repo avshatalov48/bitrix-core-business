@@ -8,7 +8,6 @@
 	var append = BX.Landing.Utils.append;
 	var debounce = BX.Landing.Utils.debounce;
 	var trim = BX.Landing.Utils.trim;
-	var bind = BX.Landing.Utils.bind;
 	var proxy = BX.Landing.Utils.proxy;
 	var setTextContent = BX.Landing.Utils.setTextContent;
 	var htmlToElement = BX.Landing.Utils.htmlToElement;
@@ -165,7 +164,7 @@
 				title: BX.Landing.Loc.getMessage("LANDING_STYLE_PANEL_CATALOG_IBLOCK_SWITCHER"),
 				items: this.getIblocks(),
 				content: isArray(this.getIblocks()) ? this.getIblocks()[0].value : "",
-				onChange: this.onIblockChange.bind(this)
+				onChange: this.onIblockChange.bind(this),
 			});
 
 			addClass(iBlockSwitcher.layout, "landing-ui-panel-catalog-iblock-switch");
@@ -294,7 +293,7 @@
 			var items = this.listContainer.querySelector(".landing-ui-panel-catalog-list");
 
 			response.forEach(function(item, index) {
-				bind(items.children[index], "click", this.onItemClick.bind(this, item));
+				BX.Event.bind(items.children[index], "click", this.onItemClick.bind(this, item));
 			}, this);
 
 			return response;

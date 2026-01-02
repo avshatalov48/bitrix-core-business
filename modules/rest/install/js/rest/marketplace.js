@@ -183,7 +183,7 @@ BX.rest.Marketplace = (function(){
 									BX("mp_tos_license") && !BX("mp_tos_license").checked
 								)
 								{
-									BX("mp_detail_error").innerHTML = BX.message("MARKETPLACE_LICENSE_TOS_ERROR_2");
+									BX("mp_detail_error").innerHTML = BX.message("MARKETPLACE_LICENSE_TOS_ERROR_2_MSGVER_1");
 									return;
 								}
 
@@ -462,6 +462,18 @@ BX.rest.Marketplace = (function(){
 				);
 			}
 
+			var isRenamedMarket = BX.message("IS_RENAMED_MARKET");
+			var marketSubscriptionText3 = '';
+
+			if (isRenamedMarket === 'Y')
+			{
+				marketSubscriptionText3 = BX.message("REST_MP_SUBSCRIPTION_TEXT_3_MSGVER_1");
+			}
+			else
+			{
+				marketSubscriptionText3 = BX.message("REST_MP_SUBSCRIPTION_TEXT_3_MSGVER_2");
+			}
+
 			var oPopup = BX.PopupWindowManager.create('marketplace_buy_subscription', null, {
 				content: BX.create(
 					'div',
@@ -508,7 +520,7 @@ BX.rest.Marketplace = (function(){
 															props: {
 																className: 'rest-marketplace-popup-text'
 															},
-															html: BX.message("REST_MP_SUBSCRIPTION_TEXT_3").replace(
+															html: marketSubscriptionText3.replace(
 																'#ONCLICK#',
 																'BX.rest.Marketplace.open(null,\'subscription\')'
 															)
@@ -617,6 +629,13 @@ BX.rest.Marketplace = (function(){
 
 		openDemoSubscription: function(callback)
 		{
+			const canActivateDemoSubscription = BX.message('CAN_ACTIVATE_DEMO_SUBSCRIPTION');
+
+			if (canActivateDemoSubscription !== 'Y')
+			{
+				return;
+			}
+
 			var btnConfirm = new BX.UI.Button({
 				color: BX.UI.Button.Color.SUCCESS,
 				state: BX.UI.Button.State.DISABLED,
@@ -672,6 +691,19 @@ BX.rest.Marketplace = (function(){
 					this
 				)
 			});
+
+			var isRenamedMarket = BX.message("IS_RENAMED_MARKET");
+			var marketDemoSubscriptionText1 = '';
+
+			if (isRenamedMarket === 'Y')
+			{
+				marketDemoSubscriptionText1 = BX.message("REST_MP_SUBSCRIPTION_DEMO_TEXT_1_MSGVER_1");
+			}
+			else
+			{
+				marketDemoSubscriptionText1 = BX.message("REST_MP_SUBSCRIPTION_DEMO_TEXT_1_MSGVER_2");
+			}
+
 			var popupDemo = BX.PopupWindowManager.create('marketplace_demo_subscription', null, {
 				content: BX.create(
 					'div',
@@ -703,7 +735,7 @@ BX.rest.Marketplace = (function(){
 												props: {
 													className: 'rest-marketplace-popup-text'
 												},
-												html: BX.message("REST_MP_SUBSCRIPTION_DEMO_TEXT_1").replace(
+												html: marketDemoSubscriptionText1.replace(
 													'#ONCLICK#',
 													'BX.rest.Marketplace.open(null,\'subscription\')'
 												)
@@ -751,7 +783,7 @@ BX.rest.Marketplace = (function(){
 															attrs: {
 																for: "mp_demo_subscription_license",
 															},
-															html: BX.message("REST_MP_SUBSCRIPTION_DEMO_EULA_TITLE").replace('#LINK#', BX.message("REST_MP_SUBSCRIPTION_DEMO_EULA_LINK"))
+															html: BX.message('REST_MP_SUBSCRIPTION_DEMO_EULA_TITLE').replace('#LINK#', BX.message('REST_MARKETPLACE_EULA_URL'))
 														}
 													)
 												]

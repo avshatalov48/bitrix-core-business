@@ -12,7 +12,7 @@ return [
 		'main.core',
 		'im.v2.application.core',
 		'im.v2.lib.utils',
-		'im.v2.provider.service',
+		'im.v2.provider.service.recent',
 	],
 	'skip_core' => false,
 ];

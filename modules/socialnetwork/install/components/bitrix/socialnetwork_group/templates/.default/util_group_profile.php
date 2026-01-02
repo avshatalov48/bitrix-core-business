@@ -14,7 +14,7 @@ if (
 	(defined('SONET_GROUP_NEEDED') && SONET_GROUP_NEEDED === true)
 	|| (
 		!defined('SITE_TEMPLATE_ID')
-		|| SITE_TEMPLATE_ID !== 'bitrix24'
+		|| (SITE_TEMPLATE_ID !== 'bitrix24' && SITE_TEMPLATE_ID !== 'air')
 	)
 )
 {

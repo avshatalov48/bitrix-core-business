@@ -465,32 +465,100 @@ class CAssocData extends CCSVData
 		return $value;
 	}
 
-	function MapFiles($value)
+	function MapFiles($value): array
 	{
 		global $PATH2PROP_FILES;
-		$io = CBXVirtualIo::GetInstance();
 
 		if (!is_array($value))
-			$value = array(
-				$value,
-			);
-
-		$result = array();
-		$j = 0;
-		foreach ($value as $file_name)
 		{
-			if ($file_name <> '')
-			{
-				if (preg_match("/^(ftp|ftps|http|https):\\/\\//", $file_name))
-					$arFile = CFile::MakeFileArray($file_name);
-				else
-					$arFile = CFile::MakeFileArray($io->GetPhysicalName($_SERVER["DOCUMENT_ROOT"].$PATH2PROP_FILES."/".$file_name));
+			$value = [
+				$value,
+			];
+		}
 
-				if (isset($arFile["tmp_name"]))
-					$result["n".($j++)] = $arFile;
+		$result = [];
+		$j = 0;
+		foreach ($value as $fileName)
+		{
+			$file = $this->prepareFileValue($PATH2PROP_FILES, $fileName);
+			if ($file)
+			{
+				$result['n' . $j] = $file;
+				$j++;
 			}
 		}
+
 		return $result;
+	}
+
+	public function getImage(string $pathPrefix, string $fileValue): ?array
+	{
+		return $this->prepareFileValue($pathPrefix, $fileValue);
+	}
+
+	private function prepareFileValue(string $pathPrefix, string $fileValue): ?array
+	{
+		$fileValue = trim($fileValue);
+		if ($fileValue === '')
+		{
+			return null;
+		}
+
+		$internal = true;
+		if (preg_match("/^(ftp|ftps|http|https):\\/\\//", $fileValue))
+		{
+			$internal = false;
+			$path = $fileValue;
+		}
+		else
+		{
+			$path = '';
+			try
+			{
+				$fileValue = Main\IO\Path::normalize($fileValue);
+				if ($fileValue === '/')
+				{
+					$fileValue = '';
+				}
+				if ($fileValue !== '')
+				{
+					if (
+						HasScriptExtension($fileValue)
+						|| IsFileUnsafe($fileValue)
+						|| (function_exists('IsConfigFile') && IsConfigFile($fileValue))
+						|| IsPHP($fileValue)
+					)
+					{
+						$fileValue = '';
+					}
+				}
+				if ($fileValue !== '')
+				{
+					$path = Main\IO\Path::convertLogicalToPhysical(
+						Main\IO\Path::combine(Main\Application::getDocumentRoot(), $pathPrefix, $fileValue)
+					);
+				}
+			}
+			catch (Main\IO\InvalidPathException) {}
+		}
+
+		if ($path === '')
+		{
+			return null;
+		}
+
+		$file = CFile::MakeFileArray($path);
+		if (isset($file['tmp_name']))
+		{
+			if ($internal)
+			{
+				$file['COPY_FILE'] = 'Y';
+			}
+
+			return $file;
+		}
+
+		return null;
 	}
 }
 
@@ -513,8 +581,30 @@ $delimiter_other_r = (string)$request->getPost('delimiter_other_r');
 $metki_f = (string)$request->getPost('metki_f');
 $first_names_f = (string)$request->getPost('first_names_f');
 $PATH2IMAGE_FILES = (string)$request->getPost('PATH2IMAGE_FILES');
+if ($PATH2IMAGE_FILES !== '')
+{
+	try
+	{
+		$PATH2IMAGE_FILES = Main\IO\Path::normalize($PATH2IMAGE_FILES);
+	}
+	catch (Main\IO\InvalidPathException)
+	{
+		$PATH2IMAGE_FILES = '';
+	}
+}
 $IMAGE_RESIZE = (string)$request->getPost('IMAGE_RESIZE');
 $PATH2PROP_FILES = (string)$request->getPost('PATH2PROP_FILES');
+if ($PATH2PROP_FILES !== '')
+{
+	try
+	{
+		$PATH2PROP_FILES = Main\IO\Path::normalize($PATH2PROP_FILES);
+	}
+	catch (Main\IO\InvalidPathException)
+	{
+		$PATH2PROP_FILES = '';
+	}
+}
 $outFileAction = (string)($request->getPost('outFileAction'));
 if ($outFileAction !== 'H' && $outFileAction !== 'D' && $outFileAction !== 'F')
 {
@@ -879,43 +969,40 @@ if (($request->isPost() || $CUR_FILE_POS > 0) && $STEP > 1 && check_bitrix_sessi
 
 				if ($strErrorR == '')
 				{
-					if (array_key_exists("PREVIEW_PICTURE", $arLoadProductArray))
+					$pictureFields = [
+						'PREVIEW_PICTURE',
+						'DETAIL_PICTURE',
+					];
+					foreach ($pictureFields as $fieldName)
 					{
-						if ($arLoadProductArray["PREVIEW_PICTURE"] <> '')
+						if (!array_key_exists($fieldName, $arLoadProductArray))
 						{
-							if (preg_match("/^(http|https):\\/\\//", $arLoadProductArray["PREVIEW_PICTURE"]))
-							{
-								$arLoadProductArray["PREVIEW_PICTURE"] = CFile::MakeFileArray($arLoadProductArray["PREVIEW_PICTURE"]);
-							}
-							else
-							{
-								$arLoadProductArray["PREVIEW_PICTURE"] = CFile::MakeFileArray($io->GetPhysicalName($_SERVER["DOCUMENT_ROOT"].$PATH2IMAGE_FILES."/".$arLoadProductArray["PREVIEW_PICTURE"]));
-								if (is_array($arLoadProductArray["PREVIEW_PICTURE"]))
-									$arLoadProductArray["PREVIEW_PICTURE"]["COPY_FILE"] = "Y";
-							}
+							continue;
 						}
-						if (!is_array($arLoadProductArray["PREVIEW_PICTURE"]))
-							unset($arLoadProductArray["PREVIEW_PICTURE"]);
-					}
-
-					if (array_key_exists("DETAIL_PICTURE", $arLoadProductArray))
-					{
-						if ($arLoadProductArray["DETAIL_PICTURE"] <> '')
+						$fieldValue = (string)$arLoadProductArray[$fieldName];
+						if ($fieldValue !== '')
 						{
-							if (preg_match("/^(http|https):\\/\\//", $arLoadProductArray["DETAIL_PICTURE"]))
+							$file = $csvFile->getImage($PATH2IMAGE_FILES, $fieldValue);
+							if ($file)
 							{
-								$arLoadProductArray["DETAIL_PICTURE"] = CFile::MakeFileArray($arLoadProductArray["DETAIL_PICTURE"]);
+								$arLoadProductArray[$fieldName] = $file;
 							}
-							else
-							{
-								$arLoadProductArray["DETAIL_PICTURE"] = CFile::MakeFileArray($io->GetPhysicalName($_SERVER["DOCUMENT_ROOT"].$PATH2IMAGE_FILES."/".$arLoadProductArray["DETAIL_PICTURE"]));
-								if (is_array($arLoadProductArray["DETAIL_PICTURE"]))
-									$arLoadProductArray["DETAIL_PICTURE"]["COPY_FILE"] = "Y";
-							}
+							unset(
+								$file,
+							);
 						}
-						if (!is_array($arLoadProductArray["DETAIL_PICTURE"]))
-							unset($arLoadProductArray["DETAIL_PICTURE"]);
+						if (!is_array($arLoadProductArray[$fieldName]))
+						{
+							unset($arLoadProductArray[$fieldName]);
+						}
+						unset(
+							$fileValue,
+						);
 					}
+					unset(
+						$fieldName,
+						$pictureFields,
+					);
 
 					$res = CIBlockElement::GetList(
 						[],
@@ -1015,7 +1102,7 @@ if (($request->isPost() || $CUR_FILE_POS > 0) && $STEP > 1 && check_bitrix_sessi
 					break;
 				}
 			}
-			// delete sections and elements which no in datafile. Properties does not deleted
+			// delete sections and elements which no in datafile. Properties does not delete
 			if ($bAllLinesLoaded)
 			{
 				if (is_set($_SESSION, $CUR_LOAD_SESS_ID))

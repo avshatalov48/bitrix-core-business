@@ -1,6 +1,6 @@
 import { provide } from 'ui.vue3';
 
-import { Attach } from 'im.v2.component.elements';
+import { Attach } from 'im.v2.component.elements.attach';
 import { ChatType } from 'im.v2.const';
 
 import './attach.css';

@@ -189,6 +189,7 @@ CREATE TABLE b_sender_posting_recipient
   DATE_SENT	DATETIME	NULL,
   USER_ID INT(11) NULL,
   DATE_DENY DATETIME  NULL,
+  DATE_UPDATE DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FIELDS LONGTEXT NULL,
   ROOT_ID int(11) NULL,
 
@@ -200,6 +201,7 @@ CREATE TABLE b_sender_posting_recipient
 );
 CREATE INDEX IX_SENDER_POSTING_RECIP_1 on b_sender_posting_recipient(POSTING_ID, STATUS);
 CREATE INDEX IX_B_SENDER_POSTING_RECIPIENT_CONTACT_ID on b_sender_posting_recipient(CONTACT_ID);
+CREATE INDEX IX_B_SENDER_POSTING_RECIPIENT_CONTACT_ID_STATUS on b_sender_posting_recipient(CONTACT_ID, STATUS);
 
 CREATE TABLE b_sender_posting_read
 (
@@ -421,7 +423,7 @@ create table b_sender_timeline_queue
 
 create table b_sender_group_data
 (
-	ID int auto_increment primary key,
+	ID bigint unsigned auto_increment primary key,
 	GROUP_ID int not null,
 	DATE_INSERT DATETIME default NOW() not null,
 	FILTER_ID varchar(256) not null,

@@ -575,7 +575,7 @@ final class MailboxConnector
 			}
 		}
 
-		if (Main\Loader::includeModule('crm') && \CCrmPerms::isAccessEnabled())
+		if (\Bitrix\Mail\Integration\Crm\Permissions::getInstance()->hasAccessToCrm())
 		{
 			$crmAvailable = $USER->isAdmin() || $USER->canDoOperation('bitrix24_config')
 				|| \COption::getOptionString('intranet', 'allow_external_mail_crm', 'Y', SITE_ID) == 'Y';

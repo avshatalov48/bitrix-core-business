@@ -34,7 +34,7 @@ $APPLICATION->IncludeComponent(
 		'PATH_TO_MODERATION' => $arResult['PATH_TO_GROUP_BLOG_MODERATION'],
 		'CURRENT_PAGE' => $blogPageId,
 		'HIDE_OWNER_IN_TITLE' => $arParams['HIDE_OWNER_IN_TITLE'],
-		'PATH_TO_BLOG' => (SITE_TEMPLATE_ID === 'bitrix24' ? $arResult['PATH_TO_GROUP'] : $arResult['PATH_TO_GROUP_BLOG']),
+		'PATH_TO_BLOG' => (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air' ? $arResult['PATH_TO_GROUP'] : $arResult['PATH_TO_GROUP_BLOG']),
 	],
 	$this->getComponent()
 );

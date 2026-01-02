@@ -102,7 +102,7 @@ $uri = new \Bitrix\Main\Web\Uri($request->getRequestUri());
 
 	$APPLICATION->SetPageProperty(
 		'BodyClass', ($bodyClass ? $bodyClass . ' ' : '')
-		. 'no-all-paddings no-background sn-spaces__body'
+		. 'no-all-paddings no-background sn-spaces__body no-footer'
 	);
 	?>
 

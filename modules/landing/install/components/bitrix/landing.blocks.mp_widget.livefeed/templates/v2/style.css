@@ -4,7 +4,7 @@
 
 .landing-widget-v2 {
 	display: block;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	cursor: default;
 }
 
@@ -21,7 +21,7 @@
 	align-items: center;
 	margin-bottom: 22px;
 	padding-bottom: 0;
-	font: var(--ui-font-weight-medium) 28px var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) 28px var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--widget-color-h-v2);
 }
 
@@ -36,7 +36,7 @@
 	height: 20px;
 	border-radius: 0;
 	background: rgba(var(--ui-color-background-primary-rgb), .25);
-	font: var(--ui-font-weight-medium) var(--ui-font-size-4xs) var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) var(--ui-font-size-4xs) var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--ui-color-on-primary-alt);
 	box-sizing: border-box;
 	cursor: default;
@@ -44,7 +44,7 @@
 
 .landing-widget-v2-badge.--yellow {
 	background: var(--ui-color-palette-orange-50);
-	font: var(--ui-font-weight-regular) var(--ui-font-size-sm) var(--ui-font-family-system);
+	font: var(--ui-font-weight-regular) var(--ui-font-size-sm) var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .landing-widget-v2-title .landing-widget-v2-badge {
@@ -129,7 +129,7 @@
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
 	margin: 0;
-	font: var(--ui-font-weight-medium) 17px var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) 17px var(--ui-font-family-primary, var(--ui-font-family-system));
 	line-height: 20px;
 	color: #151515;
 	letter-spacing: 0;
@@ -149,7 +149,7 @@
 
 .landing-widget-v2-user-box {
 	margin-bottom: 17px;
-	font: var(--ui-font-weight-regular) var(--ui-font-size-sm) var(--ui-font-family-system);
+	font: var(--ui-font-weight-regular) var(--ui-font-size-sm) var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--ui-color-base-80);
 	overflow: hidden;
 	line-height: 15px;
@@ -249,7 +249,7 @@
 }
 
 .landing-widget-view-sidebar .landing-widget-v2-title {
-	font: var(--ui-font-weight-medium) 17px var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) 17px var(--ui-font-family-primary, var(--ui-font-family-system));
 	margin-bottom: 0;
 	padding-bottom: 18px;
 	padding-left: 2px;
@@ -275,7 +275,7 @@
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
 	margin: 0;
-	font: var(--ui-font-weight-medium) 14px var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) 14px var(--ui-font-family-primary, var(--ui-font-family-system));
 	line-height: 17px;
 	color: #151515;
 	letter-spacing: 0;
@@ -294,7 +294,7 @@
 }
 
 .landing-widget-view-sidebar .landing-widget-v2-user-box {
-	font: var(--ui-font-weight-regular) var(--ui-font-size-xs) var(--ui-font-family-system);
+	font: var(--ui-font-weight-regular) var(--ui-font-size-xs) var(--ui-font-family-primary, var(--ui-font-family-system));
 	margin-bottom: 10px;
 	line-height: 14px;
 }
@@ -308,7 +308,7 @@
 .landing-widget-view-sidebar .landing-widget-v2-badge {
 	padding: 0 6px;
 	height: 16px;
-	font: var(--ui-font-weight-medium) var(--ui-font-size-5xs) var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) var(--ui-font-size-5xs) var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .landing-widget-view-sidebar .landing-widget-v2-date {

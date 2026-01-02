@@ -9,6 +9,8 @@
 namespace Bitrix\Sale\Location\Import;
 
 use Bitrix\Main;
+use Bitrix\Main\Application;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\IO;
 
@@ -2064,10 +2066,23 @@ final class ImportProcess extends Location\Util\Process
 			unlink($storeTo);
 		}
 
-		if(!defined('SALE_LOCATIONS_IMPORT_SOURCE_URL'))
-			$query = 'https://'.self::DISTRIBUTOR_HOST.self::REMOTE_PATH.$fileName;
+		$query = '';
+		if (!defined('SALE_LOCATIONS_IMPORT_SOURCE_URL'))
+		{
+			if (self::checkRegion())
+			{
+				$query = 'https://' . self::DISTRIBUTOR_HOST . self::REMOTE_PATH . $fileName;
+			}
+		}
 		else
-			$query = 'http://'.SALE_LOCATIONS_IMPORT_SOURCE_URL.'/'.$fileName;
+		{
+			$query = 'http://' . SALE_LOCATIONS_IMPORT_SOURCE_URL . '/' . $fileName;
+		}
+
+		if ($query === '')
+		{
+			throw new Main\SystemException('Region is not allowed');
+		}
 
 		$client = new HttpClient();
 
@@ -2564,5 +2579,13 @@ final class ImportProcess extends Location\Util\Process
 				$data['NAME']['EN'][$k] = Location\Admin\NameHelper::translitFromUTF8($data['NAME']['RU'][$k]);
 			}
 		}
+	}
+
+	private static function checkRegion(): bool
+	{
+		$region = Application::getInstance()->getLicense()->getRegion();
+		$isBitrixSiteManagementOnly = !Loader::includeModule('bitrix24') && !Loader::includeModule('intranet');
+
+		return $region === 'ru' || $region === 'by' || $region === 'kz' || $isBitrixSiteManagementOnly;
 	}
 }

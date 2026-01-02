@@ -5,3 +5,5 @@ $MESS["UI_TOOLBAR_ITEM_WAS_ADDED_TO_LEFT"] = "Страница была доба
 $MESS["UI_TOOLBAR_ITEM_WAS_DELETED_FROM_LEFT"] = "Страница была удалена<br/>из левого меню";
 $MESS["UI_TOOLBAR_STAR_TITLE_DEFAULT_PAGE"] = "Страница уже находится в левом меню";
 $MESS["UI_TOOLBAR_STAR_TITLE_DEFAULT_PAGE_DELETE_ERROR"] = "Страницу нельзя удалить из левого меню";
+$MESS["UI_TOOLBAR_COPY_LINK_BUTTON_SUCCESS"] = "Ссылка скопирована";
+$MESS["UI_TOOLBAR_COPY_LINK_BUTTON_TITLE"] = "Скопировать ссылку";

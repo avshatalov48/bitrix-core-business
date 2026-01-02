@@ -331,16 +331,6 @@ class User
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getTzOffset()
-	{
-		$fields = $this->getFields();
-
-		return $fields? $fields['tz_offset']: '';
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isOnline()
@@ -773,7 +763,7 @@ class User
 		$voximplantInstalled = \Bitrix\Main\Loader::includeModule('voximplant');
 
 		$select = array(
-			"ID", "LAST_NAME", "NAME", "LOGIN", "PERSONAL_PHOTO", "SECOND_NAME", "PERSONAL_BIRTHDAY", "WORK_POSITION", "PERSONAL_GENDER", "EXTERNAL_AUTH_ID", "WORK_PHONE", "PERSONAL_PHONE", "PERSONAL_MOBILE", "TIME_ZONE_OFFSET", "ACTIVE", "LAST_ACTIVITY_DATE",
+			"ID", "LAST_NAME", "NAME", "LOGIN", "PERSONAL_PHOTO", "SECOND_NAME", "PERSONAL_BIRTHDAY", "WORK_POSITION", "PERSONAL_GENDER", "EXTERNAL_AUTH_ID", "WORK_PHONE", "PERSONAL_PHONE", "PERSONAL_MOBILE", "ACTIVE", "LAST_ACTIVITY_DATE",
 			"COLOR" => "ST.COLOR", "STATUS" =>	"ST.STATUS", "IDLE" => "ST.IDLE", "MOBILE_LAST_DATE" => "ST.MOBILE_LAST_DATE",
 		);
 		if($intranetInstalled)

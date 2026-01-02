@@ -27,7 +27,7 @@ export class UserPlannerSelector extends EventEmitter
 	{
 		super();
 		this.setEventNamespace('BX.Calendar.Controls.UserPlannerSelector');
-		this.selectorId = params.id || 'user-selector-' + Math.round(Math.random() * 10000);
+		this.selectorId = params.id || `user-selector-${Math.round(Math.random() * 10000)}`;
 		this.BX = Util.getBX();
 		this.DOM = {
 			outerWrap: params.outerWrap,
@@ -592,9 +592,9 @@ export class UserPlannerSelector extends EventEmitter
 
 	static getUserAvatarNode(user)
 	{
-		let
-			imageNode,
-			img = user.AVATAR || user.SMALL_AVATAR;
+		let imageNode;
+		let img = user.AVATAR || user.SMALL_AVATAR;
+
 		if (user.COLLAB_USER)
 		{
 			imageNode = new AvatarRoundGuest(
@@ -615,6 +615,7 @@ export class UserPlannerSelector extends EventEmitter
 			{
 				defaultAvatarClass = 'ui-icon-common-user-mail';
 			}
+
 			if (user.SHARING_USER)
 			{
 				defaultAvatarClass += ' ui-icon-common-user-sharing';
@@ -624,13 +625,15 @@ export class UserPlannerSelector extends EventEmitter
 		else
 		{
 			imageNode = Tag.render`
-			<img
-				title="${Text.encode(user.DISPLAY_NAME)}"
-				class="calendar-member"
-				id="simple_popup_${parseInt(user.ID)}"
-				src="${encodeURI(img)}"
-			>`;
+				<img
+					title="${Text.encode(user.DISPLAY_NAME)}"
+					class="calendar-member"
+					id="simple_popup_${parseInt(user.ID, 10)}"
+					src="${encodeURI(img)}"
+				>
+			`;
 		}
+
 		return imageNode;
 	}
 
@@ -685,8 +688,9 @@ export class UserPlannerSelector extends EventEmitter
 
 	hasExternalEmailUsers(attendees = [])
 	{
-		return !!attendees.find((item) => {return item.EMAIL_USER;})
-			|| !!this.getEntityList().find((item) => {return item.entityType === 'email';});
+		return Boolean(attendees.some((item) => item.EMAIL_USER))
+			|| Boolean(this.getEntityList().some((item) => item.entityType === 'email'))
+		;
 	}
 
 	destroy()
@@ -694,7 +698,7 @@ export class UserPlannerSelector extends EventEmitter
 		if (this.userSelectorDialog && this.userSelectorDialog.destroy)
 		{
 			this.userSelectorDialog.destroy();
-		 	this.userSelectorDialog = null;
+			this.userSelectorDialog = null;
 		}
 
 		if (this.intranetControllButton && this.intranetControllButton.destroy)
@@ -761,7 +765,7 @@ export class UserPlannerSelector extends EventEmitter
 					timezone: dateTime.timezoneFrom,
 					location: this.getLocationValue(),
 					entryId: this.entryId,
-					focusSelector: false
+					focusSelector: false,
 				});
 			}
 		}
@@ -837,15 +841,15 @@ export class UserPlannerSelector extends EventEmitter
 		}
 
 		UserPlannerSelector.canEditAttendeesPopupShown = true;
-		const hintPopup = new BX.PopupWindow('ui-hint-popup-' + (+new Date()), this.DOM.changeLink, {
+		const hintPopup = new BX.PopupWindow(`ui-hint-popup-${Date.now()}`, this.DOM.changeLink, {
 			darkMode: true,
 			content: Loc.getMessage('EC_EDIT_SHARING_EVENTS_FEATURE_POPUP_CONTENT'),
-			angle: {position: 'top', offset: 50},
+			angle: { position: 'top', offset: 50 },
 			autoHide: true,
 			animation: {
-				showClassName: "calendar-edit-sharing-events-feature-popup-animation-open",
-				closeClassName: "calendar-edit-sharing-events-feature-popup-animation-close",
-				closeAnimationType: "animation"
+				showClassName: 'calendar-edit-sharing-events-feature-popup-animation-open',
+				closeClassName: 'calendar-edit-sharing-events-feature-popup-animation-close',
+				closeAnimationType: 'animation'
 			},
 		});
 		setTimeout(() => hintPopup.show(), 500);

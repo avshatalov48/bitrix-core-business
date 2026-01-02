@@ -1,59 +1,26 @@
 import { sendData } from 'ui.analytics';
 
 import { Core } from 'im.v2.application.core';
-import { MessageComponentManager } from 'im.v2.lib.message-component-manager';
 
 import {
 	AnalyticsCategory,
 	AnalyticsEvent,
 	AnalyticsSection,
-	AnalyticsSubSection,
 	AnalyticsTool,
 	AnalyticsType,
 } from '../const';
 
-import type { ImModelMessage, ImModelChat, ImModelCommentInfo } from 'im.v2.model';
+import type { ImModelChat, ImModelCommentInfo } from 'im.v2.model';
 
 export class MessageDelete
 {
-	onClickDelete({ messageId, dialogId }: {messageId: string | number, dialogId: string})
-	{
-		const message: ImModelMessage = Core.getStore().getters['messages/getById'](messageId);
-		const type = new MessageComponentManager(message).getName();
-		const chat: ImModelChat = Core.getStore().getters['chats/get'](dialogId);
-
-		sendData({
-			tool: AnalyticsTool.im,
-			category: AnalyticsCategory.message,
-			event: AnalyticsEvent.clickDelete,
-			type,
-			c_sub_section: AnalyticsSubSection.contextMenu,
-			p1: `chatType_${chat.type}`,
-			p5: `chatId_${chat.chatId}`,
-		});
-	}
-
-	onCancel({ messageId, dialogId }: {messageId: string | number, dialogId: string})
-	{
-		const message: ImModelMessage = Core.getStore().getters['messages/getById'](messageId);
-		const type = new MessageComponentManager(message).getName();
-		const chat: ImModelChat = Core.getStore().getters['chats/get'](dialogId);
-
-		sendData({
-			tool: AnalyticsTool.im,
-			category: AnalyticsCategory.message,
-			event: AnalyticsEvent.cancelDelete,
-			type,
-			c_section: AnalyticsSection.popup,
-			c_sub_section: AnalyticsSubSection.contextMenu,
-			p1: `chatType_${chat.type}`,
-			p5: `chatId_${chat.chatId}`,
-		});
-	}
-
-	onNotFoundNotification({ dialogId }: {dialogId: string})
+	onNotFoundNotification({ dialogId }: {dialogId: string}): void
 	{
 		const chat: ImModelChat = Core.getStore().getters['chats/get'](dialogId);
+		if (!chat)
+		{
+			return;
+		}
 
 		sendData({
 			tool: AnalyticsTool.im,
@@ -65,7 +32,7 @@ export class MessageDelete
 		});
 	}
 
-	onDeletedPostNotification({ messageId, dialogId }: {messageId: string | number, dialogId: string})
+	onDeletedPostNotification({ messageId, dialogId }: {messageId: string | number, dialogId: string}): void
 	{
 		const chat: ImModelChat = Core.getStore().getters['chats/get'](dialogId);
 		const commentInfo: ImModelCommentInfo = Core.getStore().getters['messages/comments/getByMessageId'](messageId);

@@ -73,6 +73,7 @@ class IncomingManager
 		];
 		$result = new Result();
 
+		// Only from \Bitrix\Calendar\Sync\Office365\SectionManager::updateSectionsAgent
 		$getResult = $this->getFactory()->getIncomingSectionManager()->getSections();
 		if ($getResult->isSuccess())
 		{

@@ -1,0 +1,19 @@
+<?php
+$MESS["BIZPROC_AS_ACT_TITLE"] = "Тақырыпаты:";
+$MESS["BIZPROC_AS_DESC_1"] = "Әрекет параметрлерін баптауыңызды өтінемін.";
+$MESS["BIZPROC_AS_SEL_FIELD_BUTTON"] = "Өрістерді таңдау";
+$MESS["BIZPROC_AS_TITLE_1"] = "Әрекет параметрлерін баптау";
+$MESS["BP_ACT_SETTINGS_ACTIONS_ACTIVATED_BUTTON_NOTIFY_TEXT"] = "Әрекет қосулы";
+$MESS["BP_ACT_SETTINGS_ACTIONS_ACTIVATED_BUTTON_TEXT"] = "Қосу";
+$MESS["BP_ACT_SETTINGS_ACTIONS_DEACTIVATED_BUTTON_NOTIFY_TEXT"] = "Әрекет өшірулі";
+$MESS["BP_ACT_SETTINGS_ACTIONS_DEACTIVATED_BUTTON_TEXT"] = "Өшіру";
+$MESS["BP_ACT_SET_BROKEN_LINK_MESSAGE_ERROR"] = "Жұмыста жетіспейтін немесе қолжетімсіз өрістер/айнымалылар/константалар қолданылады.";
+$MESS["BP_ACT_SET_BROKEN_LINK_MESSAGE_ERROR_SHOW_LINKS"] = "Толықтай көрсету";
+$MESS["BP_ACT_SET_COMMENT"] = "Түсініктеме";
+$MESS["BP_ACT_SET_COMMENT_ROW"] = "Пікір:";
+$MESS["BP_ACT_SET_COMMENT_SHOWHIDE_1"] = "Әрекет түсініктемесін көрсету/жасыру";
+$MESS["BP_ACT_SET_ID"] = "Ид";
+$MESS["BP_ACT_SET_ID_DUP_1"] = "#ID# әрекет идентификаторы осы қалыпта бұған дейін қолданылып жатыр";
+$MESS["BP_ACT_SET_ID_EMPTY_1"] = "Әрекет идентификаторы бос болуы мүмкін емес";
+$MESS["BP_ACT_SET_ID_ROW_1"] = "Әрекет идентификаторы:";
+$MESS["BP_ACT_SET_ID_SHOWHIDE_1"] = "Әрекет идентификаторын көрсету/жасыру";

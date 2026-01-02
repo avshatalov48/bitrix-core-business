@@ -3,8 +3,13 @@
 namespace Bitrix\Im\Model;
 
 use Bitrix\Main\Application;
-use Bitrix\Main\Entity;
 use Bitrix\Main\Error;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Main\ORM\Fields\DatetimeField;
+use Bitrix\Main\ORM\Fields\BooleanField;
+use Bitrix\Main\ORM\Data\AddResult;
 
 /**
  * Class CallUserTable
@@ -22,32 +27,32 @@ use Bitrix\Main\Error;
  * @method static \Bitrix\Im\Model\EO_CallUser wakeUpObject($row)
  * @method static \Bitrix\Im\Model\EO_CallUser_Collection wakeUpCollection($rows)
  */
-class CallUserTable extends Entity\DataManager
+class CallUserTable extends DataManager
 {
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_im_call_user';
 	}
 
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return [
-			new Entity\IntegerField('CALL_ID', [
+			new IntegerField('CALL_ID', [
 				'primary' => true
 			]),
-			new Entity\IntegerField('USER_ID', [
+			new IntegerField('USER_ID', [
 				'primary' => true
 			]),
-			new Entity\StringField('STATE'),
-			new Entity\DatetimeField('FIRST_JOINED'),
-			new Entity\DatetimeField('LAST_SEEN'),
-			new Entity\BooleanField('IS_MOBILE', [
+			new StringField('STATE'),
+			new DatetimeField('FIRST_JOINED'),
+			new DatetimeField('LAST_SEEN'),
+			new BooleanField('IS_MOBILE', [
 				'values' => ['N', 'Y']
 			]),
-			new Entity\BooleanField('SHARED_SCREEN', [
+			new BooleanField('SHARED_SCREEN', [
 				'values' => ['N', 'Y']
 			]),
-			new Entity\BooleanField('RECORDED', [
+			new BooleanField('RECORDED', [
 				'values' => ['N', 'Y']
 			]),
 		];
@@ -57,11 +62,11 @@ class CallUserTable extends Entity\DataManager
 	 * Inserts new record into the table, or updates existing record, if record is already found in the table.
 	 *
 	 * @param array $data Record to be merged to the table.
-	 * @return Entity\AddResult
+	 * @return AddResult
 	 */
-	public static function merge(array $data)
+	public static function merge(array $data): AddResult
 	{
-		$result = new Entity\AddResult();
+		$result = new AddResult();
 
 		$helper = Application::getConnection()->getSqlHelper();
 		$insertData = $data;
@@ -97,8 +102,8 @@ class CallUserTable extends Entity\DataManager
 	 * Should return array of names of fields, that should be used to detect record duplication.
 	 * @return array;
 	 */
-	protected static function getMergeFields()
+	protected static function getMergeFields(): array
 	{
-		return array('CALL_ID', 'USER_ID');
+		return ['CALL_ID', 'USER_ID'];
 	}
 }

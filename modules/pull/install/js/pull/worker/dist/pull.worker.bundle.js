@@ -10505,6 +10505,7 @@ this.BX = this.BX || {};
 	    this.config = options.config;
 	    this.logger = options.logger;
 	    this.storage = options.storage;
+	    this.restClient = options.restClient;
 	    this.isSecure = globalThis.location.protocol === 'https:';
 	    this.connectors.webSocket = new WebSocketConnector({
 	      pathGetter: () => this.getConnectionPathByType(ConnectionType.WebSocket),
@@ -10737,6 +10738,9 @@ this.BX = this.BX || {};
 	        throw new Error('Push-server is in shared mode, but clientId is not set');
 	      }
 	      params.clientId = this.config.clientId;
+	    }
+	    if (this.config.server && this.config.server.hostname) {
+	      params.hostname = this.config.server.hostname;
 	    }
 	    if (this.session.mid) {
 	      params.mid = this.session.mid;
@@ -11181,41 +11185,34 @@ this.BX = this.BX || {};
 	   * @param {integer[]} userList List of user ids.
 	   * @returns {Promise}
 	   */
-	  getUsersLastSeen(userList) {
+	  async getUsersLastSeen(userList) {
 	    if (!isArray(userList) || !userList.every(item => typeof item === 'number')) {
 	      throw new Error('userList must be an array of numbers');
 	    }
 	    const result = {};
-	    return new Promise((resolve, reject) => {
-	      this.jsonRpcAdapter.executeOutgoingRpcCommand(RpcMethod.GetUsersLastSeen, {
-	        userList
-	      }).then(response => {
-	        const unresolved = [];
-	        for (const userId of userList) {
-	          if (!(userId in response)) {
-	            unresolved.push(userId);
-	          }
-	          result[userId] = response[userId];
-	        }
-	        if (unresolved.length === 0) {
-	          resolve(result);
-	          return;
-	        }
-	        const params = {
-	          userIds: unresolved,
-	          sendToQueueSever: true
-	        };
-	        this.restClient.callMethod('pull.api.user.getLastSeen', params);
-	      }).then(response => {
-	        const data = response.data();
-	        for (const userId of Object.keys(data)) {
-	          result[userId] = data[userId];
-	        }
-	        resolve(result);
-	      }).catch(error => {
-	        reject(error);
-	      });
+	    const response = await this.jsonRpcAdapter.executeOutgoingRpcCommand(RpcMethod.GetUsersLastSeen, {
+	      userList
 	    });
+	    const unresolved = [];
+	    for (const userId of userList) {
+	      if (!(userId in response)) {
+	        unresolved.push(userId);
+	      }
+	      result[userId] = response[userId];
+	    }
+	    if (unresolved.length === 0) {
+	      return result;
+	    }
+	    const params = {
+	      userIds: unresolved,
+	      sendToQueueSever: true
+	    };
+	    const restResponse = await this.restClient.callMethod('pull.api.user.getLastSeen', params);
+	    const restData = restResponse.data();
+	    for (const userId of Object.keys(restData)) {
+	      result[userId] = restData[userId];
+	    }
+	    return result;
 	  }
 
 	  /**

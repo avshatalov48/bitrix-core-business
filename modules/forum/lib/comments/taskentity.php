@@ -79,8 +79,8 @@ final class TaskEntity extends Entity
 		if (
 			Loader::includeModule("tasks")
 			&& (
-				\CTasksTools::isAdmin($userId)
-				|| \CTasksTools::isPortalB24Admin($userId)
+				\Bitrix\Tasks\Util\User::isAdmin($userId)
+				|| \Bitrix\Tasks\Integration\Bitrix24\User::isAdmin($userId)
 			)
 		)
 		{

@@ -1,0 +1,21 @@
+<?php
+$MESS["ADMIN_TOOLS_ACCESS_DENIED"] = "Қолжетімділікке тыйым салынған";
+$MESS["ADMIN_TOOLS_ERROR_EXPORT"] = "Экспорттау кезінде қателер пайда болды";
+$MESS["ADMIN_TOOLS_FIELD_EXPORT_DATA"] = "Деректерді экспорттау";
+$MESS["ADMIN_TOOLS_FIELD_EXPORT_FILE"] = "Экспорттауға арналған файл";
+$MESS["ADMIN_TOOLS_FIELD_EXPORT_HL"] = "Highload-блок";
+$MESS["ADMIN_TOOLS_FIELD_EXPORT_HLS"] = "Құрылымды экспорттау";
+$MESS["ADMIN_TOOLS_PROCESS_EXPORT"] = "Экспорттау қатесі";
+$MESS["ADMIN_TOOLS_PROCESS_FILES_FINAL"] = "Highload блогынан сақталған файлдарды жүктеп алу: #files_link#.";
+$MESS["ADMIN_TOOLS_PROCESS_FINAL"] = "Экспорттау файлын жүктеп алу: #xml_link#.";
+$MESS["ADMIN_TOOLS_PROCESS_FINISH_DELETE"] = "Тасымалдаудан немесе жүктеуден кейін экспортталған файлдарды жоюды ұмытпаңыз.";
+$MESS["ADMIN_TOOLS_PROCESS_PERCENT"] = "Экспортталды #percent#% (#all# ішінен #count#).";
+$MESS["ADMIN_TOOLS_SELECT_HL"] = "Highload-блокты таңдаңыз.";
+$MESS["ADMIN_TOOLS_START_EXPORT"] = "Экспорттау";
+$MESS["ADMIN_TOOLS_STOP_EXPORT"] = "Экспортты тоқтату";
+$MESS["ADMIN_TOOLS_TAB_EXPORT"] = "Highload-блок экспорты";
+$MESS["ADMIN_TOOLS_TAB_EXPORT_TITLE"] = "Highload-блок экспорты (баптаулар, өрістер, деректер)";
+$MESS["ADMIN_TOOLS_TITLE_EXPORT"] = "Highload-блок экспорты";
+$MESS["XML_FILENAME_HAS_ERROR"] = "Файлдың (буманың) атауы тек латын әліпбиінің символдарынан, сандардан, бос орыннан, сондай-ақ символдардан тұруы мүмкін: !#\$%&()[]{}+-.;=@^_~";
+$MESS["XML_FILENAME_IS_NOT_XML"] = "Файл атауында .xml кеңейтімі болуы керек және латын әліпбиінің әріптерінен, сандардан және астын сызудан тұрады.";
+$MESS["XML_FILE_NOT_ACCESSIBLE"] = "Экспорттауға арналған Файл табылмады немесе жазу үшін қолжетімсіз.";

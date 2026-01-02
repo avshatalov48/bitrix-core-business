@@ -1,10 +1,11 @@
-import { Tag, Loc } from 'main.core';
-import { Dialog, type Item } from 'ui.entity-selector';
+import { Tag, Loc, Runtime } from 'main.core';
 import 'ui.buttons';
 
 import { Core } from 'im.v2.application.core';
 
-export const openCallUserSelector = (params) => {
+import type { Item } from 'ui.entity-selector';
+
+export const openCallUserSelector = async (params) => {
 	const handleAddCLick = () => {
 		const selectedItems = dialog.getSelectedItems();
 
@@ -16,6 +17,8 @@ export const openCallUserSelector = (params) => {
 	const handleCancelCLick = () => {
 		dialog.hide();
 	};
+
+	const { Dialog } = await Runtime.loadExtension('ui.entity-selector');
 
 	const dialog = new Dialog({
 		targetNode: params.bindElement,

@@ -2,13 +2,13 @@
 
 namespace Bitrix\Iblock\UserField\Types;
 
+use Bitrix\Iblock;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type;
-use Bitrix\Iblock;
 use CDBResult;
-use CUserTypeManager;
 use CIBlockSectionEnum;
+use CUserTypeManager;
 
 /**
  * Class SectionType
@@ -96,7 +96,7 @@ class SectionType extends ElementType
 		{
 			$section = CIBlockSectionEnum::getTreeList(
 				(int)$userField['SETTINGS']['IBLOCK_ID'],
-				$userField['SETTINGS']['ACTIVE_FILTER']
+				$userField['SETTINGS']['ACTIVE_FILTER'] ?? 'N',
 			);
 		}
 		return $section;
@@ -180,7 +180,12 @@ class SectionType extends ElementType
 				return;
 			}
 		}
-		$filter['ACTIVE'] = $userField['SETTINGS']['ACTIVE_FILTER'] === 'Y';
+		$filter['ACTIVE'] = (($userField['SETTINGS']['ACTIVE_FILTER'] ?? 'N') === 'Y');
+
+		if (isset($additionalParameters['SKIP_CHECK_PERMISSIONS']) && $additionalParameters['SKIP_CHECK_PERMISSIONS'])
+		{
+			$filter['CHECK_PERMISSIONS'] = 'N';
+		}
 
 		$sections = self::getElements(
 			(int)$userField['SETTINGS']['IBLOCK_ID'],
@@ -219,7 +224,7 @@ class SectionType extends ElementType
 
 		$filter = [
 			'IBLOCK_ID' => $iblockId,
-			'CHECK_PERMISSIONS' => 'Y',
+			'CHECK_PERMISSIONS' => $additionalFilter['CHECK_PERMISSIONS'] ?? 'Y',
 			'MIN_PERMISSION' => \CIBlockRights::PUBLIC_READ,
 		];
 		if ($additionalFilter['ACTIVE'])

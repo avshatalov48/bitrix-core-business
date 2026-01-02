@@ -1,9 +1,9 @@
-import {BuilderModel} from 'ui.vue3.vuex';
+import { BuilderModel } from 'ui.vue3.vuex';
 
-import {Core} from 'im.v2.application.core';
+import { Core } from 'im.v2.application.core';
 
-import type {Store, GetterTree, ActionTree, MutationTree} from 'ui.vue3.vuex';
-import type {ImModelReactions} from 'im.v2.model';
+import type { Store, GetterTree, ActionTree, MutationTree } from 'ui.vue3.vuex';
+import type { ImModelReactions } from 'im.v2.model';
 
 export const Reaction = Object.freeze({
 	like: 'like',
@@ -19,10 +19,12 @@ type ReactionType = $Values<typeof Reaction>;
 
 type RawReactions = {
 	messageId: number,
-	reactionCounters: {[reactionType: string]: number},
-	reactionUsers: {[reactionType: string]: number[]},
+	reactionCounters: ReactionCounters,
+	reactionUsers: ReactionUsers,
 	ownReactions: ReactionType[]
 };
+type ReactionCounters = {[reactionType: string]: number};
+type ReactionUsers = {[reactionType: string]: number[]};
 type RawReactionsList = RawReactions[];
 
 type ReactionsState = {
@@ -38,79 +40,78 @@ export class ReactionsModel extends BuilderModel
 	getState(): ReactionsState
 	{
 		return {
-			collection: {}
+			collection: {},
 		};
 	}
 
-	getElementState()
+	getElementState(): ImModelReactions
 	{
 		return {
 			reactionCounters: {},
 			reactionUsers: {},
-			ownReactions: new Set()
+			ownReactions: new Set(),
 		};
 	}
 
 	getGetters(): GetterTree
 	{
 		return {
-			getByMessageId: (state: ReactionsState) => (messageId: number): ?ImModelReactions =>
-			{
+			getByMessageId: (state: ReactionsState) => (messageId: number): ?ImModelReactions => {
 				return state.collection[messageId];
-			}
+			},
 		};
 	}
 
 	getActions(): ActionTree
 	{
 		return {
-			set: (store: Store, payload: RawReactionsList) =>
-			{
+			set: (store: Store, payload: RawReactionsList) => {
 				store.commit('set', this.prepareSetPayload(payload));
 			},
 			setReaction: (
 				store: Store,
-				payload: {messageId: number, userId: number, reaction: ReactionType}
-			) =>
-			{
+				payload: {messageId: number, userId: number, reaction: ReactionType},
+			) => {
 				if (!Reaction[payload.reaction])
 				{
 					return;
 				}
+
 				if (!store.state.collection[payload.messageId])
 				{
-					store.state.collection[payload.messageId] = this.getElementState();
+					store.commit('initCollection', payload.messageId);
 				}
 
 				store.commit('setReaction', payload);
 			},
 			removeReaction: (
 				store: Store,
-				payload: {messageId: number, userId: number, reaction: ReactionType}
-			) =>
-			{
+				payload: {messageId: number, userId: number, reaction: ReactionType},
+			) => {
 				if (!store.state.collection[payload.messageId] || !Reaction[payload.reaction])
 				{
 					return;
 				}
 				store.commit('removeReaction', payload);
-			}
+			},
+			clearCollection: (store: Store) => {
+				store.commit('clearCollection');
+			},
 		};
 	}
 
 	getMutations(): MutationTree
 	{
 		return {
-			set: (state: ReactionsState, payload: RawReactionsList) =>
-			{
-				payload.forEach(item => {
+			set: (state: ReactionsState, payload: RawReactionsList) => {
+				payload.forEach((item) => {
 					const newItem = {
 						reactionCounters: item.reactionCounters,
-						reactionUsers: item.reactionUsers
+						reactionUsers: item.reactionUsers,
 					};
 
 					const currentItem = state.collection[item.messageId];
-					const newOwnReaction = !!item.ownReactions;
+					const newOwnReaction = Boolean(item.ownReactions);
 					if (newOwnReaction)
 					{
 						newItem.ownReactions = item.ownReactions;
@@ -120,19 +121,19 @@ export class ReactionsModel extends BuilderModel
 						newItem.ownReactions = currentItem ? currentItem.ownReactions : new Set();
 					}
 
+					// eslint-disable-next-line no-param-reassign
 					state.collection[item.messageId] = newItem;
 				});
 			},
 			setReaction: (
 				state: ReactionsState,
-				payload: {messageId: number, userId: number, reaction: ReactionType}
-			) =>
-			{
-				const {messageId, userId, reaction} = payload;
+				payload: {messageId: number, userId: number, reaction: ReactionType},
+			) => {
+				const { messageId, userId, reaction } = payload;
 				const reactions = state.collection[messageId];
 				if (Core.getUserId() === userId)
 				{
-					this.removeAllCurrentUserReactions(reactions);
+					this.removeAllCurrentUserReactions(state, messageId);
 					reactions.ownReactions.add(reaction);
 				}
 
@@ -154,10 +155,9 @@ export class ReactionsModel extends BuilderModel
 			},
 			removeReaction: (
 				state: ReactionsState,
-				payload: {messageId: number, userId: number, reaction: ReactionType}
-			) =>
-			{
-				const {messageId, userId, reaction} = payload;
+				payload: {messageId: number, userId: number, reaction: ReactionType},
+			) => {
+				const { messageId, userId, reaction } = payload;
 				const reactions = state.collection[messageId];
 
 				if (Core.getUserId() === userId)
@@ -171,13 +171,25 @@ export class ReactionsModel extends BuilderModel
 				{
 					delete reactions.reactionCounters[reaction];
 				}
-			}
+			},
+			initCollection: (state: ReactionsState, messageId: number) => {
+				if (!state.collection[messageId])
+				{
+					// eslint-disable-next-line no-param-reassign
+					state.collection[messageId] = this.getElementState();
+				}
+			},
+			clearCollection: (state: ReactionsState) => {
+				// eslint-disable-next-line no-param-reassign
+				state.collection = {};
+			},
 		};
 	}
 
-	removeAllCurrentUserReactions(reactions: ImModelReactions)
+	removeAllCurrentUserReactions(state: ReactionsState, messageId: Number)
 	{
-		reactions.ownReactions.forEach(reaction => {
+		const reactions = state.collection[messageId];
+		reactions.ownReactions.forEach((reaction) => {
 			reactions.reactionUsers[reaction]?.delete(Core.getUserId());
 			reactions.reactionCounters[reaction]--;
 			if (reactions.reactionCounters[reaction] === 0)
@@ -189,9 +201,13 @@ export class ReactionsModel extends BuilderModel
 		reactions.ownReactions = new Set();
 	}
 
-	prepareSetPayload(payload: RawReactionsList)
+	prepareSetPayload(payload: RawReactionsList): {
+		messageId: number,
+		reactionCounters: ReactionCounters,
+		reactionUsers: ReactionUsers
+	}
 	{
-		return payload.map(item => {
+		return payload.map((item) => {
 			const reactionUsers = {};
 			Object.entries(item.reactionUsers).forEach(([reaction, users]) => {
 				reactionUsers[reaction] = new Set(users);
@@ -204,8 +220,8 @@ export class ReactionsModel extends BuilderModel
 
 			const result = {
 				messageId: item.messageId,
-				reactionCounters: reactionCounters,
-				reactionUsers: reactionUsers
+				reactionCounters,
+				reactionUsers,
 			};
 
 			if (item.ownReactions?.length > 0)

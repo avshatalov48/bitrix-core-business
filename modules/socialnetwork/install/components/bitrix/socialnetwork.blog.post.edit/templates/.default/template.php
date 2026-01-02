@@ -15,13 +15,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Bitrix24\Feature;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Page\FrameStatic;
-use Bitrix\Main\UI;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Socialnetwork\Integration\Calendar\ApiVersion;
+use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
+use Bitrix\Socialnetwork\Integration\Calendar\ApiVersion;
 use Bitrix\Socialnetwork\Integration\Intranet\Settings;
 
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
@@ -58,7 +58,7 @@ if (in_array('lists', $arResult['tabs'], true))
 	$extensionsList[] = 'lists';
 }
 
-UI\Extension::load($extensionsList);
+Extension::load($extensionsList);
 
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css');
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.blog.blog/templates/.default/style.css');
@@ -225,19 +225,22 @@ else
 	{
 		$limited = (
 			Loader::includeModule('bitrix24')
+			&& Loader::includeModule('ui')
 			&& !Feature::isFeatureEnabled('socialnetwork_livefeed_vote')
 		);
 
+		Extension::load('ui.info-helper');
+
 		$arTabs[] = [
-			"ID" => "vote",
-			"NAME" => Loc::getMessage("BLOG_TAB_VOTE"),
-			"ICON" => "feed-add-post-form-polls-link-icon",
-			"ONCLICK" => (
-			$limited
-				? "BX.UI.InfoHelper.show('limit_crm_interview');"
-				: ""
+			'ID' => 'vote',
+			'NAME' => Loc::getMessage('BLOG_TAB_VOTE'),
+			'ICON' => 'feed-add-post-form-polls-link-icon',
+			'ONCLICK' => (
+				$limited
+					? 'top?.BX?.UI?.FeaturePromotersRegistry.getPromoter({code: \'limit_crm_interview\', bindElement: event.target}).show();'
+					: ''
 			),
-			"LIMITED" => $limited ? 'Y' : 'N',
+			'LIMITED' => $limited ? 'Y' : 'N',
 		];
 	}
 
@@ -275,14 +278,26 @@ else
 
 	if (in_array('lists', $arResult['tabs'], true))
 	{
+		if (CLists::isFeatureEnabled())
+		{
+			$showBizprocNotify = "BX.UI.InfoHelper.show('limit_automation_off');";
+			$showBizprocStarter = "BX.Socialnetwork.Livefeed.PostFormTabs.getInstance().clickStartWorkflowButton();";
+			$isBizprocAvailable =
+				Loader::includeModule('bizproc')
+				&& class_exists(\Bitrix\Bizproc\Integration\Intranet\ToolsManager::class)
+				&& \Bitrix\Bizproc\Integration\Intranet\ToolsManager::getInstance()->isBizprocAvailable()
+			;
+			$jsHandler = $isBizprocAvailable ? $showBizprocStarter : $showBizprocNotify;
+		}
+		else
+		{
+			$jsHandler = "BX.UI.InfoHelper.show('limit_office_bp_stream');";
+		}
+
 		$arTabs[] = [
 			"ID" => "lists",
 			"NAME" => Loc::getMessage("BLOG_TAB_LISTS"),
-			"ONCLICK" => (
-				!CLists::isFeatureEnabled()
-					? "BX.UI.InfoHelper.show('limit_office_bp_stream');"
-					: "BX.Socialnetwork.Livefeed.PostFormTabs.getInstance().getLists();"
-			)
+			"ONCLICK" => $jsHandler
 		];
 	}
 
@@ -964,19 +979,7 @@ HTML;
 				if (in_array('lists', $arResult['tabs'], true))
 				{
 					?>
-					<div id="feed-add-post-content-lists" style="display: none;">
-						<?php
-						$APPLICATION->IncludeComponent("bitrix:lists.live.feed", "",
-							[
-								"SOCNET_GROUP_ID" => $arParams["SOCNET_GROUP_ID"],
-								"DESTINATION" => $arResult["PostToShow"],
-								"IBLOCK_ID" => $_GET['bp_setting'] ?? 0
-							],
-							null,
-							[ "HIDE_ICONS" => "Y" ]
-						);
-						?>
-					</div>
+					<div id="feed-add-post-content-lists" style="display: none;"></div>
 					<?php
 				}
 
@@ -1007,8 +1010,6 @@ HTML;
 
 						if ($taskSubmitted)
 						{
-							CTaskNotifications::enableSonetLogNotifyAuthor();
-
 							$componentParameters = [
 								'ID' => 0,
 								'GROUP_ID' => $arParams['SOCNET_GROUP_ID'],
@@ -1049,8 +1050,6 @@ HTML;
 								null,
 								[ "HIDE_ICONS" => "Y" ]
 							);
-
-							CTaskNotifications::disableSonetLogNotifyAuthor();
 						}
 						?></div></div><?php
 				}

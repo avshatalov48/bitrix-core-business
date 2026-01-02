@@ -67,6 +67,10 @@ class SectionModel implements AccessibleSection
 
 		$model
 			->setType($eventModel->getSectionType())
+			// TODO: fix me
+			// this is not right approach for group sections
+			// in group sections owner_id IS group_id, so here is potential bug on further model usages
+			// as example, in some cases extranet right check can fail
 			->setOwnerId($eventModel->getOwnerId())
 		;
 

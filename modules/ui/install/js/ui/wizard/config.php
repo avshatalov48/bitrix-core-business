@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/wizard.bundle.js',
 	'rel' => [
 		'main.core',
+		'ui.hint',
 	],
 	'skip_core' => false,
 ];

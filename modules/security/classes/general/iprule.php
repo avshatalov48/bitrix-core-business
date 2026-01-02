@@ -1172,13 +1172,21 @@ class CSecurityIPRule
 					//IP does match to blocking condition let's check path
 					if($bMatch)
 					{
-						$bMatch = false;
-						foreach($arRule["INCL_MASKS"] as $mask)
+						if (defined("ADMIN_SECTION") && ADMIN_SECTION === true &&
+							(!defined('SELF_FOLDER_URL') || SELF_FOLDER_URL == '/bitrix/admin/'))
 						{
-							if(preg_match("#^".$mask."$#", $uri))
+							$bMatch = $arRule["ADMIN_SECTION"] == "Y";
+						}
+						else
+						{
+							$bMatch = false;
+							foreach($arRule["INCL_MASKS"] as $mask)
 							{
-								$bMatch = true;
-								break;
+								if(preg_match("#^".$mask."$#", $uri))
+								{
+									$bMatch = true;
+									break;
+								}
 							}
 						}
 						//Check path for exclusion
@@ -1248,6 +1256,9 @@ class CSecurityIPRule
 			return false;
 
 		if (mb_strpos($uri, "\0") !== false)
+			return false;
+
+		if (mb_strpos($uri, '/./') !== false)
 			return false;
 
 		if (mb_strpos($uri, '/') !== 0)

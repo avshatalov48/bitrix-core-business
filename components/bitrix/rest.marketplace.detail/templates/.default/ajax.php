@@ -47,6 +47,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"] <> '' && check_bitrix
 					"FROM_USER_ID" => $USER->GetID(),
 					"NOTIFY_TYPE" => IM_NOTIFY_CONFIRM,
 					"NOTIFY_MODULE" => "rest",
+					"NOTIFY_EVENT" => "admin_notification",
 					"NOTIFY_TAG" => "REST|APP_INSTALL_REQUEST|".$USER->GetID()."|TO|".$id,
 					"NOTIFY_SUB_TAG" => "REST|APP_INSTALL_REQUEST",
 					"NOTIFY_MESSAGE" => GetMessage("REST_APP_INSTALL_REQUEST_TEXT", array("#USER_NAME#" => $userName, "#APP_NAME#" => $_POST["appName"])),

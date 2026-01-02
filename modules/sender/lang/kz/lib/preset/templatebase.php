@@ -1,0 +1,51 @@
+<?php
+$MESS["PRESET_MAILBLOCK_unsub_TEXT_UNSUB_LINK"] = "сілтеме";
+$MESS["PRESET_MAILBLOCK_unsub_TEXT_UNSUB_TEXT"] = "Осы жіберілімнен бас тарту үшін өтіңіз ";
+$MESS["PRESET_TEMPLATE_1column1"] = "1 баған-1";
+$MESS["PRESET_TEMPLATE_1column2"] = "1 баған-2";
+$MESS["PRESET_TEMPLATE_2column1"] = "2 баған-1";
+$MESS["PRESET_TEMPLATE_2column2"] = "2 баған-2";
+$MESS["PRESET_TEMPLATE_2column3"] = "2 баған-3";
+$MESS["PRESET_TEMPLATE_2column4"] = "2 баған-4";
+$MESS["PRESET_TEMPLATE_2column5"] = "2 баған-5";
+$MESS["PRESET_TEMPLATE_2column6"] = "2 баған-6";
+$MESS["PRESET_TEMPLATE_2column7"] = "2 баған-7";
+$MESS["PRESET_TEMPLATE_3column1"] = "3 баған-1";
+$MESS["PRESET_TEMPLATE_3column2"] = "3 баған-2";
+$MESS["PRESET_TEMPLATE_3column3"] = "3 баған-3";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_BUTTON"] = "Сайтқа өту";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_HEADER"] = "Тақырыпаты";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_MENU_ABOUT"] = "Біздің дүкен туралы";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_MENU_CONTACTS"] = "Байланыс ақпараты";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_MENU_DELIVERY"] = "Жеткізу шарттары";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_MENU_GUARANTEE"] = "Кепілдік шарттары";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_MENU_HOWTO"] = "Тауарларды қалай сатып алуға болады";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_SCHEDULE_DETAIL"] = "Дс.- Жм. 09:00 - 20:00<br>Жс. Демалыс";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_SCHEDULE_NAME"] = "Жұмыс уақыты";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_TEXT1"] = "Алдыңғыға сәйкес, бизнесті әртараптандыру медиамиксті бейтараптандырады. Тәжірибелік өзара әрекеттесуді ұйымдастыру стратегиялық жоспарлаудың кешенді процесін күшейтеді. Беделге қарамай PR фирмалық стильді өзгертеді.
+<br><br>Орналастыруға арналған бюджет маркетингтің конструктивтік құралын дәйекті түрде кеңейтеді. Ребрендинг, әдетте, бизнестің әлеуметтік жауапкершілігін біле отырып, эксперименттік инвестициялық өнімді айналдырады деп саналады. Нарықтағы позициялау, әрине, шығындарды есептемегенде бір уақытта жарнамалық брифті шоғырландырады.
+";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_TEXT2"] = "Алдыңғыға сәйкес, бизнесті әртараптандыру медиамиксті бейтараптандырады. Тәжірибелік өзара әрекеттесуді ұйымдастыру кешенді процесті күшейтеді.";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_TEXT3"] = "Алдыңғыға сәйкес, бизнесті әртараптандыру медиамиксті бейтараптандырады. Тәжірибелік өзара әрекеттесуді ұйымдастыру стратегиялық жоспарлаудың кешенді процесін күшейтеді. Беделдерге қарамай PR.";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_TEXT4"] = "Алдыңғыға сәйкес, бизнесті әртараптандыру медиамиксті бейтараптандырады. Тәжірибелік өзара әрекеттесуді ұйымдастыру стратегиялық жоспарлаудың кешенді процесін күшейтеді. Беделге қарамай PR фирмалық стильді өзгертеді.";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_TEXT5"] = "Алдыңғыға сәйкес, бизнесті әртараптандыру медиамиксті бейтараптандырады. Тәжірибелік өзара әрекеттесуді ұйымдастыру стратегиялық жоспарлаудың кешенді процесін күшейтеді. Беделге қарамай PR фирмалық стильді өзгертеді.
+Орналастыруға арналған бюджет маркетингтің конструктивтік құралын дәйекті түрде кеңейтеді.";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_TEXT6"] = "Алдыңғыға сәйкес, бизнесті әртараптандыру медиамиксті бейтараптандырады. Тәжірибелік өзара әрекеттесуді ұйымдастыру стратегиялық жоспарлаудың кешенді процесін күшейтеді. PR беделге қарамай фирмалықты өзгертеді.";
+$MESS["PRESET_TEMPLATE_LIST_BLANK_UNSUB_LINK"] = "Жіберілімнен бас тарту";
+$MESS["PRESET_TEMPLATE_LIST_SITE_DEF_TEXT"] = "Мұнда сіз жаңа хатыңызға мәтін мен суреттерді орналастыра аласыз";
+$MESS["PRESET_TEMPLATE_dynamic1"] = "динамика-1";
+$MESS["PRESET_TEMPLATE_dynamic2"] = "динамика-2";
+$MESS["PRESET_TEMPLATE_empty"] = "Бос қалып";
+$MESS["SENDER_PRESET_TEMPLATE_BTN_CLOSE"] = "Жабу және хабарламаға оралу";
+$MESS["SENDER_PRESET_TEMPLATE_BTN_PREVIEW"] = "Алдын ала қарау";
+$MESS["SENDER_PRESET_TEMPLATE_LIST_TMPL"] = "Қалыптар тізімі";
+$MESS["SENDER_PRESET_TEMPLATE_NO_TMPL"] = "Қалыптар жоқ";
+$MESS["SENDER_PRESET_TEMPLATE_OLD_EDITOR"] = "Ескі редактор";
+$MESS["SENDER_PRESET_TEMPLATE_SELECT"] = "Қалыпты таңдау";
+$MESS["TYPE_PRESET_TEMPLATE_ADDITIONAL"] = "Қосымша қалыптар";
+$MESS["TYPE_PRESET_TEMPLATE_BASE"] = "Штаттық қалыптар";
+$MESS["TYPE_PRESET_TEMPLATE_LAST"] = "Жақында пайдаланған";
+$MESS["TYPE_PRESET_TEMPLATE_MAILING"] = "Соңғы хаттар";
+$MESS["TYPE_PRESET_TEMPLATE_MARKETPLACE"] = "Маркетплейс";
+$MESS["TYPE_PRESET_TEMPLATE_SITE_TMPL"] = "Рәсімдеу тақырыбы";
+$MESS["TYPE_PRESET_TEMPLATE_USER"] = "Менің қалыптарым";

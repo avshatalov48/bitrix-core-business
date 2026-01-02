@@ -8,7 +8,7 @@ IncludeModuleLangFile(__FILE__);
 
 if ($ex = $APPLICATION->GetException())
 {
-	echo CAdminMessage::ShowMessage([
+	CAdminMessage::ShowMessage([
 		'TYPE' => 'ERROR',
 		'MESSAGE' => GetMessage('MOD_INST_ERR'),
 		'DETAILS' => $ex->GetString(),
@@ -17,7 +17,7 @@ if ($ex = $APPLICATION->GetException())
 }
 else
 {
-	echo CAdminMessage::ShowNote(GetMessage('MOD_INST_OK'));
+	CAdminMessage::ShowNote(GetMessage('MOD_INST_OK'));
 }
 
 if ($_REQUEST['public_dir'] <> '') :

@@ -11,5 +11,4 @@ interface Converter
 	public function convertEvent(): Event;
 
 	public function convertSection(): Section;
-
 }

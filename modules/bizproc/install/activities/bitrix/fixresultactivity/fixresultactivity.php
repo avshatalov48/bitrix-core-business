@@ -208,7 +208,7 @@ class CBPFixResultActivity extends BaseActivity
 				if ($activity && method_exists($activity, 'makeResultFromId'))
 				{
 					$resultId = $activity->__get($values['ResultItem']['field']);
-					if ($resultId !== null)
+					if ((is_int($resultId)))
 					{
 						$result = $activity->makeResultFromId($resultId);
 						$resultValue = $result->data;
@@ -407,7 +407,6 @@ class CBPFixResultActivity extends BaseActivity
 	{
 		if (!self::checkResultViewRights($result, $workflowId, $userId))
 		{
-
 			return RenderedResult::makeNoRights();
 		}
 
@@ -417,7 +416,6 @@ class CBPFixResultActivity extends BaseActivity
 				$user = UserTable::getById($result['USER_ID'])->fetchObject();
 				if (!$user)
 				{
-
 					return RenderedResult::makeNoResult();
 				}
 

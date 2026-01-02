@@ -676,7 +676,7 @@ $rsData = new CAdminResult($rsData, $sTableID);
 $j = 0;
 while ($arRes = $rsData->Fetch())
 {
-	$row =& $lAdmin->AddRow($j++, $arRes);
+	$row = $lAdmin->AddRow($j++, $arRes);
 	foreach ($arRes as $key => $value)
 	{
 		if ($key == 'KPI_VALUE' && array_key_exists('IS_OK', $arRes) && !$arRes['IS_OK'])

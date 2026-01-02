@@ -14,10 +14,12 @@ export const VueUploaderComponent: BitrixVueComponentProps = {
 		uploaderOptions: {
 			type: Object,
 		},
+		/** @type TileWidgetOptions */
 		widgetOptions: {
 			type: Object,
 			default: {},
 		},
+		/** @type VueUploaderAdapter */
 		uploaderAdapter: {
 			type: Object,
 			default: null,

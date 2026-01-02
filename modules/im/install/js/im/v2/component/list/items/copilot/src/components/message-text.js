@@ -4,7 +4,7 @@ import { Core } from 'im.v2.application.core';
 import { Settings } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { Parser } from 'im.v2.lib.parser';
-import { AvatarSize, MessageAvatar } from 'im.v2.component.elements';
+import { AvatarSize, MessageAvatar } from 'im.v2.component.elements.avatar';
 
 import type { ImModelUser, ImModelChat, ImModelRecentItem, ImModelMessage } from 'im.v2.model';
 

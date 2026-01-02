@@ -57,15 +57,43 @@ export class Text extends Base
 	onChange(preventAdjustPosition, preventHistory)
 	{
 		super.onChange.call(this, preventHistory);
-		if (!preventAdjustPosition)
-		{
-			BX.Landing.UI.Panel.EditorPanel.getInstance().adjustPosition(this.node);
-		}
+
+		this.processNewTableContainers();
 
 		if (!preventHistory)
 		{
 			BX.Landing.History.getInstance().push();
 		}
+
+		if (!preventAdjustPosition)
+		{
+			BX.Landing.UI.Panel.EditorPanel.getInstance().adjustPosition(this.node);
+		}
+	}
+
+	processNewTableContainers()
+	{
+		const newTables = [...this.node.querySelectorAll('.landing-table-container-new')];
+		if (newTables.length === 0)
+		{
+			return;
+		}
+
+		newTables.forEach((newTableElement) => {
+			const tableEditor = new TableEditor(newTableElement, this, false);
+
+			if (tableEditor.table)
+			{
+				tableEditor.toggleSelectAll();
+				const thTech = tableEditor.table.querySelector('.landing-table-th-select-all');
+				if (thTech)
+				{
+					this.addTableButtons(thTech);
+				}
+			}
+
+			newTableElement.classList.remove('landing-table-container-new');
+		});
 	}
 
 	onKeyDown(event)
@@ -267,7 +295,7 @@ export class Text extends Base
 	{
 		if (this.isTable(event))
 		{
-			this.addTableButtons(event);
+			this.addTableButtons(event.srcElement);
 		}
 
 		event.stopPropagation();
@@ -490,8 +518,13 @@ export class Text extends Base
 		this.currentNode.onChange(true);
 	}
 
-	addTableButtons(event)
+	addTableButtons(srcElement)
 	{
+		if (!srcElement)
+		{
+			return;
+		}
+
 		const buttons = [];
 		let neededButtons = [];
 		let setTd = [];
@@ -504,19 +537,19 @@ export class Text extends Base
 		let isButtonAddCol = false;
 		let isNeedTablePanel = true;
 		if (
-			BX.Dom.hasClass(event.srcElement, 'landing-table')
-			|| BX.Dom.hasClass(event.srcElement, 'landing-table-col-dnd')
+			BX.Dom.hasClass(srcElement, 'landing-table')
+			|| BX.Dom.hasClass(srcElement, 'landing-table-col-dnd')
 		)
 		{
 			isNeedTablePanel = false;
 		}
 
-		if (BX.Dom.hasClass(event.srcElement, 'landing-table-row-add'))
+		if (BX.Dom.hasClass(srcElement, 'landing-table-row-add'))
 		{
 			isButtonAddRow = true;
 		}
 
-		if (BX.Dom.hasClass(event.srcElement, 'landing-table-col-add'))
+		if (BX.Dom.hasClass(srcElement, 'landing-table-col-add'))
 		{
 			isButtonAddCol = true;
 		}
@@ -525,7 +558,7 @@ export class Text extends Base
 		if (nodeTableList.length > 0)
 		{
 			nodeTableList.forEach((nodeTable) => {
-				if (nodeTable.contains(event.srcElement))
+				if (nodeTable.contains(srcElement))
 				{
 					table = nodeTable;
 
@@ -538,14 +571,14 @@ export class Text extends Base
 		let isSelectedAll;
 
 		tableButtons.forEach((tableButton) => {
-			tableButton.options.srcElement = event.srcElement;
+			tableButton.options.srcElement = srcElement;
 			tableButton.options.node = node;
 			tableButton.options.table = table;
 		});
 
-		if (BX.Dom.hasClass(event.srcElement, 'landing-table-row-dnd'))
+		if (BX.Dom.hasClass(srcElement, 'landing-table-row-dnd'))
 		{
-			setTd = event.srcElement.parentNode.children;
+			setTd = srcElement.parentNode.children;
 			setTd = [...setTd];
 			neededButtons = this.getAmountTableRows(table) > 1 ? [0, 1, 2, 3, 4, 5, 6] : [0, 1, 2, 3, 4, 5];
 			neededButtons.forEach((neededButton) => {
@@ -555,9 +588,9 @@ export class Text extends Base
 			});
 		}
 
-		if (BX.Dom.hasClass(event.srcElement.parentNode, 'landing-table-col-dnd'))
+		if (BX.Dom.hasClass(srcElement.parentNode, 'landing-table-col-dnd'))
 		{
-			const childNodes = event.srcElement.parentElement.parentElement.childNodes;
+			const childNodes = srcElement.parentElement.parentElement.childNodes;
 			const childNodesArray = [...childNodes];
 			const childNodesArrayPrepare = [];
 			childNodesArray.forEach((childNode) => {
@@ -566,8 +599,8 @@ export class Text extends Base
 					childNodesArrayPrepare.push(childNode);
 				}
 			});
-			const neededPosition = childNodesArrayPrepare.indexOf(event.srcElement.parentElement);
-			const rows = event.srcElement.parentElement.parentElement.parentElement.childNodes;
+			const neededPosition = childNodesArrayPrepare.indexOf(srcElement.parentElement);
+			const rows = srcElement.parentElement.parentElement.parentElement.childNodes;
 			rows.forEach((row) => {
 				if (row.nodeType === 1)
 				{
@@ -592,12 +625,12 @@ export class Text extends Base
 			});
 		}
 
-		if (BX.Dom.hasClass(event.srcElement, 'landing-table-th-select-all'))
+		if (BX.Dom.hasClass(srcElement, 'landing-table-th-select-all'))
 		{
-			if (BX.Dom.hasClass(event.srcElement, 'landing-table-th-select-all-selected'))
+			if (BX.Dom.hasClass(srcElement, 'landing-table-th-select-all-selected'))
 			{
 				isSelectedAll = true;
-				const rows = event.srcElement.parentElement.parentElement.childNodes;
+				const rows = srcElement.parentElement.parentElement.childNodes;
 				rows.forEach((row) => {
 					row.childNodes.forEach((th) => {
 						setTd.push(th);
@@ -618,11 +651,11 @@ export class Text extends Base
 		}
 
 		if (
-			BX.Dom.hasClass(event.srcElement, 'landing-table-td')
-			|| event.srcElement.closest('.landing-table-td') !== null
+			BX.Dom.hasClass(srcElement, 'landing-table-td')
+			|| srcElement.closest('.landing-table-td') !== null
 		)
 		{
-			setTd.push(event.srcElement);
+			setTd.push(srcElement);
 			neededButtons = [3, 2, 1, 0];
 			neededButtons.forEach((neededButton) => {
 				tableButtons[neededButton].options.target = 'cell';
@@ -744,8 +777,8 @@ export class Text extends Base
 
 	getTableButtons(): []
 	{
-		this.buttons = [];
-		this.buttons.push(
+		const buttons = [];
+		buttons.push(
 			new BX.Landing.UI.Button.AlignTable(
 				'alignLeft',
 				{
@@ -839,7 +872,7 @@ export class Text extends Base
 			),
 		);
 
-		return this.buttons;
+		return buttons;
 	}
 
 	/**

@@ -56,7 +56,10 @@ class EventController extends UploaderController
 		}
 
 		$userId = \CCalendar::getCurUserId();
-		$eventModel = \CCalendarEvent::getEventModelForPermissionCheck($eventId, [], $userId);
+		$eventModel = \CCalendarEvent::getEventModelForPermissionCheck(
+			eventId: $eventId,
+			userId: $userId
+		);
 
 		return (new EventAccessController($userId))->check($action, $eventModel);
 	}

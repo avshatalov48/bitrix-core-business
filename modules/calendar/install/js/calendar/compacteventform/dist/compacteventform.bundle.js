@@ -141,7 +141,9 @@ this.BX = this.BX || {};
 	      offsetLeft: 0,
 	      closeIcon: true,
 	      titleBar: true,
-	      draggable: true,
+	      draggable: {
+	        restrict: true
+	      },
 	      resizable: false,
 	      lightShadow: true,
 	      className: 'calendar-simple-view-popup calendar-simple-view-popup-show',
@@ -167,7 +169,10 @@ this.BX = this.BX || {};
 	      return;
 	    }
 	    if (this.getMode() === CompactEventForm.EDIT_MODE && this.formDataChanged() && this.checkDataBeforeCloseMode && !fromPopup) {
-	      this.showConfirmClosePopup();
+	      if (this.checkTopSlider()) {
+	        this.showConfirmClosePopup();
+	      }
+
 	      // Workaround to prevent form closing even if user don't want to and presses "cancel" in confirm
 	      if (this.popup) {
 	        this.popup.destroyed = true;
@@ -202,19 +207,16 @@ this.BX = this.BX || {};
 			</div>
 
 			${0}
-
-			${0}
-
 			${0}
 
 			<div class="calendar-field-container calendar-field-container-info">
 				${0}
-
-					${0}
-
+				${0}
 				${0}
 				${0}
 			</div>
+
+			${0}
 		</div>`), this.DOM.titleOuterWrap = main_core.Tag.render(_t2 || (_t2 = _`
 			<div class="calendar-field-container calendar-field-container-string-select">
 				<div class="calendar-field-block">
@@ -223,11 +225,11 @@ this.BX = this.BX || {};
 					${0}
 					${0}
 				</div>
-			</div>`), this.getEntryCounter(), this.getTitleControl(), this.getTitleFade(), this.getColorControl()), this.getSectionControl('textselect'), this.getDateTimeControl(), this.getUserPlannerSelector(), this.getRelationControl(), this.getTypeInfoControl(), this.getLocationControl(), this.DOM.remindersOuterWrap = main_core.Tag.render(_t3 || (_t3 = _`
+			</div>`), this.getEntryCounter(), this.getTitleControl(), this.getTitleFade(), this.getColorControl()), this.getSectionControl('textselect'), this.getDateTimeControl(), this.getUserPlannerSelector(), this.getTypeInfoControl(), this.getLocationControl(), this.DOM.remindersOuterWrap = main_core.Tag.render(_t3 || (_t3 = _`
 				<div class="calendar-field-block">
 					<div class="calendar-field-title">${0}:</div>
 					${0}
-				</div>`), main_core.Loc.getMessage('EC_REMIND_LABEL'), this.createRemindersControl()), this.getRRuleInfoControl());
+				</div>`), main_core.Loc.getMessage('EC_REMIND_LABEL'), this.createRemindersControl()), this.getRRuleInfoControl(), this.getRelationControl());
 	    return this.DOM.wrap;
 	  }
 	  getPopupContentLocation() {
@@ -1038,8 +1040,8 @@ this.BX = this.BX || {};
 	  getRelationControl() {
 	    var _this$entry, _this$entry$data;
 	    this.DOM.relationWrap = null;
-	    if (((_this$entry = this.entry) == null ? void 0 : (_this$entry$data = _this$entry.data) == null ? void 0 : _this$entry$data.EVENT_TYPE) === '#shared_crm#') {
-	      this.DOM.relationWrap = main_core.Tag.render(_t23 || (_t23 = _`<div></div>`));
+	    if (this.canDo('viewFull') && ['#shared_crm#', '#booking#'].includes((_this$entry = this.entry) == null ? void 0 : (_this$entry$data = _this$entry.data) == null ? void 0 : _this$entry$data.EVENT_TYPE)) {
+	      this.DOM.relationWrap = main_core.Tag.render(_t23 || (_t23 = _`<div class="calendar-field-container-relations"></div>`));
 	      this.relationControl = new calendar_entityrelation.RelationInterface({
 	        parentNode: this.DOM.relationWrap,
 	        eventId: this.entry.parentId
@@ -1052,6 +1054,7 @@ this.BX = this.BX || {};
 	    this.DOM.locationWrap = main_core.Tag.render(_t24 || (_t24 = _`<div class="calendar-field-place"></div>`));
 	    this.locationSelector = new calendar_controls.Location({
 	      wrap: this.DOM.locationWrap,
+	      readOnly: !this.canDo('edit'),
 	      richLocationEnabled: this.locationFeatureEnabled,
 	      hideLocationLock: this.isCollabUser,
 	      locationList: this.locationList || [],
@@ -1073,11 +1076,11 @@ this.BX = this.BX || {};
 	    const locationName = this.locationSelector.getTextLocation(calendar_controls.Location.parseStringValue(this.entry.getLocation()));
 	    this.DOM.editLocationInFullForm = main_core.Tag.render(_t25 || (_t25 = _`
 			<div class="calendar-field-place-link">
-				<span class="calendar-notification-text">
+				<span class="calendar-text-link">
 					${0}
 				</span>
 			</div>
-		`), locationName || main_core.Loc.getMessage('EC_REMIND1_ADD'));
+		`), BX.util.htmlspecialchars(locationName) || main_core.Loc.getMessage('EC_REMIND1_ADD'));
 	    main_core.Event.bind(this.DOM.editLocationInFullForm, 'click', () => this.editEntryInSlider('location'));
 	    main_core.Dom.style(this.DOM.editLocationInFullForm, 'display', this.shouldShowFakeLocationControl() ? '' : 'none');
 	    this.DOM.locationOuterWrap = main_core.Tag.render(_t26 || (_t26 = _`
@@ -1567,7 +1570,7 @@ this.BX = this.BX || {};
 	    });
 	  }
 	  handleKeyPress(e) {
-	    if (this.getMode() === CompactEventForm.EDIT_MODE && e.keyCode === calendar_util.Util.getKeyCode('enter') && (e.ctrlKey || e.metaKey) && !e.altKey && !this.isAdditionalPopupShown()) {
+	    if (this.getMode() === CompactEventForm.EDIT_MODE && e.keyCode === calendar_util.Util.getKeyCode('enter') && (e.ctrlKey || e.metaKey) && !e.altKey && !this.isAdditionalPopupShown() && !this.isCoveredByTopSlider()) {
 	      if (this.busyUsersDialog && this.busyUsersDialog.isShown()) {
 	        return;
 	      }
@@ -1576,7 +1579,7 @@ this.BX = this.BX || {};
 	      this.save();
 	    } else if (this.checkTopSlider() && e.keyCode === calendar_util.Util.getKeyCode('escape') && e.type === 'keyup' && this.couldBeClosedByEsc()) {
 	      this.close();
-	    } else if (e.keyCode === calendar_util.Util.getKeyCode('delete') && !this.isNewEntry() && this.canDo('delete')) {
+	    } else if (e.keyCode === calendar_util.Util.getKeyCode('delete') && !this.isNewEntry() && !this.isCoveredByTopSlider() && this.canDo('delete')) {
 	      const target = event.target || event.srcElement;
 	      const tagName = main_core.Type.isElementNode(target) ? target.tagName.toLowerCase() : null;
 	      if (tagName && !['input', 'textarea'].includes(tagName)) {
@@ -1676,12 +1679,20 @@ this.BX = this.BX || {};
 	    const target = event.target || event.srcElement;
 	    this.outsideMouseDown = !target.closest('div.popup-window');
 	  }
+	  isCoveredByTopSlider() {
+	    const topSlider = BX.SidePanel.Instance.getTopSlider();
+	    return topSlider && !topSlider.url.includes('/calendar/');
+	  }
 	  checkTopSlider() {
 	    return !calendar_util.Util.getBX().SidePanel.Instance.getTopSlider();
 	  }
 	  checkOutsideClickClose(event) {
 	    const target = event.target || event.srcElement;
 	    this.outsideMouseUp = !target.closest('div.popup-window');
+	    if (main_core.Dom.hasClass(target, 'popup-window-close-icon') && main_core.Dom.hasClass(target.parentElement, 'calendar-simple-view-popup')) {
+	      this.close(true, true);
+	      return;
+	    }
 	    if (this.couldBeClosedByEsc() && this.outsideMouseDown && this.outsideMouseUp && (this.getMode() === CompactEventForm.VIEW_MODE || !this.formDataChanged() || this.isNewEntry())) {
 	      setTimeout(() => {
 	        this.close(false);

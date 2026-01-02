@@ -1,0 +1,22 @@
+<?php
+$MESS["F_ADMIN_SETTINGS"] = "Әкімші баптаулары";
+$MESS["F_DATE_FORMAT"] = "Күнді көрсету пішімі";
+$MESS["F_DATE_TIME_FORMAT"] = "Күн мен уақытты көрсету пішімі";
+$MESS["F_DEFAULT_FID"] = "Форум";
+$MESS["F_DISPLAY_PANEL"] = "Әкімшілік панельге осы компонент үшін батырмаларды қосу";
+$MESS["F_FORUMS_PER_PAGE"] = "Бір парақшадағы форумдар саны";
+$MESS["F_FORUMS_TEMPLATE"] = "Топтар форумдарын қарау парақшасы";
+$MESS["F_GROUP_ID"] = "Форум топтарының ID -і";
+$MESS["F_LIST_TEMPLATE"] = "Тақырыптар тізімі парақшасы";
+$MESS["F_MESSAGE_APPR_TEMPLATE"] = "Жасырын хабарламалар парақшасы";
+$MESS["F_MESSAGE_TEMPLATE"] = "Хабарламаны оқу парақшасы";
+$MESS["F_PAGE_NAVIGATION_TEMPLATE"] = "Парақша бойынша навигацияны көрсетуге арналған қалып атауы";
+$MESS["F_PAGE_NAVIGATION_WINDOW"] = "Парақша бойынша навигациядағы парақша саны";
+$MESS["F_PROFILE_VIEW_TEMPLATE"] = "Пайдаланушының профиль парақшасы";
+$MESS["F_READ_TEMPLATE"] = "Тақырыпты оқу парақшасы";
+$MESS["F_RSS_TEMPLATE"] = "RSS парақшасы";
+$MESS["F_SET_NAVIGATION"] = "Навигацияны көрсету (нан үгінділері)";
+$MESS["F_SHOW_FORUMS_LIST"] = "Әкімшіге таңдалған форумдарды көрсету";
+$MESS["F_SHOW_FORUM_ANOTHER_SITE"] = "Әкімшіге басқа сайттардың форумдарын көрсету";
+$MESS["F_URL_TEMPLATES"] = "Парақшалар мекенжайларын басқару";
+$MESS["F_USE_DESC_PAGE"] = "Парақша бойынша кері навигацияны пайдалану";

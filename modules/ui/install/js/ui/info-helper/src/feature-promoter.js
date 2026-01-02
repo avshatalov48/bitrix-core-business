@@ -31,6 +31,11 @@ export class FeaturePromoter
 		return this.#options;
 	}
 
+	getCode(): string
+	{
+		return this.#code;
+	}
+
 	getProvider(): BaseProvider
 	{
 		return this.#provider;
@@ -69,7 +74,7 @@ export class FeaturePromoter
 		else
 		{
 			const provider = new SliderProvider({ featureId: this.getOptions().featureId ?? null });
-			InfoHelper.sliderProviderForOldFormat = provider;
+			InfoHelper.sliderProviderForOldFormat ??= provider;
 
 			return provider;
 		}

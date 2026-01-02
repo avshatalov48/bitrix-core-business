@@ -4,7 +4,7 @@
 	BX.Mail.Blacklist.List = function (options)
 	{
 		this.gridId = options.gridId;
-		this.mailAddBtn = document.querySelector('[data-role="blacklist-create-btn"]');
+		this.mailAddBtn = document.getElementsByClassName('blacklist-create-btn')[0];
 		this.addEventHandlers();
 		this.popupButtonSave = new BX.PopupWindowButton({
 			text: BX.message('MAIL_BLACKLIST_LIST_POPUP_BTN_ADD'),

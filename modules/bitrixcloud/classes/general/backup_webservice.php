@@ -16,15 +16,17 @@ class CBitrixCloudBackupWebService extends CBitrixCloudWebService
 	 */
 	protected function getActionURL($arParams = /*.(array[string]string).*/ [])
 	{
+		$license = \Bitrix\Main\Application::getInstance()->getLicense();
+
 		$arParams['license'] = md5(LICENSE_KEY);
 		$arParams['lang'] = LANGUAGE_ID;
-		$arParams['region'] = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion();
+		$arParams['region'] = $license->getRegion();
 		foreach ($this->addParams as $key => $value)
 		{
 			$arParams[$key] = $value;
 		}
 
-		$url = COption::GetOptionString('bitrixcloud', 'backup_policy_url_' . $arParams['region']) ?: COption::GetOptionString('bitrixcloud', 'backup_policy_url');
+		$url = COption::GetOptionString('bitrixcloud', 'backup_policy_url') ?: $license->getDomainStoreLicense() . '/backup.php';
 		$url = (new \Bitrix\Main\Web\Uri($url))
 			->addParams($arParams)
 			->getUri() . $this->addStr;

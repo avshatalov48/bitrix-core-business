@@ -7,6 +7,7 @@
  */
 namespace Bitrix\Sender\Entity;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DB;
 use Bitrix\Main\Error;
@@ -21,6 +22,7 @@ use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\Model\LetterSegmentTable;
 use Bitrix\Sender\Internals\Model\LetterTable;
 use Bitrix\Sender\Internals\Model\MessageFieldTable;
+use Bitrix\Sender\Internals\SqlBatch;
 use Bitrix\Sender\Message as MainMessage;
 use Bitrix\Sender\Posting;
 use Bitrix\Sender\Recipient;
@@ -182,7 +184,7 @@ class Letter extends Base
 			}
 		}
 		$dbResult = new \Bitrix\Main\DB\ArrayResult($result);
-		$dbResult->setCount($list->getCount());
+
 		return $dbResult;
 	}
 
@@ -558,11 +560,11 @@ class Letter extends Base
 			foreach ($segments['list'] as $segment)
 			{
 				$list[] = ['DATE_UPDATE' => $letter['DATE_UPDATE'], 'ID' => $segment];
-				$dataToInsert[] = array(
-					'LETTER_ID' => $id,
-					'SEGMENT_ID' => $segment,
+				$dataToInsert[] = [
+					'CHAIN_ID' => $id,
+					'GROUP_ID' => $segment,
 					'INCLUDE' => $segments['include'],
-				);
+				];
 			}
 
 			$newest = self::getArrayDiffNewest($list, $oldSegments[$typeCode]);
@@ -580,9 +582,9 @@ class Letter extends Base
 
 			$isChanged = true;
 		}
-		if(!empty($dataToInsert))
+		if (!empty($dataToInsert))
 		{
-			LetterSegmentTable::addMulti($dataToInsert);
+			SqlBatch::insert(LetterSegmentTable::getTableName(), $dataToInsert);
 		}
 
 		if ($isChanged && $this->getId() && $this->get('POSTING_ID'))
@@ -977,7 +979,10 @@ class Letter extends Base
 		$instance->save();
 		$this->getErrorCollection()->add($instance->getErrors());
 
-		if (!is_null($this->getMessage()->getConfiguration()->get('MESSAGE')))
+		if (
+			!is_null($this->getMessage()->getConfiguration()->get('MESSAGE'))
+			&& !is_null($instance->getId())
+		)
 		{
 			FileTable::syncFiles(
 				$instance->getId(),

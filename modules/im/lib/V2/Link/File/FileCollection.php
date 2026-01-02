@@ -76,6 +76,24 @@ class FileCollection extends BaseLinkCollection
 		return (new static($entity))->fillFiles();
 	}
 
+	public static function getByMessageIds(array $messageIds): self
+	{
+		$messageIds = array_map('intval', $messageIds);
+
+		if (empty($messageIds))
+		{
+			return new self();
+		}
+
+		$entities = LinkFileTable::query()
+			->setSelect(['ID', 'MESSAGE_ID', 'CHAT_ID', 'SUBTYPE', 'DISK_FILE_ID', 'DATE_CREATE', 'AUTHOR_ID'])
+			->whereIn('MESSAGE_ID', $messageIds)
+			->fetchCollection()
+		;
+
+		return new self($entities);
+	}
+
 	public function fillFiles(): FileCollection
 	{
 		$diskFilesIds = $this->getEntityIds();
@@ -119,17 +137,24 @@ class FileCollection extends BaseLinkCollection
 			$query->whereLike('FILE.NAME', "{$filter['SEARCH_FILE_NAME']}%");
 		}
 
+		$subtypes = [];
+
 		if (isset($filter['SUBTYPE']))
 		{
-			if (is_array($filter['SUBTYPE']))
-			{
-				$subtypes = array_filter($filter['SUBTYPE'], static fn (string $subtype) => FileItem::isSubtypeValid($subtype));
-				$query->whereIn('SUBTYPE', $subtypes);
-			}
-			elseif (FileItem::isSubtypeValid($filter['SUBTYPE']))
-			{
-				$query->where('SUBTYPE', $filter['SUBTYPE']);
-			}
+			$subtypes = Subtype::getSubtypeFilter($filter['SUBTYPE']);
+		}
+		elseif (isset($filter['GROUP']))
+		{
+			$subtypes = SubtypeGroup::getSubtypeFilter($filter['GROUP']);
+		}
+
+		if (count($subtypes) > 1)
+		{
+			$query->whereIn('SUBTYPE', $subtypes);
+		}
+		elseif (count($subtypes) === 1)
+		{
+			$query->where('SUBTYPE', array_values($subtypes)[0]);
 		}
 	}
 

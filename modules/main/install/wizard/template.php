@@ -43,11 +43,11 @@ class WizardTemplate extends CWizardTemplate
 			include($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/.config.php");
 		}
 
-		$title = $bxProductConfig["product_wizard"]["product_name"] ?? $arWizardConfig["productName"] ?? InstallGetMessage("INS_TITLE3");
+		$title = $bxProductConfig["product_wizard"]["product_name"] ?? $arWizardConfig["productName"] ?? GetMessage("INS_TITLE3");
 
 		$titleSub = "";
-		if($title == InstallGetMessage("INS_TITLE3"))
-			$titleSub = '<div class="inst-title-label">'.InstallGetMessage("INS_TITLE2").'</div>';
+		if($title == GetMessage("INS_TITLE3"))
+			$titleSub = '<div class="inst-title-label">'.GetMessage("INS_TITLE2").'</div>';
 
 		$title = str_replace("#VERS#", $productVersion , $title);
 		$browserTitle = strip_tags(str_replace(Array("<br>", "<br />"), " ",$title));
@@ -56,16 +56,16 @@ class WizardTemplate extends CWizardTemplate
 			$copyright = $bxProductConfig["product_wizard"]["copyright"];
 		else
 		{
-			$copyright = InstallGetMessage("COPYRIGHT");
+			$copyright = GetMessage("COPYRIGHT");
 			if (isset($arWizardConfig["copyrightText"]))
 				$copyright .= $arWizardConfig["copyrightText"];
 		}
 		$copyright = str_replace("#CURRENT_YEAR#", date("Y") , $copyright);
 
-		$support = $bxProductConfig["product_wizard"]["links"] ?? $arWizardConfig["supportText"] ?? InstallGetMessage("SUPPORT");
+		$support = $bxProductConfig["product_wizard"]["links"] ?? $arWizardConfig["supportText"] ?? GetMessage("SUPPORT");
 
 		if (file_exists($_SERVER["DOCUMENT_ROOT"]."/readme.html"))
-			$support = InstallGetMessage("SUPPORT_README").$support;
+			$support = GetMessage("SUPPORT_README").$support;
 
 		//Images
 		$logoImage = "";
@@ -134,15 +134,15 @@ class WizardTemplate extends CWizardTemplate
 		$jsBeforeOnload = "";
 		if ($currentStep == "create_modules")
 		{
-			$jsBeforeOnload .= "var warningBeforeOnload = '".InstallGetMessage("INS_BEFORE_USER_EXIT")."';\n";
+			$jsBeforeOnload .= "var warningBeforeOnload = '".GetMessage("INS_BEFORE_USER_EXIT")."';\n";
 			$jsBeforeOnload .= "window.onbeforeunload = OnBeforeUserExit;";
 		}
 
 		$jsCode = "";
 		$jsCode = file_get_contents($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/wizard/script.js");
 
-		$instructionText = InstallGetMessage("GOTO_README");
-		$noscriptInfo = InstallGetMessage("INST_JAVASCRIPT_DISABLED");
+		$instructionText = GetMessage("GOTO_README");
+		$noscriptInfo = GetMessage("INST_JAVASCRIPT_DISABLED");
 
 		return <<<HTML
 <!DOCTYPE html>
@@ -160,7 +160,6 @@ class WizardTemplate extends CWizardTemplate
 		</noscript>
 		<link rel="stylesheet" href="/bitrix/images/install/installer_style.css">
 		<script>
-		<!--
 			document.onkeydown = EnterKeyPress;
 
 			function EnterKeyPress(event)
@@ -206,7 +205,6 @@ class WizardTemplate extends CWizardTemplate
 
 			{$jsCode}
 			{$jsBeforeOnload}
-		//-->
 		</script>
 
 

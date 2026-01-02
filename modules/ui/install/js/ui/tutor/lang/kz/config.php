@@ -1,0 +1,26 @@
+<?php
+$MESS["JS_UI_TUTOR_ARTICLE_HELP_TOPIC"] = "Тақырыпқа қатысты мақалаларды оқу";
+$MESS["JS_UI_TUTOR_BTN_BEGIN"] = "Бастау";
+$MESS["JS_UI_TUTOR_BTN_COMPLETED"] = "Тапсырма орындалды";
+$MESS["JS_UI_TUTOR_BTN_COMPLETED_SHORT"] = "орындалды";
+$MESS["JS_UI_TUTOR_BTN_DEFER"] = "кейінге қалдыру";
+$MESS["JS_UI_TUTOR_BTN_NEXT"] = "Әрі қарай";
+$MESS["JS_UI_TUTOR_BTN_REPEAT"] = "Қайталау";
+$MESS["JS_UI_TUTOR_BTN_SKIP"] = "Өткізіп жіберу";
+$MESS["JS_UI_TUTOR_BTN_START"] = "Кірісу";
+$MESS["JS_UI_TUTOR_BTN_SUPPORT"] = "Көмек";
+$MESS["JS_UI_TUTOR_CLOSE_POPUP_BTN"] = "Кейінірек оралу";
+$MESS["JS_UI_TUTOR_CLOSE_POPUP_TEXT"] = "Тәлімгерге кейінірек оралғыңыз келе ме, әлде толығымен жапқыңыз келе ме?";
+$MESS["JS_UI_TUTOR_COUNTER_NUMBER"] = "#NUMBER_TOTAL# ішінен #NUMBER# қадам";
+$MESS["JS_UI_TUTOR_COUNTER_TEXT"] = "Тапсырма";
+$MESS["JS_UI_TUTOR_DEFER_MENU_FOREVER"] = "Мәңгі";
+$MESS["JS_UI_TUTOR_DEFER_MENU_HOUR"] = "1 сағатқа";
+$MESS["JS_UI_TUTOR_DEFER_MENU_TOMORROW"] = "Ертеңге дейін";
+$MESS["JS_UI_TUTOR_DEFER_MENU_WEEK"] = "1 аптаға";
+$MESS["JS_UI_TUTOR_FINAL_CONGRATULATIONS"] = "Құттықтаймыз!";
+$MESS["JS_UI_TUTOR_FINAL_NOTICE"] = "Барлық тапсырмалар орындалған";
+$MESS["JS_UI_TUTOR_FINAL_TEXT"] = "Сіз тәлімгерден сәтті өттіңіз!";
+$MESS["JS_UI_TUTOR_STEP_COMPLETED"] = "Тапсырма орындалды";
+$MESS["JS_UI_TUTOR_STEP_NEW"] = "Бірақ қазір оған жаңа қадамдар келді, оларды аяқтағыңыз келе ме";
+$MESS["JS_UI_TUTOR_STEP_TITLE"] = "Тапсырма";
+$MESS["JS_UI_TUTOR_TITLE"] = "Тәлімгер";

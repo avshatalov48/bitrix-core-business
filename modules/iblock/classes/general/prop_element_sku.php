@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
 
@@ -10,6 +11,11 @@ class CIBlockPropertySKU extends CIBlockPropertyElementAutoComplete
 
 	public static function GetUserTypeDescription()
 	{
+		if (!Loader::includeModule('catalog'))
+		{
+			return [];
+		}
+
 		return [
 			'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_ELEMENT,
 			'USER_TYPE' => Iblock\PropertyTable::USER_TYPE_SKU,

@@ -94,7 +94,7 @@ foreach($arResult["TABS"] as $tab):
 	<table cellpadding="0" cellspacing="0" border="0" class="bx-edit-tab-title">
 		<tr>
 	<?
-		if($tab["icon"] <> ""):
+		if(!empty($tab["icon"])):
 	?>
 			<td class="bx-icon"><div class="<?=htmlspecialcharsbx($tab["icon"])?>"></div></td>
 	<?
@@ -301,7 +301,7 @@ if(isset($arParams["BUTTONS"])):
 	<input type="button" value="<?echo GetMessage("interface_form_cancel")?>" name="cancel" onclick="window.location='<?=htmlspecialcharsbx(CUtil::addslashes($arParams["~BUTTONS"]["back_url"]))?>'" title="<?echo GetMessage("interface_form_cancel_title")?>" />
 	<?endif?>
 <?endif?>
-<?=$arParams["~BUTTONS"]["custom_html"]?>
+<?=($arParams["~BUTTONS"]["custom_html"] ?? '')?>
 			</div>
 <?endif?>
 <?if($arParams["SHOW_FORM_TAG"]):?>
@@ -412,7 +412,7 @@ $variables = array(
 	"template_path"=>$this->GetFolder(),
 	"sessid"=>bitrix_sessid(),
 	"current_url"=>$APPLICATION->GetCurPageParam("", array("bxajaxid", "AJAX_CALL")),
-	"GRID_ID"=>$arParams["THEME_GRID_ID"],
+	"GRID_ID"=>$arParams["THEME_GRID_ID"] ?? '',
 );
 ?>
 <script>

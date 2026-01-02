@@ -1,0 +1,19 @@
+<?php
+$MESS["REPORT_CHART_TYPE_BAR"] = "Гистограмма";
+$MESS["REPORT_CHART_TYPE_BAR1"] = "Бағаналы";
+$MESS["REPORT_CHART_TYPE_LINE"] = "Күн тәртібі";
+$MESS["REPORT_CHART_TYPE_LINE1"] = "Сызықтық";
+$MESS["REPORT_CHART_TYPE_PIE"] = "Дөңгелек";
+$MESS["REPORT_CSRF"] = "Нысанды жіберу кезіндегі қауіпсіздік қатесі. Тағы да қайталап көріңіз.";
+$MESS["REPORT_DEFAULT_CAN_NOT_BE_DELETED"] = "Үлгілік есепті жоюға тыйым салынған.";
+$MESS["REPORT_DEFAULT_CAN_NOT_BE_EDITED"] = "Үлгілік есепті редакциялауға тыйым салынған.";
+$MESS["REPORT_ERROR_ACCESS_DENIED"] = "Қолжетімсіз";
+$MESS["REPORT_HELPER_NOT_DEFINED"] = "Көмекші класс берілмеген.";
+$MESS["REPORT_NOT_FOUND"] = "ID `%s` бар есеп табылмады.";
+$MESS["REPORT_NO_COLUMN_SELECTED"] = "Бірде-бір баған таңдалмаған.";
+$MESS["REPORT_PROJECT_NOT_FOUND"] = "Жоба табылмады";
+$MESS["REPORT_TITLE_COPY"] = "көшірме";
+$MESS["REPORT_TITLE_NOT_SELECTED"] = "Есептің атауы көрсетілмеген.";
+$MESS["REPORT_UNKNOWN_ERROR"] = "Белгісіз қате.";
+$MESS["REPORT_USER_NOT_FOUND"] = "Пайдаланушы табылмады";
+$MESS["REPORT_VIEW_PERMISSION_DENIED"] = "Есепті қарау үшін құқықтар жеткіліксіз.";

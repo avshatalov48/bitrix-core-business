@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,calendar_entry,calendar_planner,calendar_roomsmanager,calendar_sectionmanager,main_core_events,ui_entitySelector,main_core,calendar_controls,calendar_util) {
+(function (exports,calendar_entry,calendar_planner,calendar_roomsmanager,calendar_sectionmanager,main_date,main_core_events,ui_entitySelector,main_core,calendar_controls,calendar_util) {
 	'use strict';
 
 	let _ = t => t,
@@ -71,7 +71,7 @@ this.BX = this.BX || {};
 	    const dateTo = calendar_util.Util.formatDateUsable(value.to, true, true);
 	    const timeFrom = this.DOM.fromTime.value;
 	    const timeTo = this.DOM.toTime.value;
-	    result += dateFrom + ', ';
+	    result += `${dateFrom}, `;
 	    if (value.fullDay) {
 	      if (dateFrom === dateTo) {
 	        result += main_core.Loc.getMessage('EC_ALL_DAY');
@@ -79,10 +79,10 @@ this.BX = this.BX || {};
 	        result += ' - ';
 	      }
 	    } else {
-	      result += timeFrom + ' - ' + timeTo;
+	      result += `${timeFrom} - ${timeTo}`;
 	    }
 	    if (!value.fullDay && dateFrom !== dateTo) {
-	      result += ', ' + dateTo;
+	      result += `, ${dateTo}`;
 	    }
 	    let timezoneIcon = '';
 	    if (main_core.Type.isStringFilled(timezoneHint)) {
@@ -171,7 +171,7 @@ this.BX = this.BX || {};
 	        calendar_util.Util.setCalendarContext(this.context);
 	      }
 	    }
-	    this.isOpenEvent = (((_this$entry2 = this.entry) == null ? void 0 : _this$entry2.data['CAL_TYPE']) || this.type) === 'open_event';
+	    this.isOpenEvent = (((_this$entry2 = this.entry) == null ? void 0 : _this$entry2.data.CAL_TYPE) || this.type) === 'open_event';
 	    // TODO: remove this check, planner enabled always
 	    this.plannerEnabled = true;
 	    this.sectionSelectorEnabled = !this.isOpenEvent;
@@ -302,6 +302,11 @@ this.BX = this.BX || {};
 	    this.DOM.content = this.slider.layout.content;
 	    this.sliderId = this.slider.getUrl();
 	    if (!this.isAvailable) {
+	      return;
+	    }
+	    if (this.notLoaded) {
+	      BX.SidePanel.Instance.close();
+	      location.reload();
 	      return;
 	    }
 
@@ -465,6 +470,20 @@ this.BX = this.BX || {};
 	    }
 	    this.DOM.form.doCheckOccupancy.value = options.doCheckOccupancy || 'Y';
 	    const data = new FormData(this.DOM.form);
+	    const rruleType = this.DOM.content.querySelector(`#${this.uid}_rrule_type`);
+	    if (rruleType) {
+	      data.append('EVENT_RRULE[FREQ]', rruleType.dataset.value);
+	    }
+	    const accessibility = this.DOM.content.querySelector(`#${this.uid}_accessibility`);
+	    if (accessibility) {
+	      data.append('accessibility', accessibility.dataset.value);
+	    }
+	    if (this.DOM.form.tz_from) {
+	      data.append('tz_from', this.DOM.form.tz_from.dataset.value);
+	    }
+	    if (this.DOM.form.tz_to) {
+	      data.append('tz_to', this.DOM.form.tz_to.dataset.value);
+	    }
 	    this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
 	      data
 	    }).then(async response => {
@@ -660,6 +679,8 @@ this.BX = this.BX || {};
 	        });
 	        this.setUserSettings(params.userSettings);
 	        calendar_util.Util.setEventWithEmailGuestEnabled(params.eventWithEmailGuestEnabled);
+	        calendar_util.Util.setTimezoneList(params.timezoneList);
+	        calendar_util.Util.setAbsenceAvailable(params.absenceAvailable);
 	        this.handleSections(params.sections, params.trackingUsersList);
 	        this.handleLocationData(params.locationFeatureEnabled, params.locationList, params.iblockMeetingRoomList);
 	        this.locationAccess = params.locationAccess;
@@ -684,6 +705,7 @@ this.BX = this.BX || {};
 	        promise.fulfill(html);
 	      }
 	    }, response => {
+	      this.notLoaded = true;
 	      if (response.data && !main_core.Type.isNil(response.data.isAvailable) && !response.data.isAvailable) {
 	        this.isAvailable = false;
 	        const showHelperCallback = () => {
@@ -706,9 +728,7 @@ this.BX = this.BX || {};
 	      const html = this.BX.util.trim('<div></div>');
 	      slider.getData().set('sliderContent', html);
 	      promise.fulfill(html);
-	      // this.calendar.displayError(response.errors);
 	    });
-
 	    return promise;
 	  }
 	  initControls(uid) {
@@ -736,6 +756,7 @@ this.BX = this.BX || {};
 	    this.initRepeatRuleControl(uid);
 	    this.initColorControl(uid);
 	    this.initCrmUfControl(uid);
+	    this.initAccessibilityControl(uid);
 	    this.initAdditionalControls(uid);
 	    this.checkLastItemBorder();
 	    if (this.isOpenEvent) {
@@ -858,7 +879,8 @@ this.BX = this.BX || {};
 
 	    // accessibility
 	    if (this.DOM.accessibilityInput) {
-	      this.DOM.accessibilityInput.value = entry.accessibility;
+	      var _this$accessibilitySe;
+	      this == null ? void 0 : (_this$accessibilitySe = this.accessibilitySelector) == null ? void 0 : _this$accessibilitySe.setValue(entry.accessibility);
 	    }
 
 	    // Location
@@ -942,7 +964,7 @@ this.BX = this.BX || {};
 				<span class="calendar-field calendar-repeat-selector-readonly">
 					${0}
 				</span>
-			`), this.DOM.accessibilityInput.options[this.DOM.accessibilityInput.selectedIndex].text);
+			`), this.DOM.accessibilityInput.value);
 	      this.DOM.accessibilityInput.after(accessibilityText);
 	    }
 	    if (this.plannerEnabled) {
@@ -1238,8 +1260,10 @@ this.BX = this.BX || {};
 	    }
 	    this.DOM.rruleWrap = rruleWrap;
 	    this.repeatSelector = new calendar_controls.RepeatSelector({
+	      uid: this.uid,
 	      wrap: this.DOM.rruleWrap,
 	      rruleType: this.DOM.content.querySelector(`#${uid}_rrule_type`),
+	      rruleCount: this.DOM.content.querySelector(`#${uid}_rrule_count`),
 	      getDate: function () {
 	        return this.dateTimeControl.getValue().from;
 	      }.bind(this)
@@ -1406,7 +1430,6 @@ this.BX = this.BX || {};
 	    });
 	  }
 	  initAdditionalControls(uid) {
-	    this.DOM.accessibilityInput = this.DOM.content.querySelector(`#${uid}_accessibility`);
 	    this.DOM.privateEventCheckbox = this.DOM.content.querySelector(`#${uid}_private`);
 	    this.DOM.importantEventCheckbox = this.DOM.content.querySelector(`#${uid}_important`);
 	    this.DOM.importantEventCheckboxContainer = this.DOM.importantEventCheckbox.closest('.calendar-info-panel-important');
@@ -1453,6 +1476,14 @@ this.BX = this.BX || {};
 	        });
 	      }, 800);
 	    }
+	  }
+	  initAccessibilityControl(uid) {
+	    this.DOM.accessibilityInput = this.DOM.content.querySelector(`#${uid}_accessibility`);
+	    this.accessibilitySelector = new calendar_controls.AccessibilitySelector({
+	      uid,
+	      readonly: !this.canEdit(),
+	      input: this.DOM.accessibilityInput
+	    });
 	  }
 	  denySliderClose() {
 	    this.denyClose = true;
@@ -1873,7 +1904,7 @@ this.BX = this.BX || {};
 	  }
 	  checkTopSlider() {
 	    const slider = calendar_util.Util.getBX().SidePanel.Instance.getTopSlider();
-	    return slider && slider.options.type === 'calendar:slider';
+	    return slider && slider.getData().get('type') === 'calendar:slider';
 	  }
 	  showError(errorList) {
 	    let errorText = '';
@@ -1984,10 +2015,10 @@ this.BX = this.BX || {};
 	    if (this.DOM.importantEventCheckbox && this.DOM.importantEventCheckbox.checked !== entry.important) {
 	      fields.push('important');
 	    }
-	    if (this.DOM.form.tz_from.value !== this.initialTimezoneFrom) {
+	    if (this.DOM.form.tz_from.dataset.value !== this.initialTimezoneFrom) {
 	      fields.push('tz_from');
 	    }
-	    if (this.DOM.form.tz_to.value !== this.initialTimezoneTo) {
+	    if (this.DOM.form.tz_to.dataset.value !== this.initialTimezoneTo) {
 	      fields.push('tz_to');
 	    }
 	    const currentUFCrm = entry.data.UF_CRM_CAL_EVENT || [];
@@ -1998,7 +2029,7 @@ this.BX = this.BX || {};
 	    if (this.DOM.form.meeting_notify && entry.data.MEETING && this.DOM.form.meeting_notify.checked !== entry.data.MEETING.NOTIFY) {
 	      fields.push('meeting_notify');
 	    }
-	    if (this.DOM.accessibilityInput && this.DOM.accessibilityInput.value !== entry.accessibility) {
+	    if (this.DOM.accessibilityInput && this.DOM.accessibilityInput.dataset.value !== entry.accessibility) {
 	      fields.push('accessibility');
 	    }
 	    const formMaxAttendees = parseInt((_this$DOM$form = this.DOM.form) == null ? void 0 : (_this$DOM$form$max_at = _this$DOM$form.max_attendees) == null ? void 0 : _this$DOM$form$max_at.value, 10) || 0;
@@ -2199,5 +2230,5 @@ this.BX = this.BX || {};
 
 	exports.EventEditForm = EventEditForm;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.UI.EntitySelector,BX,BX.Calendar.Controls,BX.Calendar));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Calendar,BX.Main,BX.Event,BX.UI.EntitySelector,BX,BX.Calendar.Controls,BX.Calendar));
 //# sourceMappingURL=eventeditform.bundle.js.map

@@ -18,6 +18,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\Integration\Intranet\Settings;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -720,13 +721,14 @@ if(!empty($arResult['groupFields']))
 {
 	$settings = new Settings();
 
-	$isProject = ($arResult['groupFields']['PROJECT'] ?? null) === 'Y';
-	$isScrum = ($arResult['groupFields']['SCRUM'] ?? null) === 'Y';
+	$type = Type::tryFrom($arResult['groupFields']['TYPE'] ?? Type::Group->value);
 	$isTaskContext = !empty($arVariables['task_id']) && !empty($arVariables['action']);
-	if (!$settings->isGroupAvailableByType($isProject, $isScrum) && !$isTaskContext)
+
+	if (!$settings->isGroupAvailableByType($type) && !$isTaskContext)
 	{
-		$arResult['LIMIT_CODE'] = $settings->getGroupLimitCodeByType($isProject, $isScrum);
+		$arResult['LIMIT_CODE'] = $settings->getGroupLimitCodeByType($type);
 		$this->includeComponentTemplate('tool-disabled');
+
 		return;
 	}
 }

@@ -28,6 +28,11 @@ class AuthFlow extends Engine\Controller
 	{
 		$redirectUrl = $this->getRequest()->getQuery('url');
 
+		if (!\is_string($redirectUrl))
+		{
+			return;
+		}
+
 		if (strpos($redirectUrl, self::APPLE_OAUTH_URL) === 0)
 		{
 			LocalRedirect($redirectUrl, true);

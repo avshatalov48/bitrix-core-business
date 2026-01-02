@@ -7,4 +7,7 @@
 	font-size: var(--ui-typography-font-size);
 	line-height: var(--ui-typography-line-height);
 	color: var(--ui-typography-color-text);
+
+	white-space: break-spaces;
+	overflow-wrap: anywhere;
 }

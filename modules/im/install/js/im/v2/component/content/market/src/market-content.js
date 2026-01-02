@@ -1,24 +1,24 @@
-import {Runtime} from 'main.core';
-import {MarketManager} from 'im.v2.lib.market';
-import {Spinner, SpinnerSize} from 'im.v2.component.elements';
+import { Runtime } from 'main.core';
+import { MarketManager } from 'im.v2.lib.market';
+import { Spinner, SpinnerSize } from 'im.v2.component.elements.loader';
 
 import './market-content.css';
 
 // @vue/component
 export const MarketContent = {
 	name: 'MarketContent',
-	components: {Spinner},
+	components: { Spinner },
 	props:
 	{
 		entityId: {
 			type: String,
-			required: true
-		}
+			required: true,
+		},
 	},
 	data() {
 		return {
 			isLoading: true,
-			handleResult: true
+			handleResult: true,
 		};
 	},
 	computed:
@@ -31,7 +31,7 @@ export const MarketContent = {
 		{
 			this.isLoading = true;
 			this.load(newValue);
-		}
+		},
 	},
 	beforeUnmount()
 	{
@@ -74,5 +74,5 @@ export const MarketContent = {
 				ref="im-messenger-placement"
 			></div>
 		</div>
-	`
+	`,
 };

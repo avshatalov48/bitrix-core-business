@@ -370,7 +370,7 @@ if ($USER->CanDoOperation('clouds_upload') && is_array($arID))
 					else
 					{
 						$pos = $obUpload->GetPos();
-						if ($pos > $fileSize)
+						if ($pos >= $fileSize)
 						{
 							if ($obUpload->Finish())
 							{
@@ -599,7 +599,7 @@ if ($USER->CanDoOperation('clouds_upload') && is_array($arID))
 				else
 				{
 					$pos = $obUpload->GetPos();
-					if ($pos > $fileSize)
+					if ($pos >= $fileSize)
 					{
 						if ($obUpload->Finish())
 						{
@@ -1070,7 +1070,7 @@ $lAdmin->NavText($rsData->GetNavPrint(''));
 
 while (is_array($arRes = $rsData->NavNext()))
 {
-	$row =& $lAdmin->AddRow($arRes['ID'], $arRes);
+	$row = $lAdmin->AddRow($arRes['ID'], $arRes);
 
 	$total_size += (int)$arRes['FILE_SIZE'];
 	$total_count += (int)$arRes['FILE_COUNT'];
@@ -1251,7 +1251,6 @@ $APPLICATION->SetTitle($obBucket->BUCKET);
 require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 
 if ($USER->CanDoOperation('clouds_upload')):
-
 CJSCore::Init(['fx']);
 
 $aTabs = [

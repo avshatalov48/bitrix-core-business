@@ -1,0 +1,5 @@
+<?php
+$MESS["AGENT_PRODUCT_ENTITY_PRODUCT_TYPE_FIELD"] = "Тауар түрі";
+$MESS["CATALOG_AGENT_PRODUCT_ENTITY_CONTRACT_ID_FIELD"] = "Агенттік сұлба идентификаторы";
+$MESS["CATALOG_AGENT_PRODUCT_ENTITY_ID_FIELD"] = "Идентификатор";
+$MESS["CATALOG_AGENT_PRODUCT_ENTITY_PRODUCT_ID_FIELD"] = "Тауардың идентификаторы ";

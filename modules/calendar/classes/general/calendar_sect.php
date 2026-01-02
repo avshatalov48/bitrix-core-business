@@ -1,9 +1,10 @@
-<?
+<?php
 
 use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Model\SectionModel;
 use Bitrix\Calendar\Access\SectionAccessController;
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Calendar\Core\Section\Section;
 use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Integration\SocialNetwork\Collab;
 use Bitrix\Calendar\Internals\EventTable;
@@ -15,9 +16,12 @@ use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Sync\Managers\Synchronization;
 use Bitrix\Calendar\Sync\Util\Context;
 use Bitrix\Calendar\Sync\Util\Result;
+use Bitrix\Calendar\Synchronization\Internal\Service\Messenger\Sender\SectionSender;
+use Bitrix\Calendar\Synchronization\Public\Service\SynchronizationFeature;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Loader;
 use Bitrix\Calendar\OpenEvents;
@@ -50,7 +54,7 @@ class CCalendarSect
 		$userSectionPermissions = [],
 		$arOp = [],
 		$bClearOperationCache = false,
-		$authHashiCal = null, // for login by hash
+		$authHashiCal = [], // for login by hash
 		$Fields = []
 	;
 
@@ -213,11 +217,6 @@ class CCalendarSect
 
 				$sectionIdList[] = $sectId;
 
-				$section['EXPORT'] = [
-					'ALLOW' => true,
-					'LINK' => self::GetExportLink($section['ID'], $sectionType, $section['OWNER_ID'] ?? null)
-				];
-
 				if ($sectionType === 'user')
 				{
 					$section['IS_EXCHANGE'] = $section['DAV_EXCH_CAL'] && $isExchangeEnabled;
@@ -284,6 +283,18 @@ class CCalendarSect
 			$result = self::GetSectionPermission($result, $params['getPermissions']);
 		}
 
+		foreach ($result as $key => $section)
+		{
+			$ownerId = (int)($section['OWNER_ID'] ?? 0);
+			$type = $section['CAL_TYPE'] ?? null;
+
+			$result[$key]['EXPORT'] = [
+				'ALLOW' => true,
+				'PATH' => CCalendar::GetServerPath(). Util::getPathToCalendar($ownerId, $type),
+				'LINK' => self::GetExportLink($section['ID'], $type, $ownerId),
+			];
+		}
+
 		return $result;
 	}
 
@@ -348,7 +359,8 @@ class CCalendarSect
 
 							$queryFilter
 								->where('TYPE.ACTIVE', 'Y')
-								->whereIn('CAL_TYPE', $value);
+								->whereIn('CAL_TYPE', $value)
+							;
 						}
 						else
 						{
@@ -358,7 +370,14 @@ class CCalendarSect
 					default:
 						if (in_array($key, $sectionFields, true))
 						{
-							$queryFilter->where($key, $value);
+							if (is_array($value))
+							{
+								$queryFilter->whereIn($key, $value);
+							}
+							else
+							{
+								$queryFilter->where($key, $value);
+							}
 						}
 						break;
 				}
@@ -735,12 +754,14 @@ class CCalendarSect
 				$section = self::GetList([
 					'arFilter' => ['ID' => $id],
 					'checkPermissions' => $checkPermissions,
+					'getPermissions' => $checkPermissions,
 				]);
 
-				if($section && is_array($section) && is_array($section[0]))
+				if ($section && is_array($section) && is_array($section[0]))
 				{
 					self::$sections[$id] = $section[0];
-					return $section[0];
+
+					return self::$sections[$id];
 				}
 			}
 			else
@@ -1154,7 +1175,7 @@ class CCalendarSect
 				PushCommand::EditSection,
 				$pullUserId,
 				[
-					'fields' => $sectionFields,
+					'fields' => [...$sectionFields, 'ID' => $id],
 					'newSection' => $isNewSection,
 				]
 			);
@@ -1566,18 +1587,20 @@ class CCalendarSect
 		return $result;
 	}
 
-	public static function GetExportLink($sectionId, $type = '', $ownerId = null)
+	public static function GetExportLink($sectionId, $type = '', $ownerId = null): string
 	{
 		$userId = CCalendar::getCurUserId();
 		$ownerId = (int)$ownerId;
 		$path = Util::getPathToCalendar($ownerId, $type);
 
 		return '&type='.mb_strtolower($type)
-				.'&owner='.$ownerId
-				.'&ncc=1&user='.$userId
-				.'&'.'sec_id='.(int)$sectionId
-				.'&sign='.self::getSign($userId, $sectionId)
-				.'&bx_hit_hash='.self::getAuthHash($userId, $path);
+			.'&owner='.$ownerId
+			.'&ncc=1'
+			.'&user='.$userId
+			.'&sec_id='.(int)$sectionId
+			.'&sign='.self::getSign($userId, $sectionId)
+			.'&bx_hit_hash='.self::getAuthHash($userId, $path)
+		;
 	}
 
 	/**
@@ -1608,23 +1631,22 @@ class CCalendarSect
 	 * @param int $id
 	 * @param array $params
 	 *
-	 * @return Result|null
-	 *
 	 * @throws ArgumentException
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
 	 */
-	private static function onCreateSync(int $id, array $params): ?Result
+	private static function onCreateSync(int $id, array $params): void
 	{
 		if (!Loader::includeModule('dav'))
 		{
-			return null;
+			return;
 		}
 
 		$originalFrom = $params['params']['originalFrom'] ?? null;
+
 		if ($originalFrom === ($params['sectionFields']['EXTERNAL_TYPE'] ?? null))
 		{
-			return null;
+			return;
 		}
 
 		if (
@@ -1635,29 +1657,50 @@ class CCalendarSect
 			)
 		)
 		{
-			return null;
+			return;
 		}
 
 		if ($params['params']['arFields']['CAL_TYPE'] !== 'user')
 		{
-			return null;
+			return;
 		}
 
-		/** @var \Bitrix\Calendar\Core\Section\Section $section */
+		/** @var Section $section */
 		$section = (new Bitrix\Calendar\Core\Mappers\Section())->getById($id);
+
 		if (!$section)
 		{
-			return null;
+			return;
+		}
+
+		if ($userId = $params['userId'] ?? $section->getOwnerId())
+		{
+			SynchronizationFeature::setUserId($userId);
+		}
+
+		if (SynchronizationFeature::isOn())
+		{
+			if (empty($originalFrom))
+			{
+				ServiceLocator::getInstance()
+					->get(SectionSender::class)
+					->sendCreatedMessage($section)
+				;
+			}
+
+			return;
 		}
 
 		$factories = FactoriesCollection::createByUserId($params['userId']);
+
 		if ($factories->count() === 0)
 		{
-			return null;
+			return;
 		}
 
 		$syncManager = new Synchronization($factories);
 		$context = new Context([]);
+
 		if (!empty($originalFrom))
 		{
 			$context->add('sync', 'originalFrom', $originalFrom);
@@ -1685,55 +1728,90 @@ class CCalendarSect
 				}
 			}
 		}
-
-
-		return $result;
 	}
 
-	private static function onUpdateSync(int $id, array $params)
+	private static function onUpdateSync(int $id, array $params): void
 	{
 		if (!Loader::includeModule('dav'))
 		{
-			return null;
+			return;
 		}
 
 		if (($params['params']['arFields']['CAL_TYPE'] ?? null) !== 'user')
 		{
-			return null;
+			return;
 		}
 
 		if (empty($params['params']['arFields']['NAME']))
 		{
-			return new Result();
+			return;
 		}
 
-		/** @var \Bitrix\Calendar\Core\Section\Section $section */
+		/** @var Section $section */
 		$section = (new Bitrix\Calendar\Core\Mappers\Section())->getById($id);
+
 		if (!$section)
 		{
-			return null;
+			return;
+		}
+
+		$originalFrom = $params['params']['originalFrom'] ?? null;
+
+		if ($userId = $params['userId'] ?? $section->getOwnerId())
+		{
+			SynchronizationFeature::setUserId($userId);
+		}
+
+		if (SynchronizationFeature::isOn())
+		{
+			if (empty($originalFrom))
+			{
+				ServiceLocator::getInstance()
+					->get(SectionSender::class)
+					->sendUpdatedMessage($section)
+				;
+			}
+
+			return;
 		}
 
 		$factories = FactoriesCollection::createBySection($section);
 		if ($factories->count() === 0)
 		{
-			return null;
+			return;
 		}
 		$syncManager = new Synchronization($factories);
 		$context = new Context([]);
-		if (!empty($params['params']['originalFrom']))
+		if (!empty($originalFrom))
 		{
-			$context->add('sync', 'originalFrom', $params['params']['originalFrom']);
+			$context->add('sync', 'originalFrom', $originalFrom);
 		}
 
-		return $syncManager->updateSection($section, $context);
+		$syncManager->updateSection($section, $context);
 	}
 
-	private static function onDeleteSync(int $id, array $params)
+	private static function onDeleteSync(int $id, array $params): void
 	{
 		if (!Loader::includeModule('dav'))
 		{
-			return null;
+			return;
+		}
+
+		$originalFrom = $params['originalFrom'] ?? null;
+
+		if (SynchronizationFeature::isOn())
+		{
+			if (empty($originalFrom))
+			{
+				ServiceLocator::getInstance()
+					->get(SectionSender::class)
+					->sendDeletedMessage($id)
+				;
+			}
+
+			self::cleanLinkTables($id);
+
+			return;
 		}
 
 		$section = new Bitrix\Calendar\Core\Section\Section();
@@ -1745,19 +1823,19 @@ class CCalendarSect
 		{
 			self::cleanLinkTables($id);
 
-			return null;
+			return;
 		}
 		$syncManager = new Synchronization($factories);
 		$context = new Context([]);
-		if (!empty($params['originalFrom']))
+		if (!empty($originalFrom))
 		{
-			$context->add('sync', 'originalFrom', $params['originalFrom']);
+			$context->add('sync', 'originalFrom', $originalFrom);
 		}
 
-		return $syncManager->deleteSection($section, $context);
+		$syncManager->deleteSection($section, $context);
 	}
 
-	public static function cleanLinkTables($sectId)
+	public static function cleanLinkTables($sectId): void
 	{
 		global $DB;
 
@@ -1825,11 +1903,11 @@ class CCalendarSect
 			return CCalendar::ThrowError(Loc::getMessage('EC_ACCESS_DENIED'));
 		}
 
-		$arSections = self::GetList(
-			array(
-				'arFilter' => array('ID' => $sectId),
-				'checkPermissions' => false,
-			));
+		$arSections = self::GetList([
+			'arFilter' => array('ID' => $sectId),
+			'checkPermissions' => false,
+			'getPermissions' => false,
+		]);
 
 		if ($arSections && $arSections[0] && $arSections[0]['EXPORT'] && $arSections[0]['EXPORT']['ALLOW'])
 		{
@@ -1958,9 +2036,14 @@ class CCalendarSect
 
 	private static function _ICalPaste($str)
 	{
-		$str = preg_replace ("/\r/i", '', $str);
-		$str = preg_replace ("/\n/i", '\\n', $str);
-		return $str;
+		if (!is_string($str) || $str === '')
+		{
+			return '';
+		}
+
+		$str = preg_replace("/\r/", '', $str);
+
+		return preg_replace("/\n/", '\\n', $str);
 	}
 
 	public static function GetModificationLabel($calendarId) // GetCalendarModificationLabel
@@ -2058,15 +2141,19 @@ class CCalendarSect
 	public static function getAuthHash(int $userId, string $path)
 	{
 		global $USER;
-		if ((!isset(self::$authHashiCal) || empty(self::$authHashiCal)) && $USER && is_object($USER))
+
+		if ((!isset(self::$authHashiCal[$path]) || empty(self::$authHashiCal[$path])) && $USER && is_object($USER))
 		{
-			self::$authHashiCal = $USER::GetHitAuthHash($path, $userId);
-			if (empty(self::$authHashiCal))
+			$hitHash = $USER::GetHitAuthHash($path, $userId);
+			if (empty($hitHash))
 			{
-				self::$authHashiCal = $USER::AddHitAuthHash($path, $userId);
+				$hitHash = $USER::AddHitAuthHash($path, $userId);
 			}
+
+			self::$authHashiCal[$path] = $hitHash;
 		}
-		return self::$authHashiCal;
+
+		return self::$authHashiCal[$path];
 	}
 
 	public static function CheckAuthHash()
@@ -2264,7 +2351,7 @@ class CCalendarSect
 			];
 		}
 		/** @var Bitrix\Calendar\Core\Mappers\Factory $eventMapper */
-		$mapperFactory = \Bitrix\Main\DI\ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
+		$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
 		if ($connection = $mapperFactory->getConnection()->getById($connectionId))
 		{
 			$userId = \CCalendar::GetUserId();

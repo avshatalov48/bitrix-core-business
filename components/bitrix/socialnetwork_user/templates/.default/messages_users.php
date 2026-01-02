@@ -3,6 +3,7 @@
 if (
 	!IsModuleInstalled("im")
 	&& SITE_TEMPLATE_ID != "bitrix24"
+	&& SITE_TEMPLATE_ID !== 'air'
 ):
 	?><?
 	$APPLICATION->IncludeComponent(
@@ -27,11 +28,11 @@ if (
 	);
 	?><?
 	$APPLICATION->IncludeComponent(
-		"bitrix:socialnetwork.messages_requests", 
-		"", 
+		"bitrix:socialnetwork.messages_requests",
+		"",
 		Array(
 			"PATH_TO_USER" => $arResult["PATH_TO_USER"],
-			"PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"],		
+			"PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"],
 			"PATH_TO_MESSAGE_FORM" => $arResult["PATH_TO_MESSAGE_FORM"],
 			"PATH_TO_MESSAGES_CHAT" => $arResult["PATH_TO_MESSAGES_CHAT"],
 			"PATH_TO_SMILE" => $arResult["PATH_TO_SMILE"],
@@ -51,12 +52,12 @@ if (
 			"PATH_TO_VIDEO_CALL" => $arResult["PATH_TO_VIDEO_CALL"],
 			"USE_AUTOSUBSCRIBE" => "N"
 		),
-		$component 
+		$component
 	);
 	?><?
 	$APPLICATION->IncludeComponent(
-		"bitrix:socialnetwork.messages_users", 
-		"", 
+		"bitrix:socialnetwork.messages_users",
+		"",
 		Array(
 			"PATH_TO_USER" => $arResult["PATH_TO_USER"],
 			"PATH_TO_MESSAGE_FORM" => $arResult["PATH_TO_MESSAGE_FORM"],
@@ -79,8 +80,7 @@ if (
 			"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
 			"PATH_TO_VIDEO_CALL" => $arResult["PATH_TO_VIDEO_CALL"]
 		),
-		$component 
+		$component
 	);
 	?><?
 endif;
-?>

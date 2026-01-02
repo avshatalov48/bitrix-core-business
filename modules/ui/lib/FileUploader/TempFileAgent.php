@@ -29,7 +29,7 @@ class TempFileAgent
 		$agentName = '\\' . __METHOD__ . '();';
 		$agents = \CAgent::getList(['ID' => 'DESC'], [
 			'MODULE_ID' => 'ui',
-			'NAME' => $agentName,
+			'=NAME' => $agentName,
 		]);
 
 		if ($agent = $agents->fetch())

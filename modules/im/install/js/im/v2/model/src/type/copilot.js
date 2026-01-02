@@ -18,6 +18,12 @@ export type CopilotRole = {
 	prompts: CopilotPrompt[],
 };
 
+export type CopilotAIModel = {
+	code: CopilotAIModelCode,
+	name: string,
+};
+
 export type CopilotRoleCode = string;
+export type CopilotAIModelCode = string;
 
 export type AvatarSize = 'S' | 'M' | 'L';

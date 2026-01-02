@@ -156,10 +156,13 @@
 		}
 
 		// add BLOCK ID to relative
-		carouselSelectors.forEach(function (s, i)
+		if (event.makeRelativeSelector)
 		{
-			carouselSelectors[i] = event.makeRelativeSelector(s);
-		});
+			carouselSelectors.forEach(function (s, i)
+			{
+				carouselSelectors[i] = event.makeRelativeSelector(s);
+			});
+		}
 
 		return carouselSelectors.join(',');
 	};
@@ -435,6 +438,7 @@
 				'g-bg-primary--hover',
 				'g-rounded-50x',
 				'g-opacity-0_8--hover',
+				'g-color-black--hover',
 				//set old classes, not use now in slider
 				'g-bg-gray-light-v3',
 			];
@@ -476,6 +480,10 @@
 			if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-arrows') === 7)
 			{
 				addClasses = ['g-color-gray-light-v1', 'g-color-primary--hover'];
+			}
+			if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-arrows') === 8)
+			{
+				addClasses = ['g-color-gray-light-v1', 'g-color-black--hover', 'g-bg-white', 'g-bg-white--hover', 'g-rounded-50x'];
 			}
 
 			addClasses.forEach(function(addedClass) {

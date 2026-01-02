@@ -91,9 +91,13 @@ final class GraphHandler extends ProfitHandler implements IReportMultipleGrouped
 				'TOTAL_SOLD' => $item['BASKET_PRICE'] * $item['BASKET_QUANTITY'],
 				'COST_PRICE' => $item['COST_PRICE'] * $item['BASKET_QUANTITY'],
 			];
-			if ($item['CURRENCY'])
+			if ($item['BATCH_CURRENCY'])
 			{
-				$priceFields = $this->preparePriceFields($priceFields, $item['CURRENCY']);
+				$priceFields['COST_PRICE'] = $this->preparePrice($priceFields['COST_PRICE'], $item['BATCH_CURRENCY']);
+			}
+			if ($item['BASKET_CURRENCY'])
+			{
+				$priceFields['TOTAL_SOLD'] = $this->preparePrice($priceFields['TOTAL_SOLD'], $item['BASKET_CURRENCY']);
 			}
 
 			$combinedData[$dateDeducted->toString()] ??= [

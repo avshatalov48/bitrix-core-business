@@ -19,14 +19,18 @@ this.BX.UI = this.BX.UI || {};
 	const UI = BX.UI;
 	const SidePanel = BX.SidePanel;
 	function prepareOptions(options = {}) {
-	  options = Object.assign({}, options);
-	  options.design = Object.assign({}, options.design || {});
+	  options = {
+	    ...options
+	  };
+	  options.design = {
+	    ...options.design
+	  };
 	  options.design = {
 	    margin: true,
 	    section: true,
 	    ...options.design
 	  };
-	  options.extensions = (options.extensions || []).concat(['ui.sidepanel.layout', 'ui.buttons']);
+	  options.extensions = [...(options.extensions || []), 'ui.sidepanel.layout', 'ui.buttons'];
 	  if (options.toolbar) {
 	    options.extensions.push('ui.buttons.icons');
 	  }
@@ -112,7 +116,7 @@ this.BX.UI = this.BX.UI || {};
 	  render(content = '', promised = false) {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].content && !promised) {
 	      content = babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].content();
-	      if (Object.prototype.toString.call(content) === "[object Promise]" || content.toString && content.toString() === "[object BX.Promise]") {
+	      if (Object.prototype.toString.call(content) === '[object Promise]' || content.toString && content.toString() === '[object BX.Promise]') {
 	        return content.then(content => this.render(content, true));
 	      }
 	    }
@@ -135,14 +139,14 @@ this.BX.UI = this.BX.UI || {};
 	          if (button instanceof ui_buttons.BaseButton) {
 	            button.renderTo(toolbar);
 	          } else if (main_core.Type.isDomNode(button)) {
-	            toolbar.appendChild(button);
+	            main_core.Dom.append(button, toolbar);
 	          } else {
-	            throw main_core.BaseError('Wrong button type ' + button);
+	            throw new main_core.BaseError(`Wrong button type ${button}`);
 	          }
 	        });
-	        header.appendChild(toolbar);
+	        main_core.Dom.append(toolbar, header);
 	      }
-	      container.appendChild(header);
+	      main_core.Dom.append(header, container);
 	    }
 
 	    // CONTENT
@@ -154,24 +158,24 @@ this.BX.UI = this.BX.UI || {};
 	        if (design.margin === true) {
 	          classes.push('ui-sidepanel-layout-content-margin');
 	        } else {
-	          styles.push('margin: ' + design.margin);
+	          styles.push(`margin: ${design.margin}`);
 	        }
 	      }
 	      let contentElement = main_core.Tag.render(_t6 || (_t6 = _`<div class="${0}" style="${0}"></div>`), classes.join(' '), styles.join('; '));
-	      container.appendChild(contentElement);
+	      main_core.Dom.append(contentElement, container);
 	      if (babelHelpers.classPrivateFieldLooseBase(this, _menu)[_menu]) {
 	        babelHelpers.classPrivateFieldLooseBase(this, _menu)[_menu].renderTo(contentElement);
 	      }
-	      contentElement.appendChild(main_core.Tag.render(_t7 || (_t7 = _`<div class="ui-sidepanel-layout-content-inner"></div>`)));
+	      main_core.Dom.append(main_core.Tag.render(_t7 || (_t7 = _`<div class="ui-sidepanel-layout-content-inner"></div>`)), contentElement);
 	      contentElement = contentElement.lastElementChild;
 	      if (design.section) {
-	        contentElement.appendChild(main_core.Tag.render(_t8 || (_t8 = _`<div class="ui-slider-section ui-sidepanel-layout-content-fill-height"></div>`)));
+	        main_core.Dom.append(main_core.Tag.render(_t8 || (_t8 = _`<div class="ui-slider-section ui-sidepanel-layout-content-fill-height"></div>`)), contentElement);
 	        contentElement = contentElement.firstElementChild;
 	      }
-	      if (typeof content === 'string') {
+	      if (main_core.Type.isString(content)) {
 	        contentElement.innerHTML = content;
 	      } else if (content instanceof Element) {
-	        contentElement.appendChild(content);
+	        main_core.Dom.append(content, contentElement);
 	      }
 	      if (babelHelpers.classPrivateFieldLooseBase(this, _menu)[_menu]) {
 	        babelHelpers.classPrivateFieldLooseBase(this, _onMenuItemClick)[_onMenuItemClick](babelHelpers.classPrivateFieldLooseBase(this, _menu)[_menu].getActiveItem(), contentElement);
@@ -179,8 +183,8 @@ this.BX.UI = this.BX.UI || {};
 	    }
 
 	    // FOOTER
-	    const isButtonsUndefined = typeof babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].buttons === 'undefined';
-	    if (typeof babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].buttons === 'function' || isButtonsUndefined) {
+	    const isButtonsUndefined = main_core.Type.isUndefined(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].buttons);
+	    if (main_core.Type.isFunction(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].buttons) || isButtonsUndefined) {
 	      const cancelButton = new ui_buttons.CancelButton({
 	        onclick: () => SidePanel.Instance.close()
 	      });
@@ -197,23 +201,23 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      const buttonList = babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].buttons(defaults);
 	      if (buttonList && buttonList.length > 0) {
-	        container.appendChild(main_core.Tag.render(_t9 || (_t9 = _`<div class="ui-sidepanel-layout-footer-anchor"></div>`)));
+	        main_core.Dom.append(main_core.Tag.render(_t9 || (_t9 = _`<div class="ui-sidepanel-layout-footer-anchor"></div>`)), container);
 	        const classes = ['ui-sidepanel-layout-buttons'];
 	        if (babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].design.alignButtonsLeft) {
 	          classes.push('ui-sidepanel-layout-buttons-align-left');
 	        }
 	        const buttons = main_core.Tag.render(_t10 || (_t10 = _`<div class="${0}"></div>`), classes.join(' '));
-	        this.getFooterContainer().appendChild(buttons);
+	        main_core.Dom.append(buttons, this.getFooterContainer());
 	        buttonList.forEach(button => {
 	          if (button instanceof ui_buttons.BaseButton) {
 	            button.renderTo(buttons);
 	          } else if (main_core.Type.isDomNode(button)) {
-	            buttons.appendChild(button);
+	            main_core.Dom.append(button, buttons);
 	          } else {
-	            throw main_core.BaseError('Wrong button type ' + button);
+	            throw new main_core.BaseError(`Wrong button type ${button}`);
 	          }
 	        });
-	        container.appendChild(this.getFooterContainer());
+	        main_core.Dom.append(this.getFooterContainer(), container);
 	      }
 	    }
 	    setTimeout(() => {
@@ -224,26 +228,26 @@ this.BX.UI = this.BX.UI || {};
 	  afterRender() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _adjustFooter)[_adjustFooter]();
 	    const resizeHandler = main_core.Runtime.throttle(babelHelpers.classPrivateFieldLooseBase(this, _adjustFooter)[_adjustFooter], 300, this);
-	    main_core.Event.bind(window, "resize", resizeHandler);
+	    main_core.Event.bind(window, 'resize', resizeHandler);
 	    const topSlider = SidePanel.Instance.getTopSlider();
 	    if (topSlider) {
 	      main_core_events.EventEmitter.subscribeOnce(topSlider, 'SidePanel.Slider:onDestroy', () => {
-	        main_core.Event.unbind(window, "resize", resizeHandler);
+	        main_core.Event.unbind(window, 'resize', resizeHandler);
 	      });
 	    }
 	  }
 	}
 	function _getScrollWidth2() {
 	  const div = main_core.Tag.render(_t11 || (_t11 = _`<div style="overflow-y: scroll; width: 50px; height: 50px; opacity: 0; pointer-events: none; position: absolute;"></div>`));
-	  document.body.appendChild(div);
+	  main_core.Dom.append(div, document.body);
 	  const scrollWidth = div.offsetWidth - div.clientWidth;
 	  main_core.Dom.remove(div);
 	  return scrollWidth;
 	}
 	function _adjustFooter2() {
 	  const parentSet = this.getContainer().parentNode;
-	  if (parentSet.scrollWidth > parentSet.offsetWidth) {
-	    main_core.Dom.style(this.getFooterContainer(), 'bottom', babelHelpers.classPrivateFieldLooseBase(this, _getScrollWidth)[_getScrollWidth]() + 'px');
+	  if (parentSet !== null && parentSet.scrollWidth > parentSet.offsetWidth) {
+	    main_core.Dom.style(this.getFooterContainer(), 'bottom', `${babelHelpers.classPrivateFieldLooseBase(this, _getScrollWidth)[_getScrollWidth]()}px`);
 	  } else {
 	    main_core.Dom.style(this.getFooterContainer(), 'bottom', 0);
 	  }
@@ -253,7 +257,7 @@ this.BX.UI = this.BX.UI || {};
 	    return;
 	  }
 	  const id = item.getId();
-	  let attr = babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].menu.contentAttribute;
+	  const attr = babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].menu.contentAttribute;
 	  if (!attr) {
 	    return;
 	  }

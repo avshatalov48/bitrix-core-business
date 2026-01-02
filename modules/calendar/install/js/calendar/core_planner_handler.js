@@ -154,27 +154,10 @@ BX.CCalendarPlannerHandler.prototype.drawEventForm = function(cb)
 
 				BX.timer.start(inp_TimeFrom.bxtimer);
 				BX.timer.start(inp_TimeTo.bxtimer);
-
-				if (!bEnterPressed)
-				{
-					BX.addClass(inp_Name.parentNode, 'tm-popup-event-form-disabled')
-					inp_Name.value = BX.message('JS_CORE_PL_EVENTS_ADD');
-				}
-				else
-				{
-					inp_Name.value = '';
-				}
 			}
 
 			return (e || window.event) ? BX.PreventDefault(e) : null;
-		}, this),
-
-		handler_name_focus = function()
-		{
-			BX.removeClass(this.parentNode, 'tm-popup-event-form-disabled');
-			if(this.value == BX.message('JS_CORE_PL_EVENTS_ADD'))
-				this.value = '';
-		};
+		}, this);
 
 	var inp_TimeFrom = BX.create('INPUT', {
 		props: {type: 'text', className: 'tm-popup-event-start-time-textbox' + mt_format_css}
@@ -238,7 +221,6 @@ BX.CCalendarPlannerHandler.prototype.drawEventForm = function(cb)
 			BX.timer.stop(inp_TimeTo.bxtimer);
 
 			inp_Name.focus();
-			handler_name_focus.apply(inp_Name);
 		}, this);
 
 		if (!this.CLOCK)
@@ -263,19 +245,17 @@ BX.CCalendarPlannerHandler.prototype.drawEventForm = function(cb)
 	inp_TimeTo.bxtimer = BX.timer(inp_TimeTo, {dt: 7200000, accuracy: 3600});
 
 	var inp_Name = BX.create('INPUT', {
-		props: {type: 'text', className: 'tm-popup-event-form-textbox' + mt_format_css, value: BX.message('JS_CORE_PL_EVENTS_ADD')},
+		props: {
+			type: 'text',
+			className: 'tm-popup-event-form-textbox' + mt_format_css,
+		},
+		attrs: {
+			placeHolder: BX.message('JS_CORE_PL_EVENTS_ADD'),
+		},
 		events: {
 			keypress: function(e) {
 				return (e.keyCode == 13) ? handler(e, true) : true;
 			},
-			blur: function() {
-				if (this.value == '')
-				{
-					BX.addClass(this.parentNode, 'tm-popup-event-form-disabled');
-					this.value = BX.message('JS_CORE_PL_EVENTS_ADD');
-				}
-			},
-			focus: handler_name_focus
 		}
 	});
 

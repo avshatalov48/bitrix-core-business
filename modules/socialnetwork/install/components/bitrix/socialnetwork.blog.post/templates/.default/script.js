@@ -1506,6 +1506,38 @@ window.hideRenderedSharingNodes = function(newNodes)
 		this.pathToUser = (BX.type.isNotEmptyString(params.pathToUser) ? params.pathToUser : '');
 		this.pathToPost = (BX.type.isNotEmptyString(params.pathToPost) ? params.pathToPost : '');
 		this.allowToAll = (BX.type.isBoolean(params.allowToAll) ? params.allowToAll : false);
+
+		this.currentScrollPosition = 0;
+
+		BX.Event.bind(document, 'fullscreenchange', this.handleFullScreenChange.bind(this));
+		BX.Event.bind(document, 'scroll', this.handleScrollChange.bind(this));
+	};
+
+	BX.SBPostManager.prototype.handleFullScreenChange = function()
+	{
+		if (!this.getFullScreenElement())
+		{
+			window.scrollTo(0, this.currentScrollPosition);
+		}
+	};
+
+	BX.SBPostManager.prototype.handleScrollChange = function()
+	{
+		if (!this.getFullScreenElement())
+		{
+			this.currentScrollPosition = window.scrollY;
+		}
+	};
+
+	BX.SBPostManager.prototype.getFullScreenElement = function()
+	{
+		return (
+			document.fullscreenElement
+			|| document.webkitFullscreenElement
+			|| document.mozFullScreenElement
+			|| document.msFullscreenElement
+			|| null
+		);
 	};
 
 	BX.SBPostManager.prototype.clickTag = function(tagValue)

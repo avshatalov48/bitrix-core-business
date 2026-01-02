@@ -6,11 +6,11 @@ import { formatFieldsWithConfig } from '../../../utils/validate';
 import { messagesFieldsConfig } from './field-config';
 
 import type { JsonObject } from 'main.core';
-import type { CopilotPrompt, CopilotRole, CopilotRoleCode } from '../../../type/copilot';
+import type { ImModelCopilotPrompt, ImModelCopilotRole, ImModelCopilotRoleCode } from 'im.v2.model';
 import type { GetterTree, ActionTree, MutationTree } from 'ui.vue3.vuex';
 
 type MessagesState = {
-	collection: { [key: number]: CopilotRoleCode }
+	collection: { [key: number]: ImModelCopilotRoleCode }
 }
 
 type CopilotMessage = {
@@ -39,7 +39,7 @@ export class MessagesModel extends BuilderModel
 	{
 		return {
 			/** @function copilot/messages/getRole */
-			getRole: (state) => (messageId: number): ?CopilotRole => {
+			getRole: (state) => (messageId: number): ?ImModelCopilotRole => {
 				const message = state.collection[messageId];
 				if (!message)
 				{
@@ -49,7 +49,7 @@ export class MessagesModel extends BuilderModel
 				return Core.getStore().getters['copilot/roles/getByCode'](message.roleCode);
 			},
 			/** @function copilot/messages/getPrompts */
-			getPrompts: (state) => (messageId: number): CopilotPrompt[] => {
+			getPrompts: (state) => (messageId: number): ImModelCopilotPrompt[] => {
 				const message = state.collection[messageId];
 				if (!message)
 				{

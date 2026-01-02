@@ -132,8 +132,18 @@ export default class QueueManager
 	onPullSubscribeCallback(pullData: PullData): void
 	{
 		const { pullTag } = this.#options;
+		let { additionalPullTags } = this.#options;
 
-		if (Type.isStringFilled(pullTag) && pullData.command !== pullTag)
+		if (!Type.isArray(additionalPullTags))
+		{
+			additionalPullTags = [];
+		}
+
+		if (
+			Type.isStringFilled(pullTag)
+			&& pullData.command !== pullTag
+			&& !additionalPullTags.includes(pullTag)
+		)
 		{
 			return;
 		}

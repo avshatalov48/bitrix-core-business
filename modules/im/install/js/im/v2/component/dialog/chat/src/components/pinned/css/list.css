@@ -1,0 +1,47 @@
+.pinned-list-enter-active,
+.pinned-list-leave-active {
+	transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+.pinned-list-enter-from,
+.pinned-list-leave-to {
+	opacity: 0;
+	transform: translateY(-20px);
+}
+.pinned-list-enter-to,
+.pinned-list-leave-from {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.bx-im-dialog-chat__pinned_list {
+	--im-dialog-chat__pin_height: 48px;
+	--im-dialog-chat__pin_visible_amount: 3;
+	--im-dialog-chat__pin_scrollbar: #f6f7f8;
+	--im-dialog-chat__pin_scrollbar_thumb: rgba(82, 92, 105, .3);
+
+	position: absolute;
+	width: 100%;
+	left: 0;
+	top: var(--im-dialog-chat__header_pin_height);
+	padding: 0 15px;
+	flex-shrink: 0;
+	max-height: calc(
+		var(--im-dialog-chat__pin_height) * var(--im-dialog-chat__pin_visible_amount)
+	);
+	overflow-y: auto;
+	z-index: 110;
+	background-color: var(--im-dialog-chat__background-color_pinned);
+}
+
+.bx-im-dialog-chat__pinned_list::-webkit-scrollbar {
+	width: 4px;
+	background-color: var(--im-dialog-chat__pin_scrollbar);
+}
+
+.bx-im-dialog-chat__pinned_list::-webkit-scrollbar-thumb {
+	background-color: var(--im-dialog-chat__pin_scrollbar_thumb) !important;
+}
+
+.bx-im-dialog-chat__pinned_list:hover::-webkit-scrollbar-thumb {
+	background-color: var(--im-dialog-chat__pin_scrollbar_thumb) !important;
+}

@@ -14,6 +14,7 @@ Loc::loadMessages(
 
 return [
 	'last' => Loc::getMessage('LD_BLOCK_SECTION_LAST'),
+	'favourite' => Loc::getMessage('LD_BLOCK_SECTION_FAVOURITE'),
 	'recommended' =>[
 		'name' => Loc::getMessage('LD_BLOCK_SECTION_RECOMMENDED'),
 		'type' => ['knowledge']
@@ -154,6 +155,18 @@ return [
 	],
 	'widgets_video' => [
 		'name' => Loc::getMessage('LD_BLOCK_SECTION_VIDEO'),
+		'type' => ['mainpage'],
+	],
+	'widgets_tiles' => [
+		'name' => Loc::getMessage('LD_BLOCK_SECTION_TILES_NEW2'),
+		'type' => ['mainpage'],
+	],
+	'widgets_columns' => [
+		'name' => Loc::getMessage('LD_BLOCK_SECTION_COLUMNS'),
+		'type' => ['mainpage'],
+	],
+	'widgets_text_image' => [
+		'name' => Loc::getMessage('LD_BLOCK_SECTION_TEXT_IMAGE'),
 		'type' => ['mainpage'],
 	],
 ];

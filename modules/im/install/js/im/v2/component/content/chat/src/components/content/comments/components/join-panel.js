@@ -1,5 +1,5 @@
-import { Button as ChatButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
-import { ChatService } from 'im.v2.provider.service';
+import { ChatButton, ButtonColor, ButtonSize } from 'im.v2.component.elements.button';
+import { ChatService } from 'im.v2.provider.service.chat';
 
 // @vue/component
 export const JoinPanel = {

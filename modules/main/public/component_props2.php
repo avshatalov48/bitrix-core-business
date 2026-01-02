@@ -167,25 +167,7 @@ if($strWarning == "")
 				}
 			}
 
-			$functionParams = "";
-			if(!empty($arComponent["DATA"]["FUNCTION_PARAMS"]))
-			{
-				$functionParams = ",\n".
-					"\tarray(\n".
-					"\t\t".PHPParser::ReturnPHPStr2($arComponent["DATA"]["FUNCTION_PARAMS"])."\n".
-					"\t)";
-			}
-
-			$code = ($arComponent["DATA"]["VARIABLE"]? $arComponent["DATA"]["VARIABLE"]." = ":"").
-				"\$APPLICATION->IncludeComponent(\n".
-				"\t\"".$arComponent["DATA"]["COMPONENT_NAME"]."\", \n".
-				"\t\"".$sTemplateName."\", \n".
-				"\tarray(\n".
-				"\t\t".PHPParser::ReturnPHPStr2($aPostValues)."\n".
-				"\t),\n".
-				"\t".($arComponent["DATA"]["PARENT_COMP"] <> ''? $arComponent["DATA"]["PARENT_COMP"] : "false").
-				$functionParams.
-				"\n);";
+			$code = PHPParser::buildComponentCode($arComponent, $sTemplateName, $aPostValues);
 
 			$filesrc_for_save = mb_substr($filesrc, 0, $arComponent["START"]).$code.mb_substr($filesrc, $arComponent["END"]);
 

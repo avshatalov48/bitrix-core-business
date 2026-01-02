@@ -12,11 +12,17 @@ use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 global $APPLICATION;
 
-$title =
-	$arResult['FORM']['ENTITY_DATA']['TITLE']
-	?: $arResult['FORM']['ENTITY_DATA']['ADDRESS']
-	?: Loc::getMessage('CATALOG_STORE_DETAILS_CREATION_TITLE')
-;
+$title = Loc::getMessage('CATALOG_STORE_DETAILS_CREATION_TITLE');
+
+if (isset($arResult['FORM']['ENTITY_DATA']['TITLE']))
+{
+	$title = $arResult['FORM']['ENTITY_DATA']['TITLE'];
+}
+elseif (isset($arResult['FORM']['ENTITY_DATA']['ADDRESS']))
+{
+	$title = $arResult['FORM']['ENTITY_DATA']['ADDRESS'];
+}
+
 $APPLICATION->SetTitle($title);
 
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");

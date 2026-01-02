@@ -1,5 +1,6 @@
+import { DraftManager } from 'im.v2.lib.draft';
 import { Utils } from 'im.v2.lib.utils';
-import { ListLoadingState as LoadingState } from 'im.v2.component.elements';
+import { ListLoadingState as LoadingState } from 'im.v2.component.elements.list-loading-state';
 import { RecentItem } from 'im.v2.component.list.items.recent';
 
 import { EmptyState } from './components/empty-state';
@@ -9,7 +10,7 @@ import { CollabRecentMenu } from './classes/context-menu-manager';
 import './css/collab-list.css';
 
 import type { JsonObject } from 'main.core';
-import type { ImModelRecentItem, ImModelMessage } from 'im.v2.model';
+import type { ImModelRecentItem } from 'im.v2.model';
 
 // @vue/component
 export const CollabList = {
@@ -33,10 +34,10 @@ export const CollabList = {
 		preparedItems(): ImModelRecentItem[]
 		{
 			return [...this.collection].sort((a, b) => {
-				const firstMessage: ImModelMessage = this.$store.getters['messages/getById'](a.messageId);
-				const secondMessage: ImModelMessage = this.$store.getters['messages/getById'](b.messageId);
+				const firstDate: Date = this.$store.getters['recent/getSortDate'](a.dialogId);
+				const secondDate: Date = this.$store.getters['recent/getSortDate'](b.dialogId);
 
-				return secondMessage.date - firstMessage.date;
+				return secondDate - firstDate;
 			});
 		},
 		pinnedItems(): ImModelRecentItem[]
@@ -59,6 +60,7 @@ export const CollabList = {
 	created()
 	{
 		this.contextMenuManager = new CollabRecentMenu();
+		void DraftManager.getInstance().initDraftHistory();
 	},
 	beforeUnmount()
 	{
@@ -76,7 +78,7 @@ export const CollabList = {
 		async onScroll(event: Event)
 		{
 			this.contextMenuManager.close();
-			if (!Utils.dom.isOneScreenRemaining(event.target) || !this.getRecentService().hasMoreItemsToLoad)
+			if (!Utils.dom.isOneScreenRemaining(event.target) || !this.getRecentService().hasMoreItemsToLoad())
 			{
 				return;
 			}
@@ -92,7 +94,12 @@ export const CollabList = {
 		onRightClick(item: ImModelRecentItem, event: PointerEvent)
 		{
 			event.preventDefault();
-			this.contextMenuManager.openMenu(item, event.currentTarget);
+
+			const context = {
+				dialogId: item.dialogId,
+				recentItem: item,
+			};
+			this.contextMenuManager.openMenu(context, event.currentTarget);
 		},
 		getRecentService(): CollabService
 		{

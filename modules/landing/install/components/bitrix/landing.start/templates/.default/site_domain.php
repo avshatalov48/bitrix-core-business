@@ -15,6 +15,7 @@ $APPLICATION->includeComponent(
 			'SITE_ID' => $arResult['VARS']['site_edit']
 		],
 		'USE_PADDING' => true,
-		'PAGE_MODE' => false
+		'PAGE_MODE' => false,
+		'USE_UI_TOOLBAR' => 'Y',
 	]
 );

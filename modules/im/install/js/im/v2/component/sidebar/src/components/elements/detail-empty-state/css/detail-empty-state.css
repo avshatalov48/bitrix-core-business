@@ -56,7 +56,6 @@
 
 .bx-im-sidebar-detail-empty-state__icon.--audio,
 .bx-im-sidebar-detail-empty-state__icon.--document,
-.bx-im-sidebar-detail-empty-state__icon.--other,
 .bx-im-sidebar-file-media-detail__container .bx-im-sidebar-detail-empty-state__icon.--media {
 	background-image: var(--im-sidebar-detail-empty-state__background-image_sign-icon);
 }

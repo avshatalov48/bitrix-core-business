@@ -8,5 +8,5 @@ $MESS['DOCUMENT_GRID_DOCUMENT_CONDUCT_BUTTON_CONFIRM'] = 'Да, провести
 $MESS['DOCUMENT_GRID_BUTTON_BACK'] = 'Назад';
 $MESS['DOCUMENT_GRID_DOCUMENT_CANCEL_BATCH_SELECTED_CONTENT'] = 'При отмене будут скорректированы только текущие остатки и себестоимость. #HELP_LINK#';
 $MESS['DOCUMENT_GRID_DOCUMENT_CANCEL_BATCH_SELECTED_CONTENT_LINK'] = 'Подробнее';
-$MESS['DOCUMENT_GRID_CONTINUE'] = 'Продолжить';
-$MESS['DOCUMENT_GRID_CANCEL'] = 'Отменить';
+$MESS['DOCUMENT_GRID_CONTINUE'] = "Продолжить";
+$MESS['DOCUMENT_GRID_CANCEL'] = "Отменить";

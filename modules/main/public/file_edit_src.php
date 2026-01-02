@@ -165,18 +165,9 @@ if($strWarning == '')
 				$bEdit = true;
 				CUndo::ShowUndoMessage(CUndo::Add($arUndoParams));
 
-				$module_id = "fileman";
-				if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
+				if(COption::GetOptionString("fileman", "log_page", "Y")=="Y")
 				{
-					$res_log['path'] = mb_substr($path, 1);
-					CEventLog::Log(
-						"content",
-						"PAGE_EDIT",
-						"main",
-						"",
-						serialize($res_log),
-						$_REQUEST["site"]
-					);
+					CEventLog::Log("content", "PAGE_EDIT", "fileman", $path, false, $_REQUEST["site"] ?? false);
 				}
 
 				if (CAutoSave::Allowed())

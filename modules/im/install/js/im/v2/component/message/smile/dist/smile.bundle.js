@@ -22,10 +22,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    dialogId: {
 	      type: String,
 	      required: true
-	    },
-	    menuIsActiveForId: {
-	      type: [String, Number],
-	      default: 0
 	    }
 	  },
 	  computed: {

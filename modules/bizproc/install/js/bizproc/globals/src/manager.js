@@ -67,23 +67,26 @@ export default class Manager
 		additionContext: {
 			visibility?: string,
 			availableTypes?: Array<string>,
-		}
+		},
 	): Promise<?BX.SidePanel.Slider>
 	{
 		const customName = Type.isStringFilled(name) ? name : '';
 
-		let visibility = null;
-		let availableTypes = [];
+		let url = Uri.addParam(this.editUrl, { documentType, mode: this.mode[mode], name: customName });
 		if (Type.isPlainObject(additionContext))
 		{
-			visibility = Type.isStringFilled(additionContext.visibility) ? additionContext.visibility : null;
-			availableTypes = Type.isArrayFilled(additionContext.availableTypes) ? additionContext.availableTypes : [];
+			if (Type.isStringFilled(additionContext.visibility))
+			{
+				url = Uri.addParam(url, { visibility: additionContext.visibility });
+			}
+
+			if (Type.isArrayFilled(additionContext.availableTypes))
+			{
+				url = Uri.addParam(url, { availableTypes: additionContext.availableTypes });
+			}
 		}
 
-		return this.constructor.openSlider(
-			Uri.addParam(this.editUrl, {documentType, mode: this.mode[mode], name: customName, visibility, availableTypes}),
-			this.editSliderOptions
-		);
+		return this.constructor.openSlider(url, this.editSliderOptions);
 	}
 
 	editGlobals(id: string, mode: string, documentType: string): Promise<?BX.SidePanel.Slider>

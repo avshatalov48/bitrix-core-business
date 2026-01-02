@@ -5,9 +5,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : '') . ' no-background no-all-paddings');
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Landing\Manager;
-use \Bitrix\Main\UI\Extension;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Landing\Manager;
+use Bitrix\Main\UI\Extension;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 if ($this->getComponent()->request('close') == 'Y' && !$arResult['ERRORS'])
 {
@@ -26,6 +27,7 @@ if ($this->getComponent()->request('close') == 'Y' && !$arResult['ERRORS'])
 // load
 Loc::loadMessages(__FILE__);
 Manager::setPageTitle(Loc::getMessage('LANDING_TPL_TITLE'));
+Toolbar::deleteFavoriteStar();
 Extension::load(['ui.hint', 'ui.alerts', 'ui.dialogs.messagebox', 'ui.link', 'ui.fonts.opensans']);
 
 // errors
@@ -55,12 +57,18 @@ $uriSave->addParams([
 $helpUrl = \Bitrix\Landing\Help::getHelpUrl('COOKIES_EDIT');
 if ($helpUrl)
 {
-	$this->setViewTarget('inside_pagetitle');
-	?><a class="landing-help-link" href="<?= $helpUrl;?>">
-		<?= Loc::getMessage('LANDING_TPL_HELP_LINK');?>
-		<span data-hint="<?= Loc::getMessage('LANDING_TPL_HELP_LINK_HINT');?>" class="ui-hint"></span>
-	</a><?
-	$this->endViewTarget();
+	$helpText = Loc::getMessage('LANDING_TPL_HELP_LINK');
+	$helpHint = Loc::getMessage('LANDING_TPL_HELP_LINK_HINT');
+	$helpLink = <<<HTML
+			<a class="landing-help-link" href="$helpUrl" target="_blank">
+				$helpText
+				<span data-hint="$helpHint" class="ui-hint"></span>
+			</a>
+		HTML;
+
+	Toolbar::addRightCustomHtml($helpLink, [
+		'align' => 'right',
+	]);
 }
 
 $idRand1 = randString(5);

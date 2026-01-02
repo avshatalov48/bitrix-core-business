@@ -3,23 +3,23 @@
 namespace Bitrix\Sender\Internals\Dto;
 
 /**
- * Collection can only contain UpdateContactDTO items
+ * Collection can only contain UpdateContact items
  */
 class UpdateContactDtoCollection
 {
 	/**
-	 * @var array|UpdateContactDTO[]
+	 * @var array|UpdateContact[]
 	 */
 	private array $items = [];
 
 	/**
 	 * Append update contact DTO to collection
 	 *
-	 * @param UpdateContactDTO $item
+	 * @param UpdateContact $item
 	 *
 	 * @return $this
 	 */
-	public function append(UpdateContactDTO $item): self {
+	public function append(UpdateContact $item): self {
 		$this->items[] = $item;
 		return $this;
 	}
@@ -27,7 +27,7 @@ class UpdateContactDtoCollection
 	/**
 	 * Get all items
 	 *
-	 * @return array|UpdateContactDTO[]
+	 * @return array|UpdateContact[]
 	 */
 	public function all(): array {
 		return $this->items;
@@ -39,7 +39,22 @@ class UpdateContactDtoCollection
 	 * @return array
 	 */
 	public function toArray(): array {
-		return array_map(fn(UpdateContactDTO $item) => $item->toArray(), $this->items);
+		return array_map(fn(UpdateContact $item) => $item->toArray(), $this->items);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getOnDuplicateKeyUpdateFields()
+	{
+		$item = $this->items[0] ?? null;
+
+		if (!$item)
+		{
+			return [];
+		}
+
+		return $item->getOnDuplicateKeyUpdateFields();
 	}
 
 	/**

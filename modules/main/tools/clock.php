@@ -1,4 +1,4 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 
 class CClock
@@ -113,11 +113,27 @@ class CClock
 							'<?=CUtil::GetAdditionalFileURL("/bitrix/js/main/clock.js")?>',
 							'<?=CUtil::GetAdditionalFileURL("/bitrix/themes/.default/clock.css")?>'
 						],
-						function() {bxLoadClock_<?=$jsInputId?>(callback)}
+						function() {
+							BX.Runtime.loadExtension(['intranet.old-interface.clock', 'date'])
+								.then((exports) => {
+									(new BX.Intranet.Bitrix24.Clock()).init();
+									continueClockInitialization_<?=$jsInputId?>(callback);
+								})
+								.catch(() => {
+									continueClockInitialization_<?=$jsInputId?>(callback);
+								});
+						}
 					);
 				}
 			}
-
+			else
+			{
+				continueClockInitialization_<?=$jsInputId?>(callback);
+			}
+		}
+		
+		function continueClockInitialization_<?=$jsInputId?>(callback)
+		{
 			window.bClockLoading = false;
 
 			var obId = 'bxClock_<?=$jsInputId?>';

@@ -153,25 +153,9 @@ class CIBlockPropertyTools
 		switch($code)
 		{
 			case self::CODE_MORE_PHOTO:
-				$name = Loc::getMessage('IBPT_PROP_TITLE_MORE_PHOTO');
-				if (isset($fields['IBLOCK_ID']))
-				{
-					if (Loader::includeModule('catalog'))
-					{
-						$catalog = CCatalogSku::GetInfoByIBlock($fields['IBLOCK_ID']);
-						if (!empty($catalog))
-						{
-							$name =
-								$catalog['CATALOG_TYPE'] === CCatalogSku::TYPE_OFFERS
-								? Loc::getMessage('IBPT_PROP_TITLE_PRODUCT_VARIATION_MORE_PHOTO')
-								: Loc::getMessage('IBPT_PROP_TITLE_PRODUCT_MORE_PHOTO')
-							;
-						}
-					}
-				}
 				$property = [
 					'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_FILE,
-					'NAME' => $name,
+					'NAME' => Loc::getMessage('IBPT_PROP_TITLE_MORE_PHOTO_MSGVER_1'),
 					'CODE' => self::CODE_MORE_PHOTO,
 					'XML_ID' => self::XML_MORE_PHOTO,
 					'MULTIPLE' => 'Y',

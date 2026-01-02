@@ -1,5 +1,5 @@
 import { ImModelSidebarFileItem, ImModelFile } from 'im.v2.model';
-import { AudioPlayer } from 'im.v2.component.elements';
+import { AudioPlayer } from 'im.v2.component.elements.audioplayer';
 
 import '../css/audio-detail-item.css';
 

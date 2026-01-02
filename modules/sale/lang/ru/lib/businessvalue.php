@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BIZVAL_PROVIDER_VALUE"] = "Значение";
 $MESS["BIZVAL_PROVIDER_USER"] = "Пользователь";
 $MESS["BIZVAL_PROVIDER_ORDER"] = "Заказ";
@@ -160,4 +160,3 @@ $MESS["BIZVAL_CODE_SHIPMENT_REASON_MARKED"] = "Причина отметки";
 $MESS["BIZVAL_CODE_SHIPMENT_CANCELED"] = "Отменена";
 $MESS["BIZVAL_CODE_SHIPMENT_DATE_CANCELED"] = "Дата отмены";
 $MESS["BIZVAL_CODE_SHIPMENT_EMP_CANCELED_ID"] = "Кто отменил (ID)";
-?>

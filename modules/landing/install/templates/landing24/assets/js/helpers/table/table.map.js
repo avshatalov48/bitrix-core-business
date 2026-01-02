@@ -1,1 +1,0 @@
-{"version":3,"file":"table.map.js","names":["document","querySelector","BX","addCustomEvent","event","block","querySelectorAll","forEach","element","setAttribute"],"sources":["table.js"],"mappings":"CAAA,WACC,aAEA,GAAIA,SAASC,cAAc,wBAA0B,KACrD,CACCC,GAAGC,eAAe,yBAA0BC,IAC3CA,EAAMC,MAAMC,iBAAiB,qBAAqBC,SAASC,IAC1DA,EAAQC,aAAa,QAAS,GAAG,GAChC,GAEJ,CACA,EAXD"}

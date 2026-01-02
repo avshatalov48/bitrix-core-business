@@ -1,5 +1,3 @@
-@import "../icon-base.css";
-
 .ui-icon-set,
 .ui-icon-set__scope {
 	--ui-icon-set__path_send-contact: url('/bitrix/js/ui/icon-set/crm/images/send-contact.svg');

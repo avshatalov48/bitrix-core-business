@@ -1,14 +1,13 @@
-import 'ui.notification';
-
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import { MenuManager } from 'main.popup';
 
 import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
-import { EmptyAvatarType } from 'im.v2.component.elements';
+import { EmptyAvatarType } from 'im.v2.component.elements.avatar';
 import { CreateChatManager } from 'im.v2.lib.create-chat';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { ChatService } from 'im.v2.provider.service';
+import { Notifier } from 'im.v2.lib.notifier';
+import { ChatService } from 'im.v2.provider.service.chat';
 import { UserRole, PopupType, ChatType, EventType, Layout } from 'im.v2.const';
 import {
 	TitleInput,
@@ -147,7 +146,7 @@ export const ConferenceCreation = {
 		{
 			if (!this.checkPassword())
 			{
-				this.showPasswordError();
+				Notifier.conference.onPasswordError();
 
 				return;
 			}
@@ -169,9 +168,6 @@ export const ConferenceCreation = {
 				conferencePassword: this.conference.passwordNeeded ? this.conference.password : '',
 			}).catch(() => {
 				this.isCreating = false;
-				BX.UI.Notification.Center.notify({
-					content: this.loc('IM_CREATE_CHAT_ERROR'),
-				});
 			});
 
 			this.isCreating = false;
@@ -194,7 +190,7 @@ export const ConferenceCreation = {
 		onLayoutChange(event: BaseEvent<OnLayoutChangeEvent>)
 		{
 			const { to } = event.getData();
-			if (to.name === Layout.createChat.name && to.entityId !== ChatType.videoconf)
+			if (to.name === Layout.createChat && to.entityId !== ChatType.videoconf)
 			{
 				this.exitByChatTypeSwitch = true;
 			}
@@ -251,12 +247,6 @@ export const ConferenceCreation = {
 
 			return password !== '' && password.length >= PASSWORD_MIN_LENGTH;
 		},
-		showPasswordError()
-		{
-			BX.UI.Notification.Center.notify({
-				content: this.loc('IM_CREATE_CHAT_CONFERENCE_PASSWORD_ERROR'),
-			});
-		},
 		getChatService(): ChatService
 		{
 			if (!this.chatService)
@@ -294,6 +284,7 @@ export const ConferenceCreation = {
 			/>
 			<SettingsSection
 				:withSearchOption="false"
+				:withAutoDeleteOption="false"
 				:description="settings.description"
 				@descriptionChange="onDescriptionChange"
 			/>

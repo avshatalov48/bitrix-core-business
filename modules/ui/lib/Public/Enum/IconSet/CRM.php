@@ -1,0 +1,81 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Bitrix\Ui\Public\Enum\IconSet;
+
+enum CRM: string
+{
+	case SEND_CONTACT = 'send-contact';
+	case BOOK_OPEN = 'book-open';
+	case FUNNEL_1 = 'funnel-1';
+	case CRM_SEARCH = 'crm-search';
+	case REFRESH_9 = 'refresh-9';
+	case CHECK_IN_BOX = 'check-in-box';
+	case ARROWS_MEET = 'arrows-meet';
+	case CHAT_LINE = 'chat-line';
+	case COMMERCIAL_OFFER = 'commercial-offer';
+	case FUNNELS = 'funnels';
+	case ITEM = 'item';
+	case PROPOSAL_SETTINGS = 'proposal-settings';
+	case PROPOSAL_DONE = 'proposal-done';
+	case PROPOSAL = 'proposal';
+	case CRM_GROUP = 'crm-group';
+	case CONTACT = 'contact';
+	case LEAD = 'lead';
+	case INVOICE = 'invoice';
+	case STAGES = 'stages';
+	case EXCLUSION_LIST = 'exclusion-list';
+	case OPEN_CHANNELS = 'open-channels';
+	case APPROVED_LIST = 'approved-list crm-checked_1';
+	case COMPANY = 'company';
+	case COPY_FILE = 'copy-file';
+	case GIRD = 'gird';
+	case FUNNEL_2 = 'funnel-2';
+	case STAGE = 'stage';
+	case CUSTOMER_CARD = 'customer-card';
+	case SMART_ACTIVITIES = 'smart-activities';
+	case CHOOSE = 'choose';
+	case ADD_FROM_ADRESSBOOK = 'add-from-adressbook';
+	case ADD_FILE = 'add-file';
+	case RECEIVE_PAYMENT_SETTINGS = 'receive-payment-settings';
+	case TIMELINE = 'timeline';
+	case FORM_SETTINGS = 'form-settings';
+	case CUSTOMER_CARDS = 'customer-cards';
+	case SHOP_LIST = 'shop-list';
+	case SHOP_SEEN = 'shop-seen';
+	case ADD_FROM_CRM = 'add-from-crm';
+	case PAYMENT_AND_DELIVERY = 'payment-and-delivery';
+	case SMART_SORT = 'smart-sort';
+	case CART_TEXT = 'cart-text';
+	case CART = 'cart';
+	case CART_IMAGE = 'cart-image';
+	case COMMENT_PLUS = 'comment-plus';
+	case DEAL_1 = 'deal-1';
+	case DEAL_PLUS_1 = 'deal-plus-1';
+	case TIMELINE_PLUS = 'timeline-plus';
+	case PLUS_BASED_ON = 'plus-based-on';
+	case DEAL = 'deal';
+	case CUSTOMER_CARD_1 = 'customer-card-1';
+	case DEAL_PLUS = 'deal-plus';
+	case PERSON_PLUS_2 = 'person-plus-2';
+	case CITY_PLUS = 'city-plus';
+	case CUSTOMER_CARD_PLUS = 'customer-card-plus';
+	case CHAT_1 = 'chat-1';
+	case DIALOGUE_1 = 'dialogue-1';
+	case BUSINESS_PROCESS = 'business-process';
+	case FORM = 'form';
+	case WALLET = 'wallet';
+	case TAXI = 'taxi';
+	case INTERCONNECTION = 'interconnection';
+	case REDUCE = 'reduce';
+	case DIALOGUE = 'dialogue';
+	case DELIVERY_CAR = 'delivery-car';
+	case CAR = 'car';
+	case CRM_PAYMENT = 'crm-payment';
+	case INSERT = 'insert';
+	case CRM_LETTERS = 'crm-letters';
+	case CRM_MAP = 'crm-map';
+	case SEND_FILE = 'send-file';
+	case BITRIX_1C = 'bitrix-1c';
+}

@@ -1098,18 +1098,27 @@ $name = $APPLICATION->IncludeComponent(
 	<? unset($_SESSION['REPORT_LIST_ERROR']); ?>
 <? endif ?>
 
-<?php $this->SetViewTarget("pagetitle", 100);?>
-	<? if($arParams['REPORT_ID'] && false): ?>
-	<a class="webform-small-button webform-small-button-blue"
-		onclick="BX.Report['<?=$jsClass?>'].export('<?=$arParams['REPORT_ID']?>')">
-		<span class="webform-small-button-text"><?=GetMessage('REPORT_TITLE_EXPORT')?></span>
-	</a>
-	&nbsp;
-	<? endif ?>
+<?php
 
-	<a class="webform-small-button webform-small-button-blue webform-small-button-back"
-		href="<?=CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_REPORT_LIST"], array());?>">
-		<span class="webform-small-button-icon"></span>
-		<span class="webform-small-button-text"><?=GetMessage('REPORT_RETURN_TO_LIST')?></span>
-	</a>
-<?php $this->EndViewTarget();?>
+if (\Bitrix\Main\Loader::includeModule('ui'))
+{
+	if (!empty($arParams['REPORT_ID']) && false)
+	{
+		\Bitrix\UI\Toolbar\Facade\Toolbar::addButton(
+			new \Bitrix\UI\Buttons\Button([
+				'color' => \Bitrix\UI\Buttons\Color::PRIMARY,
+				'text' => GetMessage('REPORT_TITLE_EXPORT'),
+				'onclick' => new \Bitrix\UI\Buttons\JsCode("BX.Report['{$jsClass}'].export('{$arParams['REPORT_ID']}')"),
+			])
+		);
+	}
+
+	\Bitrix\UI\Toolbar\Facade\Toolbar::addButton(
+		new \Bitrix\UI\Buttons\Button([
+			'color' => \Bitrix\UI\Buttons\Color::PRIMARY,
+			'icon' => \Bitrix\UI\Buttons\Icon::BACK,
+			'text' => GetMessage('REPORT_RETURN_TO_LIST'),
+			'link' => CComponentEngine::makePathFromTemplate($arParams['PATH_TO_REPORT_LIST']),
+		])
+	);
+}

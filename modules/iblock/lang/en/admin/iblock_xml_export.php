@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_CML2_IBLOCK_ERROR"] = "Information block read error.";
 $MESS["IBLOCK_CML2_FILE_ERROR"] = "File open error.";
 $MESS["IBLOCK_CML2_SECTIONS"] = "Exporting catalog sections.";
@@ -26,4 +26,3 @@ $MESS["IBLOCK_CML2_FILTER_ACTIVE"] = "export active only";
 $MESS["IBLOCK_CML2_FILTER_ALL"] = "export all";
 $MESS["IBLOCK_CML2_FILTER_NONE"] = "none";
 $MESS["IBLOCK_CML2_DOWNLOAD_CLOUD_FILES"] = "Copy files from cloud storage";
-?>

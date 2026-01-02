@@ -529,7 +529,7 @@ class Widget extends \Bitrix\Report\VisualConstructor\Controller\Base
 	public function loadAction($widgetId)
 	{
 		$widget = \Bitrix\Report\VisualConstructor\Entity\Widget::getCurrentUserWidgetByGId($widgetId);
-		if (!$widget->getId())
+		if (!$widget?->getId())
 		{
 			$this->addError(new Error('Widget no exist'));
 			return false;

@@ -1,5 +1,10 @@
 <?php
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /**
  * @global CMain $APPLICATION
  * @var array $arParams
@@ -11,25 +16,28 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
  * @var string $templateFolder
  */
 
+use Bitrix\Main\Loader;
+use Bitrix\Main\Web\Json;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
+
+Loader::includeModule('ui');
+
 $settings = $arResult['SETTINGS'];
 
-$pageTitleFilter = ($settings['FILTER']['PAGETITLE'] === 'Y');
-if ($pageTitleFilter)
+if ($settings['FILTER']['PAGETITLE'] === 'Y')
 {
-	$this->SetViewTarget('inside_pagetitle');
+	Toolbar::addFilter($arResult['FILTER']);
 }
-$APPLICATION->includeComponent(
-	'bitrix:main.ui.filter',
-	'',
-	$arResult['FILTER'],
-	$component,
-	['HIDE_ICONS' => true]
-);
-if ($pageTitleFilter)
+else
 {
-	$this->EndViewTarget();
+	$APPLICATION->includeComponent(
+		'bitrix:main.ui.filter',
+		'',
+		$arResult['FILTER'],
+		$component,
+		['HIDE_ICONS' => true]
+	);
 }
-unset($pageTitleFilter);
 
 $APPLICATION->IncludeComponent(
 	'bitrix:main.ui.grid',
@@ -55,8 +63,8 @@ $APPLICATION->IncludeComponent(
 );
 
 $filterSettings = [
-	'defaultFilter' => (isset($settings['FILTER']['DEFAULT']) ? $settings['FILTER']['DEFAULT'] : []),
-	'internalFilter' => (isset($settings['FILTER']['INTERNAL']) ? $settings['FILTER']['INTERNAL'] : []),
+	'defaultFilter' => ($settings['FILTER']['DEFAULT'] ?? []),
+	'internalFilter' => ($settings['FILTER']['INTERNAL'] ?? []),
 	'useQuickSearch' => !$arResult['FILTER']['DISABLE_SEARCH']
 ];
 if ($filterSettings['useQuickSearch'])
@@ -70,10 +78,10 @@ if ($filterSettings['useQuickSearch'])
 <script>
 	BX.ready(function() {
 		BX.IblockSelectorLanding.create(
-			'<?=\CUtil::jsEscape($arResult['FILTER']['FILTER_ID']); ?>',
-			<?=\CUtil::PhpToJSObject($filterSettings, false, true, false); ?>
+			'<?= \CUtil::jsEscape($arResult['FILTER']['FILTER_ID']) ?>',
+			<?= Json::encode($filterSettings) ?>
 		);
 	});
 </script>
-<?
+<?php
 unset($settings);

@@ -5,10 +5,10 @@ use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\Web\Uri;
 
 if (!defined('REST_MARKETPLACE_URL'))
 {
@@ -26,10 +26,17 @@ class Transport
 	private const DEFAULT_SERVICE_REGION = 'en';
 	private const SERVICE_DOMAIN_LIST = [
 		'en' => 'https://util.bitrixsoft.com/',
+
 		'ru' => 'https://util.1c-bitrix.ru/',
+		'am' => 'https://util.1c-bitrix.ru/',
+		'az' => 'https://util.1c-bitrix.ru/',
+		'ge' => 'https://util.1c-bitrix.ru/',
+
 		'kz' => 'https://util.1c-bitrix.kz/',
+		'kg' => 'https://util.1c-bitrix.kz/',
+		'uz' => 'https://util.1c-bitrix.kz/',
+
 		'by' => 'https://util.1c-bitrix.by/',
-		'ua' => 'https://util.bitrix.ua/',
 	];
 	public const SERVICE_TYPE_APP = 'APP';
 	public const SERVICE_TYPE_COUPON = 'COUPON';
@@ -47,6 +54,10 @@ class Transport
 	const METHOD_GET_SALE_OUT = 'get_sale_out';
 	const METHOD_GET_BUY = 'get_buy';
 	const METHOD_GET_UPDATES = 'get_updates';
+
+	/**
+	 * @deprecated
+	 */
 	const METHOD_GET_IMMUNE = 'get_immune';
 	const METHOD_GET_CATEGORIES = 'get_categories';
 	const METHOD_GET_CATEGORY = 'get_category';
@@ -59,6 +70,14 @@ class Transport
 	const METHOD_FILTER_APP = 'search_app_adv';
 	const METHOD_GET_SITE_LIST = 'sites_list';
 	const METHOD_GET_SITE_ITEM = 'sites_item';
+
+	public const DICTIONARY_IMMUNE_LIST = 'immune_list';
+	public const DICTIONARY_BI_BUILDER_SYSTEM_DASHBOARDS = 'system_dashboards';
+
+	private const DICTIONARY_JSON_LIST = [
+		self::DICTIONARY_IMMUNE_LIST => 'market_immune.json',
+		self::DICTIONARY_BI_BUILDER_SYSTEM_DASHBOARDS => 'system_dashboards.json',
+	];
 
 	protected static $instance = null;
 
@@ -117,6 +136,24 @@ class Transport
 		));
 
 		$response = $httpClient->post($this->getServiceUrl(), $query);
+
+		return $this->prepareAnswer($response);
+	}
+
+	public function getDictionary(string $dictionary): array|false
+	{
+		$jsonName = static::DICTIONARY_JSON_LIST[$dictionary] ?? null;
+
+		if (!isset($jsonName))
+		{
+			return false;
+		}
+
+		$uri = new Uri($this->serviceDomain);
+		$uri->setPath('/dictionary/' . $jsonName);
+
+		$httpClient = new HttpClient();
+		$response = $httpClient->get($uri);
 
 		return $this->prepareAnswer($response);
 	}

@@ -9,6 +9,10 @@ use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Rest\RestConvertible;
 use Bitrix\Im\V2\Rest\RestEntity;
 
+/**
+ * @template T
+ * @extends Registry<T>
+ */
 abstract class EntityCollection extends Registry implements RestConvertible, PopupDataAggregatable
 {
 	use ContextCustomer;

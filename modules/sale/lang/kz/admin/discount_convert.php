@@ -1,0 +1,20 @@
+<?php
+$MESS["SALE_DISC_CONVERT_BUTTON"] = "Түрлендіруді бастау";
+$MESS["SALE_DISC_CONVERT_COMPLETE"] = "Түрлендіру аяқталды";
+$MESS["SALE_DISC_CONVERT_COMPLETE_ALL_OK"] = "Барлық жеңілдіктер түрлендірілді";
+$MESS["SALE_DISC_CONVERT_DISABLE"] = "Түрлендіруден кейін жеңілдіктер белсенсіздіріледі";
+$MESS["SALE_DISC_CONVERT_DISABLE_ALL"] = "Жеңілдіктерді пайдалану тәртібі өзгерді. Түрлендіруден кейін қолмен жеңілдіктерді қосу керек.";
+$MESS["SALE_DISC_CONVERT_ERR"] = "Түрлендіру процесінде қателер табылды:";
+$MESS["SALE_DISC_CONVERT_ERROR_RESUME"] = "Осы жеңілдіктерді қолдану шарттарын түзету қажет";
+$MESS["SALE_DISC_CONVERT_IN_PROGRESS"] = "Түрлендіру...";
+$MESS["SALE_DISC_CONVERT_ONE_ERROR"] = "<a href=\"#LINK#\" target=\"_blank\">#NAME#</a><br>#MESS# жеңілдігі";
+$MESS["SALE_DISC_CONVERT_RESULT"] = "Түрлендірілген жеңілдіктер: <b>#COUNT#</b>";
+$MESS["SALE_DISC_CONVERT_STEP"] = "Бір қадамдағы максималды түрлендіру уақыты:";
+$MESS["SALE_DISC_CONVERT_STEP_SEC"] = "секунд";
+$MESS["SALE_DISC_CONVERT_STOP"] = "Тоқтату";
+$MESS["SALE_DISC_CONVERT_TAB"] = "Түрлендіру";
+$MESS["SALE_DISC_CONVERT_TAB_TITLE"] = "Түрлендіру параметрлері";
+$MESS["SALE_DISC_CONVERT_TITLE"] = "Жеңілдіктерді түрлендіру";
+$MESS["SALE_DISC_CONVERT_TOTAL"] = "Түрлендірілген жеңілдіктер: <b>#COUNT#</b> (#PERCENT#%, шамамен #TIME#)";
+$MESS["SALE_DISC_CONVERT_TOTAL_MIN"] = "#MIN# минут";
+$MESS["SALE_DISC_CONVERT_TOTAL_SEC"] = "#SEC# секунд";

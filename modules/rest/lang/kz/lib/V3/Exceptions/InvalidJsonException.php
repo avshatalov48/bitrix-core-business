@@ -1,0 +1,2 @@
+<?php
+$MESS["REST_INVALID_JSON_EXCEPTION"] = "Жарамсыз JSON";

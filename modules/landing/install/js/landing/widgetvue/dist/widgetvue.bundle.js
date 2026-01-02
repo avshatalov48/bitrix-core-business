@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,landing_backend,main_core) {
+(function (exports,main_core) {
 	'use strict';
 
 	var _enable = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("enable");
@@ -34,6 +34,7 @@ this.BX = this.BX || {};
 	var _useDemoData = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("useDemoData");
 	var _blockId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("blockId");
 	var _getFrameContent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFrameContent");
+	var _getEngineParams = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getEngineParams");
 	var _getCoreConfigs = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getCoreConfigs");
 	var _getAssetsConfigs = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getAssetsConfigs");
 	var _parseExtensionConfig = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("parseExtensionConfig");
@@ -68,6 +69,9 @@ this.BX = this.BX || {};
 	    });
 	    Object.defineProperty(this, _getCoreConfigs, {
 	      value: _getCoreConfigs2
+	    });
+	    Object.defineProperty(this, _getEngineParams, {
+	      value: _getEngineParams2
 	    });
 	    Object.defineProperty(this, _getFrameContent, {
 	      value: _getFrameContent2
@@ -167,67 +171,67 @@ this.BX = this.BX || {};
 	    });
 	  }
 	}
-	function _getFrameContent2() {
+	async function _getFrameContent2() {
 	  let content = '';
+	  const core = await babelHelpers.classPrivateFieldLooseBase(this, _getCoreConfigs)[_getCoreConfigs]();
+	  content += babelHelpers.classPrivateFieldLooseBase(this, _parseExtensionConfig)[_parseExtensionConfig](core.data);
+	  const assets = await babelHelpers.classPrivateFieldLooseBase(this, _getAssetsConfigs)[_getAssetsConfigs]();
+	  content += babelHelpers.classPrivateFieldLooseBase(this, _parseExtensionConfig)[_parseExtensionConfig](assets.data);
+	  content += babelHelpers.classPrivateFieldLooseBase(this, _parseExtensionConfig)[_parseExtensionConfig]({
+	    lang_additional: babelHelpers.classPrivateFieldLooseBase(this, _lang)[_lang]
+	  });
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _style)[_style]) {
+	    content += `<link rel="stylesheet" href="${babelHelpers.classPrivateFieldLooseBase(this, _style)[_style]}">`;
+	  }
+	  const engineParams = await babelHelpers.classPrivateFieldLooseBase(this, _getEngineParams)[_getEngineParams]();
+	  const appInit = `
+			<script>
+				BX.ready(function() {
+					(new BX.Landing.WidgetVue.Engine(
+						${JSON.stringify(engineParams)},
+					)).render();
+				});
+			</script>
+
+			<div id="${babelHelpers.classPrivateFieldLooseBase(this, _uniqueId)[_uniqueId]}">${babelHelpers.classPrivateFieldLooseBase(this, _template)[_template]}</div>
+		`;
+	  content += appInit;
+	  return content;
+	}
+	async function _getEngineParams2() {
 	  const engineParams = {
 	    id: babelHelpers.classPrivateFieldLooseBase(this, _uniqueId)[_uniqueId],
 	    origin: window.location.origin,
 	    fetchable: babelHelpers.classPrivateFieldLooseBase(this, _fetchable)[_fetchable],
 	    clickable: babelHelpers.classPrivateFieldLooseBase(this, _clickable)[_clickable]
 	  };
-	  return babelHelpers.classPrivateFieldLooseBase(this, _getCoreConfigs)[_getCoreConfigs]().then(core => {
-	    content += babelHelpers.classPrivateFieldLooseBase(this, _parseExtensionConfig)[_parseExtensionConfig](core);
-	    content += babelHelpers.classPrivateFieldLooseBase(this, _parseExtensionConfig)[_parseExtensionConfig]({
-	      lang_additional: babelHelpers.classPrivateFieldLooseBase(this, _lang)[_lang]
-	    });
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _style)[_style]) {
-	      content += `<link rel="stylesheet" href="${babelHelpers.classPrivateFieldLooseBase(this, _style)[_style]}">`;
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _getAssetsConfigs)[_getAssetsConfigs]();
-	  }).then(assets => {
-	    content += babelHelpers.classPrivateFieldLooseBase(this, _parseExtensionConfig)[_parseExtensionConfig](assets);
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _appAllowedByTariff)[_appAllowedByTariff]) {
-	      throw new Error(main_core.Loc.getMessage('LANDING_WIDGETVUE_ERROR_PAYMENT'));
-	    }
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _appAllowedByTariff)[_appAllowedByTariff]) {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _useDemoData)[_useDemoData]) {
 	      if (!babelHelpers.classPrivateFieldLooseBase(this, _demoData)[_demoData]) {
 	        babelHelpers.classPrivateFieldLooseBase(this, _logger)[_logger].log('Widget haven\'t demo data and can be render correctly');
 	      }
-	      return babelHelpers.classPrivateFieldLooseBase(this, _demoData)[_demoData] || {};
+	      engineParams.data = babelHelpers.classPrivateFieldLooseBase(this, _demoData)[_demoData] || {};
+	    } else {
+	      try {
+	        engineParams.data = await babelHelpers.classPrivateFieldLooseBase(this, _fetchData)[_fetchData]();
+	      } catch (error) {
+	        engineParams.error = error.message || 'error';
+	      }
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _fetchData)[_fetchData]();
-	  }).then(data => {
-	    engineParams.data = data;
-	  }).catch(error => {
-	    engineParams.error = error.message || 'error';
-	  }).then(() => {
-	    const appInit = `
-					<script>
-						BX.ready(function() {
-							(new BX.Landing.WidgetVue.Engine(
-								${JSON.stringify(engineParams)}
-							)).render();
-						});
-					</script>
-
-					<div id="${babelHelpers.classPrivateFieldLooseBase(this, _uniqueId)[_uniqueId]}">${babelHelpers.classPrivateFieldLooseBase(this, _template)[_template]}</div>
-				`;
-	    content += appInit;
-	    return content;
-	  });
+	  } else {
+	    engineParams.error = main_core.Loc.getMessage('LANDING_WIDGETVUE_ERROR_PAYMENT_MSGVER_1');
+	  }
+	  return engineParams;
 	}
-	function _getCoreConfigs2() {
-	  const extCodes = ['main.core', 'ui.design-tokens'];
-	  const tplCodes = ['bitrix24'];
-	  return landing_backend.Backend.getInstance().action('Block::getAssetsConfig', {
-	    extCodes,
-	    tplCodes
-	  });
+	async function _getCoreConfigs2() {
+	  return main_core.ajax.runAction('landing.vibe.getCoreConfig');
 	}
-	function _getAssetsConfigs2() {
+	async function _getAssetsConfigs2() {
 	  const extCodes = ['landing.widgetvue.engine'];
-	  return landing_backend.Backend.getInstance().action('Block::getAssetsConfig', {
-	    extCodes
+	  return main_core.ajax.runAction('landing.vibe.getAssetsConfig', {
+	    data: {
+	      extCodes
+	    }
 	  });
 	}
 	function _parseExtensionConfig2(ext) {
@@ -252,32 +256,30 @@ this.BX = this.BX || {};
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _useDemoData)[_useDemoData]) {
 	    return Promise.resolve(babelHelpers.classPrivateFieldLooseBase(this, _demoData)[_demoData] || {});
 	  }
-	  return landing_backend.Backend.getInstance().action('RepoWidget::fetchData', {
-	    blockId: babelHelpers.classPrivateFieldLooseBase(this, _blockId)[_blockId],
-	    params
+	  return main_core.ajax.runAction('landing.vibe.fetchData', {
+	    data: {
+	      blockId: babelHelpers.classPrivateFieldLooseBase(this, _blockId)[_blockId],
+	      params
+	    }
 	  }).then(jsonData => {
-	    let data = {};
-	    data = JSON.parse(jsonData);
+	    const data = JSON.parse(jsonData.data || []);
 	    if (data.error) {
 	      throw new Error(data.error);
 	    }
 	    return data;
-	  }).catch(error => {
+	  }).catch(fail => {
 	    const logMessages = [`Fetch data error!\nWidget ID: ${babelHelpers.classPrivateFieldLooseBase(this, _blockId)[_blockId]}`];
 	    if (Object.keys(params) > 0) {
 	      logMessages.push('\nFetch request params:', params);
 	    }
-	    if (main_core.Type.isString(error)) {
-	      logMessages.push(`\nError in JSON data: ${error}`);
-	    } else if (main_core.Type.isObject(error)) {
-	      if (error instanceof Error && error.message) {
-	        logMessages.push(`\nJavaScript error: ${error.message}`);
-	      } else if (error.result && main_core.Type.isArray(error.result) && error.result.length > 0) {
-	        logMessages.push('\nError from backend:');
-	        error.result.forEach(e => {
-	          logMessages.push(e);
-	        });
-	      }
+	    if (main_core.Type.isString(fail)) {
+	      logMessages.push(`\nError in JSON data: ${fail}`);
+	    } else if (main_core.Type.isObject(fail) && 'errors' in fail && main_core.Type.isArray(fail.errors)) {
+	      fail.errors.forEach(error => {
+	        if (error.message !== undefined) {
+	          logMessages.push(`\nJavaScript error: ${error.message}`);
+	        }
+	      });
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _logger)[_logger].log(...logMessages);
 	    throw new Error(main_core.Loc.getMessage('LANDING_WIDGETVUE_ERROR_FETCH'));
@@ -329,5 +331,5 @@ this.BX = this.BX || {};
 
 	exports.WidgetVue = WidgetVue;
 
-}((this.BX.Landing = this.BX.Landing || {}),BX.Landing,BX));
+}((this.BX.Landing = this.BX.Landing || {}),BX));
 //# sourceMappingURL=widgetvue.bundle.js.map

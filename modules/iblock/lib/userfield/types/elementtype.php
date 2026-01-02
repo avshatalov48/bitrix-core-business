@@ -28,6 +28,8 @@ class ElementType extends BaseType
 
 	protected static ?bool $iblockIncluded = null;
 
+	protected static array $itemCache = [];
+
 	/**
 	 * @return array
 	 */
@@ -149,30 +151,32 @@ class ElementType extends BaseType
 	 */
 	public static function renderAdminListView(array $userField, ?array $additionalParameters): string
 	{
-		static $cache = [];
 		$emptyCaption = '&nbsp;';
 
 		$value = (int)($additionalParameters['VALUE'] ?? 0);
+		$index = static::USER_TYPE_ID . $value;
 
-		if (!isset($cache[$value]))
+		if (!isset(self::$itemCache[$index]))
 		{
 			$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
-			if(!$enum)
+			if (!$enum)
 			{
 				$additionalParameters['VALUE'] = $emptyCaption;
+
 				return parent::renderAdminListView($userField, $additionalParameters);
 			}
 			while ($item = $enum->Fetch())
 			{
-				$cache[(int)$item['ID']] = $item['NAME'];
+				self::$itemCache[static::USER_TYPE_ID . $item['ID']] = $item['NAME'];
 			}
 		}
-		if (!isset($cache[$value]))
+		if (!isset(self::$itemCache[$index]))
 		{
-			$cache[$value] = $emptyCaption;
+			self::$itemCache[$index] = $emptyCaption;
 		}
 
-		$additionalParameters['VALUE'] = $cache[$value];
+		$additionalParameters['VALUE'] = self::$itemCache[$index];
+
 		return parent::renderAdminListView($userField, $additionalParameters);
 	}
 
@@ -498,6 +502,11 @@ class ElementType extends BaseType
 
 		$filter = [];
 
+		if (isset($additionalParameters['SKIP_CHECK_PERMISSIONS']) && $additionalParameters['SKIP_CHECK_PERMISSIONS'])
+		{
+			$filter['CHECK_PERMISSIONS'] = 'N';
+		}
+
 		$checkValue = ($additionalParameters['mode'] ?? '') === self::MODE_VIEW;
 		if ($checkValue)
 		{
@@ -528,7 +537,7 @@ class ElementType extends BaseType
 				return;
 			}
 		}
-		$filter['ACTIVE'] = $userField['SETTINGS']['ACTIVE_FILTER'] === 'Y';
+		$filter['ACTIVE'] = (($userField['SETTINGS']['ACTIVE_FILTER'] ?? 'N') === 'Y');
 
 		$elements = self::getElements(
 			(int)$userField['SETTINGS']['IBLOCK_ID'],
@@ -720,7 +729,7 @@ class ElementType extends BaseType
 		{
 			$filter = [
 				'IBLOCK_ID' => $iblockId,
-				'CHECK_PERMISSIONS' => 'Y',
+				'CHECK_PERMISSIONS' => $additionalFilter['CHECK_PERMISSIONS'] ?? 'Y',
 				'MIN_PERMISSION' => \CIBlockRights::PUBLIC_READ,
 			];
 			if ($additionalFilter['ACTIVE'])

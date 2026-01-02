@@ -1,0 +1,4 @@
+.bx-im-ai-assistant-chat-header__icon {
+	cursor: pointer;
+	transform: scaleX(-1);
+}

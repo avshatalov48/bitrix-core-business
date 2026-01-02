@@ -47,6 +47,7 @@ export const ValuePopup = {
 				onclick: () => {
 					this.$emit('close');
 				},
+				text: this.$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_CANCEL'),
 			});
 			cancelButton.renderTo(this.$refs['button-container']);
 		});

@@ -47,7 +47,7 @@ class AccountVkads extends Account
 			$result = [
 				'ID' => $data['ID'],
 				'NAME' => $data['FIRST_NAME'] . ' ' . $data['LAST_NAME'],
-				'LINK' => 'https://ads.vk.com/hq/budget/transactions/',
+				'LINK' => 'https://ads.vk.ru/hq/budget/transactions/',
 			];
 
 			$result['PICTURE'] = (Context::getCurrent()->getRequest()->isHttps() ? 'https' : 'http')

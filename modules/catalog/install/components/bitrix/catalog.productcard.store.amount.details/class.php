@@ -600,10 +600,11 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 			];
 		}
 
-		$filteredStoreIds = $this->getFilterPresets()['STORE'];
+		$filterPreset = $this->getFilterPresets();
+		$filteredStoreIds = $filterPreset['STORE'] ?? [];
 		if ($filteredStoreIds)
 		{
-			$filter['=STORE_ID'] = $filteredStoreIds;
+			$filter['@STORE_ID'] = $filteredStoreIds;
 		}
 
 		return $filter;

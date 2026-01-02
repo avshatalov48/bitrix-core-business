@@ -1,4 +1,4 @@
-import { Spinner, SpinnerSize, SpinnerColor } from 'im.v2.component.elements';
+import { Spinner, SpinnerSize, SpinnerColor } from 'im.v2.component.elements.loader';
 
 import '../css/mention-loading-state.css';
 

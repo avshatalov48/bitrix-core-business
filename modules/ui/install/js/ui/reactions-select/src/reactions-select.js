@@ -1,10 +1,10 @@
-import {Type, Dom, Tag, Browser, Loc, Event} from 'main.core';
-import {EventEmitter} from 'main.core.events';
-import {Lottie} from "ui.lottie";
-import {Popup} from 'main.popup';
+import { Type, Dom, Tag, Browser, Loc, Event } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { Lottie } from 'ui.lottie';
+import { Popup } from 'main.popup';
 
-import "./reactions-select.css";
-import "./reactions-icon.css";
+import './reactions-select.css';
+import './reactions-icon.css';
 
 import likeAnimatedEmojiData from '../animations/em_01.json';
 import laughAnimatedEmojiData from '../animations/em_02.json';
@@ -35,13 +35,13 @@ export const reactionLottieAnimations = Object.freeze({
 });
 
 export const reactionCssClass = Object.freeze({
-	like: "reaction-icon_like",
-	laugh: "reaction-icon_laugh",
-	wonder: "reaction-icon_wonder",
-	cry: "reaction-icon_cry",
-	angry: "reaction-icon_angry",
-	facepalm: "reaction-icon_facepalm",
-	kiss: "reaction-icon_kiss",
+	like: 'reaction-icon_like',
+	laugh: 'reaction-icon_laugh',
+	wonder: 'reaction-icon_wonder',
+	cry: 'reaction-icon_cry',
+	angry: 'reaction-icon_angry',
+	facepalm: 'reaction-icon_facepalm',
+	kiss: 'reaction-icon_kiss',
 });
 
 export const reactionSelectEvents = Object.freeze({
@@ -84,7 +84,7 @@ type ReactionsSelectOptions = {
 
 export class ReactionsSelect extends EventEmitter
 {
-	#name: string;
+	#id: number;
 	#containerClassname: string = '';
 	#position: ReactionsSelectPosition | null;
 	#baseClassname: string;
@@ -101,12 +101,12 @@ export class ReactionsSelect extends EventEmitter
 	#showClassname: null;
 	#hideClassname: null;
 
-	constructor(options: ReactionsSelectOptions = {name: 'ReactionsSelect'})
+	constructor(options: ReactionsSelectOptions = { name: 'ReactionsSelect' })
 	{
 		super();
 		this.setEventNamespace('UI:ReactionsSelect');
 
-		this.#name = Type.isString(options.name) ? options.name : this.#generateName();
+		this.#id = parseInt((Math.random() * 1000), 10);
 		this.#baseClassname = 'reaction-select';
 		this.#popupContentClassname = `${this.#baseClassname}_container`;
 		this.#availableReactions = Object.keys(reactionType);
@@ -195,15 +195,10 @@ export class ReactionsSelect extends EventEmitter
 		return this.#reactionsPopup && this.#reactionsPopup.isShown();
 	}
 
-	getName(): string
-	{
-		return this.#name;
-	}
-
 	#createReactionsPopup()
 	{
 		this.#reactionsPopup = new Popup({
-			id: 'reactions-list-'+this.#name,
+			id: `reactions-list-${this.#id}`,
 			content: this.#renderPopupContent(),
 			...this.#getPopupPositionOptions(),
 			noAllPaddings: true,
@@ -216,6 +211,11 @@ export class ReactionsSelect extends EventEmitter
 			cacheable: false,
 			disableScroll: Browser.isMobile(),
 			className: 'reaction-select-popup',
+			events: {
+				onPopupDestroy: () => {
+					this.#destroyLottieAnimations();
+				},
+			},
 		});
 	}
 
@@ -238,13 +238,13 @@ export class ReactionsSelect extends EventEmitter
 
 	#getPopupContentClassname(): string
 	{
-		const baseClassname = `${this.#popupContentClassname}`;
-		const mobileDeviceModifier = `${Browser.isMobile() ? '--mobile' : ''}`;
+		const baseClassname = this.#popupContentClassname;
+		const mobileDeviceModifier = Browser.isMobile() ? '--mobile' : '';
 
 		return [
 			baseClassname,
 			this.#containerClassname,
-			mobileDeviceModifier
+			mobileDeviceModifier,
 		].join(' ');
 	}
 
@@ -283,6 +283,7 @@ export class ReactionsSelect extends EventEmitter
 		const reactionIcon = Tag.render`<div class="${this.#baseClassname}_reaction-icon"></div>`;
 
 		Lottie.loadAnimation({
+			name: this.#getLottieAnimationNameByReaction(reactionName),
 			renderer: 'svg',
 			container: reactionIcon,
 			animationData: reactionLottieAnimations[reactionName],
@@ -291,10 +292,15 @@ export class ReactionsSelect extends EventEmitter
 		return reactionIcon;
 	}
 
+	#getLottieAnimationNameByReaction(reactionName: string): string
+	{
+		return `${this.#id}_${reactionName}`;
+	}
+
 	#renderReactionItemHoverArea(reactionName: string): HTMLElement
 	{
 		const className = `${this.#baseClassname}_reaction-hover-area`;
-		const reactionHoverArea: HTMLElement= Tag.render`<div class="${className}"></div>`;
+		const reactionHoverArea: HTMLElement = Tag.render`<div class="${className}"></div>`;
 
 		if (!Browser.isMobile())
 		{
@@ -308,14 +314,21 @@ export class ReactionsSelect extends EventEmitter
 		return reactionHoverArea;
 	}
 
-	#getPopupPositionForBindElement()
+	#destroyLottieAnimations(): void
+	{
+		this.#availableReactions.forEach((reactionName) => {
+			Lottie.destroy(this.#getLottieAnimationNameByReaction(reactionName));
+		});
+	}
+
+	#getPopupPositionForBindElement(): { left: number; top: number; }
 	{
 		const leftShift = -50;
 		const topShift = -60;
 
-		const {left = 0, top = 0} = Dom.getPosition(this.#position);
+		const { left = 0, top = 0 } = Dom.getPosition(this.#position);
 
-		return {left: left + leftShift, top: top + topShift};
+		return { left: left + leftShift, top: top + topShift };
 	}
 
 	#getPopupPositionOptions(): Object
@@ -326,7 +339,8 @@ export class ReactionsSelect extends EventEmitter
 				bindElement: this.#position,
 			};
 		}
-		else if (Type.isDomNode(this.#position))
+
+		if (Type.isDomNode(this.#position))
 		{
 			return {
 				bindElement: this.#getPopupPositionForBindElement(),
@@ -343,7 +357,7 @@ export class ReactionsSelect extends EventEmitter
 
 		if (this.#isPopupTouched === false && isCurrentTouchOnPopup === true)
 		{
-			this.emit( ReactionsSelect.Events.touchenter);
+			this.emit(ReactionsSelect.Events.touchenter);
 		}
 		else if (this.#isPopupTouched === true && isCurrentTouchOnPopup === false)
 		{
@@ -376,7 +390,7 @@ export class ReactionsSelect extends EventEmitter
 		if (reactionName)
 		{
 			this.emit(ReactionsSelect.Events.select, {
-				reaction: reactionName || null,
+				reaction: reactionName,
 			});
 		}
 		this.emit(ReactionsSelect.Events.touchend);
@@ -401,7 +415,7 @@ export class ReactionsSelect extends EventEmitter
 
 	#isReactionHoverArea(element: Element | null): boolean
 	{
-		return element && element.classList.contains(`reaction-select_reaction-hover-area`);
+		return element && Dom.hasClass(element, 'reaction-select_reaction-hover-area');
 	}
 
 	#touchMoveScrollListener(e)
@@ -430,15 +444,9 @@ export class ReactionsSelect extends EventEmitter
 		{
 			return;
 		}
-		document.removeEventListener('touchmove', this.#touchMoveScrollListener, { passive: false });
+
+		Event.unbind(window, 'touchmove', this.#touchMoveScrollListener, { passive: false });
 		this.emit('onPullDownEnable');
-	}
-
-	#generateName(): string
-	{
-		const num = Math.round(Math.random() * 1000);
-
-		return `ReactionsSelect${num}`;
 	}
 
 	#checkPositionOption(position: ReactionsSelectPosition): boolean
@@ -446,31 +454,40 @@ export class ReactionsSelect extends EventEmitter
 		if (position === undefined)
 		{
 			console.warn('UI.ReactionSelect: "position" parameter is required');
+
 			return false;
 		}
-		else if (!Type.isDomNode(position) && !Type.isPlainObject(position))
+
+		if (!Type.isDomNode(position) && !Type.isPlainObject(position))
 		{
 			console.warn('UI.ReactionSelect: "position" parameter must be an Object or an HTMLElement');
+
 			return false;
 		}
-		else if (
+
+		if (
 			!Type.isPlainObject(position)
 			&& !Type.isDomNode(position)
 		)
 		{
 			console.warn('UI.ReactionSelect: "position" must be HTMLElement');
+
 			return false;
 		}
-		else if (
+
+		if (
 			Type.isPlainObject(position) && !Type.isNumber(position.left)
 		)
 		{
 			console.warn('UI.ReactionSelect: position.left must be a number');
+
 			return false;
 		}
-		else if (Type.isPlainObject(position) && !Type.isNumber(position.top))
+
+		if (Type.isPlainObject(position) && !Type.isNumber(position.top))
 		{
 			console.warn('UI.ReactionSelect: position.top must be a number');
+
 			return false;
 		}
 
@@ -479,7 +496,7 @@ export class ReactionsSelect extends EventEmitter
 
 	#getElementFromTouchEvent(e: TouchEvent): HTMLElement | null
 	{
-		if (!e || !e.touches || e.touches.length < 1)
+		if (!e || !e.touches || e.touches.length === 0)
 		{
 			return null;
 		}

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SMOH_ORDER_N"] = "Заказ №";
 $MESS["SMOH_ORDER_FROM"] = "от";
 $MESS["SMOH_ORDER"] = "Заказ";
@@ -47,4 +47,3 @@ $MESS["SMOH_FN_MARKED"] = "Проблема";
 $MESS["SMOH_FN_DEDUCTED"] = "Отгрузка";
 $MESS["SMOH_FN_REASON_MARKED"] = "Описание проблемы";
 $MESS["SMOH_HISTORY_EMPTY"] = "Записи отсутствуют";
-?>

@@ -51,4 +51,4 @@ $MESS["CT_BLFE_TOOLBAR_DELETE_TITLE"] = "Delete a field and open fields form";
 $MESS["CT_BLFE_TOOLBAR_DELETE_WARNING"] = "Are you sure you want to delete this field?";
 $MESS["CT_BLFE_TOOLBAR_FIELDS"] = "List Fields";
 $MESS["CT_BLFE_TOOLBAR_FIELDS_TITLE"] = "Configure list fields";
-$MESS["CT_BLFE_TOOLBAR_RETURN_LIST_ELEMENT"] = "BACK TO FIELDS LIST";
+$MESS["CT_BLFE_TOOLBAR_RETURN_LIST_ELEMENT_MSGVER_1"] = "Back to fields";

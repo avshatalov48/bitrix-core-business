@@ -1,0 +1,19 @@
+<?php
+$MESS["CP_BNL_CACHE_GROUPS"] = "Қолжетімділік құқықтарын ескеру";
+$MESS["CP_BNL_FIELD_CODE"] = "Өрістер";
+$MESS["IBLOCK_DETAIL_URL"] = "Бөлім элементінің мазмұны бар парақшаға апаратын URL";
+$MESS["T_IBLOCK_DESC_ACTIVE_DATE_FORMAT"] = "Күнді көрсету пішімі";
+$MESS["T_IBLOCK_DESC_ASC"] = "Өсу бойынша";
+$MESS["T_IBLOCK_DESC_DESC"] = "Кему бойынша";
+$MESS["T_IBLOCK_DESC_FACT"] = "Белсенділіктің басталу күні";
+$MESS["T_IBLOCK_DESC_FID"] = "ID";
+$MESS["T_IBLOCK_DESC_FNAME"] = "Атауы";
+$MESS["T_IBLOCK_DESC_FSORT"] = "Сұрыптау";
+$MESS["T_IBLOCK_DESC_FTSAMP"] = "Соңғы өзгертілу күні";
+$MESS["T_IBLOCK_DESC_IBBY1"] = "Жаңалықтарды бірінші сұрыптау үшін бағыт";
+$MESS["T_IBLOCK_DESC_IBBY2"] = "Жаңалықтарды екінші сұрыптау үшін бағыт";
+$MESS["T_IBLOCK_DESC_IBORD1"] = "Жаңалықтарды бірінші сұрыптау үшін өріс";
+$MESS["T_IBLOCK_DESC_IBORD2"] = "Жаңалықтарды екінші сұрыптау үшін өріс";
+$MESS["T_IBLOCK_DESC_LIST_CONT"] = "Парақшадағы жаңалықтар саны";
+$MESS["T_IBLOCK_DESC_LIST_ID"] = "Ақпараттық блок коды";
+$MESS["T_IBLOCK_DESC_LIST_TYPE"] = "Ақпараттық блок түрі";

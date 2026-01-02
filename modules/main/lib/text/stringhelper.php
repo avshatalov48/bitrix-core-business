@@ -50,13 +50,17 @@ class StringHelper
 	 * Changes registry from snake_case or SNAKE_CASE to CamelCase
 	 *
 	 * @param $str
-	 *
+	 * @param bool $lowCaseFirst
 	 * @return mixed
 	 */
-	public static function snake2camel($str)
+	public static function snake2camel($str, bool $lowCaseFirst = false)
 	{
 		$str = str_replace('_', ' ', mb_strtolower($str));
-		return str_replace(' ', '', ucwords($str));
+		$str = str_replace(' ', '', ucwords($str));
+
+		return $lowCaseFirst
+			? lcfirst($str)
+			: $str;
 	}
 
 	/**

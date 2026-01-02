@@ -337,7 +337,7 @@ class CBlogMetaWeblog
 							if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 								$serverName = SITE_SERVER_NAME;
 							else
-								$serverName = COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
+								$serverName = COption::GetOptionString("main", "server_name");
 							$path2Post = "http://".$serverName.CComponentEngine::MakePathFromTemplate($arPath["PATH_TO_POST"], array("blog" => $arBlog["URL"], "user_id" => $arBlog["OWNER_ID"], "post_id" => $arPost["ID"]));
 						}
 
@@ -525,7 +525,7 @@ class CBlogMetaWeblog
 						if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 							$serverName = SITE_SERVER_NAME;
 						else
-							$serverName = COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
+							$serverName = COption::GetOptionString("main", "server_name");
 					}
 
 					if($path <> '')
@@ -662,7 +662,7 @@ class CBlogMetaWeblog
 						if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 							$serverName = SITE_SERVER_NAME;
 						else
-							$serverName = COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
+							$serverName = COption::GetOptionString("main", "server_name");
 					}
 
 					$arImgRepl = Array();
@@ -856,7 +856,7 @@ class CBlogMetaWeblog
 						if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 							$serverName = SITE_SERVER_NAME;
 						else
-							$serverName = COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
+							$serverName = COption::GetOptionString("main", "server_name");
 					}
 
 					$dbImage = CBlogImage::GetList(array(), Array("POST_ID" => false, "BLOG_ID" => $arBlog["ID"], "IS_COMMENT" => "N"));
@@ -1012,7 +1012,7 @@ class CBlogMetaWeblog
 						if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 							$serverName = SITE_SERVER_NAME;
 						else
-							$serverName = COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
+							$serverName = COption::GetOptionString("main", "server_name");
 						$path2Post = "http://".$serverName.CComponentEngine::MakePathFromTemplate($arPath["PATH_TO_POST"], array("blog" => $arPost["BLOG_URL"], "user_id" => $arPost["BLOG_OWNER_ID"], "post_id" => $arPost["ID"]));
 					}
 

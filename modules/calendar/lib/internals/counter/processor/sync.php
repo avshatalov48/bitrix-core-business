@@ -55,7 +55,7 @@ class Sync implements Base
 		foreach ($users as $userId)
 		{
 			$syncErrors = 0;
-			$connections = $davConnectionProvider->getSyncConnections($userId, 'user', self::PROVIDERS);
+			$connections = $davConnectionProvider->getActiveConnections($userId, 'user', self::PROVIDERS);
 
 			foreach ($connections as $connection)
 			{

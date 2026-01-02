@@ -18,7 +18,7 @@ class PushDelayedRule extends DbRule
 	 *
 	 * @return Queue\Queue|null
 	 */
-    protected function getTargetQueue(Interfaces\Message $message): ?Queue\Queue
+	protected function getTargetQueue(Interfaces\Message $message): ?Queue\Queue
 	{
 		switch ($this->getMode($message))
 		{
@@ -31,15 +31,15 @@ class PushDelayedRule extends DbRule
 			default:
 				return null;
 		}
-    }
+	}
 
 	/**
 	 * @param Interfaces\Message $message
 	 *
 	 * @return string
 	 */
-    protected function getMessageHash(Interfaces\Message $message): string
-    {
+	protected function getMessageHash(Interfaces\Message $message): string
+	{
 		$body = $message->getBody();
 		switch ($this->getMode($message))
 		{
@@ -50,7 +50,7 @@ class PushDelayedRule extends DbRule
 			default:
 				return '';
 		}
-    }
+	}
 
 	/**
 	 * @param Interfaces\Message $message

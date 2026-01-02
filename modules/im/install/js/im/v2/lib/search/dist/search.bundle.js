@@ -50,15 +50,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
 	var _userManager = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("userManager");
-	var _updateChats = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateChats");
 	var _prepareDataForModels = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareDataForModels");
 	class StoreUpdater {
 	  constructor() {
 	    Object.defineProperty(this, _prepareDataForModels, {
 	      value: _prepareDataForModels2
-	    });
-	    Object.defineProperty(this, _updateChats, {
-	      value: _updateChats2
 	    });
 	    Object.defineProperty(this, _store, {
 	      writable: true,
@@ -76,14 +72,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      users,
 	      chats
 	    } = babelHelpers.classPrivateFieldLooseBase(this, _prepareDataForModels)[_prepareDataForModels](items);
-	    return Promise.all([this.updateUsers(users), babelHelpers.classPrivateFieldLooseBase(this, _updateChats)[_updateChats](chats)]);
+	    return Promise.all([babelHelpers.classPrivateFieldLooseBase(this, _userManager)[_userManager].setUsersToModel(users), babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('chats/set', chats)]);
 	  }
-	  updateUsers(users) {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _userManager)[_userManager].setUsersToModel(users);
-	  }
-	}
-	function _updateChats2(dialogues) {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('chats/set', dialogues);
 	}
 	function _prepareDataForModels2(items) {
 	  const result = {
@@ -91,18 +81,49 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    chats: []
 	  };
 	  items.forEach(item => {
-	    const itemData = item.customData;
+	    const chatData = item.customData.chat;
 	    if (item.entityType === im_v2_const.SearchEntityIdTypes.imUser) {
-	      result.users.push(itemData);
+	      result.users.push(item.customData.user);
 	    }
 	    if (item.entityType === im_v2_const.SearchEntityIdTypes.chat) {
+	      const isUser = Boolean(item.customData.user);
+	      const userData = isUser ? im_v2_lib_user.UserManager.getDialogForUser(item.customData.user) : {};
 	      result.chats.push({
-	        ...itemData,
+	        ...chatData,
+	        ...userData,
 	        dialogId: item.id
 	      });
 	    }
 	  });
 	  return result;
+	}
+
+	function getRecentItemDate(dialogId) {
+	  const message = im_v2_application_core.Core.getStore().getters['recent/getMessage'](dialogId);
+	  if (!message) {
+	    return '';
+	  }
+	  return message.date.toISOString();
+	}
+
+	function getRecentListItems({
+	  withFakeUsers
+	}) {
+	  let recent = im_v2_application_core.Core.getStore().getters['recent/getSortedCollection'];
+	  recent = recent.filter(item => {
+	    if (withFakeUsers && item.isFakeElement) {
+	      return true;
+	    }
+	    return !item.isBirthdayPlaceholder && !item.isFakeElement;
+	  });
+	  return recent.map(({
+	    dialogId
+	  }) => {
+	    return {
+	      dialogId,
+	      dateMessage: getRecentItemDate(dialogId)
+	    };
+	  });
 	}
 
 	const collator = new Intl.Collator(undefined, {
@@ -121,12 +142,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _getLocalItemsFromDialogIds = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getLocalItemsFromDialogIds");
 	var _mergeItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("mergeItems");
 	var _filterByConfig = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("filterByConfig");
-	var _getRecentItemDate = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getRecentItemDate");
 	class LocalSearch {
 	  constructor(searchConfig) {
-	    Object.defineProperty(this, _getRecentItemDate, {
-	      value: _getRecentItemDate2
-	    });
 	    Object.defineProperty(this, _filterByConfig, {
 	      value: _filterByConfig2
 	    });
@@ -191,9 +208,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return [...foundItems.values()];
 	}
 	function _getRecentListItems2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].getters['recent/getSortedCollection'].map(item => {
-	    const itemDate = babelHelpers.classPrivateFieldLooseBase(this, _getRecentItemDate)[_getRecentItemDate](item);
-	    return babelHelpers.classPrivateFieldLooseBase(this, _prepareRecentItem)[_prepareRecentItem](item.dialogId, itemDate);
+	  return getRecentListItems({
+	    withFakeUsers: true
+	  }).map(item => {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _prepareRecentItem)[_prepareRecentItem](item.dialogId, item.dateMessage);
 	  });
 	}
 	function _prepareRecentItem2(dialogId, dateMessage) {
@@ -282,19 +300,62 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return !item.dialogId.startsWith('chat') && babelHelpers.classPrivateFieldLooseBase(this, _searchConfig)[_searchConfig].users;
 	  });
 	}
-	function _getRecentItemDate2(item) {
-	  var _babelHelpers$classPr;
-	  const dateMessage = (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].getters['recent/getMessage'](item.dialogId)) == null ? void 0 : _babelHelpers$classPr.date;
-	  if (!dateMessage) {
-	    return '';
-	  }
-	  return dateMessage.toISOString();
+
+	const MAX_USERS_IN_RECENT_SEARCH_LIST = 50;
+	function getUsersFromRecentItems({
+	  withFakeUsers
+	}) {
+	  return getRecentListItems({
+	    withFakeUsers
+	  }).filter(({
+	    dialogId
+	  }) => {
+	    const chat = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId, true);
+	    const user = im_v2_application_core.Core.getStore().getters['users/get'](dialogId, true);
+	    return chat.type === im_v2_const.ChatType.user && user.type !== im_v2_const.UserType.bot && user.id !== im_v2_application_core.Core.getUserId();
+	  }).slice(0, MAX_USERS_IN_RECENT_SEARCH_LIST);
 	}
+
+	const sortByDate = items => {
+	  return [...items].sort((firstItem, secondItem) => {
+	    // Both items have dates - compare them
+	    if (firstItem.dateMessage && secondItem.dateMessage) {
+	      return im_v2_lib_utils.Utils.date.cast(secondItem.dateMessage) - im_v2_lib_utils.Utils.date.cast(firstItem.dateMessage);
+	    }
+
+	    // Only one item has a date - item with date comes first
+	    if (firstItem.dateMessage || secondItem.dateMessage) {
+	      return firstItem.dateMessage ? -1 : 1;
+	    }
+
+	    // Case 3: Neither item has a date - non-extranet item comes first
+	    const firstIsExtranet = isExtranet(firstItem.dialogId);
+	    const secondIsExtranet = isExtranet(secondItem.dialogId);
+	    if (firstIsExtranet !== secondIsExtranet) {
+	      return firstIsExtranet ? 1 : -1;
+	    }
+	    return 0;
+	  });
+	};
+	const isExtranet = dialogId => {
+	  const dialog = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
+	  if (!dialog) {
+	    return false;
+	  }
+	  if (dialog.type === im_v2_const.ChatType.user) {
+	    const user = im_v2_application_core.Core.getStore().getters['users/get'](dialogId);
+	    return user && user.type === im_v2_const.UserType.extranet;
+	  }
+	  return dialog.extranet;
+	};
 
 	exports.getSearchConfig = getSearchConfig;
 	exports.EntityId = EntityId;
 	exports.StoreUpdater = StoreUpdater;
 	exports.LocalSearch = LocalSearch;
+	exports.getUsersFromRecentItems = getUsersFromRecentItems;
+	exports.getRecentListItems = getRecentListItems;
+	exports.sortByDate = sortByDate;
 
 }((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Messenger.v2.Lib,BX.Vue3.Vuex,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
 //# sourceMappingURL=search.bundle.js.map

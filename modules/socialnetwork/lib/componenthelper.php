@@ -30,6 +30,7 @@ Loc::loadMessages(__FILE__);
 
 class ComponentHelper
 {
+	public const MAIN_SELECTOR_GROUPS_CACHE_TAG = 'sonet_main_selector_groups';
 	protected static $postsCache = [];
 	protected static $commentsCache = [];
 	protected static $commentListsCache = [];
@@ -1158,6 +1159,13 @@ class ComponentHelper
 				)
 			);
 
+			$lock = 'blog_create_lock';
+			$connection = Application::getConnection();
+			if (!$connection->lock($lock))
+			{
+				return false;
+			}
+
 			if ($blogID = \CBlog::add($fields))
 			{
 				BXClearCache(true, "/blog/form/blog/");
@@ -1841,7 +1849,7 @@ class ComponentHelper
 
 				if ($commentId > 0)
 				{
-					$connection = \Bitrix\Main\Application::getConnection();
+					$connection = Application::getConnection();
 					$helper = $connection->getSqlHelper();
 
 					$logCommentFields = array(
@@ -2111,7 +2119,7 @@ class ComponentHelper
 
 		$cacheTtl = defined("BX_COMP_MANAGED_CACHE") ? 3153600 : 3600*4;
 		$cacheId = 'dest_group_'.$siteId.'_'.$currentUserId.'_'.$limit.$useProjects.$landing;
-		$cacheDir = '/sonet/dest_sonet_groups/'.$siteId.'/'.$currentUserId;
+		$cacheDir = '/sonet/dest_sonet_groups_v2/'.$siteId.'/'.$currentUserId;
 
 		if($currentCache->startDataCache($cacheTtl, $cacheId, $cacheDir))
 		{
@@ -2142,6 +2150,7 @@ class ComponentHelper
 					$CACHE_MANAGER->registerTag("sonet_group_".$group["entityId"]);
 				}
 				$CACHE_MANAGER->registerTag("sonet_user2group_U".$currentUserId);
+				$CACHE_MANAGER->registerTag(self::MAIN_SELECTOR_GROUPS_CACHE_TAG);
 				if ($landing === 'Y')
 				{
 					$CACHE_MANAGER->registerTag("sonet_group");

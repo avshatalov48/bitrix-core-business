@@ -2319,8 +2319,8 @@ class CAllBlogPost
 						$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_PUSH_6".$aditGM,
 							array(
-								"#name#" => htmlspecialcharsbx($authorName),
-								"#title#" => htmlspecialcharsbx($arParams["TITLE"]),
+								"#name#" => $authorName,
+								"#title#" => $arParams["TITLE"],
 							),
 							$languageId
 						);
@@ -2344,7 +2344,7 @@ class CAllBlogPost
 						$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_PUSH_6A".$aditGM,
 							array(
-								"#name#" => htmlspecialcharsbx($authorName),
+								"#name#" => $authorName,
 								"#post#" => Loc::getMessage("BLG_GP_IM_6B", null, $languageId),
 							),
 							$languageId
@@ -2380,8 +2380,8 @@ class CAllBlogPost
 						$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_PUSH_71".$aditGM,
 							array(
-								"#name#" => htmlspecialcharsbx($authorName),
-								"#title#" => htmlspecialcharsbx($arParams["TITLE"]),
+								"#name#" => $authorName,
+								"#title#" => $arParams["TITLE"],
 								"#comment#" => $commentCropped,
 							),
 							$languageId
@@ -2407,7 +2407,7 @@ class CAllBlogPost
 						$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_PUSH_71A".$aditGM,
 							array(
-								"#name#" => htmlspecialcharsbx($authorName),
+								"#name#" => $authorName,
 								"#post#" => Loc::getMessage("BLG_GP_IM_7B", null, $languageId),
 								"#comment#" => $commentCropped,
 							),
@@ -2499,7 +2499,7 @@ class CAllBlogPost
 					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_1A".$aditGM,
 						array(
-							"#name#" => htmlspecialcharsbx($authorName),
+							"#name#" => $authorName,
 							"#post#" => Loc::getMessage("BLG_GP_IM_1B", null, $languageId),
 						),
 						$languageId
@@ -2548,8 +2548,8 @@ class CAllBlogPost
 					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_41".$aditGM,
 						array(
-							"#name#" => htmlspecialcharsbx($authorName),
-							"#title#" => htmlspecialcharsbx($arParams["TITLE"]),
+							"#name#" => $authorName,
+							"#title#" => $arParams["TITLE"],
 							"#comment#" => $commentCropped,
 						),
 						$languageId
@@ -2574,8 +2574,8 @@ class CAllBlogPost
 					$arMessageFields["PUSH_MESSAGE_AUTHOR"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_51".$aditGM,
 						array(
-							"#name#" => htmlspecialcharsbx($authorName),
-							"#title#" => htmlspecialcharsbx($arParams["TITLE"]),
+							"#name#" => $authorName,
+							"#title#" => $arParams["TITLE"],
 							"#comment#" => $commentCropped,
 						),
 						$languageId
@@ -2602,7 +2602,7 @@ class CAllBlogPost
 					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_41A".$aditGM,
 						array(
-							"#name#" => htmlspecialcharsbx($authorName),
+							"#name#" => $authorName,
 							"#post#" => Loc::getMessage("BLG_GP_IM_4B", null, $languageId),
 							"#comment#" => $commentCropped,
 						),
@@ -2628,7 +2628,7 @@ class CAllBlogPost
 					$arMessageFields["PUSH_MESSAGE_AUTHOR"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_51A".$aditGM,
 						array(
-							"#name#" => htmlspecialcharsbx($authorName),
+							"#name#" => $authorName,
 							"#post#" => Loc::getMessage("BLG_GP_IM_5B", null, $languageId),
 							"#comment#" => $commentCropped,
 						),
@@ -2673,8 +2673,8 @@ class CAllBlogPost
 					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_8".$aditGM,
 						array(
-							"#name#" => htmlspecialcharsbx($authorName),
-							"#title#" => htmlspecialcharsbx($arParams["TITLE"]),
+							"#name#" => $authorName,
+							"#title#" => $arParams["TITLE"],
 						),
 						$languageId
 					);
@@ -2698,7 +2698,7 @@ class CAllBlogPost
 					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_8A".$aditGM,
 						array(
-							"#name#" => htmlspecialcharsbx($authorName),
+							"#name#" => $authorName,
 							"#post#" => Loc::getMessage("BLG_GP_IM_8B", null, $languageId),
 						),
 						$languageId
@@ -2742,8 +2742,8 @@ class CAllBlogPost
 					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_9".$aditGM,
 						array(
-							"#name#" => htmlspecialcharsbx($authorName),
-							"#title#" => htmlspecialcharsbx($arParams["TITLE"]),
+							"#name#" => $authorName,
+							"#title#" => $arParams["TITLE"],
 						),
 						$languageId
 					);
@@ -2767,7 +2767,7 @@ class CAllBlogPost
 					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_9A".$aditGM,
 						array(
-							"#name#" => htmlspecialcharsbx($authorName),
+							"#name#" => $authorName,
 							"#post#" => Loc::getMessage("BLG_GP_IM_9B", null, $languageId),
 						),
 						$languageId
@@ -3074,8 +3074,8 @@ class CAllBlogPost
 				"#title#" => htmlspecialcharsbx($arParams["TITLE"]),
 			], $languageId)." ".$serverName.$urlOriginal."";
 			$arMessageFieldsGrat["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage('SONET_PUSH_POST_GRAT_NEW', [
-				"#name#" => htmlspecialcharsbx($authorName),
-				"#title#" => htmlspecialcharsbx($arParams["TITLE"]),
+				"#name#" => $authorName,
+				"#title#" => $arParams["TITLE"],
 			], $languageId);
 
 			$gratUsers = self::filterUsersToNotify($arParams['GRAT_DATA']['USERS']);

@@ -283,11 +283,6 @@ function convertTextNode(textNode: BBCodeTextNode): BBCodeConversionOutput
 		.replace('\r', '')
 	;
 
-	if (textNode.getParent().getName() !== 'code')
-	{
-		textContent = textContent.replaceAll(/\s+/g, ' ');
-	}
-
 	if (textContent === '')
 	{
 		return { node: null };

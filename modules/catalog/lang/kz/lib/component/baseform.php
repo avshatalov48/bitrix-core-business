@@ -1,0 +1,23 @@
+<?php
+$MESS["CATALOG_C_F_DEFAULT"] = "#VALUE# (әдепкі бойынша )";
+$MESS["CATALOG_C_F_MAIN_SECTION_TITLE"] = "Жалпы";
+$MESS["CATALOG_C_F_NEW_PRODUCT_PLACEHOLDER"] = "Жаңа тауар";
+$MESS["CATALOG_C_F_NO"] = "Жоқ";
+$MESS["CATALOG_C_F_PROPERTIES_SECTION_TITLE"] = "Сипаттары";
+$MESS["CATALOG_C_F_STORE_SECTION_TITLE"] = "Параметрлер";
+$MESS["CATALOG_C_F_VARIATION_SETTINGS_BASE_PRICE"] = "Негізгі баға (#PRICE_NAME#)";
+$MESS["CATALOG_C_F_VARIATION_SETTINGS_CATALOG_PARAMETERS_DESC"] = "Қоймалардағы тауарларды есепке алу параметрлерінің баптауларын қолдану";
+$MESS["CATALOG_C_F_VARIATION_SETTINGS_CATALOG_PARAMETERS_TITLE"] = "Есеп параметрлері";
+$MESS["CATALOG_C_F_VARIATION_SETTINGS_MEASUREMENTS_DESC"] = "Жеткізу құнын есептеу үшін тауарлардың салмағы мен өлшемдерін пайдалану";
+$MESS["CATALOG_C_F_VARIATION_SETTINGS_MEASUREMENTS_TITLE"] = "Салмағы мен өлшемдері";
+$MESS["CATALOG_C_F_VARIATION_SETTINGS_MEASURE_RATIO_DESC"] = "Тауарлардағы өлшем бірліктерінің коэффициенттерін қолдану";
+$MESS["CATALOG_C_F_VARIATION_SETTINGS_MEASURE_RATIO_TITLE"] = "Өлшем бірлігінің коэффициенті";
+$MESS["CATALOG_C_F_VARIATION_SETTINGS_PURCHASING_PRICE_FIELD_DESC"] = "Сатып алу бағасын қолдану";
+$MESS["CATALOG_C_F_VARIATION_SETTINGS_PURCHASING_PRICE_FIELD_TITLE"] = "Сатып алу бағасы";
+$MESS["CATALOG_C_F_VARIATION_SETTINGS_SEO_TITLE"] = "SEO баптаулары";
+$MESS["CATALOG_C_F_VARIATION_SETTINGS_VAT_INCLUDED_DESC"] = "ҚҚС салығын пайдалану";
+$MESS["CATALOG_C_F_VARIATION_SETTINGS_VAT_INCLUDED_TITLE"] = "ҚҚС мөлшерлемесі";
+$MESS["CATALOG_C_F_YES"] = "Иә";
+$MESS["CATALOG_PRODUCT_CARD_MORE_PHOTO_SIZE"] = "Ұсынылатын кескін өлшемі<br>1000x1000 пиксельден аспауы керек";
+$MESS["CATALOG_PRODUCT_CARD_USERFIELD_MESS_EMPTY_VALUE"] = "таңдалмаған";
+$MESS["CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED"] = "таңдалмаған";

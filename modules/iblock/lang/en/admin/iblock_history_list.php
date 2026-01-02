@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_ADM_HISTORY_TITLE"] = "Modification history for record# #ID#";
 $MESS["IBLOCK_ADM_HISTORY_BAD_IBLOCK"] = "Section not found or access denied.";
 $MESS["IBLOCK_ADM_HISTORY_BAD_ELEMENT"] = "Element not found or access denied.";
@@ -18,4 +18,3 @@ $MESS["IBLOCK_ADM_HISTORY_COMPARE"] = "Compare";
 $MESS["IBLOCK_ADM_HISTORY_COMPARE_ALERT"] = "Select two documents to compare.";
 $MESS["IBLOCK_ADM_HISTORY_ORIGINAL"] = "Current version";
 $MESS["IBLOCK_ADM_HISTORY_ORIGINAL_TITLE"] = "Click to view the element current version";
-?>

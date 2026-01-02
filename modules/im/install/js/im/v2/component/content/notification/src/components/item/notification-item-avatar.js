@@ -1,4 +1,4 @@
-import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 
 import '../../css/notification-item-avatar.css';
 

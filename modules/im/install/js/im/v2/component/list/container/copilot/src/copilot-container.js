@@ -1,10 +1,10 @@
 import { Messenger } from 'im.public';
-import { CopilotRolesDialog } from 'im.v2.component.elements';
+import { CopilotRolesDialog } from 'im.v2.component.elements.copilot-roles-dialog';
 import { CopilotList } from 'im.v2.component.list.items.copilot';
 import { ActionByUserType, ChatType, Layout } from 'im.v2.const';
 import { Analytics } from 'im.v2.lib.analytics';
 import { Logger } from 'im.v2.lib.logger';
-import { CopilotService } from 'im.v2.provider.service';
+import { CopilotService } from 'im.v2.provider.service.copilot';
 import { PermissionManager } from 'im.v2.lib.permission';
 
 import { RoleSelectorMini } from './components/role-selector-mini/role-selector-mini';
@@ -51,13 +51,7 @@ export const CopilotListContainer = {
 		},
 		onChatClick(dialogId)
 		{
-			this.$emit('selectEntity', { layoutName: Layout.copilot.name, entityId: dialogId });
-		},
-		showCreateChatError()
-		{
-			BX.UI.Notification.Center.notify({
-				content: this.loc('IM_LIST_CONTAINER_COPILOT_CREATE_CHAT_ERROR'),
-			});
+			this.$emit('selectEntity', { layoutName: Layout.copilot, entityId: dialogId });
 		},
 		getCopilotService(): CopilotService
 		{
@@ -77,7 +71,6 @@ export const CopilotListContainer = {
 			const newDialogId = await this.getCopilotService().createChat({ roleCode })
 				.catch(() => {
 					this.isCreatingChat = false;
-					this.showCreateChatError();
 				});
 
 			this.isCreatingChat = false;

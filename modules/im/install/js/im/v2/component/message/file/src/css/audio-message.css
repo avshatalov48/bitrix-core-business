@@ -20,6 +20,7 @@
 		var(--im-message-base__padding-bottom_body)
 		var(--im-message-base__padding-left_body)
 	;
+	margin-top: 8px;
 }
 
 .bx-im-message-audio__reaction-list-container {

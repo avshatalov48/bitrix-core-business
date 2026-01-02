@@ -1,0 +1,119 @@
+.landing-site-copilot-body {
+	--landing-site-transition: .2s;
+	overflow: hidden;
+}
+
+.landing-ui-panel-top {
+	transition: .4s;
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.landing-site-copilot-body.--created .landing-ui-panel-top {
+	opacity: 0;
+	transform: translateY(-8px);
+}
+
+.landing-ui-panel-top-selector,
+.landing-ui-panel-top-pub-btn,
+.landing-ui-panel-top-devices,
+.landing-ui-panel-top-history,
+.landing-ui-panel-top-menu {
+	pointer-events: none !important;
+	cursor: default;
+}
+
+.landing-site-copilot-status {
+	margin: auto;
+}
+.landing-site-copilot-status.--compact {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+}
+
+.landing-site-copilot-status.--compact:after {
+	content: '';
+	flex: 1;
+	margin: 0 1.6% 20px 1.6%;
+	background: rgba(142, 82, 236, .12);
+	opacity: .2;
+	border-radius: 20px;
+}
+
+.landing-site-copilot-status-wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.landing-site-copilot-status-image {
+	margin-bottom: 30px;
+}
+
+.landing-site-copilot-content-text {
+	position: relative;
+	margin-bottom: 15px;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 21px;
+	text-align: center;
+	color: #959ca4;
+}
+
+.landing-site-copilot-content-text:last-of-type {
+	margin-bottom: unset;
+}
+
+.landing-site-copilot-content-text:after {
+	content: '';
+	position: absolute;
+	width: 20px;
+	right: -21px;
+	text-align: left;
+	animation: landing-site-copilot-content-text-loading 2s linear infinite;
+}
+
+@keyframes landing-site-copilot-content-text-loading {
+	0% {
+		content: '';
+	}
+	30% {
+		content: '.';
+	}
+	50% {
+		content: '..';
+	}
+	90% {
+		content: '...';
+	}
+	100% {
+		content: '';
+	}
+}
+
+.landing-site-copilot-body > main {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.landing-ui-panel-disabled {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	opacity: .4;
+	cursor: not-allowed;
+}
+
+.landing-ui-panel-disabled > * {
+	pointer-events: none;
+}
+
+.landing-site-copilot-content-image {
+	user-select: none;
+	width: 100%;
+	margin-top: 15px;
+}

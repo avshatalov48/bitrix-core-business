@@ -6,6 +6,22 @@ use Bitrix\Main\Entity;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class UrlCheckerHostTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UrlCheckerHost_Query query()
+ * @method static EO_UrlCheckerHost_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_UrlCheckerHost_Result getById($id)
+ * @method static EO_UrlCheckerHost_Result getList(array $parameters = [])
+ * @method static EO_UrlCheckerHost_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_UrlCheckerHost createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_UrlCheckerHost_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_UrlCheckerHost wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_UrlCheckerHost_Collection wakeUpCollection($rows)
+ */
 class UrlCheckerHostTable extends Entity\DataManager
 {
 	/**

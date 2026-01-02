@@ -82,7 +82,7 @@ class ReactionItem implements RegistryEntry, ActiveRecord, RestConvertible, Popu
 
 	public function getLocName(?string $languageId = null): ?string
 	{
-		return Loc::getMessage("IM_MESSAGE_REACTION_NAME_{$this->reaction}", null, $languageId);
+		return Loc::getMessage("IM_MESSAGE_REACTION_NAME_{$this->reaction}_MSGVER_1", null, $languageId);
 	}
 
 	public function getPrimaryId(): ?int

@@ -2,7 +2,10 @@
 namespace Bitrix\Im;
 
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Context;
 use Bitrix\Main\Web\Json;
+use CUserOptions;
 
 class Settings
 {
@@ -53,7 +56,7 @@ class Settings
 	 */
 	public static function isCallBetaAvailable(): bool
 	{
-		$result = \Bitrix\Main\Config\Option::get('im', 'call_beta_access', 'N');
+		$result = Option::get('im', 'call_beta_access', 'N');
 		return $result === 'Y';
 	}
 
@@ -62,7 +65,7 @@ class Settings
 	 */
 	public static function isAiBetaAvailable(): bool
 	{
-		$result = \Bitrix\Main\Config\Option::get('im', 'ai_beta_access', 'N');
+		$result = Option::get('im', 'ai_beta_access', 'N');
 		return $result === 'Y';
 	}
 
@@ -89,19 +92,19 @@ class Settings
 			return true;
 		}
 
-		if (\Bitrix\Main\Config\Option::get('im', 'legacy_chat_enabled', 'N') === 'Y')
-		{
-			return true;
-		}
-		if (\CUserOptions::GetOption('im', 'legacy_chat_user_enabled', 'N', $userId) === 'Y')
+		if (Option::get('im', 'legacy_chat_enabled', 'N') === 'Y')
 		{
 			return true;
 		}
 
-		$isLegacy = \Bitrix\Main\Context::getCurrent()->getRequest()->getQuery('IM_LEGACY');
-		$isIframe = \Bitrix\Main\Context::getCurrent()->getRequest()->getQuery('IFRAME');
+		if (CUserOptions::GetOption('im', 'legacy_chat_user_enabled', 'N', $userId) === 'Y')
+		{
+			return true;
+		}
 
-		return $isLegacy === 'Y' || $isIframe === 'Y';
+		$isLegacy = Context::getCurrent()?->getRequest()->getQuery('IM_LEGACY');
+
+		return $isLegacy === 'Y';
 	}
 
 	public static function setLegacyChatActivity($active = true, $userId = false): bool
@@ -111,7 +114,7 @@ class Settings
 			return false;
 		}
 
-		\CUserOptions::SetOption('im', 'legacy_chat_user_enabled', $active ? 'Y' : 'N', false, $userId);
+		CUserOptions::SetOption('im', 'legacy_chat_user_enabled', $active ? 'Y' : 'N', false, $userId);
 		\Bitrix\Intranet\Composite\CacheProvider::deleteUserCache();
 
 		return true;

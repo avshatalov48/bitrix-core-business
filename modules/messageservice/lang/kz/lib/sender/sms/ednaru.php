@@ -1,0 +1,25 @@
+<?php
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_EMPTY_REQUIRED_FIELDS"] = "Қажетті өрістер толтырылмаған";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_ADDRESS_FORMAT"] = "Абонент нөмірінің дұрыс емес пішімі";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_ADDRESS_NOT_SPECIFIED"] = "Абоненттің нөмірі көрсетілмеген";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_ATTACHMENT_URL_NOT_SPECIFIED"] = "attachmentUrl параметрінде бос өріс беріледі";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_CONTENT_DO_NOT_MATCH_HSM_TEMPLATE"] = "Хабарлама тіркелген HSM қалпына сәйкес келмейді";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_CONTENT_FORMAT"] = "Хабарлама мазмұнының дұрыс емес пішімі";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_CONTENT_TYPE_FORMAT"] = "Хабарлама түрінің дұрыс емес пішімі";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_CONTENT_TYPE_NOT_SPECIFIED"] = "Тіркеме түрі көрсетілмеген";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_ID_NOT_UNIQUE"] = "Хабарлама идентификаторы бірегей емес";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_IM_TYPE_NOT_SPECIFIED"] = "Мессенджер түрі көрсетілмеген";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_INSUFFICIENT_BALANCE"] = "Теңгерімде қаражат жеткіліксіз";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_NOT_TEMPLATE_MATCH"] = "Қалыптың дұрыс емес пішімі";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_PRIORITY_FORMAT"] = "Басымдық мәнінің дұрыс емес пішімі";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_START_TIME_FORMAT"] = "Хабарлама жіберудің кейінге қалдырылған уақытының дұрыс емес пішімі";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_SUBJECT_FORMAT"] = "Қолтаңба пішімі дұрыс емес";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_SUBJECT_ID_FORMAT"] = "Қалып Id-інің дұрыс емес пішімі";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_SUBJECT_UNKNOWN"] = "Көрсетілген қолтаңба клиентке рұқсат етілмейді. Барлық қолтаңбаларды алдын-ала тіркеу қажет.";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_SYSTEM"] = "Жүйелік қате";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_ERROR_VALIDITY_PERIOD_SECONDS_FORMAT"] = "Жіберуді кейінге қалдырылған уақытының дұрыс емес пішімі";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_NOT_VIBER_USER"] = "Адресат Viber пайдаланушысы емес";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_NOT_WHATSAPP_USER"] = "Адресат WhatsApp қолданушысы емес";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_UNKNOWN_ERROR"] = "Белгісіз қате";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_USER_BLOCKED"] = "Адресат нөмірі бұғатталған";
+$MESS["MESSAGESERVICE_SENDER_SMS_EDNARU_USE_ERROR"] = "Хабарламаның мәртебесі туралы ақпарат алу мүмкін емес";

@@ -3,8 +3,74 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,main_popup,pull_vue3_status,im_v2_lib_analytics,im_v2_component_messageList,im_v2_component_entitySelector,im_v2_lib_call,im_v2_lib_layout,im_v2_lib_access,im_v2_lib_feature,im_v2_provider_service,main_core_events,im_v2_lib_logger,im_v2_lib_animation,im_v2_application_core,im_v2_lib_rest,im_v2_lib_channel,im_v2_const,im_v2_lib_permission,im_v2_lib_parser,main_core,im_v2_lib_quote,im_v2_lib_utils,im_v2_lib_slider) {
+(function (exports,main_popup,pull_vue3_status,im_v2_lib_analytics,im_v2_component_messageList,im_v2_component_entitySelector,im_v2_lib_call,im_v2_lib_layout,im_v2_lib_access,im_v2_lib_feature,im_v2_provider_service_message,im_v2_provider_service_chat,main_core_events,im_v2_lib_logger,im_v2_lib_animation,im_v2_application_core,im_v2_lib_rest,im_v2_lib_channel,im_v2_lib_demo,im_v2_lib_permission,im_v2_component_elements_avatar,im_v2_lib_parser,main_core,im_v2_lib_quote,im_v2_lib_utils,im_v2_lib_slider,im_v2_const) {
 	'use strict';
+
+	const DEBOUNCE_TIME = 50;
+	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
+	var _timerBeforeSendRequest = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("timerBeforeSendRequest");
+	var _batchReadMessageAnchors = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("batchReadMessageAnchors");
+	class AnchorService {
+	  constructor() {
+	    Object.defineProperty(this, _batchReadMessageAnchors, {
+	      value: _batchReadMessageAnchors2
+	    });
+	    Object.defineProperty(this, _store, {
+	      writable: true,
+	      value: void 0
+	    });
+	    this.messagesToRead = new Set();
+	    Object.defineProperty(this, _timerBeforeSendRequest, {
+	      writable: true,
+	      value: null
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = im_v2_application_core.Core.getStore();
+	  }
+	  readChatAnchors(chatId) {
+	    im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2ChatAnchorRead, {
+	      data: {
+	        chatId
+	      }
+	    }).then(() => {
+	      const userId = im_v2_application_core.Core.getUserId();
+	      babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/anchors/removeChatAnchors', {
+	        userId,
+	        chatId
+	      });
+	    }).catch(error => {
+	      console.error('AnchorService: read chat anchors error', error);
+	    });
+	  }
+	  debouncedReadMessageAnchors(messageId) {
+	    const userId = im_v2_application_core.Core.getUserId();
+	    this.messagesToRead.add(messageId);
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/anchors/removeUserAnchorsFromMessage', {
+	      userId,
+	      messageId
+	    });
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _timerBeforeSendRequest)[_timerBeforeSendRequest]) {
+	      clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _timerBeforeSendRequest)[_timerBeforeSendRequest]);
+	      babelHelpers.classPrivateFieldLooseBase(this, _timerBeforeSendRequest)[_timerBeforeSendRequest] = null;
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _timerBeforeSendRequest)[_timerBeforeSendRequest] = setTimeout(() => {
+	      return babelHelpers.classPrivateFieldLooseBase(this, _batchReadMessageAnchors)[_batchReadMessageAnchors]();
+	    }, DEBOUNCE_TIME);
+	    return Promise.resolve();
+	  }
+	}
+	function _batchReadMessageAnchors2() {
+	  if (this.messagesToRead.size === 0) {
+	    return;
+	  }
+	  im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2AnchorRead, {
+	    data: {
+	      messageIds: [...this.messagesToRead]
+	    }
+	  }).catch(error => {
+	    console.error('AnchorService: read anchor error', error);
+	  });
+	  this.messagesToRead.clear();
+	}
 
 	const EVENT_NAMESPACE = 'BX.Messenger.v2.Dialog.ScrollManager';
 	var _getScrollPosition = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getScrollPosition");
@@ -152,6 +218,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  let scrollPosition = element.offsetTop + offset;
 	  if (position === ScrollManager.scrollPosition.messageBottom) {
 	    scrollPosition += element.clientHeight - MESSAGE_BOTTOM_OFFSET;
+	  } else if (position === ScrollManager.scrollPosition.messageCenter && this.container.clientHeight > element.clientHeight) {
+	    scrollPosition = scrollPosition - this.container.clientHeight / 2 + element.clientHeight / 2;
 	  }
 	  return scrollPosition;
 	}
@@ -162,7 +230,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 	ScrollManager.scrollPosition = {
 	  messageTop: 'messageTop',
-	  messageBottom: 'messageBottom'
+	  messageBottom: 'messageBottom',
+	  messageCenter: 'messageCenter'
 	};
 
 	const MESSAGES_TAG_PREFIX = 'IM_PUBLIC_';
@@ -173,6 +242,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	var _subscribeOpenChat = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribeOpenChat");
 	var _requestWatchStart = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("requestWatchStart");
 	var _isGuest = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isGuest");
+	var _isDemoChat = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDemoChat");
 	var _isChannel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isChannel");
 	var _isCommentsChat = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCommentsChat");
 	class PullWatchManager {
@@ -182,6 +252,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    });
 	    Object.defineProperty(this, _isChannel, {
 	      value: _isChannel2
+	    });
+	    Object.defineProperty(this, _isDemoChat, {
+	      value: _isDemoChat2
 	    });
 	    Object.defineProperty(this, _isGuest, {
 	      value: _isGuest2
@@ -211,7 +284,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _subscribeChannel)[_subscribeChannel]();
 	      return;
 	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isCommentsChat)[_isCommentsChat]() || !babelHelpers.classPrivateFieldLooseBase(this, _isGuest)[_isGuest]()) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isGuest)[_isGuest]() || babelHelpers.classPrivateFieldLooseBase(this, _isCommentsChat)[_isCommentsChat]() || babelHelpers.classPrivateFieldLooseBase(this, _isDemoChat)[_isDemoChat]()) {
 	      return;
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _subscribeOpenChat)[_subscribeOpenChat]();
@@ -238,8 +311,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  });
 	}
 	function _isGuest2() {
-	  var _babelHelpers$classPr, _babelHelpers$classPr2;
-	  return ((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog]) == null ? void 0 : _babelHelpers$classPr.role) === im_v2_const.UserRole.guest && ((_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog]) == null ? void 0 : _babelHelpers$classPr2.dialogId) !== 'settings';
+	  var _babelHelpers$classPr;
+	  return ((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog]) == null ? void 0 : _babelHelpers$classPr.role) === im_v2_const.UserRole.guest;
+	}
+	function _isDemoChat2() {
+	  var _babelHelpers$classPr2;
+	  return im_v2_lib_demo.DemoChatBuilder.isDemoDialogId((_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog]) == null ? void 0 : _babelHelpers$classPr2.dialogId);
 	}
 	function _isChannel2() {
 	  var _babelHelpers$classPr3;
@@ -276,26 +353,92 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  }
 	}
 
+	function findUniqueNumbers(arr1, arr2) {
+	  const set1 = new Set(arr1);
+	  const set2 = new Set(arr2);
+	  return [...arr1.filter(num => !set2.has(num)), ...arr2.filter(num => !set1.has(num))];
+	}
+
+	const sharedQueues = new Map();
+
+	/**
+	 * @description
+	 * Adds a delay between calls to the fn function.
+	 * Calls with the same function execute this function in the same sequence
+	 * @param fn
+	 * @param delay
+	 * @param context
+	 * @returns Function
+	 */
+	function sequentializeShared(fn, delay, context = null) {
+	  if (sharedQueues.has(fn)) {
+	    return sharedQueues.get(fn);
+	  }
+	  const wrapped = sequentialize(fn, delay, context);
+	  sharedQueues.set(fn, wrapped);
+	  return wrapped;
+	}
+	function sequentialize(fn, delay, context = null) {
+	  const queue = [];
+	  let isRunning = false;
+	  async function run() {
+	    if (isRunning) {
+	      return;
+	    }
+	    isRunning = true;
+	    const task = queue.shift();
+	    if (!task) {
+	      isRunning = false;
+	      return;
+	    }
+	    const result = fn.apply(context, task.args);
+	    await wait(delay);
+	    task.resolve(result);
+	    isRunning = false;
+	    run();
+	  }
+	  return (...args) => {
+	    return new Promise(resolve => {
+	      queue.push({
+	        args,
+	        resolve
+	      });
+	      run();
+	    });
+	  };
+	}
+	function wait(ms) {
+	  return new Promise(resolve => {
+	    setTimeout(resolve, ms);
+	  });
+	}
+
 	// @vue/component
 	const PinnedMessage = {
+	  components: {
+	    MessageAvatar: im_v2_component_elements_avatar.MessageAvatar
+	  },
 	  props: {
 	    message: {
 	      type: Object,
 	      required: true
+	    },
+	    showUnpinIcon: {
+	      type: Boolean,
+	      required: true
 	    }
 	  },
-	  data() {
-	    return {};
-	  },
+	  emits: ['messageUnpin'],
 	  computed: {
-	    internalMessage() {
+	    AvatarSize: () => im_v2_component_elements_avatar.AvatarSize,
+	    typedMessage() {
 	      return this.message;
 	    },
 	    text() {
-	      return im_v2_lib_parser.Parser.purifyMessage(this.internalMessage);
+	      return im_v2_lib_parser.Parser.purifyMessage(this.typedMessage);
 	    },
 	    authorId() {
-	      return this.internalMessage.authorId;
+	      return this.typedMessage.authorId;
 	    },
 	    author() {
 	      return this.$store.getters['users/get'](this.authorId);
@@ -303,7 +446,234 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-dialog-chat__pinned_item">
-			<span v-if="author" class="bx-im-dialog-chat__pinned_item_user">{{ author.name }}:</span> {{ text }}
+			<MessageAvatar
+				v-if="typedMessage.authorId"
+				:messageId="typedMessage.id"
+				:authorId="typedMessage.authorId"
+				:size="AvatarSize.M"
+			/>
+			<div class="bx-im-dialog-chat__pinned_item_content">
+				<div v-if="author" class="bx-im-dialog-chat__pinned_item_user">
+					{{ author.name }}
+				</div>
+				<div class="bx-im-dialog-chat__pinned_item_text --ellipsis">
+					{{ text }}
+				</div>
+			</div>
+			<button
+				v-if="showUnpinIcon"
+				class="bx-im-dialog-chat__pinned_icon-item-unpin"
+				@click.stop="$emit('messageUnpin', typedMessage.id)"
+			></button>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const HeaderTitle = {
+	  name: 'HeaderTitle',
+	  props: {
+	    totalPinCounter: {
+	      type: Number,
+	      required: true
+	    }
+	  },
+	  emits: ['toggleList'],
+	  computed: {
+	    title() {
+	      return this.loc('IM_DIALOG_CHAT_PINNED_TITLE_MULTIPLE_COUNTER', {
+	        '#PINS_COUNT#': `
+						<span class="bx-im-dialog-chat__pin-header_counter-total">
+							${this.totalPinCounter}
+						</span>
+					`
+	      });
+	    }
+	  },
+	  methods: {
+	    loc(phraseCode, replacements = {}) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-dialog-chat__pin-header_opened">
+		    <div v-html="title"></div>
+			<button
+				class="bx-im-messenger__cross-icon"
+				@click="$emit('toggleList')"
+			></button>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const CounterControl = {
+	  name: 'CounterControl',
+	  props: {
+	    messagePosition: {
+	      type: Number,
+	      required: true
+	    },
+	    totalPinCounter: {
+	      type: Number,
+	      required: true
+	    }
+	  },
+	  emits: ['toggleList'],
+	  template: `
+		<button
+			@click="$emit('toggleList')"
+			class="bx-im-dialog-chat__pinned_counter_control"
+		>
+			<span class="bx-im-dialog-chat__pinned_icon-dropdown"></span>
+			<span>
+				{{ messagePosition }}
+				<span class="bx-im-dialog-chat__pinned_counter_control-total">
+					/ {{ totalPinCounter }}
+				</span>
+			</span>
+		</button>
+	`
+	};
+
+	// @vue/component
+	const HeaderPin = {
+	  name: 'HeaderPin',
+	  components: {
+	    CounterControl
+	  },
+	  props: {
+	    message: {
+	      type: Object,
+	      required: true
+	    },
+	    messagePosition: {
+	      type: Number,
+	      required: true
+	    },
+	    showUnpinIcon: {
+	      type: Boolean,
+	      required: true
+	    },
+	    totalPinCounter: {
+	      type: Number,
+	      required: true
+	    }
+	  },
+	  emits: ['toggleList', 'messageUnpin', 'messageClick'],
+	  computed: {
+	    typedMessage() {
+	      return this.message;
+	    },
+	    isSinglePin() {
+	      return this.totalPinCounter === 1;
+	    },
+	    authorId() {
+	      return this.typedMessage.authorId;
+	    },
+	    author() {
+	      return this.$store.getters['users/get'](this.authorId);
+	    },
+	    text() {
+	      return im_v2_lib_parser.Parser.purifyMessage(this.typedMessage);
+	    },
+	    title() {
+	      return this.loc(this.isSinglePin ? 'IM_DIALOG_CHAT_PINNED_TITLE' : 'IM_DIALOG_CHAT_PINNED_TITLE_MULTIPLE');
+	    }
+	  },
+	  methods: {
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-dialog-chat__pin-header">
+			<div
+				class="bx-im-dialog-chat__pin-header_wrapper"
+				@click="$emit('messageClick', typedMessage.id)"
+			>
+				<div class="bx-im-dialog-chat__pin-header_title">
+					{{ title }}
+				</div>
+				<div class="bx-im-dialog-chat__pin-header_content">
+					<div v-if="author" class="bx-im-dialog-chat__pin-header_user">
+						{{ author.name + ':' }}
+					</div>
+					<div class="bx-im-dialog-chat__pin-header_text --ellipsis">
+						{{ text }}
+					</div>
+				</div>
+			</div>
+
+			<div class="bx-im-dialog-chat__pin-header_controls">
+				<button
+					v-if="showUnpinIcon && isSinglePin"
+					class="bx-im-dialog-chat__pinned_icon-header-unpin"
+					@click="$emit('messageUnpin', typedMessage.id)"
+				></button>
+				<CounterControl
+					v-else-if="!isSinglePin"
+					:messagePosition="messagePosition"
+					:totalPinCounter="totalPinCounter"
+					@toggleList="$emit('toggleList')"
+				/>
+			</div>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const PinnedHeader = {
+	  name: 'PinnedHeader',
+	  components: {
+	    HeaderTitle,
+	    HeaderPin
+	  },
+	  props: {
+	    message: {
+	      type: Object,
+	      required: true
+	    },
+	    messagePosition: {
+	      type: Number,
+	      required: true
+	    },
+	    showUnpinIcon: {
+	      type: Boolean,
+	      required: true
+	    },
+	    totalPinCounter: {
+	      type: Number,
+	      required: true
+	    },
+	    isListOpened: {
+	      type: Boolean,
+	      required: true
+	    }
+	  },
+	  emits: ['toggleList', 'messageUnpin', 'messageClick'],
+	  computed: {
+	    typedMessage() {
+	      return this.message;
+	    }
+	  },
+	  template: `
+		<div class="bx-im-dialog-chat__pinned_header">
+			<HeaderTitle
+				v-if="isListOpened"
+				:totalPinCounter="totalPinCounter"
+				@toggleList="$emit('toggleList')"
+			/>
+			<HeaderPin
+				v-else
+				:message="typedMessage"
+				:messagePosition="messagePosition"
+				:totalPinCounter="totalPinCounter"
+				:showUnpinIcon="showUnpinIcon"
+				@toggleList="$emit('toggleList')"
+				@messageUnpin="$emit('messageUnpin', typedMessage.id)"
+				@messageClick="$emit('messageClick', typedMessage.id)"
+			/>
 		</div>
 	`
 	};
@@ -312,7 +682,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const PinnedMessages = {
 	  name: 'PinnedMessages',
 	  components: {
-	    PinnedMessage
+	    PinnedMessage,
+	    PinnedHeader
 	  },
 	  props: {
 	    dialogId: {
@@ -326,42 +697,103 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  emits: ['messageClick', 'messageUnpin'],
 	  data() {
-	    return {};
+	    return {
+	      isListOpened: false,
+	      upcomingMessageIndex: 0
+	    };
 	  },
 	  computed: {
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
-	    firstMessage() {
-	      return this.messagesToShow[0];
+	    sortedPinnedMessages() {
+	      return [...this.messages].sort((a, b) => b.id - a.id);
 	    },
-	    messagesToShow() {
-	      return this.messages.slice(-1);
+	    totalPinCounter() {
+	      return this.messages.length;
 	    },
 	    canUnpin() {
 	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.pinMessage, this.dialogId);
 	    },
-	    showUnpin() {
+	    showUnpinIcon() {
 	      return !this.isCommentChat && this.canUnpin;
 	    },
 	    isCommentChat() {
 	      return this.dialog.type === im_v2_const.ChatType.comment;
+	    },
+	    upcomingMessage() {
+	      return this.sortedPinnedMessages[this.upcomingMessageIndex];
+	    },
+	    upcomingMessageDisplayPosition() {
+	      return this.upcomingMessageIndex + 1;
+	    }
+	  },
+	  watch: {
+	    messages(newValue) {
+	      if (newValue.length === 1) {
+	        this.toggleList(false);
+	      }
+	      if (this.shouldResetIndex(this.upcomingMessageIndex)) {
+	        this.resetHeaderIndex();
+	      }
 	    }
 	  },
 	  methods: {
-	    loc(phraseCode) {
-	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    toggleList(flag) {
+	      this.isListOpened = main_core.Type.isUndefined(flag) ? !this.isListOpened : flag;
+	    },
+	    incrementHeaderIndex() {
+	      const nextIndex = this.upcomingMessageIndex + 1;
+	      if (this.shouldResetIndex(nextIndex)) {
+	        this.resetHeaderIndex();
+	      } else {
+	        this.upcomingMessageIndex = nextIndex;
+	      }
+	    },
+	    resetHeaderIndex() {
+	      this.upcomingMessageIndex = 0;
+	    },
+	    shouldResetIndex(index) {
+	      return index >= this.totalPinCounter;
+	    },
+	    clickOnHeaderMessage() {
+	      this.emitMessageClick(this.sortedPinnedMessages[this.upcomingMessageIndex].id);
+	      this.incrementHeaderIndex();
+	    },
+	    clickOnHeaderMessageFromList(index) {
+	      // manually setting the next index because the item is selected directly from the list
+	      const nextIndex = index + 1;
+	      this.upcomingMessageIndex = this.shouldResetIndex(nextIndex) ? 0 : nextIndex;
+	      this.emitMessageClick(this.sortedPinnedMessages[index].id);
+	    },
+	    emitMessageClick(messageId) {
+	      this.$emit('messageClick', messageId);
 	    }
 	  },
 	  template: `
-		<div @click="$emit('messageClick', firstMessage.id)" class="bx-im-dialog-chat__pinned_container">
-			<div class="bx-im-dialog-chat__pinned_title">{{ loc('IM_DIALOG_CHAT_PINNED_TITLE') }}</div>
-			<PinnedMessage
-				v-for="message in messagesToShow"
-				:message="message"
-				:key="message.id"
+		<div class="bx-im-dialog-chat__pinned_container">
+			<PinnedHeader
+				:message="upcomingMessage"
+				:messagePosition="upcomingMessageDisplayPosition"
+				:showUnpinIcon="showUnpinIcon"
+				:totalPinCounter="totalPinCounter"
+				:isListOpened="isListOpened"
+				@toggleList="toggleList"
+				@messageUnpin="$emit('messageUnpin', upcomingMessage.id)"
+				@messageClick="clickOnHeaderMessage"
 			/>
-			<div v-if="showUnpin" @click.stop="$emit('messageUnpin', firstMessage.id)" class="bx-im-dialog-chat__pinned_unpin"></div>
+			<transition name="pinned-list">
+				<div v-if="isListOpened" class="bx-im-dialog-chat__pinned_list">
+					<PinnedMessage
+						v-for="(message, index) in sortedPinnedMessages"
+						:key="message.id"
+						:message="message"
+						:showUnpinIcon="showUnpinIcon"
+						@messageUnpin="$emit('messageUnpin', message.id)"
+						@click="clickOnHeaderMessageFromList(index)"
+					/>
+				</div>
+			</transition>
 		</div>
 	`
 	};
@@ -484,9 +916,72 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	const FloatButtonColor = Object.freeze({
+	  accent: 'accent',
+	  alert: 'alert',
+	  success: 'success'
+	});
+	const FloatButtonIcon = Object.freeze({
+	  chevronDown: 'chevron-down',
+	  heart: 'heart',
+	  atSymbol: 'at-symbol',
+	  comment: 'comment'
+	});
+
+	// @vue/component
+	const FloatButton = {
+	  name: 'FloatButton',
+	  props: {
+	    counter: {
+	      type: Number,
+	      default: 0
+	    },
+	    color: {
+	      type: String,
+	      required: false,
+	      default: FloatButtonColor.accent,
+	      validator: value => {
+	        return Object.values(FloatButtonColor).includes(value);
+	      }
+	    },
+	    icon: {
+	      type: String,
+	      required: true,
+	      validator: value => {
+	        return Object.values(FloatButtonIcon).includes(value);
+	      }
+	    }
+	  },
+	  computed: {
+	    buttonClassname() {
+	      return ['bx-im-dialog-chat__float-button', `--color-${this.color}`, `--icon-${this.icon}`];
+	    },
+	    formattedCounter() {
+	      if (this.counter === 0) {
+	        return '';
+	      }
+	      if (this.counter > 99) {
+	        return '99+';
+	      }
+	      return String(this.counter);
+	    }
+	  },
+	  template: `
+		<div :class="buttonClassname">
+			<div class="bx-im-dialog-chat__float-button_icon"></div>
+			<div v-if="counter" class="bx-im-dialog-chat__float-button_counter">
+				{{ formattedCounter }}
+			</div>
+		</div>
+	`
+	};
+
 	// @vue/component
 	const ScrollButton = {
 	  name: 'ScrollButton',
+	  components: {
+	    FloatButton
+	  },
 	  props: {
 	    dialogId: {
 	      type: String,
@@ -500,22 +995,179 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
-	    formattedCounter() {
-	      if (this.dialog.counter === 0) {
-	        return '';
-	      }
-	      if (this.dialog.counter > 99) {
-	        return '99+';
-	      }
-	      return String(this.dialog.counter);
+	    floatButtonProps() {
+	      return {
+	        color: FloatButtonColor.accent,
+	        icon: FloatButtonIcon.chevronDown,
+	        counter: this.dialog.counter
+	      };
 	    }
 	  },
 	  template: `
-		<div class="bx-im-dialog-chat__scroll-button">
-			<div v-if="dialog.counter" class="bx-im-dialog-chat__scroll-button_counter">
-				{{ formattedCounter }}
+		<FloatButton v-bind="floatButtonProps" />
+	`
+	};
+
+	const ReactionsButton = {
+	  name: 'ReactionsButton',
+	  components: {
+	    FloatButton
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  computed: {
+	    reactionCounter() {
+	      return this.$store.getters['messages/anchors/getCounterInChatByType'](this.dialog.chatId, im_v2_const.AnchorType.reaction);
+	    },
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    floatButtonProps() {
+	      return {
+	        color: FloatButtonColor.alert,
+	        icon: FloatButtonIcon.heart,
+	        counter: this.reactionCounter
+	      };
+	    }
+	  },
+	  template: `
+		<FloatButton v-bind="floatButtonProps" />
+	`
+	};
+
+	// @vue/component
+	const MentionsButton = {
+	  name: 'MentionsButton',
+	  components: {
+	    FloatButton
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  computed: {
+	    mentionCounter() {
+	      return this.$store.getters['messages/anchors/getCounterInChatByType'](this.dialog.chatId, im_v2_const.AnchorType.mention);
+	    },
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    floatButtonProps() {
+	      return {
+	        color: FloatButtonColor.accent,
+	        icon: FloatButtonIcon.atSymbol,
+	        counter: this.mentionCounter
+	      };
+	    }
+	  },
+	  template: `
+		<FloatButton v-bind="floatButtonProps" />
+	`
+	};
+
+	// @vue/component
+	const FloatButtons = {
+	  components: {
+	    ScrollButton,
+	    ReactionsButton,
+	    MentionsButton
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      default: ''
+	    },
+	    isScrolledUp: {
+	      type: Boolean,
+	      required: false,
+	      default: false
+	    }
+	  },
+	  emits: ['scrollButtonClick', 'reactionsButtonClick', 'mentionsButtonClick'],
+	  computed: {
+	    dialogInited() {
+	      return this.dialog.inited;
+	    },
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    showScrollButton() {
+	      return this.isScrolledUp || this.dialog.hasNextPage;
+	    },
+	    showMentionsButton() {
+	      return this.dialogInited && this.$store.getters['messages/anchors/getCounterInChatByType'](this.dialog.chatId, im_v2_const.AnchorType.mention);
+	    },
+	    showReactionsButton() {
+	      return this.dialogInited && this.$store.getters['messages/anchors/getCounterInChatByType'](this.dialog.chatId, im_v2_const.AnchorType.reaction);
+	    },
+	    hasAdditionalButtonSlot() {
+	      var _slotChildren$;
+	      const slot = this.$slots['additional-float-button'];
+	      if (!slot) {
+	        return false;
+	      }
+	      const slotChildren = slot();
+
+	      /**
+	       * Check that slot has empty content.
+	       * Used for case when parent component passes a slot to this slot
+	       * This is important for the animation to work correctly
+	       */
+	      return ((_slotChildren$ = slotChildren[0]) == null ? void 0 : _slotChildren$.children.length) > 0;
+	    }
+	  },
+	  methods: {
+	    onReactionsButtonClick() {
+	      this.$emit('reactionsButtonClick');
+	    },
+	    onMentionsButtonClick() {
+	      this.$emit('mentionsButtonClick');
+	    },
+	    onScrollButtonClick() {
+	      this.$emit('scrollButtonClick');
+	    }
+	  },
+	  template: `
+		<TransitionGroup
+			name="float-button-transition"
+			tag="div"
+			class="bx-im-dialog-chat__float-buttons"
+		>
+			<div
+				v-if="showReactionsButton"
+				key="reaction"
+				class="bx-im-dialog-chat__float-buttons_button"
+			>
+				<ReactionsButton :dialogId="dialogId" @click="onReactionsButtonClick" />
 			</div>
-		</div>
+			<div
+				v-if="showMentionsButton"
+				key="mention"
+				class="bx-im-dialog-chat__float-buttons_button"
+			>
+				<MentionsButton :dialogId="dialogId" @click="onMentionsButtonClick" />
+			</div>
+			<div
+				v-if="hasAdditionalButtonSlot"
+				key="additionalButton"
+				class="bx-im-dialog-chat__float-buttons_button"
+			>
+				<slot name="additional-float-button"></slot>
+			</div>
+			<div
+				v-if="showScrollButton"
+				key="scroll"
+				class="bx-im-dialog-chat__float-buttons_button"
+			>
+				<ScrollButton :dialogId="dialogId" @click="onScrollButtonClick" />
+			</div>
+		</TransitionGroup>
 	`
 	};
 
@@ -526,7 +1178,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    MessageList: im_v2_component_messageList.MessageList,
 	    PinnedMessages,
 	    QuoteButton,
-	    ScrollButton,
+	    FloatButtons,
 	    PullStatus: pull_vue3_status.PullStatus,
 	    ForwardPopup: im_v2_component_entitySelector.ForwardPopup
 	  },
@@ -539,7 +1191,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: Boolean,
 	      default: true
 	    },
-	    resetOnExit: {
+	    reloadOnExit: {
+	      type: Boolean,
+	      default: true
+	    },
+	    clearOnExit: {
 	      type: Boolean,
 	      default: false
 	    }
@@ -557,7 +1213,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      isScrolledUp: false,
 	      windowFocused: false,
 	      showQuoteButton: false,
-	      messagesToRead: new Set()
+	      isJumpingToAnchor: false,
+	      messagesToRead: new Set(),
+	      containerHeight: 0
 	    };
 	  },
 	  computed: {
@@ -591,17 +1249,29 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      const READING_DEBOUNCE_DELAY = 50;
 	      return main_core.Runtime.debounce(this.readQueuedMessages, READING_DEBOUNCE_DELAY, this);
 	    },
-	    messageListComponent() {
-	      return im_v2_component_messageList.MessageList;
+	    sequentiallyHighlightMessageHandler() {
+	      return sequentializeShared(this.highlightMessage, 300, this);
 	    },
 	    showScrollButton() {
 	      return this.isScrolledUp || this.dialog.hasNextPage;
+	    },
+	    anchorMessages() {
+	      return this.$store.getters['messages/anchors/getChatMessageIdsWithAnchors'](this.dialog.chatId);
 	    },
 	    hasCommentsOnTop() {
 	      return this.$store.getters['messages/comments/areOpenedForChannel'](this.dialogId);
 	    }
 	  },
 	  watch: {
+	    anchorMessages(newValue, oldValue) {
+	      const newMessageIdsWithAnchor = findUniqueNumbers(newValue, oldValue);
+	      const visibleMessageIds = this.getVisibleMessagesManager().getVisibleMessages();
+	      newMessageIdsWithAnchor.forEach(messageId => {
+	        if (visibleMessageIds.includes(messageId)) {
+	          this.getAnchorService().debouncedReadMessageAnchors(messageId);
+	        }
+	      });
+	    },
 	    dialogInited(newValue, oldValue) {
 	      if (!newValue || oldValue) {
 	        return;
@@ -625,7 +1295,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    im_v2_lib_logger.Logger.warn('Dialog: Chat created', this.dialogId);
 	    this.initContextMode();
 	  },
-	  mounted() {
+	  async mounted() {
+	    await this.$nextTick();
+	    this.containerHeight = this.$refs.container.clientHeight;
 	    this.getScrollManager().setContainer(this.getContainer());
 	    if (this.dialogInited) {
 	      // second+ opening
@@ -643,11 +1315,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    this.unsubscribeFromEvents();
 	    if (this.dialogInited) {
 	      this.saveScrollPosition();
-	      this.handleMessagesOnExit();
+	      void this.handleMessagesOnExit();
 	    }
 	    this.getPullWatchManager().unsubscribe();
 	    this.closeDialogPopups();
 	    this.forwardPopup.show = false;
+	    this.readAllAnchors();
 	  },
 	  methods: {
 	    async scrollOnStart() {
@@ -732,7 +1405,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        hasAccess,
 	        errorCode
 	      } = await im_v2_lib_access.AccessManager.checkMessageAccess(messageId);
-	      if (!hasAccess && errorCode === im_v2_lib_access.AccessErrorCode.messageAccessDeniedByTariff) {
+	      if (!hasAccess && errorCode === im_v2_const.ErrorCode.message.accessDeniedByTariff) {
 	        im_v2_lib_analytics.Analytics.getInstance().historyLimit.onGoToContextLimitExceeded({
 	          dialogId: this.dialogId
 	        });
@@ -740,9 +1413,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return;
 	      }
 	      this.showLoadingBar();
-	      await this.getMessageService().loadContext(messageId).catch(error => {
-	        im_v2_lib_logger.Logger.error('goToMessageContext error', error);
-	      });
+	      await this.getMessageService().loadContext(messageId);
 	      await this.$nextTick();
 	      this.hideLoadingBar();
 	      this.getScrollManager().scrollToMessage(messageId, {
@@ -779,15 +1450,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      });
 	    },
 	    async handleMessagesOnExit() {
-	      if (this.resetOnExit) {
-	        void this.getChatService().resetChat(this.dialogId);
+	      if (this.clearOnExit) {
+	        void this.getChatService().clearChat(this.dialogId);
 	        return;
 	      }
 	      await this.getChatService().readChatQueuedMessages(this.dialog.chatId);
-	      const LOAD_MESSAGES_ON_EXIT_DELAY = 200;
-	      setTimeout(async () => {
-	        void this.getMessageService().reloadMessageList();
-	      }, LOAD_MESSAGES_ON_EXIT_DELAY);
+	      if (this.reloadOnExit) {
+	        const LOAD_MESSAGES_ON_EXIT_DELAY = 200;
+	        setTimeout(async () => {
+	          this.getMessageService().reloadMessageList();
+	        }, LOAD_MESSAGES_ON_EXIT_DELAY);
+	      }
 	    },
 	    /* region Reading */
 	    readQueuedMessages() {
@@ -811,6 +1484,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        }
 	        this.getChatService().readMessage(this.dialog.chatId, messageId);
 	      });
+	    },
+	    readAllAnchors() {
+	      if (this.$store.getters['messages/anchors/isChatHasAnchors'](this.dialog.chatId)) {
+	        this.getAnchorService().readChatAnchors(this.dialog.chatId);
+	      }
 	    },
 	    messagesCanBeRead() {
 	      if (!this.dialogInited || !this.isChatVisible()) {
@@ -935,6 +1613,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    onPinnedMessageUnpin(messageId) {
 	      this.getMessageService().unpinMessage(this.dialog.chatId, messageId);
+	      im_v2_lib_analytics.Analytics.getInstance().messagePins.onUnpin({
+	        dialogId: this.dialogId
+	      });
 	    },
 	    onScroll(event) {
 	      this.closeDialogPopups();
@@ -961,6 +1642,30 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        await this.getScrollManager().animatedScrollToMessage(firstUnreadId);
 	      }
 	      await this.getScrollManager().animatedScrollToMessage(firstUnreadId);
+	    },
+	    async onMentionsButtonClick() {
+	      if (this.isJumpingToAnchor) {
+	        return;
+	      }
+	      this.isJumpingToAnchor = true;
+	      await this.goToNearestMessageWithAnchor(im_v2_const.AnchorType.mention);
+	      this.isJumpingToAnchor = false;
+	    },
+	    async onReactionsButtonClick() {
+	      if (this.isJumpingToAnchor) {
+	        return;
+	      }
+	      this.isJumpingToAnchor = true;
+	      await this.goToNearestMessageWithAnchor(im_v2_const.AnchorType.reaction);
+	      this.isJumpingToAnchor = false;
+	    },
+	    async goToNearestMessageWithAnchor(anchorType) {
+	      const nextMessage = this.$store.getters['messages/anchors/getNextMessageIdWithAnchorType'](this.dialog.chatId, anchorType);
+	      if (nextMessage) {
+	        await this.goToMessageContext(nextMessage, {
+	          position: ScrollManager.scrollPosition.messageTop
+	        });
+	      }
 	    },
 	    onWindowFocus() {
 	      this.windowFocused = true;
@@ -993,9 +1698,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.getScrollManager().scrollButtonClicked = false;
 	      if (this.dialog.hasNextPage) {
 	        this.showLoadingBar();
-	        await this.getMessageService().loadContext(this.dialog.lastMessageId).catch(error => {
-	          im_v2_lib_logger.Logger.error('ChatDialog: scroll to chat end loadContext error', error);
-	        });
+	        await this.getMessageService().loadContext(this.dialog.lastMessageId);
 	        this.hideLoadingBar();
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.scrollToBottom, {
 	          chatId: this.dialog.chatId
@@ -1026,11 +1729,33 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return;
 	      }
 	      this.getVisibleMessagesManager().setMessageAsVisible(messageId);
+	      if (this.isChatVisible() === false) {
+	        return;
+	      }
+	      if (this.$store.getters['messages/anchors/isMessageHasAnchors'](messageId)) {
+	        this.readAnchorsIfMessageVisibleLongEnough(messageId);
+	      }
 	      const message = this.$store.getters['messages/getById'](messageId);
-	      if (!message.viewed && this.isChatVisible()) {
+	      if (!message.viewed) {
 	        this.messagesToRead.add(messageId);
 	        this.debouncedReadHandler();
 	      }
+	    },
+	    readAnchorsIfMessageVisibleLongEnough(messageId) {
+	      const messageVisibilityTimeThreshold = 200;
+	      if (this.getScrollManager().isScrolling) {
+	        this.readMessageAnchorsAfterVisibilityThreshold(messageId, messageVisibilityTimeThreshold);
+	      } else {
+	        this.getAnchorService().debouncedReadMessageAnchors(messageId);
+	      }
+	    },
+	    readMessageAnchorsAfterVisibilityThreshold(messageId, messageVisibilityTimeThreshold) {
+	      setTimeout(() => {
+	        if (this.getVisibleMessagesManager().getVisibleMessages().includes(messageId)) {
+	          this.sequentiallyHighlightMessageHandler(messageId);
+	          this.getAnchorService().debouncedReadMessageAnchors(messageId);
+	        }
+	      }, messageVisibilityTimeThreshold);
 	    },
 	    onMessageIsNotVisible(event) {
 	      const {
@@ -1056,7 +1781,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getMessageService() {
 	      if (!this.messageService) {
-	        this.messageService = new im_v2_provider_service.MessageService({
+	        this.messageService = new im_v2_provider_service_message.MessageService({
 	          chatId: this.dialog.chatId
 	        });
 	      }
@@ -1064,9 +1789,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getChatService() {
 	      if (!this.chatService) {
-	        this.chatService = new im_v2_provider_service.ChatService();
+	        this.chatService = new im_v2_provider_service_chat.ChatService();
 	      }
 	      return this.chatService;
+	    },
+	    getAnchorService() {
+	      if (!this.anchorService) {
+	        this.anchorService = new AnchorService();
+	      }
+	      return this.anchorService;
 	    },
 	    getScrollManager() {
 	      if (!this.scrollManager) {
@@ -1149,18 +1880,23 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<!-- Message list -->
 			<div @scroll="onScroll" class="bx-im-dialog-chat__scroll-container" ref="container">
 				<slot name="message-list">
-					<component :is="messageListComponent" :dialogId="dialogId"/>
+					<MessageList :dialogId="dialogId" :containerHeight="containerHeight" />
 				</slot>
 			</div>
-			<!-- Float buttons -->
-			<slot name="additional-float-button"></slot>
-			<Transition name="float-button-transition">
-				<ScrollButton v-if="showScrollButton" :dialogId="dialogId" @click="onScrollButtonClick" />
-			</Transition>
+			<FloatButtons
+				:dialogId="dialogId"
+				:isScrolledUp="isScrolledUp"
+				@scrollButtonClick="onScrollButtonClick"
+				@reactionsButtonClick="onReactionsButtonClick"
+				@mentionsButtonClick="onMentionsButtonClick"
+			>
+				<template #additional-float-button><slot name="additional-float-button" /></template>
+			</FloatButtons>
 			<!-- Absolute elements -->
 			<ForwardPopup
 				v-if="forwardPopup.show"
 				:messagesIds="forwardPopup.messagesIds"
+				:dialogId="dialogId"
 				@close="onCloseForwardPopup"
 			/>
 			<Transition name="fade-up">
@@ -1179,6 +1915,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.ChatDialog = ChatDialog;
 	exports.ScrollManager = ScrollManager;
 	exports.PinnedMessages = PinnedMessages;
+	exports.FloatButton = FloatButton;
+	exports.FloatButtonIcon = FloatButtonIcon;
+	exports.FloatButtonColor = FloatButtonColor;
 
-}((this.BX.Messenger.v2.Component.Dialog = this.BX.Messenger.v2.Component.Dialog || {}),BX.Main,window,BX.Messenger.v2.Lib,BX.Messenger.v2.Component,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Dialog = this.BX.Messenger.v2.Component.Dialog || {}),BX.Main,window,BX.Messenger.v2.Lib,BX.Messenger.v2.Component,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Service,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
 //# sourceMappingURL=chat-dialog.bundle.js.map

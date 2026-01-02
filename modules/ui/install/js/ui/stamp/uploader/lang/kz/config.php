@@ -1,0 +1,22 @@
+<?php
+$MESS["UI_STAMP_UPLOADER_CROP_BUTTON_LABEL"] = "Қиып алу";
+$MESS["UI_STAMP_UPLOADER_DROPZONE_HEADER"] = "Басып шығару үшін кескінді жүктеңіз";
+$MESS["UI_STAMP_UPLOADER_DROPZONE_TEXT"] = "Файлдарды осында орын ауыстыруға болады";
+$MESS["UI_STAMP_UPLOADER_HEADER_CHANGE_CONTACT_BUTTON_LABEL"] = "Ауыстыру";
+$MESS["UI_STAMP_UPLOADER_HEADER_TITLE"] = "Басып шығару:";
+$MESS["UI_STAMP_UPLOADER_PREPARING_STATUS"] = "Өңделуде";
+$MESS["UI_STAMP_UPLOADER_PREVIEW_TITLE"] = "Басқа кескінді жүктеу үшін басыңыз";
+$MESS["UI_STAMP_UPLOADER_SAVE_BUTTON_LABEL"] = "Сақтау";
+$MESS["UI_STAMP_UPLOADER_SELECT_PHOTO_BUTTON_LABEL_1"] = "Мөрді жүктеу";
+$MESS["UI_STAMP_UPLOADER_SLIDER_CLOSE_CONFIRM"] = "Сіз өзгерістерді сақтамадыңыз. Жапқыңыз келетініне сенімдісіз бе?";
+$MESS["UI_STAMP_UPLOADER_SLIDER_CLOSE_CONFIRM_CANCEL"] = "Болдырмау";
+$MESS["UI_STAMP_UPLOADER_SLIDER_CLOSE_CONFIRM_CLOSE"] = "Жабу";
+$MESS["UI_STAMP_UPLOADER_SLIDER_MESSAGE_DESCRIPTION"] = "Басып шығару үшін кескінді бір рет жүктеп, басқа құжаттарға қол қою кезінде пайдаланыңыз. Кескін автоматты түрде жасанды интеллектпен өңделеді.";
+$MESS["UI_STAMP_UPLOADER_SLIDER_MESSAGE_TITLE"] = "Басып шығару";
+$MESS["UI_STAMP_UPLOADER_TAKE_PHOTO_BUTTON_LABEL"] = "Телефонмен суретке түсіру";
+$MESS["UI_STAMP_UPLOADER_UPLOAD_STATUS_PERCENT"] = "{{number}} %";
+$MESS["UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE"] = "{{number}} {{text}}";
+$MESS["UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE_B"] = "Б";
+$MESS["UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE_KB"] = "Кб";
+$MESS["UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE_MB"] = "Мб";
+$MESS["UI_STAMP_UPLOADER_UPLOAD_STATUS_TEXT"] = "Файлды жүктеу";

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -8,22 +9,22 @@
 
 namespace Bitrix\Main\Access\Role;
 
-use Bitrix\Main\Entity;
 use Bitrix\Main\Access\Entity\DataManager;
+use Bitrix\Main\ORM\Fields;
 
 abstract class AccessRoleRelationTable extends DataManager
 {
 	public static function getMap()
 	{
 		return [
-			new Entity\IntegerField('ID', [
+			new Fields\IntegerField('ID', [
 				'autocomplete' => true,
 				'primary' => true
 			]),
-			new Entity\IntegerField('ROLE_ID', [
+			new Fields\IntegerField('ROLE_ID', [
 				'required' => true
 			]),
-			new Entity\StringField('RELATION', [
+			new Fields\StringField('RELATION', [
 				'required' => true
 			])
 		];

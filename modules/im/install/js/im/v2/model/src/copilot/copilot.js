@@ -10,12 +10,13 @@ import { MessagesModel } from './nested-modules/messages/messages';
 import { RolesModel } from './nested-modules/roles/roles';
 
 import type { JsonObject } from 'main.core';
-import type { CopilotRole } from '../type/copilot';
+import type { ImModelCopilotRole, ImModelCopilotAIModel } from '../registry';
 import type { GetterTree, ActionTree, MutationTree, NestedModuleTree } from 'ui.vue3.vuex';
 
 type CopilotModelState = {
 	recommendedRoles: string[],
 	aiProvider: string,
+	availableAIModels: ImModelCopilotAIModel[],
 };
 
 const RECOMMENDED_ROLES_LIMIT = 4;
@@ -42,6 +43,7 @@ export class CopilotModel extends BuilderModel
 		return {
 			recommendedRoles: [],
 			aiProvider: '',
+			availableAIModels: [],
 		};
 	}
 
@@ -52,8 +54,12 @@ export class CopilotModel extends BuilderModel
 			getProvider: (state): string => {
 				return state.aiProvider;
 			},
+			/** @function copilot/getAIModels */
+			getAIModels: (state): ImModelCopilotAIModel[] => {
+				return state.availableAIModels;
+			},
 			/** @function copilot/getRecommendedRoles */
-			getRecommendedRoles: (state) => (): CopilotRole[] => {
+			getRecommendedRoles: (state) => (): ImModelCopilotRole[] => {
 				const roles = state.recommendedRoles.map((roleCode) => {
 					return Core.getStore().getters['copilot/roles/getByCode'](roleCode);
 				});
@@ -84,6 +90,15 @@ export class CopilotModel extends BuilderModel
 
 				store.commit('setProvider', payload);
 			},
+			/** @function copilot/setAvailableAIModels */
+			setAvailableAIModels: (store, payload) => {
+				if (!Type.isArrayFilled(payload))
+				{
+					return;
+				}
+
+				store.commit('setAvailableAIModels', payload);
+			},
 		};
 	}
 
@@ -95,6 +110,9 @@ export class CopilotModel extends BuilderModel
 			},
 			setProvider: (state, payload) => {
 				state.aiProvider = payload;
+			},
+			setAvailableAIModels: (state, payload) => {
+				state.availableAIModels = payload;
 			},
 		};
 	}

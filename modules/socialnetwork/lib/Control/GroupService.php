@@ -16,7 +16,12 @@ class GroupService extends AbstractGroupService
 
 	protected function getUpdateHandlers(): array
 	{
-		return [new Update\ExcludeMemberHandler(), new Update\AddInvitationHandler()];
+		return [
+			new Update\ExcludeMemberHandler(),
+			new Update\AddInvitationHandler(),
+			new Update\UpdateFeatureHandler(),
+			new Update\UpdatePermissionsHandler(),
+		];
 	}
 
 	protected function getDeleteHandlers(): array

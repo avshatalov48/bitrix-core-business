@@ -17,7 +17,7 @@ else
 {
 	$anchor_id = $this->randString(8);
 
-	if ($arParams["INLINE"] != "Y")
+	if (!isset($arParams["INLINE"]) || $arParams["INLINE"] != "Y")
 	{
 		$tooltipUserId = (
 			$arResult["User"]["DETAIL_URL"] <> ''
@@ -42,16 +42,16 @@ else
 		if ($arParams["USE_THUMBNAIL_LIST"] == "Y")
 		{
 			?><td class="bx-user-info-anchor-cell"><div class="bx-user-info-thumbnail" align="center" valign="middle" <?if (intval($arParams["THUMBNAIL_LIST_SIZE"]) > 0): echo 'style="width: '.intval($arParams["THUMBNAIL_LIST_SIZE"]).'px; height: '.intval($arParams["THUMBNAIL_LIST_SIZE"]+2).'px;"'; endif;?>><?
-			if ($arResult["User"]["HREF"] <> '')
+			if (!empty($arResult["User"]["HREF"]))
 			{
-				?><a href="<?=$arResult["User"]["HREF"]?>"<?=($arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?>><?=$arResult["User"]["PersonalPhotoImgThumbnail"]["Image"]?></a><?
+				?><a href="<?=$arResult["User"]["HREF"]?>"<?=(isset($arParams["SEO_USER"]) && $arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?>><?=$arResult["User"]["PersonalPhotoImgThumbnail"]["Image"]?></a><?
 			}
 			elseif (
 				$arResult["User"]["DETAIL_URL"] <> ''
 				&& $arResult["CurrentUserPerms"]["Operations"]["viewprofile"]
 			)
 			{
-				?><a href="<?=$arResult["User"]["DETAIL_URL"]?>"<?=($arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?>><?=$arResult["User"]["PersonalPhotoImgThumbnail"]["Image"]?></a><?
+				?><a href="<?=$arResult["User"]["DETAIL_URL"]?>"<?=(isset($arParams["SEO_USER"]) && $arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?>><?=$arResult["User"]["PersonalPhotoImgThumbnail"]["Image"]?></a><?
 			}
 			else
 			{
@@ -60,22 +60,22 @@ else
 			?></div></td><?
 		}
 		?><td class="bx-user-info-anchor-cell" valign="top"><?
-		if ($arResult["User"]["HREF"] <> '')
+		if (!empty($arResult["User"]["HREF"]))
 		{
-			?><a class="bx-user-info-name" href="<?=$arResult["User"]["HREF"]?>"<?=($arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?>><?=$arResult["User"]["NAME_FORMATTED"]?></a><?
+			?><a class="bx-user-info-name" href="<?=$arResult["User"]["HREF"]?>"<?=(isset($arParams["SEO_USER"]) && $arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?>><?=$arResult["User"]["NAME_FORMATTED"]?></a><?
 		}
 		elseif (
 			$arResult["User"]["DETAIL_URL"] <> ''
 			&& $arResult["CurrentUserPerms"]["Operations"]["viewprofile"]
 		)
 		{
-			?><a class="bx-user-info-name" href="<?=$arResult["User"]["DETAIL_URL"]?>"<?=($arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?>><?=$arResult["User"]["NAME_FORMATTED"]?></a><?
+			?><a class="bx-user-info-name" href="<?=$arResult["User"]["DETAIL_URL"]?>"<?=(isset($arParams["SEO_USER"]) && $arParams["SEO_USER"] == "Y" ? ' rel="nofollow"' : '')?>><?=$arResult["User"]["NAME_FORMATTED"]?></a><?
 		}
 		else
 		{
 			?><div class="bx-user-info-name"><?=$arResult["User"]["NAME_FORMATTED"]?></div><?
 		}
-		?><?=($arResult["User"]["NAME_DESCRIPTION"] <> '' ? " (".$arResult["User"]["NAME_DESCRIPTION"].")": "")?><?
+		?><?=(!empty($arResult["User"]["NAME_DESCRIPTION"]) ? " (".$arResult["User"]["NAME_DESCRIPTION"].")": "")?><?
 		if ($arResult["bSocialNetwork"])
 		{
 			if (array_key_exists("IS_ONLINE", $arParams))
@@ -87,7 +87,7 @@ else
 				$online_class_attrib = '';
 			}
 
-			if ($arResult["User"]["HREF"] <> '')
+			if (!empty($arResult["User"]["HREF"]))
 			{
 				$link = $arResult["User"]["HREF"];
 			}

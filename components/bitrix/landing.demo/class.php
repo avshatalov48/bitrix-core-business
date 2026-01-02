@@ -16,6 +16,7 @@ use Bitrix\Landing\Rights;
 use Bitrix\Landing\Landing\Cache;
 use Bitrix\Landing\Hook\Page\Settings;
 use Bitrix\Landing\Site\Type;
+use Bitrix\Landing\Metrika;
 use Bitrix\Highloadblock;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
@@ -194,6 +195,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			$uriEdit = new Uri($redirect);
 			$uriEdit->addParams([
 				'IFRAME' => ($this->arParams['DONT_LEAVE_FRAME'] != 'Y') ? 'N' : 'Y',
+				'newLanding' => 'Y',
 			]);
 			\localRedirect($uriEdit->getUri(), true);
 		}
@@ -241,15 +243,6 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			{
 				$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'N';
 			}
-		}
-
-		if ($this->request('theme_use_site'))
-		{
-			$color = $this->request('theme_use_site');
-			$color = $this->prepareColor($color);
-			unset($data['ADDITIONAL_FIELDS']['THEME_CODE']);
-			$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
-			$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'N';
 		}
 
 		return $data;
@@ -1035,6 +1028,18 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			);
 			if ($landingId)
 			{
+				$metrika = new Metrika\Metrika(
+					Metrika\Categories::getBySiteType($this->arParams['TYPE']),
+					Metrika\Events::createTemplate,
+				);
+				$metrika
+					->setType(Metrika\Types::template)
+					->setSection(Metrika\Sections::page)
+					->setParam(1, 'appCode', $code)
+					->setParam(3, 'siteId', $this->arParams['SITE_ID'])
+					->send()
+				;
+
 				return $this->redirectToLanding($landingId);
 			}
 			else
@@ -1122,9 +1127,23 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					unset($sectionId);
 
 					// agreement
-					if(!$settings['AGREEMENT_ID'] && Loader::includeModule('crm'))
+					if(!$settings['AGREEMENTS'] && Loader::includeModule('crm'))
 					{
-						$siteData['ADDITIONAL_FIELDS']['SETTINGS_AGREEMENT_ID'] = UserConsent::getDefaultAgreementId();
+						$defaultAgreementId = (int)UserConsent::getDefaultAgreementId();
+						if ($defaultAgreementId)
+						{
+							$siteData['ADDITIONAL_FIELDS']['SETTINGS_AGREEMENTS'] = [
+								[
+									'ID' => $defaultAgreementId,
+									'CHECKED' => 'Y',
+									'REQUIRED' => 'Y',
+								],
+							];
+						}
+						else
+						{
+							$siteData['ADDITIONAL_FIELDS']['SETTINGS_AGREEMENTS'] = [];
+						}
 					}
 				}
 
@@ -1446,6 +1465,19 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				}
 				\Bitrix\Landing\Rights::setGlobalOn();
 				// send events
+
+				$metrika = new Metrika\Metrika(
+					Metrika\Categories::getBySiteType($this->arParams['TYPE']),
+					Metrika\Events::createTemplate,
+				);
+				$metrika
+					->setType(Metrika\Types::template)
+					->setSection(Metrika\Sections::page)
+					->setParam(1, 'appCode', $code)
+					->setParam(3, 'siteId', $siteData['ID'])
+					->send()
+				;
+
 				$event = new Event('landing', 'onAfterDemoCreate', array(
 					'id' => $siteData['ID'],
 					'code' => $code,
@@ -1595,7 +1627,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			// detect translated messages
 			$translate = null;
 			$langPortal = LANGUAGE_ID;
-			if (in_array($langPortal, ['ru', 'kz', 'by']))
+			if (in_array($langPortal, ['ru', 'kz', 'by', 'uz']))
 			{
 				$langPortal = 'ru';
 			}
@@ -1806,6 +1838,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					}
 				}
 			}
+
 			return $data;
 		};
 
@@ -1851,6 +1884,12 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				&& in_array($this->arParams['TYPE'], $typesUseMarket)
 			;
 			$hasMarket = false;
+
+			if ($this->arResult['MARKET_DISABLE'])
+			{
+				$useMarket = false;
+			}
+
 			if ($useMarket)
 			{
 				$hasMarket =
@@ -1915,6 +1954,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					'search-result3-dark',
 					'news-detail',
 					'requisites',
+					'ent-en',
 				];
 				foreach ($localTemplates as $template)
 				{
@@ -2807,6 +2847,13 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		{
 			$init = false;
 			$this->addError('ACCESS_DENIED', '', true);
+		}
+
+		$this->arResult['MARKET_DISABLE'] = false;
+		if (!Manager::isB24() && $this->arParams['TYPE'] === 'PAGE')
+		{
+			// todo: open
+			$this->arResult['MARKET_DISABLE'] = true;
 		}
 
 		// if all ok
@@ -3873,7 +3920,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		}
 
 		$currentZone = Manager::getZone();
-		$subDirLang = in_array($currentZone, ['ru', 'kz', 'by']) ? 'ru' : 'en';
+		$subDirLang = in_array($currentZone, ['ru', 'kz', 'by', 'uz']) ? 'ru' : 'en';
 		$xmlPath .= '/'.$subDirLang;
 
 		$xmlPath .= '/'.$this->getCurrentXml().'.xml';

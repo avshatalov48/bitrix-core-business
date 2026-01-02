@@ -70,6 +70,7 @@ elseif (\CModule::IncludeModule('tasks'))
 				"PREORDER" => array('STATUS_COMPLETE' => 'asc')
 			),
 			'USE_PADDING' => false,
+			'USE_UI_TOOLBAR' => 'Y',
 			"POPUP_COMPONENT_PARENT" => $component
 		)
 	);

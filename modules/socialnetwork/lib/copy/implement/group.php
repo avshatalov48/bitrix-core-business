@@ -2,6 +2,8 @@
 
 namespace Bitrix\Socialnetwork\Copy\Implement;
 
+use Bitrix\Main\AccessDeniedException;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Copy\Container;
 use Bitrix\Main\Copy\CopyImplementer;
 use Bitrix\Main\Error;
@@ -9,6 +11,9 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Result;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\Copy\Integration\Feature;
+use Bitrix\Socialnetwork\Permission\GroupAccessController;
+use Bitrix\Socialnetwork\Permission\GroupDictionary;
+use Bitrix\Socialnetwork\Permission\Model\GroupModel;
 use Bitrix\Socialnetwork\WorkgroupSiteTable;
 
 class Group extends CopyImplementer
@@ -75,6 +80,14 @@ class Group extends CopyImplementer
 
 	public function add(Container $container, array $fields)
 	{
+		$accessController = GroupAccessController::getInstance($this->executiveUserId);
+		$groupModel = GroupModel::createFromArray(['siteIds' => $fields['SITE_ID']]);
+
+		if (!$accessController->check(GroupDictionary::CREATE, $groupModel))
+		{
+			throw new AccessDeniedException();
+		}
+
 		$groupId = \CSocNetGroup::createGroup($this->executiveUserId, $fields, false);
 
 		if (!$groupId)
@@ -292,27 +305,48 @@ class Group extends CopyImplementer
 		return $fields;
 	}
 
-	private function prepareExtranetFields(array $fields)
+	private function prepareExtranetFields(array $fields): array
 	{
-		if (!Loader::includeModule("extranet") || !$this->isExtranetSite($fields["SITE_ID"]))
+		if (!Loader::includeModule('extranet'))
 		{
-			if (
-				Loader::includeModule("extranet") &&
-				!$this->isExtranetSite($fields["SITE_ID"]) &&
-				$this->changedFields["IS_EXTRANET_GROUP"] == "Y"
-			)
+			return $fields;
+		}
+
+		$isAllowCreateExtranetGroup = $this->isAllowCreateExtranetGroup();
+		$existsExtranetSiteId = $this->isExtranetSite($fields['SITE_ID']);
+
+		if ($isAllowCreateExtranetGroup)
+		{
+			$wantedExtranetGroup = $this->changedFields['IS_EXTRANET_GROUP'] === 'Y';
+
+			if ($wantedExtranetGroup && !$existsExtranetSiteId)
 			{
-				$fields["SITE_ID"][] = \CExtranet::getExtranetSiteID();
-				$fields["VISIBLE"] = "N";
-				$fields["OPENED"] = "N";
+				$fields['SITE_ID'][] = \CExtranet::getExtranetSiteID();
+				$fields['VISIBLE'] = 'N';
+				$fields['OPENED'] = 'N';
 			}
 		}
-		elseif (Loader::includeModule("extranet") && $this->isExtranetSite($fields["SITE_ID"]))
+		elseif ($existsExtranetSiteId)
 		{
-			$fields["SITE_ID"] = $this->getSiteIds($fields["ID"]);
+			$fields['SITE_ID'] = $this->getSiteIds($fields['ID']);
+
+			$extranetSiteId = \CExtranet::getExtranetSiteID();
+			$fields['SITE_ID'] = array_filter($fields['SITE_ID'], static fn($siteId) => $siteId !== $extranetSiteId);
+		}
+
+		if (empty($fields['SITE_ID']))
+		{
+			throw new \InvalidArgumentException('Site id cannot be empty');
 		}
 
 		return $fields;
+	}
+
+	private function isAllowCreateExtranetGroup(): bool
+	{
+		$isExtranetForGroupsEnabled = (bool)Option::get('socialnetwork', 'enable_extranet_for_groups', 0);
+
+		return Loader::includeModule('extranet') && $isExtranetForGroupsEnabled;
 	}
 
 	private function getSiteIds(int $groupId): array

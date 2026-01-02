@@ -17,18 +17,9 @@ use Bitrix\Im\V2\Result;
 
 class NullChat extends Chat
 {
-	private $preparedParams = [];
-
 	protected function getDefaultType(): string
 	{
 		return '';
-	}
-
-	public function setPreparedParams(array $params): self
-	{
-		$this->preparedParams = $params;
-
-		return $this;
 	}
 
 	public function getAuthor(): User
@@ -78,19 +69,6 @@ class NullChat extends Chat
 	public function getSelfRelation(): ?Relation
 	{
 		return null;
-	}
-
-	public function createChatIfNotExists(array $params): self
-	{
-		$params = array_merge($this->preparedParams, $params);
-
-		$addResult = ChatFactory::getInstance()->addChat($params);
-		if (!$addResult->isSuccess() || !$addResult->hasResult())
-		{
-			return $this;
-		}
-
-		return $addResult->getResult()['CHAT'];
 	}
 
 	/**
@@ -156,5 +134,15 @@ class NullChat extends Chat
 	public function canDo(Action $action, mixed $target = null): bool
 	{
 		return false;
+	}
+
+	public function getUserCount(): int
+	{
+		return 0;
+	}
+
+	public function getPrevMessageId(): int
+	{
+		return 0;
 	}
 }

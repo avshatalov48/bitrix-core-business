@@ -8,7 +8,9 @@ return [
 	'css' => 'dist/base-message.bundle.css',
 	'js' => 'dist/base-message.bundle.js',
 	'rel' => [
-		'main.polyfill.core',
+		'main.core',
+		'main.core.events',
+		'im.v2.lib.utils',
 		'im.v2.application.core',
 		'im.v2.lib.parser',
 		'im.v2.component.message.elements',
@@ -16,5 +18,5 @@ return [
 		'im.v2.lib.permission',
 		'im.v2.lib.channel',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

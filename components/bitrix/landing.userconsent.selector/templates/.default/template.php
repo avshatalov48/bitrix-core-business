@@ -17,6 +17,7 @@ $APPLICATION->IncludeComponent(
 		'PATH_TO_EDIT' => $arParams['PATH_TO_EDIT'],
 		'PATH_TO_CONSENT_LIST' => $arParams['PATH_TO_CONSENT_LIST'],
 		'ACTION_REQUEST_URL' => $arParams['ACTION_REQUEST_URL'],
-		'CAN_EDIT' => $arResult['CAN_EDIT']
+		'CAN_EDIT' => $arResult['CAN_EDIT'],
+		'AGREEMENTS' => $arParams['AGREEMENTS'],
 	)
 );

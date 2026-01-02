@@ -8,11 +8,11 @@ return [
 	'css' => 'dist/bulk-actions.bundle.css',
 	'js' => 'dist/bulk-actions.bundle.js',
 	'rel' => [
+		'main.polyfill.core',
 		'main.core.events',
-		'main.core',
 		'im.v2.const',
 		'im.v2.application.core',
-		'im.v2.lib.utils',
+		'im.v2.lib.esc-manager',
 	],
-	'skip_core' => false,
+	'skip_core' => true,
 ];

@@ -18,22 +18,14 @@ use Bitrix\Main\Localization\Loc;
 	'ui.hint',
 ]);
 
-if ($arResult['IS_SLIDER'])
-{
-	\CJSCore::init("sidepanel");
-	$APPLICATION->RestartBuffer();
-	?>
-	<!DOCTYPE html>
-	<html>
-	<head>
-		<? $APPLICATION->ShowHead(); ?>
-	</head>
-	<body>
-<? } ?>
-	<div class="<?= $arResult['IS_SLIDER'] ? 'main-numerator-edit-slider' : '' ?>
-	<?= htmlspecialcharsbx($arParams['CSS_WRAP_CLASS'] ?? ''); ?>"
-	>
-		<? if (!$arResult['IS_HIDE_PAGE_TITLE']): ?>
+$APPLICATION->setTitle($arResult['IS_EDIT']
+	? Loc::getMessage('NUMERATOR_EDIT_UPDATE_PAGE_TITLE')
+	: Loc::getMessage('NUMERATOR_EDIT_CREATE_PAGE_TITLE')
+);
+?>
+
+		<div class="<?= $arResult['IS_SLIDER'] ? 'main-numerator-edit-slider' : '' ?> <?= htmlspecialcharsbx($arParams['CSS_WRAP_CLASS'] ?? ''); ?>">
+		<? if (!$arResult['IS_HIDE_PAGE_TITLE'] && !$arResult['IS_SLIDER']): ?>
 			<div class="main-numerator-edit-title">
 				<div class="pagetitle-wrap">
 					<div class="pagetitle-inner-container">
@@ -167,7 +159,7 @@ if ($arResult['IS_SLIDER'])
 										</div>
 										<input type="<?= $setting['type'] == 'string' ? 'text' : 'number'; ?>"
 											   class="main-numerator-edit-input "
-											   value="<?= htmlspecialcharsbx($setting['value'])?>"
+											   value="<?= htmlspecialcharsbx($setting['value'] ?? '')?>"
 											   name="<?= $attributeName; ?>"
 										>
 									</div>
@@ -238,9 +230,3 @@ if ($arResult['IS_SLIDER'])
 			?>
 		</div>
 	</div>
-<? if ($arResult['IS_SLIDER'])
-{
-	?>
-	</body>
-	</html>
-<? } ?>

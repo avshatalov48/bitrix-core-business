@@ -158,7 +158,14 @@ class Site24
 		));
 
 		$httpClient->setHeader('User-Agent', 'Bitrix24 Sites');
-		$answer = $httpClient->post('https://pub.bitrix24.site/pub.php', $params);
+		if (in_array($license->getRegion(), ['ru', 'by', 'kz', 'uz']))
+		{
+			$answer = $httpClient->post('https://c.bitrix24.ru/pub.php', $params);
+		}
+		else
+		{
+			$answer = $httpClient->post('https://c.bitrix24.com/pub.php', $params);
+		}
 
 		$result = '';
 		if ($answer && $httpClient->getStatus() == '200')

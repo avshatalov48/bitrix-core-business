@@ -1,0 +1,22 @@
+<?php
+$MESS["JS_UI_VIEWER_DEFAULT_ERROR_TITLE"] = "Қате орын алды";
+$MESS["JS_UI_VIEWER_IMAGE_VIEW_FULL_SIZE_MSGVER_1"] = "Түпнұсқаны ашу";
+$MESS["JS_UI_VIEWER_ITEM_ACTION_DELETE"] = "Жою";
+$MESS["JS_UI_VIEWER_ITEM_ACTION_DOWNLOAD"] = "Жүктеу";
+$MESS["JS_UI_VIEWER_ITEM_ACTION_EDIT"] = "Редакциялау";
+$MESS["JS_UI_VIEWER_ITEM_ACTION_INFO"] = "Толығырақ";
+$MESS["JS_UI_VIEWER_ITEM_ACTION_PRINT"] = "Басып шығару";
+$MESS["JS_UI_VIEWER_ITEM_ACTION_ROTATE"] = "Айналдыру";
+$MESS["JS_UI_VIEWER_ITEM_ACTION_SHARE"] = "Бөлісу";
+$MESS["JS_UI_VIEWER_ITEM_PREPARING_TO_PRINT"] = "Құжатты басып шығаруға дайындау: #PROGRESS#%";
+$MESS["JS_UI_VIEWER_ITEM_TRANSFORMATION_ERROR"] = "Түрлендіру кезіндегі қате. Файлды ашу мүмкін болмады";
+$MESS["JS_UI_VIEWER_ITEM_TRANSFORMATION_ERROR_1"] = "Файлды ашу мүмкін болмады. Сіз оны <a href=\"#DOWNLOAD_LINK#\"target=\"_blank\"> жүктей аласыз</a>.";
+$MESS["JS_UI_VIEWER_ITEM_TRANSFORMATION_HINT"] = "<a href=\"#\" onclick='top.BX.Helper.show(\"redirect=detail&code=8775937\");event.preventDefault();'>Ықтимал себептері туралы толығырақ</a>.";
+$MESS["JS_UI_VIEWER_ITEM_TRANSFORMATION_IN_PROGRESS"] = "Түрлендіру жүруде";
+$MESS["JS_UI_VIEWER_ITEM_TRANSFORMATION_TIMEOUT"] = "Сәтсіз түрлендіру. Сіз файлды жүктей аласыз";
+$MESS["JS_UI_VIEWER_ITEM_UNKNOWN_DOWNLOAD_ACTION"] = "Файлды жүктеу";
+$MESS["JS_UI_VIEWER_ITEM_UNKNOWN_NOTICE"] = "Бірақ сіз оны компьютерден көре аласыз";
+$MESS["JS_UI_VIEWER_ITEM_UNKNOWN_TITLE"] = "Файл пішімі оқылмайды";
+$MESS["JS_UI_VIEWER_SINGLE_DOCUMENT_LISTING_PAGES"] = "#CURRENT#<div class=\"ui-viewer__single-document--listing-pages-all\">/#ALL#</div> бет";
+$MESS["JS_UI_VIEWER_SINGLE_DOCUMENT_SCALE_ZOOM_IN"] = "Үлкейту";
+$MESS["JS_UI_VIEWER_SINGLE_DOCUMENT_SCALE_ZOOM_OUT"] = "Кішірейту";

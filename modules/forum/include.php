@@ -74,10 +74,6 @@ if(!defined("CACHED_b_forum_user"))
 
 		"CForumNew" =>   "classes/" . $dbType . "/forum_new.php",
 		"CForumGroup" => "classes/" . $dbType . "/forum_new.php",
-		"CForumUser" => "classes/" . $dbType . "/user.php",
-		"CForumSubscribe" => "classes/" . $dbType . "/user.php",
-		"CForumRank" => "classes/" . $dbType . "/user.php",
-		"CForumStat" => "classes/" . $dbType . "/user.php",
 		"CForumSmile" => "classes/general/forum_new.php",
 		"_CForumDBResult"=>"classes/general/forum_new.php",
 
@@ -100,6 +96,11 @@ if(!defined("CACHED_b_forum_user"))
 		"CForumPoints" => "classes/mysql/points.php",
 		"CForumPoints2Post" => "classes/mysql/points.php",
 		"CForumUserPoints" => "classes/mysql/points.php",
+
+		"CForumRank" => "classes/mysql/user.php",
+		"CForumStat" => "classes/mysql/user.php",
+		"CForumSubscribe" => "classes/mysql/user.php",
+		"CForumUser" => "classes/mysql/user.php",
 
 		"CForumParameters" => "tools/components_lib.php",
 		"CForumEMail" => "mail/mail.php",

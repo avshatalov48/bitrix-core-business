@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS ['T_IBLOCK_MONTH_1'] = "Январь";
 $MESS ['T_IBLOCK_MONTH_2'] = "Февраль";
 $MESS ['T_IBLOCK_MONTH_3'] = "Март";
@@ -40,4 +40,3 @@ $MESS ['T_IBLOCK_DOW_6'] = "Сб";
 $MESS ['IBLOCK_DOWNLOAD'] = "Загрузить";
 $MESS['IBLOCK_FORMATPROPS_PROPERTY_YES'] = "Да";
 $MESS['IBLOCK_FORMATPROPS_PROPERTY_NO'] = "Нет";
-?>

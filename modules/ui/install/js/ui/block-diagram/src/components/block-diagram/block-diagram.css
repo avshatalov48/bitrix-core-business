@@ -1,0 +1,25 @@
+.ui-block-diagram {
+	position: relative;
+	height: 100%;
+	cursor: default;
+}
+
+.ui-block-diagram.--grabbing {
+	cursor: grabbing !important;
+}
+
+.ui-block-diagram.--cursor-ew-resize {
+	cursor: ew-resize !important;
+}
+
+.ui-block-diagram.--cursor-ns-resize {
+	cursor: ns-resize !important;
+}
+
+.ui-block-diagram.--cursor-nwse-resize {
+	cursor: nwse-resize !important;
+}
+
+.ui-block-diagram.--cursor-nesw-resize {
+	cursor: nesw-resize !important;
+}

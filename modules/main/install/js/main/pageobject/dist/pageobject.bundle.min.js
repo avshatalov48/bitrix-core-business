@@ -1,0 +1,2 @@
+(function(t){"use strict";const r={getRootWindow(){return r.getTopWindowOfCurrentHost(window)},isCrossOriginObject(t){try{void t.location.host}catch{return true}return false},getTopWindowOfCurrentHost(t){if(!r.isCrossOriginObject(t.parent)&&t.parent!==t&&t.parent.location.host===t.location.host){return r.getTopWindowOfCurrentHost(t.parent)}return t},getParentWindowOfCurrentHost(t){if(r.isCrossOriginObject(t.parent)){return t}return t.parent}};t.PageObject=r})(this.BX=this.BX||{});
+//# sourceMappingURL=pageobject.bundle.map.js

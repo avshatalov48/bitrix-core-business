@@ -83,11 +83,13 @@ if(!isset($aOptions["tabs"]) || !is_array($aOptions["tabs"]))
 	$aOptions["tabs"] = [];
 }
 
-if($arParams["USE_THEMES"] && $arParams["THEME_GRID_ID"] <> '')
+if($arParams["USE_THEMES"] && !empty($arParams["THEME_GRID_ID"]))
 {
 	$aGridOptions = CUserOptions::GetOption("main.interface.grid", $arParams["THEME_GRID_ID"], array());
-	if($aGridOptions["theme"] <> '')
+	if(!empty($aGridOptions["theme"]))
+	{
 		$aOptions["theme"] = $aGridOptions["theme"];
+	}
 }
 
 $arResult["OPTIONS"] = $aOptions;
@@ -96,11 +98,15 @@ $arResult["GLOBAL_OPTIONS"] = CUserOptions::GetOption("main.interface", "global"
 
 if($arParams["USE_THEMES"])
 {
-	if($arResult["GLOBAL_OPTIONS"]["theme_template"][SITE_TEMPLATE_ID] <> '')
+	if(!empty($arResult["GLOBAL_OPTIONS"]["theme_template"][SITE_TEMPLATE_ID]))
+	{
 		$arResult["GLOBAL_OPTIONS"]["theme"] = $arResult["GLOBAL_OPTIONS"]["theme_template"][SITE_TEMPLATE_ID];
+	}
 
-	if($arResult["OPTIONS"]["theme"] == '')
+	if(empty($arResult["OPTIONS"]["theme"]))
+	{
 		$arResult["OPTIONS"]["theme"] = $arResult["GLOBAL_OPTIONS"]["theme"];
+	}
 
 	$arResult["OPTIONS"]["theme"] = preg_replace("/[^a-z0-9_.-]/i", "", $arResult["OPTIONS"]["theme"]);
 }
@@ -124,7 +130,7 @@ foreach($arParams["TABS"] as $tab)
 	$tabId = $tab["id"];
 	$arResult["TABS"][$tabId] = $tab;
 	$aFields = array();
-	if(is_array($tab["fields"]))
+	if(isset($tab["fields"]) && is_array($tab["fields"]))
 	{
 		foreach($tab["fields"] as $field)
 		{

@@ -215,5 +215,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.SmileManager = SmileManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Dexie3,BX.Messenger.v2.Const,BX.Messenger.v2.Application,BX,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.DexieExport,BX.Messenger.v2.Const,BX.Messenger.v2.Application,BX,BX.Messenger.v2.Lib));
 //# sourceMappingURL=smile-manager.bundle.js.map

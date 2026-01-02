@@ -30,3 +30,6 @@ DROP TABLE if exists b_bp_workflow_user_comment;
 DROP TABLE if exists b_bp_workflow_result;
 DROP TABLE if exists b_bp_workflow_template_settings;
 DROP TABLE if exists b_bp_workflow_template_user_option;
+DROP TABLE if exists b_bp_document_type_user_option;
+DROP TABLE if exists b_bp_workflow_template_draft;
+DROP TABLE if exists b_bp_robot_version_index;

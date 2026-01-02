@@ -1,11 +1,12 @@
 <?php
 
-use Bitrix\Disk\File;
 use Bitrix\Im\Chat;
-use Bitrix\Im\V2\Chat\ChatFactory;
-use Bitrix\Main\Loader;
+use Bitrix\Im\V2\Link\File\FileCollection;
+use Bitrix\Im\V2\Link\File\FileItem;
+use Bitrix\Im\V2\Link\File\SubtypeGroup;
+use Bitrix\Im\V2\Permission\Action;
+use Bitrix\Im\V2\Rest\RestAdapter;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Type\DateTime;
 
 if (!CModule::IncludeModule('rest'))
@@ -171,6 +172,7 @@ class CIMRestService extends IRestService
 				'imbot.chat.user.delete' => array(__CLASS__, 'chatUserDelete'),
 				'imbot.chat.user.list' => array(__CLASS__, 'chatUserList'),
 				'imbot.chat.sendTyping' => array(__CLASS__, 'botSendTyping'),
+				'imbot.chat.updateTextFieldEnabled' => array(__CLASS__, 'botUpdateTextFieldEnabled'),
 
 				'imbot.bot.list' => array(__CLASS__, 'botList'),
 
@@ -196,6 +198,7 @@ class CIMRestService extends IRestService
 					'OnImBotMessageDelete' => array('im', 'onImBotMessageDelete', array(__CLASS__, 'onBotMessageDelete'), array("category" => \Bitrix\Rest\Sqs::CATEGORY_BOT, "sendRefreshToken" => true)),
 					'OnImBotJoinChat' => array('im', 'onImBotJoinChat', array(__CLASS__, 'onBotJoinChat'), array("category" => \Bitrix\Rest\Sqs::CATEGORY_BOT)),
 					'OnImBotDelete' => array('im', 'onImBotDelete', array(__CLASS__, 'onBotDelete'), array("category" => \Bitrix\Rest\Sqs::CATEGORY_BOT)),
+					'OnImBotContextGet' => array('im', 'onImBotContextGet', array(__CLASS__, 'onBotContextGet'), array("category" => \Bitrix\Rest\Sqs::CATEGORY_BOT, "sendRefreshToken" => true)),
 					'OnImCommandAdd' => array('im', 'onImCommandAdd', array(__CLASS__, 'onCommandAdd'), array("category" => \Bitrix\Rest\Sqs::CATEGORY_BOT, "sendRefreshToken" => true)),
 				),
 			)
@@ -538,7 +541,7 @@ class CIMRestService extends IRestService
 
 		$messages = \Bitrix\Im\V2\MessageCollection::find($filter, $order, $limit);
 
-		return (new \Bitrix\Im\V2\Rest\RestAdapter($messages))->toRestFormat();
+		return (new RestAdapter($messages))->toRestFormat();
 	}
 
 	public static function dialogContextGet($arParams, $n, CRestServer $server)
@@ -584,7 +587,7 @@ class CIMRestService extends IRestService
 		/** @var \Bitrix\Im\V2\MessageCollection $messages */
 		$messages = $result->getResult();
 
-		return (new \Bitrix\Im\V2\Rest\RestAdapter($messages))->toRestFormat();
+		return (new RestAdapter($messages))->toRestFormat();
 	}
 
 	public static function dialogUsersGet($arParams, $n, CRestServer $server)
@@ -1767,9 +1770,11 @@ class CIMRestService extends IRestService
 			throw new Bitrix\Rest\RestException('It is forbidden to add users to this chat', 'ACCESS_ERROR', CRestServer::STATUS_FORBIDDEN);
 		}
 
+		$skipAnalytics = false;
 		$userId = $USER->GetID();
 		if ($server->getMethod() == "imbot.chat.user.add")
 		{
+			$skipAnalytics = true;
 			$userId = self::getBotId($arParams, $server);
 		}
 
@@ -1800,7 +1805,13 @@ class CIMRestService extends IRestService
 		}
 
 		$CIMChat = new CIMChat($userId);
-		$result = $CIMChat->AddUser($arParams['CHAT_ID'], $arParams['USERS'], $hideHistory);
+		$result = $CIMChat->AddUser(
+			chatId: $arParams['CHAT_ID'],
+			userId: $arParams['USERS'],
+			hideHistory: $hideHistory,
+			skipAnalytics: $skipAnalytics
+		);
+
 		if (!$result)
 		{
 			throw new Bitrix\Rest\RestException("You don't have access or user already member in chat", "WRONG_REQUEST", CRestServer::STATUS_WRONG_REQUEST);
@@ -1923,7 +1934,7 @@ class CIMRestService extends IRestService
 
 		if (isset($arParams['DIALOG_ID']))
 		{
-			if (\Bitrix\Im\Common::isChatId($arParams['DIALOG_ID']))
+			if (\Bitrix\Im\Common::isDialogId($arParams['DIALOG_ID']))
 			{
 				$arParams['CHAT_ID'] = \Bitrix\Im\Dialog::getChatId($arParams['DIALOG_ID']);
 			}
@@ -1933,13 +1944,14 @@ class CIMRestService extends IRestService
 			}
 		}
 
-		$arParams['CHAT_ID'] = intval($arParams['CHAT_ID']);
+		$arParams['CHAT_ID'] = (int)$arParams['CHAT_ID'];
 		if ($arParams['CHAT_ID'] <= 0)
 		{
 			throw new Bitrix\Rest\RestException("Chat ID can't be empty", "CHAT_ID_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
 		}
 
-		if (!Chat::isActionAllowed('chat' . $arParams['CHAT_ID'], 'MUTE'))
+		$chat = \Bitrix\Im\V2\Chat::getInstance($arParams['CHAT_ID']);
+		if (!$chat->canDo(Action::Mute))
 		{
 			throw new Bitrix\Rest\RestException('This chat cannot be muted', 'ACCESS_ERROR', CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2027,7 +2039,7 @@ class CIMRestService extends IRestService
 
 		$urls = \Bitrix\Im\V2\Link\Url\UrlCollection::find($filter, $order, $limit, new \Bitrix\Im\V2\Service\Context(), $offset);
 
-		return (new \Bitrix\Im\V2\Rest\RestAdapter($urls))->toRestFormat();
+		return (new RestAdapter($urls))->toRestFormat();
 	}
 
 	public static function chatUrlDelete($arParams, $n, CRestServer $server)
@@ -2109,6 +2121,7 @@ class CIMRestService extends IRestService
 			'CHAT_ID' => $arParams['CHAT_ID'] ?? null,
 			'DATE_FROM' => $arParams['DATE_FROM'] ? new DateTime($arParams['DATE_FROM'], DateTimeInterface::RFC3339) : null,
 			'DATE_TO' => $arParams['DATE_TO'] ? new DateTime($arParams['DATE_TO'], DateTimeInterface::RFC3339) : null,
+			'GROUP' => $arParams['GROUP'] ?? null,
 		];
 		$limit = self::getLimit($arParams);
 		$order = [
@@ -2129,7 +2142,11 @@ class CIMRestService extends IRestService
 
 		if (isset($filter['SUBTYPE']))
 		{
-			$filter['SUBTYPE'] = \Bitrix\Im\V2\Link\File\FileItem::getSubtypeFromJsonFormat($filter['SUBTYPE']);
+			$filter['SUBTYPE'] = FileItem::normalizeFilterFromJsonFormat($filter['SUBTYPE']);
+		}
+		elseif (isset($filter['GROUP']))
+		{
+			$filter['GROUP'] = FileItem::normalizeFilterFromJsonFormat($filter['GROUP']);
 		}
 
 		$startId = $chat->getStartId();
@@ -2139,9 +2156,9 @@ class CIMRestService extends IRestService
 			$filter['START_ID'] = $startId;
 		}
 
-		$files = \Bitrix\Im\V2\Link\File\FileCollection::find($filter, $order, $limit, new \Bitrix\Im\V2\Service\Context());
+		$files = FileCollection::find($filter, $order, $limit, new \Bitrix\Im\V2\Service\Context());
 
-		return (new \Bitrix\Im\V2\Rest\RestAdapter($files))->toRestFormat();
+		return (new RestAdapter($files))->toRestFormat();
 	}
 
 	public static function chatFileCollectionGet($arParams, $n, CRestServer $server)
@@ -2171,13 +2188,12 @@ class CIMRestService extends IRestService
 			$filter['START_ID'] = $startId;
 		}
 
-		$files = new \Bitrix\Im\V2\Link\File\FileCollection();
+		$files = new FileCollection();
 
-		foreach (\Bitrix\Im\V2\Link\File\FileItem::ALLOWED_SUBTYPE as $subtype)
+		foreach (SubtypeGroup::cases() as $subtypeGroup)
 		{
-			$filter['SUBTYPE'] = $subtype;
-
-			$filesBySubtype = \Bitrix\Im\V2\Link\File\FileCollection::find($filter, [], $limit);
+			$filter['GROUP'] = $subtypeGroup->value;
+			$filesBySubtype = FileCollection::find($filter, [], $limit);
 
 			foreach ($filesBySubtype as $fileBySubtype)
 			{
@@ -2185,7 +2201,7 @@ class CIMRestService extends IRestService
 			}
 		}
 
-		return (new \Bitrix\Im\V2\Rest\RestAdapter($files))->toRestFormat();
+		return (new RestAdapter($files))->toRestFormat();
 	}
 
 	public static function chatFavoriteGet($arParams, $n, CRestServer $server)
@@ -2218,7 +2234,7 @@ class CIMRestService extends IRestService
 
 		$favoriteMessage = \Bitrix\Im\V2\Link\Favorite\FavoriteCollection::find($filter, $order, $limit);
 
-		return (new \Bitrix\Im\V2\Rest\RestAdapter($favoriteMessage))->toRestFormat();
+		return (new RestAdapter($favoriteMessage))->toRestFormat();
 	}
 
 	public static function chatFavoriteAdd($arParams, $n, CRestServer $server)
@@ -2344,7 +2360,7 @@ class CIMRestService extends IRestService
 
 		$tasks = \Bitrix\Im\V2\Link\Task\TaskCollection::find($filter, $order, $limit);
 
-		return (new \Bitrix\Im\V2\Rest\RestAdapter($tasks))->toRestFormat();
+		return (new RestAdapter($tasks))->toRestFormat();
 	}
 
 	public static function chatTaskDelete($arParams, $n, CRestServer $server)
@@ -2492,7 +2508,7 @@ class CIMRestService extends IRestService
 
 		$calendars = \Bitrix\Im\V2\Link\Calendar\CalendarCollection::find($filter, $order, $limit);
 
-		return (new \Bitrix\Im\V2\Rest\RestAdapter($calendars))->toRestFormat();
+		return (new RestAdapter($calendars))->toRestFormat();
 	}
 
 	public static function chatCalendarAdd($arParams, $n, CRestServer $server)
@@ -2546,8 +2562,6 @@ class CIMRestService extends IRestService
 			}
 		}
 
-		$chatId = $chat->getChatId();
-
 		$calendarId = $arParams['CALENDAR_ID'];
 
 		$calendarService = new \Bitrix\Im\V2\Link\Calendar\CalendarService();
@@ -2560,7 +2574,7 @@ class CIMRestService extends IRestService
 			throw new \Bitrix\Rest\RestException('You do not have access to this calendar event', Bitrix\Im\V2\Entity\Calendar\CalendarError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
 
-		$saveResult = $calendarService->registerCalendar($chatId, $messageId, $calendar);
+		$saveResult = $calendarService->registerCalendar($chat, $messageId, $calendar);
 		if (!$saveResult->isSuccess())
 		{
 			$error = $saveResult->getErrors()[0];
@@ -2768,7 +2782,7 @@ class CIMRestService extends IRestService
 
 		$pins = \Bitrix\Im\V2\Link\Pin\PinCollection::find($filter, $order, $limit);
 
-		return (new \Bitrix\Im\V2\Rest\RestAdapter($pins))->toRestFormat();
+		return (new RestAdapter($pins))->toRestFormat();
 	}
 
 	public static function chatPinAdd($arParams, $n, CRestServer $server)
@@ -2888,7 +2902,7 @@ class CIMRestService extends IRestService
 
 		$reminders = \Bitrix\Im\V2\Link\Reminder\ReminderCollection::find($filter, $order, $limit);
 
-		return (new \Bitrix\Im\V2\Rest\RestAdapter($reminders))->toRestFormat();
+		return (new RestAdapter($reminders))->toRestFormat();
 	}
 
 	public static function chatReminderAdd($arParams, $n, CRestServer $server)
@@ -3001,6 +3015,15 @@ class CIMRestService extends IRestService
 
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 		$arParams['MESSAGE'] = self::getRawParam('MESSAGE') ?? $arParams['MESSAGE'] ?? null;
+
+		if (
+			 isset($arParams['PLATFORM_CONTEXT'])
+			 && is_string($arParams['PLATFORM_CONTEXT'])
+			 && $server->getAuthType() !== \Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE
+		)
+		{
+			\Bitrix\Im\Bot::setPlatformContext($arParams['PLATFORM_CONTEXT']);
+		}
 
 		if (isset($arParams['MESSAGE']))
 		{
@@ -3270,6 +3293,15 @@ class CIMRestService extends IRestService
 	{
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 		$arParams['MESSAGE'] = self::getRawParam('MESSAGE') ?? $arParams['MESSAGE'] ?? null;
+
+		if (
+			isset($arParams['PLATFORM_CONTEXT'])
+			&& is_string($arParams['PLATFORM_CONTEXT'])
+			&& $server->getAuthType() !== \Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE
+		)
+		{
+			\Bitrix\Im\Bot::setPlatformContext($arParams['PLATFORM_CONTEXT']);
+		}
 
 		if (isset($arParams['MESSAGE_ID']))
 		{
@@ -4009,6 +4041,7 @@ class CIMRestService extends IRestService
 		}
 
 		$options['CONVERT_TEXT'] = isset($arParams['CONVERT_TEXT']) && $arParams['CONVERT_TEXT'] === 'Y';
+		$options['GROUP_TAG'] = (string)($arParams['GROUP_TAG'] ?? '');
 
 		$notify = new \Bitrix\Im\Notify($options);
 
@@ -4071,7 +4104,7 @@ class CIMRestService extends IRestService
 
 		$files = (new \Bitrix\Im\V2\Link\File\FileService())->getFilesBeforeMigrationFinished($chatId, $limit, $lastId, $fileName);
 
-		return (new \Bitrix\Im\V2\Rest\RestAdapter($files))->toRestFormat();
+		return (new RestAdapter($files))->toRestFormat();
 	}
 
 	public static function diskFolderGet($arParams, $n, CRestServer $server)
@@ -4221,6 +4254,11 @@ class CIMRestService extends IRestService
 			$arParams['FILE_TEMPLATE_ID'] = mb_substr((string)$arParams['FILE_TEMPLATE_ID'], 0, 255);
 		}
 
+		if (empty($arParams['TRANSCRIBABLE_FILE_IDS']) || !is_array($arParams['TRANSCRIBABLE_FILE_IDS']))
+		{
+			$arParams['TRANSCRIBABLE_FILE_IDS'] = [];
+		}
+
 		$result = CIMDisk::UploadFileFromDisk($chatId, array_values($files), $arParams['MESSAGE'], [
 			'LINES_SILENT_MODE' => $arParams['SILENT_MODE'],
 			'TEMPLATE_ID' => $arParams['TEMPLATE_ID']?:'',
@@ -4228,6 +4266,7 @@ class CIMRestService extends IRestService
 			'SYMLINK' => $arParams['SYMLINK']?:false,
 			'AS_FILE' => $arParams['AS_FILE'] ?? 'N',
 			'WAIT_FULL_EXECUTION' => 'N',
+			'TRANSCRIBABLE_FILE_IDS' => $arParams['TRANSCRIBABLE_FILE_IDS'],
 		]);
 		if (!$result)
 		{
@@ -4384,7 +4423,7 @@ class CIMRestService extends IRestService
 
 		if (isset($arParams['EVENT_HANDLER']) && !empty($arParams['EVENT_HANDLER']))
 		{
-			$arParams['EVENT_MESSAGE_ADD'] = $arParams['EVENT_MESSAGE_UPDATE'] = $arParams['EVENT_MESSAGE_DELETE'] = $arParams['EVENT_WELCOME_MESSAGE'] = $arParams['EVENT_BOT_DELETE']	= $arParams['EVENT_HANDLER'];
+			$arParams['EVENT_MESSAGE_ADD'] = $arParams['EVENT_MESSAGE_UPDATE'] = $arParams['EVENT_MESSAGE_DELETE'] = $arParams['EVENT_WELCOME_MESSAGE'] = $arParams['EVENT_BOT_DELETE'] = $arParams['EVENT_CONTEXT_GET'] = $arParams['EVENT_HANDLER'];
 		}
 
 		if (isset($arParams['EVENT_MESSAGE_ADD']) && !empty($arParams['EVENT_MESSAGE_ADD']))
@@ -4436,6 +4475,22 @@ class CIMRestService extends IRestService
 			catch(Exception $e)
 			{
 				throw new Bitrix\Rest\RestException($e->getMessage(), "EVENT_MESSAGE_DELETE_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+
+		if (isset($arParams['EVENT_CONTEXT_GET']) && !empty($arParams['EVENT_CONTEXT_GET']))
+		{
+			if ($customClientId)
+			{
+				$arParams['EVENT_CONTEXT_GET'] .= (mb_strpos($arParams['EVENT_CONTEXT_GET'], '?') === false ? '?' : '&') . 'CLIENT_ID=' . $arParams['CLIENT_ID'];
+			}
+			try
+			{
+				\Bitrix\Rest\HandlerHelper::checkCallback($arParams['EVENT_CONTEXT_GET'], $arApp);
+			}
+			catch(Exception $e)
+			{
+				throw new Bitrix\Rest\RestException($e->getMessage(), "EVENT_CONTEXT_GET_ERROR", CRestServer::STATUS_WRONG_REQUEST);
 			}
 		}
 
@@ -4592,6 +4647,12 @@ class CIMRestService extends IRestService
 				self::bindEvent($arApp['ID'], $arApp['CLIENT_ID'], 'im', 'onImBotMessageDelete', 'OnImBotMessageDelete', $arParams['EVENT_MESSAGE_DELETE']);
 			}
 
+			if ($arParams['EVENT_CONTEXT_GET'])
+			{
+				self::unbindEvent($arApp['ID'], $arApp['CLIENT_ID'], 'im', 'onImBotContextGet', 'OnImBotContextGet', true);
+				self::bindEvent($arApp['ID'], $arApp['CLIENT_ID'], 'im', 'onImBotContextGet', 'OnImBotContextGet', $arParams['EVENT_CONTEXT_GET']);
+			}
+
 			self::unbindEvent($arApp['ID'], $arApp['CLIENT_ID'], 'im', 'onImBotJoinChat', 'OnImBotJoinChat', true);
 			self::bindEvent($arApp['ID'], $arApp['CLIENT_ID'], 'im', 'onImBotJoinChat', 'OnImBotJoinChat', $arParams['EVENT_WELCOME_MESSAGE']);
 
@@ -4653,6 +4714,7 @@ class CIMRestService extends IRestService
 			self::unbindEvent("", $arParams['CLIENT_ID'], 'im', 'onImBotMessageDelete', 'OnImBotMessageDelete', true);
 			self::unbindEvent("", $arParams['CLIENT_ID'], 'im', 'onImBotJoinChat', 'OnImBotJoinChat', true);
 			self::unbindEvent("", $arParams['CLIENT_ID'], 'im', 'onImBotDelete', 'OnImBotDelete', true);
+			self::unbindEvent("", $arParams['CLIENT_ID'], 'im', 'onImBotContextGet', 'OnImBotContextGet', true);
 		}
 
 		return true;
@@ -4705,7 +4767,7 @@ class CIMRestService extends IRestService
 
 		if (isset($arParams['FIELDS']['EVENT_HANDLER']) && !empty($arParams['FIELDS']['EVENT_HANDLER']))
 		{
-			$arParams['FIELDS']['EVENT_MESSAGE_ADD'] = $arParams['FIELDS']['EVENT_MESSAGE_UPDATE'] = $arParams['FIELDS']['EVENT_MESSAGE_DELETE'] = $arParams['FIELDS']['EVENT_WELCOME_MESSAGE'] = $arParams['FIELDS']['EVENT_BOT_DELETE'] = $arParams['FIELDS']['EVENT_HANDLER'];
+			$arParams['FIELDS']['EVENT_MESSAGE_ADD'] = $arParams['FIELDS']['EVENT_MESSAGE_UPDATE'] = $arParams['FIELDS']['EVENT_MESSAGE_DELETE'] = $arParams['FIELDS']['EVENT_WELCOME_MESSAGE'] = $arParams['FIELDS']['EVENT_BOT_DELETE'] = $arParams['FIELDS']['EVENT_CONTEXT_GET'] = $arParams['FIELDS']['EVENT_HANDLER'];
 		}
 
 		if (isset($arParams['FIELDS']['EVENT_MESSAGE_ADD']) && !empty($arParams['FIELDS']['EVENT_MESSAGE_ADD']))
@@ -4756,6 +4818,23 @@ class CIMRestService extends IRestService
 			catch(Exception $e)
 			{
 				throw new Bitrix\Rest\RestException($e->getMessage(), "EVENT_MESSAGE_DELETE_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+
+		if (!empty($arParams['FIELDS']['EVENT_CONTEXT_GET']))
+		{
+			$updateEvents['EVENT_CONTEXT_GET'] = $arParams['FIELDS']['EVENT_CONTEXT_GET'];
+			if ($customClientId)
+			{
+				$updateEvents['EVENT_CONTEXT_GET'] .= (mb_strpos($updateEvents['EVENT_CONTEXT_GET'], '?') === false ? '?' : '&') . 'CLIENT_ID=' . $arParams['CLIENT_ID'];
+			}
+			try
+			{
+				\Bitrix\Rest\HandlerHelper::checkCallback($arParams['FIELDS']['EVENT_CONTEXT_GET'], $arApp);
+			}
+			catch(Exception $e)
+			{
+				throw new Bitrix\Rest\RestException($e->getMessage(), "EVENT_CONTEXT_GET_ERROR", CRestServer::STATUS_WRONG_REQUEST);
 			}
 		}
 
@@ -4919,6 +4998,11 @@ class CIMRestService extends IRestService
 		{
 			self::unbindEvent($arApp['ID'], $arApp['CLIENT_ID'], 'im', 'onImBotDelete', 'OnImBotDelete', true);
 			self::bindEvent($arApp['ID'], $arApp['CLIENT_ID'], 'im', 'onImBotDelete', 'OnImBotDelete', $updateEvents['EVENT_BOT_DELETE']);
+		}
+		if (isset($updateEvents['EVENT_CONTEXT_GET']))
+		{
+			self::unbindEvent($arApp['ID'], $arApp['CLIENT_ID'], 'im', 'onImBotContextGet', 'OnImBotContextGet', true);
+			self::bindEvent($arApp['ID'], $arApp['CLIENT_ID'], 'im', 'onImBotContextGet', 'OnImBotContextGet', $updateEvents['EVENT_CONTEXT_GET']);
 		}
 
 		return true;
@@ -5493,6 +5577,49 @@ class CIMRestService extends IRestService
 		return true;
 	}
 
+	public static function botUpdateTextFieldEnabled($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+
+		if (isset($arParams['DIALOG_ID']))
+		{
+			if (\Bitrix\Im\Common::isChatId($arParams['DIALOG_ID']))
+			{
+				$arParams['CHAT_ID'] = \Bitrix\Im\Dialog::getChatId($arParams['DIALOG_ID']);
+			}
+			else
+			{
+				throw new Bitrix\Rest\RestException("Dialog ID can't be empty", "DIALOG_ID_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+
+		$arParams['CHAT_ID'] = (int)$arParams['CHAT_ID'];
+
+		if ($arParams['CHAT_ID'] <= 0)
+		{
+			throw new Bitrix\Rest\RestException("Chat ID can't be empty", "CHAT_ID_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (!isset($arParams['TEXT_FIELD_ENABLED']))
+		{
+			throw new Bitrix\Rest\RestException(" text field enabled can't be empty", "TEXT_FIELD_ENABLED_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$arParams['TEXT_FIELD_ENABLED'] = $arParams['TEXT_FIELD_ENABLED'] !== 'N';
+
+		$botId = self::getBotId($arParams, $server);
+
+		$chat = \Bitrix\Im\V2\Chat::getInstance($arParams['CHAT_ID']);
+		if (!$chat->withContextUser((int)$botId)->checkAccess()->isSuccess())
+		{
+			throw new Bitrix\Rest\RestException("Bot don't have access to this chat", "ACCESS_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		(new \Bitrix\Im\V2\Chat\TextField\TextFieldEnabled($chat->getChatId()))->set($arParams['TEXT_FIELD_ENABLED']);
+
+		return true;
+	}
+
 	public static function dialogVote($arParams, $offset, CRestServer $server)
 	{
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
@@ -5946,7 +6073,70 @@ class CIMRestService extends IRestService
 		);
 	}
 
+	public static function onBotContextGet($arParams, $arHandler): array
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
+		if (!$arHandler['APP_CODE'])
+		{
+			$parts = parse_url($arHandler['EVENT_HANDLER']);
+			parse_str($parts['query'], $query);
+			$query = array_change_key_case($query, CASE_UPPER);
+			if ($query['CLIENT_ID'])
+			{
+				$arHandler['APP_CODE'] = 'custom'.$query['CLIENT_ID'];
+			}
+		}
+
+		if (!$arHandler['APP_CODE'])
+		{
+			throw new Exception('Event is intended for another application');
+		}
+
+
+		$bots = [];
+		foreach ($arParams[0] as $botData)
+		{
+			if ($botData['APP_ID'] == $arHandler['APP_CODE'])
+			{
+				$sendBotData = self::getAccessToken($arHandler['APP_ID'], $botData['BOT_ID']);
+				$sendBotData['AUTH'] = $sendBotData;
+				$sendBotData['BOT_ID'] = $botData['BOT_ID'];
+				$sendBotData['BOT_CODE'] = $botData['CODE'];
+				$bots[$botData['BOT_ID']] = $sendBotData;
+			}
+		}
+
+		if (empty($bots))
+		{
+			throw new Exception('Event is intended for another application');
+		}
+
+		$params = $arParams[2];
+		$params['DIALOG_ID'] = $arParams[1];
+		$params['LANGUAGE'] = \Bitrix\Im\Bot::getDefaultLanguage();
+
+		$user = [];
+		if ($params['USER_ID'] > 0)
+		{
+			$fromUser = \Bitrix\Im\User::getInstance($params['USER_ID'])->getFields();
+
+			$user = [
+				'ID' => $fromUser['id'],
+				'NAME' => $fromUser['name'],
+				'FIRST_NAME' => $fromUser['first_name'],
+				'LAST_NAME' => $fromUser['last_name'],
+				'WORK_POSITION' => $fromUser['work_position'],
+				'GENDER' => $fromUser['gender'],
+			];
+		}
+
+		return [
+			'BOT' => $bots,
+			'PARAMS' => $params,
+			'USER' => $user,
+		];
+	}
 
 	public static function commandRegister($arParams, $n, CRestServer $server)
 	{
@@ -6972,11 +7162,13 @@ class CIMRestService extends IRestService
 			}
 		}
 
+		\Bitrix\Main\Loader::includeModule('call');
 		//5. return id and hash
 		$result = [
 			'id' => (int)$userData['ID'],
 			'hash' => $userData['HASH'],
-			'created' => $userData['CREATED']
+			'created' => $userData['CREATED'],
+			'userToken' => \Bitrix\Call\JwtCall::getUserJwt((int)$userData['ID']),
 		];
 
 		$_SESSION['CALL']['REGISTER'] = $result;
@@ -6990,6 +7182,8 @@ class CIMRestService extends IRestService
 		CIMNotify::Add(
 			[
 				'TO_USER_ID' => $chatOwnerId,
+				'NOTIFY_MODULE' => 'im',
+				'NOTIFY_EVENT' => 'videconf_new_guest',
 				'MESSAGE' => fn (?string $languageId = null) => Loc::getMessage(
 						"IM_VIDEOCONF_NEW_GUEST",
 						['#CHAT_TITLE#' => $chatTitle],

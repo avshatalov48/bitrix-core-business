@@ -1,9 +1,8 @@
 import { Core } from 'im.v2.application.core';
-import { Button as ChatButton, ButtonSize } from 'im.v2.component.elements';
+import { ChatButton, ButtonSize, type CustomColorScheme } from 'im.v2.component.elements.button';
 import { Color } from 'im.v2.const';
-import { ChatService } from 'im.v2.provider.service';
+import { ChatService } from 'im.v2.provider.service.chat';
 
-import type { CustomColorScheme } from 'im.v2.component.elements';
 import type { ImModelChat } from 'im.v2.model';
 
 const BUTTON_BACKGROUND_COLOR = 'rgba(0, 0, 0, 0.1)';

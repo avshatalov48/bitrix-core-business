@@ -31,6 +31,7 @@ use Bitrix\Photogallery\Copy\Integration\Group as PhotoFeature;
 use Bitrix\Socialnetwork\Component\WorkgroupForm;
 use Bitrix\Socialnetwork\Copy\GroupManager;
 use Bitrix\Socialnetwork\Item\Workgroup;
+use Bitrix\Socialnetwork\WorkgroupSiteTable;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Tasks\Copy\Integration\Group as TasksFeature;
 
@@ -298,6 +299,14 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 		$this->arResult["LIST"] = $this->getListToGroupSelector();
 		$this->arResult["GROUP"] = $this->getGroupData();
 		$this->arResult["IS_EXTRANET_GROUP"] = (($this->arResult["GROUP"]["IS_EXTRANET_GROUP"] == "Y") ? "Y" : "N");
+		$this->arResult["IS_ALLOW_CREATE_EXTRANET_GROUP"] = $this->isAllowCreateExtranetGroup();
+	}
+
+	private function isAllowCreateExtranetGroup(): bool
+	{
+		$isExtranetForGroupsEnabled = (bool)Option::get('socialnetwork', 'enable_extranet_for_groups', 0);
+
+		return Loader::includeModule('extranet') && $isExtranetForGroupsEnabled;
 	}
 
 	private function checkRequiredCreationParams($post)
@@ -613,7 +622,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 			"VISIBLE" => ($post["visible"] == "Y" ? "Y" : "N"),
 			"OPENED" => ($post["opened"] == "Y" ? "Y" : "N"),
 			"CLOSED" => ($post["closed"] == "Y" ? "Y" : "N"),
-			"IS_EXTRANET_GROUP" => ($post["extranet_group"] == "Y" ? "Y" : "N"),
+			"IS_EXTRANET_GROUP" => (($post["extranet_group"] ?? null) === "Y") ? "Y" : "N",
 			"SUBJECT_ID" => $post["subject_id"],
 			"KEYWORDS" => $post["keywords"],
 			"INITIATE_PERMS" => $post["initiate_perms"],
@@ -644,43 +653,57 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 			}
 		}
 
-		if ($this->isExtranet())
-		{
-			$siteIds = [];
-			$queryObject = WorkgroupTable::getList([
-				"filter" => [
-					"GROUP_ID" => $post["id"]
-				],
-				"select" => ["SITE_ID"]
-			]);
-			while ($fields = $queryObject->fetch())
-			{
-				$siteIds[] = $fields["SITE_ID"];
-			}
-			$siteIds[] = $this->getSiteId();
-
-			$siteIds = array_unique($siteIds);
-			if (!empty($siteIds))
-			{
-				$changedFields["SITE_ID"] = $siteIds;
-			}
-		}
-		else
-		{
-			$changedFields["SITE_ID"] = [$this->getSiteId()];
-			if (
-				Loader::includeModule("extranet") &&
-				!CExtranet::isExtranetSite() &&
-				($post["is_extranet_group"] ?? null) == "Y"
-			)
-			{
-				$changedFields["SITE_ID"][] = CExtranet::getExtranetSiteID();
-				$changedFields["VISIBLE"] = "N";
-				$changedFields["OPENED"] = "N";
-			}
-		}
+		$this->prepareChangedFieldsByExtranetRules((int)$post['id'], $changedFields);
 
 		return $changedFields;
+	}
+
+	private function prepareChangedFieldsByExtranetRules(int $groupId, array &$changedFields): void
+	{
+		$isAllowCreateExtranetGroup = $this->isAllowCreateExtranetGroup();
+		$changedFields['IS_EXTRANET_GROUP'] = $isAllowCreateExtranetGroup ? 'Y' : 'N';
+
+		$siteIds[] = $this->getSiteId();
+		if (!Loader::includeModule('extranet'))
+		{
+			$changedFields['SITE_ID'] = $siteIds;
+		}
+
+		if (CExtranet::isExtranetSite())
+		{
+			$groupSites = WorkgroupSiteTable::query()
+				->setSelect(['SITE_ID'])
+				->where('GROUP_ID', $groupId)
+				->exec()
+				->fetchCollection()
+			;
+
+			$groupSiteIds = $groupSites?->getSiteIdList();
+			if (!empty($groupSiteIds))
+			{
+				$siteIds = array_merge($groupSiteIds, $siteIds);
+			}
+		}
+		elseif ($isAllowCreateExtranetGroup && ($changedFields['IS_EXTRANET_GROUP'] === 'Y'))
+		{
+			$siteIds[] = CExtranet::getExtranetSiteID();
+			$changedFields['VISIBLE'] = 'N';
+			$changedFields['OPENED'] = 'N';
+		}
+
+		$siteIds = array_unique($siteIds);
+		if (!$isAllowCreateExtranetGroup)
+		{
+			$extranetSiteId = CExtranet::getExtranetSiteID();
+			array_filter($siteIds, static fn($siteId) => $siteId !== $extranetSiteId);
+		}
+
+		if (empty($siteIds))
+		{
+			throw new \InvalidArgumentException('Site id cannot be empty');
+		}
+
+		$changedFields['SITE_ID'] = $siteIds;
 	}
 
 	/**

@@ -1,0 +1,28 @@
+<?php
+$MESS["SENDER_COMP_TMPL_TOLOKA_PATTERN_TITLE"] = " %date%-дан %name%";
+$MESS["SENDER_FIELD_REQUIRED"] = "Міндетті түрде толтырылатын өріс";
+$MESS["SENDER_SEGMENT_SELECTOR_INCLUDE_EDIT_TITLE"] = "Қандай сегменттерді өңдеу керек";
+$MESS["SENDER_TOLOKA_ADD_FILTER"] = "Сүзгілер";
+$MESS["SENDER_TOLOKA_ADD_POOL"] = "Пулды қосу";
+$MESS["SENDER_TOLOKA_ADD_PROJECT"] = "Жоба қосу";
+$MESS["SENDER_TOLOKA_ADULT_CONTENT"] = "Ересектерге арналған контент пайдалану";
+$MESS["SENDER_TOLOKA_APPLY"] = "Қолдану";
+$MESS["SENDER_TOLOKA_CANCEL_ALT"] = "Болдырмау";
+$MESS["SENDER_TOLOKA_CLOSE"] = "Жабу";
+$MESS["SENDER_TOLOKA_CONNECT"] = "Қосу";
+$MESS["SENDER_TOLOKA_CONNECT_DESCRIPTION"] = "Яндекс.Толока қосылу үшін, тіркелгеннен кейін сіз авторландыру белгісін алып, төмендегі нысанды толтыруыңыз керек";
+$MESS["SENDER_TOLOKA_CONNECT_HELP"] = "Мен қалаймын";
+$MESS["SENDER_TOLOKA_CONNECT_INSTRUCTION"] = "Яндекс.Толока қосылу нұсқаулығы";
+$MESS["SENDER_TOLOKA_CONNECT_TITLE"] = "Яндекс.Толока қосылсын";
+$MESS["SENDER_TOLOKA_CREATE"] = "Жасау";
+$MESS["SENDER_TOLOKA_EDIT"] = "Редакциялау";
+$MESS["SENDER_TOLOKA_EDIT_CHANGE_TEMPLATE"] = "Қалыпты өзгерту";
+$MESS["SENDER_TOLOKA_EDIT_FIELD_NAME"] = "Жоба және пулдың атауы";
+$MESS["SENDER_TOLOKA_EDIT_OUTSIDE_ADD_SUCCESS"] = "Міндет сәтті сақталды!<br>Оны CRM-маркетингте,<a href=\"%path%\">Яндекс Толока</a> бөлімінде табуға болады";
+$MESS["SENDER_TOLOKA_ERROR_ACTION"] = "Қате";
+$MESS["SENDER_TOLOKA_MAX_POEOPLE_COUNT"] = "Орындаушылардың барынша көп саны";
+$MESS["SENDER_TOLOKA_OAUTH_TITLE"] = "Yandex.Toloka жеке кабинетінен oauth токенін көрсетіңіз:";
+$MESS["SENDER_TOLOKA_PRICE"] = "Орындалғаны үшін АҚШ долларымен құны (Яндекс комиссиясы 2%)";
+$MESS["SENDER_TOLOKA_TASKS"] = "Тапсырмаларға сілтемелер үтір арқылы";
+$MESS["SENDER_TOLOKA_TASK_MAX_TIME"] = "Тапсырманы орындауға барынша көп уақыт";
+$MESS["SENDER_TOLOKA_TITLE"] = "Яндекс.Толока";

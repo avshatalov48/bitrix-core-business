@@ -1,0 +1,20 @@
+<?php
+$MESS["BLG_GB_BAD_URL"] = "Латын атауында тек латын әріптері, сандар, сызықша белгілері және астын сызу болуы мүмкін";
+$MESS["BLG_GB_DUBLICATE_NAME"] = "Мұндай атауы бар блог бұрыннан бар";
+$MESS["BLG_GB_DUBLICATE_URL"] = "Латын тіліндегі мұндай атауы бар блог бұрыннан бар";
+$MESS["BLG_GB_EMPTY_DATE_CREATE"] = "Блогтың құрылған күні дұрыс көрсетілмеген";
+$MESS["BLG_GB_EMPTY_DATE_UPDATE"] = "Блог параметрлерінің өзгертілген күні дұрыс көрсетілмеген";
+$MESS["BLG_GB_EMPTY_GROUP_ID"] = "Блог кіретін топ көрсетілмеген";
+$MESS["BLG_GB_EMPTY_LAST_POST_DATE"] = "Блогтағы соңғы жазбаның жасалған күні дұрыс көрсетілмеген";
+$MESS["BLG_GB_EMPTY_NAME"] = "Блогтың атауы көрсетілмеген";
+$MESS["BLG_GB_EMPTY_OWNER_ID"] = "Блогтың иесі көрсетілмеген";
+$MESS["BLG_GB_EMPTY_URL"] = "Блогтың атауы латын тілінде көрсетілмеген";
+$MESS["BLG_GB_ERROR_NO_GROUP_ID"] = "Блогты қамтитын топ қате көрсетілген";
+$MESS["BLG_GB_ERROR_NO_OWNER_ID"] = "Блог иесінің коды дұрыс көрсетілмеген";
+$MESS["BLG_GB_RESERVED_NAME"] = "Блогтың атауы &quot;#NAME#&quot; латынша болуы мүмкін емес";
+$MESS["BLG_GB_RSS_DETAIL"] = "Толығырақ...";
+$MESS["BLG_RSS_ALL_GROUP_TITLE"] = "Топтың блогтар хабарламалары ";
+$MESS["BLG_RSS_ALL_TITLE"] = "Сайттың блогтар хабарламалары ";
+$MESS["BLG_RSS_NAME_SONET"] = "#AUTHOR_NAME#: Хабарламалар";
+$MESS["BLG_RSS_NAME_SONET_GROUP"] = "\"#GROUP_NAME#\" тобы: Хабарламалар";
+$MESS["BLG_TRY_AGAIN"] = "Блогты қосу кезінде қате пайда болды, қайталап көріңіз";

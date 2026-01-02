@@ -12,6 +12,7 @@ use Bitrix\Main\Errorable;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\HttpResponse;
+use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\Contract;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
@@ -19,6 +20,12 @@ use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Rest\Engine\ScopeManager;
 use Bitrix\Rest\RestException;
+use Bitrix\Rest\V3\Controllers\RestController;
+use Bitrix\Rest\V3\Exceptions\Internal\InternalException;
+use Bitrix\Rest\V3\Exceptions\MethodNotFoundException;
+use Bitrix\Rest\V3\Interaction\Response\ArrayResponse;
+use Bitrix\Rest\V3\Interaction\Response\Response;
+use Bitrix\Rest\V3\Resolver as V3Resolver;
 
 class RestManager extends \IRestService
 {
@@ -53,6 +60,10 @@ class RestManager extends \IRestService
 		list($controller) = $router->getControllerAndAction();
 		if (!$controller || $controller instanceof Engine\DefaultController)
 		{
+			return false;
+		}
+
+		if ($controller instanceof RestController) { // rest V1 do not support V3 methods
 			return false;
 		}
 
@@ -109,7 +120,7 @@ class RestManager extends \IRestService
 	 * Processes method to services.
 	 *
 	 * @param array $params Input parameters ($_GET, $_POST).
-	 * @param     string $start Start position.
+	 * @param string $start Start position.
 	 * @param \CRestServer $restServer REST server.
 	 *
 	 * @return array
@@ -130,6 +141,7 @@ class RestManager extends \IRestService
 			['action' => $methodData['method']],
 			[], [], []
 		);
+
 		$router = new Engine\Router($request);
 
 		/** @var Controller $controller */
@@ -139,6 +151,7 @@ class RestManager extends \IRestService
 			$router->getAction(),
 			Controller::SCOPE_REST
 		);
+
 		if (!$controller)
 		{
 			throw new RestException("Unknown {$method}. There is not controller in module {$router->getModule()}");
@@ -351,13 +364,19 @@ class RestManager extends \IRestService
 
 		$firstError = reset($errors);
 
-		return new RestException($firstError->getMessage(), $firstError->getCode());
+		return new RestException(
+			$firstError->getMessage(). " (internal error)", // should be just "internal error" here to avoid exposing details
+			$firstError->getCode(),
+			previous: $firstError->getCustomData() instanceof \Bitrix\Rest\V3\Exceptions\RestException
+				? $firstError->getCustomData()
+				: null
+		);
 	}
 
 	/**
 	 * @param array $autoWirings
 	 */
-	private function registerAutoWirings(array $autoWirings): void
+	public function registerAutoWirings(array $autoWirings): void
 	{
 		foreach ($autoWirings as $parameter)
 		{
@@ -368,7 +387,7 @@ class RestManager extends \IRestService
 	/**
 	 * @param array $autoWirings
 	 */
-	private function unRegisterAutoWirings(array $autoWirings): void
+	public function unRegisterAutoWirings(array $autoWirings): void
 	{
 		foreach ($autoWirings as $parameter)
 		{
@@ -379,7 +398,7 @@ class RestManager extends \IRestService
 	/**
 	 * @return array
 	 */
-	private function getAutoWirings(): array
+	public function getAutoWirings(): array
 	{
 		$buildRules = [
 			'restServer' => [

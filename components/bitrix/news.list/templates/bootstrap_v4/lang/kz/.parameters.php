@@ -1,0 +1,25 @@
+<?php
+$MESS["TP_BND_AVERAGE"] = "Орташа мәні";
+$MESS["TP_BND_DISPLAY_AS_RATING"] = "Рейтинг ретінде көрсету";
+$MESS["TP_BND_DISPLAY_DATE"] = "Элементтің күнін шығару";
+$MESS["TP_BND_DISPLAY_NAME"] = "Элемент атауын шығару";
+$MESS["TP_BND_DISPLAY_PICTURE"] = "Аңдатпа кескінін шығару";
+$MESS["TP_BND_DISPLAY_PREVIEW_TEXT"] = "Аңдатпа мәтінін шығару";
+$MESS["TP_BND_MAX_VOTE"] = "Ең жоғары балл";
+$MESS["TP_BND_MEDIA_PROPERTY"] = "Медиа көрсету қасиеті";
+$MESS["TP_BND_RATING"] = "Рейтинг";
+$MESS["TP_BND_SEARCH_PAGE"] = "Іздеу парақшасына жол";
+$MESS["TP_BND_SHARE_HANDLERS"] = "Қолданылатын әлеуметтік бетбелгілер мен желілер";
+$MESS["TP_BND_SHARE_SHORTEN_URL_KEY"] = "bit.ly үшін кілт";
+$MESS["TP_BND_SHARE_SHORTEN_URL_LOGIN"] = "bit.ly үшін логин";
+$MESS["TP_BND_SHARE_TEMPLATE"] = "Әлеуметтік бетбелгілер панелінің компонентінің қалыбы";
+$MESS["TP_BND_SLIDER_PROPERTY"] = "Слайдерге арналған кескіндері бар қасиет";
+$MESS["TP_BND_TEMPLATE_THEME"] = "Түс тақырыбы";
+$MESS["TP_BND_THEME_BLUE"] = "көк (әдепкі тақырып)";
+$MESS["TP_BND_THEME_GREEN"] = "жасыл";
+$MESS["TP_BND_THEME_RED"] = "қызыл";
+$MESS["TP_BND_THEME_SITE"] = "Тақырыпты сайт баптауларынан алу (bitrix.eshop шешімі үшін)";
+$MESS["TP_BND_THEME_YELLOW"] = "сары";
+$MESS["TP_BND_USE_RATING"] = "Дауыс беруге рұқсат беру";
+$MESS["TP_BND_USE_SHARE"] = "Әлеуметтік бетбелгілер панелін көрсету";
+$MESS["TP_BND_VOTE_NAMES"] = "Баллдарға жазу";

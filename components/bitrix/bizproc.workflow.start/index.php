@@ -15,6 +15,7 @@ $params = [
 	'AUTO_EXECUTE_TYPE' => is_numeric($request->get('autoExecuteType')) ? $request->get('autoExecuteType') : null,
 	'SIGNED_DOCUMENT_TYPE' => $request->get('signedDocumentType'),
 	'SIGNED_DOCUMENT_ID' => $request->get('signedDocumentId'),
+	'ACTION' => $request->get('action'),
 	'SET_TITLE' => 'N',
 ];
 

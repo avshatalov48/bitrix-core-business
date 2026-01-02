@@ -28,30 +28,6 @@ if($USER->IsAuthorized() && (!defined("BX_AUTH_FORM") || !BX_AUTH_FORM))
 	{
 		echo CAdminInformer::PrintHtml();
 	}
-
-	if(
-		$USER->IsAuthorized()
-		&& !\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24')
-		&& (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1)
-		&& (
-			!isset(\Bitrix\Main\Application::getInstance()->getSession()["SS_B24NET_STATE"])
-			|| \Bitrix\Main\Application::getInstance()->getSession()["SS_B24NET_STATE"] !== $USER->GetID()
-		)
-		&& \Bitrix\Main\ModuleManager::isModuleInstalled("socialservices")
-		&& \Bitrix\Main\Config\Option::get("socialservices", "bitrix24net_id", "") != ""
-	)
-	{
-		if(
-			\Bitrix\Main\Loader::includeModule("socialservices")
-			&& class_exists("Bitrix\\Socialservices\\Network")
-			&& method_exists("Bitrix\\Socialservices\\Network", "displayAdminPopup")
-		)
-		{
-			\Bitrix\Socialservices\Network::displayAdminPopup(array(
-				"SHOW" => true,
-			));
-		}
-	}
 }
 
 if (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1)

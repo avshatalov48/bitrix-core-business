@@ -1,0 +1,11 @@
+<?php
+$MESS["STORE_BARCODE_ENTITY_BARCODE_FIELD"] = "Штрихкод";
+$MESS["STORE_BARCODE_ENTITY_BARCODE_IS_NOT_UNIQUE"] = "#VALUE# штрихкоды бар тауар бұрыннан бар.";
+$MESS["STORE_BARCODE_ENTITY_CREATED_BY_FIELD"] = "Кім жасады";
+$MESS["STORE_BARCODE_ENTITY_DATE_CREATE_FIELD"] = "Құрылған күні";
+$MESS["STORE_BARCODE_ENTITY_DATE_MODIFY_FIELD"] = "Өзгерту күні";
+$MESS["STORE_BARCODE_ENTITY_ID_FIELD"] = "Штрихкод идентификаторы";
+$MESS["STORE_BARCODE_ENTITY_MODIFIED_BY_FIELD"] = "Кім өзгертті";
+$MESS["STORE_BARCODE_ENTITY_ORDER_ID_FIELD"] = "Тапсырыс идентификаторы";
+$MESS["STORE_BARCODE_ENTITY_PRODUCT_ID_FIELD"] = "Тауардың идентификаторы ";
+$MESS["STORE_BARCODE_ENTITY_STORE_ID_FIELD"] = "Қойма идентификаторы";

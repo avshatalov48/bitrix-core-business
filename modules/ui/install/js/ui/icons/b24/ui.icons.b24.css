@@ -4,6 +4,14 @@
 	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/b24/images/ui-user.svg?v2);
 }
 
+.ui-icon-common-user.--collaber {
+	--ui-icon-service-bg-color: rgba(25, 204, 69, 1);
+}
+
+.ui-icon-common-user.--extranet {
+	--ui-icon-service-bg-color: rgba(250, 167, 44, 1);
+}
+
 .ui-icon-common-phone {
 	--ui-icon-service-bg-color: #7b8691;
 	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/b24/images/ui-call.svg);
@@ -27,6 +35,11 @@
 .ui-icon-common-company {
 	--ui-icon-service-bg-color: #7b8691;
 	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/b24/images/ui-user-company.svg?v2);
+}
+
+.ui-icon-common-my-plan {
+	--ui-icon-service-bg-color: #7b8691;
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/b24/images/ui-my-plan.svg);
 }
 
 .ui-icon-common-light-company {

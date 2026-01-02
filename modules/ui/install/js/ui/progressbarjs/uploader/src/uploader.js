@@ -1,6 +1,8 @@
 import "./uploader.css";
 import "ui.progressbarjs";
 
+const DEFAULT_CANCEL_CALLBACK_DELAY = 1000;
+
 export class Uploader
 {
 	constructor(params = {})
@@ -40,6 +42,8 @@ export class Uploader
 
 		this.inited = !!this.container;
 		this.destroing = false;
+
+		this.cancelCallbackDelay = params.cancelCallbackDelay ?? DEFAULT_CANCEL_CALLBACK_DELAY;
 	}
 
 	start(params = {})
@@ -113,7 +117,7 @@ export class Uploader
 				this.active = false;
 
 				clearTimeout(this.timeout);
-				this.timeout = setTimeout(() => this.destroy(), 1000);
+				this.timeout = setTimeout(() => this.destroy(), this.cancelCallbackDelay);
 
 				return true;
 			});

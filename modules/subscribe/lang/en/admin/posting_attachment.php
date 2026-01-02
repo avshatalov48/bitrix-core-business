@@ -1,3 +1,2 @@
-<?
-$MESS ['POST_ERROR_ATTACH_NOT_FOUND'] = "Attachment is not found.";
-?>
+<?php
+$MESS['POST_ERROR_ATTACH_NOT_FOUND'] = "Attachment is not found.";

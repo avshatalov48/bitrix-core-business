@@ -60,15 +60,17 @@ export class SectionSelector
 		}
 		else
 		{
-			this.DOM.select = this.DOM.outerWrap.appendChild(Tag.render`<div class="calendar-field calendar-field-select"></div>`);
+			this.DOM.select = this.DOM.outerWrap.appendChild(Tag.render`
+				<div class="calendar-field calendar-field-select"></div>
+			`);
 
 			this.DOM.innerValue = this.DOM.select.appendChild(Tag.render`
-				<div class="calendar-field-select-icon" style="background-color: ${this.getCurrentColor()}"></div>`
-			);
+				<div class="calendar-field-select-icon" style="background-color: ${this.getCurrentColor()}"></div>
+			`);
 
 			if (this.mode === 'full')
 			{
-				this.DOM.selectInnerText = this.DOM.select.appendChild(Tag.render`<span>${Text.encode(this.getCurrentTitle())}</span>`)
+				this.DOM.selectInnerText = this.DOM.select.appendChild(Tag.render`<span>${Text.encode(this.getCurrentTitle())}</span>`);
 			}
 		}
 	}
@@ -104,7 +106,7 @@ export class SectionSelector
 					filteredList = sectionList.filter((section) => {
 						return SectionSelector.getSectionType(section) === this.defaultCalendarType
 							&& SectionSelector.getSectionOwner(section) === this.defaultOwnerId;
-					}, this);
+					});
 				}
 				else if (sectionGroup.type === 'user' || sectionGroup.type === 'location')
 				{
@@ -138,8 +140,11 @@ export class SectionSelector
 				filteredList = filteredList.filter((section) => {
 					const id = parseInt(section.id || section.ID);
 					if (sectionIdList.includes(id))
+					{
 						return false;
+					}
 					sectionIdList.push(id);
+
 					return true;
 				});
 
@@ -182,13 +187,13 @@ export class SectionSelector
 			this.DOM.select,
 			menuItems,
 			{
+				offsetLeft,
 				closeByEsc: true,
 				autoHide: true,
 				zIndex: this.zIndex,
 				offsetTop: 0,
-				offsetLeft: offsetLeft,
 				angle: this.mode === 'compact',
-			}
+			},
 		);
 
 		this.sectionMenu.popupWindow.contentContainer.style.overflow = "auto";
@@ -260,24 +265,26 @@ export class SectionSelector
 
 		if (section === undefined)
 		{
-			section = this.sectionList.find((section) => {
-				return parseInt(section.id) === parseInt(this.getCurrentSection().id);
+			// eslint-disable-next-line no-param-reassign
+			section = this.sectionList.find((it) => {
+				return parseInt(it.id, 10) === parseInt(this.getCurrentSection().id, 10);
 			});
 		}
 
-		if (section && section.type)
+		let imageNode;
+		if (section?.type || this.defaultCalendarType)
 		{
-			const imageSrc = SectionSelector.getSectionImage(section);
-			let imageNode;
+			const type = section?.type || this.defaultCalendarType;
+			const imageSrc = section ? SectionSelector.getSectionImage(section) : null;
 			if (imageSrc)
 			{
-				imageNode = Tag.render`<img class="calendar-field-choice-calendar-img-value" src="${encodeURI(imageSrc)}">`;
+				imageNode = Tag.render`<img class="calendar-field-choice-calendar-img-value" src="${encodeURI(imageSrc)}" alt="">`;
 			}
-			else if (section.type === 'group')
+			else if (type === 'group')
 			{
 				imageNode = Tag.render`<div class="ui-icon ui-icon-common-user-group"><i></i></div>`;
 			}
-			else if (section.type === 'user')
+			else if (type === 'user')
 			{
 				imageNode = Tag.render`<div class="ui-icon ui-icon-common-user"><i></i></div>`;
 			}
@@ -342,7 +349,7 @@ export class SectionSelector
 
 	static getSectionOwner(section)
 	{
-		return parseInt(section.OWNER_ID || section.data.OWNER_ID)
+		return parseInt(section.OWNER_ID || section.data.OWNER_ID, 10);
 	}
 
 	updateValue()
@@ -357,8 +364,8 @@ export class SectionSelector
 			this.DOM.select.appendChild(Dom.adjust(this.DOM.selectInnerText, {
 				text: this.getCurrentTitle(),
 				props: {
-					title: this.getCurrentTitle()
-				}
+					title: this.getCurrentTitle(),
+				},
 			}));
 		}
 		else if (this.mode === 'textselect')

@@ -1,0 +1,3 @@
+<?php
+$MESS["LANDING_TPL_MAINPAGE_PROCESSING_TITLE"] = "Ihr Bitrix24 ist fast fertig";
+$MESS["LANDING_TPL_MAINPAGE_PROCESSING_TITLE_SUB"] = "Bitte warten Sie";

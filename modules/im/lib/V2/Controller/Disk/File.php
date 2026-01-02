@@ -2,11 +2,16 @@
 
 namespace Bitrix\Im\V2\Controller\Disk;
 
+use Bitrix\Im\V2\Application\Features;
+use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Controller\BaseController;
 use Bitrix\Im\V2\Controller\Filter\CheckDiskFileAccess;
 use Bitrix\Im\V2\Entity\File\FileCollection;
 use Bitrix\Im\V2\Entity\File\FileError;
+use Bitrix\Im\V2\Entity\File\FileItem;
 use Bitrix\Im\V2\Entity\User\UserError;
+use Bitrix\Im\V2\Integration\AI\CopilotError;
+use Bitrix\Im\V2\Integration\AI\Transcription\TranscribeManager;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Loader;
@@ -20,7 +25,12 @@ class File extends BaseController
 				'+prefilters' => [
 					new CheckDiskFileAccess(),
 				]
-			]
+			],
+			'transcribe' => [
+				'+prefilters' => [
+					new CheckDiskFileAccess(),
+				]
+			],
 		];
 	}
 
@@ -35,6 +45,22 @@ class File extends BaseController
 		);
 	}
 
+	public function getAutoWiredParameters()
+	{
+		return array_merge(parent::getAutoWiredParameters(), [
+			new ExactParameter(
+				FileItem::class,
+				'file',
+				function ($className, int $fileId) {
+					return FileItem::initByDiskFileId($fileId);
+				}
+			),
+		]);
+	}
+
+	/**
+	 * @restMethod im.v2.Disk.File.save
+	 */
 	public function saveAction(FileCollection $files, CurrentUser $currentUser): ?array
 	{
 		$userId = $currentUser->getId();
@@ -58,6 +84,34 @@ class File extends BaseController
 		}
 
 		return ['result' => true];
+	}
+
+	/**
+	 * @restMethod im.v2.Disk.File.transcribe
+	 */
+	public function transcribeAction(Chat $chat, FileItem $file): ?array
+	{
+		if ((int)$file->getDiskFile()?->getSize() > TranscribeManager::MAX_TRANSCRIBABLE_FILE_SIZE)
+		{
+			$this->addError(new FileError(FileError::FILE_SIZE_EXCEEDED));
+			return null;
+		}
+
+		if (!Features::isAiFileTranscriptionAvailable())
+		{
+			$this->addError(new CopilotError(CopilotError::TRANSCRIPTION_NOT_ACTIVE));
+			return null;
+		}
+
+		if (!$file->isTranscribable())
+		{
+			$this->addError(new CopilotError(CopilotError::FILE_NOT_TRANSCRIBABLE));
+			return null;
+		}
+
+		$transcribeManager = new TranscribeManager($file->getOriginalFileId(), $file->getId(), (int)$chat->getId());
+
+		return $transcribeManager->transcribeFile()->getFileItem()->toRestFormat();
 	}
 
 	protected function getFilesByIds(array $ids): FileCollection

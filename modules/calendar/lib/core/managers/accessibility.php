@@ -8,13 +8,23 @@ use Bitrix\Calendar\Access\Model\EventModel;
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Sharing\Helper;
 use Bitrix\Calendar\Util;
+use Bitrix\Intranet\UserAbsence;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 
 class Accessibility
 {
+	private int $userId;
+	private EventAccessController $accessController;
+
 	private array $canSeeNameCache = [];
 	private int $skipEventId = 0;
+
+	public function __construct()
+	{
+		$this->userId = \CCalendar::GetCurUserId();
+		$this->accessController = new EventAccessController($this->userId);
+	}
 
 	public function setSkipEventId(int $curEventId): self
 	{
@@ -25,6 +35,13 @@ class Accessibility
 
 	/**
 	 * @param array<int> $userIds
+	 * @param int $timestampFrom
+	 * @param int $timestampTo
+	 *
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\ObjectException
 	 */
 	public function getBusyUsersIds(array $userIds, int $timestampFrom, int $timestampTo): array
 	{
@@ -35,7 +52,7 @@ class Accessibility
 		;
 
 		$busyUsersList = [];
-		$timezoneName = \CCalendar::GetUserTimezoneName(\CCalendar::GetUserId());
+		$timezoneName = \CCalendar::GetUserTimezoneName($this->userId);
 		$timezoneOffset = Util::getTimezoneOffsetUTC($timezoneName);
 		foreach ($accessibility as $userId => $events)
 		{
@@ -63,6 +80,13 @@ class Accessibility
 
 	/**
 	 * @param array<int> $userIds
+	 * @param int $timestampFrom
+	 * @param int $timestampTo
+	 *
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\ObjectException
 	 */
 	public function getAccessibility(array $userIds, int $timestampFrom, int $timestampTo): array
 	{
@@ -97,6 +121,13 @@ class Accessibility
 
 	/**
 	 * @param array<int> $userIds
+	 * @param int $timestampFrom
+	 * @param int $timestampTo
+	 *
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\ObjectException
 	 */
 	public function getAccessibilityTs(array $userIds, int $timestampFrom, int $timestampTo): array
 	{
@@ -120,6 +151,11 @@ class Accessibility
 
 	/**
 	 * @param array<int> $userIds
+     * @param int $timestampFrom
+	 * @param int $timestampTo
+	 *
+	 * @return array
+	 * @throws \Bitrix\Main\ObjectException
 	 */
 	public function getEventsTs(array $userIds, int $timestampFrom, int $timestampTo): array
 	{
@@ -133,7 +169,7 @@ class Accessibility
 					Dictionary::CALENDAR_TYPE['open_event'],
 				],
 				'OWNER_ID' => $userIds,
-				'ACTIVE_SECTION' => 'Y'
+				'ACTIVE_SECTION' => 'Y',
 			],
 			'arSelect' => \CCalendarEvent::$defaultSelectEvent,
 			'getUserfields' => false,
@@ -176,6 +212,7 @@ class Accessibility
 				$from = Helper::getEventTimestampUTC(new DateTime($event['DATE_FROM']), $event['TZ_FROM']);
 				$to = Helper::getEventTimestampUTC(new DateTime($event['DATE_TO']), $event['TZ_TO']);
 			}
+
 			$accessibility[$event['OWNER_ID']][] = [
 				'id' => (int)$event['ID'],
 				'parentId' => (int)$event['PARENT_ID'],
@@ -201,16 +238,14 @@ class Accessibility
 
 	private function canSeeName(array $event): bool
 	{
-		$currentUserId = \CCalendar::GetUserId();
 		$eventId = (int)$event['ID'];
 		$cachedValue = $this->canSeeNameCache[$eventId] ?? null;
 
 		if ($cachedValue === null)
 		{
-			$accessController = new EventAccessController($currentUserId);
 			$eventModel = EventModel::createFromArray($event);
 
-			$canViewTitle = $accessController->check(ActionDictionary::ACTION_EVENT_VIEW_TITLE, $eventModel);
+			$canViewTitle = $this->accessController->check(ActionDictionary::ACTION_EVENT_VIEW_TITLE, $eventModel);
 			$this->canSeeNameCache[$eventId] = !$this->isPrivate($event) && $canViewTitle;
 		}
 
@@ -219,13 +254,20 @@ class Accessibility
 
 	private function isPrivate(array $event): bool
 	{
-		$curUserId = \CCalendar::GetUserId();
-
-		return $event['PRIVATE_EVENT'] && $event['CAL_TYPE'] === 'user' && $event['OWNER_ID'] !== $curUserId;
+		return $event['PRIVATE_EVENT']
+			&& $event['CAL_TYPE'] === 'user'
+			&& $event['OWNER_ID'] !== $this->userId
+		;
 	}
 
 	/**
 	 * @param array<int> $userIds
+     * @param int $timestampFrom
+	 * @param int $timestampTo
+	 *
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
 	public function getAbsencesTs(array $userIds, int $timestampFrom, int $timestampTo): array
 	{
@@ -245,14 +287,14 @@ class Accessibility
 			BX_INTRANET_ABSENCE_HR,
 		);
 
-		$absenceTypes = \Bitrix\Intranet\UserAbsence::getVacationTypes();
+		$absenceTypes = UserAbsence::getVacationTypes();
 		$vacationTypes = array_filter(
 			$absenceTypes,
 			fn ($type) => in_array($type['ID'], ['VACATION', 'LEAVESICK', 'LEAVEMATERINITY', 'LEAVEUNPAYED'], true),
 		);
 		$vacationTypesIds = array_map(fn ($type) => (int)$type['ENUM_ID'], $vacationTypes);
 
-		$offset = (int)date('Z') + \CCalendar::GetOffset(\CCalendar::GetUserId());
+		$offset = (int)date('Z') + \CCalendar::GetOffset($this->userId);
 		$accessibility = $this->initAccessibility($userIds);
 		foreach($usersAbsence as $userId => $absenceData)
 		{
@@ -308,7 +350,8 @@ class Accessibility
 	private function initAccessibility(array $userIds): array
 	{
 		$accessibility = [];
-		foreach($userIds as $userId)
+
+		foreach ($userIds as $userId)
 		{
 			$accessibility[$userId] = [];
 		}

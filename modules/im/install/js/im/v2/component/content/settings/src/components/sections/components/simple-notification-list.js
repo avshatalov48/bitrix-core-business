@@ -1,5 +1,5 @@
 import { Core } from 'im.v2.application.core';
-import { SettingsService } from 'im.v2.provider.service';
+import { SettingsService } from 'im.v2.provider.service.settings';
 import { Settings } from 'im.v2.const';
 
 import { CheckboxOption } from '../../elements/checkbox';
@@ -75,11 +75,11 @@ export const SimpleNotificationList = {
 		<div class="bx-im-settings-section-content__body">
 			<div class="bx-im-settings-section-content__block">
 				<div class="bx-im-settings-section-content__block_title">
-					{{ loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_BLOCK_SIMPLE_MODE_TITLE') }}
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_BLOCK_SIMPLE_MODE_TITLE_MSGVER_1') }}
 				</div>
 				<CheckboxOption
 					:value="enableWeb"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_WEB')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_WEB_MSGVER_1')"
 					@change="onEnableWebChange"
 				/>
 				<CheckboxOption
@@ -89,7 +89,7 @@ export const SimpleNotificationList = {
 				/>
 				<CheckboxOption
 					:value="enablePush"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_PUSH_V1')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_MSGVER_1')"
 					@change="onEnablePushChange"
 				/>
 			</div>

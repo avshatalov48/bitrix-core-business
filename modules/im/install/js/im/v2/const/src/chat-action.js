@@ -28,6 +28,7 @@ export const ActionByRole = Object.freeze({
 	updateInviteLink: 'updateInviteLink',
 	createDocumentSign: 'createDocumentSign',
 	createCalendarSlots: 'createCalendarSlots',
+	changeMessagesAutoDeleteDelay: 'changeMessagesAutoDeleteDelay',
 });
 
 export const ChatActionGroup = Object.freeze({
@@ -48,4 +49,5 @@ export const ActionByUserType = Object.freeze({
 	createChat: 'createChat',
 	createConference: 'createConference',
 	leaveCollab: 'leaveCollab',
+	changeMessagesAutoDeleteDelay: 'changeMessagesAutoDeleteDelay',
 });

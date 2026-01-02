@@ -238,10 +238,13 @@ export class LandingSettings
 					top.window['landingSettingsSaved'] = true;
 					top.BX.onCustomEvent('BX.Landing.Filter:apply');
 					this.hideLoader();
-					if (this.type === 'KNOWLEDGE' || this.type === 'GROUP')
+					Dom.removeClass(this.saveButton, 'ui-btn-wait');
+
+					const previous = BX.SidePanel.Instance.getPreviousSlider();
+					if (previous)
 					{
+						previous.reload();
 						BX.SidePanel.Instance.close();
-						BX.SidePanel.Instance.reload();
 					}
 					else
 					{
@@ -250,8 +253,7 @@ export class LandingSettings
 					}
 				}
 			})
-			.catch(err =>
-			{
+			.catch(err => {
 				console.error(err);
 			});
 	}

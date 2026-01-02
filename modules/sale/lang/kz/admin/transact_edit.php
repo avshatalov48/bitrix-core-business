@@ -1,0 +1,27 @@
+<?php
+$MESS["STEN_2FLIST"] = "Транзакциялар тізімі";
+$MESS["STEN_2FLIST_TITLE"] = "Транзакциялар тізімін қарау";
+$MESS["STEN_TAB_TRANSACT"] = "Транзакция";
+$MESS["STEN_TAB_TRANSACT_DESCR"] = "Транзакция";
+$MESS["STE_APPLY"] = "Қолдану";
+$MESS["STE_CANCEL"] = "Қалпына келтіру";
+$MESS["STE_CANCEL1"] = "Болдырмау";
+$MESS["STE_CURRENCY"] = "Валюта:";
+$MESS["STE_DEBET"] = "Пайдаланушының шотына соманы енгізу";
+$MESS["STE_DESCR"] = "Сипаттамасы:";
+$MESS["STE_EMPTY_CURRENCY"] = "\"Валюта\" өрісі толтырылмаған";
+$MESS["STE_EMPTY_DATE"] = "\"Транзакция күні\" өрісі толтырылмаған";
+$MESS["STE_EMPTY_SUM"] = "\"Сома\" өрісі толтырылмаған";
+$MESS["STE_EMPTY_USER"] = "\"Пайдаланушы\" өрісі толтырылмаған";
+$MESS["STE_ERROR"] = "Сақтау қатесі!";
+$MESS["STE_ERROR_SAVE_ACCOUNT"] = "Шотты сақтау қатесі";
+$MESS["STE_KREDIT"] = "Пайдаланушының шотынан соманы есептен шығару";
+$MESS["STE_NOTES"] = "Ескертпелер:";
+$MESS["STE_ORDER_ID"] = "Тапсырыс нөмірі (транзакция тапсырысқа қатысты болса)";
+$MESS["STE_SAVE"] = "Сақтау";
+$MESS["STE_SUM"] = "Сома:";
+$MESS["STE_TITLE"] = "Жаңа транзакция";
+$MESS["STE_TO_LIST"] = "Транзакциялар тізімі";
+$MESS["STE_TYPE"] = "Жазба түрі:";
+$MESS["STE_USER"] = "Пайдаланушы:";
+$MESS["STE_USER_PROFILE"] = "Пайдаланушы профайлы";

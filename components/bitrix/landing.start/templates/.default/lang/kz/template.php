@@ -1,0 +1,21 @@
+<?php
+$MESS["LANDING_TPL_ACCEPT"] = "Мен келісемін";
+$MESS["LANDING_TPL_ACCEPTED"] = "Сіз қазірдің өзінде келісім бердіңіз";
+$MESS["LANDING_TPL_ADD_PAGE"] = "Жаңа парақша";
+$MESS["LANDING_TPL_ADD_SITE_2"] = "Құру";
+$MESS["LANDING_TPL_AI_SETTING_TITLE"] = "AI 2 баптаулары";
+$MESS["LANDING_TPL_DEV_SITE"] = "Девелоперлік сайт жасау";
+$MESS["LANDING_TPL_FOLDER_EDIT"] = "Бума баптаулары";
+$MESS["LANDING_TPL_IMPORT_SITE_KNOWLEDGE"] = "Білім қоры импорты";
+$MESS["LANDING_TPL_IMPORT_SITE_PAGE"] = "Сайт импорты";
+$MESS["LANDING_TPL_IMPORT_SITE_STORE"] = "Дүкен импорты";
+$MESS["LANDING_TPL_JS_PAY_TARIFF"] = "Кеңейтілген тарифке өту";
+$MESS["LANDING_TPL_JS_PAY_TARIFF_TITLE"] = "Тариф бойынша шектеулер";
+$MESS["LANDING_TPL_MENU_AGREEMENT"] = "Келісім";
+$MESS["LANDING_TPL_MENU_FORMS"] = "CRM-нысандар";
+$MESS["LANDING_TPL_MENU_MARKETING"] = "Маркетинг";
+$MESS["LANDING_TPL_MENU_RIGHTS"] = "Қолжетімділік құқығы";
+$MESS["LANDING_TPL_MENU_SITES"] = "Сайттар тізімі";
+$MESS["LANDING_TPL_MENU_SITES_KNOWLEDGE"] = "Білім қоры";
+$MESS["LANDING_TPL_MENU_TRACKING"] = "Өтпелі аналитика";
+$MESS["LANDING_TPL_SETTING"] = "Баптаулар";

@@ -15,6 +15,7 @@ import { PinModel } from './nested-modules/pin';
 import { ReactionsModel } from './nested-modules/reactions';
 import { CommentsModel } from './nested-modules/comments/comments';
 import { SelectModel } from './nested-modules/select';
+import { AnchorsModel } from './nested-modules/anchors/anchors';
 
 import type { GetterTree, ActionTree, MutationTree } from 'ui.vue3.vuex';
 import type { ImModelMessage, ImModelFile } from 'im.v2.model';
@@ -49,6 +50,7 @@ export class MessagesModel extends BuilderModel
 			reactions: ReactionsModel,
 			comments: CommentsModel,
 			select: SelectModel,
+			anchors: AnchorsModel,
 		};
 	}
 
@@ -151,6 +153,12 @@ export class MessagesModel extends BuilderModel
 				}
 
 				return Type.isStringFilled(message.forward.id);
+			},
+			/** @function messages/isExists */
+			isExists: (state: MessagesState) => (id: number | string) => {
+				const message = state.collection[id];
+
+				return message && !message.isDeleted;
 			},
 			/** @function messages/isInChatCollection */
 			isInChatCollection: (state: MessagesState) => (payload: {messageId: number}): boolean => {
@@ -280,14 +288,14 @@ export class MessagesModel extends BuilderModel
 
 				return -1;
 			},
-			findLastChatMessageId: (state, getters) => (chatId: number): MessageId => {
+			findLastChatMessageId: (state, getters) => (chatId: number): MessageId | null => {
 				const lastMessage: ?ImModelMessage = getters.getByChatId(chatId).pop();
 				if (lastMessage)
 				{
 					return lastMessage.id;
 				}
 
-				return -1;
+				return null;
 			},
 			hasLoadingMessageByPreviousSiblingId: (state: MessagesState) => (messageId: MessageId): boolean => {
 				return Boolean(state.loadingMessages[messageId]);
@@ -528,8 +536,8 @@ export class MessagesModel extends BuilderModel
 				}
 
 				const previousSiblingId: ?MessageId = (() => {
-					const id: number | string = store.getters.findLastChatMessageId(message.chatId);
-					if (id === -1)
+					const id: number | string | null = store.getters.findLastChatMessageId(message.chatId);
+					if (Type.isNull(id))
 					{
 						return this.#makeFakePreviousSiblingId(message.chatId);
 					}

@@ -882,7 +882,7 @@ class Property extends Controller
 		return !$this->hasErrors();
 	}
 
-	protected function hasErrors()
+	public function hasErrors(): bool
 	{
 		return !empty($this->errors);
 	}

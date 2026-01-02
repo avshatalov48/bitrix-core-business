@@ -19,43 +19,6 @@ CJSCore::Init(array('lists'));
 ?>
 
 <div id="bx-lists-lcp-total-div">
-	<?
-		$isBitrix24Template = (SITE_TEMPLATE_ID == "bitrix24");
-		$pagetitleAlignRightContainer = "lists-align-right-container";
-		if($isBitrix24Template)
-		{
-			$this->SetViewTarget("pagetitle", 100);
-			$pagetitleAlignRightContainer = "";
-		}
-		elseif(!IsModuleInstalled("intranet"))
-		{
-			\Bitrix\Main\UI\Extension::load([
-				'ui.design-tokens',
-				'ui.fonts.opensans',
-			]);
-
-			$APPLICATION->SetAdditionalCSS("/bitrix/js/lists/css/intranet-common.css");
-		}
-	?>
-	<div class="pagetitle-container pagetitle-align-right-container <?=$pagetitleAlignRightContainer?>">
-		<? if(!$arResult['ALL_PROCESSES_INSTALL']): ?>
-			<button class="ui-btn ui-btn-md ui-btn-success" id="bx-lists-lcp-install-processes"
-					onclick="javascript:BX.Lists['CatalogProcessesClass_<?= $arResult['RAND_STRING']?>']
-							.installProcesses(this);" title="<?= GetMessage("LISTS_LCP_TEMPLATE_BUTTON_INSTALL") ?>">
-				<?= GetMessage("LISTS_LCP_TEMPLATE_BUTTON_INSTALL") ?></button>
-		<? endif; ?>
-		<a class="ui-btn ui-btn-md ui-btn-light-border ui-btn-themes" title="<?= GetMessage("LISTS_LCP_TEMPLATE_TRANSITION_PROCESSES") ?>" id="bx-lists-lcp-transition-processes"
-			href="<?= $arResult['LISTS_URL'] ?>">
-			<?= GetMessage("LISTS_LCP_TEMPLATE_TRANSITION_PROCESSES") ?>
-		</a>
-	</div>
-	<?
-		if($isBitrix24Template)
-		{
-			$this->EndViewTarget();
-		}
-	?>
-
 	<div class="bx-lists-lcp-description-page">
 		<? if($arResult['ALL_PROCESSES_INSTALL']): ?>
 			<?= Loc::getMessage('LISTS_LCP_TEMPLATE_DESCRIPTION_PAGE_ALL_INSTALL') ?>

@@ -4,3 +4,6 @@ $MESS["IM_RESTRICTION_COPILOT_GROUP_MSGVER_1"] = "Chats";
 $MESS["IM_RESTRICTION_COPILOT_HEADER"] = "Discuss your ideas with CoPilot, or ask for creative ideas for your projects.";
 $MESS["IM_RESTRICTION_COPILOT_PROVIDER_TITLE"] = "AI provider for use in the chat:";
 $MESS["IM_RESTRICTION_COPILOT_TITLE"] = "Chat with CoPilot";
+$MESS["IM_RESTRICTION_TRANSCRIPTION_HEADER"] = "CoPilot will transcribe speech and create a text file.";
+$MESS["IM_RESTRICTION_TRANSCRIPTION_PROVIDER_TITLE"] = "Speech-to-text AI provider:";
+$MESS["IM_RESTRICTION_TRANSCRIPTION_TITLE"] = "Speech transcription";

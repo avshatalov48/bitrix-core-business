@@ -1,6 +1,5 @@
 import { runAction } from 'im.v2.lib.rest';
 import { RestMethod } from 'im.v2.const';
-import { Logger } from 'im.v2.lib.logger';
 
 const PAGE_SIZE = 15;
 
@@ -20,12 +19,13 @@ export class GifService
 	getPopular(): Promise<GifItem[]>
 	{
 		return runAction(RestMethod.imBotGiphyListPopular, {})
-			.catch((error) => {
-				Logger.error('GiphyLoadService error', error);
+			.catch(([error]) => {
+				console.error('GiphyLoadService error', error);
+				throw error;
 			});
 	}
 
-	getQuery(searchQuery: string, nextPage): Promise<GifItem[]>
+	async getQuery(searchQuery: string, nextPage): Promise<GifItem[]>
 	{
 		if (nextPage)
 		{
@@ -37,7 +37,7 @@ export class GifService
 			this.hasMoreItemsToLoad = true;
 		}
 
-		return runAction(RestMethod.imBotGiphyList, {
+		const payload = {
 			data: {
 				filter: {
 					search: searchQuery,
@@ -45,18 +45,19 @@ export class GifService
 				limit: PAGE_SIZE,
 				offset: this.pageNumber * PAGE_SIZE,
 			},
-		})
-			.then((gifs: GifItem[]) => {
-				if (gifs.length < PAGE_SIZE)
-				{
-					this.hasMoreItemsToLoad = false;
-				}
+		};
 
-				return gifs;
-			})
-
-			.catch((error) => {
-				Logger.error('GiphyLoadService error', error);
+		const gifs: GifItem[] = await runAction(RestMethod.imBotGiphyList, payload)
+			.catch(([error]) => {
+				console.error('GiphyLoadService error', error);
+				throw error;
 			});
+
+		if (gifs.length < PAGE_SIZE)
+		{
+			this.hasMoreItemsToLoad = false;
+		}
+
+		return gifs;
 	}
 }

@@ -1,0 +1,54 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Основной документ -->
+    <path d="M10 2.5H24.4639L33.5 11.2119V34C33.5 35.933 31.933 37.5 30 37.5H10C8.067 37.5 6.5 35.933 6.5 34V6C6.5 4.067 8.067 2.5 10 2.5Z"
+          fill="url(#paint0_linear)"
+          stroke="url(#paint1_linear)"
+          stroke-linejoin="round"/>
+
+    <path d="M28.6499 11C26.4408 11 24.6499 9.20914 24.6499 7L24.6499 2L33.9999 11H28.6499Z"
+          fill="#DADEE5"/>
+
+    <!-- Анимированная крутилка -->
+    <g transform="translate(20, 22)">
+        <!-- Основной круг (фон) -->
+        <circle cx="0" cy="0" r="8"
+                fill="none"
+                stroke="#E5E9F1"
+                stroke-width="2"/>
+
+        <!-- Анимированная дуга -->
+        <circle cx="0" cy="0" r="8"
+                fill="none"
+                stroke="#1F86FF"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-dasharray="25 25"
+                stroke-dashoffset="0">
+            <animateTransform
+                    attributeName="transform"
+                    attributeType="XML"
+                    type="rotate"
+                    from="0 0 0"
+                    to="360 0 0"
+                    dur="1s"
+                    repeatCount="indefinite"/>
+        </circle>
+    </g>
+
+    <!-- Крестик в центре -->
+    <path d="M23.0088 18.3432C23.1877 18.1642 23.4782 18.1642 23.6572 18.3432C23.836 18.5222 23.8361 18.8127 23.6572 18.9917L20.6484 22.0005L23.6572 25.0102C23.8361 25.1892 23.8362 25.4787 23.6572 25.6577C23.4782 25.8366 23.1887 25.8366 23.0097 25.6577L20 22.6489L16.9912 25.6577C16.8122 25.8366 16.5217 25.8365 16.3427 25.6577C16.1637 25.4787 16.1637 25.1882 16.3427 25.0092L19.3515 22.0005L16.3427 18.9917C16.1638 18.8127 16.1638 18.5222 16.3427 18.3432C16.5217 18.1643 16.8122 18.1643 16.9912 18.3432L20 21.352L23.0088 18.3432Z"
+          fill="#1F86FF"/>
+
+    <!-- Градиенты -->
+    <defs>
+        <linearGradient id="paint0_linear" x1="6" y1="2" x2="18.9313" y2="38.3799" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#F7FAFF"/>
+            <stop offset="0.37" stop-color="#EDF1F9"/>
+            <stop offset="1" stop-color="#EDF1F9"/>
+        </linearGradient>
+        <linearGradient id="paint1_linear" x1="20" y1="2" x2="20" y2="37.5" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#E4E8F0"/>
+            <stop offset="1" stop-color="#E5E9F1"/>
+        </linearGradient>
+    </defs>
+</svg>

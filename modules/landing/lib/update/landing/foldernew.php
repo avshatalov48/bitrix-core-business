@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Landing\Update\Landing;
 
 use Bitrix\Landing\Internals\LandingTable;
@@ -41,104 +42,107 @@ class FolderNew extends Stepper
 			'select' => [
 				new \Bitrix\Main\Entity\ExpressionField(
 					'CNT', 'COUNT(*)'
-				)
+				),
 			],
-			'filter' => $globalFilter
+			'filter' => $globalFilter,
 		]);
 		if ($row = $res->fetch())
 		{
-			$result['count'] = $row['CNT'];
+			$result['count'] = (int)$row['CNT'];
 		}
 
-		// gets group for update
-		$res = LandingTable::getList([
-			'select' => [
-				'ID', 'TITLE', 'CODE', 'ACTIVE', 'DELETED', 'SITE_ID'
-			],
-			'filter' => $globalFilter,
-			'order' => [
-				'ID' => 'ASC'
-			]
-		]);
-		while ($page = $res->fetch())
+		if ($result['count'] > 0)
 		{
-			$folderId = null;
-			// create new folder and update folder to page
-			$resFolder = Folder::add([
-				'SITE_ID' => $page['SITE_ID'],
-				'TITLE' => $page['TITLE'],
-				'CODE' => $page['CODE'],
-				'ACTIVE' => $page['ACTIVE'],
-				'DELETED' => $page['DELETED']
+			// gets group for update
+			$res = LandingTable::getList([
+				'select' => [
+					'ID', 'TITLE', 'CODE', 'ACTIVE', 'DELETED', 'SITE_ID',
+				],
+				'filter' => $globalFilter,
+				'order' => [
+					'ID' => 'ASC',
+				],
 			]);
-			if ($resFolder->isSuccess())
+			while ($page = $res->fetch())
 			{
-				$folderId = $resFolder->getId();
-			}
-			else
-			{
-				foreach ($resFolder->getErrors() as $error)
+				$folderId = null;
+				// create new folder and update folder to page
+				$resFolder = Folder::add([
+					'SITE_ID' => $page['SITE_ID'],
+					'TITLE' => $page['TITLE'],
+					'CODE' => $page['CODE'],
+					'ACTIVE' => $page['ACTIVE'],
+					'DELETED' => $page['DELETED'],
+				]);
+				if ($resFolder->isSuccess())
 				{
-					if ($error->getCode() === 'FOLDER_IS_NOT_UNIQUE')
+					$folderId = $resFolder->getId();
+				}
+				else
+				{
+					foreach ($resFolder->getErrors() as $error)
 					{
-						$resFolder = Folder::getList([
-							'select' => [
-								'ID'
-							],
-							'filter' => [
-								'SITE_ID' => $page['SITE_ID'],
-								'PARENT_ID' => null,
-								'=CODE' => $page['CODE']
-							]
-						]);
-						if ($rowFolder = $resFolder->fetch())
+						if ($error->getCode() === 'FOLDER_IS_NOT_UNIQUE')
 						{
-							$folderId = $rowFolder['ID'];
-							break;
+							$resFolder = Folder::getList([
+								'select' => [
+									'ID',
+								],
+								'filter' => [
+									'SITE_ID' => $page['SITE_ID'],
+									'PARENT_ID' => null,
+									'=CODE' => $page['CODE'],
+								],
+							]);
+							if ($rowFolder = $resFolder->fetch())
+							{
+								$folderId = $rowFolder['ID'];
+								break;
+							}
 						}
 					}
 				}
-			}
 
-			if ($folderId)
-			{
-				Folder::update($folderId, [
-					'INDEX_ID' => $page['ID']
-				]);
-				LandingTable::update($page['ID'], [
-					'FOLDER' => 'N',
-					'FOLDER_ID' => $folderId
-				]);
-				Debug::log('FU:LandingTable::update', var_export([
-					'ID' => $page['ID'],
-					'FOLDER' => 'N',
-					'FOLDER_ID' => $folderId
-				], true));
-				// fetch old folder's pages and move it to the new folder
-				$resPage = LandingTable::getList([
-					'select' => [
-						'ID', 'FOLDER_ID'
-					],
-					'filter' => [
-						'FOLDER_ID' => $page['ID'],
-						//'=DELETED' => ['Y', 'N'],
-						//'=SITE.DELETED' => ['Y', 'N']
-					]
-				]);
-				while ($rowPage = $resPage->fetch())
+				if ($folderId)
 				{
-					LandingTable::update($rowPage['ID'], [
-						'FOLDER_ID' => $folderId
+					Folder::update($folderId, [
+						'INDEX_ID' => $page['ID'],
+					]);
+					LandingTable::update($page['ID'], [
+						'FOLDER' => 'N',
+						'FOLDER_ID' => $folderId,
 					]);
 					Debug::log('FU:LandingTable::update', var_export([
-						'ID' => $rowPage['ID'],
-						'FOLDER_ID_OLD' => $rowPage['FOLDER_ID'],
-						'FOLDER_ID' => $folderId
+						'ID' => $page['ID'],
+						'FOLDER' => 'N',
+						'FOLDER_ID' => $folderId,
 					], true));
+					// fetch old folder's pages and move it to the new folder
+					$resPage = LandingTable::getList([
+						'select' => [
+							'ID', 'FOLDER_ID',
+						],
+						'filter' => [
+							'FOLDER_ID' => $page['ID'],
+							//'=DELETED' => ['Y', 'N'],
+							//'=SITE.DELETED' => ['Y', 'N']
+						],
+					]);
+					while ($rowPage = $resPage->fetch())
+					{
+						LandingTable::update($rowPage['ID'], [
+							'FOLDER_ID' => $folderId,
+						]);
+						Debug::log('FU:LandingTable::update', var_export([
+							'ID' => $rowPage['ID'],
+							'FOLDER_ID_OLD' => $rowPage['FOLDER_ID'],
+							'FOLDER_ID' => $folderId,
+						], true));
+					}
 				}
-			}
 
-			$finished = false;
+				$finished = false;
+			}
 		}
 
 		if ($finished && !$siteId)

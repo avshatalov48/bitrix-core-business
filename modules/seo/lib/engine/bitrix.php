@@ -14,7 +14,10 @@ use Bitrix\Seo\IEngine;
 
 if (!defined("BITRIX_CLOUD_ADV_URL"))
 {
-	define("BITRIX_CLOUD_ADV_URL", 'https://cloud-adv.bitrix.info');
+	$domain = (new \Bitrix\Main\License\UrlProvider())->getTechDomain();
+	$cloudAdvUrl = 'https://cloud-adv.' . $domain;
+
+	define("BITRIX_CLOUD_ADV_URL", $cloudAdvUrl);
 }
 
 if (!defined("SEO_BITRIX_API_URL"))
@@ -69,6 +72,8 @@ class Bitrix extends Engine implements IEngine
 		{
 			$this->authInterface =
 				new \CBitrixSeoOAuthInterface($this->engine['CLIENT_ID'], $this->engine['CLIENT_SECRET']);
+
+			$this->authInterface->setProxyUrl($this->getAuthSettings()['PROXY_URL'] ?? '');
 		}
 
 		return $this->authInterface;
@@ -76,12 +81,18 @@ class Bitrix extends Engine implements IEngine
 
 	public function setAuthSettings($settings = null): void
 	{
+		if (!$this->isRegistered())
+		{
+			return;
+		}
+
 		if (is_array($settings) && array_key_exists("expires_in", $settings))
 		{
 			$settings["expires_in"] += time();
 		}
 
 		$this->engineSettings['AUTH'] = $settings;
+		$this->engineSettings['PROXY_URL'] = $settings['PROXY_URL'] ;
 		$this->saveSettings();
 	}
 }

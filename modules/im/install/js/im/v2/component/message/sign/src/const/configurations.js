@@ -1,6 +1,7 @@
 import { Loc, Browser } from 'main.core';
 
-import { ButtonColor } from 'im.v2.component.elements';
+import { ButtonColor } from 'im.v2.component.elements.button';
+
 import { Await, Failure, Success } from './sign';
 
 export const metaData = {
@@ -303,6 +304,17 @@ export const metaData = {
 		title: Loc.getMessage('IM_MESSAGE_SIGN_STOPPED_TO_EMPLOYEE_TITLE'),
 		description: Loc.getMessage('IM_MESSAGE_SIGN_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTIONF'),
 	},
+	[Failure.byEmployeeExpiredToEmployee]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_EXPIRED_TO_EMPLOYEE_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_EXPIRED_TO_EMPLOYEE_TITLE_DESCRIPTION'),
+		button: {
+			text: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_EXPIRED_TO_EMPLOYEE_BUTTON_TEXT'),
+			callback: ({ user, document }) => {
+				goToPrimaryLink(document, true);
+			},
+			color: ButtonColor.LightBorder,
+		},
+	},
 	[Failure.byEmployeeStoppedToEmployee]: {
 		title: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE'),
 		description: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTION'),
@@ -432,6 +444,17 @@ export const metaData = {
 		description: Loc.getMessage('IM_MESSAGE_SIGN_DOCUMENT_STOPPED_DESCRIPTIONF_MSGVER_1'),
 		button: {
 			text: Loc.getMessage('IM_MESSAGE_SIGN_DOCUMENT_STOPPED_BUTTON_TEXT'),
+			callback: ({ user, document }) => {
+				goToPrimaryLink(document, true);
+			},
+			color: ButtonColor.Primary,
+		},
+	},
+	[Failure.documentExpiredToCompany]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_DOCUMENT_EXPIRED_COMPANY_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_DOCUMENT_EXPIRED_COMPANY_DESCRIPTION'),
+		button: {
+			text: Loc.getMessage('IM_MESSAGE_SIGN_DOCUMENT_EXPIRED_COMPANY_BUTTON_TEXT'),
 			callback: ({ user, document }) => {
 				goToPrimaryLink(document, true);
 			},

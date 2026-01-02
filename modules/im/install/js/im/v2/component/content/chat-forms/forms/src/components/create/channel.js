@@ -1,14 +1,11 @@
-import 'ui.notification';
-
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import { MenuManager } from 'main.popup';
 
 import { Messenger } from 'im.public';
-import { Core } from 'im.v2.application.core';
 import { CreateChatManager } from 'im.v2.lib.create-chat';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { EmptyAvatarType } from 'im.v2.component.elements';
-import { ChatService } from 'im.v2.provider.service';
+import { EmptyAvatarType } from 'im.v2.component.elements.avatar';
+import { ChatService } from 'im.v2.provider.service.chat';
 import { UserRole, PopupType, ChatType, EventType, Layout, type OnLayoutChangeEvent } from 'im.v2.const';
 import {
 	TitleInput,
@@ -17,7 +14,6 @@ import {
 	ButtonPanel,
 	TextareaInput,
 	CreateChatHeading,
-	SettingsSection,
 	RightsSection,
 	AppearanceSection,
 	PrivacySection,
@@ -34,7 +30,6 @@ export const ChannelCreation = {
 		TitleInput,
 		ChatAvatar,
 		ChatMembersSelector,
-		SettingsSection,
 		RightsSection,
 		AppearanceSection,
 		PrivacySection,
@@ -48,7 +43,8 @@ export const ChannelCreation = {
 			isCreating: false,
 			avatarFile: null,
 			chatTitle: '',
-			chatMembers: [['user', Core.getUserId()]],
+			chatMembers: [],
+			undeselectedItems: [],
 			settings: {
 				isAvailableInSearch: false,
 				description: '',
@@ -79,8 +75,11 @@ export const ChannelCreation = {
 	{
 		EventEmitter.subscribe(EventType.layout.onLayoutChange, this.onLayoutChange);
 
-		this.rights.ownerId = Core.getUserId();
 		this.initDefaultRolesForRights();
+
+		this.undeselectedItems = CreateChatManager.getInstance().getUndeselectedItems();
+		this.rights.ownerId = CreateChatManager.getInstance().getOwnerId();
+		this.chatMembers = CreateChatManager.getInstance().getChatMembers();
 
 		this.restoreFields();
 		CreateChatManager.getInstance().setChatType(ChatType.channel);
@@ -89,6 +88,7 @@ export const ChannelCreation = {
 	},
 	beforeUnmount()
 	{
+		CreateChatManager.getInstance().clearExternalFields();
 		EventEmitter.unsubscribe(EventType.layout.onLayoutChange, this.onLayoutChange);
 
 		if (this.exitByCancel || this.exitByChatTypeSwitch || this.exitByCreation)
@@ -154,20 +154,19 @@ export const ChannelCreation = {
 				manageMessages: this.rights.manageMessages,
 			}).catch(() => {
 				this.isCreating = false;
-				BX.UI.Notification.Center.notify({
-					content: this.loc('IM_CREATE_CHAT_ERROR'),
-				});
 			});
 
 			this.isCreating = false;
 			this.exitByCreation = true;
 			CreateChatManager.getInstance().setCreationStatus(false);
+			CreateChatManager.getInstance().setPreselectedMembers([]);
 			void Messenger.openChat(newDialogId);
 		},
 		onCancelClick()
 		{
 			this.exitByCancel = true;
 			CreateChatManager.getInstance().setCreationStatus(false);
+			CreateChatManager.getInstance().setPreselectedMembers([]);
 			Messenger.openChat();
 		},
 		onAvatarChange(newAvatarFile: File)
@@ -185,7 +184,7 @@ export const ChannelCreation = {
 		onLayoutChange(event: BaseEvent<OnLayoutChangeEvent>)
 		{
 			const { to } = event.getData();
-			if (to.name === Layout.createChat.name && to.entityId !== ChatType.channel)
+			if (to.name === Layout.createChat && to.entityId !== ChatType.channel)
 			{
 				this.exitByChatTypeSwitch = true;
 			}
@@ -272,7 +271,12 @@ export const ChannelCreation = {
 				:hintText="loc('IM_CREATE_CHANNEL_MEMBERS_HINT')"
 			/>
 			<div class="bx-im-content-chat-forms__members_container">
-				<ChatMembersSelector :chatMembers="chatMembers" @membersChange="onMembersChange" />
+				<ChatMembersSelector 
+					:chatMembers="chatMembers"
+					:undeselectedItems="undeselectedItems"
+					:allowTeamsSelect="true"
+					@membersChange="onMembersChange"
+				/>
 			</div>
 			<RightsSection
 				:chatType="ChatType.channel"

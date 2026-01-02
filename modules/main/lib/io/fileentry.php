@@ -1,8 +1,8 @@
 <?php
+
 namespace Bitrix\Main\IO;
 
-abstract class FileEntry
-	extends FileSystemEntry
+abstract class FileEntry extends FileSystemEntry
 {
 	public function __construct($path, $siteId = null)
 	{
@@ -14,16 +14,21 @@ abstract class FileEntry
 		return Path::getExtension($this->path);
 	}
 
-	public abstract function getContents();
-	public abstract function putContents($data);
-	public abstract function getSize();
-	public abstract function isWritable();
-	public abstract function isReadable();
-	public abstract function readFile();
+	abstract public function getContents();
+
+	abstract public function putContents($data);
+
+	abstract public function getSize();
+
+	abstract public function isWritable();
+
+	abstract public function isReadable();
+
+	abstract public function readFile();
 
 	/**
-	 * @deprecated Use getSize() instead
 	 * @return mixed
+	 * @deprecated Use getSize() instead
 	 */
 	public function getFileSize()
 	{

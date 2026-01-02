@@ -808,8 +808,8 @@
 	    key: "removeRowFromGrid",
 	    value: function removeRowFromGrid(skuId) {
 	      var data = {
-	        'id': skuId,
-	        'action': 'deleteRow'
+	        id: skuId,
+	        action: 'deleteRow'
 	      };
 	      this.getGrid().reloadTable('POST', data);
 	    }

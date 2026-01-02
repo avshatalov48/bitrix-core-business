@@ -4,7 +4,7 @@ import { Core } from 'im.v2.application.core';
 import { EventType, ChatType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 
-import { MessageAuthorTitle } from 'im.v2.component.elements';
+import { MessageAuthorTitle } from 'im.v2.component.elements.chat-title';
 
 import './author-title.css';
 

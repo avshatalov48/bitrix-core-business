@@ -84,6 +84,8 @@ $MESS["MAIL_MESSAGE_POST_TITLE"] = "Письмо: #SUBJECT#";
 
 $MESS["MAIL_MESSAGE_SYNC_BTN_HINT"] = "Синхронизация";
 $MESS["MAIL_MESSAGE_NEW_BTN"] = "Написать письмо";
+$MESS["MAIL_MESSAGE_MAILBOX_GRID_BTN"] = "Управление ящиками сотрудников";
+$MESS["MAIL_MESSAGE_MAILBOX_GRID_HINT_DESCRIPTION"] = "Вы можете посмотреть, какие ящики подключили <br> сотрудники, настроить или отключить их";
 
 $MESS["MAIL_MESSAGE_EMPTY_SENDER"] = "Укажите отправителя";
 $MESS["MAIL_MESSAGE_BAD_SENDER"] = "Недопустимый отправитель";

@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Iblock\Public\Service\RestValidator as IblockRestValidator;
 use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Rest\Exceptions\ArgumentException;
@@ -652,6 +653,16 @@ class CBitrixRestEntity extends IRestService
 		$arFilter['IBLOCK_ID'] = $iBlockId;
 		$arFilter['CHECK_PERMISSIONS'] = 'Y';
 
+		$validator = IblockRestValidator\Format\ElementFilterFieldValidator::getInstance();
+		$internalResult = $validator->run($arFilter);
+		if (!$internalResult->isSuccess())
+		{
+			throw new RestException(
+				implode(' ', $internalResult->getErrorMessages()),
+				RestException::ERROR_ARGUMENT
+			);
+		}
+
 		$dbRes = \CIBlockElement::GetList(
 			$arSort,
 			$arFilter,
@@ -728,6 +739,17 @@ class CBitrixRestEntity extends IRestService
 			{
 				if(\CIBlockRights::UserHasRightTo($arIBlock['ID'], $arIBlock['ID'], 'element_edit'))
 				{
+					$validator = IblockRestValidator\Format\ElementFieldValidator::getInstance();
+					$validator->setFileValidator(new IblockRestValidator\Format\Type\SkipFile());
+					$internalResult = $validator->run($params);
+					if (!$internalResult->isSuccess())
+					{
+						throw new RestException(
+							implode(' ', $internalResult->getErrorMessages()),
+							RestException::ERROR_ARGUMENT
+						);
+					}
+
 					$arItemFields = self::prepareItem($params, $arIBlock, $server);
 
 					$ib = new \CIBlockElement();
@@ -796,6 +818,17 @@ class CBitrixRestEntity extends IRestService
 
 						if($arRes)
 						{
+							$validator = IblockRestValidator\Format\ElementFieldValidator::getInstance();
+							$validator->setFileValidator(new IblockRestValidator\Format\Type\SkipFile());
+							$internalResult = $validator->run($params);
+							if (!$internalResult->isSuccess())
+							{
+								throw new RestException(
+									implode(' ', $internalResult->getErrorMessages()),
+									RestException::ERROR_ARGUMENT
+								);
+							}
+
 							$arItemFields = self::prepareItem($params, $arIBlock, $server);
 
 							if(count($arItemFields) > 0)

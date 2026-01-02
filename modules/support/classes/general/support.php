@@ -625,7 +625,8 @@ class CAllTicket
 			"NOT_CHANGE_STATUS"				=> "Y",
 			"MESSAGE_AUTHOR_USER_ID"		=> $arParam['SPLIT_MESSAGE_USER_ID'],
 		);
-		CTicket::AddMessage($intLastTicketID, $arFields, $arFiles=Array(), "N");
+		$arFiles = [];
+		CTicket::AddMessage($intLastTicketID, $arFields, $arFiles, "N");
 
 		// add to the previous post about ticket allocation of posts in a separate branch (support log)
 		$arFields_log = array(
@@ -636,7 +637,8 @@ class CAllTicket
 			"MESSAGE"						=> \Bitrix\Main\Localization\Loc::getMessage("SUP_SPLIT_MESSAGE_LOG_1", array("#MESSAGE_ID#" => $intSplitMesageID, "#TITLE#" => '<a href="ticket_edit.php?ID='.$arParam['SPLIT_TICKET_ID'].'&lang='.LANGUAGE_ID.'"> # '.$arParam['SPLIT_TICKET_ID'].' "'.$arParam['SPLIT_TICKET_TITLE'].'"</a>'), $arSite['LANGUAGE_ID']),
 			"LOG"							=> "Y",
 		);
-		CTicket::AddMessage($intLastTicketID, $arFields_log, $arFiles_log=Array(), "N");
+		$arFiles = [];
+		CTicket::AddMessage($intLastTicketID, $arFields_log, $arFiles, "N");
 
 		// add a new ticket allocation message posted in a separate branch
 		$arFields = array(
@@ -650,7 +652,8 @@ class CAllTicket
 			"NOT_CHANGE_STATUS"				=> "Y",
 			"MESSAGE_AUTHOR_USER_ID"		=> $arParam['SPLIT_MESSAGE_USER_ID'],
 		);
-		CTicket::AddMessage($arParam['SPLIT_TICKET_ID'], $arFields, $arFiles=Array(), "N");
+		$arFiles = [];
+		CTicket::AddMessage($arParam['SPLIT_TICKET_ID'], $arFields, $arFiles, "N");
 
 		// add a new ticket allocation message posted in a separate branch (support log)
 		$arFields_log = array(
@@ -661,7 +664,8 @@ class CAllTicket
 			"MESSAGE"						=> \Bitrix\Main\Localization\Loc::getMessage("SUP_SPLIT_MESSAGE_LOG_2", array("#MESSAGE_ID#" => $intSplitMesageID, "#TITLE#" => '<a href="ticket_edit.php?ID='.$intLastTicketID.'&lang='.LANGUAGE_ID.'"> # '.$intLastTicketID.' "'.$stLastTicketTitle.'"</a>'), $arSite['LANGUAGE']),
 			"LOG"							=> "Y",
 		);
-		CTicket::AddMessage($arParam['SPLIT_TICKET_ID'], $arFields_log, $arFiles_log=Array(), "N");
+		$arFiles = [];
+		CTicket::AddMessage($arParam['SPLIT_TICKET_ID'], $arFields_log, $arFiles, "N");
 
 		// If the message that we want to separate, there are attached files, copy them
 		if (isset($arParam['SPLIT_ATTACH_FILE']))

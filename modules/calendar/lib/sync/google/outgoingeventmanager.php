@@ -4,9 +4,7 @@ namespace Bitrix\Calendar\Sync\Google;
 
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Base\Date;
-use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Connection\EventConnection;
-use Bitrix\Calendar\Sync\Connection\Server;
 use Bitrix\Calendar\Sync\Dictionary;
 use Bitrix\Calendar\Sync\Entities\InstanceMap;
 use Bitrix\Calendar\Sync\Entities\SyncEvent;

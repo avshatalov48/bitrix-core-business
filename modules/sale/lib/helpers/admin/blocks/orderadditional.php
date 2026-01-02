@@ -120,10 +120,15 @@ class OrderAdditional
 
 			if (empty($companies) && $formPrefix === 'ORDER')
 			{
+				$companyId = $post['COMPANY_ID'] ?? null;
+				if ($companyId === null)
+				{
+					$companyId = $data['COMPANY_ID'] ?? null;
+				}
 				$companies = OrderEdit::makeSelectHtmlWithRestricted(
 					$formPrefix.'[COMPANY_ID]',
 					$data['COMPANIES'],
-					isset($post["COMPANY_ID"]) ? $post["COMPANY_ID"] : $data["COMPANY_ID"],
+					(string)$companyId,
 					true,
 					array(
 						"class" => "adm-bus-select",

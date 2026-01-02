@@ -2,9 +2,9 @@
 
 namespace Bitrix\Im\V2\Controller\Filter;
 
+use Bitrix\Im\V2\Application\Context;
 use Bitrix\Im\V2\Controller\Chat;
 use Bitrix\Im\V2\Controller\UpdateState;
-use Bitrix\Main\Context;
 use Bitrix\Main\Engine\ActionFilter\Base;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Event;
@@ -53,43 +53,22 @@ class UpdateStatus extends Base
 		}
 
 		\CIMContactList::SetOnline($userId);
+		$context = Context::getCurrent();
 
-		if ($this->isMobile() && Loader::includeModule('mobile'))
+		if ($context->isMobile() && Loader::includeModule('mobile'))
 		{
 			\Bitrix\Mobile\User::setOnline($userId);
 		}
 
-		if (!$this->isMobile())
+		if (!$context->isMobile())
 		{
 			\CIMStatus::Set($userId, Array('IDLE' => null));
 		}
 
-		if ($this->isDesktop())
+		if ($context->isDesktop())
 		{
 			\CIMMessenger::SetDesktopStatusOnline($userId);
 		}
-	}
-
-	private function isDesktop(): bool
-	{
-		return $this->containInUserAgent('BitrixDesktop');
-	}
-
-	private function isMobile(): bool
-	{
-		return $this->containInUserAgent('BitrixMobile');
-	}
-
-	private function containInUserAgent(string $userAgent): bool
-	{
-		$context = Context::getCurrent();
-
-		if ($context === null)
-		{
-			return false;
-		}
-
-		return false !== stripos($context->getRequest()->getUserAgent(), $userAgent);
 	}
 
 	private function shouldUpdateByAction(): bool

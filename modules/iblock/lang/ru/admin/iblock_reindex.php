@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_REINDEX_IN_PROGRESS"] = "Переиндексация...";
 $MESS["IBLOCK_REINDEX_TOTAL"] = "Проиндексировано элементов:";
 $MESS["IBLOCK_REINDEX_COMPLETE"] = "Создание индексов завершено.";
@@ -13,4 +13,3 @@ $MESS["IBLOCK_REINDEX_CONTINUE_BUTTON"] = "Продолжить";
 $MESS["IBLOCK_REINDEX_STOP_BUTTON"] = "Остановить";
 $MESS["IBLOCK_REINDEX_TOTAL_COMPLETE"] = "Все индексы созданы.";
 $MESS["IBLOCK_REINDEX_DEACTIVE"] = "деактивирован";
-?>

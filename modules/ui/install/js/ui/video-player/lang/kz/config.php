@@ -1,0 +1,25 @@
+<?php
+$MESS["VIDEO_PLAYER_ABORTED_PLAYBACK"] = "Сіз бейне ойнатуды тоқтаттыңыз.";
+$MESS["VIDEO_PLAYER_CURRENT_TIME"] = "Ағымдағы уақыт";
+$MESS["VIDEO_PLAYER_DURATION"] = "Ұзақтығы";
+$MESS["VIDEO_PLAYER_EXIT_FULLSCREEN"] = "Толық емес экран режимі";
+$MESS["VIDEO_PLAYER_EXIT_PICTURE_IN_PICTURE"] = "Сурет ішіндегі суретті жабу";
+$MESS["VIDEO_PLAYER_FORMAT_NOT_SUPPORTED"] = "Бейне жүктелмеді, себебі желі немесе сервер ақауы орын алды немесе бейне пішіміне қолдау көрсетілмейді.";
+$MESS["VIDEO_PLAYER_FULLSCREEN"] = "Толық экран режимі";
+$MESS["VIDEO_PLAYER_LOADED"] = "Жүктеу";
+$MESS["VIDEO_PLAYER_MEDIA_IS_ENCRYPTED"] = "Бейне шифрланған, ал бізде оны шифрдан шығару үшін кілттер жоқ.";
+$MESS["VIDEO_PLAYER_MUTE"] = "Дыбыссыз";
+$MESS["VIDEO_PLAYER_NETWORK_ERROR"] = "Желі қатесі жүктеу кезінде ақаулық тудырды.";
+$MESS["VIDEO_PLAYER_NO_COMPATIBLE_SOURCE"] = "Бұл бейне үшін үйлесімді дереккөздер жоқ.";
+$MESS["VIDEO_PLAYER_PAUSE"] = "Тоқтата тұру";
+$MESS["VIDEO_PLAYER_PICTURE_IN_PICTURE"] = "Сурет ішіндегі сурет";
+$MESS["VIDEO_PLAYER_PLAY"] = "Ойнату";
+$MESS["VIDEO_PLAYER_PLAYBACK_RATE"] = "Ойнату жылдамдығы";
+$MESS["VIDEO_PLAYER_PLAYBACK_WAS_ABORTED"] = "Ойнату үзіліп қалды, себебі файл зақымдалған немесе бейне сіздің браузеріңізде қолжетімсіз функцияларды пайдаланады.";
+$MESS["VIDEO_PLAYER_PLAY_VIDEO"] = "Бейнені ойнату";
+$MESS["VIDEO_PLAYER_PROGRESS"] = "Прогресс";
+$MESS["VIDEO_PLAYER_PROGRESS_BAR"] = "Жүктеу индикаторы";
+$MESS["VIDEO_PLAYER_REMAINING_TIME"] = "Қалған уақыт";
+$MESS["VIDEO_PLAYER_REPLAY"] = "Қайта ойнату";
+$MESS["VIDEO_PLAYER_UNMUTE"] = "Дыбыспен";
+$MESS["VIDEO_PLAYER_VOLUME_LEVEL"] = "Дыбыс деңгейі";

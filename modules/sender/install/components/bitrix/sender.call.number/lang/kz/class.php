@@ -1,0 +1,2 @@
+<?php
+$MESS["SENDER_CALL_NUMBER_BITRIX_PHONES"] = "Битрикс24";

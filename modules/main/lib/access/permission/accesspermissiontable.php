@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -8,12 +9,13 @@
 
 namespace Bitrix\Main\Access\Permission;
 
-use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\NotSupportedException;
 use Bitrix\Main\ORM\Data\Result;
 use Bitrix\Main\ORM\Event;
 use Bitrix\Main\Access\Entity\DataManager;
+use Bitrix\Main\ORM\Fields;
+use Bitrix\Main\ORM\EntityError;
 
 Loc::loadMessages(__FILE__);
 
@@ -22,17 +24,17 @@ abstract class AccessPermissionTable extends DataManager
 	public static function getMap()
 	{
 		return [
-			new Entity\IntegerField('ID', [
+			new Fields\IntegerField('ID', [
 				'autocomplete' => true,
 				'primary' => true
 			]),
-			new Entity\IntegerField('ROLE_ID', [
+			new Fields\IntegerField('ROLE_ID', [
 				'required' => true
 			]),
-			new Entity\StringField('PERMISSION_ID', [
+			new Fields\StringField('PERMISSION_ID', [
 				'required' => true
 			]),
-			new Entity\IntegerField('VALUE', [
+			new Fields\IntegerField('VALUE', [
 				'required' => true
 			])
 		];
@@ -51,7 +53,7 @@ abstract class AccessPermissionTable extends DataManager
 		{
 			if (empty($primary))
 			{
-				$result->addError(new Entity\EntityError(Loc::getMessage('ACCESS_PERMISSION_PARENT_VALIDATE_ERROR')));
+				$result->addError(new EntityError(Loc::getMessage('ACCESS_PERMISSION_PARENT_VALIDATE_ERROR')));
 				return;
 			}
 			$data = static::loadUpdateRow($primary, $data);
@@ -59,7 +61,7 @@ abstract class AccessPermissionTable extends DataManager
 
 		if (!static::validateRow($data))
 		{
-			$result->addError(new Entity\EntityError(Loc::getMessage('ACCESS_PERMISSION_PARENT_VALIDATE_ERROR')));
+			$result->addError(new EntityError(Loc::getMessage('ACCESS_PERMISSION_PARENT_VALIDATE_ERROR')));
 		}
 	}
 

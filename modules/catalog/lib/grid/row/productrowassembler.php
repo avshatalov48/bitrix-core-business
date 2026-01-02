@@ -15,6 +15,7 @@ use Bitrix\Catalog\Grid\Settings\ProductSettings;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Iblock\Grid\Row\Assembler\SectionNameFieldAssembler;
 use Bitrix\Iblock\Grid\Row\ElementRowAssembler;
+use Bitrix\Main\Grid\Row\Assembler\Field\StringFieldAssembler;
 use Bitrix\Main\Loader;
 
 Loader::requireModule('iblock');
@@ -76,6 +77,8 @@ class ProductRowAssembler extends ElementRowAssembler
 			['MORE_PHOTO'],
 			$this->settings
 		);
+
+		$result[] = new StringFieldAssembler(['XML_ID', 'CODE']);
 
 		return $result;
 	}

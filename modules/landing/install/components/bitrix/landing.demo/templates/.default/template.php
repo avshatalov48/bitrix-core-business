@@ -10,11 +10,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var string $templateFolder */
 /** @var \CMain $APPLICATION */
 
-use \Bitrix\Landing\Manager;
-use \Bitrix\Main\Page\Asset;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\ModuleManager;
+use Bitrix\Landing\Manager;
+use Bitrix\Main\Page\Asset;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\UI\Extension;
+use Bitrix\UI;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 Extension::load([
 	'ui.fonts.opensans',
@@ -97,6 +99,7 @@ if (!$component->isAjax())
 	\Bitrix\Landing\Manager::setPageTitle(
 		$component->getMessageType('LANDING_TPL_TITLE')
 	);
+	Toolbar::deleteFavoriteStar();
 
 	// additional assets
 	\CJSCore::Init(['popup', 'action_dialog', 'loader', 'sidepanel']);
@@ -135,7 +138,11 @@ if (!$component->isAjax())
 	}
 
 	// create empty button
-	if ($arParams['TYPE'] === 'KNOWLEDGE' || $arParams['TYPE'] === 'GROUP')
+	if (
+		$arParams['TYPE'] === 'KNOWLEDGE'
+		|| $arParams['TYPE'] === 'GROUP'
+		|| $arResult['MARKET_DISABLE']
+	)
 	{
 		$emptyTpl = !$arParams['SITE_ID']
 			? 'empty-multipage/main'
@@ -145,17 +152,23 @@ if (!$component->isAjax())
 			['tpl' => $emptyTpl],
 			['select']
 		);
-		$createEmptyButton =
-			'<div 
-				id="landing-demo-empty"
-				class="ui-btn ui-btn-md ui-btn-light-border landing-template-pseudo-link"
-				data-href="' . $emptyCreateUrl . '"
-			>'
-			. Loc::getMessage("LANDING_TPL_CREATE_EMPTY")
-			. '</div>';
-		$APPLICATION->addViewContent('inside_pagetitle', $createEmptyButton);
+		$createEmptyButton = new UI\Buttons\Button([
+			'id' => 'landing-demo-empty',
+			'color' => UI\Buttons\Color::LIGHT_BORDER,
+			'link' => $emptyCreateUrl,
+			'text' => Loc::getMessage("LANDING_TPL_CREATE_EMPTY"),
+		]);
+
+		Toolbar::addButton($createEmptyButton);
+		?>
+		<script>
+			BX.Landing.Component.Demo.createEmptyId = '<?=\CUtil::jsEscape($createEmptyButton->getUniqId())?>';
+		</script>
+		<?php
 	}
 	?>
+
+
 	<div style="display: none">
 		<?$APPLICATION->includeComponent(
 			'bitrix:ui.feedback.form',
@@ -164,14 +177,17 @@ if (!$component->isAjax())
 		);?>
 	</div>
 
-
 	<?php
 }
 ?>
 
 <div class="grid-tile-wrap" id="grid-tile-wrap">
 	<div class="grid-tile-inner" id="grid-tile-inner">
-		<?php if (
+		<?php if ($arResult['MARKET_DISABLE']): ?>
+			<span class="landing-item landing-item-market-disable">
+				<span class="landing-item-market-disable-title"><?= Loc::getMessage('LANDING_TPL_MARKET_DISABLE_MSGVER_1') ?></span>
+			</span>
+		<?php elseif (
 			$arParams['TYPE'] === 'PAGE'
 			&& (count($arResult['DEMO']) > 0)
 		): ?>
@@ -214,6 +230,7 @@ if (!$component->isAjax())
 		$item['ID'] === 'empty'
 		|| $item['ID'] === 'empty-multipage'
 		|| $item['ID'] === 'store-chats-dark'
+		|| $item['ID'] === 'requisites/main'
 	)
 	{
 		continue;
@@ -327,23 +344,27 @@ if (!$component->isAjax())
 	</div>
 <?php endif; ?>
 
-<?if (
-	Manager::isB24()
-	&& $arParams['TYPE'] !== 'PAGE'
-):?>
+<?php
+if (Manager::isB24() && $arParams['TYPE'] !== 'PAGE') {
+	$link = ($arParams['TYPE'] === 'KNOWLEDGE' || $arParams['TYPE'] === 'GROUP')
+		? SITE_DIR . 'market/category/vertical_knowledge_bases/'
+		: SITE_DIR . 'market/category/site_shops/';
+	?>
 	<a
 		class="landing-license-banner"
 		href="javascript:void(0)"
-		onclick="BX.SidePanel.Instance.open('<?= SITE_DIR;?>market/collection/online_stores/');"
+		onclick="BX.SidePanel.Instance.open('<?= $link; ?>');"
 	>
 		<div class="landing-license-banner-icon">
 			<div class="landing-license-banner-icon-arrow"></div>
 		</div>
 		<div class="landing-license-banner-title">
-			<?= Loc::getMessage('LANDING_TPL_LOAD_APP_TEMPLATE_2');?>
+			<?= Loc::getMessage('LANDING_TPL_LOAD_APP_TEMPLATE_2_MSGVER_1'); ?>
 		</div>
 	</a>
-<?endif;?>
+	<?php
+}
+?>
 
 <script>
 	BX.ready(function ()

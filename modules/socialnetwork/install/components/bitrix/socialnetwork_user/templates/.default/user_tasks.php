@@ -121,6 +121,7 @@ elseif (Loader::includeModule('tasks'))
 		"PREORDER" => [
 			'STATUS_COMPLETE' => 'asc'
 		],
+		'MARK_SECTION_TASKS_LIST' => 'Y',
 	];
 
 	if (isset($tagSliderParams))
@@ -140,6 +141,7 @@ elseif (Loader::includeModule('tasks'))
 			"POPUP_COMPONENT_TEMPLATE_NAME" => "",
 			"POPUP_COMPONENT_PARAMS" => $componentParams,
 			"POPUP_COMPONENT_PARENT" => $component,
+			'USE_UI_TOOLBAR' => 'Y',
 		],
 	);
 }

@@ -1,4 +1,6 @@
 <?php
+$MESS["BIZPROC_CMP_WORKFLOW_START_CONSTANTS_ACCESS_DENIED"] = "Nur der Administrator kann Konstanten bearbeiten.";
+$MESS["BIZPROC_CMP_WORKFLOW_START_CONSTANTS_NOT_FOUND"] = "Diese Workflow-Vorlage hat keine Konstanten.";
 $MESS["BIZPROC_CMP_WORKFLOW_START_TEMPLATE_NOT_FOUND"] = "Workflow ist nicht verfügbar. Evtl. wurde er gelöscht, oder manueller Start ist deaktiviert.";
 $MESS["BIZPROC_CMP_WORKFLOW_START_TEMPLATE_NO_PERMISSIONS"] = "Sie haben nicht genügend Rechte, um Workflow zu starten. Bitte wenden Sie sich an Ihren Bitrix24 Administrator.";
 $MESS["BPABS_EMPTY_DOC_ID"] = "Keine Dokument-ID angegeben, für die der Workflow erstellt werden soll.";

@@ -163,9 +163,9 @@ $MESS["SC_ERROR0"] = "Error!";
 $MESS["SC_ERROR1"] = "The test has failed to complete.";
 $MESS["SC_ERRORS_FOUND"] = "There&nbsp;were&nbsp;errors";
 $MESS["SC_ERRORS_NOT_FOUND"] = "No&nbsp;errors&nbsp;detected";
-$MESS["SC_ERR_CONNECT_MAIL001"] = "Cannot connect mail server mail-001.bitrix24.com";
+$MESS["SC_ERR_CONNECT_MAIL001"] = "Cannot connect mail server mail-us.bitrix24.com";
 $MESS["SC_ERR_DNS"] = "Cannot get MX record for domain #DOMAIN#";
-$MESS["SC_ERR_DNS_WRONG"] = "DNS configuration is incorrect. Only one MX record has to be there: mail-001.bitrix24.com (current: #DOMAIN#).";
+$MESS["SC_ERR_DNS_WRONG"] = "DNS configuration is incorrect. Only one MX record has to be there: mail-us.bitrix24.com (current: #DOMAIN#).";
 $MESS["SC_ERR_FIELD_DIFFERS"] = "Table #TABLE#: the field #FIELD# \"#CUR#\" does not match the description \"#NEW#\"";
 $MESS["SC_ERR_NO_FIELD"] = "The field #FIELD# is missing from the table #TABLE#";
 $MESS["SC_ERR_NO_INDEX"] = "Index #INDEX# is missing from the table #TABLE#";
@@ -400,7 +400,7 @@ Your Intranet needs access to this server for push notifications to work as desi
 $MESS["SC_HELP_CHECK_REST"] = "The REST module is required to integrate external applications and run a number of Bitrix24.Market applications. To integrate your own applications into Bitrix24, please follow <a href=\"https://training.bitrix24.com/rest_help/\" target=\"_blank\">the guidelines</a>.";
 $MESS["SC_HELP_CHECK_SEARCH"] = "The system can search text in documents in Open XML format (introduced in Microsoft Office 2007) out of the box. To support other file formats, specify paths to parsing applications <a href=\"/bitrix/admin/settings.php?mid=intranet\">in the Intranet module settings</a>. Otherwise, the system will be able to search filenames only.
 
-<a href=\"https://www.1c-bitrix.ru/products/vmbitrix/index.php\">Bitrix Virtual Appliance</a> supports it by default.";
+<a href=\"https://www.bitrix24.com/self-hosted/installation.php\">Bitrix Environment</a> supports it by default.";
 $MESS["SC_HELP_CHECK_SECURITY"] = "The Apache's mod_security module, like the PHP's suhosin, is intended to protect the website against hackers, but eventually it just prevents normal user actions. It is recommended that you use the standard \"Proactive Protection\" module instead of mod_security.";
 $MESS["SC_HELP_CHECK_SERVER_VARS"] = "This will check the server variables.
 
@@ -479,7 +479,6 @@ $MESS["SC_STOP_TEST_B"] = "Stop";
 $MESS["SC_STRLEN_FAIL_PHP56"] = "String functions work incorrectly.  ";
 $MESS["SC_SUBTITLE_DISK"] = "Checking the disk access";
 $MESS["SC_SUBTITLE_DISK_DESC"] = "The site scripts must have write access to site files. This is required for proper functioning of the file manager, file upload and the update system that is used to keep the site kernel up-to-date.";
-$MESS["SC_SUPPORT_COMMENT"] = "If you have problems sending the message, please use the contact form at our site:";
 $MESS["SC_SWF_WARN"] = "SWF objects may not run.";
 $MESS["SC_SYSTEM_TEST"] = "System check";
 $MESS["SC_TABLES_NEED_REPAIR"] = "Table integrity damaged, they need to be fixed.";
@@ -493,7 +492,6 @@ $MESS["SC_TABLE_ROW_FORMAT_ERRORS"] = "Not all of the InnoDB tables are in Dynam
 $MESS["SC_TABLE_ROW_FORMAT_NA"] = "Not checked due to table storage format errors.";
 $MESS["SC_TABLE_SIZE_WARN"] = "The size of the &quot;#TABLE#&quot; table is possibly too large (#SIZE# M).";
 $MESS["SC_TAB_2"] = "Access check";
-$MESS["SC_TAB_5"] = "Technical support";
 $MESS["SC_TESTING"] = "Now checking...";
 $MESS["SC_TESTING1"] = "Testing...";
 $MESS["SC_TEST_CONFIG"] = "Configuration Check";
@@ -503,14 +501,6 @@ $MESS["SC_TEST_START"] = "Start test";
 $MESS["SC_TEST_SUCCESS"] = "Success";
 $MESS["SC_TEST_WARN"] = "The server configuration report is about to be collected.
 If an error occurs, please uncheck the \"Send Test Log\" option and try again.";
-$MESS["SC_TIK_ADD_TEST"] = "Send Test Log";
-$MESS["SC_TIK_DESCR"] = "Problem description";
-$MESS["SC_TIK_DESCR_DESCR"] = "sequence of operations that caused the error, error description,...";
-$MESS["SC_TIK_LAST_ERROR"] = "Last error text";
-$MESS["SC_TIK_LAST_ERROR_ADD"] = "attached";
-$MESS["SC_TIK_SEND_MESS"] = "Send message";
-$MESS["SC_TIK_SEND_SUCCESS"] = "The message has been sent successfully. Please check your inbox #EMAIL# after some time for confirmation of the message receipt from the technical support system.";
-$MESS["SC_TIK_TITLE"] = "Send message to the technical support system";
 $MESS["SC_TIME_DIFF"] = "The time is off by #VAL# seconds.";
 $MESS["SC_TMP_FOLDER_PERMS"] = "Insufficient permission to write to temporary folder.";
 $MESS["SC_T_APACHE"] = "Web server modules";

@@ -17,6 +17,7 @@ use Bitrix\Sender\GroupConnectorTable;
 use Bitrix\Sender\GroupDealCategoryTable;
 use Bitrix\Sender\GroupTable;
 use Bitrix\Sender\Internals\Model\GroupCounterTable;
+use Bitrix\Sender\Internals\SqlBatch;
 use Bitrix\Sender\ListTable;
 use Bitrix\Sender\Posting\SegmentDataBuilder;
 use Bitrix\Main\Type;
@@ -407,6 +408,7 @@ class Segment extends Base
 		}
 
 		GroupCounterTable::deleteByGroupId($segmentId);
+		$insertRows = [];
 		foreach ($countByType as $typeId => $typeCount)
 		{
 			if (!$typeCount)
@@ -414,12 +416,14 @@ class Segment extends Base
 				continue;
 			}
 
-			GroupCounterTable::add(array(
+			$insertRows[] = [
 				'GROUP_ID' => $segmentId,
 				'TYPE_ID' => $typeId,
 				'CNT' => $typeCount,
-			));
+			];
 		}
+
+		SqlBatch::insert(GroupCounterTable::getTableName(), $insertRows);
 
 		return true;
 	}

@@ -27,11 +27,11 @@ class Application implements RestConvertible
 	/**
 	 * @return Application\Entity[]
 	 */
-	public function getApplications(): array
+	public function getApplications(?array $placementList = null): array
 	{
 		$orderList = $this->getOrderList();
 		$result = [];
-		foreach ($this->generateApplicationList() as $application)
+		foreach ($this->generateApplicationList($placementList) as $application)
 		{
 			if ($this->isApplicationAvailable($application))
 			{
@@ -128,9 +128,9 @@ class Application implements RestConvertible
 	/**
 	 * @return \Generator<Application\Entity>
 	 */
-	private function generateApplicationList(): \Iterator
+	private function generateApplicationList(?array $placementList = null): \Iterator
 	{
-		foreach (Placement::getPlacementList() as $placement)
+		foreach ($placementList ?? Placement::getPlacementList() as $placement)
 		{
 			foreach (PlacementTable::getHandlersList($placement) as $handler)
 			{

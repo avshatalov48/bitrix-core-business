@@ -58,7 +58,12 @@ class Department extends Handler
 			return;
 		}
 
-		$user = \CUser::GetByID($arFields['ID'])->Fetch();
+		$user = \CUser::GetList(
+			'ID',
+			'ASC',
+			['ID' => $arFields['ID']],
+			['FIELDS' => ['ID'], 'SELECT' => ['UF_DEPARTMENT']]
+		)->Fetch();
 
 		if (!isset($user['UF_DEPARTMENT']))
 		{

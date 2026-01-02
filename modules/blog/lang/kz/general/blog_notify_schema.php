@@ -1,0 +1,20 @@
+<?php
+$MESS["BLG_NS"] = "Хабарламалар";
+$MESS["BLG_NS_BROADCAST_COMMENT"] = "Барлық пайдаланушыға бағытталған хабарламаға жаңа пікір";
+$MESS["BLG_NS_BROADCAST_POST_MSGVER_2"] = "Барлық қызметкерлерге жаңа хабарлама";
+$MESS["BLG_NS_COMMENT_MSGVER_1"] = "Сіздің хабарламаңызға пікір жазылды";
+$MESS["BLG_NS_GRAT_MSGVER_1"] = "Сізге алғыс жіберілді";
+$MESS["BLG_NS_IM_ANSWER_ERROR"] = "Пікірді жариялау қатесі";
+$MESS["BLG_NS_IM_ANSWER_SUCCESS"] = "Пікір сәтті жарияланды";
+$MESS["BLG_NS_MENTION"] = "Сізді хабарламада атап өтті";
+$MESS["BLG_NS_MENTION_COMMENT"] = "Сізді пікірде атап өтті";
+$MESS["BLG_NS_MODERATE_COMMENT"] = "Модерацияға арналған жаңа пікір";
+$MESS["BLG_NS_MODERATE_POST"] = "Модерацияға арналған жаңа хабарлама";
+$MESS["BLG_NS_MSGVER_2"] = "Лентадағы хабарламалар";
+$MESS["BLG_NS_POST_MAIL"] = "Сіздің хатыңыз Жанды лентада сәтті жарияланды";
+$MESS["BLG_NS_POST_MAIL_MSGVER_2"] = "Сіздің хатыңыз Лентада жарияланған";
+$MESS["BLG_NS_POST_MSGVER_1"] = "Сізге хабарлама жазылды";
+$MESS["BLG_NS_PUBLISHED_COMMENT"] = "Модератордың сіздің пікіріңізді жариялауы";
+$MESS["BLG_NS_PUBLISHED_POST"] = "Модератордың сіздің хабарламаңызды жариялауы";
+$MESS["BLG_NS_SHARE2USERS_MSGVER_1"] = "Сізді алушыларға қосты";
+$MESS["BLG_NS_SHARE_MSGVER_1"] = "Хабарламаға алушылар қосылды";

@@ -661,6 +661,19 @@ export class Guide extends Event.EventEmitter
 					forceBindPosition: true
 				},
 				events: {
+					onBeforeShow: () => {
+						if (this.getCurrentStep())
+						{
+							const currentStep = this.getCurrentStep();
+							currentStep.emit(
+								currentStep.constructor.getFullEventName('onBeforeShow'),
+								{
+									step: currentStep,
+									guide: this,
+								},
+							);
+						}
+					},
 					onPopupClose : (popup) => {
 						if(popup.destroyed === false && this.onEvents)
 							EventEmitter.emit('UI.Tour.Guide:onPopupClose', this);

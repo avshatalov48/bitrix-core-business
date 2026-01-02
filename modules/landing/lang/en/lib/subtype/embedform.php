@@ -1,8 +1,0 @@
-<?
-$MESS["LANDING_BLOCK_FORM_CONFIG"] = "Manage CRM forms";
-$MESS["LANDING_BLOCK_WEBFORM"] = "CRM form";
-$MESS["LANDING_BLOCK_WEBFORM_USE_DESIGN"] = "Form style";
-$MESS["LANDING_BLOCK_WEBFORM_USE_DESIGN_Y"] = "Use container style";
-$MESS["LANDING_BLOCK_WEBFORM_USE_DESIGN_N"] = "Use CRM form style";
-$MESS["LANDING_BLOCK_WEBFORM_NO_FORM"] = "There are no active CRM forms";
-?>

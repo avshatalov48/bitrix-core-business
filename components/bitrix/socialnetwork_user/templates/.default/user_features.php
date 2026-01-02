@@ -5,11 +5,11 @@ $pageId = "";
 include("util_menu.php");
 ?>
 <?
-if (SITE_TEMPLATE_ID != "bitrix24"):
+if (SITE_TEMPLATE_ID != "bitrix24" && SITE_TEMPLATE_ID !== 'air'):
 	?><?
 	$APPLICATION->IncludeComponent(
-		"bitrix:socialnetwork.features", 
-		"", 
+		"bitrix:socialnetwork.features",
+		"",
 		Array(
 			"PATH_TO_USER" => $arResult["PATH_TO_USER"],
 			"PAGE_VAR" => $arResult["ALIASES"]["page"],
@@ -23,8 +23,7 @@ if (SITE_TEMPLATE_ID != "bitrix24"):
 			"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 			"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 		),
-		$component 
+		$component
 	);
 	?><?
 endif;
-?>

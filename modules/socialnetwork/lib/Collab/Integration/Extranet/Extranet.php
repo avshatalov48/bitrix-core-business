@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix\Socialnetwork\Collab\Integration\Extranet;
 
+use Bitrix\Extranet\PortalSettings;
 use Bitrix\Main\Loader;
 use CExtranet;
 
@@ -29,5 +30,15 @@ class Extranet
 		}
 
 		return static::EXTRANET_SITE_NAME;
+	}
+
+	public static function isEnabledCollabersInvitation(): bool
+	{
+		if (!Loader::includeModule('extranet'))
+		{
+			return false;
+		}
+
+		return PortalSettings::getInstance()->isEnabledCollabersInvitation();
 	}
 }

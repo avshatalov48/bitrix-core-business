@@ -73,6 +73,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 		this._pageTitleExternalClickHandler = BX.delegate(this.onPageTitleExternalClick, this);
 		this._pageTitleKeyPressHandler = BX.delegate(this.onPageTitleKeyPress, this);
+		this._toolbarBeforeStartEditingHandler = BX.delegate(this.onToolbarBeforeStartEditing, this);
+		this._toolbarFinishEditingHandler = BX.delegate(this.onToolbarFinishEditing, this);
 
 		this._validators = null;
 		this._modeSwitch = null;
@@ -159,15 +161,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			this._canBeMultipleFields = BX.prop.getBoolean(this._settings, "canBeMultipleFields", true);
 			this._enableShowAlwaysFeauture = BX.prop.getBoolean(this._settings, "enableShowAlwaysFeauture", true);
 			this._enableVisibilityPolicy = BX.prop.getBoolean(this._settings, "enableVisibilityPolicy", true);
-			this._enablePageTitleControls = BX.prop.getBoolean(this._settings, "enablePageTitleControls", true);
-			if(this._enablePageTitleControls)
-			{
-				this._pageTitle = BX("pagetitle");
-				this._buttonWrapper = BX("pagetitle_btn_wrapper");
-				this._editPageTitleButton = BX("pagetitle_edit");
-				this._copyPageUrlButton = BX("page_url_copy_btn");
-			}
 
+			this.initializePageTitleControls();
 			this.adjustSize();
 			this.adjustTitle();
 
@@ -411,12 +406,52 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		initializeCustomEditors: function()
 		{
 		},
+		/**
+		 * @private
+		 *
+		 * @returns {void}
+		 */
+		initializePageTitleControls: function()
+		{
+			this._enablePageTitleControls = BX.prop.getBoolean(this._settings, "enablePageTitleControls", true);
+			if (!this._enablePageTitleControls)
+			{
+				return;
+			}
+
+			this._enablePageTitleControlsViaToolbar = BX.prop.getBoolean(this._settings, "enablePageTitleControlsViaToolbar", false);
+			if (!this._enablePageTitleControlsViaToolbar)
+			{
+				// compatiblity
+
+				this._pageTitle = BX("pagetitle");
+				this._buttonWrapper = BX("pagetitle_btn_wrapper");
+				this._editPageTitleButton = BX("pagetitle_edit");
+				this._copyPageUrlButton = BX("page_url_copy_btn");
+
+				return;
+			}
+
+			const toolbar = BX.Reflection.getClass('BX.UI.ToolbarManager') && BX.UI.ToolbarManager.getDefaultToolbar();
+			if (!toolbar)
+			{
+				return;
+			}
+
+			this._toolbar = toolbar;
+		},
 		attachToEvents: function()
 		{
 			BX.bind(window, "resize", this._windowResizeHandler);
 
 			BX.addCustomEvent("SidePanel.Slider:onOpenComplete", this._sliderOpenHandler);
 			BX.addCustomEvent("SidePanel.Slider:onClose", this._sliderCloseHandler);
+
+			if (this._enablePageTitleControls && this._enablePageTitleControlsViaToolbar && this._toolbar)
+			{
+				this._toolbar.subscribe(BX.UI.ToolbarEvents.beforeStartEditing, this._toolbarBeforeStartEditingHandler);
+				this._toolbar.subscribe(BX.UI.ToolbarEvents.finishEditing, this._toolbarFinishEditingHandler);
+			}
 		},
 		deattachFromEvents: function()
 		{
@@ -424,6 +459,12 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 			BX.removeCustomEvent("SidePanel.Slider:onOpenComplete", this._sliderOpenHandler);
 			BX.removeCustomEvent("SidePanel.Slider:onClose", this._sliderCloseHandler);
+
+			if (this._enablePageTitleControls && this._enablePageTitleControlsViaToolbar && this._toolbar)
+			{
+				this._toolbar.unsubscribe(BX.UI.ToolbarEvents.beforeStartEditing, this._toolbarBeforeStartEditingHandler);
+				this._toolbar.unsubscribe(BX.UI.ToolbarEvents.finishEditing, this._toolbarFinishEditingHandler);
+			}
 		},
 		initPull: function()
 		{
@@ -1635,7 +1676,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				this.showToolPanel();
 			}
 
-			if(this._model.isCaptionEditable())
+			if (this._enablePageTitleControls && !this._enablePageTitleControlsViaToolbar && this._model.isCaptionEditable())
 			{
 				BX.bind(
 					this._pageTitle,
@@ -1850,9 +1891,13 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		switchTitleMode: function(mode)
 		{
+			if (this._enablePageTitleControlsViaToolbar)
+			{
+				return;
+			}
+
 			if(mode === BX.UI.EntityEditorMode.edit)
 			{
-
 				this._pageTitle.style.display = "none";
 				document.body.classList.add('--edit__title-input');
 
@@ -1895,7 +1940,6 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					this._pageTitleInput = BX.remove(this._pageTitleInput);
 				}
 
-				this._pageTitle.innerHTML = BX.util.htmlspecialchars(this._model.getCaption());
 				this._pageTitle.style.display = "";
 
 				if(this._buttonWrapper)
@@ -1911,44 +1955,30 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		adjustTitle: function()
 		{
-			if(!this._enablePageTitleControls || !this._buttonWrapper)
+			if (!this._enablePageTitleControls || this._isNew)
 			{
 				return;
 			}
 
-			var caption = this._model.getCaption().trim();
-			var captionTail = "";
-			var match = caption.match(/\s+\S+\s*$/);
-			if(match)
-			{
-				captionTail = caption.substr(match["index"]);
-				caption = caption.substr(0, match["index"]);
-			}
-			else
-			{
-				captionTail = caption;
-				caption = "";
-			}
+			const caption = this._model.getCaption().trim();
 
-			BX.cleanNode(this._buttonWrapper);
-			if(captionTail !== "")
+			if (this._enablePageTitleControlsViaToolbar && this._toolbar)
 			{
-				this._buttonWrapper.appendChild(document.createTextNode(captionTail));
+				this._toolbar.setTitle(caption);
 			}
-			if(this._editPageTitleButton)
+			// why check _buttonWrapper you ask? it's compatibility hack to not change page title on entity creation
+			else if (!this._enablePageTitleControlsViaToolbar && this._pageTitle && this._buttonWrapper)
 			{
-				this._buttonWrapper.appendChild(this._editPageTitleButton);
+				this._pageTitle.textContent = caption;
 			}
-			if(this._copyPageUrlButton)
-			{
-				this._buttonWrapper.appendChild(this._copyPageUrlButton);
-			}
-
-			this._pageTitle.innerHTML = BX.util.htmlspecialchars(caption);
 		},
 		adjustSize: function()
 		{
 			if(!this._enablePageTitleControls || !this._pageTitle)
+			{
+				return;
+			}
+			if (this._enablePageTitleControlsViaToolbar)
 			{
 				return;
 			}
@@ -1963,7 +1993,6 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			{
 				BX.removeClass(wrapper, "pagetitle-narrow");
 			}
-
 		},
 		adjustButtons: function()
 		{
@@ -2087,14 +2116,14 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			}
 			return data;
 		},
-		savePageTitle: function()
+		savePageTitle: function(title)
 		{
-			if(!this._pageTitleInput)
+			if(!this._enablePageTitleControls)
 			{
 				return;
 			}
 
-			var title = BX.util.trim(this._pageTitleInput.value);
+			title = BX.util.trim(title);
 			if(title === "")
 			{
 				return;
@@ -2210,8 +2239,6 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			{
 				this._toolPanel.setLocked(true);
 			}
-
-			this.registerSaveAnalyticsEvent('attempt');
 
 			var result = BX.UI.EntityValidationResult.create();
 			this.validate(result).then(
@@ -2756,6 +2783,11 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 			analyticsData.status = status;
 
+			if (status === 'success' && this._isNew && this._entityId > 0)
+			{
+				analyticsData.p2 = `id_${this._entityId}`;
+			}
+
 			if (BX.prop.getBoolean(analyticsConfig, 'appendParamsFromCurrentUrl', false))
 			{
 				const currentUrl = new BX.Uri(decodeURI(window.location.href));
@@ -3055,9 +3087,9 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			eventParams["entityTypeName"] = this._entityTypeName;
 			eventParams["isCancelled"] = false;
 
-			if(typeof(window.top.BX.Bitrix24) !== "undefined")
+			if(typeof(window.top.BX.SidePanel) !== "undefined")
 			{
-				var slider = window.top.BX.Bitrix24.Slider.getTopSlider();
+				var slider = window.top.BX.SidePanel.Instance.getTopSlider();
 				if(slider)
 				{
 					eventParams["sliderUrl"] = slider.getUrl();
@@ -3212,22 +3244,31 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			{
 				for (var userScopeId in this._config._userScopes)
 				{
-					items.push(
-						{
-							text: BX.message('UI_ENTITY_EDITOR_CHECK_SCOPE').replace('#SCOPE_NAME#', this._config._userScopes[userScopeId]['NAME']),
-							onclick: callback,
-							attributes: {
-								'data-id': userScopeId
-							},
-							className:
-								(
-									this._config.getScope() === BX.UI.EntityConfigScope.custom
-									&& this._config._userScopeId === userScopeId
-								)
-									? "menu-popup-item-accept" : "menu-popup-item-none"
+					const item = {
+						text: BX.Loc.getMessage('UI_ENTITY_EDITOR_CHECK_SCOPE', {
+							'#SCOPE_NAME#': this._config._userScopes[userScopeId]['NAME']
+						}),
+						onclick: callback,
+						attributes: {
+							'data-id': userScopeId,
+						},
+						className:
+							(
+								this._config.getScope() === BX.UI.EntityConfigScope.custom
+								&& this._config._userScopeId === userScopeId
+							)
+								? 'menu-popup-item-accept' : 'menu-popup-item-none',
 
-						}
-					);
+					};
+
+					if (this._entityId <= 0 && this._config._userScopes[userScopeId]['ON_ADD'] === 'Y')
+					{
+						items.push(item);
+					}
+					else if (this._entityId > 0 && this._config._userScopes[userScopeId]['ON_UPDATE'] === 'Y')
+					{
+						items.push(item);
+					}
 				}
 			}
 
@@ -3238,14 +3279,17 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					items.push({ delimiter: true });
 				}
 
-				items.push(
-					{
-						id: "resetConfig",
-						text: BX.message("UI_ENTITY_EDITOR_RESET_CONFIG_MSGVER_2"),
-						onclick: callback,
-						className: "menu-popup-item-none"
-					}
-				);
+				if (!this._config._userScopeId)
+				{
+					items.push(
+						{
+							id: "resetConfig",
+							text: BX.message("UI_ENTITY_EDITOR_RESET_CONFIG_MSGVER_2"),
+							onclick: callback,
+							className: "menu-popup-item-none"
+						}
+					);
+				}
 
 				if(BX.prop.getBoolean(this._settings, "enableSettingsForAll", false))
 				{
@@ -3275,7 +3319,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					items.push(
 						{
 							id: "editCommonConfig",
-							text: BX.message('UI_ENTITY_EDITOR_UPDATE_SCOPE_MSGVER_1'),
+							text: BX.message('UI_ENTITY_EDITOR_UPDATE_SCOPE_MSGVER_2'),
 							onclick: callback,
 							className: "menu-popup-item-none"
 						}
@@ -3420,25 +3464,70 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		onPageTitleExternalClick: function(e)
 		{
+			if (this._enablePageTitleControlsViaToolbar)
+			{
+				return;
+			}
+
 			var target = BX.getEventTarget(e);
 			if(target !== this._pageTitleInput)
 			{
-				this.savePageTitle();
+				this.savePageTitle(this._pageTitleInput.value);
 				this.switchTitleMode(BX.UI.EntityEditorMode.view);
 			}
 		},
 		onPageTitleKeyPress: function(e)
 		{
+			if (this._enablePageTitleControlsViaToolbar)
+			{
+				return;
+			}
+
 			var c = e.keyCode;
 			if(c === 13)
 			{
-				this.savePageTitle();
+				this.savePageTitle(this._pageTitleInput.value);
 				this.switchTitleMode(BX.UI.EntityEditorMode.view);
 			}
 			else if(c === 27)
 			{
 				this.switchTitleMode(BX.UI.EntityEditorMode.view);
 			}
+		},
+		/**
+		 * @private
+		 */
+		onToolbarBeforeStartEditing: function(event)
+		{
+			if (this._readOnly || !this._model.isCaptionEditable())
+			{
+				event.preventDefault();
+
+				return
+			}
+
+			if (this.isChanged())
+			{
+				event.preventDefault();
+
+				this.showMessageDialog(
+					"titleEditDenied",
+					BX.message("UI_ENTITY_EDITOR_TITLE_EDIT"),
+					BX.message("UI_ENTITY_EDITOR_TITLE_EDIT_UNSAVED_CHANGES")
+				);
+
+				return;
+			}
+		},
+		/**
+		 * @private
+		 */
+		onToolbarFinishEditing: function(event)
+		{
+			const updatedTitle = event.getData().updatedTitle;
+
+			this.savePageTitle(updatedTitle);
+			this.adjustTitle();
 		},
 		onInterfaceToolbarMenuBuild: function(sender, eventArgs)
 		{
@@ -3466,9 +3555,22 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		//region Configuration
 		getCommonConfigEditUrl: function(entityTypeId, moduleId)
 		{
-			return this._commonConfigEditUrl
+			let editUrl = this._commonConfigEditUrl
 				.replace(/#ENTITY_TYPE_ID_VALUE#/gi, entityTypeId)
 				.replace(/#MODULE_ID#/gi, moduleId);
+
+			let categoryId = BX.prop.getInteger(this._context.PARAMS, 'CATEGORY_ID');
+			if (BX.Type.isUndefined(categoryId))
+			{
+				categoryId = BX.prop.getInteger(this._context, 'CATEGORY_ID');
+			}
+
+			if (moduleId === 'crm' && BX.Type.isInteger(categoryId))
+			{
+				editUrl = editUrl + `&apply_filter=Y&CATEGORY=${categoryId}`;
+			}
+
+			return editUrl;
 		},
 		onMenuItemClick: function(event, menuItem)
 		{
@@ -3492,7 +3594,9 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				case 'editCommonConfig':
 					BX.SidePanel.Instance.open(
 						this.getCommonConfigEditUrl(this._config._id, this.moduleId),
-						{width: 980}
+						{
+							cacheable: false,
+						}
 					);
 					break;
 				default:
@@ -3526,7 +3630,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				return;
 			}
 
-			this._config.setScope(scope, userScopeId, this.moduleId).then(
+			this._config.setScope(scope, userScopeId, this.moduleId, this._entityId).then(
 				function()
 				{
 					var eventArgs = {
@@ -3546,19 +3650,24 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		createConfigScopeForCheckedUsers: function()
 		{
-			var config = BX.UI.EntityEditorScopeConfig.create(
+			const options = BX.prop.getObject(this._settings, 'options', {});
+			const useHumanResourcesModule = BX.prop.getString(options, 'useHumanResourcesModule', 'N');
+			const useOnAddOnUpdateSegregation = BX.prop.getString(options, 'useOnAddOnUpdateSegregation', 'N');
+			const config = BX.UI.EntityEditorScopeConfig.create(
 				this._id+'_config', {
 					editor: this,
 					config: this._config.toJSON(),
 					entityTypeId: this._config._id,
 					isCommonConfig: true,
-					moduleId: this.moduleId
+					moduleId: this.moduleId,
+					useHumanResourcesModule: useHumanResourcesModule === 'Y',
+					useOnAddOnUpdateSegregation: useOnAddOnUpdateSegregation === 'Y'
 				});
 			config.open();
 		},
 		forceCommonConfigScopeForAll: function()
 		{
-			this._config.forceCommonScopeForAll().then(
+			this._config.forceCommonScopeForAll(this._entityId).then(
 				function()
 				{
 					var scope = this._config.getScope();
@@ -3574,7 +3683,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		resetConfig: function()
 		{
-			this._config.reset(false).then(
+			this._config.reset(false, this._entityId).then(
 				function()
 				{
 					var scope = this._config.getScope();
@@ -3965,6 +4074,7 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 
 		this._popup = null;
 		this._selector = null;
+		this._popupSaveButton = {};
 
 		this._name = "";
 		this._items = [];
@@ -3985,6 +4095,8 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 		this.moduleId = null;
 
 		this._onSquareClick = BX.delegate(this.onSquareClick, this);
+		this._onAddInput = {};
+		this._onUpdateInput = {};
 	};
 
 	BX.UI.EntityEditorScopeConfig.prototype =
@@ -4005,6 +4117,8 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 
 				this._entityTypeId = this.getSetting('entityTypeId', null);
 				this.moduleId = this.getSetting('moduleId', null);
+				this.useHumanResourcesModule = this.getSetting('useHumanResourcesModule', false);
+				this.useOnAddOnUpdateSegregation = this.getSetting('useOnAddOnUpdateSegregation', false);
 			},
 			getId: function()
 			{
@@ -4063,6 +4177,11 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 				container.appendChild(this.prepareNameControl());
 				container.appendChild(this.prepareUserSelectControl());
 				container.appendChild(this.prepareForceSetToUsersControl());
+				if (this.useOnAddOnUpdateSegregation)
+				{
+					container.appendChild(this.prepareAvailableOnAddControl());
+					container.appendChild(this.prepareAvailableonUpdateControl());
+				}
 
 				return container;
 			},
@@ -4145,10 +4264,10 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 								id: 'project',
 							},
 							{
-								id: 'department',
+								id: this.useHumanResourcesModule === true ? 'structure-node' : 'department',
 								options: {
-									selectMode: 'usersAndDepartments'
-								}
+									selectMode: 'usersAndDepartments',
+								},
 							},
 						],
 					}
@@ -4158,48 +4277,78 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 
 				return container;
 			},
-			prepareForceSetToUsersControl: function()
+			prepareInputCheckboxTag()
 			{
-				var container = BX.create('div', {
-					style: {
-						paddingBottom: '10px',
-						borderBottom: '1px solid #f2f2f4'
-					}
-				});
+				return BX.Tag.render`
+					<input class="ui-ctl-element" type="checkbox" checked="checked">
+				`;
+			},
+			prepareCheckBoxField(controlObject, text, hint)
+			{
+				if (
+					!BX.Type.isElementNode(controlObject)
+					|| !BX.Type.isString(text)
+				)
+				{
+					return;
+				}
 
-				var control = BX.create('div', {
-					props:{
-						className: 'ui-ctl ui-ctl-checkbox ui-ctl-w100'
-					}
-				});
+				const container = BX.Tag.render`
+					<div style="padding-bottom: 10px; border-bottom: 1px solid #f2f2f4"></div>
+				`;
 
-				this._forceSetInput = BX.create("input", {
-					props:{
-						className: 'ui-ctl-element',
-						type: 'checkbox',
-						checked: true
-					},
-				});
+				const control = BX.Tag.render`
+					<div class="ui-ctl ui-ctl-checkbox ui-ctl-w100"></div
+				`;
 
-				control.appendChild(this._forceSetInput);
-				control.appendChild(BX.create('div', {
-					props:{
-						className: 'ui-ctl-label-text',
-					},
-					text: BX.message('UI_ENTITY_EDITOR_CONFIG_SCOPE_FORCE_INSTALL_TO_USERS_MSGVER_1')
-				}));
-				control.appendChild(
-					BX.UI.Hint.createNode(BX.message('UI_ENTITY_EDITOR_CONFIG_HINT_SCOPE_FORCE_INSTALL_TO_USERS'))
-				);
+				BX.Dom.append(controlObject, control)
+				BX.Dom.append(BX.Tag.render`
+					<div class="ui-ctl-label-text">${text}</div
+				`, control);
 
-				container.appendChild(control);
+				if (BX.Type.isElementNode(hint))
+				{
+					BX.Dom.append(hint, control);
+				}
+
+				BX.Dom.append(control, container)
 
 				return container;
+			},
+			prepareForceSetToUsersControl: function()
+			{
+				this._forceSetInput = this.prepareInputCheckboxTag();
+
+				return this.prepareCheckBoxField(
+					this._forceSetInput,
+					BX.Loc.getMessage('UI_ENTITY_EDITOR_CONFIG_SCOPE_FORCE_INSTALL_TO_USERS_MSGVER_1'),
+					BX.UI.Hint.createNode(BX.message('UI_ENTITY_EDITOR_CONFIG_HINT_SCOPE_FORCE_INSTALL_TO_USERS')),
+				);
+			},
+			prepareAvailableOnAddControl: function()
+			{
+				this._onAddInput = this.prepareInputCheckboxTag();
+
+				return this.prepareCheckBoxField(
+					this._onAddInput,
+					BX.Loc.getMessage('UI_ENTITY_EDITOR_CONFIG_SCOPE_SET_AVAILABLE_ON_ADD'),
+					BX.UI.Hint.createNode(BX.message('UI_ENTITY_EDITOR_CONFIG_HINT_SCOPE_SET_AVAILABLE_ON_ADD')),
+				);
+			},
+			prepareAvailableonUpdateControl: function()
+			{
+				this._onUpdateInput = this.prepareInputCheckboxTag();
+
+				return this.prepareCheckBoxField(
+					this._onUpdateInput,
+					BX.Loc.getMessage('UI_ENTITY_EDITOR_CONFIG_SCOPE_SET_AVAILABLE_ON_UPDATE'),
+					BX.UI.Hint.createNode(BX.message('UI_ENTITY_EDITOR_CONFIG_HINT_SCOPE_SET_AVAILABLE_ON_UPDATE')),
+				);
 			},
 			prepareButtons: function()
 			{
 				return [
-					new BX.UI.Button({
+					this._popupSaveButton = new BX.UI.Button({
 						text: BX.message('UI_ENTITY_EDITOR_CONFIG_SCOPE_SAVE'),
 						tag: BX.UI.Button.Tag.LINK,
 						color: BX.UI.Button.Color.PRIMARY,
@@ -4207,8 +4356,10 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 							click: function(params, event) {
 								event.preventDefault();
 								this.processSave();
-							}.bind(this)
-						}
+							}.bind(this),
+						},
+						useAirDesign: true,
+						style: BX.UI.Button.AirStyle.FILLED,
 					}),
 					new BX.UI.Button({
 						text: BX.message('UI_ENTITY_EDITOR_CONFIG_SCOPE_CANCEL'),
@@ -4218,9 +4369,11 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 							click: function(params, event) {
 								event.preventDefault();
 								this.processCancel();
-							}.bind(this)
-						}
-					})
+							}.bind(this),
+						},
+						useAirDesign: true,
+						style: BX.UI.Button.AirStyle.PLAIN,
+					}),
 				];
 			},
 			close: function()
@@ -4260,6 +4413,12 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 			},
 			processSave: function()
 			{
+				if (this._popupSaveButton.isWaiting())
+				{
+					return;
+				}
+
+				this._popupSaveButton.setWaiting();
 				this.clearErrors();
 				this.setName(this._nameInput.value);
 
@@ -4277,18 +4436,22 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 								forceSetToUsers: this._forceSetInput.checked,
 								categoryName: this._editor._config.categoryName,
 								common: 'Y',
+								availableOnAdd: this._onAddInput.checked,
+								availableOnUpdate: this._onUpdateInput.checked,
 							}
 						}
 					}
 				)
 				.then(
 					function(response) {
+						this._popupSaveButton.setWaiting(false);
 						this.close();
 						BX.UI.EntityEditorScopeConfig.prototype.notifyShow(response);
 						var scopeId = parseInt(response.data, 10);
 						this._editor.setConfigScope(BX.UI.EntityConfigScope.custom, scopeId);
 					}.bind(this)
 				).catch(function(response){
+					this._popupSaveButton.setWaiting(false);
 					//todo show errors some other way
 					this.fillErrors(response.data);
 				}.bind(this));

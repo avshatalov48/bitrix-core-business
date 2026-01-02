@@ -8,8 +8,8 @@ use Bitrix\Main\EventManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\Date;
-use Bitrix\Market\Subscription;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\Engine\Access;
 use Bitrix\Bitrix24\Feature;
@@ -37,7 +37,6 @@ class Client
 		'ru' => 'https://marketplace.1c-bitrix.ru/tobasket.php?ID=#CODE#&limit=#NUM#&b24=y',
 		'en' => 'https://store.bitrix24.com/tobasket.php?ID=#CODE#&limit=#NUM#&b24=y',
 		'de' => 'https://store.bitrix24.de/tobasket.php?ID=#CODE#&limit=#NUM#&b24=y',
-		'ua' => 'https://marketplace.1c-bitrix.ua/tobasket.php?ID=#CODE#&limit=#NUM#&b24=y',
 	);
 
 	private static $appTop = null;
@@ -83,11 +82,24 @@ class Client
 		);
 	}
 
-	public static function getImmuneApp()
+	public static function getImmuneApp(): array
 	{
-		return Transport::instance()->call(
-			Transport::METHOD_GET_IMMUNE
+		$immuneAppList = Transport::instance()->getDictionary(
+			Transport::DICTIONARY_IMMUNE_LIST,
 		);
+
+		if (!is_array($immuneAppList))
+		{
+			if ($immuneAppList !== false) {
+				AddMessage2Log([
+					'message' => 'Wrong answer from service',
+					'data' => print_r($immuneAppList, true),
+				], 'rest');
+			}
+			return [];
+		}
+
+		return $immuneAppList;
 	}
 
 	public static function getUpdates($codeList)
@@ -210,20 +222,32 @@ class Client
 		return (is_array($categories['ITEMS']) ? $categories['ITEMS'] : []);
 	}
 
-	public static function getCategory($code, $page = false, $pageSize = false)
+	public static function getCategory($code, $page = false, $pageSize = false, bool $isMarket = false)
 	{
-		$queryFields = Array(
-			"code" => $code
-		);
-		$page = intval($page);
-		$pageSize = intval($pageSize);
-		if($page > 0)
+		$queryFields = [];
+		$page = (int)$page;
+		$pageSize = (int)$pageSize;
+
+		if ($page > 0)
 		{
 			$queryFields["page"] = $page;
 		}
-		if($pageSize > 0)
+		if ($pageSize > 0)
 		{
 			$queryFields["onPageSize"] = $pageSize;
+		}
+
+		if ($isMarket)
+		{
+			$queryFields['_market_'] = 'Y';
+			if (is_string($code))
+			{
+				$queryFields['category'] = $code;
+			}
+		}
+		else
+		{
+			$queryFields['code'] = $code;
 		}
 
 		return Transport::instance()->call(
@@ -658,6 +682,14 @@ class Client
 
 	public static function isSubscriptionDemoAvailable()
 	{
+		if (
+			Option::get('rest', 'can_use_demo_after_subscription') === 'N'
+			&& self::isSubscriptionUsed()
+		)
+		{
+			return false;
+		}
+
 		if (ModuleManager::isModuleInstalled('bitrix24'))
 		{
 			$used = Option::get('bitrix24', '~mp24_used_trial', 'N') === 'Y';
@@ -668,6 +700,11 @@ class Client
 		}
 
 		return !$used && static::isSubscriptionAccess();
+	}
+
+	public static function isSubscriptionUsed(): bool
+	{
+		return !is_null(self::getSubscriptionFinalDate());
 	}
 
 	/**

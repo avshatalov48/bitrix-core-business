@@ -3,10 +3,10 @@
 namespace Bitrix\Pull\SharedServer;
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\License\UrlProvider;
 
 class Config
 {
-	const DEFAULT_SERVER = "https://rtc-cloud.bitrix.info";
 	const HOSTNAME_URL = "/hostname";
 	const SERVER_LIST_URL = "/servers";
 	const REGISTER_URL = "/register-client/";
@@ -27,7 +27,14 @@ class Config
 
 	public static function getDefaultCloudServer(): string
 	{
-		return defined('PULL_CLOUD_SERVER') ? PULL_CLOUD_SERVER : static::DEFAULT_SERVER;
+		return defined('PULL_CLOUD_SERVER') ? PULL_CLOUD_SERVER : static::getDefaultServer();
+	}
+
+	public static function getDefaultServer()
+	{
+		$domain = (new UrlProvider())->getTechDomain();
+
+		return 'https://rtc-cloud.' . $domain;
 	}
 
 	public static function getServerAddress()

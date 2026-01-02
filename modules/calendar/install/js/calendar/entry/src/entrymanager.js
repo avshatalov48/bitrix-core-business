@@ -1,14 +1,15 @@
 import { Entry } from './entry';
 import { SectionManager } from 'calendar.sectionmanager';
 import { Util } from 'calendar.util';
-import {Dom, Event, Loc, Tag, Type} from 'main.core';
+import { Event, Loc, Tag, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { CompactEventForm } from 'calendar.compacteventform';
 import 'ui.notification';
 import { RoomsManager } from 'calendar.roomsmanager';
-import {MessageBox} from "ui.dialogs.messagebox";
+import { MessageBox } from 'ui.dialogs.messagebox';
 
-export class EntryManager {
+export class EntryManager
+{
 	static newEntryName = '';
 	static userIndex = {};
 	static delayedActionList = [];
@@ -26,7 +27,8 @@ export class EntryManager {
 		newEntryData.NAME = EntryManager.getNewEntryName();
 		newEntryData.dateFrom = dateTime.from;
 		newEntryData.dateTo = dateTime.to;
-		if(options.type === 'location')
+
+		if (options.type === 'location')
 		{
 			newEntryData.SECT_ID = RoomsManager.getNewEntrySectionId(options.type, parseInt(options.ownerId));
 		}
@@ -43,8 +45,8 @@ export class EntryManager {
 		{
 			newEntryData.attendeesEntityList.push({entityId: 'user', id: options.ownerId});
 			newEntryData.ATTENDEE_LIST = [
-				{id: options.ownerId, status: "H"},
-				{id: Util.getCurrentUserId(), status: "Y"}
+				{ id: options.ownerId, status: 'H' },
+				{ id: Util.getCurrentUserId(), status: 'Y' }
 			];
 		}
 		else if (options.type === 'group')
@@ -177,21 +179,28 @@ export class EntryManager {
 
 		if (bx.Calendar && bx.Calendar.SliderLoader)
 		{
+			const util = BX.Calendar.Util || bx.Calendar.Util;
+			const calendarContext = util.getCalendarContext();
+
+			const roomsManager = options?.isLocationCalendar ? calendarContext.roomsManager : null;
+			const categoryManager = options?.isLocationCalendar ? calendarContext.categoryManager : null;
+
 			new bx.Calendar.SliderLoader(
-				options.entry ? 'EDIT' + options.entry.id : 'NEW',
+				options.entry ? `EDIT${options.entry.id}` : 'NEW',
 				{
-					calendarContext: options.calendarContext || bx.Calendar.Util.getCalendarContext(),
+					calendarContext: options.calendarContext || calendarContext,
 					entry: options.entry || null,
 					type: options.type,
 					isLocationCalendar: options.isLocationCalendar || false,
-					roomsManager: options.roomsManager || null,
-					locationAccess: options.locationAccess || false,
+					roomsManager,
+					categoryManager,
+					locationAccess: options.locationAccess || util.hasLocationAccess(),
 					locationCapacity: options.locationCapacity || 0,
 					ownerId: options.ownerId || 0,
 					userId: options.userId,
 					formDataValue: options.formDataValue || null,
 					jumpToControl: options.jumpToControl,
-				}
+				},
 			).show();
 		}
 	}
@@ -213,13 +222,151 @@ export class EntryManager {
 		}
 	}
 
+	static openSettingsSlider()
+	{
+		const bx = Util.getBX();
+		const util = BX.Calendar.Util || bx.Calendar.Util;
+
+		// eslint-disable-next-line promise/catch-or-return
+		EntryManager.getSettingsSlider().then((SettingsInterfaceInstance) => {
+			new SettingsInterfaceInstance({
+				calendarContext: util.getCalendarContext(),
+				showPersonalSettings: util.userIsOwner(),
+				showGeneralSettings: util.hasFullAccess(),
+				settings: util.getSettings(),
+				isExtranet: util.isExtranet(),
+			}).show();
+		});
+	}
+
+	static getSettingsSlider(): Promise
+	{
+		return new Promise((resolve) => {
+			const bx = Util.getBX();
+
+			if (bx.Calendar.SettingsInterface)
+			{
+				resolve(bx.Calendar.SettingsInterface);
+			}
+			else
+			{
+				const extensionName = 'calendar.settingsinterface';
+				// eslint-disable-next-line promise/catch-or-return
+				bx.Runtime.loadExtension(extensionName)
+					.then(() => {
+						if (bx.Calendar.SettingsInterface)
+						{
+							resolve(bx.Calendar.SettingsInterface);
+						}
+						else
+						{
+							console.error(`Extension ${extensionName} not found`);
+						}
+					})
+				;
+			}
+		});
+	}
+
+	static openSectionsSlider()
+	{
+		const bx = Util.getBX();
+		const util = BX.Calendar.Util || bx.Calendar.Util;
+		const calendarContext = util.getCalendarContext();
+
+		// eslint-disable-next-line promise/catch-or-return
+		EntryManager.getSectionsSlider().then((SectionInterfaceInstance) => {
+			new SectionInterfaceInstance({
+				calendarContext,
+				readonly: util.isReadOnlyMode(),
+				sectionManager: calendarContext.sectionManager,
+				isCollabFeatureEnabled: util.isCollabFeatureEnabled(),
+			}).show();
+		});
+	}
+
+	static getSectionsSlider(): Promise
+	{
+		return new Promise((resolve) => {
+			const bx = Util.getBX();
+
+			if (bx.Calendar.SectionInterface)
+			{
+				resolve(bx.Calendar.SectionInterface);
+			}
+			else
+			{
+				const extensionName = 'calendar.sectioninterface';
+				// eslint-disable-next-line promise/catch-or-return
+				bx.Runtime.loadExtension(extensionName)
+					.then(() => {
+						if (bx.Calendar.SectionInterface)
+						{
+							resolve(bx.Calendar.SectionInterface);
+						}
+						else
+						{
+							console.error(`Extension ${extensionName} not found`);
+						}
+					})
+				;
+			}
+		});
+	}
+
+	static openRoomsSlider()
+	{
+		const bx = Util.getBX();
+		const util = BX.Calendar.Util || bx.Calendar.Util;
+		const calendarContext = bx.Calendar.Util.getCalendarContext();
+
+		// eslint-disable-next-line promise/catch-or-return
+		EntryManager.getRoomsSlider().then((RoomsInterfaceInstance) => {
+			new RoomsInterfaceInstance({
+				calendarContext,
+				readonly: util.isReadOnlyMode(),
+				roomsManager: calendarContext.roomsManager,
+				categoryManager: calendarContext.categoryManager,
+			}).show();
+		});
+	}
+
+	static getRoomsSlider(): Promise
+	{
+		return new Promise((resolve) => {
+			const bx = Util.getBX();
+
+			if (bx.Calendar.Rooms.RoomsInterface)
+			{
+				resolve(bx.Calendar.Rooms.RoomsInterface);
+			}
+			else
+			{
+				const extensionName = 'calendar.rooms';
+				// eslint-disable-next-line promise/catch-or-return
+				bx.Runtime.loadExtension(extensionName)
+					.then(() => {
+						if (bx.Calendar.Rooms.RoomsInterface)
+						{
+							resolve(bx.Calendar.Rooms.RoomsInterface);
+						}
+						else
+						{
+							console.error(`Extension ${extensionName} not found`);
+						}
+					})
+				;
+			}
+		});
+	}
+
 	static deleteEntry(entry, calendarContext = null)
 	{
 		if (entry instanceof Entry)
 		{
 			const slider = Util.getBX().SidePanel.Instance.getTopSlider();
 			const beforeDeleteHandler = () => {
-				if (slider && slider.options.type === 'calendar:slider')
+				if (slider && slider.getData().get('type') === 'calendar:slider')
 				{
 					Util.getBX().SidePanel.Instance.close();
 				}

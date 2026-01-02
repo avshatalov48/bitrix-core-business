@@ -1,8 +1,7 @@
 import { Type } from 'main.core';
-import 'ui.notification';
 
 import { BaseMessage } from 'im.v2.component.message.base';
-import { DateFormatter } from 'im.v2.lib.date-formatter';
+import { Notifier } from 'im.v2.lib.notifier';
 
 import { VoteService } from './classes/vote-service';
 import { VoteType } from './const/vote-type';
@@ -10,7 +9,6 @@ import { VoteParamKey as ParamKey } from './const/vote-params-keys';
 
 import './css/vote.css';
 
-import type { JsonObject } from 'main.core';
 import type { ImModelMessage } from 'im.v2.model';
 
 // @vue/component
@@ -31,10 +29,6 @@ export const SupportVoteMessage = {
 			type: Boolean,
 			default: true,
 		},
-	},
-	data(): JsonObject
-	{
-		return {};
 	},
 	computed:
 	{
@@ -69,12 +63,6 @@ export const SupportVoteMessage = {
 			}
 
 			return new Date(closeDate).getTime() < Date.now();
-		},
-		voteTimeSecondsLimit(): number
-		{
-			const limit = this.message.componentParams[ParamKey.timeLimit] ?? 0;
-
-			return Number.parseInt(limit, 10);
 		},
 		likeClasses(): { [className: string]: boolean }
 		{
@@ -125,15 +113,7 @@ export const SupportVoteMessage = {
 		},
 		showVoteClosedNotification()
 		{
-			BX.UI.Notification.Center.notify({
-				content: this.loc('IM_MESSAGE_SUPPORT_VOTE_CLOSED'),
-			});
-		},
-		getDaysForVote(): string
-		{
-			const currentSeconds = Date.now() / 1000;
-
-			return DateFormatter.formatByCode(currentSeconds - this.voteTimeSecondsLimit, 'ddiff');
+			Notifier.support.onVoteClosedError();
 		},
 		getVoteService(): VoteService
 		{

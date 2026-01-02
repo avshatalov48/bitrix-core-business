@@ -1,0 +1,33 @@
+.ui-block-diagram-port {
+	position: absolute;
+	background-color: var(--ui-color-palette-white-base);
+	border: 1px solid #B1BBC7;
+	width: 1px;
+	height: 1px;
+	padding: 3px;
+	border-radius: 7px;
+	box-sizing: content-box;
+	z-index: 1;
+}
+
+.ui-block-diagram-port:after {
+	content: '';
+	display: block;
+	position: absolute;
+	width: 27px;
+	height: 27px;
+	background-color: transparent;
+	transform: translate(-50%, -50%);
+}
+
+.ui-block-diagram-port.--active {
+	border: 1px solid var(--ui-color-blue-57);
+}
+
+.ui-block-diagram-port:hover.ui-block-diagram-port.--disabled {
+	border: 1px solid var(--ui-color-palette-gray-40);
+}
+
+.ui-block-diagram-port:hover {
+	border: 1px solid var(--ui-color-blue-57);
+}

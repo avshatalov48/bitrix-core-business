@@ -8,7 +8,6 @@ use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Role\User;
 use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Sync\Util\HandleStatusTrait;
-use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Exceptions\SyncException;
 use Bitrix\Calendar\Sync\Factories\SyncSectionFactory;
@@ -36,7 +35,7 @@ class StartSyncController implements StartSynchronization
 {
 	use HandleStatusTrait;
 
-	private const STATUSES = [
+	public const STATUSES = [
 		'connection_created' => 'connection_created',
 		'connection_renamed' => 'connection_renamed',
 		'sections_sync_finished' => 'sections_sync_finished',
@@ -161,7 +160,7 @@ class StartSyncController implements StartSynchronization
 //					$this->sendResult($status);
 				}
 
-				$this->setConnectionStatus($connection, Sync\Dictionary::SYNC_STATUS['success']);
+				$this->setConnectionStatus($connection, '[200] Not synced');
 
 				$this->muteConnection($connection, false);
 				return $connection;

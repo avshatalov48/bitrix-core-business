@@ -1,12 +1,12 @@
-<?
-/*
-##############################################
-# Bitrix: SiteManager						 #
-# Copyright (c) 2004 - 2016 Bitrix			 #
-# https://www.bitrixsoft.com				 #
-# mailto:admin@bitrix.ru					 #
-##############################################
-*/
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
+
 /**
  * @global CMain $APPLICATION
  * @global CUser $USER
@@ -64,7 +64,7 @@ if (empty($channels))
 //region Actions
 try
 {
-	$voteId = $request->getQuery("ID");
+	$voteId = (int)$request->getQuery("ID");
 	$copyVoteId = $request->getQuery("COPY_ID");
 	$channelId = $request->getQuery("channelId") ?: $request->getQuery("CHANNEL_ID");
 	$saveAction = false;
@@ -98,7 +98,7 @@ try
 		if (!check_bitrix_sessid())
 			throw new \Bitrix\Main\ArgumentException("Bad sessid.");
 		$saveAction = true;
-		$voteId = $request->getPost("ID");
+		$voteId = (int)$request->getPost("ID");
 		$copyVoteId = $request->getPost("COPY_ID");
 		$channelId = $request->getPost("CHANNEL_ID");
 	}

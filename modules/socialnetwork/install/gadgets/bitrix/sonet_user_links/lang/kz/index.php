@@ -1,0 +1,23 @@
+<?php
+$MESS["GD_SONET_USER_LINKS_ABSENT"] = "Кеңседен тыс";
+$MESS["GD_SONET_USER_LINKS_BIRTHDAY"] = "Туған күні";
+$MESS["GD_SONET_USER_LINKS_CODES"] = "Резервтік кодтар";
+$MESS["GD_SONET_USER_LINKS_EDIT_EXTMAIL"] = "Пошта интеграциясын баптау";
+$MESS["GD_SONET_USER_LINKS_EDIT_FEATURES"] = "Баптауларды өзгерту";
+$MESS["GD_SONET_USER_LINKS_EDIT_PROFILE"] = "Профильді өзгерту";
+$MESS["GD_SONET_USER_LINKS_EDIT_REQUESTS"] = "Шақырулар мен сұраулар";
+$MESS["GD_SONET_USER_LINKS_EDIT_SETTINGS"] = "Құпиялылықты өзгерту";
+$MESS["GD_SONET_USER_LINKS_FR_ADD"] = "Достар қатарына қосу";
+$MESS["GD_SONET_USER_LINKS_FR_DEL"] = "Достардан алып тастау";
+$MESS["GD_SONET_USER_LINKS_HONOURED"] = "Құрмет тақтасында";
+$MESS["GD_SONET_USER_LINKS_INV_GROUP"] = "Топқа шақыру";
+$MESS["GD_SONET_USER_LINKS_ONLINE"] = "Қазір сайтта";
+$MESS["GD_SONET_USER_LINKS_PASSWORDS"] = "Қосымша құпиясөздері";
+$MESS["GD_SONET_USER_LINKS_SECURITY"] = "Қауіпсіздік";
+$MESS["GD_SONET_USER_LINKS_SEND_MESSAGE"] = "Хабарлама жазу";
+$MESS["GD_SONET_USER_LINKS_SHOW_MESSAGES"] = "Хат алмасуды көрсету";
+$MESS["GD_SONET_USER_LINKS_SUBSCR"] = "Жазылым";
+$MESS["GD_SONET_USER_LINKS_SUBSCR1"] = "Менің жазылымым";
+$MESS["GD_SONET_USER_LINKS_SYNCHRONIZE"] = "Синхрондау";
+$MESS["GD_SONET_USER_SONET_ADMIN_ON"] = "Әкімші режимі";
+$MESS["GD_SONET_USER_VIDEOCALL"] = "Бейне қоңырау";

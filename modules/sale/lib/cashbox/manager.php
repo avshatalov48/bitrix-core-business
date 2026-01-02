@@ -518,8 +518,11 @@ final class Manager
 		{
 			$cashbox = Cashbox::create($item);
 			if (
-				$cashbox instanceof ICheckable
-				|| $cashbox->isCorrection()
+				$item['ACTIVE'] === 'Y'
+				&& (
+					$cashbox?->isCheckable()
+					|| $cashbox?->isCorrection()
+				)
 			)
 			{
 				$availableCashboxList[$item['ID']] = $cashbox;

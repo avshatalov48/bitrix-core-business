@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS ['IBLOCK_ADM_EXP_NO_IBLOCK'] = "No information block has been selected. Cannot export.";
 $MESS ['IBLOCK_ADM_EXP_NO_FORMAT'] = "Please set the data file format and properties.";
 $MESS ['IBLOCK_ADM_EXP_NO_DELIMITER'] = "Please set the field delimiter.";
@@ -38,4 +38,3 @@ $MESS ['IBLOCK_ADM_EXP_BACK_BUTTON'] = "Back";
 $MESS ['IBLOCK_ADM_EXP_FINISH_BUTTON'] = "Start";
 $MESS ['IBLOCK_ADM_EXP_NEXT_BUTTON'] = "Next";
 $MESS ['IBLOCK_ADM_EXP_RESTART_BUTTON'] = "Back to first step";
-?>

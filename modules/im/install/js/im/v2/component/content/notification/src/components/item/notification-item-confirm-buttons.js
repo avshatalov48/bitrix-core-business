@@ -1,12 +1,13 @@
 import { Text } from 'main.core';
 
-import { Button as MessengerButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
+import { ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements.button';
+
 import '../../css/notification-item-confirm-buttons.css';
 
 // @vue/component
 export const NotificationItemConfirmButtons = {
 	name: 'NotificationItemConfirmButtons',
-	components: { MessengerButton },
+	components: { ChatButton },
 	props: {
 		buttons: {
 			type: Array,
@@ -44,7 +45,7 @@ export const NotificationItemConfirmButtons = {
 	},
 	template: `
 		<div class="bx-im-content-notification-item-confirm-buttons__container">
-			<MessengerButton
+			<ChatButton
 				v-for="(button, index) in preparedButtons" :key="index"
 				:text="button.text"
 				:color="getButtonColor(button)"
@@ -52,7 +53,7 @@ export const NotificationItemConfirmButtons = {
 				:isRounded="true"
 				:isUppercase="false"
 				@click="click(button)"
-			></MessengerButton>
+			/>
 		</div>
 	`,
 };

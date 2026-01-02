@@ -1,22 +1,18 @@
-<?
-##############################################
-# Bitrix Site Manager Forum					 #
-# Copyright (c) 2002-2009 Bitrix			 #
-# https://www.bitrixsoft.com					 #
-# mailto:admin@bitrixsoft.com				 #
-##############################################
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
+
 use Bitrix\Main\Error;
 
 IncludeModuleLangFile(__FILE__);
 
 class CAllVote
 {
-	public static function err_mess()
-	{
-		$module_id = "vote";
-		return "<br>Module: ".$module_id."<br>Class: CAllVote<br>File: ".__FILE__;
-	}
-
 	public static function GetFilterOperation($key)
 	{
 		return CGroup::GetFilterOperation($key);
@@ -251,7 +247,7 @@ class CAllVote
 	public static function Delete($ID)
 	{
 		global $DB;
-		$err_mess = (CVote::err_mess())."<br>Function: Delete<br>Line: ";
+
 		$ID = intval($ID);
 		if ($ID <= 0):
 			return false;
@@ -271,13 +267,13 @@ class CAllVote
 		\Bitrix\Vote\AttachTable::deleteByFilter(array("OBJECT_ID" => $ID));
 		// delete vote images
 		$strSql = "SELECT IMAGE_ID FROM b_vote WHERE ID = ".$ID." AND IMAGE_ID > 0";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		while ($zr = $z->Fetch()) CFile::Delete($zr["IMAGE_ID"]);
 
 		// delete vote events
-		$DB->Query("DELETE FROM b_vote_event WHERE VOTE_ID='$ID'", false, $err_mess.__LINE__);
+		$DB->Query("DELETE FROM b_vote_event WHERE VOTE_ID='$ID'");
 		// delete vote
-		$res = $DB->Query("DELETE FROM b_vote WHERE ID='$ID'", false, $err_mess.__LINE__);
+		$res = $DB->Query("DELETE FROM b_vote WHERE ID='$ID'");
 		$DB->Commit();
 		/***************** Event onAfterVoteDelete *************************/
 		foreach (GetModuleEvents("vote", "onAfterVoteDelete", true) as $arEvent)
@@ -290,15 +286,17 @@ class CAllVote
 	{
 		\Bitrix\Vote\Event::resetStatistic($ID);
 		unset($GLOBALS["VOTE_CACHE_VOTING"][$ID]);
-		if (array_key_exists("VOTE", $_SESSION) && array_key_exists("VOTES", $_SESSION["VOTE"]))
+		if (isset($_SESSION['VOTE']['VOTES'][$ID]))
+		{
 			unset($_SESSION["VOTE"]["VOTES"][$ID]);
+		}
 		return true;
 	}
 
 	public static function Copy($ID)
 	{
 		global $DB;
-		$err_mess = (CVote::err_mess())."<br>Function: Copy<br>Line: ";
+
 		$ID = intval($ID);
 		if ($ID <= 0):
 			return false;
@@ -319,10 +317,10 @@ class CAllVote
 		$newID = CVote::Add($arCurrentVote);
 		if ($newID === false)
 			return false;
-		$DB->Update("b_vote", array("COUNTER"=>"0"), "WHERE ID=".$newID, $err_mess.__LINE__);
+		$DB->Update("b_vote", array("COUNTER"=>"0"), "WHERE ID=".$newID);
 		if ($newImageId)
 		{
-			$DB->Update("b_vote", array("IMAGE_ID"=>$newImageId), "WHERE ID=".$newID, $err_mess.__LINE__);
+			$DB->Update("b_vote", array("IMAGE_ID"=>$newImageId), "WHERE ID=".$newID);
 		}
 
 		$state = true;
@@ -393,7 +391,7 @@ class CAllVote
 	public static function UserAlreadyVote($voteId, $VOTE_USER_ID, $UNIQUE_TYPE, $delay, $USER_ID = false)
 	{
 		global $DB, $USER;
-		$err_mess = (CAllVote::err_mess())."<br>Function: UserAlreadyVote<br>Line: ";
+
 		$voteId = intval($voteId);
 		$UNIQUE_TYPE = intval($UNIQUE_TYPE);
 		$VOTE_USER_ID = intval($VOTE_USER_ID);
@@ -403,7 +401,7 @@ class CAllVote
 			return false;
 
 		//One session
-		if (($UNIQUE_TYPE & 1) && IsModuleInstalled('statistic') && array_key_exists($voteId, $_SESSION["VOTE"]["VOTES"]))
+		if (($UNIQUE_TYPE & 1) && IsModuleInstalled('statistic') && isset($_SESSION["VOTE"]["VOTES"][$voteId]))
 			return 1;
 
 
@@ -458,7 +456,7 @@ class CAllVote
 			$db_res = $DB->Query("SELECT ".implode(",", $arSqlSelect)."
 				FROM b_vote_event VE
 				LEFT JOIN b_vote_user VU ON (VE.VOTE_USER_ID = VU.ID)
-				WHERE VE.VOTE_ID=".$voteId." AND ((".implode(") OR (", $arSqlSearch)."))", false, $err_mess.__LINE__);
+				WHERE VE.VOTE_ID=".$voteId." AND ((".implode(") OR (", $arSqlSearch)."))");
 			while ($res = $db_res->Fetch())
 			{
 				if ($USER_ID > 0 && $USER_ID == $USER->GetID())
@@ -499,14 +497,13 @@ class CAllVote
 	public static function UpdateVoteUserID($VOTE_USER_ID)
 	{
 		global $DB;
-		$err_mess = (CAllVote::err_mess())."<br>Function: UpdateVoteUserID<br>Line: ";
 
 		$VOTE_USER_ID = intval($VOTE_USER_ID);
 		$arFields = array(
 			"DATE_LAST"		=> $DB->GetNowFunction(),
 			"COUNTER"		=> "COUNTER+1"
 			);
-		return $DB->Update("b_vote_user", $arFields, "WHERE ID='".$VOTE_USER_ID."'", $err_mess.__LINE__);
+		return $DB->Update("b_vote_user", $arFields, "WHERE ID='".$VOTE_USER_ID."'");
 	}
 
 	public static function keepVoting()
@@ -532,7 +529,6 @@ class CAllVote
 			$channel = $vote->getChannel();
 			if ($channel["USE_CAPTCHA"] == "Y" && !$USER->IsAuthorized())
 			{
-				include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 				$cpt = new CCaptcha();
 				if ((!empty($request["captcha_code"]) && !$cpt->CheckCodeCrypt($request["captcha_word"], $request["captcha_code"])) ||
 					empty($request["captcha_code"]) && !$cpt->CheckCode($request["captcha_word"], 0))
@@ -570,10 +566,10 @@ class CAllVote
 	public static function GetNextSort($CHANNEL_ID)
 	{
 		global $DB;
-		$err_mess = (CAllVote::err_mess())."<br>Function: GetNextSort<br>Line: ";
+
 		$CHANNEL_ID = intval($CHANNEL_ID);
 		$strSql = "SELECT max(C_SORT) MAX_SORT FROM b_vote WHERE CHANNEL_ID='$CHANNEL_ID'";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		$zr = $z->Fetch();
 		return intval($zr["MAX_SORT"])+100;
 	}
@@ -581,7 +577,7 @@ class CAllVote
 	public static function WrongDateInterval($CURRENT_VOTE_ID, $DATE_START, $DATE_END, $CHANNEL_ID)
 	{
 		global $DB;
-		$err_mess = (CAllVote::err_mess())."<br>Function: WrongDateInterval<br>Line: ";
+
 		$CURRENT_VOTE_ID = intval($CURRENT_VOTE_ID);
 		$CURRENT_VOTE_ID = ($CURRENT_VOTE_ID > 0 ? $CURRENT_VOTE_ID : false);
 		$CHANNEL_ID = intval($CHANNEL_ID);
@@ -628,7 +624,7 @@ class CAllVote
 					(V.DATE_START between ".$st." and ".$en.") OR
 					(V.DATE_END between ".$st." and ".$en.")
 				)";
-		$db_res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$db_res = $DB->Query($strSql);
 		if($db_res && $res = $db_res->Fetch())
 			return intval($res["ID"]);
 

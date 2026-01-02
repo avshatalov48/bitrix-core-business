@@ -1,7 +1,7 @@
 .landing-widget-kb-v2 {
 	display: flex;
 	flex-direction: column;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .landing-widget-kb-v2 .landing-widget-view-main {
@@ -13,7 +13,7 @@
 	align-items: center;
 	margin-bottom: 21px;
 	padding-bottom: 0;
-	font: var(--ui-font-weight-medium) 28px var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) 28px var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--widget-color-h-v2);
 	cursor: default;
 }
@@ -76,7 +76,7 @@
 	margin-bottom: 17px;
 	max-width: 100%;
 	height: 40px;
-	font: var(--ui-font-weight-medium) 17px var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) 17px var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--ui-color-text-primary);
 	text-overflow: ellipsis;
 	line-height: 20px;
@@ -98,7 +98,7 @@
 }
 
 .widget-kb-v2-item-views {
-	font: var(--ui-font-weight-regular) var(--ui-font-size-lg) var(--ui-font-family-system);
+	font: var(--ui-font-weight-regular) var(--ui-font-size-lg) var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--primary);
 }
 
@@ -114,7 +114,7 @@
 	border: 1px solid var(--widget-color-primary);
 	background: var(--ui-color-background-transparent);
 	color: var(--widget-color-primary);
-	font: var(--ui-font-weight-medium) var(--ui-font-size-xs)/20px var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) var(--ui-font-size-xs)/20px var(--ui-font-family-primary, var(--ui-font-family-system));
 	transition: box-shadow .3s;
 	cursor: pointer;
 }
@@ -143,7 +143,7 @@
 	height: 20px;
 	border-radius: var(--ui-border-radius-pill);
 	background: rgba(var(--ui-color-background-primary-rgb), .2);
-	font: var(--ui-font-weight-medium) var(--ui-font-size-4xs) var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) var(--ui-font-size-4xs) var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--ui-color-on-primary-alt);
 	box-sizing: border-box;
 	cursor: default;
@@ -151,7 +151,7 @@
 
 .landing-widget-kb-v2-badge.--yellow {
 	background: var(--ui-color-palette-orange-50);
-	font: var(--ui-font-weight-regular) var(--ui-font-size-sm) var(--ui-font-family-system);
+	font: var(--ui-font-weight-regular) var(--ui-font-size-sm) var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .landing-widget-kb-v2-title .landing-widget-kb-v2-badge {
@@ -163,7 +163,7 @@
 /* sidebar */
 
 .landing-widget-view-sidebar .landing-widget-kb-v2-title {
-	font: var(--ui-font-weight-medium) 17px var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) 17px var(--ui-font-family-primary, var(--ui-font-family-system));
 	padding-left: 2px;
 	margin-bottom: 15px;
 }
@@ -209,7 +209,7 @@
 }
 
 .landing-widget-view-sidebar .widget-kb-v2-item-views {
-	font: var(--ui-font-weight-regular) var(--ui-font-size-sm) var(--ui-font-family-system);
+	font: var(--ui-font-weight-regular) var(--ui-font-size-sm) var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .landing-widget-view-sidebar .widget-kb-v2-item-views-box .ui-icon-set {

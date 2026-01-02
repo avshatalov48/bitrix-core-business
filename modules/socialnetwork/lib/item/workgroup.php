@@ -13,8 +13,10 @@ use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
+use Bitrix\Socialnetwork\Integration\UI\EntitySelector\Config;
 use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
 use Bitrix\Socialnetwork\Item\Workgroup\Type;
 use Bitrix\Socialnetwork\Integration\Intranet\Structure\WorkgroupDepartmentsSynchronizer;
@@ -129,6 +131,11 @@ class Workgroup implements Main\Type\Contract\Arrayable, Main\Type\Contract\Json
 		return (array)($this->fields['SITE_IDS'] ?? []);
 	}
 
+	public function isVisible(): bool
+	{
+		return ($this->fields['VISIBLE'] ?? null) === 'Y';
+	}
+
 	public function getType(): ?Type
 	{
 		$type = $this->fields['TYPE'] ?? null;
@@ -138,6 +145,29 @@ class Workgroup implements Main\Type\Contract\Arrayable, Main\Type\Contract\Json
 		}
 
 		return Type::tryFrom($type);
+	}
+
+	public function getAvatarType(): ?string
+	{
+		return $this->fields['AVATAR_TYPE'] ?? null;
+	}
+
+	public function getAvatarUrl(): string
+	{
+		$avatar = Helper\Workgroup::getAvatarEntitySelectorUrl($this->getAvatarType());
+		if (!empty($avatar))
+		{
+			return $avatar;
+		}
+
+		$extranetSiteId = Option::get('extranet', 'extranet_site');
+		$extranetSiteId = ($extranetSiteId && ModuleManager::isModuleInstalled('extranet') ? $extranetSiteId : false);
+		$isExtranet = in_array($extranetSiteId, $this->fields['SITE_IDS'] ?? [], true);
+		$type = ($isExtranet && !$this->isCollab()) ? 'extranet' : $this->getType()?->value;
+
+		$avatarTypes = Config::getProjectAvatarTypes();
+
+		return $avatarTypes[$type ?? 'default'] ?? $avatarTypes['default'];
 	}
 
 	public function getSynchronizedDepartmentIds(): array
@@ -325,6 +355,16 @@ class Workgroup implements Main\Type\Contract\Arrayable, Main\Type\Contract\Json
 			'SERVER_NAME' => $serverName,
 			'DOMAIN' => $domainName,
 		];
+	}
+
+	public function isLandingGroup(): bool
+	{
+		return ($this->getFields()['LANDING'] ?? null) === 'Y';
+	}
+
+	public function getInitiatePermission(): ?string
+	{
+		return $this->fields['INITIATE_PERMS'] ?? null;
 	}
 
 	public function toArray(): array

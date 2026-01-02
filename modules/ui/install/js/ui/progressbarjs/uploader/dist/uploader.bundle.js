@@ -3,8 +3,10 @@ this.BX = this.BX || {};
 (function (exports) {
 	'use strict';
 
+	var DEFAULT_CANCEL_CALLBACK_DELAY = 1000;
 	var Uploader = /*#__PURE__*/function () {
 	  function Uploader() {
+	    var _params$cancelCallbac;
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Uploader);
 	    this.container = params.container;
@@ -32,6 +34,7 @@ this.BX = this.BX || {};
 	    this.icon = Uploader.icon[params.icon] ? params.icon : !this.cancelCallback ? Uploader.icon.cloud : Uploader.icon.cancel;
 	    this.inited = !!this.container;
 	    this.destroing = false;
+	    this.cancelCallbackDelay = (_params$cancelCallbac = params.cancelCallbackDelay) !== null && _params$cancelCallbac !== void 0 ? _params$cancelCallbac : DEFAULT_CANCEL_CALLBACK_DELAY;
 	  }
 	  babelHelpers.createClass(Uploader, [{
 	    key: "start",
@@ -80,7 +83,7 @@ this.BX = this.BX || {};
 	          clearTimeout(_this.timeout);
 	          _this.timeout = setTimeout(function () {
 	            return _this.destroy();
-	          }, 1000);
+	          }, _this.cancelCallbackDelay);
 	          return true;
 	        });
 	        if (this.labels.cancelTitle) {

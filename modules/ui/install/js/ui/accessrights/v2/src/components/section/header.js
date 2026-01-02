@@ -1,5 +1,6 @@
 import { Hint } from '../util/hint';
 import { Icon } from './icon';
+import { EventEmitter } from 'main.core.events';
 import '../../css/section/header.css';
 
 export const Header = {
@@ -9,6 +10,13 @@ export const Header = {
 	methods: {
 		toggleSection(): void {
 			this.$store.dispatch('accessRights/toggleSection', { sectionCode: this.section.sectionCode });
+		},
+		onSectionEventButtonClick(): void {
+			const eventData = {
+				guid: this.$store.getters['application/guid'],
+				section: this.section,
+			};
+			EventEmitter.emit('BX.UI.AccessRights.V2:onSectionHeaderClick', eventData);
 		},
 	},
 	template: `
@@ -40,6 +48,11 @@ export const Header = {
 				{{ section.sectionSubTitle }}
 			</span>
 			<Hint v-if="section.sectionHint" :html="section.sectionHint"/>
+			<span 
+				v-if="section.action"
+				class="ui-btn ui-btn-light-border ui-btn-xs ui-access-rights-v2-section-action"
+				@click.stop="onSectionEventButtonClick"
+			>{{ section.action.buttonText }}</span>
 		</div>
 	`,
 };

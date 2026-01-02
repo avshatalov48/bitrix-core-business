@@ -1,4 +1,5 @@
 <?php
+
 use Bitrix\Main;
 use Bitrix\Main\DB\SqlQueryException;
 
@@ -947,6 +948,8 @@ class CIBlockXMLFile
 		];
 
 		$startTime = time();
+
+		$fileName = Main\IO\Path::normalize($fileName);
 
 		$dirName = mb_substr($fileName, 0, mb_strrpos($fileName, '/') + 1);
 		if (mb_strlen($dirName) <= mb_strlen($_SERVER['DOCUMENT_ROOT']))

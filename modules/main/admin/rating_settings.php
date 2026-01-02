@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * @global \CUser $USER
  * @global \CMain $APPLICATION
@@ -63,30 +63,38 @@ foreach ($arSites as $site)
 }
 
 if (isset($_POST["RATING_ASSIGN_RATING_GROUP"]))
+{
 	$ratingAssignRatingGroup = intval($_POST["RATING_ASSIGN_RATING_GROUP"]);
+}
 else
 {
 	$ratingAssignRatingGroup = COption::GetOptionString("main", "rating_assign_rating_group", null);
 	if ($ratingAssignRatingGroup == null)
 	{
-		$rsGroup = $DB->Query("SELECT * FROM b_group WHERE STRING_ID='RATING_VOTE'", true);
-		$arGroup = $rsGroup->Fetch();
-		$ratingAssignRatingGroup = intval($arGroup['ID']);
-		COption::SetOptionString("main", "rating_assign_rating_group", $ratingAssignRatingGroup);
+		$groupId = CGroup::GetIDByCode('RATING_VOTE');
+		if ($groupId)
+		{
+			$ratingAssignRatingGroup = intval($groupId);
+			COption::SetOptionString("main", "rating_assign_rating_group", $ratingAssignRatingGroup);
+		}
 	}
 }
 
 if (isset($_POST["RATING_ASSIGN_AUTHORITY_GROUP"]))
+{
 	$ratingAssignAuthorityGroup = intval($_POST["RATING_ASSIGN_AUTHORITY_GROUP"]);
+}
 else
 {
 	$ratingAssignAuthorityGroup = COption::GetOptionString("main", "rating_assign_authority_group", null);
 	if ($ratingAssignAuthorityGroup == null)
 	{
-		$rsGroup = $DB->Query("SELECT * FROM b_group WHERE STRING_ID='RATING_VOTE_AUTHORITY'", true);
-		$arGroup = $rsGroup->Fetch();
-		$ratingAssignAuthorityGroup = intval($arGroup['ID']);
-		COption::SetOptionString("main", "rating_assign_authority_group", $ratingAssignAuthorityGroup);
+		$groupId = CGroup::GetIDByCode('RATING_VOTE_AUTHORITY');
+		if ($groupId)
+		{
+			$ratingAssignAuthorityGroup = intval($groupId);
+			COption::SetOptionString("main", "rating_assign_authority_group", $ratingAssignAuthorityGroup);
+		}
 	}
 }
 

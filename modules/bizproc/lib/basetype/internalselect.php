@@ -82,19 +82,27 @@ class InternalSelect extends Select
 	{
 		$runtime = \CBPRuntime::getRuntime();
 		$runtime->startRuntime();
-		$documentService = $runtime->getService("DocumentService");
+		$documentService = $runtime->getService('DocumentService');
 
-		$result = array();
+		$result = [];
 		$fields = $documentService->getDocumentFields($fieldType->getDocumentType());
+		if (!is_array($fields))
+		{
+			return $result;
+		}
+
 		foreach ($fields as $key => $field)
 		{
-			if ($field['Type'] == 'select' && mb_substr($key, -10) != '_PRINTABLE')
+			if ($field['Type'] === 'select' && mb_substr($key, -10) !== '_PRINTABLE')
 			{
 				$result[$key] = $field;
 				if (isset($field['Alias']) && !$ignoreAliases)
+				{
 					$result[$field['Alias']] = $field;
+				}
 			}
 		}
+
 		return $result;
 	}
 

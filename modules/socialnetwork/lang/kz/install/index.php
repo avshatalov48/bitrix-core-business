@@ -1,0 +1,27 @@
+<?php
+$MESS["SONETP_COPY_FOLDER"] = "Файлдар көшірілетін бума (сайттың түбіріне қатысты)";
+$MESS["SONETP_COPY_PUBLIC_FILES"] = "Жария бөлімді және демо деректерді орнату";
+$MESS["SONETP_DELETE_EMAIL"] = "Пошта қалыптарын жою";
+$MESS["SONETP_EDIT_FORM_LABEL"] = "Маңызды хабарлама";
+$MESS["SONETP_INSTALL_404"] = "Жария бөлімді АТУ режимінде орнату";
+$MESS["SONETP_INSTALL_EMAIL"] = "Пошта қалыптарын жасау";
+$MESS["SONETP_INSTALL_SMILES"] = "Смайлдарды орнату";
+$MESS["SONETP_LIST_COLUMN_LABEL"] = "Маңызды";
+$MESS["SONETP_LIST_FILTER_LABEL"] = "Маңызды";
+$MESS["SONETP_NOT_INSTALL_P"] = "орнатпау";
+$MESS["SONETP_PERM_D"] = "топтарды құру құқығынсыз жария бөлімде жұмыс істеу";
+$MESS["SONETP_PERM_K"] = "топтарды құру құқығымен жария бөлімде жұмыс істеу";
+$MESS["SONETP_PERM_R"] = "әкімшілік бөлімді қарау";
+$MESS["SONETP_PERM_W"] = "толық қолжетімділік";
+$MESS["SONETP_REWRITE_ADD"] = "Көмекші файлдарды қайта жазу";
+$MESS["SONETP_RW_DEF_IMAGES"] = ".default қалпында кескіндерді қайта жазу";
+$MESS["SONETP_UF_IMPRTANT_DATE_END_EDIT_FORM_LABEL"] = "Қолдану мерзімі";
+$MESS["SONETP_UF_IMPRTANT_DATE_END_LIST_COLUMN_LABEL"] = "Мерзімі";
+$MESS["SONET_INSTALL_DESCRIPTION"] = "Модуль сайтта әлеуметтік желіні құруға мүмкіндік береді.";
+$MESS["SONET_INSTALL_NAME"] = "Әлеуметтік желі";
+$MESS["SONET_INSTALL_PUBLIC_REW"] = "Бар файлдарды қайта жазу";
+$MESS["SONET_INSTALL_TITLE"] = "Әлеуметтік желі модулін орнату";
+$MESS["SONET_INSTALL_UF_BLOG_POST_VOTE"] = "Әлеуметтік желі сауалнамалары";
+$MESS["SONET_UF_SG_DEPT_EDIT_FORM_LABEL"] = "Бөлімшелер";
+$MESS["SONET_UF_SG_DEPT_LIST_COLUMN_LABEL"] = "Бөлімшелер";
+$MESS["SONET_UF_SG_DEPT_LIST_FILTER_LABEL"] = "Бөлімшелер";

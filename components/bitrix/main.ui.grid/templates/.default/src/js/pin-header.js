@@ -140,7 +140,7 @@
 
 		getAdminPanel()
 		{
-			if (!this.adminPanel)
+			if (BX.Type.isUndefined(this.adminPanel))
 			{
 				this.adminPanel = document.querySelector('.adm-header');
 			}

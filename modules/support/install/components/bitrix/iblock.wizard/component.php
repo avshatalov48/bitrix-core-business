@@ -56,10 +56,10 @@ if ($CURRENT_STEP > 1 && is_array($_POST['wizard']))
 		{
 			foreach($v as $k1=>$v1)
 				if (trim($v1))
-					$arHidden[$k][$k1] = htmlspecialcharsbx($v1);
+					$arHidden[htmlspecialcharsbx($k)][htmlspecialcharsbx($k1)] = htmlspecialcharsbx($v1);
 		}
 		elseif (trim($v))
-			$arHidden[$k] = htmlspecialcharsbx($v);
+			$arHidden[htmlspecialcharsbx($k)] = htmlspecialcharsbx($v);
 	}
 }
 

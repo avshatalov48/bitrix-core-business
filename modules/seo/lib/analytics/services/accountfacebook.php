@@ -28,14 +28,15 @@ class AccountFacebook extends Account
 
 	public function getProfile()
 	{
-		$response = $this->getRequest()->getClient()->get(
-			'https://graph.facebook.com/me?fields=id,name,picture,link&access_token=' .
-			urlencode($this->getRequest()->getAuthAdapter()->getToken())
+		$response = $this->request->send([
+			'methodName' => 'analytics.profile',
+			'parameters' => [],
+			]
 		);
 
-		if ($response)
+		if ($response && $response->isSuccess())
 		{
-			$response = Json::decode($response);
+			$response = $response->getData();
 			if (is_array($response))
 			{
 				return array(
@@ -154,7 +155,6 @@ class AccountFacebook extends Account
 
 		$parameters = [
 			'ACCOUNT_ID' => $accountId,
-			'LEVEL' => 'campaign',
 		];
 
 		if ($dateFrom && $dateTo)
@@ -164,19 +164,20 @@ class AccountFacebook extends Account
 		}
 
 		$response = $this->getRequest()->send([
-			'methodName' => 'analytics.expenses.report',
+			'methodName' => 'analytics.expenses.ads.report',
 			'parameters' => $parameters,
 			'streamTimeout' => static::LOAD_DAILY_EXPENSES_TIMEOUT,
+			'listenHttpErrors' => true,
 		]);
 
 		$result = new Result();
-		$response->getData();
 
 		if (!$response->isSuccess())
 		{
-			$result->addErrors($response->getErrors());
+			$innerErrors = implode(',', $response->getErrorMessages());
+			$errorMessage = $this->buildErrorMessage("Error occurred while load daily expenses: {$innerErrors}");
 
-			return $result;
+			return $result->addError(new Error($errorMessage));
 		}
 
 		$data = $response->getData();

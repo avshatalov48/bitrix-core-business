@@ -11,8 +11,6 @@ return [
 		'main.polyfill.core',
 		'im.v2.application.core',
 		'im.v2.component.quick-access',
-		'im.v2.const',
-		'im.public',
 	],
 	'skip_core' => true,
 ];

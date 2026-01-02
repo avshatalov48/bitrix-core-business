@@ -1,0 +1,19 @@
+<?php
+$MESS["DEMO_MENU_ALERT"] = "Alert және Confim";
+$MESS["DEMO_MENU_API"] = "API нұсқасын тексеру";
+$MESS["DEMO_MENU_BUTTONS"] = "Батырмалар";
+$MESS["DEMO_MENU_CHOSE_PHOTO"] = "Фотосуретпен жұмыс";
+$MESS["DEMO_MENU_CONTEXT_MENU"] = "Контексттік мәзір";
+$MESS["DEMO_MENU_DOCS"] = "Құжаттар";
+$MESS["DEMO_MENU_LISTS"] = "Тізімдер";
+$MESS["DEMO_MENU_LOADING"] = "Жүктеушілер";
+$MESS["DEMO_MENU_LOCAL_NOTIF"] = "Жергілікті мәлімдемелер";
+$MESS["DEMO_MENU_MAIN"] = "Басты";
+$MESS["DEMO_MENU_NAV_BAR"] = "Навигациялық панель";
+$MESS["DEMO_MENU_PHOTOGALLERY"] = "Фотосуреттер галереясы";
+$MESS["DEMO_MENU_PICKERS"] = "Таңдау элементтері (picker)";
+$MESS["DEMO_MENU_QR"] = "QR-код сканер";
+$MESS["DEMO_MENU_REFRESH"] = "Pull-to-refresh";
+$MESS["DEMO_MENU_SECTION_MAIN"] = "Басты мәзір";
+$MESS["DEMO_MENU_SLIDING_PANEL"] = "Жылжымалы панель";
+$MESS["DEMO_MENU_TEXT_PANEL"] = "Мәтіндік панель";

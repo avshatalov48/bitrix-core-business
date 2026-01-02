@@ -1,0 +1,10 @@
+<?php
+$MESS["PRODUCT_SELECTOR_ERROR_BARCODE_EXIST"] = "\"#PRODUCT_NAME#\" тауарында \"#BARCODE#\" штрих-коды көрсетілген.\nБасқа штрихкодты енгізіңіз.";
+$MESS["PRODUCT_SELECTOR_ERROR_NO_PERMISSIONS_FOR_CREATION"] = "Тауар жасау үшін құқықтар жеткіліксіз";
+$MESS["PRODUCT_SELECTOR_ERROR_NO_PERMISSIONS_FOR_UPDATE"] = "Тауарды өзгертуге құқықтар жеткіліксіз";
+$MESS["PRODUCT_SELECTOR_ERROR_PRODUCT_NOT_EXIST"] = "Тауар жоқ";
+$MESS["PRODUCT_SELECTOR_ERROR_SKU_NOT_EXIST"] = "Вариация жоқ";
+$MESS["PRODUCT_SELECTOR_ERROR_WRONG_IBLOCK_ID"] = "Каталогтың ID-і дұрыс емес";
+$MESS["PRODUCT_SELECTOR_PRODUCT_NOT_TAX"] = "ҚҚС-сыз";
+$MESS["PRODUCT_SELECTOR_PRODUCT_TAX_INCLUDED"] = "Иә";
+$MESS["PRODUCT_SELECTOR_PRODUCT_TAX_NOT_INCLUDED"] = "Жоқ";

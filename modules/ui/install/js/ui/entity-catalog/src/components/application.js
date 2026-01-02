@@ -24,14 +24,12 @@ export const Application = {
 		Search,
 	},
 	props: {
-		recentGroupData: {
-			type: GroupData,
-			required: false,
-		},
+		/** @type Array<Array<GroupData>> */
 		groups: {
 			type: Array,
 			required: true,
 		},
+		/** @type Array<ItemData> */
 		items: {
 			type: Array,
 			required: true,
@@ -39,10 +37,6 @@ export const Application = {
 		showEmptyGroups: {
 			type: Boolean,
 			default: false,
-		},
-		showRecentGroup: {
-			type: Boolean,
-			default: true,
 		},
 		filterOptions: {
 			type: Object,
@@ -52,9 +46,17 @@ export const Application = {
 			},
 		},
 	},
-	data(): Object
+	data(): {
+		selectedGroup: ?GroupData,
+		selectedGroupId: ?string,
+		shownItems: Array,
+		shownGroups: Array<Array<GroupData>>,
+		lastSearchString: string,
+		filters: Array,
+	}
 	{
 		let selectedGroup = null;
+
 		for (const groupList of this.groups)
 		{
 			selectedGroup = groupList.find(group => group.selected);
@@ -63,16 +65,12 @@ export const Application = {
 				break;
 			}
 		}
-		if (Type.isNil(selectedGroup) && this.recentGroupData?.selected)
-		{
-			selectedGroup = {id: 'recent', ...(this.recentGroupData ?? {})};
-		}
 
 		return {
 			selectedGroup,
 			selectedGroupId: selectedGroup?.id ?? null,
 			shownItems: [],
-			shownGroups: this.getDisplayedGroup(),
+			shownGroups: [],
 			lastSearchString: '',
 			filters: [],
 		};
@@ -84,6 +82,51 @@ export const Application = {
 
 			return this.selectedGroup?.compare ? items.sort(this.selectedGroup.compare) : items;
 		},
+		computedShownGroups(): Array<Array<GroupData>>
+		{
+			if (this.showEmptyGroups)
+			{
+				return Runtime.clone(this.groups);
+			}
+
+			const groupIdsWithItems = new Set();
+			this.items.forEach((item) => {
+				item.groupIds.forEach((groupId) => groupIdsWithItems.add(groupId));
+			});
+
+			return (
+				this.groups
+					.map(groupList => groupList.filter(group => group.isHeaderGroup === true || groupIdsWithItems.has(group.id)))
+					.filter(list => list.length > 0)
+			);
+		},
+
+		computedShownItems(): Array<ItemData>
+		{
+			if (this.searching && Type.isStringFilled(this.lastSearchString))
+			{
+				const q = this.lastSearchString;
+				let result = this.items.filter((item) => (
+					String(item.title).toLowerCase().includes(q)
+					|| String(item.description).toLowerCase().includes(q)
+					|| item.tags?.some(tag => tag === q)
+				));
+
+				for (const filterId in this.filters)
+				{
+					result = result.filter(this.filters[filterId].action);
+				}
+
+				return result;
+			}
+
+			let result = this.itemsBySelectedGroupId.slice();
+			for (const filterId in this.filters)
+			{
+				result = result.filter(this.filters[filterId].action);
+			}
+			return result;
+		},
 		...mapWritableState(useGlobalState, {
 			searchQuery: 'searchQuery',
 			searching: 'searchApplied',
@@ -93,25 +136,38 @@ export const Application = {
 		}),
 	},
 	watch: {
+		computedShownItems: {
+			handler()
+			{
+				this.$nextTick(() => {
+					this.$emit('itemsRendered');
+				});
+			},
+			flush: 'post',
+		},
+		computedShownGroups: {
+			immediate: true,
+			handler(newVal)
+			{
+				// quick replace in-place to keep same array object reference
+				this.shownGroups.splice(0, this.shownGroups.length, ...newVal);
+
+				if (!this.selectedGroupId)
+				{
+					const selected = this.shownGroups.flat().find(g => g.selected);
+					if (selected)
+					{
+						this.selectedGroup = selected;
+						this.selectedGroupId = selected.id;
+					}
+				}
+			},
+		},
 		selectedGroup()
 		{
 			this.shouldShowWelcomeStub = false;
 			this.globalGroup = this.selectedGroup;
 		},
-		selectedGroupId()
-		{
-			if (this.searching)
-			{
-				return;
-			}
-
-			this.shownItems = this.itemsBySelectedGroupId;
-			this.applyFilters();
-		},
-	},
-	created()
-	{
-		this.shownItems = this.itemsBySelectedGroupId;
 	},
 	methods: {
 		getDisplayedGroup(): Array<Array<GroupData>>
@@ -124,15 +180,16 @@ export const Application = {
 			const groupIdsWithItems = new Set();
 			this.items.forEach((item: ItemData) => {
 				item.groupIds.forEach((groupId: String | Number) => {
-					groupIdsWithItems.add(groupId)
+					groupIdsWithItems.add(groupId);
 				});
 			});
 
 			return (
 				this
 					.groups
-					.map((groupList: Array<GroupData>) => groupList.filter((group: GroupData) => groupIdsWithItems.has(group.id)
-					))
+					.map((groupList: Array<GroupData>) => groupList.filter((group: GroupData) => (
+						(group.isHeaderGroup === true) || groupIdsWithItems.has(group.id)
+					)))
 					.filter(groupList => groupList.length > 0)
 			);
 		},
@@ -175,7 +232,7 @@ export const Application = {
 			this.filters = event.getData();
 			if (this.searching)
 			{
-				this.onSearch(new BaseEvent({data: {queryString: this.lastSearchString}}));
+				this.onSearch(new BaseEvent({ data: { queryString: this.lastSearchString } }));
 
 				return;
 			}
@@ -194,17 +251,17 @@ export const Application = {
 		getFilterNode(): ?Element
 		{
 			return (this.$root.$app
-				.getPopup()
-				.getTitleContainer()
-				.querySelector('[data-role="titlebar-filter"]')
+					.getPopup()
+					.getTitleContainer()
+					.querySelector('[data-role="titlebar-filter"]')
 			);
 		},
 		getSearchNode(): ?Element
 		{
 			return (this.$root.$app
-				.getPopup()
-				.getTitleContainer()
-				.querySelector('[data-role="titlebar-search"]')
+					.getPopup()
+					.getTitleContainer()
+					.querySelector('[data-role="titlebar-search"]')
 			);
 		},
 		stopPropagation(event)
@@ -215,11 +272,10 @@ export const Application = {
 	template: `
 		<div class="ui-entity-catalog__main">
 			<MainGroups
-				:recent-group-data="this.recentGroupData"
 				:groups="this.shownGroups"
-				:show-recent-group="showRecentGroup"
 				:searching="searching"
 				@group-selected="handleGroupSelected"
+				:selected-group="selectedGroup"
 			>
 				<template #group-list-header>
 					<slot name="group-list-header"/>
@@ -237,7 +293,7 @@ export const Application = {
 			</MainGroups>
 			<MainContent
 				:items="itemsBySelectedGroupId"
-				:items-to-show="shownItems"
+				:items-to-show="computedShownItems"
 				:group="selectedGroup"
 				:searching="searching"
 			>
@@ -288,4 +344,4 @@ export const Application = {
 			</Teleport>
 		</div>
 	`,
-}
+};

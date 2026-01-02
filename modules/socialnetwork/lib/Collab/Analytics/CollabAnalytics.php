@@ -6,7 +6,7 @@ namespace Bitrix\SocialNetwork\Collab\Analytics;
 
 use Bitrix\Main\Analytics\AnalyticsEvent;
 use Bitrix\Socialnetwork\Collab\User\User;
-use Bitrix\Socialnetwork\Helper\Analytics;
+use Bitrix\Socialnetwork\Helper\Analytics\Analytics;
 
 class CollabAnalytics extends Analytics
 {

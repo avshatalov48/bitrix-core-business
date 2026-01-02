@@ -13,7 +13,7 @@ include("util_group_profile.php");
 if (\Bitrix\Main\Loader::includeModule('rest'))
 {
 	CJSCore::Init(array('marketplace'));
-	$APPLICATION->setTitle(Bitrix\Main\Localization\Loc::getMessage('GROUP_MARKETPLACE_TITLE_2'));
+	$APPLICATION->setTitle(Bitrix\Main\Localization\Loc::getMessage('GROUP_MARKETPLACE_TITLE_MSGVER_1'));
 
 	?><script>
 		BX.ready(function() {

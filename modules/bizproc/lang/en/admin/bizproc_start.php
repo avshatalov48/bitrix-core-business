@@ -15,5 +15,5 @@ $MESS["BPABS_NO_TEMPLATES"] = "No business process template found for this eleme
 $MESS["BPABS_TAB"] = "Business Process";
 $MESS["BPABS_TAB1"] = "Business Process";
 $MESS["BPABS_TAB1_TITLE"] = "Select the business process template to run.";
-$MESS["BPABS_TAB_TITLE"] = "Business Process Run Parameters";
+$MESS["BPABS_TAB_TITLE_MSGVER_1"] = "Workflow startup parameters";
 $MESS["BPABS_TITLE"] = "Run Business Process";

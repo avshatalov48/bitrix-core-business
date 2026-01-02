@@ -1,10 +1,12 @@
 <?php
-#############################################
-# Bitrix Site Manager Forum					#
-# Copyright (c) 2002-2007 Bitrix			#
-# https://www.bitrixsoft.com					#
-# mailto:admin@bitrixsoft.com				#
-#############################################
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
+
 class CVoteCacheManager
 {
 	public static $types = array(
@@ -165,7 +167,7 @@ class CVoteCacheManager
 		if (array_key_exists("QUESTION_ID", $arFields))
 		{
 			global $DB;
-			$res = $DB->Query("SELECT QUESTION_ID FROM b_vote_answer WHERE ID=".$ID, false, "File:".__FILE__." Line: ".__LINE__);
+			$res = $DB->Query("SELECT QUESTION_ID FROM b_vote_answer WHERE ID=".$ID);
 			if ($row = $res->Fetch())
 				self::ClearTag("Q", $row["QUESTION_ID"]);
 		}
@@ -180,7 +182,7 @@ class CVoteCacheManager
 		else
 		{
 			global $DB;
-			$db_res = $DB->Query("SELECT QUESTION_ID FROM b_vote_answer WHERE ID=".$ID, false, "File:".__FILE__." Line: ".__LINE__);
+			$db_res = $DB->Query("SELECT QUESTION_ID FROM b_vote_answer WHERE ID=".$ID);
 			if ($res = $db_res->Fetch())
 				self::ClearTag("Q", $res["QUESTION_ID"]);
 		}

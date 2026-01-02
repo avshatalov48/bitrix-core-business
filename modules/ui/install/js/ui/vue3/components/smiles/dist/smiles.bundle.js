@@ -1,26 +1,27 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Vue3 = this.BX.Vue3 || {};
-(function (exports,ui_vue3_directives_lazyload,ui_vue3,ui_dexie,rest_client) {
+(function (exports,rest_client,ui_dexie,ui_vue3_directives_lazyload) {
 	'use strict';
 
 	class SmileManager {
 	  constructor(restClient) {
-	    if (typeof restClient !== 'undefined') {
-	      this.restClient = restClient;
-	    } else {
+	    // eslint-disable-next-line @bitrix24/bitrix24-rules/no-typeof
+	    if (typeof restClient === 'undefined') {
 	      this.restClient = new rest_client.RestClient();
+	    } else {
+	      this.restClient = restClient;
 	    }
 	    this.db = new ui_dexie.Dexie('bx-ui-smiles');
 	    this.db.version(1).stores({
-	      sets: "id, parentId, name, type, image",
-	      smiles: "id, setId, name, image, typing, width, height, originalWidth, originalHeight, definition"
+	      sets: 'id, parentId, name, type, image',
+	      smiles: 'id, setId, name, image, typing, width, height, originalWidth, originalHeight, definition'
 	    });
 	  }
 	  loadFromCache() {
-	    let promise = new BX.Promise();
-	    let sets = [];
-	    let smiles = [];
+	    const promise = new BX.Promise();
+	    const sets = [];
+	    const smiles = [];
 	    this.db.transaction('r', this.db.sets, this.db.smiles, () => {
 	      this.db.sets.each(set => {
 	        return this.db.smiles.where('setId').equals(set.id).first().then(smile => {
@@ -34,7 +35,7 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	          smiles.push(smile);
 	        });
 	      }).then(() => {
-	        let promiseResult = {
+	        const promiseResult = {
 	          sets,
 	          smiles
 	        };
@@ -44,27 +45,27 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    return promise;
 	  }
 	  loadFromServer() {
-	    let promise = new BX.Promise();
+	    const promise = new BX.Promise();
 	    this.restClient.callMethod('smile.get').then(result => {
-	      let sets = [];
-	      let smiles = [];
-	      let answer = result.data();
-	      let setImage = {};
-	      answer.smiles = answer.smiles.map(function (smile) {
+	      const sets = [];
+	      const smiles = [];
+	      const answer = result.data();
+	      const setImage = {};
+	      answer.smiles = answer.smiles.map(smile => {
 	        if (!setImage[smile.setId]) {
 	          setImage[smile.setId] = smile.image;
 	        }
 	        let originalWidth = smile.width;
-	        if (smile.definition == 'HD') {
-	          originalWidth = originalWidth * 2;
-	        } else if (smile.definition == 'UHD') {
-	          originalWidth = originalWidth * 4;
+	        if (smile.definition === 'HD') {
+	          originalWidth *= 2;
+	        } else if (smile.definition === 'UHD') {
+	          originalWidth *= 4;
 	        }
 	        let originalHeight = smile.height;
-	        if (smile.definition == 'HD') {
-	          originalHeight = originalHeight * 2;
-	        } else if (smile.definition == 'UHD') {
-	          originalHeight = originalHeight * 4;
+	        if (smile.definition === 'HD') {
+	          originalHeight *= 2;
+	        } else if (smile.definition === 'UHD') {
+	          originalHeight *= 4;
 	        }
 	        return {
 	          ...smile,
@@ -79,11 +80,11 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	        });
 	      });
 	      answer.smiles.forEach(smile => {
-	        if (smile.setId == sets[0].id) {
+	        if (parseInt(smile.setId, 10) === parseInt(sets[0].id, 10)) {
 	          smiles.push(smile);
 	        }
 	      });
-	      let promiseResult = {
+	      const promiseResult = {
 	        sets,
 	        smiles
 	      };
@@ -98,7 +99,7 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    return promise;
 	  }
 	  changeSet(setId) {
-	    let promise = new BX.Promise();
+	    const promise = new BX.Promise();
 	    this.db.smiles.where('setId').equals(setId).toArray(smiles => {
 	      promise.resolve(smiles);
 	    }).catch(error => promise.reject(error));
@@ -106,6 +107,8 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	  }
 	}
 
+	// for compatibility
+	// eslint-disable-next-line prefer-const
 	let emoji = [{
 	  id: 1,
 	  code: 'PEOPLE',
@@ -3062,6 +3065,124 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	  }]
 	}];
 
+	function isMac() {
+	  return navigator.userAgent.toLowerCase().includes('macintosh');
+	}
+	function isLinux() {
+	  return navigator.userAgent.toLowerCase().includes('linux');
+	}
+	function isWindows() {
+	  return navigator.userAgent.toLowerCase().includes('windows') || !isMac() && !isLinux();
+	}
+
+	// @vue/component
+	const EmojiTab = {
+	  name: 'EmojiTab',
+	  emits: ['selectSmile'],
+	  data() {
+	    return {
+	      emoji: []
+	    };
+	  },
+	  created() {
+	    this.emoji = emoji;
+	  },
+	  methods: {
+	    selectSmile(text) {
+	      this.$emit('selectSmile', {
+	        text
+	      });
+	    },
+	    isShowCategory(category) {
+	      if (isWindows()) {
+	        return category.showForWindows;
+	      }
+	      return true;
+	    }
+	  },
+	  template: `
+		<div v-for="category in emoji" class="bx-ui-smiles-emoji-wrap">
+			<template v-if="isShowCategory(category)">
+				<div class="bx-ui-smiles-category">
+					{{ $Bitrix.Loc.getMessage('UI_VUE_SMILES_EMOJI_CATEGORY_' + category.code) }}
+				</div>
+				<template v-for="element in category.emoji">
+					<div class="bx-ui-smiles-smile" style="font-size: 28px;">
+						<div class="bx-ui-smiles-smile-icon" @click="selectSmile(element.symbol)">
+							{{ element.symbol }}
+						</div>
+					</div>
+				</template>
+			</template>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const LoadingTab = {
+	  name: 'LoadingTab',
+	  template: `
+		<svg class="bx-ui-smiles-loading-circular" viewBox="25 25 50 50">
+			<circle
+				class="bx-ui-smiles-loading-path" 
+				cx="50" 
+				cy="50" 
+				r="20" 
+				fill="none"
+				stroke-miterlimit="10"
+			/>
+			<circle
+				class="bx-ui-smiles-loading-inner-path"
+				cx="50"
+				cy="50"
+				r="20" 
+				fill="none" 
+				stroke-miterlimit="10"
+			/>
+		</svg>
+	`
+	};
+
+	// @vue/component
+	const SmilesSetTab = {
+	  name: 'SmilesSetTab',
+	  directives: {
+	    lazyload: ui_vue3_directives_lazyload.lazyload
+	  },
+	  props: {
+	    smiles: {
+	      type: Array,
+	      required: true
+	    }
+	  },
+	  emits: ['selectSmile'],
+	  methods: {
+	    selectSmile(text) {
+	      this.$emit('selectSmile', {
+	        text
+	      });
+	    }
+	  },
+	  // language=Vue
+	  template: `
+		<template v-for="smile in smiles">
+			<div class="bx-ui-smiles-smile">
+				<img v-lazyload :key="smile.id" 
+					 class="bx-ui-smiles-smile-icon"
+					 :data-lazyload-src="smile.image"
+					 data-lazyload-error-class="bx-ui-smiles-smile-icon-error"
+					 :title="smile.name"
+					 :style="{
+						height: (smile.originalHeight*0.5)+'px',
+						width: (smile.originalWidth*0.5)+'px',
+					}"
+					 @click="selectSmile(smile.typing)"
+				/>
+			</div>
+		</template>
+	`
+	};
+
 	/**
 	 * Bitrix UI
 	 * Smiles Vue3 component
@@ -3070,52 +3191,111 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	 * @subpackage ui
 	 * @copyright 2001-2021 Bitrix
 	 */
+
+	// @vue/component
 	const Smiles = {
+	  // eslint-disable-next-line vue/multi-word-component-names
+	  name: 'Smiles',
+	  components: {
+	    LoadingTab,
+	    SmilesSetTab,
+	    EmojiTab
+	  },
+	  directives: {
+	    lazyload: ui_vue3_directives_lazyload.lazyload
+	  },
+	  props: {
+	    isOnlyEmoji: {
+	      type: Boolean,
+	      default: false
+	    }
+	  },
 	  emits: ['selectSmile', 'selectSet'],
 	  data() {
 	    return {
 	      smiles: [],
 	      sets: [],
-	      emoji: [],
+	      setSelected: 0,
 	      mode: 'smile',
 	      emojiIcon: '\uD83D\uDE0D'
 	    };
 	  },
-	  directives: {
-	    lazyload: ui_vue3_directives_lazyload.lazyload
-	  },
-	  created() {
-	    this.setSelected = 0;
-	    this.serverLoad = false;
-	    this.smilesController = new SmileManager(this.$Bitrix.RestClient.get());
-	    this.smilesController.loadFromCache().then(result => {
-	      if (this.serverLoad) {
+	  computed: {
+	    isShowEmoji() {
+	      return this.$Bitrix.Loc.getMessage('UTF_MODE') === 'Y';
+	    },
+	    isShowSmiles() {
+	      return !this.isOnlyEmoji;
+	    },
+	    isLoading() {
+	      return this.isShowSmiles && this.smiles.length <= 0;
+	    },
+	    isEmojiMode() {
+	      return this.mode === 'emoji';
+	    },
+	    isSmileMode() {
+	      return this.mode === 'smile';
+	    },
+	    // more than one tab basically
+	    isShowTabsSelector() {
+	      if (this.isShowSmiles && this.sets.length > 1) {
 	        return true;
 	      }
-	      this.smiles = result.smiles;
-	      this.sets = result.sets.map((element, index) => {
-	        element.selected = this.setSelected === index;
-	        return element;
+	      return this.isShowSmiles && this.isShowEmoji;
+	    },
+	    emojiIconStyle() {
+	      const style = 'bx-ui-smiles-set-emoji';
+	      if (isMac()) {
+	        return `${style}-mac`;
+	      }
+	      if (isLinux()) {
+	        return `${style}-linux`;
+	      }
+	      if (isWindows()) {
+	        return `${style}-win`;
+	      }
+	      return style;
+	    }
+	  },
+	  created() {
+	    if (this.isShowSmiles) {
+	      this.mode = 'smile';
+	    } else if (this.isShowEmoji) {
+	      this.mode = 'emoji';
+	    }
+	    if (this.isShowSmiles) {
+	      this.smilesController = new SmileManager(this.$Bitrix.RestClient.get());
+	      void this.smilesController.loadFromCache().then(result => {
+	        this.smiles = result.smiles;
+	        this.sets = result.sets.map((element, index) => {
+	          // eslint-disable-next-line no-param-reassign
+	          element.selected = this.setSelected === index;
+	          return element;
+	        });
 	      });
-	    });
-	    this.smilesController.loadFromServer().then(result => {
-	      this.smiles = result.smiles;
-	      this.sets = result.sets.map((element, index) => {
-	        element.selected = this.setSelected === index;
-	        return element;
+	      void this.smilesController.loadFromServer().then(result => {
+	        this.smiles = result.smiles;
+	        this.sets = result.sets.map((element, index) => {
+	          // eslint-disable-next-line no-param-reassign
+	          element.selected = this.setSelected === index;
+	          return element;
+	        });
 	      });
-	    });
-	    this.emoji = emoji;
+	    }
 	  },
 	  methods: {
 	    selectSet(setId) {
-	      this.mode = "smile";
+	      if (!this.isShowSmiles) {
+	        return;
+	      }
+	      this.mode = 'smile';
 	      this.$emit('selectSet', {
 	        setId
 	      });
-	      this.smilesController.changeSet(setId).then(result => {
+	      void this.smilesController.changeSet(setId).then(result => {
 	        this.smiles = result;
 	        this.sets.map(set => {
+	          // eslint-disable-next-line no-param-reassign
 	          set.selected = set.id === setId;
 	          if (set.selected) {
 	            this.setSelected = setId;
@@ -3125,115 +3305,54 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	        this.$refs.elements.scrollTop = 0;
 	      });
 	    },
-	    selectSmile(text) {
+	    selectSmile(event) {
 	      this.$emit('selectSmile', {
-	        text: ' ' + text + ' '
+	        text: ` ${event.text} `
 	      });
 	    },
 	    switchToEmoji() {
+	      if (!this.isShowEmoji) {
+	        return;
+	      }
 	      this.mode = 'emoji';
-	      this.sets.map(set => {
+	      this.sets.forEach(set => {
+	        // eslint-disable-next-line no-param-reassign
 	        set.selected = false;
 	      });
-	    },
-	    showCategory(category) {
-	      if (this.isWindows()) {
-	        return category.showForWindows;
-	      } else {
-	        return true;
-	      }
-	    },
-	    isMac() {
-	      return navigator.userAgent.toLowerCase().includes('macintosh');
-	    },
-	    isLinux() {
-	      return navigator.userAgent.toLowerCase().includes('linux');
-	    },
-	    isWindows() {
-	      return navigator.userAgent.toLowerCase().includes('windows') || !this.isMac() && !this.isLinux();
-	    }
-	  },
-	  computed: {
-	    showEmoji() {
-	      return this.$Bitrix.Loc.getMessage('UTF_MODE') === 'Y';
-	    },
-	    isEmojiMode() {
-	      return this.mode === 'emoji';
-	    },
-	    isSmileMode() {
-	      return this.mode === "smile";
-	    },
-	    emojiIconStyle() {
-	      let style = 'bx-ui-smiles-set-emoji';
-	      if (this.isMac()) {
-	        return style += '-mac';
-	      } else if (this.isLinux()) {
-	        return style += '-linux';
-	      } else if (this.isWindows()) {
-	        return style += '-win';
-	      } else {
-	        return style;
-	      }
 	    }
 	  },
 	  // language=Vue
 	  template: `
 		<div class="bx-ui-smiles-box">
 			<div class="bx-ui-smiles-elements-wrap" ref="elements">
-				<template v-if="!smiles.length">
-					<svg class="bx-ui-smiles-loading-circular" viewBox="25 25 50 50">
-						<circle class="bx-ui-smiles-loading-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
-						<circle class="bx-ui-smiles-loading-inner-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
-					</svg>
-				</template>
-				<template v-else-if="isSmileMode">
-					<template v-for="smile in smiles">
-						<div class="bx-ui-smiles-smile">
-							<img v-lazyload :key="smile.id"
-								class="bx-ui-smiles-smile-icon"
-								:data-lazyload-src="smile.image"
-								data-lazyload-error-class="bx-ui-smiles-smile-icon-error"
-								:title="smile.name"
-								:style="{height: (smile.originalHeight*0.5)+'px', width: (smile.originalWidth*0.5)+'px'}"
-								@click="selectSmile(smile.typing)"
-							/>
-						</div>
-					</template>
-				</template>
-				<template v-else-if="isEmojiMode">
-					<div v-for="category in emoji" class="bx-ui-smiles-emoji-wrap">
-						<template v-if="showCategory(category)">
-							<div class="bx-ui-smiles-category">
-								{{ $Bitrix.Loc.getMessage('UI_VUE_SMILES_EMOJI_CATEGORY_' + category.code) }}
-							</div>
-							<template v-for="element in category.emoji">
-								<div class="bx-ui-smiles-smile" style="font-size: 28px;">
-									<div class="bx-ui-smiles-smile-icon" @click="selectSmile(element.symbol)">
-										{{ element.symbol }}
-									</div>
-								</div>
-							</template>
-						</template>
-					</div>
-				</template>
+				<LoadingTab v-if="isLoading"/>
+				<SmilesSetTab v-else-if="isSmileMode" :smiles="smiles" @selectSmile="selectSmile"/>
+				<EmojiTab v-else-if="isEmojiMode" @selectSmile="selectSmile"/>
 			</div>
-			<template v-if="sets.length > 1 || emoji && showEmoji">
+			<template v-if="isShowTabsSelector">
 				<div class="bx-ui-smiles-sets">
-			  		<template v-for="set in sets">
-						<div :class="['bx-ui-smiles-set', {'bx-ui-smiles-set-selected': set.selected}]">
-							<img v-lazyload
-								:key="set.id"
-								class="bx-ui-smiles-set-icon"
-								:data-lazyload-src="set.image"
-								data-lazyload-error-class="bx-ui-smiles-set-icon-error"
-								:title="set.name"
-								@click="selectSet(set.id)"
-							/>
-						</div>
+					<template v-if="isShowSmiles">
+						<template v-for="set in sets">
+							<div :class="['bx-ui-smiles-set', {'bx-ui-smiles-set-selected': set.selected}]">
+								<img v-lazyload
+									 :key="set.id"
+									 class="bx-ui-smiles-set-icon"
+									 :data-lazyload-src="set.image"
+									 data-lazyload-error-class="bx-ui-smiles-set-icon-error"
+									 :title="set.name"
+									 @click="selectSet(set.id)"
+								/>
+							</div>
+						</template>
 					</template>
-					<div v-if="emoji && showEmoji" :class="['bx-ui-smiles-set', {'bx-ui-smiles-set-selected': isEmojiMode}]">
+					<div v-if="isShowEmoji" :class="[
+						'bx-ui-smiles-set',
+						{
+							'bx-ui-smiles-set-selected': isEmojiMode,
+						},
+					]">
 						<div :class="['bx-ui-smiles-set-icon', emojiIconStyle]" @click="switchToEmoji">
-						 	{{ emojiIcon }}
+							{{ emojiIcon }}
 						</div>
 					</div>
 				</div>
@@ -3245,5 +3364,5 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	exports.Smiles = Smiles;
 	exports.emoji = emoji;
 
-}((this.BX.Vue3.Components = this.BX.Vue3.Components || {}),BX.Vue3.Directives,BX.Vue3,BX.Dexie3,BX));
+}((this.BX.Vue3.Components = this.BX.Vue3.Components || {}),BX,BX.DexieExport,BX.Vue3.Directives));
 //# sourceMappingURL=smiles.bundle.js.map

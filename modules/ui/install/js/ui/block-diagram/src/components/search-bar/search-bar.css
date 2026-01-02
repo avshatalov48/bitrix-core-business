@@ -1,0 +1,31 @@
+.ui-block-diagram-search-bar {
+	border-radius: 8px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	max-width: 350px;
+	padding: 6px;
+	background: var(--ui-color-palette-white-base);
+	box-shadow: 0 1px 2px 0 rgba(var(--ui-color-palette-black-solid-rgb), 0.13);
+    transition: transform 0.3s ease;
+}
+
+.ui-block-diagram-search-bar.--opened {
+	width: 329px;
+}
+
+.ui-block-diagram-search-bar-fade-enter-active,
+.ui-block-diagram-search-bar-fade-leave-active {
+	transition: opacity 0.1s;
+}
+
+.ui-block-diagram-search-bar-fade-enter-from,
+.ui-block-diagram-search-bar-fade-leave-to {
+	opacity: 0;
+}
+
+.ui-block-diagram-search-bar__search-result {
+	width: 100%;
+	padding: 0 8px 0 15px;
+}

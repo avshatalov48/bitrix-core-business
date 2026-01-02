@@ -2,6 +2,7 @@
 $MESS["IM_PARSER_MESSAGE_DELETED"] = "Это сообщение было удалено";
 $MESS["IM_PARSER_ICON_TYPE_FILE"] = "Файл";
 $MESS["IM_PARSER_ICON_TYPE_IMAGE"] = "Фото";
+$MESS["IM_PARSER_ICON_TYPE_GALLERY"] = "Галерея";
 $MESS["IM_PARSER_ICON_TYPE_AUDIO"] = "Аудио";
 $MESS["IM_PARSER_ICON_TYPE_VIDEO"] = "Видео";
 $MESS["IM_PARSER_ICON_TYPE_CALL"] = "Звонок";

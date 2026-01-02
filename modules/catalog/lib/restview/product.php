@@ -81,9 +81,11 @@ final class Product extends Base
 			],
 			'DATE_ACTIVE_FROM' => [
 				'TYPE' => DataType::TYPE_DATETIME,
+				'CANONICAL_NAME' => 'ACTIVE_FROM',
 			],
 			'DATE_ACTIVE_TO' => [
 				'TYPE' => DataType::TYPE_DATETIME,
+				'CANONICAL_NAME' => 'ACTIVE_TO',
 			],
 			'NAME' => [
 				'TYPE' => DataType::TYPE_STRING,
@@ -199,22 +201,31 @@ final class Product extends Base
 					continue;
 				}
 
+				$attributes = [
+					Attributes::DYNAMIC,
+				];
+				if ($property['MULTIPLE'] === 'Y')
+				{
+					$attributes[] = Attributes::MULTIPLE;
+					$attributes[] = Attributes::DISABLED_ORDER;
+				}
+				if ($property['IS_REQUIRED'] === 'Y')
+				{
+					$attributes[] = Attributes::REQUIRED;
+				}
+				if ($property['PROPERTY_TYPE'] === PropertyTable::TYPE_FILE)
+				{
+					$attributes[] = Attributes::SELECT_ONLY;
+				}
+
 				$info = [
 					'TYPE' => EntityFieldType::PRODUCT_PROPERTY,
 					'PROPERTY_TYPE' => $property['PROPERTY_TYPE'],
 					'USER_TYPE' => $property['USER_TYPE'],
-					'ATTRIBUTES' => [Attributes::DYNAMIC],
+					'ATTRIBUTES' => array_values(array_unique($attributes)),
 					'NAME' => $property['NAME'],
 				];
-
-				if ($property['MULTIPLE'] === 'Y')
-				{
-					$info['ATTRIBUTES'][] = Attributes::MULTIPLE;
-				}
-				if ($property['IS_REQUIRED'] === 'Y')
-				{
-					$info['ATTRIBUTES'][] = Attributes::REQUIRED;
-				}
+				unset($attributes);
 
 				if (
 					$property['PROPERTY_TYPE'] === PropertyTable::TYPE_LIST
@@ -237,7 +248,7 @@ final class Product extends Base
 							'cache' => $cache,
 						]);
 						$info['BOOLEAN_VALUE_YES'] = [
-							'ID' => $variant['ID'],
+							'ID' => (int)$variant['ID'],
 							'VALUE' => $variant['VALUE'],
 						];
 					}
@@ -267,6 +278,7 @@ final class Product extends Base
 				'ATTRIBUTES' => [
 					Attributes::READONLY,
 					Attributes::DYNAMIC,
+					Attributes::SELECT_ONLY,
 				],
 			];
 
@@ -1012,55 +1024,6 @@ final class Product extends Base
 		return $r;
 	}
 
-	protected function internalizeDateProductPropertyValue($value): Result
-	{
-		//API does not accept DataTime objects, so the ISO format is transformed into a format for a filter.
-
-		$r = new Result();
-
-		$date = $this->internalizeDate($value);
-
-		if ($date instanceof Date)
-		{
-			$value = $date->format('Y-m-d');
-		}
-		else
-		{
-			$r->addError(new Error('Wrong type data'));
-		}
-
-		if ($r->isSuccess())
-		{
-			$r->setData([$value]);
-		}
-
-		return $r;
-	}
-
-	protected function internalizeDateTimeProductPropertyValue($value): Result
-	{
-		//API does not accept DataTime objects, so the ISO format is transformed into a format for a filter.
-
-		$r = new Result();
-
-		$date = $this->internalizeDateTime($value);
-		if ($date instanceof DateTime)
-		{
-			$value = $date->format('Y-m-d H:i:s');
-		}
-		else
-		{
-			$r->addError(new Error('Wrong type datetime'));
-		}
-
-		if ($r->isSuccess())
-		{
-			$r->setData([$value]);
-		}
-
-		return $r;
-	}
-
 	protected function internalizeExtendedTypeValue($value, $info): Result
 	{
 		$r = new Result();
@@ -1079,41 +1042,42 @@ final class Product extends Base
 
 			if ($r->isSuccess())
 			{
-				$value = $isMultiple ? $value : [$value];
+				if (!$isMultiple && !is_array($value))
+				{
+					$value = [$value];
+				}
 				if (!is_array($value))
+				{
+					$value = [$value];
+				}
+				if (empty($userType) && isset($value['VALUE']))
 				{
 					$value = [$value];
 				}
 
 				if ($propertyType === PropertyTable::TYPE_STRING && $userType === PropertyTable::USER_TYPE_DATE)
 				{
-					array_walk($value, function(&$item) use ($r)
+					$internalResult = $this->internalizeUserTypeDateValueList($info, $value);
+					if ($internalResult->isSuccess())
 					{
-						$date = $this->internalizeDateProductPropertyValue($item['VALUE']);
-						if ($date->isSuccess())
-						{
-							$item['VALUE'] = $date->getData()[0];
-						}
-						else
-						{
-							$r->addErrors($date->getErrors());
-						}
-					});
+						$value = $internalResult->getData();
+					}
+					else
+					{
+						$r->addErrors($internalResult->getErrors());
+					}
 				}
 				elseif ($propertyType === PropertyTable::TYPE_STRING && $userType === PropertyTable::USER_TYPE_DATETIME)
 				{
-					array_walk($value, function(&$item) use ($r)
+					$internalResult = $this->internalizeUserTypeDateTimeValueList($info, $value);
+					if ($internalResult->isSuccess())
 					{
-						$date = $this->internalizeDateTimeProductPropertyValue($item['VALUE']);
-						if ($date->isSuccess())
-						{
-							$item['VALUE'] = $date->getData()[0];
-						}
-						else
-						{
-							$r->addErrors($date->getErrors());
-						}
-					});
+						$value = $internalResult->getData();
+					}
+					else
+					{
+						$r->addErrors($internalResult->getErrors());
+					}
 				}
 				elseif ($propertyType === PropertyTable::TYPE_FILE && empty($userType))
 				{
@@ -1132,14 +1096,14 @@ final class Product extends Base
 				}
 				elseif ($this->isPropertyBoolean($info))
 				{
-					$booleanValue = $value[0]['VALUE'];
-					if ($booleanValue === self::BOOLEAN_VALUE_YES)
+					$internalResult = $this->internalizeUserTypeBoolenValueList($info, $value);
+					if ($internalResult->isSuccess())
 					{
-						$value[0]['VALUE'] = $info['BOOLEAN_VALUE_YES']['ID'];
+						$value = $internalResult->getData();
 					}
-					elseif ($booleanValue === self::BOOLEAN_VALUE_NO)
+					else
 					{
-						$value[0]['VALUE'] = null;
+						$r->addErrors($internalResult->getErrors());
 					}
 				}
 				//elseif ($propertyType === 'S' && $userType === 'HTML'){}
@@ -1463,14 +1427,17 @@ final class Product extends Base
 			}
 			elseif ($this->isPropertyBoolean($info))
 			{
-				if ($value)
+				$preparedValue = [
+					0 => self::BOOLEAN_VALUE_NO,
+				];
+				if (($value[0]['VALUE'] ?? null) !== null)
 				{
-					$value = self::BOOLEAN_VALUE_YES;
+					$preparedValue[0] = self::BOOLEAN_VALUE_YES;
 				}
-				else
-				{
-					$value = self::BOOLEAN_VALUE_NO;
-				}
+				$value = $preparedValue;
+				unset(
+					$preparedValue,
+				);
 			}
 
 			$value = $isMultiple? $value: $value[0];
@@ -1593,5 +1560,192 @@ final class Product extends Base
 			}
 		}
 		return true;
+	}
+
+	public function getIblockPropertyCanonicalNames(array $filter): array
+	{
+		$result = [];
+		$propertyResult = $this->getFieldsIBlockPropertyValuesByFilter($filter);
+		if (!$propertyResult->isSuccess())
+		{
+			return [];
+		}
+
+		foreach ($propertyResult->getData() as $propertyName => $property)
+		{
+			if (!isset($property['CANONICAL_NAME']))
+			{
+				continue;
+			}
+			$result[$propertyName] = $property['CANONICAL_NAME'];
+		}
+
+		return $result;
+	}
+
+	private function getResultWithFilterError(string $type): Result
+	{
+		$result = new Result();
+
+		$result->addError(new Error('Wrong filter type ' . $type));
+
+		return $result;
+	}
+
+	private function gerResultWithDataError(string $type): Result
+	{
+		$result = new Result();
+
+		$result->addError(new Error('Wrong type ' . $type));
+
+		return $result;
+	}
+
+	private function internalizeUserTypeDateValueList(array $field, array $valueList): Result
+	{
+		$preparedValues = [];
+
+		foreach ($valueList as $rawValue)
+		{
+			$complex = is_array($rawValue);
+			$value = $this->internalizeUserTypeDateValue($rawValue);
+			if ($value === null)
+			{
+				return
+					$this->isFilterOperation($field)
+						? $this->getResultWithFilterError($field['USER_TYPE'])
+						: $this->gerResultWithDataError($field['USER_TYPE'])
+				;
+			}
+			if ($complex)
+			{
+				$rawValue['VALUE'] = $value;
+			}
+			else
+			{
+				$rawValue = $value;
+			}
+			$preparedValues[] = $rawValue;
+		}
+
+		$result = new Result();
+		$result->setData($preparedValues);
+
+		return $result;
+	}
+
+	private function internalizeUserTypeDateValue(mixed $value): ?string
+	{
+		$rawValue = ($value['VALUE'] ?? $value);
+		if (!is_scalar($rawValue))
+		{
+			return null;
+		}
+		$date = $this->internalizeDate($rawValue);
+		if ($date instanceof Date)
+		{
+			return $date->format('Y-m-d');
+		}
+
+		return null;
+	}
+
+	private function internalizeUserTypeDateTimeValueList(array $field, array $valueList): Result
+	{
+		$preparedValues = [];
+
+		foreach ($valueList as $rawValue)
+		{
+			$complex = is_array($rawValue);
+			$value = $this->internalizeUserTypeDateTimeValue($rawValue);
+			if ($value === null)
+			{
+				return
+					$this->isFilterOperation($field)
+						? $this->getResultWithFilterError($field['USER_TYPE'])
+						: $this->gerResultWithDataError($field['USER_TYPE'])
+					;
+			}
+			if ($complex)
+			{
+				$rawValue['VALUE'] = $value;
+			}
+			else
+			{
+				$rawValue = $value;
+			}
+			$preparedValues[] = $rawValue;
+		}
+
+		$result = new Result();
+		$result->setData($preparedValues);
+
+		return $result;
+	}
+
+	private function internalizeUserTypeDateTimeValue(mixed $value): ?string
+	{
+		$rawValue = ($value['VALUE'] ?? $value);
+		if (!is_scalar($rawValue))
+		{
+			return null;
+		}
+		$date = $this->internalizeDateTime($rawValue);
+		if ($date instanceof DateTime)
+		{
+			return $date->format('Y-m-d H:i:s');
+		}
+
+		return null;
+	}
+
+	private function internalizeUserTypeBoolenValueList(array $field, array $valueList): Result
+	{
+		$preparedValues = [];
+
+		foreach ($valueList as $rawValue)
+		{
+			$complex = is_array($rawValue);
+			$value = $this->internalizeUserTypeBooleanValue($field, $rawValue);
+			if ($value === null)
+			{
+				return
+					$this->isFilterOperation($field)
+						? $this->getResultWithFilterError($field['USER_TYPE'])
+						: $this->gerResultWithDataError($field['USER_TYPE'])
+					;
+			}
+			if ($complex)
+			{
+				$rawValue['VALUE'] = $value;
+			}
+			else
+			{
+				$rawValue = $value;
+			}
+			$preparedValues[] = $rawValue;
+		}
+
+		$result = new Result();
+		$result->setData($preparedValues);
+
+		return $result;
+	}
+
+	private function internalizeUserTypeBooleanValue(array $field, mixed $value): int|false|null
+	{
+		$rawValue = ($value['VALUE'] ?? $value);
+		if (!is_scalar($rawValue))
+		{
+			return null;
+		}
+		if ($rawValue === self::BOOLEAN_VALUE_YES)
+		{
+			return $field['BOOLEAN_VALUE_YES']['ID'];
+		}
+		else
+		{
+			return false;
+		}
 	}
 }

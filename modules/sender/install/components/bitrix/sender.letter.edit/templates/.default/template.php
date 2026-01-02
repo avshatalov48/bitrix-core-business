@@ -8,9 +8,9 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
-use Bitrix\Sender\Integration\VoxImplant\MessageAudioCall;
 use Bitrix\Sender\Integration\VoxImplant\MessageCall;
 use Bitrix\Sender\Internals\PrettyDate;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 Loc::loadMessages(__FILE__);
 
@@ -23,6 +23,7 @@ $containerId = 'bx-sender-letter-edit';
 Loader::includeModule('ai');
 
 Extension::load([
+	'ui.toolbar',
 	'ui.buttons',
 	'ui.buttons.icons',
 	'ui.notification',
@@ -34,29 +35,41 @@ Extension::load([
 ]);
 
 CJSCore::Init(array('admin_interface'));
-
+$title = (trim(htmlspecialcharsbx($arResult['ROW']['TITLE'])) !== '')
+	? htmlspecialcharsbx($arResult['ROW']['TITLE'])
+	: Loc::getMessage('SENDER_COMP_TMPL_LETTER_PATTERN_TITLE', [
+		'%name%' => $arResult['MESSAGE_NAME'],
+		'%date%' => FormatDate(PrettyDate::getDateFormat(), (new DateTime())->getTimestamp()),
+	])
+;
 if(
-	($arParams['IFRAME'] === 'Y')
+	$arParams['IFRAME'] === 'Y'
 	&& Loader::includeModule('ui')
 )
 {
-	\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
-}
+	if (!$arResult['SHOW_TEMPLATE_SELECTOR'])
+	{
+		$APPLICATION->SetTitle($title);
+	}
 
+	Toolbar::deleteFavoriteStar();
+	Toolbar::addEditableTitle();
+}
 ?>
 <script>
 	BX.ready(function () {
 
-		BX.Sender.Letter.init(<?=Json::encode(array(
+		BX.Sender.Letter.init(<?=Json::encode([
 			'containerId' => $containerId,
 			'actionUrl' => $arResult['ACTION_URL'] ?? '',
 			'isFrame' => $arParams['IFRAME'] === 'Y',
 			'isSaved' => $arResult['IS_SAVED'] ?? '',
 			'isOutside' => $arParams['IS_OUTSIDE'],
-			'isTemplateShowed' => $arResult['SHOW_TEMPLATE_SELECTOR'],
+			'isTemplateSelectorShowed' => $arResult['SHOW_TEMPLATE_SELECTOR'],
 			'letterTile' => $arResult['LETTER_TILE'],
 			'prettyDateFormat' => PrettyDate::getDateFormat(),
-			'mess' => array(
+			'mess' => [
+				'initTitle' => $title,
 				'patternTitle' => Loc::getMessage('SENDER_COMP_TMPL_LETTER_PATTERN_TITLE'),
 				'name' => $arResult['MESSAGE_NAME'],
 				'applyClose' => $component->getLocMessage('SENDER_LETTER_APPLY_CLOSE'),
@@ -67,33 +80,34 @@ if(
 					'SENDER_LETTER_EDIT_OUTSIDE_ADD_SUCCESS',
 					['%path%' => $arParams['PATH_TO_LIST']]
 				)
-			),
+			],
 			'hasBottomTextareaPanel' => $arResult['HAS_BOTTOM_TEXTAREA_PANEL'],
 			'isAITextAvailable' => $arResult['isAITextAvailable'] ? 'Y' : 'N',
 			'AITextContextId' => $arResult['AITextContextId'],
-
-		))?>);
+			'isSlider' => $arParams['IFRAME'] === 'Y',
+			'toolbarId' => Toolbar::getId(),
+		])?>);
 	});
 </script>
 
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="bx-sender-letter-steps">
 
 	<?
-	$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' => array(
-		array('type' => 'buttons', 'list' => array(
-			array('type' => 'feedback'),
+	$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", ['LIST' => [
+		['type' => 'buttons', 'list' => [
+			['type' => 'feedback'],
 			($arResult['USE_TEMPLATES'] && $arResult['CAN_CHANGE_TEMPLATE'])
 			?
-				array(
+				[
 					'type' => 'default',
 					'id' => 'SENDER_LETTER_BUTTON_CHANGE',
 					'caption' => Loc::getMessage('SENDER_LETTER_EDIT_CHANGE_TEMPLATE'),
 					'visible' => !$arResult['SHOW_TEMPLATE_SELECTOR']
-				)
+				]
 			:
 				null
-		)),
-	)));
+		]],
+	]]);
 	?>
 
 	<form method="post" action="<?=htmlspecialcharsbx($arResult['SUBMIT_FORM_URL'])?>" enctype="multipart/form-data">
@@ -146,7 +160,7 @@ if(
 
 			<div class="bx-sender-letter-field sender-letter-edit-row" style="<?=($arParams['IFRAME'] == 'Y' ? 'display: none;' : '')?>">
 				<div class="bx-sender-caption sender-letter-edit-title"><?=Loc::getMessage('SENDER_LETTER_EDIT_FIELD_NAME')?>:</div>
-				<div class="bx-sender-value">
+				<div id="letter-edit-title" class="bx-sender-value">
 					<input data-role="letter-title" type="text" name="TITLE" value="<?=htmlspecialcharsbx($arResult['ROW']['TITLE'])?>" class="bx-sender-letter-form-control bx-sender-letter-field-input" <?if(!$arParams['CAN_EDIT']):?>disabled="disabled"<?endif;?>>
 				</div>
 			</div>

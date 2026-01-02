@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2024 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 use Bitrix\Main;
@@ -14,12 +14,6 @@ class CTimeZone
 	protected static $enabled = 1;
 	protected static $useTimeZones = false;
 
-	public static function Possible()
-	{
-		//since PHP 5.2
-		return true;
-	}
-
 	public static function Enabled()
 	{
 		return (self::$enabled > 0 && self::OptionEnabled());
@@ -27,7 +21,7 @@ class CTimeZone
 
 	public static function OptionEnabled()
 	{
-		if(self::$useTimeZones === false)
+		if (self::$useTimeZones === false)
 		{
 			self::$useTimeZones = COption::GetOptionString("main", "use_time_zones", "N");
 		}
@@ -36,43 +30,48 @@ class CTimeZone
 
 	public static function Disable()
 	{
-		self::$enabled --;
+		self::$enabled--;
 	}
 
 	public static function Enable()
 	{
-		self::$enabled ++;
-	}
-
-	private static function __tzsort($a, $b)
-	{
-		if($a['offset'] == $b['offset'])
-			return strcmp($a['timezone_id'], $b['timezone_id']);
-		return ($a['offset'] < $b['offset']? -1 : 1);
+		self::$enabled++;
 	}
 
 	public static function GetZones()
 	{
 		IncludeModuleLangFile(__FILE__);
 
-		$aTZ = array();
-		static $aExcept = array("Etc/", "GMT", "UTC", "UCT", "HST", "PST", "MST", "CST", "EST", "CET", "MET", "WET", "EET", "PRC", "ROC", "ROK", "W-SU");
-		foreach(DateTimeZone::listIdentifiers() as $tz)
+		$aTZ = [];
+		static $aExcept = ["Etc/", "GMT", "UTC", "UCT", "HST", "PST", "MST", "CST", "EST", "CET", "MET", "WET", "EET", "PRC", "ROC", "ROK", "W-SU"];
+		foreach (DateTimeZone::listIdentifiers() as $tz)
 		{
-			foreach($aExcept as $ex)
-				if(str_starts_with($tz, $ex))
+			foreach ($aExcept as $ex)
+			{
+				if (str_starts_with($tz, $ex))
+				{
 					continue 2;
+				}
+			}
 			try
 			{
 				$oTz = new DateTimeZone($tz);
-				$aTZ[$tz] = array('timezone_id'=>$tz, 'offset'=>$oTz->getOffset(new DateTime("now", $oTz)));
+				$aTZ[$tz] = ['timezone_id' => $tz, 'offset' => $oTz->getOffset(new DateTime("now", $oTz))];
 			}
-			catch(Exception $e){}
+			catch (Throwable)
+			{
+			}
 		}
 
-		uasort($aTZ, array('CTimeZone', '__tzsort'));
+		uasort($aTZ, function ($a, $b) {
+			if ($a['offset'] == $b['offset'])
+			{
+				return strcmp($a['timezone_id'], $b['timezone_id']);
+			}
+			return ($a['offset'] < $b['offset'] ? -1 : 1);
+		});
 
-		$aZones = array(""=>GetMessage("tz_local_time"));
+		$aZones = ["" => GetMessage("tz_local_time")];
 		foreach ($aTZ as $z)
 		{
 			$offset = '';
@@ -88,49 +87,74 @@ class CTimeZone
 
 	public static function SetAutoCookie()
 	{
-		/** @global CMain $APPLICATION */
 		global $APPLICATION, $USER;
 
 		$cookiePrefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
-		$autoTimeZone = $USER->GetParam("AUTO_TIME_ZONE") ?: '';
-		if (self::IsAutoTimeZone(trim($autoTimeZone)))
+
+		if (self::IsAutoTimeZone($USER->GetParam("AUTO_TIME_ZONE")))
 		{
 			$cookieDate = (new \Bitrix\Main\Type\DateTime())->add("12M");
 			$cookieDate->setDate((int)$cookieDate->format('Y'), (int)$cookieDate->format('m'), 1);
-			$cookieDate->setTime(0,	0);
+			$cookieDate->setTime(0, 0);
+
+			$tzFunc = '';
+			if ($USER->IsAuthorized())
+			{
+				CJSCore::Init(['ajax']);
+
+				$tzFunc = '
+						if (timezone !== "' . CUtil::JSEscape($USER->GetParam("TIME_ZONE")) . '")
+						{
+							BX.ready(function () {
+								BX.ajax.runAction(
+									"main.timezone.set",
+									{
+										data: {
+											timezone: timezone
+										}
+									}
+								);
+							});
+						}
+				';
+			}
 
 			$APPLICATION->AddHeadString(
-				'<script>if (Intl && Intl.DateTimeFormat) document.cookie="'.$cookiePrefix.'_TZ="+Intl.DateTimeFormat().resolvedOptions().timeZone+"; path=/; expires='.$cookieDate->format("r").'";</script>', true
+				'<script>
+					if (Intl && Intl.DateTimeFormat)
+					{
+						const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+						document.cookie = "' . $cookiePrefix . '_TZ=" + timezone + "; path=/; expires=' . $cookieDate->format("r") . '";
+						' . $tzFunc . '
+					}
+				</script>',
+				true
 			);
 		}
-		elseif (isset($_COOKIE[$cookiePrefix."_TZ"]))
+		elseif (isset($_COOKIE[$cookiePrefix . "_TZ"]))
 		{
-			setcookie($cookiePrefix."_TZ", "", time()-3600, "/");
-		}
-
-		if (isset($_COOKIE[$cookiePrefix."_TIME_ZONE"]))
-		{
-			// delete deprecated cookie
-			setcookie($cookiePrefix."_TIME_ZONE", "", time()-3600, "/");
+			// delete the cookie
+			setcookie($cookiePrefix . "_TZ", "", time() - 3600, "/");
 		}
 	}
 
-	public static function getTzCookie()
+	public static function getTzCookie(): ?string
 	{
 		$context = Main\Context::getCurrent();
-		if ($context)
-		{
-			return $context->getRequest()->getCookie('TZ');
-		}
-		return null;
+		$cookie = $context?->getRequest()->getCookie('TZ');
+
+		return is_string($cookie)? $cookie : null;
 	}
 
 	public static function IsAutoTimeZone($autoTimeZone)
 	{
+		$autoTimeZone = trim((string)$autoTimeZone);
+
 		if ($autoTimeZone === "Y")
 		{
 			return true;
 		}
+
 		if (empty($autoTimeZone))
 		{
 			static $defAutoZone = null;
@@ -146,40 +170,19 @@ class CTimeZone
 	}
 
 	/**
-	 * @deprecated
-	 * @return int|null
+	 * @return null
+	 * @deprecated Does nothing.
 	 */
 	public static function GetCookieValue()
 	{
-		static $cookie_prefix = null;
-		if($cookie_prefix === null)
-		{
-			$cookie_prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
-		}
-
-		if(isset($_COOKIE[$cookie_prefix."_TIME_ZONE"])	&& $_COOKIE[$cookie_prefix."_TIME_ZONE"] <> '')
-		{
-			return intval($_COOKIE[$cookie_prefix."_TIME_ZONE"]);
-		}
-
 		return null;
 	}
 
 	/**
-	 * @deprecated
-	 * Emulates timezone got from JS cookie setter like in SetAutoCookie.
-	 *
-	 * @param int $timezoneOffset Time zone offset
+	 * @deprecated Does nothing.
 	 */
 	public static function SetCookieValue($timezoneOffset)
 	{
-		static $cookie_prefix = null;
-		if($cookie_prefix === null)
-		{
-			$cookie_prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
-		}
-
-		$_COOKIE[$cookie_prefix."_TIME_ZONE"] = $timezoneOffset;
 	}
 
 	/**
@@ -206,57 +209,71 @@ class CTimeZone
 			}
 		}
 
-		try //possible DateTimeZone incorrect timezone
-		{
-			$timeZone = '';
+		$timeZone = '';
 
-			if ($USER_ID !== null && $USER?->GetID() != $USER_ID)
+		if ($USER_ID !== null && $USER?->GetID() != $USER_ID)
+		{
+			$dbUser = CUser::GetList('id', 'asc', ['ID_EQUAL_EXACT' => $USER_ID], ['FIELDS' => ['TIME_ZONE', 'TIME_ZONE_OFFSET']]);
+			if (($arUser = $dbUser->Fetch()))
 			{
-				$dbUser = CUser::GetList('id', 'asc', ['ID_EQUAL_EXACT' => $USER_ID], ['FIELDS' => ['AUTO_TIME_ZONE', 'TIME_ZONE', 'TIME_ZONE_OFFSET']]);
-				if (($arUser = $dbUser->Fetch()))
+				if (empty($arUser["TIME_ZONE"]))
 				{
-					if (self::IsAutoTimeZone(trim($arUser["AUTO_TIME_ZONE"])))
-					{
-						// can't detect auto timezone for a non-current user, return actual offset from the DB
-						return intval($arUser["TIME_ZONE_OFFSET"]);
-					}
-					$timeZone = $arUser["TIME_ZONE"];
+					// deprecated, return last known offset from the DB
+					return intval($arUser["TIME_ZONE_OFFSET"]);
 				}
+				$timeZone = $arUser["TIME_ZONE"];
 			}
-			elseif (is_object($USER))
+		}
+		elseif (is_object($USER))
+		{
+			// current user
+			$timeZone = (string)$USER->GetParam("TIME_ZONE");
+			if (empty($timeZone))
 			{
-				// current user
-				$autoTimeZone = $USER->GetParam("AUTO_TIME_ZONE") ?: '';
-				if (self::IsAutoTimeZone(trim($autoTimeZone)))
+				if (self::IsAutoTimeZone($USER->GetParam("AUTO_TIME_ZONE")))
 				{
 					if (($cookie = static::getTzCookie()) !== null)
 					{
 						// auto time zone from the cookie
 						$timeZone = $cookie;
 					}
-					elseif (($cookie = static::GetCookieValue()) !== null)
-					{
-						//auto time offset from old cookie - deprecated
-						$localOffset = (new DateTime())->getOffset();
-						$userOffset = -($cookie) * 60;
-
-						return $userOffset - $localOffset;
-					}
-				}
-				else
-				{
-					// user set time zone manually
-					$timeZone = $USER->GetParam("TIME_ZONE");
 				}
 			}
+		}
 
-			if ($timeZone == '')
-			{
-				//default server time zone
-				$timeZone = COption::GetOptionString("main", "default_time_zone", "");
-			}
+		return static::getTimezoneOffset($timeZone);
+	}
 
-			if ($timeZone != '')
+	/**
+	 * Returns timezone offset according to global settings.
+	 * @param string $timeZone
+	 * @return int
+	 */
+	public static function getTimezoneOffset(string $timeZone): int
+	{
+		if (!self::OptionEnabled())
+		{
+			return 0;
+		}
+		if ($timeZone == '')
+		{
+			//default server time zone
+			$timeZone = COption::GetOptionString("main", "default_time_zone", "");
+		}
+
+		return static::calculateOffset($timeZone);
+	}
+
+	/**
+	 * Calculates the difference between local server time and specified timezone in the present moment of time in seconds.
+	 * @param string $timeZone
+	 * @return int
+	 */
+	public static function calculateOffset(string $timeZone): int
+	{
+		if ($timeZone != '')
+		{
+			try //possible DateTimeZone incorrect timezone
 			{
 				$localOffset = (new DateTime())->getOffset();
 
@@ -265,9 +282,9 @@ class CTimeZone
 
 				return $userOffset - $localOffset;
 			}
-		}
-		catch (Throwable $e)
-		{
+			catch (Throwable)
+			{
+			}
 		}
 
 		return 0;

@@ -1,3 +1,4 @@
+import { Extension } from 'main.core';
 import type { MemberCollection } from '../../store/model/user-groups-model';
 import { Selector } from './members/selector';
 import { SingleMember } from './members/single-member';
@@ -62,7 +63,7 @@ export const Members = {
 					'--has-siblings': userGroup.members.size > 0,
 				}"
 			>
-				<div class="ui-icon-set --plus-30"></div>
+				<div class="ui-icon-set --plus-m"></div>
 			</div>
 			<Selector
 				v-if="isSelectorShown"

@@ -3,6 +3,7 @@
 namespace Bitrix\Catalog\Controller;
 
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Engine\Response\DataType\Page;
@@ -196,12 +197,10 @@ final class ProductImage extends Controller
 		else
 		{
 			$fields['TYPE'] = 'MORE_PHOTO';
-			$morePhotoPropertyId = $this->getMorePhotoPropertyId((int)$product['IBLOCK_ID']);
-			if (!$morePhotoPropertyId)
+			$morePhotoProperty = $this->getMorePhotoProperty((int)$product['IBLOCK_ID']);
+			if (!$morePhotoProperty->isSuccess())
 			{
-				$this->addError(new Error(
-					'Image product property does not exists. Create MORE_PHOTO property'
-				));
+				$this->addErrors($morePhotoProperty->getErrors());
 
 				return null;
 			}
@@ -501,11 +500,68 @@ final class ProductImage extends Controller
 
 	private function getMorePhotoPropertyId(int $iblockId): ?int
 	{
-		return \Bitrix\Iblock\PropertyTable::getRow([
+		return PropertyTable::getRow([
 			'select' => ['ID'],
-			'filter' => ['=CODE' => 'MORE_PHOTO', '=IBLOCK_ID' => $iblockId],
-			'cache' => ['ttl' => 86400],
+			'filter' => [
+				'=IBLOCK_ID' => $iblockId,
+				'=CODE' => 'MORE_PHOTO',
+				'=ACTIVE' => 'Y',
+				'=PROPERTY_TYPE' => PropertyTable::TYPE_FILE,
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
 		])['ID'] ?? null;
+	}
+
+	private function getMorePhotoProperty(int $iblockId): Result
+	{
+		$result = new Result();
+		$row = PropertyTable::getRow([
+			'select' => [
+				'ID',
+				'ACTIVE',
+				'PROPERTY_TYPE',
+			],
+			'filter' => [
+				'=IBLOCK_ID' => $iblockId,
+				'=CODE' => 'MORE_PHOTO',
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		]);
+
+		if (!$row)
+		{
+			$result->addError(new Error(
+				'Image product property does not exists. Create MORE_PHOTO property'
+			));
+
+			return $result;
+		}
+
+		if ($row['ACTIVE'] !== 'Y')
+		{
+			$result->addError(new Error(
+				'Image product property does not active. Activate MORE_PHOTO property'
+			));
+
+			return $result;
+		}
+
+		if ($row['PROPERTY_TYPE'] !== PropertyTable::TYPE_FILE)
+		{
+			$result->addError(new Error(
+				'Image product property is of the wrong type'
+			));
+
+			return $result;
+		}
+
+		$result->setData(['ID' => (int)$row['ID']]);
+
+		return $result;
 	}
 
 	private function updateProductImage(int $productId, array $updateFields): string

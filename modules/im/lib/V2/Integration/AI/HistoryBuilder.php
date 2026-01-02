@@ -217,7 +217,7 @@ class HistoryBuilder implements Contract\MemoryBuilder
 		$replayedMessageIds = array_diff($replayedMessageIds, $ids);
 		$replayedMessages = new V2\MessageCollection($replayedMessageIds);
 		$replayedMessages->fillParams();
-		$messages->merge($replayedMessages);
+		$messages->mergeRegistry($replayedMessages);
 		$messages->fillFiles();
 
 		if ($this->messages === null)

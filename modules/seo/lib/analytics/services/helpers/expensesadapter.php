@@ -15,6 +15,19 @@ final class ExpensesAdapter
 		{
 			$campaigns = array_column($campaigns, 'NAME', 'ID');
 		}
+
+		$adGroups = $data['AD_GROUPS'] ?? [];
+		if (is_array($adGroups))
+		{
+			$adGroups = array_column($adGroups, 'NAME', 'ID');
+		}
+
+		$ads = $data['ADS'] ?? [];
+		if (is_array($ads))
+		{
+			$ads = array_column($ads, 'NAME', 'ID');
+		}
+
 		$rows = $data['ROWS'] ?? [];
 		$currency = $data['CURRENCY'] ?? '';
 
@@ -50,6 +63,14 @@ final class ExpensesAdapter
 				'date' => $date,
 				'cpm' => $costPerMill,
 				'currency' => $currency,
+				'adId' => $row['ADID'],
+				'adName' => $ads[$row['ADID']] ?? '',
+				'groupId' => $row['GID'],
+				'groupName' => $adGroups[$row['GID']] ?? '',
+				'utmSource' => $data['CLICKS'][$row['CLICKID']]['UTM_TAGS']['UTM_SOURCE'] ?? '',
+				'utmMedium' => $data['CLICKS'][$row['CLICKID']]['UTM_TAGS']['UTM_MEDIUM'] ?? '',
+				'utmCampaign' => $data['CLICKS'][$row['CLICKID']]['UTM_TAGS']['UTM_CAMPAIGN'] ?? '',
+				'utmContent' => $data['CLICKS'][$row['CLICKID']]['UTM_TAGS']['UTM_CONTENT'] ?? '',
 			];
 
 			$resultCollection->addItem(new Expenses($formattedRow));

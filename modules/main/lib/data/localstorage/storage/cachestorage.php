@@ -22,8 +22,10 @@ class CacheStorage implements StorageInterface
 
 	public function read(string $key, int $ttl)
 	{
-		$filename = '/' . Cache::getPath($key);
-		if ($this->cacheEngine->read($value, $this->baseDir, self::CACHE_DIR, $filename, $ttl))
+		$initDir = $this->getDirname($key);
+		$filename = $this->getFilename($key);
+
+		if ($this->cacheEngine->read($value, $this->baseDir, $initDir, $filename, $ttl))
 		{
 			return $value;
 		}
@@ -33,7 +35,19 @@ class CacheStorage implements StorageInterface
 
 	public function write(string $key, $value, int $ttl)
 	{
-		$filename = '/' . Cache::getPath($key);
-		$this->cacheEngine->write($value, $this->baseDir, self::CACHE_DIR, $filename, $ttl);
+		$initDir = $this->getDirname($key);
+		$filename = $this->getFilename($key);
+
+		$this->cacheEngine->write($value, $this->baseDir, $initDir, $filename, $ttl);
+	}
+
+	private function getDirname(string $key): string
+	{
+		return self::CACHE_DIR . '/'. substr(md5($key), 0, 3);
+	}
+
+	private function getFilename(string $key): string
+	{
+		return '/' . Cache::getPath($key);
 	}
 }

@@ -15,6 +15,7 @@ use Bitrix\Main\ORM\Data\AddResult;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Data\UpdateResult;
 use Bitrix\Main\ORM\Entity;
+use Bitrix\Main\ORM\EntityError;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\IReadable;
 use Bitrix\Main\ORM\Fields\ObjectField;
@@ -289,14 +290,14 @@ abstract class EntityObject implements ArrayAccess
 		switch ($this->state)
 		{
 			case State::RAW:
-				$result = new AddResult;
+				$result = new AddResult();
 				break;
 			case State::CHANGED:
 			case State::ACTUAL:
-				$result = new UpdateResult;
+				$result = new UpdateResult();
 				break;
 			default:
-				$result = new Result;
+				$result = new Result();
 		}
 
 		if ($this->_savingInProgress)
@@ -1746,8 +1747,8 @@ abstract class EntityObject implements ArrayAccess
 
 		if ($field instanceof ObjectField)
 		{
-			$currentValue = $this->_currentValues[$fieldName];
-			$actualValue = $this->_actualValues[$fieldName];
+			$currentValue = $this->_currentValues[$fieldName] ?? null;
+			$actualValue = $this->_actualValues[$fieldName] ?? null;
 
 			return $field->encode($currentValue) !== $field->encode($actualValue);
 		}
@@ -1904,7 +1905,7 @@ abstract class EntityObject implements ArrayAccess
 		{
 			$fieldName = StringHelper::strtoupper($fieldName);
 
-			if (!isset($this->_actualValues[$fieldName]))
+			if (!array_key_exists($fieldName, $this->_actualValues))
 			{
 				// regular field
 				$list[] = $fieldName;
@@ -1936,7 +1937,8 @@ abstract class EntityObject implements ArrayAccess
 		{
 			$fieldMask = $field->getTypeMask();
 
-			if (!isset($this->_actualValues[StringHelper::strtoupper($field->getName())])
+			if (
+				!array_key_exists(StringHelper::strtoupper($field->getName()), $this->_actualValues)
 				&& ($mask & $fieldMask)
 			)
 			{
@@ -1968,6 +1970,7 @@ abstract class EntityObject implements ArrayAccess
 				// if there is a new relation, then the old one is not into cascade anymore
 				if ($saveCascade && !empty($value))
 				{
+					/** @var static $value - reference is 1:1 relation, no collection here */
 					$value->save();
 				}
 			}
@@ -1986,7 +1989,7 @@ abstract class EntityObject implements ArrayAccess
 					// save changed elements of collection
 					foreach ($collection->sysGetChanges() as $change)
 					{
-						list($remoteObject, $changeType) = $change;
+						[$remoteObject, $changeType] = $change;
 
 						if ($changeType == Collection::OBJECT_ADDED)
 						{
@@ -2055,7 +2058,7 @@ abstract class EntityObject implements ArrayAccess
 				{
 					foreach ($collection->sysGetChanges() as $change)
 					{
-						list($remoteObject, $changeType) = $change;
+						[$remoteObject, $changeType] = $change;
 
 						// initialize mediator object
 						$mediatorObjectClass = $field->getMediatorEntity()->getObjectClass();

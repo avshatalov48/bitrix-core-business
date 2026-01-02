@@ -14,12 +14,6 @@
 	margin-bottom: 14px;
 }
 
-.ui-entity-catalog__recently {
-	padding-right: 12px;
-	box-sizing: border-box;
-	margin-bottom: 14px;
-}
-
 .ui-entity-catalog__main-groups-content {
 	max-height: 100%;
 	width: 100%;
@@ -51,4 +45,22 @@
 .ui-entity-catalog__main-groups-footer {
 	padding-right: 12px;
 	margin-top: 14px;
+}
+
+.ui-entity-catalog__header-groups-content li {
+	box-sizing: border-box;
+	border-radius: 8px;
+	margin-bottom: 14px;
+}
+
+.ui-entity-catalog__header-groups-content ul {
+	padding-right: 12px;
+}
+
+.ui-entity-catalog__header-groups-content .ui-entity-catalog__menu_item:not(.ui-entity-catalog__menu_item:first-child)::before {
+	content: none;
+}
+
+.ui-entity-catalog__header-groups-content .ui-entity-catalog__menu {
+	overflow: hidden;
 }

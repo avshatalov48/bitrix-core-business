@@ -1,0 +1,103 @@
+.ui-toolbar.--air {
+	width: 100%;
+	padding: 0;
+	min-height: 0;
+	gap: 0 12px;
+}
+
+.ui-toolbar.--air .ui-toolbar-title-box {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	min-width: auto;
+	padding: 0;
+	margin: 0;
+	font-family: var(--ui-font-family-primary);
+	color: var(--ui-color-base-1);
+	word-wrap: break-word;
+}
+
+.ui-toolbar.--air .ui-toolbar-title-item,
+.ui-toolbar.--air .ui-toolbar-edit-title-input {
+	font-size: 25px;
+	font-weight: var(--ui-font-weight-medium);
+	line-height: 34px;
+}
+
+.ui-toolbar.--air .ui-toolbar-title-item {
+	height: auto;
+}
+
+.ui-toolbar.--air .ui-toolbar-edit-title-input {
+	line-height: 28px; /* because of border-bottom: 1px */
+}
+
+.ui-toolbar.--air .ui-toolbar-star {
+	width: 20px;
+	height: 20px;
+	position: relative;
+	top: 3px;
+	mask-image: var(--o-ui-icon-set__path_pin);
+	-webkit-mask-image: var(--o-ui-icon-set__path_pin);
+	mask-size: contain;
+	mask-position: center;
+	mask-repeat: no-repeat;
+	background-color: var(--ui-color-base-5);
+	background-image: none;
+}
+
+.ui-toolbar.--air .ui-toolbar-star-active {
+	mask-image: var(--o-ui-icon-set__path_unpin);
+	-webkit-mask-image: var(--o-ui-icon-set__path_unpin);
+}
+
+.ui-toolbar.--air .ui-toolbar-title-item-box-buttons {
+	--item-color: var(--ui-color-base-5);
+}
+
+.ui-toolbar.--air .ui-toolbar-copy-link-button-icon {
+	--ui-icon-set__icon-path:  var(--o-ui-icon-set__path_link);
+	--ui-icon-set__icon-color: var(--item-color);
+}
+
+.ui-toolbar.--air .ui-toolbar-edit-title-button-icon {
+	--ui-icon-set__icon-path: var(--o-ui-icon-set__path_edit-m);
+}
+
+.ui-toolbar.--air .ui-toolbar-filter-box .main-ui-filter-search {
+	flex-grow: 0;
+	flex-shrink: 1;
+	flex-basis: auto;
+	min-width: 300px;
+	max-width: 748px;
+	transition: 0.2s flex-grow ease-in-out;
+}
+
+.ui-toolbar.--air .ui-toolbar-filter-box .main-ui-filter-search:focus-within,
+.ui-toolbar.--air .ui-toolbar-filter-box .main-ui-filter-search--showed {
+	flex-grow: 1;
+}
+
+.ui-toolbar.--air .ui-toolbar-after-title-box {
+	vertical-align: text-bottom;
+}
+
+.ui-toolbar.--air .ui-toolbar-after-title-buttons,
+.ui-toolbar.--air .ui-toolbar-right-buttons {
+	gap: 0 12px;
+}
+
+.ui-toolbar.--air.--multiline-title .ui-toolbar-after-title-buttons,
+.ui-toolbar.--air.--multiline-title .ui-toolbar-right-buttons {
+	margin-top: 2px;
+	gap: 0 12px;
+}
+
+.ui-toolbar.--air .ui-toolbar-after-title-buttons {
+	padding: 0;
+	margin: 0;
+}
+
+.ui-toolbar.--air .ui-toolbar-title-box + .ui-toolbar-after-title-buttons {
+	margin-left: 11px;
+}

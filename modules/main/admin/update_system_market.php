@@ -18,7 +18,7 @@ $sort = "sort";
 $category = "";
 $arResult = array();
 
-if(in_array(LANGUAGE_ID, array("ru", "ua", "bg")))
+if (in_array(LANGUAGE_ID, array("ru", "kz")))
 {
 	$arShow = array("all", "not_free", "free", "action");
 	$arSort = array("sort", "date", "price", "alfa");
@@ -81,7 +81,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client_partner.php");
 
 
-if(!in_array(LANGUAGE_ID, array("ru", "ua", "bg")))
+if (!in_array(LANGUAGE_ID, array("ru", "kz")))
 {
 	if(!$USER->CanDoOperation('install_updates'))
 		$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));

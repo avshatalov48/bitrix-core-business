@@ -110,7 +110,7 @@ class Rating
 		DailyLimit::instance()->setLimit($limit);
 
 		Notification::create()
-			->withMessage(self::getNotifyText('upgraded'))
+			->withMessage(self::getNotifyCallback('upgraded'))
 			->toAllAuthors()
 			->send();
 	}
@@ -125,12 +125,19 @@ class Rating
 	{
 		DailyLimit::instance()->setLimit(self::getInitialLimit());
 
+		$notifyTitleCallback = fn (?string $languageId = null) => Loc::getMessage(
+			'SENDER_INTEGRATION_BITRIX24_RATING_DOWNGRADED1_TITLE',
+			language: $languageId,
+		);
+
 		if ($isNotify)
 		{
 			Notification::create()
-				->withMessage(self::getNotifyText('downgraded'))
+				->setTitle($notifyTitleCallback)
+				->withMessage(self::getNotifyCallback('downgraded'))
 				->toAllAuthors()
-				->send();
+				->send()
+			;
 		}
 	}
 
@@ -176,10 +183,17 @@ class Rating
 		self::downgrade(false);
 		self::setParam('blocked', 'Y');
 
+		$notifyTitleCallback = fn (?string $languageId = null) => Loc::getMessage(
+			'SENDER_INTEGRATION_BITRIX24_RATING_BLOCKED1_TITLE',
+			language: $languageId,
+		);
+
 		Notification::create()
-			->withMessage(self::getNotifyText('blocked'))
+			->setTitle($notifyTitleCallback)
+			->withMessage(self::getNotifyCallback('blocked'))
 			->toAllAuthors()
-			->send();
+			->send()
+		;
 	}
 
 	/**
@@ -286,15 +300,18 @@ class Rating
 		Config\Option::set('sender', "~r_limit_$name", $value);
 	}
 
-	/**
-	 * Set notify text.
-	 *
-	 * @param string $code Code.
-	 * @return string
-	 */
-	public static function getNotifyText($code)
+	public static function getNotifyText(string $code): \Closure
+	{
+		return (self::getNotifyCallback($code))();
+	}
+
+	public static function getNotifyCallback(string $code): \Closure
 	{
 		$code = mb_strtoupper($code);
-		return Loc::getMessage("SENDER_INTEGRATION_BITRIX24_RATING_{$code}1");
+
+		return fn (?string $languageId = null) => Loc::getMessage(
+			"SENDER_INTEGRATION_BITRIX24_RATING_{$code}1",
+			language: $languageId,
+		);
 	}
 }

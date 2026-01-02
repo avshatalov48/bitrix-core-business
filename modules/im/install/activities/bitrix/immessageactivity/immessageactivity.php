@@ -6,11 +6,15 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+
 use Bitrix\Bizproc\Activity\PropertiesDialog;
 use Bitrix\Bizproc\Automation\Helper;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc;
+
 use Bitrix\Im\Integration\Bizproc\Message;
+
+use Bitrix\Crm\Integration\Analytics\Dictionary;
 
 /**
  * @property $MessageUserFrom
@@ -231,6 +235,8 @@ class CBPImMessageActivity extends CBPActivity
 			return CBPActivityExecutionStatus::Closed;
 		}
 
+		$documentType = $this->getDocumentType();
+
 		$messageUserFrom = CBPHelper::extractFirstUser($this->MessageUserFrom, $this->getDocumentId());
 		$messageUserTo = CBPHelper::ExtractUsers($this->MessageUserTo, $this->getDocumentId());
 
@@ -263,6 +269,7 @@ class CBPImMessageActivity extends CBPActivity
 		}
 
 		$messageFields = $formatResult->getData();
+		$hasSentAtLeastOneMessage = false;
 
 		foreach ($messageUserTo as $userTo)
 		{
@@ -278,6 +285,23 @@ class CBPImMessageActivity extends CBPActivity
 					$this->trackError($exception->GetString() ?? '');
 				}
 			}
+			else
+			{
+				$hasSentAtLeastOneMessage = true;
+			}
+		}
+
+		if (
+			$hasSentAtLeastOneMessage
+			&& Loader::includeModule('crm')
+			&& method_exists(CCrmBizProcHelper::class, 'sendOperationsAnalytics')
+		)
+		{
+			\CCrmBizProcHelper::sendOperationsAnalytics(
+				Dictionary::EVENT_ENTITY_SOCIAL,
+				$this,
+				$documentType[2] ?? '',
+			);
 		}
 
 		return CBPActivityExecutionStatus::Closed;

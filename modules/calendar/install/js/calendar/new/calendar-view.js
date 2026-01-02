@@ -706,6 +706,11 @@
 			return entry.isCollabEvent()
 				|| (this.util.config.type !== 'group' && entry.isSharingCollabEvent());
 		},
+
+		shouldEntryLookLineBooking: function(entry)
+		{
+			return entry.isBookingEvent();
+		},
 	};
 
 	// Year view of the calendar

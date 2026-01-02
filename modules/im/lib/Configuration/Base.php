@@ -40,6 +40,11 @@ abstract class Base
 	abstract public static function getGroupSettings(int $groupId): array;
 
 	/**
+	 * Filter group settings by default settings
+	 */
+	abstract public static function filterGroupSettingsByDefault(array $settings): array;
+
+	/**
 	 * Set the group settings to the database
 	 *
 	 * @param int $groupId

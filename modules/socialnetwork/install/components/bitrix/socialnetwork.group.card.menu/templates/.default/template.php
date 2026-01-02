@@ -19,7 +19,7 @@ if (!$arResult['IS_IFRAME'])
 	return;
 }
 
-CJSCore::init('intranet_theme_picker');
+\Bitrix\Main\UI\Extension::load('intranet.theme-picker');
 
 $sliderMenuContainerId = 'sonet-card-slider-menu';
 

@@ -5,13 +5,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 (function (exports,im_v2_lib_rest,main_core,main_popup,im_v2_const,im_v2_lib_feature) {
 	'use strict';
 
-	const AccessErrorCode = {
-	  accessDenied: 'ACCESS_DENIED',
-	  chatNotFound: 'CHAT_NOT_FOUND',
-	  messageNotFound: 'MESSAGE_NOT_FOUND',
-	  messageAccessDenied: 'MESSAGE_ACCESS_DENIED',
-	  messageAccessDeniedByTariff: 'MESSAGE_ACCESS_DENIED_BY_TARIFF'
-	};
+	const ACCESS_ERROR_CODES = new Set([im_v2_const.ErrorCode.chat.accessDenied, im_v2_const.ErrorCode.chat.notFound, im_v2_const.ErrorCode.message.notFound, im_v2_const.ErrorCode.message.accessDenied, im_v2_const.ErrorCode.message.accessDeniedByTariff]);
 	const AccessService = {
 	  async checkMessageAccess(messageId) {
 	    const payload = {
@@ -31,19 +25,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	};
 	const handleAccessError = errors => {
 	  const [error] = errors;
-	  const availableCodes = Object.values(AccessErrorCode);
-	  if (!availableCodes.includes(error.code)) {
-	    console.error('AccessService: error checking access', error.code);
-
-	    // we need to handle all types of errors on this stage
-	    // but for now we let user through in case of unknown error
+	  if (ACCESS_ERROR_CODES.has(error.code)) {
 	    return {
-	      hasAccess: true
+	      hasAccess: false,
+	      errorCode: error.code
 	    };
 	  }
+	  console.error('AccessService: error checking access', error.code);
+
+	  // we need to handle all types of errors on this stage
+	  // but for now we let user through in case of unknown error
 	  return {
-	    hasAccess: false,
-	    errorCode: error.code
+	    hasAccess: true
 	  };
 	};
 
@@ -158,7 +151,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	};
 
 	exports.AccessManager = AccessManager;
-	exports.AccessErrorCode = AccessErrorCode;
 
 }((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX,BX.Main,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
 //# sourceMappingURL=access.bundle.js.map

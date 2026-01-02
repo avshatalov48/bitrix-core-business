@@ -1,0 +1,27 @@
+<?php
+$MESS["IBTYPE_E_CREATE"] = "Құру";
+$MESS["IBTYPE_E_CREATE_TITLE"] = "Ақпараттық блоктардың жаңа түрін жасау";
+$MESS["IBTYPE_E_DEL"] = "Жою";
+$MESS["IBTYPE_E_DEL_CONF"] = "Назар аударыңыз! Түрі және осы түрдегі барлық ақпараттық блоктар жойылады! Жалғастыру керек пе?";
+$MESS["IBTYPE_E_DEL_TITLE"] = "Ақпараттық блоктардың бұл түрін жою";
+$MESS["IBTYPE_E_ELEMENTS"] = "Элементтер";
+$MESS["IBTYPE_E_FILE_AFTER"] = "Элементті редакциялау нысаны бар файл:";
+$MESS["IBTYPE_E_FILE_BEFORE"] = "Сақтау алдында өрістерді өзгертуге мүмкіндік беретін элементті редакциялауға арналған файл:";
+$MESS["IBTYPE_E_FILE_FIELD_HINT"] = "Бұл баптауды өзгерту үшін әкімшінің құқықтары қажет";
+$MESS["IBTYPE_E_ID"] = "Идентификатор (ID):";
+$MESS["IBTYPE_E_LANG"] = "Тіл";
+$MESS["IBTYPE_E_LANGS"] = "Тілге тәуелді нысан атаулары мен тақырыпаттары:";
+$MESS["IBTYPE_E_LIST"] = "Тізім";
+$MESS["IBTYPE_E_LIST_TITLE"] = "Ақпараттық блоктар түрлерінің тізіміне өту";
+$MESS["IBTYPE_E_NAME"] = "Атауы";
+$MESS["IBTYPE_E_SAVE_ERROR"] = "Түрді сақтау кезінде қате";
+$MESS["IBTYPE_E_SECTIONS"] = "Бөлімдер бойынша элементтердің ағашты классификаторын қолдану:";
+$MESS["IBTYPE_E_SECTIONS_LABEL"] = "Бөлімдер";
+$MESS["IBTYPE_E_SORT"] = "Сұрыптау";
+$MESS["IBTYPE_E_TAB1"] = "Негізгі";
+$MESS["IBTYPE_E_TAB1_T"] = "Түр баптаулары";
+$MESS["IBTYPE_E_TAB2"] = "Қосымша";
+$MESS["IBTYPE_E_TAB2_T"] = "Түрдің қосымша параметрлері";
+$MESS["IBTYPE_E_TITLE"] = "\"#ITYPE#\" ақпараттық блоктар түрін редакциялау";
+$MESS["IBTYPE_E_TITLE_2"] = "Ақпараттық блоктардың жаңа түрі";
+$MESS["IBTYPE_E_USE_RSS"] = "RSS экспортын пайдалану";

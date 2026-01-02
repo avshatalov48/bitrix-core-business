@@ -1,4 +1,4 @@
-import { SearchInput } from 'im.v2.component.elements';
+import { SearchInput } from 'im.v2.component.elements.search-input';
 
 import './css/search-header.css';
 
@@ -26,6 +26,7 @@ export const SearchHeader = {
 					:withIcon="false"
 					:delayForFocusOnStart="300"
 					@queryChange="$emit('changeQuery', $event)"
+					@closeByEsc="$emit('back')"
 					class="bx-im-sidebar-search-header__input"
 				/>
 			</div>

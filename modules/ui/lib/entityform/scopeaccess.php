@@ -91,4 +91,9 @@ class ScopeAccess
 	{
 		return $this->canAdd();
 	}
+
+	public function canUseOnAddOnUpdateSegregation(): bool
+	{
+		return false;
+	}
 }

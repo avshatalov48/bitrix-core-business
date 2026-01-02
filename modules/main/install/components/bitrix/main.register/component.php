@@ -18,6 +18,8 @@
  */
 
 use Bitrix\Main\Security\Random;
+use Bitrix\Main\Authentication;
+use Bitrix\Main\Authentication\Method;
 
 if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)
 	die();
@@ -151,7 +153,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["register_submit_button"] 
 			foreach($arError as $key => $error)
 				if(intval($key) == 0 && $key !== 0)
 					$arError[$key] = str_replace("#FIELD_NAME#", '"'.$key.'"', $error);
-			CEventLog::Log("SECURITY", "USER_REGISTER_FAIL", "main", false, implode("<br>", $arError));
+			CEventLog::Log(CEventLog::SEVERITY_SECURITY, "USER_REGISTER_FAIL", "main", false, $arError);
 		}
 	}
 	else // if there's no any errors - create user
@@ -254,12 +256,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["register_submit_button"] 
 		if(empty($arResult["ERRORS"]))
 		{
 			if(COption::GetOptionString("main", "event_log_register", "N") === "Y")
-				CEventLog::Log("SECURITY", "USER_REGISTER", "main", $ID);
+				CEventLog::Log(CEventLog::SEVERITY_SECURITY, "USER_REGISTER", "main", $ID);
 		}
 		else
 		{
 			if(COption::GetOptionString("main", "event_log_register_fail", "N") === "Y")
-				CEventLog::Log("SECURITY", "USER_REGISTER_FAIL", "main", $ID, implode("<br>", $arResult["ERRORS"]));
+				CEventLog::Log(CEventLog::SEVERITY_SECURITY, "USER_REGISTER_FAIL", "main", $ID, $arResult["ERRORS"]);
 		}
 
 		$events = GetModuleEvents("main", "OnAfterUserRegister", true);
@@ -290,7 +292,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["code_submit_button"] <> '
 				if ($arParams["AUTH"] == "Y")
 				{
 					//here should be login
-					$USER->Authorize($userId);
+					$context = (new Authentication\Context())
+						->setUserId($userId)
+						->setMethod(Method::Registration)
+					;
+					$USER->Authorize($context);
 				}
 			}
 			else

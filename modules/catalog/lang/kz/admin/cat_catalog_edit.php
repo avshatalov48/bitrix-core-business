@@ -1,0 +1,23 @@
+<?php
+$MESS["CAT_CEDIT_BAD_IBLOCK"] = "Ақпараттық блок табылмады немесе оған кіруге тыйым салынды.";
+$MESS["CAT_CEDIT_CATALOG_MODULE_IS_MISSING"] = "Сауда каталогының модулін қосу қатесі.";
+$MESS["CAT_CEDIT_EDIT_TITLE"] = "Сауда каталогын баптау: #IBLOCK_NAME#.";
+$MESS["CAT_CEDIT_IBLOCK_MODULE_IS_MISSING"] = "Ақпараттық блок модулін қосу қатесі.";
+$MESS["CAT_CEDIT_MAIN_TAB"] = "Каталог";
+$MESS["CAT_CEDIT_MAIN_TAB_TITLE"] = "Каталог баптаулары";
+$MESS["CAT_CEDIT_PROPERTY_TAB"] = "Элементтердің қасиеттері";
+$MESS["CAT_CEDIT_PROPERTY_TAB_TITLE"] = "Элементтердің қасиеттерін көрсетуді баптау";
+$MESS["CAT_CEDIT_PROP_SELECT_CHOOSE"] = "<Таңдау>";
+$MESS["CAT_CEDIT_PROP_SELECT_CREATE"] = "[Жасау]";
+$MESS["CAT_CEDIT_PROP_SKU_SECTION"] = "SKU қасиеттері";
+$MESS["CAT_CEDIT_PROP_TABLE_ACTION"] = "Әрекеттер";
+$MESS["CAT_CEDIT_PROP_TABLE_ACTION_ADD"] = "Қосу";
+$MESS["CAT_CEDIT_PROP_TABLE_ACTION_HIDE"] = "Жасыру";
+$MESS["CAT_CEDIT_PROP_TABLE_DISPLAY_EXPANDED"] = "Кеңейтілген қалпында көрсету";
+$MESS["CAT_CEDIT_PROP_TABLE_DISPLAY_TYPE"] = "Ақылды сүзгіде көрініс";
+$MESS["CAT_CEDIT_PROP_TABLE_EMPTY"] = "-деректер жоқ-";
+$MESS["CAT_CEDIT_PROP_TABLE_FILTER_HINT"] = "Келушілерге арналған кеңес";
+$MESS["CAT_CEDIT_PROP_TABLE_NAME"] = "Атауы";
+$MESS["CAT_CEDIT_PROP_TABLE_SMART_FILTER"] = "Ақылды сүзгіде көрсету";
+$MESS["CAT_CEDIT_PROP_TABLE_TYPE"] = "Түрі";
+$MESS["CAT_CEDIT_SECTION_PROPERTY_FIELD"] = "Элементтердің қасиеттері";

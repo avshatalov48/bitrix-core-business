@@ -1,0 +1,19 @@
+<?php
+$MESS["CATALOG_MODULE_NOT_INSTALLED"] = "Catalog модулі орнатылмаған";
+$MESS["IBLOCK_MODULE_NOT_INSTALLED"] = "Iblock модулі орнатылмаған";
+$MESS["REPORT_DELETE_CONFIRM"] = "Шынымен жою керек пе?";
+$MESS["REPORT_MODULE_NOT_INSTALLED"] = "Report модулі орнатылмаған";
+$MESS["REPORT_UPDATE_14_5_2_MESSAGE"] = "Стандартты қалыптарды редакциялау мүмкін емес екенін ескеріңіз, бірақ қажет болған жағдайда сіз өзіңіздің есеп қалыпыңызды \"Көшіру\"\ батырмасы арқылы ұсынылғандардың негізінде жасай аласыз немесе есепті толығымен жасай аласыз.";
+$MESS["SALE_REPORT_CREATE_DEFAULT"] = "Үлгілік есептерді жасау";
+$MESS["SALE_REPORT_EMPTY_LIST"] = "Сізде бірде-бір құрылған есеп жоқ.";
+$MESS["SALE_REPORT_ERROR_DELREPFROMLIST"] = "Есепті жою кезіндегі қате.";
+$MESS["SALE_REPORT_ERROR_GETREPORTLIST"] = "Есептер тізімін алу кезіндегі қате";
+$MESS["SALE_REPORT_LIST_ADD_REPORT"] = "Есепті қосу";
+$MESS["SALE_REPORT_LIST_ADD_REPORT_TITLE"] = "Есеп конструкторында жаңа есеп жасау";
+$MESS["SALE_REPORT_LIST_CREATED_DATE"] = "Жасалған күні";
+$MESS["SALE_REPORT_LIST_ROW_ACTIONS_COPY_TEXT"] = "Есепті көшіру";
+$MESS["SALE_REPORT_LIST_ROW_ACTIONS_DELETE_TEXT"] = "Есепті жою";
+$MESS["SALE_REPORT_LIST_ROW_ACTIONS_EDIT_TEXT"] = "Есепті редакциялау";
+$MESS["SALE_REPORT_LIST_ROW_ACTIONS_VIEW_TEXT"] = "Есепті құру";
+$MESS["SALE_REPORT_LIST_TITLE"] = "Есеп атауы";
+$MESS["SALE_REPORT_TITLE"] = "Есептер";

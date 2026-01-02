@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
 this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
-(function (exports,ui_designTokens,ui_fonts_opensans,ui_iconSet_actions,calendar_sync_manager,ui_qrauthorization,calendar_entry,ui_tilegrid,ui_forms,main_core_events,ui_dialogs_messagebox,main_core,calendar_util,main_popup) {
+(function (exports,ui_designTokens,ui_fonts_opensans,ui_iconSet_actions,calendar_sync_manager,ui_qrauthorization,calendar_entry,ui_tilegrid,ui_forms,main_core_events,ui_alerts,ui_dialogs_messagebox,main_core,calendar_util,main_popup) {
 	'use strict';
 
 	let _ = t => t,
@@ -2276,7 +2276,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.popup = new main_popup.Popup({
 	      className: 'calendar-sync__auth-popup calendar-sync__scope',
 	      titleBar: main_core.Loc.getMessage('CAL_ICLOUD_AUTH_TITLE'),
-	      draggable: true,
+	      draggable: {
+	        restrict: true
+	      },
 	      content: this.getContainer(),
 	      width: 475,
 	      animation: 'fading-slide',
@@ -2703,12 +2705,14 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      className: 'calendar-sync__auth-popup calendar-sync__scope',
 	      titleBar: main_core.Loc.getMessage('CAL_ICLOUD_ALERT_OTHER_APPLE_SYNC_TITLE'),
 	      width: 500,
-	      draggable: true,
+	      draggable: {
+	        restrict: true
+	      },
 	      content: this.getContainer(),
 	      cacheable: false,
 	      closeByEsc: true,
 	      closeIcon: true,
-	      contentBackground: "#fff",
+	      contentBackground: '#fff',
 	      overlay: {
 	        opacity: 15
 	      },
@@ -2740,10 +2744,10 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return this.DOM.container;
 	  }
 	  getAlertInformation() {
-	    this.DOM.alertBlock = new BX.UI.Alert({
+	    this.DOM.alertBlock = new ui_alerts.Alert({
 	      text: main_core.Loc.getMessage('CAL_ICLOUD_ALERT_OTHER_APPLE_SYNC_INFO'),
-	      color: BX.UI.Alert.Color.WARNING,
-	      icon: BX.UI.Alert.Icon.INFO
+	      color: ui_alerts.Alert.Color.WARNING,
+	      icon: ui_alerts.Alert.Icon.INFO
 	    });
 	    const container = this.DOM.alertBlock.getContainer();
 	    const text = container.querySelector('.ui-alert-message');
@@ -2752,7 +2756,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  openHelpDesk() {
 	    const helpDeskCode = '16020988';
-	    top.BX.Helper.show('redirect=detail&code=' + helpDeskCode);
+	    top.BX.Helper.show(`redirect=detail&code=${helpDeskCode}`);
 	  }
 	  disableConnection() {
 	    BX.ajax.runAction('calendar.api.syncajax.disableIphoneOrMacConnection').then(() => {
@@ -3538,7 +3542,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      zIndexOptions: 4000,
 	      autoHide: false,
 	      closeByEsc: true,
-	      draggable: true,
+	      draggable: {
+	        restrict: true
+	      },
 	      closeIcon: {
 	        right: "12px",
 	        top: "10px"
@@ -3668,5 +3674,5 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	exports.Office365template = Office365template;
 	exports.IcloudAuthDialog = IcloudAuthDialog;
 
-}((this.BX.Calendar.Sync.Interface = this.BX.Calendar.Sync.Interface || {}),BX,BX,BX,BX.Calendar.Sync.Manager,BX.UI,BX.Calendar,BX,BX,BX.Event,BX.UI.Dialogs,BX,BX.Calendar,BX.Main));
+}((this.BX.Calendar.Sync.Interface = this.BX.Calendar.Sync.Interface || {}),BX,BX,BX,BX.Calendar.Sync.Manager,BX.UI,BX.Calendar,BX,BX,BX.Event,BX.UI,BX.UI.Dialogs,BX,BX.Calendar,BX.Main));
 //# sourceMappingURL=syncinterface.bundle.js.map

@@ -6,4 +6,6 @@ export type AvatarOptions = {
 	borderRadius?: string,
 	outline?: string,
 	outlineOffset?: string,
+	icon?: string,
+	iconColor?: string,
 };

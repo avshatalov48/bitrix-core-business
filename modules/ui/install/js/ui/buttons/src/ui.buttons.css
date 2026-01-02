@@ -1,6 +1,7 @@
 /*region Variables*/
 :root {
 	/*size*/
+	--ui-btn-size-xss: var(--ui-size-lg2);
 	--ui-btn-size-xs: var(--ui-size-xl2);
 	--ui-btn-size-sm: var(--ui-size-3xl);
 	--ui-btn-size-md: var(--ui-size-5xl);
@@ -61,7 +62,7 @@
 	height: var(--ui-btn-height);
 	border: var(--ui-btn-border);
 	border-color: var(--ui-btn-border-color);
-	background-color: var(--ui-btn-background);
+	background: var(--ui-btn-background);
 	box-shadow: var(--ui-btn-box-shadow);
 	text-shadow: var(--ui-btn-text-shadow);
 	cursor: pointer;
@@ -70,6 +71,10 @@
 				160ms linear opacity,
 				160ms linear box-shadow,
 				160ms linear border-color;
+}
+
+.ui-btn-menu.--switcher {
+	cursor: default;
 }
 
 .ui-btn,
@@ -85,7 +90,9 @@
 	text-decoration: var(--ui-text-transform-none);
 	text-transform: var(--ui-text-transform-uppercase);
 	white-space: nowrap;
-	font: var(--ui-btn-font-size)/calc(var(--ui-btn-height) - 2px) var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-size: var(--ui-btn-font-size);
+	line-height: calc(var(--ui-btn-height) - 2px);
 	font-weight: var(--ui-font-weight-bold);
 	-webkit-user-select: none;
 	-moz-user-select: none;
@@ -111,7 +118,6 @@
 	position: relative;
 	display: inline-flex;
 	align-items: stretch;
-	padding-right: var(--ui-btn-height);
 	border-radius: var(--ui-btn-radius);
 }
 
@@ -120,15 +126,18 @@
 	border-right: none !important;
 	border-radius: var(--ui-btn-radius) 0 0 var(--ui-btn-radius);
 	max-width: 100%;
+	min-width: 0;
 }
 
 .ui-btn-extra,
 .ui-btn-menu {
-	position: absolute;
+	position: relative;
+	left: 0;
 	top: 0;
-	right: 0;
-	bottom: 0;
-	width: var(--ui-btn-height);
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	min-width: var(--ui-btn-height);
 	border-left: none !important;
 	border-radius: 0 var(--ui-btn-radius) var(--ui-btn-radius) 0;
 }
@@ -138,7 +147,7 @@ a.ui-btn:focus,
 .ui-btn-main:hover,
 .ui-btn-main:focus,
 .ui-btn-extra:hover,
-.ui-btn-menu:hover,
+.ui-btn-menu:not(.--switcher):hover,
 .ui-btn.ui-btn-hover,
 .ui-btn-hover .ui-btn-main,
 .ui-btn-hover .ui-btn-extra,
@@ -158,7 +167,7 @@ a.ui-btn:focus,
 a.ui-btn:focus,
 a.ui-btn-split:focus,
 .ui-btn-main:active,
-.ui-btn-menu:active,
+.ui-btn-menu:not(.--switcher):active,
 .ui-btn-extra:active,
 .ui-btn-wait.ui-btn,
 .ui-btn-wait .ui-btn-main,
@@ -177,10 +186,10 @@ a.ui-btn-split:focus,
 .ui-btn-clock .ui-btn-main:hover,
 .ui-btn-active.ui-btn:hover,
 .ui-btn-active .ui-btn-main:hover,
-.ui-btn-active .ui-btn-menu:hover,
+.ui-btn-active .ui-btn-menu:not(.--switcher):hover,
 .ui-btn-active .ui-btn-extra:hover,
 .ui-btn-main-active .ui-btn-main:hover,
-.ui-btn-menu-active .ui-btn-menu:hover,
+.ui-btn-menu-active .ui-btn-menu:not(.--switcher):hover,
 .ui-btn-extra-active .ui-btn-extra:hover {
 	outline: none;
 	border-color: var(--ui-btn-border-color-active);
@@ -218,16 +227,19 @@ a.ui-btn-split:focus,
 	transition: 160ms background-color linear, 160ms color linear, 160ms opacity linear, 160ms border-color linear;
 }
 
-.ui-btn + .ui-btn,
-.ui-btn + .ui-btn-split,
-.ui-btn-split + .ui-btn,
-.ui-btn-split + .ui-btn-split,
-.ui-btn + script + .ui-btn,
-.ui-btn + script + .ui-btn-split,
-.ui-btn-split + script + .ui-btn,
-.ui-btn-split + script + .ui-btn-split,
-.ui-ctl + .ui-btn,
-.ui-ctl + .ui-btn-split {
+.ui-btn-menu.--switcher::before {
+	content: none;
+}
+
+.ui-btn ~ .ui-btn,
+.ui-btn ~ .ui-btn-split,
+.ui-btn ~ .ui-ctl,
+.ui-btn-split ~ .ui-btn-split,
+.ui-btn-split ~ .ui-btn,
+.ui-btn-split ~ .ui-ctl,
+.ui-ctl ~ .ui-btn,
+.ui-ctl ~ .ui-btn-split,
+.ui-ctl ~ .ui-ctl {
 	margin-left: var(--ui-btn-margin-left);
 }
 
@@ -274,6 +286,14 @@ a.ui-btn-split:focus,
 	--ui-btn-font-size: var(--ui-font-size-3xs);
 }
 
+.ui-btn-xss {
+	--ui-btn-padding: 0 15px;
+	--ui-btn-padding-right: 9px;
+	--ui-btn-min-width: 66px;
+	--ui-btn-height: var(--ui-btn-size-xss);
+	--ui-btn-font-size: var(--ui-font-size-3xs);
+}
+
 .ui-btn-split.ui-btn-lg {
 	padding-right: 33px;
 }
@@ -287,12 +307,12 @@ a.ui-btn-split:focus,
 }
 
 .ui-btn-lg.ui-btn-split {
-	padding-right: 34px;
+	/*padding-right: 34px;*/
 }
 
 .ui-btn-lg .ui-btn-extra,
 .ui-btn-lg .ui-btn-menu {
-	width: 34px;
+	min-width: 34px;
 }
 
 .ui-btn-lg:not(.ui-btn-round) .ui-btn-extra,
@@ -301,12 +321,12 @@ a.ui-btn-split:focus,
 }
 
 .ui-btn-sm.ui-btn-split {
-	padding-right: 28px;
+	/*padding-right: 28px;*/
 }
 
 .ui-btn-sm .ui-btn-extra,
 .ui-btn-sm .ui-btn-menu {
-	width: 28px;
+	min-width: 28px;
 }
 
 .ui-btn-sm:not(.ui-btn-round) .ui-btn-extra,
@@ -773,14 +793,14 @@ a.ui-btn-split:focus,
 
 /*region Light-border button*/
 /*region Fix for Themes*/
-.bitrix24-light-theme .ui-btn-themes.ui-btn-link {
+.bitrix24-light-theme .ui-btn-themes.ui-btn-link:not(.--air) {
 	--ui-btn-color: #ebebeb;
 	--ui-btn-color-hover: var(--ui-color-on-primary);
 	--ui-btn-color-active: var(--ui-color-on-primary);
 }
 
-.bitrix24-light-theme .ui-btn-themes.ui-btn-light,
-.bitrix24-light-theme .ui-btn-themes.ui-btn-light-border {
+.bitrix24-light-theme .ui-btn-themes.ui-btn-light:not(.--air),
+.bitrix24-light-theme .ui-btn-themes.ui-btn-light-border:not(.--air) {
 	--ui-btn-background: rgba(var(--ui-color-on-primary-rgb), .15);
 	--ui-btn-background-hover: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-30));
 	--ui-btn-background-active: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-40));
@@ -791,19 +811,18 @@ a.ui-btn-split:focus,
 	--ui-btn-color-active: var(--ui-color-on-primary);
 }
 
-.bitrix24-light-theme .ui-btn-themes.ui-btn-light-border {
+.bitrix24-light-theme .ui-btn-themes.ui-btn-light-border:not(.--air) {
 	--ui-btn-border-color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-40));
 }
 
-
-.bitrix24-dark-theme .ui-btn-themes.ui-btn-link {
+.bitrix24-dark-theme .ui-btn-themes.ui-btn-link:not(.--air) {
 	--ui-btn-color: rgba(var(--ui-color-base-default-rgb), var(--ui-opacity-80));
 	--ui-btn-color-hover: rgba(var(--ui-color-base-default-rgb), var(--ui-opacity-80));
 	--ui-btn-color-active: rgba(var(--ui-color-base-default-rgb), var(--ui-opacity-80));
 }
 
-.bitrix24-dark-theme .ui-btn-themes.ui-btn-light,
-.bitrix24-dark-theme .ui-btn-themes.ui-btn-light-border {
+.bitrix24-dark-theme .ui-btn-themes.ui-btn-light:not(.--air),
+.bitrix24-dark-theme .ui-btn-themes.ui-btn-light-border:not(.--air) {
 	--ui-btn-background: rgba(var(--ui-color-base-solid-rgb), .07);
 	--ui-btn-background-hover: rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-10));
 	--ui-btn-background-active: rgba(var(--ui-color-base-solid-rgb), .15);
@@ -814,7 +833,7 @@ a.ui-btn-split:focus,
 	--ui-btn-color-active: rgba(var(--ui-color-base-default-rgb), var(--ui-opacity-80));
 }
 
-.bitrix24-dark-theme .ui-btn-themes.ui-btn-light-border {
+.bitrix24-dark-theme .ui-btn-themes.ui-btn-light-border:not(.--air) {
 	--ui-btn-border-color: rgba(var(--ui-color-base-solid-rgb), .06);
 }
 
@@ -834,6 +853,10 @@ a.ui-btn-split:focus,
 .ui-btn-no-caps,
 .ui-btn-no-caps .ui-btn-main {
 	text-transform: none;
+}
+
+.ui-btn-no-caps,
+.ui-btn-no-caps .ui-btn-main {
 	font-size: calc(var(--ui-btn-font-size) + 2px);
 	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-semi-bold);
@@ -859,7 +882,9 @@ a.ui-btn-split:focus,
 	background-color: #f34829;
 	color: var(--ui-color-on-primary);
 	vertical-align: middle;
-	font: 11px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-size: 11px;
+	line-height: 19px;
 	font-weight: var(--ui-font-weight-regular);
 }
 
@@ -901,7 +926,7 @@ a.ui-btn-split:focus,
 }
 
 .ui-btn.ui-btn-empty.ui-btn-dropdown:before,
-.ui-btn.ui-btn-collapsed.ui-btn-dropdown:before,
+.ui-btn.ui-btn-collapsed.ui-btn-dropdown::before,
 .ui-btn-empty.ui-btn-dropdown .ui-btn-main:before,
 .ui-btn-collapsed.ui-btn-dropdown .ui-btn-main:before {
 	right: auto;
@@ -1082,7 +1107,9 @@ a.ui-btn-split:focus,
 .ui-link,
 *.ui-link:hover {
 	cursor: pointer;
-	font: 13px/22px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-size: 13px;
+	line-height: 22px;
 	color: var(--ui-link-color);
 	transition: 250ms linear color, 250ms linear border-color;
 }
@@ -1134,6 +1161,44 @@ a.ui-btn-split:focus,
 
 .ui-link-dotted {
 	border-bottom: 1px dotted var(--ui-link-border-color);
+}
+
+.ui-button__shimmer {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	border-radius: var(--ui-btn-radius);
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.ui-button__shimmer::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: var(--ui-btn-height);
+	width: 110px;
+	transform: translateX(-110px);
+	background: linear-gradient(128deg, rgba(255, 255, 255, 0) 34.39%, #FFFFFF 48.22%, rgba(255, 255, 255, 0) 62.72%);
+	opacity: var(--ui-opacity-40);
+	animation: ui-button-shimmer 4s linear 0s 1, ui-button-shimmer 4s linear 8s 10;
+}
+
+.ui-btn-collapsed .ui-button__shimmer::before {
+	animation: ui-button-shimmer 7s linear 0s 1, ui-button-shimmer 7s linear 8s 10;
+}
+
+@keyframes ui-button-shimmer {
+	0% {
+		transform: translateX(-110px);
+	}
+	20% {
+		transform: translateX(calc(100% + 110px));
+	}
+	100% {
+		transform: translateX(calc(100% + 110px));
+	}
 }
 
 /*endregion*/

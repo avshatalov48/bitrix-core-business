@@ -4,6 +4,7 @@ import { Actions } from '../actions';
 import { ProviderRequestFactory } from '../provider-request-factory';
 import { ProvidersType } from '../types/providers-type';
 import { BaseProvider } from './base-provider';
+import { FeaturePromotersRegistry } from 'ui.info-helper';
 
 export class SliderProvider extends BaseProvider
 {
@@ -47,6 +48,11 @@ export class SliderProvider extends BaseProvider
 				};
 				(new ProviderRequestFactory(providerRequestFactoryConfiguration)).getRequest()
 					.then((response) => {
+						if (!Type.isStringFilled(this.frameUrlTemplate))
+						{
+							this.frameUrlTemplate = response.data?.frameUrlTemplate ?? '';
+						}
+
 						frame.src = this.#buildUrl(code);
 
 						return this.#createContainerNode(this.getLoader(), frame);
@@ -54,12 +60,19 @@ export class SliderProvider extends BaseProvider
 					.then((content) => resolve(content));
 			});
 		};
+
+		const provider = FeaturePromotersRegistry.getPromoter({ code }).getProvider();
+
 		this.#openSlider({
 			id: sliderId,
 			contentCallback: contentCallback.bind(this),
 			width: width,
 			events: {
-				onLoad: () => this.showFrame(frame),
+				onLoad: () => {
+					provider.frameNode = frame;
+					provider.frameUrl = frame.src;
+					this.showFrame(frame);
+				},
 			},
 		});
 	}

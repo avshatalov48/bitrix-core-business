@@ -2,15 +2,23 @@
 
 namespace Bitrix\Im\V2\Integration\AI;
 
+use Bitrix\Im\V2\Analytics\CopilotAnalytics;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Chat\Param\Params;
+use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Result;
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 
 class RoleManager
 {
+	use ContextCustomer;
+
 	protected const PROMPT_CATEGORY = 'chat';
+
+	protected static array $roles = [];
+	protected static array $prompts = [];
+
+	protected ?\Bitrix\AI\Role\RoleManager $aiManager = null;
 
 	public static function getDefaultRoleCode(): ?string
 	{
@@ -22,7 +30,7 @@ class RoleManager
 		return \Bitrix\AI\Role\RoleManager::getUniversalRoleCode();
 	}
 
-	public function getRoles(array $roleCodes, int $userId): ?array
+	public function getRolesShort(array $roleCodes): ?array
 	{
 		if (!Loader::includeModule('imbot') || !Loader::includeModule('ai'))
 		{
@@ -30,61 +38,115 @@ class RoleManager
 		}
 
 		$roleCodes[] = self::getDefaultRoleCode();
-		$roleManager = new \Bitrix\AI\Role\RoleManager($userId, LANGUAGE_ID);
+		$roleCodes = array_unique($roleCodes);
 
 		$roleData = [];
-		foreach ($roleManager->getRolesByCode($roleCodes) as $role)
+		foreach ($this->getAiManager()->getRolesAvatarsFromCache($roleCodes) as $roleCode => $avatar)
 		{
-			$roleData[$role['code']] = [
-				'code' => $role['code'],
-				'name' => $role['name'],
-				'desc' => $role['description'],
-				'avatar' => $role['avatar'],
-				'default' => $role['code'] === \Bitrix\AI\Role\RoleManager::getUniversalRoleCode(),
-				'prompts' => $this->getPrompts($roleManager, $role['code']),
-			];
+			$roleData[$roleCode] = $this->formatRoleDataShort([
+				'code' => $roleCode,
+				'avatar' => $avatar,
+			]);
 		}
 
 		return !empty($roleData) ? $roleData : null;
 	}
 
-	protected function getPrompts(\Bitrix\AI\Role\RoleManager $roleManager, string $code): array
+	public function getRoles(array $roleCodes, bool $withPrompts = true): ?array
 	{
-
-		$prompts = $roleManager->getPromptsBy(self::PROMPT_CATEGORY, $code);
-		if (empty($prompts))
-		{
-			$prompts = $roleManager->getPromptsBy(self::PROMPT_CATEGORY, \Bitrix\AI\Role\RoleManager::getUniversalRoleCode());
-		}
-
-		return $prompts;
-	}
-
-	public function getRolesInChat(int $chatId): array
-	{
-		if (!Loader::includeModule('ai'))
-		{
-			return [];
-		}
-
-		$params = Params::getInstance($chatId);
-
-		if ($params->get(Params::COPILOT_ROLES) === null)
-		{
-			return [\Bitrix\AI\Role\RoleManager::getUniversalRoleCode()];
-		}
-
-		return $params->get(Params::COPILOT_ROLES)->getValue();
-	}
-
-	public function getMainRole(?int $chatId): ?string
-	{
-		if (!Loader::includeModule('ai'))
+		if (!Loader::includeModule('imbot') || !Loader::includeModule('ai'))
 		{
 			return null;
 		}
 
-		if (!isset($chatId))
+		$roleCodes[] = self::getDefaultRoleCode();
+		$roleCodes = array_unique($roleCodes);
+		$this->fillRoles($roleCodes);
+
+		if ($withPrompts)
+		{
+			$this->fillPrompts($roleCodes);
+		}
+
+		$roleData = [];
+		foreach ($roleCodes as $code)
+		{
+			$role = self::$roles[$code] ?? null;
+			if (isset($role))
+			{
+				if ($withPrompts)
+				{
+					$role['prompts'] = self::$prompts[$code] ?? [];
+				}
+				$roleData[$code] = $role;
+			}
+		}
+
+		return !empty($roleData) ? $roleData : null;
+	}
+
+	protected function fillRoles(array $roleCodes): void
+	{
+		$roleManager = $this->getAiManager();
+
+		$codesWithoutCache = array_diff($roleCodes, array_keys(self::$roles));
+		if (empty($codesWithoutCache))
+		{
+			return;
+		}
+
+		foreach ($roleManager->getRolesByCode($codesWithoutCache) as $role)
+		{
+			self::$roles[$role['code']] = $this->formatRoleData($role);
+		}
+	}
+
+	protected function fillPrompts(array $roleCodes): void
+	{
+		$roleManager = $this->getAiManager();
+		$rolesWithoutPrompts = array_diff($roleCodes, array_keys(self::$prompts));
+
+		if (empty($rolesWithoutPrompts))
+		{
+			return;
+		}
+
+		$prompts = $roleManager->getPromptsByCategoryAndRoleCodes(self::PROMPT_CATEGORY, $rolesWithoutPrompts);
+		foreach ($rolesWithoutPrompts as $code)
+		{
+			self::$prompts[$code] =
+				$prompts[$code]
+				?? $prompts[self::getDefaultRoleCode()]
+				?? self::$prompts[self::getDefaultRoleCode()]
+				?? []
+			;
+		}
+	}
+
+	protected function formatRoleData(array $role): array
+	{
+		return [
+			'code' => $role['code'],
+			'name' => $role['name'],
+			'desc' => $role['description'],
+			'avatar' => $role['avatar'],
+			'default' => $role['code'] === self::getDefaultRoleCode(),
+			'prompts' => [],
+		];
+	}
+
+	protected function formatRoleDataShort(array $role): array
+	{
+		return [
+			'code' => $role['code'],
+			'avatar' => $role['avatar'],
+			'default' => $role['code'] === self::getDefaultRoleCode(),
+		];
+	}
+
+	public function getMainRole(?int $chatId): ?string
+	{
+		if (!isset($chatId) || !Loader::includeModule('ai'))
 		{
 			return null;
 		}
@@ -93,13 +155,13 @@ class RoleManager
 
 		if ($params->get(Params::COPILOT_MAIN_ROLE) === null)
 		{
-			return \Bitrix\AI\Role\RoleManager::getUniversalRoleCode();
+			return self::getDefaultRoleCode();
 		}
 
-		return $params->get(Params::COPILOT_MAIN_ROLE)->getValue();
+		return (string)$params->get(Params::COPILOT_MAIN_ROLE)->getValue();
 	}
 
-	public function updateRole(Chat $chat, int $userId, ?string $roleCode): Result
+	public function updateRole(Chat $chat, ?string $roleCode): Result
 	{
 		$result = new Result();
 
@@ -110,24 +172,15 @@ class RoleManager
 			return $result;
 		}
 
-		if ($chat->getType() !== Chat::IM_TYPE_COPILOT)
-		{
-			$result->addError(new CopilotError(CopilotError::WRONG_CHAT_TYPE));
-
-			return $result;
-		}
-
-		$roleManager = new \Bitrix\AI\Role\RoleManager($userId, LANGUAGE_ID);
-
 		if (!isset($roleCode))
 		{
-			$roleCode = \Bitrix\AI\Role\RoleManager::getUniversalRoleCode();
+			$roleCode = self::getDefaultRoleCode();
 		}
 
-		$roleData = $this->getRoles([$roleCode], $userId);
+		$roleData = $this->getRoles([$roleCode]);
 		if (empty($roleData))
 		{
-			$result->addError(new CopilotError(CopilotError::ROLE_NOT_FOUNT));
+			$result->addError(new CopilotError(CopilotError::ROLE_NOT_FOUND));
 
 			return $result;
 		}
@@ -143,7 +196,9 @@ class RoleManager
 			return $result;
 		}
 
+		$oldRole = $params->get(Params::COPILOT_MAIN_ROLE)?->getValue() ?? self::getDefaultRoleCode();
 		$params->addParamByName(Params::COPILOT_MAIN_ROLE, $roleCode);
+		(new CopilotAnalytics($chat))->addChangeRole((string)$oldRole);
 
 		if (!isset($roleData[$roleCode]))
 		{
@@ -185,9 +240,9 @@ class RoleManager
 		return $pushMessage;
 	}
 
-	public function getRecentKeyRoles(int $userId): array
+	public function getRecentKeyRoles(): array
 	{
-		$roles = $this->getRecommendedRoles($userId);
+		$roles = $this->getRecommendedRoles();
 
 		$roleCodes = [];
 		foreach ($roles as $role)
@@ -198,17 +253,24 @@ class RoleManager
 		return $roleCodes;
 	}
 
-	protected function getRecommendedRoles(int $userId): array
+	protected function getRecommendedRoles(): array
 	{
 		if (!Loader::includeModule('ai'))
 		{
 			return [];
 		}
 
-		$roleManager = new \Bitrix\AI\Role\RoleManager($userId, LANGUAGE_ID);
+		$roleManager = $this->getAiManager();
 		$roles = $roleManager->getRecommendedRoles(4);
 		array_unshift($roles, $roleManager->getUniversalRole());
 
 		return $roles;
+	}
+
+	protected function getAiManager(): \Bitrix\AI\Role\RoleManager
+	{
+		$this->aiManager ??= new \Bitrix\AI\Role\RoleManager($this->getContext()->getUserId(), LANGUAGE_ID);
+
+		return $this->aiManager;
 	}
 }

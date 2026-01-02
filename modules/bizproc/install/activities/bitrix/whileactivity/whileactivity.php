@@ -7,8 +7,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 class CBPWhileActivity extends CBPCompositeActivity implements IBPActivityEventListener
 {
-	const CYCLE_LIMIT = 1000;
-	private $cycleCounter = 0;
+	private const CYCLE_LIMIT = 1000;
+	private int $cycleCounter = 0;
+	private int $rootCycleCounter = 0;
 
 	public function __construct($name)
 	{
@@ -51,10 +52,7 @@ class CBPWhileActivity extends CBPCompositeActivity implements IBPActivityEventL
 				}
 			}
 
-			if ($this->arProperties['Condition'] == null)
-			{
-				throw new Exception(GetMessage("BPWA_NO_CONDITION"));
-			}
+			$this->arProperties['Title'] = $arParams['Title'] ?? '';
 		}
 	}
 
@@ -114,11 +112,16 @@ class CBPWhileActivity extends CBPCompositeActivity implements IBPActivityEventL
 
 	private function TryNextIteration()
 	{
-		$this->cycleCounter++;
-		if ($this->cycleCounter > self::CYCLE_LIMIT)
+		if (!$this->Condition instanceof CBPActivityCondition)
 		{
-			throw new Exception(GetMessage("BPWA_CYCLE_LIMIT"));
+			return false;
 		}
+
+		if (!$this->checkIterationsLimit())
+		{
+			return false;
+		}
+
 		if (
 			$this->executionStatus == CBPActivityExecutionStatus::Canceling
 			|| $this->executionStatus == CBPActivityExecutionStatus::Faulting
@@ -131,6 +134,8 @@ class CBPWhileActivity extends CBPCompositeActivity implements IBPActivityEventL
 		{
 			return false;
 		}
+
+		$this->incrementRootIterationsCounter();
 
 		if (count($this->arActivities) > 0)
 		{
@@ -316,5 +321,60 @@ class CBPWhileActivity extends CBPCompositeActivity implements IBPActivityEventL
 			$usages = array_merge($usages, $this->Condition->collectUsages($this));
 		}
 		return $usages;
+	}
+
+	/**
+	 * @return void
+	 * @throws Exception
+	 */
+	private function checkIterationsLimit(): bool
+	{
+		// local counter
+		$this->cycleCounter++;
+		if ($this->cycleCounter > self::CYCLE_LIMIT)
+		{
+			throw new \CBPInvalidOperationException(GetMessage("BPWA_CYCLE_LIMIT"));
+		}
+
+		// root counter
+		static $rootLimit;
+		$rootLimit ??= \Bitrix\Main\Config\Option::get('bizproc', 'limit_while_iterations', 1000);
+
+		if ($rootLimit > 0)
+		{
+			$rootWhile = $this->getRootWhileActivity();
+			if ($rootWhile->rootCycleCounter > $rootLimit)
+			{
+				$msgCode = ($rootWhile === $this) ? 'BPWA_ROOT_CYCLE_LIMIT' : 'BPWA_PARENT_ROOT_CYCLE_LIMIT';
+				$this->trackError(GetMessage($msgCode, ['#LIMIT#' => $rootLimit]));
+
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private function incrementRootIterationsCounter(): void
+	{
+		$rootWhile = $this->getRootWhileActivity();
+		$rootWhile->rootCycleCounter++;
+	}
+
+	private function getRootWhileActivity(): \CBPWhileActivity
+	{
+		$rootWhile = $this;
+		$parent = $this;
+
+		while ($parent->parent !== null)
+		{
+			$parent = $parent->parent;
+			if ($parent instanceof \CBPWhileActivity)
+			{
+				$rootWhile = $parent;
+			}
+		}
+
+		return $rootWhile;
 	}
 }

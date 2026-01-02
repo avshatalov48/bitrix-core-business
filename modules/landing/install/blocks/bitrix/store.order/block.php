@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -9,13 +10,33 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  */
 $iblockId = $classBlock->get('IBLOCK_ID') ?? '';
 $skuIblockId = $classBlock->get('SKU_IBLOCK_ID') ?? '';
+
+$agreements = $classBlock->get('AGREEMENTS');
+if (!is_array($agreements))
+{
+	$agreementId = (int)$classBlock->get('AGREEMENT_ID');
+	if ($agreementId > 0)
+	{
+		$agreements = [
+			[
+				'ID' => $agreementId,
+				'CHECKED' => 'Y',
+				'REQUIRED' => 'Y',
+			],
+		];
+	}
+	else
+	{
+		$agreements = [];
+	}
+}
 ?>
 <section class="landing-block g-pt-100 g-pb-100">
 	<div class="container g-font-size-13">
 		<?$APPLICATION->IncludeComponent(
 			'bitrix:sale.order.ajax',
 			'bootstrap_v4',
-			array(
+			[
 				'PAY_FROM_ACCOUNT' => 'Y',
 				'ONLY_FULL_PAY_FROM_ACCOUNT' => 'N',
 				'COUNT_DELIVERY_TAX' => 'N',
@@ -31,10 +52,10 @@ $skuIblockId = $classBlock->get('SKU_IBLOCK_ID') ?? '';
 				'DELIVERY_NO_SESSION' => 'Y',
 				'COMPATIBLE_MODE' => 'N',
 				'BASKET_POSITION' => 'before',
-				'ADDITIONAL_PICT_PROP' => array(
+				'ADDITIONAL_PICT_PROP' => [
 					$iblockId => 'MORE_PHOTO',
 					$skuIblockId => 'MORE_PHOTO',
-				),
+				],
 				'BASKET_IMAGES_SCALING' => 'adaptive',
 				'SERVICES_IMAGES_SCALING' => 'adaptive',
 				'DISABLE_BASKET_REDIRECT' => 'Y',
@@ -44,18 +65,19 @@ $skuIblockId = $classBlock->get('SKU_IBLOCK_ID') ?? '';
 				'BRAND_PROPERTY' => $classBlock->get('BRAND_PROPERTY'),
 				'NO_PERSONAL' => $classBlock->get('NO_PERSONAL'),
 				'USER_CONSENT' => $classBlock->get('USER_CONSENT'),
-				'USER_CONSENT_ID' => $classBlock->get('AGREEMENT_ID'),
-				'USER_CONSENT_IS_CHECKED' => 'Y',
+				'USER_CONSENTS' => $agreements,
 				'USER_CONSENT_IS_LOADED' => 'N',
 				'HIDE_DETAIL_PAGE_URL' => 'Y',
 				'EMPTY_BASKET_HINT_PATH' => $classBlock->get('EMPTY_PATH'),
 				'HIDE_ORDER_DESCRIPTION' => 'Y',
 				'USE_CUSTOM_MAIN_MESSAGES' => 'Y',
 				'MESS_REGION_BLOCK_NAME' => $classBlock->get('MESS_REGION_BLOCK_NAME'),
+				'MESS_REGION_REFERENCE' => $classBlock->get('MESS_REGION_REFERENCE'),
 				'CONTEXT_SITE_ID' => $classBlock->get('SITE_ID'),
 				'SHOW_COUPONS' => 'Y',
 				'IS_LANDING_SHOP' => 'Y',
-			),
+				'USE_CUSTOM_ADDITIONAL_MESSAGES' => $classBlock->get('USE_CUSTOM_ADDITIONAL_MESSAGES'),
+			],
 			false
 		);?>
 	</div>

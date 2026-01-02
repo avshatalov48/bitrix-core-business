@@ -49,7 +49,7 @@ $MESS["JS_CORE_VIEWER_EDIT_IN_LOCAL_SERVICE"] = "Редактировать на
 $MESS["JS_CORE_VIEWER_EDIT_IN_LOCAL_SERVICE_SHORT"] = "Редактировать на #SERVICE#";
 $MESS["JS_CORE_VIEWER_SERVICE_LOCAL"] = "моём компьютере";
 $MESS["JS_CORE_VIEWER_DOWNLOAD_B24_DESKTOP"] = "Скачать";
-$MESS["JS_CORE_VIEWER_SERVICE_LOCAL_INSTALL_DESKTOP_MSGVER_1"] = "Для эффективного редактирования документов на компьютере, установите десктоп приложение и подключите Битрикс24.Диск";
+$MESS["JS_CORE_VIEWER_SERVICE_LOCAL_INSTALL_DESKTOP_MSGVER_1"] = "Для эффективного редактирования документов на компьютере, установите приложение для компьютера и подключите Битрикс24.Диск";
 $MESS["JS_CORE_VIEWER_SHOW_FILE_DIALOG_OAUTH_NOTICE"] = "Для просмотра файла, пожалуйста, авторизуйтесь в своем аккаунте <a id=\"bx-js-disk-run-oauth-modal\" href=\"#\">#SERVICE#</a>.";
 $MESS["JS_CORE_VIEWER_SERVICE_OFFICE365"] = "Office365";
 $MESS["JS_CORE_VIEWER_DOCUMENT_IS_LOCKED_BY"] = "Документ заблокирован на редактирование";

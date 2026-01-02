@@ -33,6 +33,7 @@ export const BaseFileMessage = {
 			default: true,
 		},
 	},
+	emits: ['cancelClick'],
 	computed:
 	{
 		FileType: () => FileType,
@@ -62,6 +63,10 @@ export const BaseFileMessage = {
 			const context = { dialogId: this.dialogId, fileId, ...this.message };
 			this.contextMenu.openMenu(context, event.target);
 		},
+		onCancel(event)
+		{
+			this.$emit('cancelClick', event);
+		},
 	},
 	template: `
 		<BaseMessage :item="item" :dialogId="dialogId">
@@ -72,6 +77,7 @@ export const BaseFileMessage = {
 					:id="messageFile.id"
 					:messageId="message.id"
 					@openContextMenu="onOpenContextMenu"
+					@cancelClick="onCancel"
 				/>
 				<DefaultMessageContent :item="item" :dialogId="dialogId" />
 			</div>

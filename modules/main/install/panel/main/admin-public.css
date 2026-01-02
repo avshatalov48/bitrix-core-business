@@ -453,9 +453,9 @@
 #bx-admin-prefix .adm-designed-checkbox:disabled:checked + .adm-designed-checkbox-label {background-position:0 -3459px;}
 
 .adm-workarea .adm-input,
-.adm-workarea input[type="text"],
-.adm-workarea input[type="password"],
-.adm-workarea input[type="email"] {
+.adm-workarea input[type="text"]:not(.ui-tag-selector-text-box),
+.adm-workarea input[type="password"]:not(.ui-tag-selector-text-box),
+.adm-workarea input[type="email"]:not(.ui-tag-selector-text-box) {
 	background:#fff;
 	border:1px solid;
 	border-color:#87919c #959ea9 #9ea7b1 #959ea9;
@@ -469,9 +469,9 @@
 }
 
 .adm-workarea .adm-input,
-.adm-workarea input[type="text"],
-.adm-workarea input[type="password"],
-.adm-workarea input[type="email"] {
+.adm-workarea input[type="text"]:not(.ui-tag-selector-text-box),
+.adm-workarea input[type="password"]:not(.ui-tag-selector-text-box),
+.adm-workarea input[type="email"]:not(.ui-tag-selector-text-box) {
 	font-size:13px;
 	height:25px;
 	padding:0 5px;
@@ -1785,7 +1785,7 @@
 	text-decoration: none;
 }
 
-.adm-workarea input.main-ui-filter-search-filter {
+.adm-workarea-wrap .adm-workarea input.main-ui-filter-search-filter {
 	position: relative;
 	padding: 0 50px 0 15px;
 	height: 30px;

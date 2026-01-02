@@ -209,19 +209,11 @@ class Role extends \Bitrix\Landing\Internals\BaseTable
 		// for B24 gets employees group
 		if (Manager::isB24())
 		{
-			$res = \Bitrix\Main\GroupTable::getList([
-				'select' => [
-					'ID'
-				],
-				'filter' => [
-					'=STRING_ID' => 'EMPLOYEES_' . SITE_ID
-				]
-			]);
-			if ($row = $res->fetch())
+			$groupID = \CGroup::GetIDByCode('EMPLOYEES_' . SITE_ID);
+			if ($groupID)
 			{
-				$defGroup = 'G' . $row['ID'];
+				$defGroup = 'G' . $groupID;
 			}
-			unset($row, $res);
 		}
 
 		$addRights = [];

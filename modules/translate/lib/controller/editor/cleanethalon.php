@@ -232,6 +232,14 @@ class CleanEthalon
 		$langFullPath = Translate\IO\Path::tidy(self::$documentRoot. '/'. $langPath);
 		$langFullPath = Main\Localization\Translation::convertLangPath($langFullPath, $currentLang);
 
+		// settings
+		$langSettings = null;
+		$settingsFile = Translate\Settings::instantiateByPath($langFullPath);
+		if (($settingsFile instanceof Translate\Settings) && $settingsFile->load())
+		{
+			$langSettings = $settingsFile->getOptions($langFullPath)[Translate\Settings::OPTION_LANGUAGES];
+		}
+
 		try
 		{
 			$ethalonFile = Translate\File::instantiateByPath($langFullPath);
@@ -260,6 +268,13 @@ class CleanEthalon
 			{
 				if ($langId == $currentLang)
 				{
+					// ignore ethanol file
+					continue;
+				}
+
+				if ($langSettings && in_array($langId, $langSettings, true))
+				{
+					// do not touch obligatory language
 					continue;
 				}
 

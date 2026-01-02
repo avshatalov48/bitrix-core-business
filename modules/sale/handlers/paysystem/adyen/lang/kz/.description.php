@@ -1,0 +1,22 @@
+<?php
+$MESS["SALE_HPS_ADYEN_CHANGE_STATUS_PAY"] = "Төлемнің сәтті мәртебесін алған кезде тапсырысты автоматты түрде төлеу.";
+$MESS["SALE_HPS_ADYEN_HMAC_KEY"] = "HMAC key";
+$MESS["SALE_HPS_ADYEN_HMAC_KEY_DESC"] = "Сіздің сайтыңызды рұқсатсыз мәлімдемелерден қорғау үшін қолданылады.";
+$MESS["SALE_HPS_ADYEN_IS_TEST"] = "Сынақ режимі";
+$MESS["SALE_HPS_ADYEN_LIVE_URL_PREFIX"] = "Live URL prefix";
+$MESS["SALE_HPS_ADYEN_LIVE_URL_PREFIX_DESC"] = "Сіздің аккаунт баптауларындағы \"Live URL prefix\"";
+$MESS["SALE_HPS_ADYEN_MERCHANT_ID"] = "Adyen ID";
+$MESS["SALE_HPS_ADYEN_MERCHANT_ID_DESC"] = "Adyen ID сатушы идентификаторы";
+$MESS["SALE_HPS_ADYEN_PROVIDER_NAME"] = "Adyen";
+$MESS["SALE_HPS_ADYEN_X_API_KEY"] = "API key";
+$MESS["SALE_HPS_ADYEN_X_API_KEY_DESC"] = "Сіздің есептік жазбаңыздан API сұрауларын аутентификациялау үшін қолданылады.";
+$MESS["SALE_HPS_APPLE_PAY_CERT_FILE"] = "Төлемдерді өңдеу сертификаты";
+$MESS["SALE_HPS_APPLE_PAY_CERT_FILE_DESC"] = "Төлемді өңдеу сертификаты сіздің сатушы идентификаторыңызбен байланысты және төлем ақпаратын шифрлау үшін қолданылады. Төлем сертификатының жарамдылық мерзімі әр 25 ай сайын аяқталады.";
+$MESS["SALE_HPS_APPLE_PAY_COUNTRY_CODE"] = "Елдің ISO 3166 стандарты бойынша екі әріптік коды.";
+$MESS["SALE_HPS_APPLE_PAY_COUNTRY_CODE_DESC"] = "Төлем өңделетін елдің екі әріптік кодын көрсетіңіз. Сіздің төлем қызметтерін жеткізушіңізбен (PSP) кеңесіп, қандай мәнді пайдалану керектігін анықтаңыз.";
+$MESS["SALE_HPS_APPLE_PAY_DOMAIN"] = "Домен";
+$MESS["SALE_HPS_APPLE_PAY_DOMAIN_DESC"] = "Apple Pay транзакцияларын өңдейтін домен (https:// хаттамасыз)";
+$MESS["SALE_HPS_APPLE_PAY_MERCHANT_DISPLAY_NAME"] = "Дүкен атауы";
+$MESS["SALE_HPS_APPLE_PAY_MERCHANT_DISPLAY_NAME_DESC"] = "Сіздің дүкеніңіздің атауы, көрсетілім үшін қолданылады.";
+$MESS["SALE_HPS_APPLE_PAY_MERCHANT_ID"] = "Merchant ID";
+$MESS["SALE_HPS_APPLE_PAY_MERCHANT_ID_DESC"] = "Apple Pay арқылы төлемдерді қабылдай алатын сатушы ретінде сізді бірегей анықтайтын сатушы идентификаторы. Сіз бірнеше веб-қосымшалар үшін бірдей сатушы идентификаторын пайдалана аласыз.";

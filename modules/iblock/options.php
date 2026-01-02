@@ -243,13 +243,21 @@ if (!isset($periodList[$currentValues['iblock_activity_dates_period']]))
 	$currentValues['iblock_activity_dates_period'] = -1;
 }
 
-$optionHints = array(
+$region = Main\Application::getInstance()->getLicense()->getRegion();
+$isBitrixSiteManagementOnly = !Loader::includeModule('bitrix24') && !Loader::includeModule('intranet');
+
+$allowPropertyFeatureDescr = ($region === 'ru' || $region === 'by' || $region === 'kz' || $isBitrixSiteManagementOnly);
+$optionHints = [
 	'property_features_enabled' => GetMessage(
 		'IBLOCK_PROPERTY_FEATURES_HINT',
 		['#LINK#' => 'https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=42&LESSON_ID=1986']
 	),
 	'change_user_by_group_active_modify' => GetMessage('IBLOCK_OPTION_CHANGE_USER_BY_GROUP_ACTIVE_MODIFY_HINT')
-);
+];
+if (!$allowPropertyFeatureDescr)
+{
+	unset($optionHints['property_features_enabled']);
+}
 
 $tabControl->Begin();
 ?><form method="post" action="<?= $APPLICATION->GetCurPage()?>?lang=<?= LANGUAGE_ID; ?>&mid=<?= urlencode($mid); ?>&mid_menu=1"><?php

@@ -14,20 +14,20 @@ The page opens in popup window after user authorized on Bitrix24.Net.
 
 define("NOT_CHECK_PERMISSIONS", true);
 
-$arState = array();
-
-if(isset($_REQUEST["state"]) && is_string($_REQUEST["state"]))
+$state = $_REQUEST['state'] ?? null;
+if (is_string($state))
 {
-	parse_str($_REQUEST["state"], $arState);
-
-	if(isset($arState['site_id']) && is_string($arState['site_id']))
+	$parts = explode('.', $state);
+	if (count($parts) === 3)
 	{
-		$site = mb_substr(preg_replace("/[^a-z0-9_]/i", "", $arState['site_id']), 0, 2);
-		define("SITE_ID", $site);
-	}
-	elseif(isset($arState['admin']))
-	{
-		define('ADMIN_SECTION', true);
+		if ($parts[1] === '1')
+		{
+			define('ADMIN_SECTION', true);
+		}
+		elseif (!empty($parts[0]) && preg_match('/^[a-z0-9_]{2}$/i', $parts[0], $m))
+		{
+			define('SITE_ID', (string)$m[0]);
+		}
 	}
 }
 
@@ -47,6 +47,11 @@ else
 			{
 				if(\Bitrix\Socialservices\ApManager::receive($USER->GetID(), $_REQUEST['apcode']))
 				{
+					$arState =
+						is_string($state)
+							? \Bitrix\Socialservices\OAuth\StateService::getInstance()->getPayload($state)
+							: null
+					;
 					if(isset($arState['backurl']))
 					{
 						LocalRedirect($arState['backurl']);

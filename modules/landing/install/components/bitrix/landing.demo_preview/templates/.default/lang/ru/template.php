@@ -4,7 +4,6 @@ $MESS['LANDING_TPL_BUTTON_CREATE'] = 'Создать';
 $MESS['LANDING_TPL_BUTTON_CANCEL'] = 'Отменить';
 $MESS['LANDING_404_ERROR'] = 'Шаблон не найден';
 $MESS['LANDING_LOADER_WAIT_MSGVER_1'] = 'Подождите, пожалуйста, идет создание магазина...';
-$MESS['LANDING_TPL_MY_COLOR'] = 'Свой цвет';
 $MESS['LANDING_TPL_BUTTON_CREATE_SITE'] = 'Создать сайт';
 $MESS['LANDING_TPL_BUTTON_CREATE_STORE'] = 'Создать магазин';
 $MESS['LANDING_TPL_BUTTON_CREATE_KB'] = 'Создать Базу знаний';

@@ -272,7 +272,7 @@ abstract class ReportProductList extends ProductList
 		$storeId = $this->storeId;
 
 		$filter = $this->getListFilter();
-		$baseStoreFilterValues = $filter['=STORE_ID'];
+		$baseStoreFilterValues = $filter['=STORE_ID'] ?? '';
 		unset($filter['=STORE_ID']);
 		$reportInterval = $filter['REPORT_INTERVAL'] ?? [];
 		unset($filter['REPORT_INTERVAL']);

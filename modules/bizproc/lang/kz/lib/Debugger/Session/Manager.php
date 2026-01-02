@@ -1,0 +1,4 @@
+<?php
+$MESS["BIZPROC_DEBUGGER_SESSION_MANAGER_ERROR_INCORRECT_MODE"] = "Ретке келтіргіштің дұрыс емес жұмыс режимі көрсетілген";
+$MESS["BIZPROC_DEBUGGER_SESSION_MANAGER_ERROR_SESSION_NOT_FOUND"] = "Сессия табылмады";
+$MESS["BIZPROC_DEBUGGER_SESSION_MANAGER_ERROR_SESSION_STILL_ACTIVE"] = "Сессия әлі белсенді емес";

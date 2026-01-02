@@ -1,15 +1,18 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2012 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
+
 namespace Bitrix\Main\Mail\Internal;
 
-use Bitrix\Main\Entity;
 use Bitrix\Main\ORM\Fields\ArrayField;
 use Bitrix\Main\Type as Type;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\StringField;
 
 /**
  * Class EventTable
@@ -27,7 +30,7 @@ use Bitrix\Main\Type as Type;
  * @method static \Bitrix\Main\Mail\Internal\EO_Event wakeUpObject($row)
  * @method static \Bitrix\Main\Mail\Internal\EO_Event_Collection wakeUpCollection($rows)
  */
-class EventTable extends Entity\DataManager
+class EventTable extends DataManager
 {
 	/**
 	 * @return string
@@ -107,7 +110,7 @@ class EventTable extends Entity\DataManager
 	{
 		return array(
 			array(__CLASS__, "getFetchModificationForFieldsField"),
-			array(new Entity\StringField('FIELDS', array()), "unserialize")
+			array(new StringField('FIELDS', array()), "unserialize")
 		);
 	}
 
@@ -198,7 +201,7 @@ class EventTable extends Entity\DataManager
 				$newar[$key] = $val;
 		}
 
-		$field = new Entity\StringField('FIELDS', array());
+		$field = new StringField('FIELDS', array());
 		return $field->serialize($newar);
 	}
 }

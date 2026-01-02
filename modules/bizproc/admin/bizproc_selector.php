@@ -1,14 +1,17 @@
 <?php
-define("NOT_CHECK_PERMISSIONS", true);
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
+define("NOT_CHECK_PERMISSIONS", true);
+
+require_once $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php";
+require_once $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/interface/init_admin.php";
 
 \Bitrix\Main\Loader::includeModule('bizproc');
 IncludeModuleLangFile(__FILE__);
 
 if(!$USER->IsAuthorized())
-	die('<script>alert("'.GetMessageJS("ACCESS_DENIED").'");</script>');
+{
+	CMain::FinalActions('<script>alert("'.GetMessageJS("ACCESS_DENIED").'");</script>');
+}
 
 if (!defined('MODULE_ID') && !defined('ENTITY') && isset($_REQUEST['dts']))
 {
@@ -53,8 +56,7 @@ catch (Exception $e)
 
 if(!$canWrite)
 {
-	echo '<script>alert("'.GetMessageJS("ACCESS_DENIED").'");</script>';
-	die();
+	CMain::FinalActions('<script>alert("'.GetMessageJS("ACCESS_DENIED").'");</script>');
 }
 
 $arWorkflowTemplate = isset($_POST['arWorkflowTemplate']) && is_array($_POST['arWorkflowTemplate'])? $_POST['arWorkflowTemplate']: array();
@@ -691,6 +693,3 @@ $popupWindow->ShowStandardButtons(array('cancel'));
 ?>
 <?$popupWindow->EndButtons();?>
 </body>
-<?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
-?>

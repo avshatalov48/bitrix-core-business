@@ -1,0 +1,27 @@
+<?php
+$MESS["BX_SALE_DCM_COUPONS_VERIFY_ERR"] = "Купонды верификациялау қатесі";
+$MESS["BX_SALE_DCM_COUPON_CHECK_ALREADY_MAX_USED"] = "купон максималды рет қолданылды";
+$MESS["BX_SALE_DCM_COUPON_CHECK_BAD_USER_ID"] = "купонның иесі дұрыс емес";
+$MESS["BX_SALE_DCM_COUPON_CHECK_CORRUPT_DATA"] = "купонның деректері дұрыс емес";
+$MESS["BX_SALE_DCM_COUPON_CHECK_NOT_APPLIED"] = "купон пайдаланылмады";
+$MESS["BX_SALE_DCM_COUPON_CHECK_NOT_FOUND"] = "табылмады";
+$MESS["BX_SALE_DCM_COUPON_CHECK_NO_ACTIVE"] = "белсенді емес";
+$MESS["BX_SALE_DCM_COUPON_CHECK_NO_ACTIVE_DISCOUNT"] = "ереже белсенді емес";
+$MESS["BX_SALE_DCM_COUPON_CHECK_OK"] = "белсенді және пайдаланыла алады";
+$MESS["BX_SALE_DCM_COUPON_CHECK_RANGE_ACTIVE_FROM"] = "купон белсенділігінің басталу күні ағымдағы күннен кешірек";
+$MESS["BX_SALE_DCM_COUPON_CHECK_RANGE_ACTIVE_FROM_DISCOUNT"] = "ереже белсенділігінің басталу күні қазіргіден кешірек";
+$MESS["BX_SALE_DCM_COUPON_CHECK_RANGE_ACTIVE_TO"] = "купон белсенділігінің аяқталу күні ағымдағыдан бұрын";
+$MESS["BX_SALE_DCM_COUPON_CHECK_RANGE_ACTIVE_TO_DISCOUNT"] = "ереже белсенділігінің аяқталу күні ағымдағыдан бұрын";
+$MESS["BX_SALE_DCM_COUPON_CHECK_UNKNOWN_TYPE"] = "купонның түрі белгісіз";
+$MESS["BX_SALE_DCM_ERR_BAD_FUSER_ID"] = "Сатып алушының ID  инициализациялау мүмкін емес";
+$MESS["BX_SALE_DCM_ERR_BAD_MODE"] = "Менеджерді пайдалану режимі дұрыс емес";
+$MESS["BX_SALE_DCM_ERR_BAD_USER_ID"] = "Сатып алушының ID көрсетілмеген.";
+$MESS["BX_SALE_DCM_ERR_ORDER_ID_ABSENT"] = "Тапсырысты редакциялау режимі үшін тапсырыс ID көрсетілмеген";
+$MESS["BX_SALE_DCM_ERR_ORDER_ID_EXIST"] = "Тапсырыс жасау режимі үшін тапсырыс ID-і көрсетілген";
+$MESS["BX_SALE_DCM_ERR_SAVE_APPLIED"] = "Пайдаланылған купондарды сақтау мүмкін болмады";
+$MESS["BX_SALE_DCM_ERR_SESSION_NOT_ACCESSIBLE"] = "Сессия қолжетімсіз";
+$MESS["BX_SALE_DCM_STATUS_APPLYED"] = "қолданылды";
+$MESS["BX_SALE_DCM_STATUS_ENTERED"] = "қосылды";
+$MESS["BX_SALE_DCM_STATUS_FREEZE"] = "пайдаланыла алмайды";
+$MESS["BX_SALE_DCM_STATUS_NOT_APPLYED"] = "қолданылмады";
+$MESS["BX_SALE_DCM_STATUS_NOT_FOUND"] = "табылмады";

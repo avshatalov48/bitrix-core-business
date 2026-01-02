@@ -56,17 +56,18 @@ final class Element extends Controller implements FallbackActionInterface
 	{
 		$iblock = $this->getIblock();
 
-		$serviceLocator = ServiceLocator::getInstance();
-		$serviceId = "iblock.element.{$iblock->getApiCode()}.rest.controller";
+		$controller = DefaultElement::class;
 
-		if ($serviceLocator->has($serviceId))
+		if ($iblock)
 		{
-			// get from service locator
-			$controller = $serviceLocator->get($serviceId);
-		}
-		else
-		{
-			$controller = DefaultElement::class;
+			$serviceLocator = ServiceLocator::getInstance();
+			$serviceId = "iblock.element.{$iblock->getApiCode()}.rest.controller";
+
+			if ($serviceLocator->has($serviceId))
+			{
+				// get from service locator
+				$controller = $serviceLocator->get($serviceId);
+			}
 		}
 
 		return $controller;

@@ -1,10 +1,12 @@
 <?php
-##############################################
-# Bitrix Site Manager Forum                  #
-# Copyright (c) 2002-2007 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage forum
+ * @copyright 2001-2025 Bitrix
+ */
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllForumMessage

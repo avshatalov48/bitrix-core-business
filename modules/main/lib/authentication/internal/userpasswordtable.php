@@ -78,6 +78,7 @@ class UserPasswordTable extends Data\DataManager
 	{
 		return static::query()
 			->addSelect("PASSWORD")
+			->addSelect("DATE_CHANGE")
 			->where("USER_ID", $userId)
 			->addOrder("ID", "DESC")
 			->setLimit($limit)

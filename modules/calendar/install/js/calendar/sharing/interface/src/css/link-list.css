@@ -51,7 +51,7 @@
 .calendar-sharing__dialog-link-list-sorting-button-text {
     margin-left: 3px;
     color: var(--ui-color-link-primary-base);
-    font: var(--ui-typography-text-sm-font-size)/var(--ui-typography-text-sm-line-height) var(--ui-font-family-system);
+    font: var(--ui-typography-text-sm-font-size)/var(--ui-typography-text-sm-line-height) var(--ui-font-family-primary, var(--ui-font-family-system));
     font-weight: var(--ui-typography-text-sm-font-weight);
 }
 
@@ -69,7 +69,7 @@
 
 .calendar-sharing__dialog-link-list-title-text {
     display: flex;
-    font: var(--ui-typography-heading-h4-font-size)/var(--ui-typography-heading-h4-line-height) var(--ui-font-family-system);
+    font: var(--ui-typography-heading-h4-font-size)/var(--ui-typography-heading-h4-line-height) var(--ui-font-family-primary, var(--ui-font-family-system));
     color: var(--ui-color-base-solid);
     font-weight: var(--ui-font-weight-medium);
 }
@@ -181,7 +181,7 @@
 .calendar-sharing__dialog-link-list-item-date,
 .calendar-sharing__dialog-link-list-item-copy-text,
 .calendar-sharing__dialog-link-list-item-more-text {
-    font: var(--ui-typography-text-xs-font-size)/var(--ui-typography-text-xs-line-height) var(--ui-font-family-system);
+    font: var(--ui-typography-text-xs-font-size)/var(--ui-typography-text-xs-line-height) var(--ui-font-family-primary, var(--ui-font-family-system));
     color: var(--ui-color-palette-gray-70);
     font-weight: var(--ui-typography-text-xs-font-weight);
 }
@@ -272,7 +272,7 @@
 }
 
 .calendar-sharing__dialog-link-list-empty-state-text {
-    font: var(--ui-typography-text-md-font-size)/var(--ui-typography-text-md-line-height) var(--ui-font-family-system);
+    font: var(--ui-typography-text-md-font-size)/var(--ui-typography-text-md-line-height) var(--ui-font-family-primary, var(--ui-font-family-system));
     color: var(--ui-color-palette-gray-70);
     font-weight: var(--ui-typography-text-md-font-weight);
 }

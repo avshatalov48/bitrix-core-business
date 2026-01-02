@@ -2785,18 +2785,6 @@ BX.CViewErrorIframeElement = function(params)
 				    },
 				    text: BX.message('JS_CORE_VIEWER_SERVICE_LOCAL_INSTALL_DESKTOP_MSGVER_1')
 			    }),
-			    BX.create('a', {
-				    props: {
-					    className: 'bx-viewer-btn'
-				    },
-				    events: {
-					    click: BX.delegate(function(e){
-						    document.location.href = (BX.browser.IsMac()? "https://dl.bitrix24.com/b24/bitrix24_desktop.dmg": "https://dl.bitrix24.com/b24/bitrix24_desktop.exe");
-						    return false;
-					    }, this)
-				    },
-				    text: BX.message('JS_CORE_VIEWER_DOWNLOAD_B24_DESKTOP_FULL')
-			    }),
 			    BX.create('span', {
 				    props: {
 					    className: 'bx-viewer-btn'

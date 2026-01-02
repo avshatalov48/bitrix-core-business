@@ -7,6 +7,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 /** @var CMain $APPLICATION */
 /** @var array $arParams */
@@ -15,6 +16,11 @@ use Bitrix\Main\Web\Json;
 Extension::load('ui.hint');
 $containerId = 'BX_SENDER_STATISTICS';
 $containerId = htmlspecialcharsbx($containerId);
+
+if (isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] === 'Y')
+{
+	Toolbar::deleteFavoriteStar();
+}
 ?>
 
 <script>

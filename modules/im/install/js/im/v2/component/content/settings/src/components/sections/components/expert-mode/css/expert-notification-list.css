@@ -10,7 +10,7 @@
 .bx-im-settings-expert-notifications__header {
 	display: flex;
 	justify-content: flex-start;
-	height: 50px;
+	height: 60px;
 	width: max-content;
 	border-top: 1px solid var(--im-settings-expert-notifications__background-color_border);
 	border-bottom: 1px solid var(--im-settings-expert-notifications__background-color_border);

@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 /**
@@ -260,6 +260,8 @@ while($db_res = $rsData->NavNext(true, "a_"))
 			break;
 		case "GROUP_POLICY_CHANGED":
 		case "MODULE_RIGHTS_CHANGED":
+		case "GROUP_ADDED":
+		case "GROUP_UPDATED":
 			if(!array_key_exists($a_ITEM_ID, $arGroupsCache))
 			{
 				$rsGroup = CGroup::GetByID($a_ITEM_ID);

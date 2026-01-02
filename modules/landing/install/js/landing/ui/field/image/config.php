@@ -11,6 +11,7 @@ return [
 		'main.core',
 		'landing.loc',
 		'landing.main',
+		'landing.metrika',
 		'landing.ui.panel.stylepanel',
 		'landing.ui.field.textfield',
 		'landing.imageuploader',

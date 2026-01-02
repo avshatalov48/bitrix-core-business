@@ -102,6 +102,19 @@ class Converter
 				}),
 				'reversePattern' => '^(?<itemId>\d+)(?<suffix>.*)$'
 			],
+			'structure-node' => [
+				'prefix' => (function($itemId) {
+					return is_string($itemId) && $itemId[-1] === 'F' ? 'SNT' : 'SNTR';
+				}),
+				'itemId' => function($prefix, $itemId) {
+					return $prefix === 'SNT' ? $itemId . ':F' : $itemId;
+				},
+				'pattern' => '^(?<prefix>SNTR?)(?<itemId>\d+)$',
+				'reversePrefix' => (function($suffix) {
+					return $suffix === ':F' ? 'SNT' : 'SNTR';
+				}),
+				'reversePattern' => '^(?<itemId>\d+)(?<suffix>.*)$',
+			],
 		];
 
 		return $compatEntities;

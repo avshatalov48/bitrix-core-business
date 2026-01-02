@@ -1,6 +1,7 @@
-import { UserType } from 'im.v2.const';
-
 import type { StatusGroupName } from 'imopenlines.v2.const';
+
+import type { BotType, UserType } from 'im.v2.const';
+import type { RawReaction, RawShortUser } from 'im.v2.provider.service.types';
 
 export type PullExtraParams = {
 	im_revision: number,
@@ -44,7 +45,9 @@ export type RawChat = {
 	parent_chat_id: number,
 	parent_message_id: number,
 	public: string,
-	type: string
+	type: string,
+	backgroundId: string | null,
+	textFieldEnabled: boolean
 };
 
 export type RawFile = {
@@ -55,6 +58,7 @@ export type RawFile = {
 	extension: string,
 	id: number,
 	image: boolean,
+	isTranscribable: boolean,
 	name: string,
 	progress: number,
 	size: number,
@@ -110,7 +114,15 @@ export type RawUser = {
 	status: string,
 	tz_offset: number,
 	workPosition: string,
-	work_position: string
+	work_position: string,
+	bot_data?: {
+		app_id: string,
+		background_id: string,
+		code: string,
+		type: $Values<typeof BotType>,
+		is_hidden: boolean,
+		is_support_openline: boolean,
+	}
 };
 
 export type RawMessage = {
@@ -139,6 +151,14 @@ export type RawMessage = {
 		usersShort: RawShortUser[],
 	},
 };
+
+export type MultipleRawMessage = {
+	id: number,
+	senderId: number,
+	completelyDeleted: boolean,
+	params: Object<string, any>,
+	text: string,
+}
 
 export type RawMultidialog = {
 	botId: string,

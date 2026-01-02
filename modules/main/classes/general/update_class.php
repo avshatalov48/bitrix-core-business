@@ -130,84 +130,6 @@ class CUpdateSystem
 			return true;
 	}
 
-	/** Активирует лицензионный ключ **/
-	public static function ActivateLicenseKey($arFields, &$strError, $lang = false, $stableVersionsOnly = "Y")
-	{
-		$strError_tmp = "";
-
-		CUpdateSystem::AddMessage2Log("exec CUpdateSystem::ActivateLicenseKey");
-
-		$stableVersionsOnly = (($stableVersionsOnly == "N") ? "N" : "Y");
-
-		if ($lang===false)
-			$lang = LANGUAGE_ID;
-
-		$GLOBALS["DB"]->GetVersion();
-
-		$strVars = "LICENSE_KEY=".urlencode(md5(CUpdateSystem::GetLicenseKey())).
-			"&CLIENT_SITE=".urlencode($_SERVER["SERVER_NAME"]).
-			"&CANGZIP=".urlencode((CUpdateSystem::IsGzipInstalled()) ? "Y" : "N").
-			"&UTYPES=".urlencode("A").
-			"&COUNT_ONLY=".urlencode("N").
-			"&SUPD_STS=".urlencode(CUpdateSystem::GetFooPath("GetList")).
-			"&SUPD_DBS=".urlencode($GLOBALS["DB"]->type).
-			"&XE=".urlencode((isset($GLOBALS["DB"]->XE) && $GLOBALS["DB"]->XE) ? "Y" : "N").
-			"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION).
-			"&CLIENT_PHPVER=".urlencode(phpversion()).
-			"&stable=".urlencode($stableVersionsOnly).
-			"&lang=".urlencode($lang);
-
-		foreach ($arFields as $key => $value)
-		{
-			$strVars .= "&".$key."=".urlencode($value);
-		}
-
-		CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
-
-		$stime = microtime(true);
-		$content = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-		CUpdateSystem::AddMessage2Log("TIME ActivateLicenseKey.getHTTPPage ".round(microtime(true)-$stime,3)." sec");
-
-		if ($content == '')
-			$strError_tmp .= "[UALK01] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
-
-		if ($strError_tmp == '')
-		{
-			$arRes = Array();
-			CUpdateSystem::ParseServerData($content, $arRes, $strError_tmp);
-		}
-
-		if ($strError_tmp == '')
-		{
-			if (isset($arRes["DATA"]["#"]["ERROR"])
-				&& is_array($arRes["DATA"]["#"]["ERROR"])
-				&& !empty($arRes["DATA"]["#"]["ERROR"]))
-			{
-				for ($i = 0, $n = count($arRes["DATA"]["#"]["ERROR"]); $i < $n; $i++)
-				{
-					if ($arRes["DATA"]["#"]["ERROR"][$i]["@"]["TYPE"] <> '')
-						$strError_tmp .= "[".$arRes["DATA"]["#"]["ERROR"][$i]["@"]["TYPE"]."] ";
-
-					$strError_tmp .= $arRes["DATA"]["#"]["ERROR"][$i]["#"].".<br>";
-				}
-			}
-		}
-
-		if ($strError_tmp == '')
-		{
-			CUpdateSystem::AddMessage2Log("License key activated successfully!", "CUALK");
-		}
-
-		if ($strError_tmp <> '')
-		{
-			CUpdateSystem::AddMessage2Log($strError_tmp, "CUALK");
-			$strError .= $strError_tmp;
-			return false;
-		}
-		else
-			return true;
-	}
-
 	// Регистрирует копию продукта, если можно
 	public static function RegisterVersion(&$strError, $lang = false, $stableVersionsOnly = "Y")
 	{
@@ -3292,7 +3214,7 @@ class CUpdateSystem
 
 		CUpdateSystem::AddMessage2Log("exec CUpdateSystem::getHTTPPage");
 
-		$ServerIP = COption::GetOptionString("main", "update_site", "www.bitrixsoft.com");
+		$ServerIP = COption::GetOptionString("main", "update_site", "www.1c-bitrix.ru");
 		$ServerPort = 80;
 
 		$proxyAddr = COption::GetOptionString("main", "update_site_proxy_addr", "");

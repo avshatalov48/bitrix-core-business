@@ -1,11 +1,12 @@
 import { Core } from 'im.v2.application.core';
 import { ChatType, Settings } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
-import { RecentService } from 'im.v2.provider.service';
+import { LegacyRecentService } from 'im.v2.provider.service.recent';
 import { RecentMenu } from 'im.v2.lib.menu';
 import { Messenger } from 'im.public';
 import 'im.v2.css.tokens';
 
+import { CompactNavigation } from './components/compact-navigation';
 import { RecentItem } from './components/recent-item';
 import { ActiveCall } from './components/active-call';
 import { EmptyState } from './components/empty-state';
@@ -18,7 +19,7 @@ import type { ImModelRecentItem, ImModelCallItem } from 'im.v2.model';
 // @vue/component
 export const RecentList = {
 	name: 'RecentList',
-	components: { RecentItem, ActiveCall, EmptyState },
+	components: { RecentItem, ActiveCall, EmptyState, CompactNavigation },
 	emits: ['chatClick'],
 	data(): JsonObject
 	{
@@ -105,7 +106,8 @@ export const RecentList = {
 			}
 
 			const context = {
-				...item,
+				dialogId: item.dialogId,
+				recentItem: item,
 				compactMode: true,
 			};
 
@@ -131,11 +133,11 @@ export const RecentList = {
 
 			return this.showInvited || hasBirthday;
 		},
-		getRecentService(): RecentService
+		getRecentService(): LegacyRecentService
 		{
 			if (!this.service)
 			{
-				this.service = RecentService.getInstance();
+				this.service = LegacyRecentService.getInstance();
 			}
 
 			return this.service;
@@ -147,6 +149,7 @@ export const RecentList = {
 	},
 	template: `
 		<div class="bx-im-messenger__scope bx-im-list-recent-compact__container">
+			<CompactNavigation />
 			<div v-if="activeCalls.length > 0" class="bx-im-list-recent-compact__calls_container">
 				<ActiveCall
 					v-for="activeCall in activeCalls"

@@ -1,0 +1,11 @@
+<?php
+$MESS['LANDING_BLOCK_WIDGET_71_5_NAME'] = 'Текстовый блок на светлом фоне с заголовком, подзаголовком и 4 блоками текста';
+$MESS['LANDING_BLOCK_WIDGET_71_5_NODE_TITLE'] = 'Заголовок';
+$MESS['LANDING_BLOCK_WIDGET_71_5_NODE_SUBTITLE'] = 'Подзаголовок';
+$MESS['LANDING_BLOCK_WIDGET_71_5_NODE_TEXT'] = 'Текст';
+$MESS['LANDING_BLOCK_WIDGET_71_5_NODE_CARD'] = 'Карточка';
+$MESS['LANDING_BLOCK_WIDGET_71_5_NODE_CONTAINER'] = 'Контейнер';
+$MESS['LANDING_BLOCK_WIDGET_71_5_NODE_BADGE'] = 'Бейдж';
+$MESS['LANDING_BLOCK_WIDGET_71_5_NODE_CARD_TITLE'] = 'Заголовок карточки';
+$MESS['LANDING_BLOCK_WIDGET_71_5_NODE_CARD_TEXT'] = 'Текст карточки';
+$MESS['LANDING_BLOCK_WIDGET_71_5_NODE_CARD_BUTTON'] = 'Кнопка';

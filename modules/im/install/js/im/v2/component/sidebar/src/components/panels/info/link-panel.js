@@ -1,7 +1,7 @@
 import { Runtime, Extension } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
-import { Loader } from 'im.v2.component.elements';
+import { Loader } from 'im.v2.component.elements.loader';
 import { EventType, SidebarDetailBlock } from 'im.v2.const';
 
 import { concatAndSortSearchResult } from '../../../classes/panels/helpers/concat-and-sort-search-result';

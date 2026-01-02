@@ -234,17 +234,8 @@ abstract class CReportHelper
 			if (is_array(self::$ufFiles) && is_array(self::$ufFiles[$valueKey]))
 			{
 				$arFile = self::$ufFiles[$valueKey];
-				/*
-				 * save security
-				 *
-				$src = $arFile['SRC'];
 				$file = new CFile();
-				$value = '<a target="_blank" href="'.htmlspecialcharsbx($src).'" title="'.
-					htmlspecialcharsbx($file->FormatSize($arFile['FILE_SIZE'])).'">'.
-					htmlspecialcharsbx($arFile['FILE_NAME']).'</a>';
-				*/
-				$file = new CFile();
-				$value = htmlspecialcharsbx($arFile['FILE_NAME'].' ('.$file->FormatSize($arFile['FILE_SIZE']).')');
+				$value = htmlspecialcharsbx($arFile['ORIGINAL_NAME'].' ('.$file->FormatSize($arFile['FILE_SIZE']).')');
 			}
 			else
 			{
@@ -265,7 +256,7 @@ abstract class CReportHelper
 			if (is_array(self::$ufFiles) && is_array(self::$ufFiles[$valueKey]))
 			{
 				$arFile = self::$ufFiles[$valueKey];
-				$value = htmlspecialcharsbx($arFile['FILE_NAME']);
+				$value = htmlspecialcharsbx($arFile['ORIGINAL_NAME']);
 			}
 			else
 			{
@@ -389,14 +380,14 @@ abstract class CReportHelper
 
 		if  (Loader::includeModule('crm'))
 		{
-			$userPermissions = Container::getInstance()->getUserPermissions(CCrmPerms::GetCurrentUserID());
+			$userPermissions = Container::getInstance()->getUserPermissions();
 			foreach (array_keys(ElementType::getPossibleEntityTypes()) as $entityTypeName)
 			{
 				$entityTypeNameLower = mb_strtolower($entityTypeName);
 				$entityTypeId = CCrmOwnerType::ResolveID($entityTypeName);
 				if (
 					$entityTypeId !== CCrmOwnerType::Undefined
-					&& $userPermissions->canReadType($entityTypeId)
+					&& $userPermissions->entityType()->canReadItems($entityTypeId)
 				)
 				{
 					$result[$entityTypeNameLower] =
@@ -853,7 +844,7 @@ abstract class CReportHelper
 			$filtrableGroups = [];
 			$isRefChoose = $withReferencesChoose;
 		}
-		
+
 		$html = '';
 
 		$i = 0;
@@ -1254,7 +1245,7 @@ abstract class CReportHelper
 								$arEmployeeID[] = $value;
 						}
 					}
-					
+
 					// crm
 					if (isset($crmColumns[$k]))
 					{
@@ -1401,7 +1392,7 @@ abstract class CReportHelper
 				}
 			}
 		}
-		
+
 		// collect files
 		if (count($fileColumns) > 0)
 		{
@@ -1607,7 +1598,7 @@ abstract class CReportHelper
 				}
 			}
 		}
-		
+
 		// collect iblock elements
 		if (count($iblockElementColumns) > 0 && CModule::IncludeModule('iblock'))
 		{
@@ -1638,7 +1629,7 @@ abstract class CReportHelper
 				}
 			}
 		}
-		
+
 		// collect iblock sections
 		if (count($iblockSectionColumns) > 0 && CModule::IncludeModule('iblock'))
 		{
@@ -1674,7 +1665,7 @@ abstract class CReportHelper
 			}
 		}
 	}
-	
+
 	public static function prepareValueToRound($value)
 	{
 		if (!is_int($value) && !is_float($value))

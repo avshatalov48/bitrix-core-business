@@ -1,9 +1,10 @@
 import { ChatType, MessageComponent } from 'im.v2.const';
 import { Core } from 'im.v2.application.core';
+import { Feature, FeatureManager } from 'im.v2.lib.feature';
 
 import type { JsonObject } from 'main.core';
 import type { Store } from 'ui.vue3.vuex';
-import type { ImModelMessage, ImModelUser } from 'im.v2.model';
+import type { ImModelMessage, ImModelUser, ImModelChat } from 'im.v2.model';
 
 export class CopilotManager
 {
@@ -110,17 +111,11 @@ export class CopilotManager
 		return this.isCopilotChat(dialogId) || this.isCopilotBot(dialogId);
 	}
 
-	getMessageRoleAvatar(messageId: number): ?string
+	isGroupCopilotChat(dialogId: string): boolean
 	{
-		return this.store.getters['copilot/messages/getRole'](messageId)?.avatar?.medium;
-	}
+		const { userCounter }: ImModelChat = this.store.getters['chats/get'](dialogId);
 
-	getNameWithRole({ dialogId, messageId }): string
-	{
-		const user: ImModelUser = this.store.getters['users/get'](dialogId);
-		const roleName = this.store.getters['copilot/messages/getRole'](messageId).name;
-
-		return `${user.name} (${roleName})`;
+		return this.isCopilotChat(dialogId) && userCounter > 2;
 	}
 
 	isCopilotMessage(messageId: number): boolean
@@ -137,5 +132,32 @@ export class CopilotManager
 		}
 
 		return message.componentId === MessageComponent.copilotCreation;
+	}
+
+	getMessageRoleAvatar(messageId: number): ?string
+	{
+		return this.store.getters['copilot/messages/getRole'](messageId)?.avatar?.medium;
+	}
+
+	getNameWithRole({ dialogId, messageId }): string
+	{
+		const user: ImModelUser = this.store.getters['users/get'](dialogId);
+		const roleName = this.store.getters['copilot/messages/getRole'](messageId).name;
+
+		return `${user.name} (${roleName})`;
+	}
+
+	getAIModelName(dialogId: string): string
+	{
+		const isAIModelChangeAllowed = FeatureManager.isFeatureAvailable(Feature.isAIModelChangeAllowed);
+
+		if (isAIModelChangeAllowed)
+		{
+			const currentAIModel = Core.getStore().getters['copilot/chats/getAIModel'](dialogId);
+
+			return currentAIModel.name;
+		}
+
+		return Core.getStore().getters['copilot/getProvider'];
 	}
 }

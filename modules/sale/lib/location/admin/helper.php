@@ -94,28 +94,37 @@ abstract class Helper
 
 		// filter
 		$filter = array();
-		if(is_array($proxed['FILTER']) && !empty($proxed['FILTER']))
+		if (!empty($proxed['FILTER']) && is_array($proxed['FILTER']))
 		{
 			foreach($columns as $code => $fld)
 			{
+				if (!isset($proxed['FILTER'][$code]))
+				{
+					continue;
+				}
 				if($fld['data_type'] == 'integer' || $fld['data_type'] == 'float')
 				{
 					// range or list expected
-
 					if(is_array($proxed['FILTER'][$code]))
 					{
-						if(mb_strlen($proxed['FILTER'][$code]['FROM']) && mb_strlen($proxed['FILTER'][$code]['TO'])) // range
+						$from = (string)($proxed['FILTER'][$code]['FROM'] ?? null);
+						$to = (string)($proxed['FILTER'][$code]['TO'] ?? null);
+						if ($from !== '' && $to !== '') // range
 						{
-							$filter['><'.$code] = array($proxed['FILTER'][$code]['FROM'], $proxed['FILTER'][$code]['TO']);
+							$filter['><'.$code] = array($from, $to);
 						}
-						elseif(mb_strlen($proxed['FILTER'][$code]['FROM'])) // greather than
+						elseif ($from !== '') // greather than
 						{
-							$filter['>='.$code] = $proxed['FILTER'][$code]['FROM'];
+							$filter['>='.$code] = $from;
 						}
-						elseif(mb_strlen($proxed['FILTER'][$code]['TO'])) // less than
+						elseif ($to !== '') // less than
 						{
-							$filter['<='.$code] = $proxed['FILTER'][$code]['TO'];
+							$filter['<='.$code] = $to;
 						}
+						unset(
+							$to,
+							$from,
+						);
 					}
 					elseif(mb_strlen($proxed['FILTER'][$code]))
 					{
@@ -140,33 +149,38 @@ abstract class Helper
 			$parameters['select'][] = $code;
 
 		// order
-		if(is_array($proxed['ORDER']) && !empty($proxed['ORDER']))
+		if (!empty($proxed['ORDER']) && is_array($proxed['ORDER']))
 			$parameters['order'] = $proxed['ORDER'];
 
 		// nav (unused)
-		if(($page = intval($proxed['NAV']['PAGE_NUM'])) && ($lop = intval($proxed['NAV']['LOP'])))
+		if (!empty($proxed['NAV']) && is_array($proxed['NAV']))
 		{
-			$roadMap = static::getEntityRoadMap();
-			$road = $roadMap[self::getEntityRoadCode()]['name'];
-			$class = $road.'Table';
+			$page = (int)($proxed['NAV']['PAGE_NUM'] ?? 0);
+			$lop = (int)($proxed['NAV']['LOP'] ?? 0);
+			if ($page && $lop)
+			{
+				$roadMap = static::getEntityRoadMap();
+				$road = $roadMap[self::getEntityRoadCode()]['name'];
+				$class = $road . 'Table';
 
-			$count = $class::getList(array(
-				'filter' => is_array($parameters['filter']) ? $parameters['filter'] : array(),
-				'select' => array('CNT'),
-				'runtime' => array(
-					'CNT' => array(
-						'data_type' => 'integer',
-						'expression' => array(
-							'count(%u)',
-							'ID'
-						)
-					)
-				)
-			))->fetch();
+				$count = $class::getList([
+					'filter' => is_array($parameters['filter']) ? $parameters['filter'] : [],
+					'select' => ['CNT'],
+					'runtime' => [
+						'CNT' => [
+							'data_type' => 'integer',
+							'expression' => [
+								'count(%u)',
+								'ID'
+							]
+						]
+					]
+				])->fetch();
 
-			$bounds = Main\DB\Paginator::calculateQueryLimits($count['CNT'], $page, $lop);
-			$parameters['offset'] = $bounds[0];
-			$parameters['limit'] = $bounds[1];
+				$bounds = Main\DB\Paginator::calculateQueryLimits($count['CNT'], $page, $lop, false);
+				$parameters['offset'] = $bounds[0];
+				$parameters['limit'] = $bounds[1];
+			}
 		}
 
 		return $parameters;
@@ -184,7 +198,7 @@ abstract class Helper
 
 		@set_time_limit(0);
 
-		if(is_array($parameters['ID']) && !empty($parameters['ID']))
+		if (!empty($parameters['ID']) && is_array($parameters['ID']))
 		{
 			$parameters['ID'] = array_unique($parameters['ID']);
 			foreach($parameters['ID'] as $id)
@@ -197,7 +211,7 @@ abstract class Helper
 				}
 			}
 		}
-		else if(is_array($parameters['FILTER'])) // filter can be empty
+		elseif (isset($parameters['FILTER']) && is_array($parameters['FILTER'])) // filter can be empty
 		{
 			$entityClass = static::getEntityClass();
 			$parameters = Helper::getParametersForList($parameters); // from generalized to orm

@@ -30,6 +30,7 @@ class SaleOrderCheckout extends \CBitrixComponent
 
 	public function onPrepareComponentParams($arParams): array
 	{
+		$arParams['USER_CONSENTS'] = $this->prepareUserConsents($arParams);
 		$this->errorCollection = new Main\ErrorCollection();
 
 		if (empty($arParams['CONTEXT_SITE_ID']))
@@ -78,6 +79,37 @@ class SaleOrderCheckout extends \CBitrixComponent
 		}
 
 		return parent::onPrepareComponentParams($arParams);
+	}
+
+	private function prepareUserConsents($params): array
+	{
+		if (isset($params['USER_CONSENTS']))
+		{
+			return is_array($params['USER_CONSENTS']) ? $params['USER_CONSENTS'] : [];
+		}
+
+		$userConsents = [];
+		if (isset($params['USER_CONSENT_IDS']) && is_array($params['USER_CONSENT_IDS']))
+		{
+			foreach ($params['USER_CONSENT_IDS'] as $userConsentId)
+			{
+				$userConsents[] = [
+					'ID' => (int)$userConsentId,
+					'CHECKED' => $params['USER_CONSENT_IS_CHECKED_' . $userConsentId] ?? 'Y',
+					'REQUIRED' => $params['USER_CONSENT_REQUIRED_' . $userConsentId] ?? 'Y',
+				];
+			}
+		}
+		elseif (isset($params['USER_CONSENT_ID']) && (int)$params['USER_CONSENT_ID'] > 0)
+		{
+			$userConsents[] = [
+				'ID' => $params['USER_CONSENT_ID'],
+				'CHECKED' => $params['USER_CONSENT_IS_CHECKED'] ?? 'Y',
+				'REQUIRED' => 'Y',
+			];
+		}
+
+		return $userConsents;
 	}
 
 	protected function listKeysSignedParameters(): array

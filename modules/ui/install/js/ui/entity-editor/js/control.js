@@ -1349,6 +1349,31 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 			titleNode.appendChild(marker);
 		}
 
+		const titleOptions = this.getSchemeElement().getImmutableOptions()?.titleOptions;
+		if (BX.Type.isPlainObject(titleOptions))
+		{
+			const rightIconOptions = titleOptions.rightIconOptions;
+			if (BX.Type.isPlainObject(rightIconOptions))
+			{
+				const rightIcon = new BX.UI.IconSet.Icon({
+					icon: rightIconOptions.icon,
+					size: BX.Text.toInteger(rightIconOptions.size),
+					color: rightIconOptions.color,
+					hoverMode: rightIconOptions.hoverMode,
+				});
+
+				const rightIconContainer = BX.Tag.render`<span class="ui-entity-editor-block-title-text-right-icon"></span>`;
+				if (BX.Type.isStringFilled(rightIconOptions.title))
+				{
+					rightIconContainer.title = rightIconOptions.title;
+				}
+
+				rightIcon.renderTo(rightIconContainer);
+
+				titleNode.append(rightIconContainer);
+			}
+		}
+
 		var hint = this.createTitleHint();
 		if (hint)
 		{
@@ -3122,9 +3147,19 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		this._contentContainer = BX.create("div", {props: { className: "ui-entity-editor-section-content" } });
 		var isViewMode = this._mode === BX.UI.EntityEditorMode.view ;
 
-		var wrapperClassName = isViewMode
-			? "ui-entity-editor-section"
-			: "ui-entity-editor-section-edit";
+		const wrapperClassNames = isViewMode
+			? ['ui-entity-editor-section', '--ui-context-content-light']
+			: ['ui-entity-editor-section-edit', '--ui-context-content-light'];
+
+		const sectionData = this.getSchemeElement().getImmutableOptions();
+		if (BX.Type.isPlainObject(sectionData))
+		{
+			const wrapperClassList = sectionData.wrapperClassList;
+			if (BX.Type.isArray(wrapperClassList))
+			{
+				wrapperClassNames.push(...wrapperClassList);
+			}
+		}
 
 		this._enableToggling = this.isModeToggleEnabled() && this._schemeElement.getDataBooleanParam("enableToggling", true);
 		this._toggleButton = BX.create("span",
@@ -3165,6 +3200,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 
 		this._titleMode = BX.UI.EntityEditorMode.view;
 
+		const wrapperClassName = wrapperClassNames.join(' ');
 		this._wrapper = BX.create("div", { props: { className: wrapperClassName }});
 
 		if(this._schemeElement.isTitleEnabled())
@@ -3239,7 +3275,8 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			this._wrapper.appendChild(this._headerContainer);
 		}
 
-		this._wrapper.appendChild(this._contentContainer);
+		const content = BX.Tag.render`<div class="ui-entity-editor-section-content-wrapper">${this._contentContainer}</div>`;
+		this._wrapper.appendChild(content);
 
 		if(!BX.type.isPlainObject(options))
 		{
@@ -4668,13 +4705,20 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			fieldData["SETTINGS"] = settings;
 		}
 
+		fieldData['HELP_MESSAGE'] = params?.HELP_MESSAGE ?? '';
+
+		const additional = BX.prop.getObject(params, 'additional', {});
+		if (additional)
+		{
+			fieldData['ADDITIONAL'] = additional;
+		}
+
 		var showAlways = BX.prop.getBoolean(params, "showAlways", null);
 		var label = BX.prop.getString(params, "label", "");
 		var field = BX.prop.get(params, "field", null);
 
 		if(field)
 		{
-			var previousLabel = field.getTitle();
 			if(label !== "" || showAlways !== null)
 			{
 				field.setTitle(label);
@@ -4701,9 +4745,17 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			fieldData["FIELD"] = field.getName();
 			fieldData["ENTITY_VALUE_ID"] = field.getEntityValueId();
 
-			if(this._editor.getConfigScope() === BX.UI.EntityConfigScope.common && label !== '' && previousLabel !== label)
+			if(this._editor.getConfigScope() === BX.UI.EntityConfigScope.common && label !== '')
 			{
-				fieldData["EDIT_FORM_LABEL"] = fieldData["LIST_COLUMN_LABEL"] = fieldData["LIST_FILTER_LABEL"] = label;
+				fieldData['EDIT_FORM_LABEL'] = label;
+				fieldData['LIST_COLUMN_LABEL'] = label;
+				fieldData['LIST_FILTER_LABEL'] = label;
+			}
+			else
+			{
+				fieldData['EDIT_FORM_LABEL'] = field._schemeElement._originalTitle;
+				fieldData['LIST_COLUMN_LABEL'] = field._schemeElement._originalTitle;
+				fieldData['LIST_FILTER_LABEL'] = field._schemeElement._originalTitle;
 			}
 
 			fieldData["VALUE"] = field.getFieldValue();
@@ -5661,6 +5713,7 @@ if(typeof BX.UI.EntityEditorText === "undefined")
 					props: { className: "ui-entity-editor-content-block" },
 					text: BX.message("UI_ENTITY_EDITOR_FIELD_EMPTY")
 				});
+				BX.addClass(this._wrapper, "ui-entity-editor-content-block-click-empty");
 			}
 		}
 
@@ -7587,6 +7640,7 @@ if(typeof BX.UI.EntityEditorDatetime === "undefined")
 			if(!this.hasContentToDisplay())
 			{
 				value = BX.message("UI_ENTITY_EDITOR_FIELD_EMPTY");
+				BX.addClass(this._wrapper, "ui-entity-editor-content-block-click-empty");
 			}
 
 			this._innerWrapper = BX.create("div",
@@ -8078,6 +8132,7 @@ if(typeof BX.UI.EntityEditorList === "undefined")
 			if(!this.hasContentToDisplay())
 			{
 				text = BX.message("UI_ENTITY_EDITOR_FIELD_EMPTY");
+				BX.addClass(this._wrapper, "ui-entity-editor-content-block-click-empty");
 			}
 			else if(item)
 			{
@@ -10313,6 +10368,7 @@ if(typeof BX.UI.EntityEditorCustom === "undefined")
 					props: { className: "ui-entity-editor-content-block-text" },
 					text: BX.message("UI_ENTITY_EDITOR_FIELD_EMPTY")
 				}));
+			BX.addClass(this._wrapper, "ui-entity-editor-content-block-click-empty");
 		}
 
 		if(this.isContextMenuEnabled())

@@ -1,0 +1,20 @@
+<?php
+$MESS["FILE_BUCKET_ENTITY_ACTIVE_FIELD"] = "Белсенділік белгісі";
+$MESS["FILE_BUCKET_ENTITY_BUCKET_FIELD"] = "Бакет";
+$MESS["FILE_BUCKET_ENTITY_CNAME_FIELD"] = "Канондық атау";
+$MESS["FILE_BUCKET_ENTITY_FAILOVER_ACTIVE_FIELD"] = "Апат белгісі";
+$MESS["FILE_BUCKET_ENTITY_FAILOVER_BUCKET_ID_FIELD"] = "Резервтік қойма";
+$MESS["FILE_BUCKET_ENTITY_FAILOVER_COPY_FIELD"] = "Резервтік қоймаға көшіру жалауы";
+$MESS["FILE_BUCKET_ENTITY_FAILOVER_DELETE_DELAY_FIELD"] = "Жоюды кешіктіру";
+$MESS["FILE_BUCKET_ENTITY_FAILOVER_DELETE_FIELD"] = "Резервтік қоймадан жою жалауы";
+$MESS["FILE_BUCKET_ENTITY_FILE_COUNT_FIELD"] = "Файлдар саны";
+$MESS["FILE_BUCKET_ENTITY_FILE_RULES_FIELD"] = "Ережелер";
+$MESS["FILE_BUCKET_ENTITY_FILE_SIZE_FIELD"] = "Файлдардың жалпы өлшемі";
+$MESS["FILE_BUCKET_ENTITY_ID_FIELD"] = "Қойма идентификаторы";
+$MESS["FILE_BUCKET_ENTITY_LAST_FILE_ID_FIELD"] = "Соңғы қайта орналастырылған файлдың идентификаторы";
+$MESS["FILE_BUCKET_ENTITY_LOCATION_FIELD"] = "Бакет орналасуы";
+$MESS["FILE_BUCKET_ENTITY_PREFIX_FIELD"] = "Шектеуші бума";
+$MESS["FILE_BUCKET_ENTITY_READ_ONLY_FIELD"] = "Тек қана оқу үшін қолжетімділік белгісі";
+$MESS["FILE_BUCKET_ENTITY_SERVICE_ID_FIELD"] = "Бұлтты сервис идентификаторы";
+$MESS["FILE_BUCKET_ENTITY_SETTINGS_FIELD"] = "Баптаулар";
+$MESS["FILE_BUCKET_ENTITY_SORT_FIELD"] = "Сұрыптау мәні";

@@ -158,11 +158,11 @@ $getSenderItemContainer = function (array $letter = []) use ($arParams)
 	</script>
 
 	<?
-	$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' => array(
-		array('type' => 'buttons', 'list' => array(
-			array('type' => 'feedback')
-		)),
-	)));
+	$APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", ['LIST' => [
+		['type' => 'buttons', 'list' => [
+			['type' => 'feedback']
+		]],
+	]]);
 	?>
 
 	<div id="SENDER_TIME_DIALOG" class="sender-time-dialog">

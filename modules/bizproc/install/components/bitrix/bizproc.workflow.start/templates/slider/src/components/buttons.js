@@ -7,6 +7,7 @@ type StepId = string;
 export type ButtonsData = {
 	buttons: Object<StepId, Array<Button>>,
 	wrapper: HTMLElement,
+	currentStepId: ?StepId;
 };
 
 export class Buttons
@@ -58,7 +59,7 @@ export class Buttons
 
 			if (Type.isArrayFilled(this.#sequenceSteps))
 			{
-				this.#currentStepId = this.#sequenceSteps.at(0);
+				this.#currentStepId = config.currentStepId ?? this.#sequenceSteps.at(0);
 			}
 		}
 

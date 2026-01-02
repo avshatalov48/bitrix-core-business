@@ -11,14 +11,14 @@ export class Types extends ChildOption
 		options = {...{
 			isProject: false,
 			isExtranetGroup: false,
-			isExtranetInstalled: false,
+			isAllowCreateExtranetGroup: false,
 			isIntranetInstalled: false,
 			isLandingInstalled: false,
 		}, ...options};
 
 		this.isProject = options.isProject;
 		this.isExtranetGroup = options.isExtranetGroup;
-		this.isExtranetInstalled = options.isExtranetInstalled;
+		this.isAllowCreateExtranetGroup = options.isAllowCreateExtranetGroup;
 		this.isIntranetInstalled = options.isIntranetInstalled;
 		this.isLandingInstalled = options.isLandingInstalled;
 
@@ -70,7 +70,7 @@ export class Types extends ChildOption
 		const closeField = this.createCloseField(data);
 		result.push(Tag.render`${closeField.render()}`);
 
-		if (this.isExtranetInstalled)
+		if (this.isAllowCreateExtranetGroup)
 		{
 			const extranetField = this.createExtranetField(data);
 			result.push(Tag.render`${extranetField.render()}`);
@@ -93,13 +93,15 @@ export class Types extends ChildOption
 
 	createVisibleField(data)
 	{
+		const isCreatingExtranetGroup = this.isExtranetGroup && this.isAllowCreateExtranetGroup;
+
 		const visibleField = new CheckboxField({
 			fieldTitle: (this.isProject ? Loc.getMessage("SGCG_OPTIONS_PROJECT_TYPE_VISIBLE") :
 				Loc.getMessage("SGCG_OPTIONS_GROUP_TYPE_VISIBLE")),
 			fieldName: "visible",
 			validators: [],
-			checked: (data["VISIBLE"] === "Y" && !this.isExtranetGroup),
-			disabled: this.isExtranetGroup
+			checked: (data["VISIBLE"] === "Y" && !isCreatingExtranetGroup),
+			disabled: isCreatingExtranetGroup,
 		});
 
 		this.fields.add(visibleField);
@@ -118,13 +120,15 @@ export class Types extends ChildOption
 
 	createOpenedField(data)
 	{
+		const isCreatingExtranetGroup = this.isExtranetGroup && this.isAllowCreateExtranetGroup;
+
 		const openField = new CheckboxField({
 			fieldTitle: (this.isProject ? Loc.getMessage("SGCG_OPTIONS_PROJECT_TYPE_OPEN") :
 				Loc.getMessage("SGCG_OPTIONS_GROUP_TYPE_OPEN")),
 			fieldName: "opened",
 			validators: [],
-			checked: (data["OPENED"] === "Y" && !this.isExtranetGroup),
-			disabled: (data["VISIBLE"] !== "Y" || this.isExtranetGroup)
+			checked: (data["OPENED"] === "Y" && !isCreatingExtranetGroup),
+			disabled: (data["VISIBLE"] !== "Y" || isCreatingExtranetGroup),
 		});
 
 		this.fields.add(openField);
@@ -147,13 +151,15 @@ export class Types extends ChildOption
 
 	createCloseField(data)
 	{
+		const isCreatingExtranetGroup = this.isExtranetGroup && this.isAllowCreateExtranetGroup;
+
 		const closeField = new CheckboxField({
 			fieldTitle: (this.isProject ? Loc.getMessage("SGCG_OPTIONS_PROJECT_TYPE_CLOSED") :
 				Loc.getMessage("SGCG_OPTIONS_GROUP_TYPE_CLOSED")),
 			fieldName: "closed",
 			validators: [],
 			checked: (data["CLOSED"] === "Y"),
-			disabled: this.isExtranetGroup
+			disabled: isCreatingExtranetGroup,
 		});
 
 		this.fields.add(closeField);

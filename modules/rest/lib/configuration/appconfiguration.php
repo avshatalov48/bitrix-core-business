@@ -48,7 +48,7 @@ class AppConfiguration
 		$result = null;
 		$code = $event->getParameter('CODE');
 		if (
-			!static::$entityList[$code]
+			!isset(static::$entityList[$code])
 			|| !Manifest::isEntityAvailable($code, $event->getParameters(), static::$accessManifest)
 		)
 		{

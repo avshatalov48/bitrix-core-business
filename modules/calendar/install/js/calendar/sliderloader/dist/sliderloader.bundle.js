@@ -77,15 +77,17 @@ this.BX = this.BX || {};
 	        contentCallback: this.loadExtension.bind(this),
 	        label: {
 	          text: main_core.Loc.getMessage('CALENDAR_EVENT'),
-	          bgColor: "#55D0E0"
+	          bgColor: '#55D0E0'
 	        },
-	        type: 'calendar:slider'
+	        data: {
+	          type: 'calendar:slider'
+	        }
 	      });
 	    }
 	  }
 	  loadExtension(slider) {
 	    return new Promise(resolve => {
-	      const extensionName = 'calendar.' + this.extensionName.toLowerCase();
+	      const extensionName = `calendar.${this.extensionName.toLowerCase()}`;
 	      main_core.Runtime.loadExtension(extensionName).then(exports => {
 	        if (exports && exports[this.extensionName]) {
 	          const calendarForm = new exports[this.extensionName](this.extensionParams);

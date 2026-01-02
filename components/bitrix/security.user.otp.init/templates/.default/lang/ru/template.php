@@ -7,7 +7,7 @@ $MESS["SECURITY_OTP_DESCR"] = "Для защиты ваших данных мы 
  <br /><br />
 Защитите свои данные!";
 $MESS["SECURITY_OTP_CONNECT"] = "Подключите двухэтапную авторизацию прямо сейчас";
-$MESS["SECURITY_OTP_MOBILE"] = "Скачайте мобильное приложение Bitrix24 OTP";
+$MESS["SECURITY_OTP_MOBILE_MSGVER_1"] = "Скачайте мобильное приложение Bitrix OTP";
 $MESS["SECURITY_OTP_MOBILE_TMP"] = "Скачайте мобильное приложение FreeOTP или Google Authenticator";
 $MESS["SECURITY_OTP_MOBILE2"] = "для своего телефона из AppStore или GooglePlay";
 $MESS["SECURITY_OTP_MOBILE2_TMP"] = "для своего телефона из AppStore, GooglePlay";

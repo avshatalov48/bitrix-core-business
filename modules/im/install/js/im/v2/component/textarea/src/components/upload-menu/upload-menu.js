@@ -1,13 +1,16 @@
 import { Type } from 'main.core';
 import { GroupSharingController } from 'calendar.sharing.interface';
+import { BIcon, Outline as OutlineIcons } from 'ui.icon-set.api.vue';
+import { VoteApplication } from 'vote.application';
 
 import { Core } from 'im.v2.application.core';
-import { MessengerMenu, MenuItem, MenuItemIcon } from 'im.v2.component.elements';
-import { ActionByRole } from 'im.v2.const';
+import { MessengerMenu, MenuItem, MenuItemIcon } from 'im.v2.component.elements.menu';
+import { ActionByRole, ChatType, Color } from 'im.v2.const';
 import { EntityCreator } from 'im.v2.lib.entity-creator';
 import { Analytics } from 'im.v2.lib.analytics';
 import { Feature, FeatureManager } from 'im.v2.lib.feature';
 import { PermissionManager } from 'im.v2.lib.permission';
+import { Notifier } from 'im.v2.lib.notifier';
 
 import { DiskPopup } from './disk-popup';
 
@@ -24,11 +27,12 @@ type UploadMenuItem = {
 	showCondition?: boolean,
 }
 
+const ICON_SIZE = 24;
 const DOCUMENT_SIGN_SLIDER_URL = '/sign/doc/0/?chat_id=';
 
 // @vue/component
 export const UploadMenu = {
-	components: { MessengerMenu, MenuItem, DiskPopup },
+	components: { BIcon, MessengerMenu, MenuItem, DiskPopup },
 	props:
 	{
 		dialogId: {
@@ -46,6 +50,8 @@ export const UploadMenu = {
 	},
 	computed:
 	{
+		OutlineIcons: () => OutlineIcons,
+		ICON_SIZE: () => ICON_SIZE,
 		menuItems(): UploadMenuItem[]
 		{
 			return [
@@ -117,6 +123,10 @@ export const UploadMenu = {
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
+		chatType(): $Values<typeof ChatType>
+		{
+			return this.dialog.type;
+		},
 		chatId(): number
 		{
 			return this.dialog.chatId;
@@ -137,7 +147,21 @@ export const UploadMenu = {
 		},
 		isVoteCreationAvailable(): boolean
 		{
+			if (!VoteApplication?.canCreateVoteInChat(this.chatType))
+			{
+				return false;
+			}
+
 			return FeatureManager.isFeatureAvailable(Feature.voteCreationAvailable);
+		},
+		iconColor(): string
+		{
+			if (this.showMenu)
+			{
+				return Color.accentBlue;
+			}
+
+			return Color.gray40;
 		},
 	},
 	methods:
@@ -220,7 +244,7 @@ export const UploadMenu = {
 			}
 			catch (errors)
 			{
-				this.showNotification(this.loc('IM_TEXTAREA_UNKNOWN_ERROR'));
+				Notifier.onDefaultError();
 				console.error('ChatTextarea: UploadMenu: select slots error', errors);
 			}
 		},
@@ -231,27 +255,28 @@ export const UploadMenu = {
 		},
 		onCreateVoteClick(): void
 		{
-			const preparedUrl = `/bitrix/components/bitrix/voting.im.edit/slider.php?chatId=${this.chatId}`;
+			const analyticsInstance = Analytics.getInstance();
+			const analyticsParams = analyticsInstance.vote.getSerializedParams(this.dialogId);
+			const preparedUrl = `/bitrix/components/bitrix/voting.im.edit/slider.php?chatId=${this.chatId}&${analyticsParams}`;
 			BX.SidePanel.Instance.open(preparedUrl, {
 				cacheable: false,
-				width: 800,
+				width: 600,
 				allowChangeHistory: false,
 			});
+			Analytics.getInstance().chatEntities.onCreateVoteFromTextareaClick(this.dialogId);
 			this.showMenu = false;
-		},
-		showNotification(content: string)
-		{
-			BX.UI.Notification.Center.notify({ content });
 		},
 	},
 	template: `
-		<div
-			class="bx-im-textarea__icon --upload"
-			:class="{'--active': showMenu}"
-			:title="loc('IM_TEXTAREA_ICON_UPLOAD_TITLE')"
-			@click="onUploadButtonClick"
-			ref="upload"
-		>
+		<div ref="upload" class="bx-im-textarea__icon-container">
+			<BIcon
+				:name="OutlineIcons.ATTACH"
+				:title="loc('IM_TEXTAREA_ICON_UPLOAD_TITLE')"
+				:color="iconColor"
+				:size="ICON_SIZE"
+				class="bx-im-textarea__icon"
+				@click="onUploadButtonClick"
+			/>
 		</div>
 		<MessengerMenu v-if="showMenu" :config="menuConfig" @close="showMenu = false" className="bx-im-file-menu__scope">
 			<MenuItem

@@ -10,7 +10,7 @@ return [
 	'rel' => [
 		'main.polyfill.core',
 		'im.v2.component.list.items.channel',
-		'im.v2.component.elements',
+		'im.v2.component.list.container.elements.create-chat-promo',
 		'im.v2.const',
 		'im.v2.lib.analytics',
 		'im.v2.lib.logger',

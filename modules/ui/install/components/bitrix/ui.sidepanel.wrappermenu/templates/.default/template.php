@@ -9,11 +9,13 @@ use Bitrix\Main\UI\Extension;
 /** @var array $arParams*/
 
 Extension::load('ui.fonts.opensans');
+
+$airDesignClass = defined('AIR_SITE_TEMPLATE') ? 'ui-sidepanel-sidebar-air-template' : '';
 ?>
 
 <?php $this->SetViewTarget($arResult['VIEW_TARGET']) ?>
 
-<div <?if($arResult['ID']):?>id="<?=$arResult['ID']?>"<?endif;?> class="ui-sidepanel-sidebar">
+<div <?if($arResult['ID']):?>id="<?=$arResult['ID']?>"<?endif;?> class="ui-sidepanel-sidebar <?=$airDesignClass?>">
 	<?if(!empty($arResult['TITLE'])):?>
 		<div class="ui-sidepanel-head">
 			<h2 class="ui-sidepanel-title">

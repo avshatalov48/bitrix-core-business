@@ -24,6 +24,7 @@ return [
 		'landing.pageobject',
 		'main.loader',
 		'landing.ui.field.productfield',
+		'booking.crm-forms.settings', // do not remove this line, this is for BX.Booking.CrmForms.Settings
 		'calendar.resourcebookinguserfield',
 		'socnetlogdest',
 		'ui.hint',

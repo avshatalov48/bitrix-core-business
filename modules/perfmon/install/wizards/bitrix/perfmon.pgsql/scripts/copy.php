@@ -26,6 +26,7 @@ $wizard->IncludeWizardLang('scripts/convert.php', $lang);
 require_once $_SERVER['DOCUMENT_ROOT'] . $wizard->path . '/wizard.php';
 
 $myConnection = \Bitrix\Main\Application::getConnection();
+$mySqlHelper = $myConnection->getSqlHelper();
 $pgConnection = \Bitrix\Main\Application::getConnection($_REQUEST['connection']);
 
 $error = '';
@@ -74,7 +75,7 @@ else
 			}
 
 			$tableColumns = GetTableColumns($myConnection, $tableInfo['TABLE_NAME']);
-			$fullTextColumns = GetFullTextColumns($pgConnection, $tableInfo['TABLE_NAME']);
+			$fullTextColumns = $pgConnection->getTableFullTextFields($tableInfo['TABLE_NAME']);
 
 			$i = intval($tableInfo['REC_COUNT']);
 			$di = 0;
@@ -85,8 +86,8 @@ else
 				$strSelect = '
 					SELECT *
 					FROM ' . $tableInfo['TABLE_NAME'] . '
-					' . ($tableInfo['LAST_ID'] <> '' ? 'WHERE ' . $tableInfo['KEY_COLUMN'] . " > '" . $tableInfo['LAST_ID'] . "'" : '') . '
-					ORDER BY ' . $tableInfo['KEY_COLUMN'] . '
+					' . ($tableInfo['LAST_ID'] <> '' ? 'WHERE ' . $mySqlHelper->quote($tableInfo['KEY_COLUMN']) . " > '" . $tableInfo['LAST_ID'] . "'" : '') . '
+					ORDER BY ' . $mySqlHelper->quote($tableInfo['KEY_COLUMN']) . '
 					LIMIT ' . $pageSize . '
 				';
 			}
@@ -135,7 +136,7 @@ else
 					{
 						if (array_key_exists($key, $fullTextColumns))
 						{
-							$arSource[$key] = "'" . $pgConnection->getSqlHelper()->forSql($value, 900000) . "'";
+							$arSource[$key] = $pgConnection->getSqlHelper()->convertToFullText($value);
 						}
 						else
 						{
@@ -269,40 +270,6 @@ function GetTableColumns($myConnection, $tableName)
 	}
 
 	return $columns;
-}
-
-function GetFullTextColumns($pgConnection, $tableName)
-{
-	$fullTextColumns = [];
-
-	$sql = "
-		SELECT relname, indkey, pg_get_expr(pg_index.indexprs, pg_index.indrelid) full_text
-		FROM pg_class, pg_index
-		WHERE pg_class.oid = pg_index.indexrelid
-		AND pg_class.oid IN (
-			SELECT indexrelid
-			FROM pg_index, pg_class
-			WHERE pg_class.relname = '" . $pgConnection->getSqlHelper()->forSql($tableName) . "'
-			AND pg_class.oid = pg_index.indrelid
-		)
-	";
-	$res = $pgConnection->query($sql);
-	while ($row = $res->fetch())
-	{
-		if ($row['FULL_TEXT'])
-		{
-			$match = [];
-			if (preg_match_all('/,\s*([a-z0-9_]+)/i', $row['FULL_TEXT'], $match))
-			{
-				foreach ($match[1] as $i => $colName)
-				{
-					$fullTextColumns[mb_strtoupper($colName)] = true;
-				}
-			}
-		}
-	}
-
-	return $fullTextColumns;
 }
 
 function unquote($identifier)

@@ -6,6 +6,7 @@ use Bitrix\Main\AccessDeniedException;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Vote\EventTable;
 use Bitrix\Main;
@@ -79,37 +80,6 @@ class Controller extends \Bitrix\Vote\Base\Controller
 			//TODO decide what should we do with captcha in attaches
 			if ($this->attach->voteFor($request))
 			{
-				if (\Bitrix\Main\Loader::includeModule("pull"))
-				{
-					$result = array();
-					foreach ($this->attach["QUESTIONS"] as $question)
-					{
-						$result[$question["ID"]] = array(
-							"ANSWERS" => array()
-						);
-						foreach ($question["ANSWERS"] as $answer)
-						{
-							$result[$question["ID"]]["ANSWERS"][$answer["ID"]] = array(
-								"PERCENT" => $answer["PERCENT"],
-								"USERS" => [],
-								"COUNTER" => $answer["COUNTER"]
-							);
-						}
-					}
-					\CPullWatch::AddToStack("VOTE_".$this->attach["VOTE_ID"],
-						Array(
-							"module_id" => "vote",
-							"command" => "voting",
-							"params" => Array(
-								"VOTE_ID" => $this->attach["VOTE_ID"],
-								"AUTHOR_ID" => $this->getUser()->getId(),
-								"COUNTER" => $this->attach["COUNTER"],
-								"QUESTIONS" => $result
-							)
-						)
-					);
-				}
-
 				$this->sendJsonSuccessResponse(array(
 					"action" => $this->getAction(),
 					"data" => array(
@@ -154,47 +124,12 @@ class Controller extends \Bitrix\Vote\Base\Controller
 		$extras = array();
 		if ($eventId > 0)
 		{
-			$dbRes = EventTable::getList(array(
-				"select" => array(
-					"V_" => "*",
-					"Q_" => "QUESTION.*",
-					"A_" => "QUESTION.ANSWER.*",
-					"U_ID" => "USER.USER.ID",
-					"U_NAME" => "USER.USER.NAME",
-					"U_LAST_NAME" => "USER.USER.LAST_NAME",
-					"U_SECOND_NAME" => "USER.USER.SECOND_NAME",
-					"U_LOGIN" => "USER.USER.LOGIN",
-					"U_PERSONAL_PHOTO" => "USER.USER.PERSONAL_PHOTO",
-				),
-				"filter" => array(
-					"ID" => $eventId,
-					"VOTE_ID" => $attach["VOTE_ID"]
-				)
-			));
-			$questions = $attach["QUESTIONS"];
-			if ($dbRes && ($res = $dbRes->fetch()))
+			$userAnswersResult = $attach->getUserEventAnswers($eventId);
+			$stat = $userAnswersResult->stat;
+			$extras = $userAnswersResult->extras;
+			if ($userAnswersResult->userId)
 			{
-				$userId = $res["U_ID"];
-				$extras = array(
-					"VISIBLE" => $res["V_VISIBLE"],
-					"VALID" => $res["V_VALID"]
-				);
-				do
-				{
-					if (!array_key_exists($res["Q_QUESTION_ID"], $questions) ||
-						!array_key_exists($res["A_ANSWER_ID"], $questions[$res["Q_QUESTION_ID"]]["ANSWERS"]))
-						continue;
-					if (!array_key_exists($res["Q_QUESTION_ID"], $stat))
-						$stat[$res["Q_QUESTION_ID"]] = array();
-
-					$stat[$res["Q_QUESTION_ID"]][$res["A_ANSWER_ID"]] = array(
-						"EVENT_ID" => $res["A_ID"],
-						"EVENT_QUESTION_ID" => $res["Q_ID"],
-						"ANSWER_ID" => $res["A_ANSWER_ID"],
-						"ID" => $res["A_ID"], // delete this
-						"MESSAGE" => $res["A_MESSAGE"]
-					);
-				} while ($res = $dbRes->fetch());
+				$userId = $userAnswersResult->userId;
 			}
 		}
 		$this->sendJsonSuccessResponse(array(
@@ -295,10 +230,10 @@ class Controller extends \Bitrix\Vote\Base\Controller
 						new ExpressionField("CNT", "COUNT(*)")
 					),
 					"filter" => array(
-						"VOTE_ID" => $cacheParams["voteId"],
+						"=VOTE_ID" => $cacheParams["voteId"],
 						"!=VISIBLE" => "Y",
-						"VALID" => "Y",
-						"QUESTION.ANSWER.ANSWER_ID" => $cacheParams["answerId"],
+						"=VALID" => "Y",
+						"=QUESTION.ANSWER.ANSWER_ID" => $cacheParams["answerId"],
 					)
 				))->fetch();
 				$result["hiddenItems"] = $res["CNT"];
@@ -350,7 +285,7 @@ class Controller extends \Bitrix\Vote\Base\Controller
 					"ASC",
 					array("ID" => implode("|", $userIds)),
 					array(
-						"FIELDS" => array("ID", "NAME", "LAST_NAME", "SECOND_NAME", "LOGIN", "PERSONAL_PHOTO") +
+						"FIELDS" => ["ID", "NAME", "LAST_NAME", "SECOND_NAME", "LOGIN", "PERSONAL_PHOTO", "WORK_POSITION"] +
 							(IsModuleInstalled("mail") ? array("EXTERNAL_AUTH_ID") : array()),
 						"SELECT" => (IsModuleInstalled("extranet") ? array("UF_DEPARTMENT") : array())
 					)

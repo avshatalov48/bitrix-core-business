@@ -1,0 +1,23 @@
+<?php
+$MESS["MAIN_USER_PROFILE"] = "Профильді редакциялауға өту";
+$MESS["MAIN_WAIT"] = "күтіңіз...";
+$MESS["REQUIRED_FIELDS"] = "Толтыруға міндетті өрістер.";
+$MESS["SUP_GE_ADD_MORE_USERS"] = "Қосу";
+$MESS["SUP_GE_CAN_MAIL"] = "Топтағы жаңа жүгінулер туралы мәлімдемелерді алады";
+$MESS["SUP_GE_CAN_MAIL_UPDATE"] = "Топтағы жүгінулерді жаңарту туралы мәлімдемелерді алады";
+$MESS["SUP_GE_CAN_VIEW"] = "Топтың хабарламаларын көре алады";
+$MESS["SUP_GE_ERROR"] = "Қате";
+$MESS["SUP_GE_GROUP"] = "Топ";
+$MESS["SUP_GE_GROUPS_LIST"] = "Топтар тізімі";
+$MESS["SUP_GE_GROUP_TITLE"] = "Топ параметрлері";
+$MESS["SUP_GE_GROUP_USERS"] = "Пайдаланушылар";
+$MESS["SUP_GE_GROUP_USERS_TITLE"] = "Топтағы пайдаланушылар";
+$MESS["SUP_GE_IS_TEAM_GROUP"] = "Техникалық қолдау қызметкерлері тобы";
+$MESS["SUP_GE_NAME"] = "Топтың атауы";
+$MESS["SUP_GE_SORT"] = "Сұрыптау";
+$MESS["SUP_GE_TITLE_EDIT"] = "\"%GROUP_NAME%\" тобын редакциялау";
+$MESS["SUP_GE_TITLE_NEW"] = "Жаңа топты қосу";
+$MESS["SUP_GE_USER"] = "Пайдаланушы";
+$MESS["SUP_GE_USERGROUPS_ADD"] = "Пайдаланушыны топқа қосу";
+$MESS["SUP_GE_USERGROUPS_LIST"] = "Топ пайдаланушыларының тізімі";
+$MESS["SUP_GE_XML_ID"] = "XML_ID";

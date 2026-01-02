@@ -6779,28 +6779,6 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 	this.popupMessengerTopLine = BX.create("div", { props : { className : "bx-messenger-box-topline"}});
 	this.popupMessengerContent.insertBefore(this.popupMessengerTopLine, this.popupMessengerContent.firstChild);
 
-	if (false && !BX.MessengerCommon.isDesktop() && this.BXIM.bitrixIntranet && this.BXIM.platformName != '' && this.BXIM.settings.bxdNotify)
-	{
-		clearTimeout(this.popupMessengerDesktopTimeout);
-		this.popupMessengerDesktopTimeout = setTimeout(BX.delegate(function(){
-			var acceptButton = BX.delegate(function(){
-				window.open(BX.browser.IsMac()? "http://dl.bitrix24.com/b24/bitrix24_desktop.dmg": "http://dl.bitrix24.com/b24/bitrix24_desktop.exe", "desktopApp");
-				this.BXIM.settings.bxdNotify = false;
-				this.BXIM.saveSettings({'bxdNotify': this.BXIM.settings.bxdNotify});
-				this.hideTopLine();
-			}, this);
-			var declineButton = BX.delegate(function(){
-				this.BXIM.settings.bxdNotify = false;
-				this.BXIM.saveSettings({'bxdNotify': this.BXIM.settings.bxdNotify});
-				this.hideTopLine();
-			}, this);
-			this.showTopLine(BX.message('IM_DESKTOP_INSTALL').replace('#WM_NAME#', BX.message('IM_WM')).replace('#OS#', this.BXIM.platformName), [
-				{title: BX.message('IM_DESKTOP_INSTALL_Y'), callback: acceptButton},
-				{title: BX.message('IM_DESKTOP_INSTALL_N'), callback: declineButton}
-			], false);
-		}, this), 15000);
-	}
-
 	this.textareaIconPrepare();
 
 	BX.MessengerCommon.userListRedraw();
@@ -19679,27 +19657,6 @@ BX.IM.Desktop.prototype.onWakeAction = function ()
 	BX.desktop.setIconStatus('offline');
 
 	this.BXIM.messenger.toggleDarkTheme();
-
-	BX.MessengerCommon.checkInternetConnection(function()
-	{
-		var initDate = BXIM.desktop.initDate;
-		var curDate = new Date();
-		if (
-			initDate.getDate()+''+initDate.getMonth()+''+initDate.getFullYear()
-			== curDate.getDate()+''+curDate.getMonth()+''+curDate.getFullYear()
-		)
-		{
-			BX.PULL.restart();
-		}
-		else
-		{
-			BX.desktop.windowReload();
-		}
-	},
-	BX.delegate(function()
-	{
-		BX.desktop.login();
-	}, this), 10)
 }
 
 BX.IM.Desktop.prototype.onApplicationClick = function ()
@@ -22592,6 +22549,11 @@ MessengerLimit.prototype.disableExtensions = function()
 	// }
 
 	if (!BX.desktop)
+	{
+		return true;
+	}
+
+	if (!BX.desktop.getBackgroundImage)
 	{
 		return true;
 	}

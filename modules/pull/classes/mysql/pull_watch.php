@@ -13,6 +13,7 @@ class CPullWatch extends CAllPullWatch
 
 		$strSql = "DELETE FROM b_pull_watch WHERE DATE_CREATE < " . $connection->getSqlHelper()->addSecondsToDateTime(-32 * 60);
 		$result = $DB->Query($strSql);
+		CAllPullWatch::cleanCache();
 
 		if (
 			$result

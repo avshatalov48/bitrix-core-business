@@ -501,7 +501,7 @@ class EditorMail
 												<td valign="top" class="" style="padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 10px;">
 													<a
 														class="bxBlockContentSocial"
-														href="http://vk.com/"
+														href="http://vk.ru/"
 														target="_blank"
 														style="font-weight: bold; color: #626262; letter-spacing: normal;line-height: 100%;text-align: center; text-decoration: underline; font-size: 12px;"
 													>' . Loc::getMessage('BLOCK_EDITOR_BLOCK_SOCIAL_VK') . '</a>
@@ -511,6 +511,7 @@ class EditorMail
 										</table>
 										' : '') . '
 
+										' . (Editor::isNotAvailableInRussian() ? '
 										<table align="left" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate !important; margin-right: 10px;">
 										<tbody>
 											<tr>
@@ -540,6 +541,7 @@ class EditorMail
 											</tr>
 										</tbody>
 										</table>
+										' : '') . '
 
 										' . (!Editor::isAvailableRussian() ? '
 										<table align="left" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate !important; margin-right: 10px;">

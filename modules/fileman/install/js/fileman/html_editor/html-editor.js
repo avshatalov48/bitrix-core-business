@@ -407,9 +407,6 @@
 				BX.addCustomEvent(this, "OnIframeSetValue", BX.proxy(this.AutoResizeSceleton, this));
 				BX.addCustomEvent(this, "OnFocus", BX.proxy(this.AutoResizeSceleton, this));
 				BX.addCustomEvent(this, "OnSetViewAfter", BX.proxy(this.AutoResizeSceleton, this));
-				new ResizeObserver(() => {
-					this.ResizeSceleton(this.dom.toolbarCont.offsetWidth);
-				}).observe(this.dom.toolbarCont);
 			}
 
 			BX.addCustomEvent(this, "OnIframeKeyup", BX.proxy(this.CheckBodyHeight, this));

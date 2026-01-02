@@ -2,13 +2,15 @@
 
 namespace Bitrix\Bizproc\Workflow;
 
+use Bitrix\Bizproc\Api\Service\WorkflowStateService;
+use Bitrix\Bizproc\UI\Helpers\DurationFormatter;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowMetadataTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
 use Bitrix\Bizproc\Workflow\Task\TimelineTask;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SystemException;
-use Bitrix\Main\Type\DateTime;
+use Bitrix\Bizproc\Api\Request\WorkflowStateService\GetExecutionTimeRequest;
 
 class Timeline implements \JsonSerializable
 {
@@ -69,19 +71,14 @@ class Timeline implements \JsonSerializable
 
 	public function getExecutionTime(): ?int
 	{
-		if ($this->workflow->getStarted() === null)
-		{
-			return null;
-		}
-
-		if ($this->isWorkflowRunning())
-		{
-			return (new DateTime())->getTimestamp() - $this->workflow->getStarted()->getTimestamp();
-		}
-		else
-		{
-			return $this->workflow->getModified()->getTimestamp() - $this->workflow->getStarted()->getTimestamp();
-		}
+		$workflowStateService = new WorkflowStateService();
+		return $workflowStateService->getExecutionTime(
+			new GetExecutionTimeRequest(
+				workflowId: $this->workflow->getId(),
+				workflowStarted: $this->workflow->getStarted(),
+				workflowModified: $this->workflow->getModified(),
+			)
+		)->getRoundedExecutionTime();
 	}
 
 	public function getTimeToStart(): ?int
@@ -94,7 +91,13 @@ class Timeline implements \JsonSerializable
 			->fetchObject()
 		;
 
-		return $metadata?->getStartDuration();
+		$startDuration = $metadata?->getStartDuration();
+		if ($startDuration)
+		{
+			return DurationFormatter::roundTimeInSeconds($startDuration, 2);
+		}
+
+		return null;
 	}
 
 	/**

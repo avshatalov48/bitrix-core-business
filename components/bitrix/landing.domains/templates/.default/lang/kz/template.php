@@ -1,0 +1,11 @@
+<?php
+$MESS["LANDING_TPL_ACTION_ADD"] = "Жаңа";
+$MESS["LANDING_TPL_ACTION_DELETE"] = "Жою";
+$MESS["LANDING_TPL_ACTION_EDIT"] = "Өзгерту";
+$MESS["LANDING_TPL_COL_ACTIVE"] = "Белс.";
+$MESS["LANDING_TPL_COL_ACT_N"] = "Жоқ";
+$MESS["LANDING_TPL_COL_ACT_Y"] = "Иә";
+$MESS["LANDING_TPL_COL_CREATED"] = "Жасалды";
+$MESS["LANDING_TPL_COL_DOMAIN"] = "Домен";
+$MESS["LANDING_TPL_COL_MODIFIED"] = "Өзгертілді";
+$MESS["LANDING_TPL_TITLE"] = "Домендер тізімі";

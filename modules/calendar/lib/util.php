@@ -128,40 +128,7 @@ class Util
 
 	public static function checkRuZone(): bool
 	{
-		if (!is_null(self::$isRussian))
-		{
-			return self::$isRussian;
-		}
-
-		if (\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
-		{
-			self::$isRussian = (\CBitrix24::getPortalZone() === 'ru');
-		}
-		else
-		{
-			$iterator = LanguageTable::getList([
-				'select' => ['ID'],
-				'filter' => ['=ID' => 'ru', '=ACTIVE' => 'Y']
-			]);
-
-			$row = $iterator->fetch();
-			if (empty($row))
-			{
-				self::$isRussian = false;
-			}
-			else
-			{
-				$iterator = LanguageTable::getList([
-					'select' => ['ID'],
-					'filter' => ['@ID' => ['ua', 'by', 'kz'], '=ACTIVE' => 'Y'],
-					'limit' => 1
-				]);
-				$row = $iterator->fetch();
-				self::$isRussian = empty($row);
-			}
-		}
-
-		return self::$isRussian;
+		return in_array(Application::getInstance()->getLicense()->getRegion(), ['ru', 'by', 'kz', 'uz'], true);
 	}
 
 	public static function convertEntitiesToCodes($entityList = [])
@@ -375,16 +342,10 @@ class Util
 		return null;
 	}
 
-	/**
-	 * @param PushCommand $command
-	 * @param int $userId
-	 * @param array $params
-	 * @return void
-	 * @throws LoaderException
-	 */
 	public static function addPullEvent(PushCommand $command, int $userId, array $params = []): void
 	{
-		if (!Loader::includeModule("pull"))
+		/** @noinspection PhpUnhandledExceptionInspection */
+		if (!Loader::includeModule('pull'))
 		{
 			return;
 		}

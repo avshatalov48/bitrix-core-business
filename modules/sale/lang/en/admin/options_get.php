@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SPSG_ACT_PROP"] = "Handler properties";
 $MESS["SPSG_TYPE"] = "Type";
 $MESS["SPSG_OTHER"] = "Other value";
@@ -62,4 +62,3 @@ $MESS["SOG_F_HOUSE"] = "#";
 $MESS["SOG_F_FLAT"] = "Apt.";
 $MESS["SO_ADIT_1C_PARAMS"] = "Additional parameters (passed to 1C as order properties)";
 $MESS["SPSG_ADD"] = "More";
-?>

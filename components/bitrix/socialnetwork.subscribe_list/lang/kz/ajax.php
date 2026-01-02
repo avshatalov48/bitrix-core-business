@@ -1,0 +1,20 @@
+<?php
+$MESS["SUBSCRIBE_NAME1_blog"] = "Есептер";
+$MESS["SUBSCRIBE_NAME1_calendar"] = "Күнтізбе";
+$MESS["SUBSCRIBE_NAME1_files"] = "Файлдар";
+$MESS["SUBSCRIBE_NAME1_forum"] = "Тілдесу";
+$MESS["SUBSCRIBE_NAME1_photo"] = "Фото";
+$MESS["SUBSCRIBE_NAME1_tasks"] = "Міндеттер";
+$MESS["SUBSCRIBE_NAME_blog"] = "Блог";
+$MESS["SUBSCRIBE_NAME_calendar"] = "Күнтізбе";
+$MESS["SUBSCRIBE_NAME_files"] = "Файлдар";
+$MESS["SUBSCRIBE_NAME_forum"] = "Форум";
+$MESS["SUBSCRIBE_NAME_photo"] = "Фото";
+$MESS["SUBSCRIBE_NAME_tasks"] = "Міндеттер";
+$MESS["SUBSCRIBE_TRANSPORT_DIGEST"] = "Күнделікті дайджест";
+$MESS["SUBSCRIBE_TRANSPORT_DIGEST_WEEK"] = "Апта сайынғы дайджест";
+$MESS["SUBSCRIBE_TRANSPORT_MAIL"] = "e-mail бойынша мәлімдеме";
+$MESS["SUBSCRIBE_TRANSPORT_NONE"] = "Мәлімдемеу";
+$MESS["SUBSCRIBE_TRANSPORT_XMPP"] = "Жедел хабарлама";
+$MESS["SUBSCRIBE_VISIBLE_HIDDEN"] = "Жасыру";
+$MESS["SUBSCRIBE_VISIBLE_VISIBLE"] = "Көрсету";

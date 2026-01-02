@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IB_E_TAB1"] = "Свойство детально";
 $MESS["IB_E_TAB1_T"] = "Настройка свойства информационного блока";
 $MESS["IB_E_TAB2"] = "Инфоблок";
@@ -78,6 +78,7 @@ $MESS["IB_E_SECTION_CHOOSER_DROPDOWNS"] = "Выпадающие списки";
 $MESS["IB_E_SECTION_CHOOSER_POPUP"] = "Окно поиска";
 $MESS["IB_E_FILE_BEFORE"] = "Файл для редактирования элемента, позволяющий модифицировать поля перед сохранением:";
 $MESS["IB_E_FILE_AFTER"] = "Файл с формой редактирования элемента:";
+$MESS['IB_E_FILE_FIELD_HINT'] = "Для изменения этой настройки необходимы права администратора";
 $MESS["IB_E_DESCRIPTION"] = "Описание:";
 $MESS["IB_E_DESCRIPTION_TYPE"] = "Тип описания:";
 $MESS["IB_E_DESCRIPTION_TYPE_TEXT"] = "text";
@@ -271,4 +272,4 @@ $MESS["IB_E_PROP_BASE_TYPE_GROUP"] = "Базовые типы";
 $MESS["IB_E_PROP_USER_TYPE_GROUP"] = "Пользовательские типы";
 $MESS["IBLOCK_BACK_TO_ADMIN"] = "Вернуться в список информационных блоков";
 $MESS["IB_E_FIELD_TEXT_TYPE_ALLOW_CHANGE"] = "Разрешить переключаться между text и html.";
-?>
+

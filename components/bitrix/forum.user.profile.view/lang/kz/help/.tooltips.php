@@ -1,0 +1,22 @@
+<?php
+$MESS["CACHE_TIME_TIP"] = "Кештеу уақыты (сек.)";
+$MESS["CACHE_TYPE_TIP"] = "Кештеу түрі";
+$MESS["DATE_FORMAT_TIP"] = "Күнді көрсету пішімі";
+$MESS["DATE_TIME_FORMAT_TIP"] = "Күн мен уақытты көрсету пішімі";
+$MESS["FID_RANGE_TIP"] = "Форумның ID-і";
+$MESS["SEND_ICQ_TIP"] = "ICQ нөмірін профильде көре алады";
+$MESS["SEND_MAIL_TIP"] = "Профильден хат (e-mail) жіберуге болады";
+$MESS["SET_NAVIGATION_TIP"] = "Навигацияны көрсету";
+$MESS["SET_TITLE_TIP"] = "Парақшалар тақырыпттарын орнату";
+$MESS["SHOW_RATING_TIP"] = "Рейтингті шығару";
+$MESS["UID_TIP"] = "Пайдаланушының ID-і";
+$MESS["URL_TEMPLATES_MESSAGE_SEND_TIP"] = "Хабарлама жіберу парақшасы";
+$MESS["URL_TEMPLATES_MESSAGE_TIP"] = "Хабарламаны оқу парақшасы";
+$MESS["URL_TEMPLATES_PM_EDIT_TIP"] = "Жеке хабарламаларды жасау (редакциялау) парақшасы";
+$MESS["URL_TEMPLATES_PM_LIST_TIP"] = "Жеке хабарламалар парақшасы";
+$MESS["URL_TEMPLATES_PROFILE_TIP"] = "Профильді редакциялау парақшасы";
+$MESS["URL_TEMPLATES_READ_TIP"] = "Тақырыпты оқу парақшасы";
+$MESS["URL_TEMPLATES_SUBSCR_LIST_TIP"] = "Жазылу парақшасы";
+$MESS["URL_TEMPLATES_USER_LIST_TIP"] = "Форумның тіркелген пайдаланушылар тізімі парақшасы";
+$MESS["URL_TEMPLATES_USER_POST_TIP"] = "Пайдаланушының хабарламалар парақшасы";
+$MESS["USER_PROPERTY_TIP"] = "Қосымша қасиеттерді көрсету";

@@ -12,7 +12,13 @@ use CSocNetUserToGroup;
 
 trait AddMemberTrait
 {
-	private function addMembers(int $groupId, int $initiatorId, string $role, int ...$members): HandlerResult
+	private function addMembers(
+		int $groupId,
+		int $initiatorId,
+		string $role,
+		?string $initiatedByType,
+		int ...$members,
+	): HandlerResult
 	{
 		$handlerResult = new HandlerResult();
 
@@ -31,7 +37,7 @@ trait AddMemberTrait
 				'ROLE' => $role,
 				'DATE_CREATE' => new DateTime(),
 				'DATE_UPDATE' => new DateTime(),
-				'INITIATED_BY_TYPE' => UserToGroupTable::INITIATED_BY_GROUP,
+				'INITIATED_BY_TYPE' => $initiatedByType ?? UserToGroupTable::INITIATED_BY_GROUP,
 				'INITIATED_BY_USER_ID' => $initiatorId,
 			];
 

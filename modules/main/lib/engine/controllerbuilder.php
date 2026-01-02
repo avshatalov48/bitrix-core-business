@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Engine;
 
 
@@ -12,6 +13,7 @@ final class ControllerBuilder
 		{
 			$scope = $options['scope'] ?? Controller::SCOPE_AJAX;
 			$currentUser = $options['currentUser'] ?? CurrentUser::get();
+			$request = $options['request'] ?? null;
 
 			$reflectionClass = new \ReflectionClass($controllerClass);
 			if ($reflectionClass->isAbstract())
@@ -27,7 +29,7 @@ final class ControllerBuilder
 			/** @var Controller $controller */
 			/** @see \Bitrix\Main\Engine\Controller::__construct */
 			/** @see \Bitrix\Main\Engine\Controller::forward */
-			$controller = $reflectionClass->newInstance();
+			$controller = $reflectionClass->newInstance($request);
 			$controller->setScope($scope);
 			$controller->setCurrentUser($currentUser);
 

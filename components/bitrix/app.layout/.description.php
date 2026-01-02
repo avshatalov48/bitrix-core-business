@@ -16,7 +16,7 @@ $arComponentDescription = array(
 		"ID" => "content",
 		"CHILD" => array(
 			"ID" => "b24marketplace",
-			"NAME" => Loc::getMessage("RMP_PATH_B24MP_DESCR_2"),
+			"NAME" => \Bitrix\Rest\Integration\Market\Label::isRenamedMarket() ? Loc::getMessage("RMP_PATH_B24MP_DESCR_2_MSGVER_1") : Loc::getMessage("RMP_PATH_B24MP_DESCR_2_MSGVER_2"),
 		)
 	),
 //	"CACHE_PATH" => "Y",

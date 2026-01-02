@@ -53,6 +53,7 @@ export default class UploaderFile extends EventEmitter
 	#errors: UploaderError[] = [];
 	#progress: number = 0;
 	#customData: Object<string, any> = Object.create(null);
+	#viewerAttrs: Object<string, string> | null = null;
 
 	#uploadController: AbstractUploadController = null;
 	#loadController: AbstractLoadController = null;
@@ -508,6 +509,7 @@ export default class UploaderFile extends EventEmitter
 
 			this.setDownloadUrl(options.downloadUrl);
 			this.setCustomData(options.customData);
+			this.setViewerAttrs(options.viewerAttrs);
 
 			this.setLoadController(options.loadController);
 			this.setUploadController(options.uploadController);
@@ -877,6 +879,20 @@ export default class UploaderFile extends EventEmitter
 		return undefined;
 	}
 
+	setViewerAttrs(viewerAttrs: Object | null): void
+	{
+		if (Type.isNull(viewerAttrs) || Type.isPlainObject(viewerAttrs))
+		{
+			this.#viewerAttrs = viewerAttrs;
+			this.emit(FileEvent.STATE_CHANGE, { property: 'viewerAttrs', value: viewerAttrs });
+		}
+	}
+
+	getViewerAttrs(): Object<string, string> | null
+	{
+		return this.#viewerAttrs;
+	}
+
 	toJSON(): UploaderFileInfo
 	{
 		return {
@@ -910,6 +926,7 @@ export default class UploaderFile extends EventEmitter
 			serverPreviewHeight: this.getServerPreviewHeight(),
 			downloadUrl: this.getDownloadUrl(),
 			customData: this.getCustomData(),
+			viewerAttrs: this.getViewerAttrs(),
 		};
 	}
 }

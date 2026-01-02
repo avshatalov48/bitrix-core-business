@@ -14,6 +14,7 @@ class UserPopupItem implements PopupDataItem
 	public function __construct(array $userIds = [])
 	{
 		$this->userIds = array_unique($userIds);
+		$this->userIds = array_filter($this->userIds, fn($userId) => $userId > 0);
 	}
 
 	public function merge(PopupDataItem $item): self

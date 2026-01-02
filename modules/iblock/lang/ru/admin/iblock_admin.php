@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_ADM_UPD_ERROR"] = "Ошибка изменения записи:";
 $MESS["IBLOCK_ADM_HEADER_EL"] = "Элементов";
 $MESS["IBLOCK_ADM_HEADER_SECT"] = "Разделов";
@@ -42,4 +42,3 @@ $MESS["MAIN_ADMIN_MENU_DELETE"] = "Удалить";
 $MESS["MAIN_ADMIN_LIST_DELETE"] = "удалить";
 $MESS["MAIN_ADMIN_LIST_ACTIVATE"] = "активировать";
 $MESS["MAIN_ADMIN_LIST_DEACTIVATE"] = "деактивировать";
-?>

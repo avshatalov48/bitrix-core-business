@@ -1,0 +1,26 @@
+<?php
+$MESS["SALE_COLLISION_TYPE_BEFORE_UPDATE_PAYMENT_DELETED_ERROR"] = "Тапсырысты 1С-тен синхрондау қатесі. Тапсырысты жаңарту мүмкін емес. Төлемдерді жойған кезде жүктеп шығаруға кірмеген төлемдер жойылмады";
+$MESS["SALE_COLLISION_TYPE_BEFORE_UPDATE_SHIPMENT_DELETED_ERROR"] = "Тапсырысты 1С-тен синхрондау қатесі. Тапсырысты жаңарту мүмкін емес. Тапсырысты жаңарту мүмкін емес. Жөнелтімдерді жойған кезде жүктеп шығаруға кірмеген жөнелтімдер жойылмады";
+$MESS["SALE_COLLISION_TYPE_ORDER_BASKET_ITEMS_CURRENCY_MODIFY"] = "Тапсырыстың кестелік бөлігін толтыру кезінде валюталарды айырбастау жүргізілді";
+$MESS["SALE_COLLISION_TYPE_ORDER_BASKET_ITEM_TAX_VALUE_ERROR"] = "Каталогтағы салық мөлшерлемесі тауардың алмасу мөлшерлемесімен сәйкес келмейді.";
+$MESS["SALE_COLLISION_TYPE_ORDER_BASKET_ITEM_TYPE_ERROR"] = "Тапсырыстың кестелік бөлігін толтыру кезінде позиция жүктелмеді: ";
+$MESS["SALE_COLLISION_TYPE_ORDER_FINAL_STATUS"] = "Тапсырыс финалдық мәртебеде. Тапсырысты өзгерту мүмкін емес.";
+$MESS["SALE_COLLISION_TYPE_ORDER_IS_PAYED"] = "Тапсырыс толықтай төленді. Тапсырысты өзгерту мүмкін емес.";
+$MESS["SALE_COLLISION_TYPE_ORDER_IS_SHIPPED"] = "Тапсырыс толықтай жөнелтілді. Тапсырысты өзгерту мүмкін емес.";
+$MESS["SALE_COLLISION_TYPE_ORDER_PAYED_BY_STATUS_ERROR"] = "Жаңарту процесінде тапсырыстың толық төлем мәртебесі алынды. 1С тарапынан берілген төлем құжаттары тапсырысты толық сомаға төлемейді";
+$MESS["SALE_COLLISION_TYPE_ORDER_PAYMENT_DELETED"] = "Жүктеп шығаруға кірмеген төлемдер жойылды";
+$MESS["SALE_COLLISION_TYPE_ORDER_PAYMENT_DELETED_ERROR"] = "Жүктеп шығаруға кірмеген төлемді жою мүмкін болады.";
+$MESS["SALE_COLLISION_TYPE_ORDER_SHIPMENT_DELETED"] = "Жүктеп шығаруға кірмеген жөнелтімдер жойылды";
+$MESS["SALE_COLLISION_TYPE_ORDER_SHIPMENT_DELETED_ERROR"] = "Жүктеп шығаруға кірмеген жөнелтімді жою мүмкін болады.";
+$MESS["SALE_COLLISION_TYPE_ORDER_SHIPMENT_ITEMS_MODIFY"] = "Тапсырысты жаңарту процесінде жөнелтімдер өзгертілді.";
+$MESS["SALE_COLLISION_TYPE_ORDER_SHIPMENT_ITEMS_MODIFY_ERROR"] = "Себеттен позицияны алып тастаған кезде, жөнелтімдегі позицияларды жою мүмкін болмады.";
+$MESS["SALE_COLLISION_TYPE_ORDER_SHIPPED_BY_STATUS_ERROR"] = "Жаңарту процесінде тапсырыстың толық жөнелту мәртебесі алынды. 1С тарапынан жіберілген жөнелту құжаттары тапсырысты толығымен жөнелтпейді";
+$MESS["SALE_COLLISION_TYPE_ORDER_SYNCHRONIZE_BASKET_ITEMS_MODIFY"] = "Себетті жаңарту процесінде тауарлардың бір бөлігі жөнелтімдерден алынып тасталды";
+$MESS["SALE_COLLISION_TYPE_ORDER_SYNCHRONIZE_BASKET_ITEMS_MODIFY_ERROR"] = "Себетті жаңарту процесінде қателер орын алды.";
+$MESS["SALE_COLLISION_TYPE_PAYMENT_CASH_BOX_CHECK_NOT_FOUND"] = "1С-тен чек бойынша деректер берілді, бірақ ол жүйеде идентификацияланбады. Чек жүйеде тіркелмеген";
+$MESS["SALE_COLLISION_TYPE_PAYMENT_IS_PAYED"] = "Төлем толықтай жасалды. Төлемді өзгерту мүмкін емес.";
+$MESS["SALE_COLLISION_TYPE_SHIPMENT_BASKET_ITEMS_MODIFY"] = "Жөнелтуді жаңарту процесінде жөнелтімдердің бір бөлігі өзгертілді.";
+$MESS["SALE_COLLISION_TYPE_SHIPMENT_BASKET_ITEMS_MODIFY_ERROR"] = "Жөнелтімдердегі мөлшерді синхрондау мүмкін болмады.";
+$MESS["SALE_COLLISION_TYPE_SHIPMENT_BASKET_ITEM_NOT_FOUND"] = "Жөнелтуге тапсырыс құрамына кірмейтін тауарды қосу әрекеті.";
+$MESS["SALE_COLLISION_TYPE_SHIPMENT_BASKET_ITEM_QUANTITY_ERROR"] = "Жөнелтімдегі тауар санын тапсырыста жөнелтілмегеннен асатын мөлшерге дейін үлкейту әрекеті.";
+$MESS["SALE_COLLISION_TYPE_SHIPMENT_IS_SHIPPED"] = "Жөнелтім толықтай жөнелтілді. Жөнелтуді өзгерту мүмкін емес.";

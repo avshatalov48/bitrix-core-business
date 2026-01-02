@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix\Socialnetwork\Collab\Entity\Event;
 
-use Bitrix\Im\V2\Integration\Socialnetwork\Collab;
+use Bitrix\Im\V2\Integration\Socialnetwork\Collab\Collab;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Event;
@@ -32,6 +32,7 @@ use Bitrix\Socialnetwork\Collab\Provider\CollabProvider;
 use Bitrix\Socialnetwork\Collab\Log\Entry\CopyInvitationLinkLogEntry;
 use Bitrix\Socialnetwork\Collab\Registry\CollabRegistry;
 use Bitrix\Socialnetwork\Collab\User\Stepper\SendCollabLeaveMessageStepper;
+use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\Integration\Disk\ObjectType;
 use Bitrix\Socialnetwork\Integration\Tasks\TaskStatus;
 
@@ -344,7 +345,7 @@ final class EventDispatcher
 
 		ActionMessageFactory::getInstance()
 			->getActionMessage(ActionType::CopyLink, $collabId, $userId)
-			->runAction()
+			->send()
 		;
 
 		$logEntry = new CopyInvitationLinkLogEntry(userId: $userId, collabId: $collabId);
@@ -364,7 +365,7 @@ final class EventDispatcher
 
 		ActionMessageFactory::getInstance()
 			->getActionMessage(ActionType::RegenerateLink, $collabId, $userId)
-			->runAction()
+			->send()
 		;
 	}
 

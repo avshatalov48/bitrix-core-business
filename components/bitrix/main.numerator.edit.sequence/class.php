@@ -23,7 +23,7 @@ class MainNumeratorEditSequence extends CBitrixComponent implements \Bitrix\Main
 	/** @inheritdoc */
 	public function executeComponent()
 	{
-		if ($this->arParams['IS_SLIDER'] || $this->request->get('IFRAME'))
+		if ((isset($this->arParams['IS_SLIDER']) && $this->arParams['IS_SLIDER']) || $this->request->get('IFRAME'))
 		{
 			$this->arResult['IS_SLIDER'] = true;
 		}

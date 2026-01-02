@@ -1,10 +1,11 @@
 <?php
+
 namespace Bitrix\Iblock;
 
-use Bitrix\Main\ORM\Fields\Validators;
 use Bitrix\Main;
-use Bitrix\Main\ORM;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM;
+use Bitrix\Main\ORM\Fields\Validators;
 
 /**
  * Class ElementTable
@@ -388,7 +389,7 @@ class ElementTable extends ORM\Data\DataManager
 	/**
 	 * Add iblock element.
 	 *
-	 * @param array $data			Element data.
+	 * @param array $data Element data.
 	 * @return ORM\Data\AddResult
 	 */
 	public static function add(array $data): ORM\Data\AddResult
@@ -404,8 +405,8 @@ class ElementTable extends ORM\Data\DataManager
 	/**
 	 * Updates iblock element by primary key.
 	 *
-	 * @param mixed $primary		Element primary key.
-	 * @param array $data			Element data.
+	 * @param mixed $primary Element primary key.
+	 * @param array $data Element data.
 	 * @return ORM\Data\UpdateResult
 	 */
 	public static function update($primary, array $data): ORM\Data\UpdateResult
@@ -421,7 +422,7 @@ class ElementTable extends ORM\Data\DataManager
 	/**
 	 * Deletes iblock element by primary key.
 	 *
-	 * @param mixed $primary		Element primary key.
+	 * @param mixed $primary Element primary key.
 	 * @return ORM\Data\DeleteResult
 	 */
 	public static function delete($primary): ORM\Data\DeleteResult

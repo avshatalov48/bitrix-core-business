@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 /**
@@ -27,27 +28,28 @@ use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\UserTable;
 use Bitrix\Main\UserGroupTable;
-use Bitrix\Main\Entity\Query;
+use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\DB\SqlExpression;
-use Bitrix\Main\Entity\ExpressionField;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Type\DateTime;
 
 IncludeModuleLangFile(__FILE__);
 
-//authorize as user
-if(isset($_REQUEST["action"]) && $_REQUEST["action"] == "authorize" && check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
+if (isset($_REQUEST["action"], $_REQUEST["ID"]) && $_REQUEST["ID"] > 0 && ($_REQUEST["action"] == "authorize" || $_REQUEST["action"] == "logout_user"))
 {
-	$USER->Logout();
-	$USER->Authorize(intval($_REQUEST["ID"] ?? 0), false, true, null, false);
-	LocalRedirect("user_admin.php?lang=".LANGUAGE_ID);
-}
-
-//logout user
-if(isset($_REQUEST["action"]) && $_REQUEST["action"] == "logout_user" && check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
-{
-	\Bitrix\Main\UserAuthActionTable::addLogoutAction($_REQUEST["ID"] ?? 0);
-	LocalRedirect("user_admin.php?lang=".LANGUAGE_ID);
+	if (check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
+	{
+		if ($_REQUEST["action"] == "authorize")
+		{
+			$USER->LoginAs((int)$_REQUEST["ID"]);
+		}
+		else
+		{
+			\Bitrix\Main\UserAuthActionTable::addLogoutAction($_REQUEST["ID"]);
+		}
+		LocalRedirect("user_admin.php?lang=" . LANGUAGE_ID);
+	}
 }
 
 $sTableID = "tbl_user";

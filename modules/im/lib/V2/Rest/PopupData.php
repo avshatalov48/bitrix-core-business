@@ -95,6 +95,7 @@ class PopupData
 		if (!isset($this->popupItems[$popupItem::getRestEntityName()]))
 		{
 			$this->popupItems[$popupItem::getRestEntityName()] = $popupItem;
+			$this->filterItems($this->excludedList);
 		}
 		else
 		{

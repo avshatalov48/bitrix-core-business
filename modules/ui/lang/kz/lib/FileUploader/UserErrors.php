@@ -1,0 +1,20 @@
+<?php
+$MESS["UPLOADER_FILE_NAME_NOT_ALLOWED"] = "Жарамсыз файл атауы.";
+$MESS["UPLOADER_FILE_TYPE_NOT_ALLOWED"] = "Файл түрі дұрыс емес.";
+$MESS["UPLOADER_IMAGE_IS_TOO_BIG"] = "Кескін тым үлкен.";
+$MESS["UPLOADER_IMAGE_IS_TOO_BIG_DESC"] = "Максималды өлшем #maxWidth#x#maxHeight#.";
+$MESS["UPLOADER_IMAGE_IS_TOO_SMALL"] = "Кескін тым кішкентай.";
+$MESS["UPLOADER_IMAGE_IS_TOO_SMALL_DESC"] = "Минималды өлшем #minWidth#x#minHeight#.";
+$MESS["UPLOADER_IMAGE_MAX_FILE_SIZE_EXCEEDED"] = "Кескін файлының өлшемі тым үлкен.";
+$MESS["UPLOADER_IMAGE_MAX_FILE_SIZE_EXCEEDED_DESC"] = "Максималды кескін өлшемі #imageMaxFileSize#.";
+$MESS["UPLOADER_IMAGE_MIN_FILE_SIZE_EXCEEDED"] = "Кескін файлының өлшемі тым кішкентай.";
+$MESS["UPLOADER_IMAGE_MIN_FILE_SIZE_EXCEEDED_DESC"] = "Минималды кескін өлшемі #imageMinFileSize#.";
+$MESS["UPLOADER_IMAGE_TYPE_NOT_SUPPORTED"] = "Кескін түрі оқылмайды";
+$MESS["UPLOADER_MAX_FILE_COUNT_EXCEEDED"] = "Файлдардың максималды санынан асып кетті.";
+$MESS["UPLOADER_MAX_FILE_COUNT_EXCEEDED_DESC"] = "Файлдардың максималды саны: #maxFileCount#.";
+$MESS["UPLOADER_MAX_FILE_SIZE_EXCEEDED"] = "Файл тым үлкен.";
+$MESS["UPLOADER_MAX_FILE_SIZE_EXCEEDED_DESC"] = "Максималды файл өлшемі #maxFileSize#.";
+$MESS["UPLOADER_MAX_TOTAL_FILE_SIZE_EXCEEDED"] = "Файлдардың максималды өлшемінен асып кетті";
+$MESS["UPLOADER_MAX_TOTAL_FILE_SIZE_EXCEEDED_DESC"] = "Максималды файлдар өлшемі: #maxTotalFileSize#.";
+$MESS["UPLOADER_MIN_FILE_SIZE_EXCEEDED"] = "Файл тым кішкентай";
+$MESS["UPLOADER_MIN_FILE_SIZE_EXCEEDED_DESC"] = "Минималды файл өлшемі #minFileSize#.";

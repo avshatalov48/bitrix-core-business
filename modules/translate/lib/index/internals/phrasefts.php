@@ -101,7 +101,7 @@ abstract class PhraseFts extends DataManager
 	 */
 	public static function getPartitionTableName(string $langId): string
 	{
-		if (!in_array($langId, Translate\Config::getLanguages(), true))
+		if (!in_array($langId, Translate\Config::getLanguages(skipCache: true), true))
 		{
 			throw new ArgumentException('Parameter langId has wrong value');
 		}
@@ -249,5 +249,53 @@ abstract class PhraseFts extends DataManager
 		}
 
 		return $filterOut;
+	}
+
+	/**
+	 * Event handler on language delete.
+	 * @event 'main:OnLanguageDelete'
+	 * @event 'main:\Bitrix\Main\Localization\Language::OnAfterDelete'
+	 * @param $param
+	 * @return void
+	 */
+	public static function onLanguageDelete($param): void
+	{
+		$langId = null;
+		if ($param instanceof \Bitrix\Main\ORM\Event)
+		{
+			$langId = $param->getParameter('primary')['LID'];
+		}
+		elseif (is_string($param))
+		{
+			$langId = $param;
+		}
+		if ($langId)
+		{
+			self::dropTable($langId);
+		}
+	}
+
+	/**
+	 * Event handler on language delete.
+	 * @event 'main:OnAfterLanguageAdd'
+	 * @event 'main:\Bitrix\Main\Localization\Language::OnAfterAdd'
+	 * @param $param
+	 * @return void
+	 */
+	public static function onLanguageAdd($param): void
+	{
+		$langId = null;
+		if ($param instanceof \Bitrix\Main\ORM\Event)
+		{
+			$langId = $param->getParameter('primary')['LID'];
+		}
+		elseif (is_array($param))
+		{
+			$langId = $param['LID'];
+		}
+		if ($langId)
+		{
+			self::createTable($langId);
+		}
 	}
 }

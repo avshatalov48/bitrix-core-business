@@ -3,7 +3,7 @@ import {
 	Type,
 	Dom,
 	Event,
-	Loc
+	Loc,
 } from 'main.core';
 import {
 	Address,
@@ -11,13 +11,11 @@ import {
 	Location,
 	ControlMode,
 	MapBase,
-	GeocodingServiceBase,
 	AddressStringConverter,
-	LocationType
+	LocationType,
 } from 'location.core';
-import {EventEmitter} from 'main.core.events';
+import { EventEmitter } from 'main.core.events';
 import AddressString from './addressstring';
-import AddressApplier from './addressapplier';
 import Popup from './popup';
 
 import 'ui.design-tokens';
@@ -34,16 +32,17 @@ export default class MapPopup extends EventEmitter
 	#map;
 	#mode;
 	#address;
+	#prevAddress;
 	#popup;
 	#addressString;
-	#addressApplier;
 	#addressFormat;
 	#gallery;
-	#locationRepository;
 	#isMapRendered = false;
 	#mapInnerContainer;
-	#geocodingService;
 	#contentWrapper;
+	#applyAddressElement;
+	#applyAddressButtonElement;
+	#addressApplyTextElement;
 	#userLocationPoint;
 
 	constructor(props)
@@ -57,11 +56,6 @@ export default class MapPopup extends EventEmitter
 		}
 
 		this.#map = props.map;
-
-		if (props.geocodingService instanceof GeocodingServiceBase)
-		{
-			this.#geocodingService = props.geocodingService;
-		}
 
 		this.#map.onLocationChangedEventSubscribe(this.#onLocationChanged.bind(this));
 
@@ -80,43 +74,15 @@ export default class MapPopup extends EventEmitter
 		this.#addressFormat = props.addressFormat;
 
 		this.#addressString = new AddressString({
-			addressFormat: this.#addressFormat
+			addressFormat: this.#addressFormat,
 		});
-		this.#createAddressApplier();
 
 		if (props.gallery)
 		{
 			this.#gallery = props.gallery;
 		}
 
-		this.#locationRepository = props.locationRepository;
 		this.#userLocationPoint = props.userLocationPoint;
-	}
-
-	#createAddressApplier()
-	{
-		this.#addressApplier = new AddressApplier(
-			{
-				propsData: {
-					address: this.#address,
-					addressFormat: this.#addressFormat,
-					isHidden: true,
-				}
-			}
-		);
-		this.#addressApplier.$mount();
-		this.#addressApplier.$on('apply', (event) => {
-			const prevAddress = event.address;
-
-			this.#address = prevAddress;
-			this.#addressString.address = prevAddress;
-			this.#addressApplier.$props.isHidden = true;
-
-			this.emit(
-				MapPopup.#onChangedEvent,
-				{address: prevAddress}
-			);
-		});
 	}
 
 	#onLocationChanged(event: Event)
@@ -131,7 +97,7 @@ export default class MapPopup extends EventEmitter
 			this.#addressString.address = address;
 			this.emit(
 				MapPopup.#onChangedEvent,
-				{address: address}
+				{ address },
 			);
 		}
 		else if (address.fieldCollection.isEqual(this.#address.fieldCollection, LocationType.ADDRESS_LINE_1))
@@ -147,16 +113,16 @@ export default class MapPopup extends EventEmitter
 
 			this.emit(
 				MapPopup.#onChangedEvent,
-				{address: this.#address}
+				{ address: this.#address },
 			);
-
-			this.#addressApplier.$props.isHidden = true;
+			this.#hideApplyAddress();
 		}
 		else
 		{
 			this.#addressString.address = address;
-			this.#addressApplier.$props.address = address;
-			this.#addressApplier.$props.isHidden = false;
+			this.#prevAddress = address;
+			Dom.adjust(this.#addressApplyTextElement, { text: this.#getAddressAsText(this.#prevAddress) });
+			this.#showApplyAddress();
 		}
 
 		if (this.#gallery)
@@ -171,6 +137,7 @@ export default class MapPopup extends EventEmitter
 		this.#mode = props.mode;
 		this.#isMapRendered = false;
 		this.#mapInnerContainer = Tag.render`<div class="location-map-inner"></div>`;
+		this.#createApplyAddressElement();
 		this.#renderPopup(props.bindElement, this.#mapInnerContainer);
 	}
 
@@ -195,16 +162,58 @@ export default class MapPopup extends EventEmitter
 					${mapInnerContainer}
 					${gallery}
 				</div>
-				${this.#mode === ControlMode.edit ? this.#addressString.render({address: this.#address}) : ''}
+				${this.#mode === ControlMode.edit ? this.#addressString.render({ address: this.#address }) : ''}
 				${thirdPartyWarningNode}
-				${this.#mode === ControlMode.edit ? this.#addressApplier.$el : ''}
-			</div>`;
+				${this.#mode === ControlMode.edit ? this.#applyAddressElement : ''}
+			</div>
+		`;
 
 		Event.bind(this.#contentWrapper, 'click', (e) => e.stopPropagation());
 		Event.bind(this.#contentWrapper, 'mouseover', (e) => this.emit(MapPopup.#onMouseOverEvent, e));
 		Event.bind(this.#contentWrapper, 'mouseout', (e) => this.emit(MapPopup.#onMouseOutEvent, e));
 		this.bindElement = bindElement;
 		this.#popup.setContent(this.#contentWrapper);
+		this.#hideApplyAddress();
+	}
+
+	#createApplyAddressElement(): void
+	{
+		this.#applyAddressButtonElement = Tag.render`
+			<button @click="handleApplyClick" type="button" class="location-map-address-apply-btn">
+				${Loc.getMessage('LOCATION_WIDGET_AUI_ADDRESS_APPLY')}
+			</button>
+		`;
+		Event.bind(this.#applyAddressButtonElement, 'click', this.#onApplyAddressClick.bind(this));
+
+		this.#addressApplyTextElement = Tag.render`
+			<div class="location-map-address-changed-text">
+				${this.#getAddressAsText(this.#address)}
+			</div>
+		`;
+
+		this.#applyAddressElement = Tag.render`
+			<div class="location-map-address-changed">
+				<div class="location-map-address-changed-inner">
+				<div class="location-map-address-changed-title">
+					${Loc.getMessage('LOCATION_WIDGET_AUI_ADDRESS_CHANGED_NEW_ADDRESS')}
+				</div>
+				${this.#addressApplyTextElement}
+				</div>
+				${this.#applyAddressButtonElement}
+			</div>	
+		`;
+	}
+
+	#onApplyAddressClick()
+	{
+		this.#address = this.#prevAddress;
+		this.#addressString.address = this.#prevAddress;
+		this.#hideApplyAddress();
+
+		this.emit(
+			MapPopup.#onChangedEvent,
+			{ address: this.#prevAddress },
+		);
 	}
 
 	get bindElement()
@@ -272,10 +281,11 @@ export default class MapPopup extends EventEmitter
 					this.#userLocationPoint && this.#mode !== ControlMode.view
 						? new Location({
 							latitude: this.#userLocationPoint.latitude,
-							longitude: this.#userLocationPoint.longitude
+							longitude: this.#userLocationPoint.longitude,
 						})
-						: null
+						: null,
 				);
+
 				return;
 			}
 
@@ -288,8 +298,9 @@ export default class MapPopup extends EventEmitter
 					resolve(new Location({
 						latitude: latLon[0],
 						longitude: latLon[1],
-						type: address.getType()
+						type: address.getType(),
 					}));
+
 					return;
 				}
 			}
@@ -317,13 +328,37 @@ export default class MapPopup extends EventEmitter
 		this.#map.mode = mode;
 	}
 
-	#renderMap({location})
+	#renderMap({ location })
 	{
 		return this.#map.render({
 			mapContainer: this.#mapInnerContainer,
-			location: location,
-			mode: this.#mode
+			location,
+			mode: this.#mode,
 		});
+	}
+
+	#hideApplyAddress(): void
+	{
+		Dom.style(this.#applyAddressElement, { display: 'none' });
+	}
+
+	#showApplyAddress(): void
+	{
+		Dom.style(this.#applyAddressElement, { display: 'flex' });
+	}
+
+	#getAddressAsText(address: Address): string
+	{
+		if (!address)
+		{
+			return '';
+		}
+
+		return address.toString(
+			this.#addressFormat,
+			AddressStringConverter.STRATEGY_TYPE_TEMPLATE_COMMA,
+			AddressStringConverter.CONTENT_TYPE_TEXT,
+		);
 	}
 
 	show(useUserLocation: boolean = false): void
@@ -337,21 +372,7 @@ export default class MapPopup extends EventEmitter
 
 				this.#popup.show();
 
-				if (!this.#isMapRendered)
-				{
-					this.#renderMap({location})
-						.then(() => {
-							if (this.#gallery)
-							{
-								this.#gallery.location = location;
-							}
-							this.emit(MapPopup.#onShowedEvent);
-							this.#map.onMapShow();
-						});
-
-					this.#isMapRendered = true;
-				}
-				else
+				if (this.#isMapRendered)
 				{
 					this.#map.location = location;
 
@@ -362,6 +383,20 @@ export default class MapPopup extends EventEmitter
 
 					this.emit(MapPopup.#onShowedEvent);
 					this.#map.onMapShow();
+				}
+				else
+				{
+					this.#renderMap({ location })
+						.then(() => {
+							if (this.#gallery)
+							{
+								this.#gallery.location = location;
+							}
+							this.emit(MapPopup.#onShowedEvent);
+							this.#map.onMapShow();
+						});
+
+					this.#isMapRendered = true;
 				}
 			});
 	}
@@ -374,7 +409,7 @@ export default class MapPopup extends EventEmitter
 	close(): void
 	{
 		this.#popup.close();
-		this.#addressApplier.$props.isHidden = true;
+		this.#hideApplyAddress();
 		this.emit(MapPopup.#onClosedEvent);
 	}
 
@@ -408,7 +443,6 @@ export default class MapPopup extends EventEmitter
 		this.#map = null;
 		this.#gallery = null;
 		this.#addressString = null;
-		this.#addressApplier = null;
 
 		this.#popup.destroy();
 		this.#popup = null;

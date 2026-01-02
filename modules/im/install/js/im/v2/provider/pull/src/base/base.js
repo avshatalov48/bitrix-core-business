@@ -1,3 +1,4 @@
+import { BotPullHandler } from './handlers/bot';
 import { MessagePullHandler } from './handlers/message';
 import { ChatPullHandler } from './handlers/chat';
 import { TariffPullHandler } from './handlers/tariff';
@@ -7,6 +8,7 @@ import { SettingsPullHandler } from './handlers/settings';
 import { CommentsPullHandler } from './handlers/comments';
 import { ApplicationPullHandler } from './handlers/application';
 import { CollabPullHandler } from './handlers/collab';
+import { AiPullHandler } from './handlers/ai';
 
 export class BasePullHandler
 {
@@ -19,6 +21,8 @@ export class BasePullHandler
 	#tariffPullHandler: TariffPullHandler;
 	#applicationPullHandler: ApplicationPullHandler;
 	#collabPullHandler: CollabPullHandler;
+	#botPullHandler: BotPullHandler;
+	#aiPullHandler: AiPullHandler;
 
 	constructor()
 	{
@@ -31,6 +35,8 @@ export class BasePullHandler
 		this.#tariffPullHandler = new TariffPullHandler();
 		this.#applicationPullHandler = new ApplicationPullHandler();
 		this.#collabPullHandler = new CollabPullHandler();
+		this.#botPullHandler = new BotPullHandler();
+		this.#aiPullHandler = new AiPullHandler();
 	}
 
 	getModuleId(): string
@@ -52,6 +58,11 @@ export class BasePullHandler
 	handleMessageUpdate(params)
 	{
 		this.#messageHandler.handleMessageUpdate(params);
+	}
+
+	handleMessageDeleteV2(params)
+	{
+		this.#messageHandler.handleMessageDeleteV2(params);
 	}
 
 	handleMessageDelete(params)
@@ -131,9 +142,9 @@ export class BasePullHandler
 		this.#chatHandler.handleChatUserLeave(params);
 	}
 
-	handleStartWriting(params)
+	handleInputActionNotify(params)
 	{
-		this.#chatHandler.handleStartWriting(params);
+		this.#chatHandler.handleInputActionNotify(params);
 	}
 
 	handleChatUnread(params)
@@ -166,6 +177,11 @@ export class BasePullHandler
 		this.#chatHandler.handleChatUpdate(params);
 	}
 
+	handleChatFieldsUpdate(params)
+	{
+		this.#chatHandler.handleChatFieldsUpdate(params);
+	}
+
 	handleChatDelete(params)
 	{
 		this.#chatHandler.handleChatDelete(params);
@@ -176,9 +192,9 @@ export class BasePullHandler
 		this.#chatHandler.handleChatConvert(params);
 	}
 
-	handleChatCopilotRoleUpdate(params)
+	handleMessagesAutoDeleteDelayChanged(params)
 	{
-		this.#chatHandler.handleChatCopilotRoleUpdate(params);
+		this.#chatHandler.handleMessagesAutoDeleteDelayChanged(params);
 	}
 	// endregion 'chat'
 
@@ -250,4 +266,33 @@ export class BasePullHandler
 		this.#applicationPullHandler.handleApplicationOpenChat(params);
 	}
 	// endregion 'application'
+
+	// region 'bot'
+	handleBotAdd(params)
+	{
+		this.#botPullHandler.handleBotAdd(params);
+	}
+
+	handleBotUpdate(params)
+	{
+		this.#botPullHandler.handleBotUpdate(params);
+	}
+	// endregion 'bot'
+
+	// region 'ai'
+	handleChangeEngine(params)
+	{
+		this.#aiPullHandler.handleChangeEngine(params);
+	}
+
+	handleFileTranscription(params)
+	{
+		this.#aiPullHandler.handleFileTranscription(params);
+	}
+
+	handleChatCopilotRoleUpdate(params)
+	{
+		this.#aiPullHandler.handleChatCopilotRoleUpdate(params);
+	}
+	// endregion 'ai'
 }

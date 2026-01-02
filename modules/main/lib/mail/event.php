@@ -1,16 +1,18 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2012 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
+
 namespace Bitrix\Main\Mail;
 
 use Bitrix\Main;
-use Bitrix\Main\Mail\Internal as MailInternal;
-use Bitrix\Main\Config as Config;
+use Bitrix\Main\Config;
 use Bitrix\Main\Application;
+use Bitrix\Main\ORM\Data\AddResult;
 
 class Event
 {
@@ -27,6 +29,11 @@ class Event
 	 */
 	public static function sendImmediate(array $data)
 	{
+		if (!static::onBeforeEventAdd($data))
+		{
+			return static::SEND_RESULT_NONE;
+		}
+
 		$data["ID"] = 0;
 
 		return static::handleEvent($data);
@@ -36,21 +43,28 @@ class Event
 	 * Send mail event
 	 *
 	 * @param array $data Params of event
-	 * @return Main\Entity\AddResult
+	 * @return AddResult
 	 */
 	public static function send(array $data)
 	{
+		if (!static::onBeforeEventAdd($data))
+		{
+			return (new AddResult())->addError(new Main\Error('OnBeforeEventAdd'));
+		}
+
 		$manageCache = Application::getInstance()->getManagedCache();
-		if(CACHED_b_event !== false && $manageCache->read(CACHED_b_event, "events"))
+		if (CACHED_b_event !== false && $manageCache->read(CACHED_b_event, "events"))
 		{
 			$manageCache->clean('events');
 		}
 
 		$fileList = [];
-		if(isset($data['FILE']))
+		if (isset($data['FILE']))
 		{
-			if(is_array($data['FILE']))
+			if (is_array($data['FILE']))
+			{
 				$fileList = $data['FILE'];
+			}
 
 			unset($data['FILE']);
 		}
@@ -79,7 +93,7 @@ class Event
 
 		$connection->startTransaction();
 
-		$result = MailInternal\EventTable::add($data);
+		$result = Internal\EventTable::add($data);
 
 		if ($result->isSuccess())
 		{
@@ -98,7 +112,7 @@ class Event
 					$attachment['FILE_ID'] = \CFile::SaveFile($file['FILE'], 'main');
 				}
 
-				MailInternal\EventAttachmentTable::add($attachment);
+				Internal\EventAttachmentTable::add($attachment);
 			}
 		}
 
@@ -107,38 +121,76 @@ class Event
 		return $result;
 	}
 
+	protected static function onBeforeEventAdd(array &$data): bool
+	{
+		foreach (GetModuleEvents("main", "OnBeforeEventAdd", true) as $arEvent)
+		{
+			if (ExecuteModuleEventEx($arEvent, [&$data["EVENT_NAME"], &$data["LID"], &$data["C_FIELDS"], &$data["MESSAGE_ID"], &$data["FILE"], &$data["LANGUAGE_ID"]]) === false)
+			{
+				return false;
+			}
+		}
+
+		if (isset($data['LID']) && is_array($data['LID']))
+		{
+			$data['LID'] = implode(",", $data['LID']);
+		}
+
+		if (!is_array($data["C_FIELDS"] ?? null))
+		{
+			$data["C_FIELDS"] = [];
+		}
+
+		if (isset($data["MESSAGE_ID"]) && (int)$data["MESSAGE_ID"] > 0)
+		{
+			$data["MESSAGE_ID"] = (int)$data["MESSAGE_ID"];
+		}
+		else
+		{
+			unset($data["MESSAGE_ID"]);
+		}
+
+		return true;
+	}
+
 	/**
 	 * @param array $arEvent
 	 * @return string
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentTypeException
 	 */
 	public static function handleEvent(array $arEvent)
 	{
-		if(!isset($arEvent['FIELDS']) && isset($arEvent['C_FIELDS']))
+		if (!isset($arEvent['FIELDS']) && isset($arEvent['C_FIELDS']))
+		{
 			$arEvent['FIELDS'] = $arEvent['C_FIELDS'];
+		}
 
-		if(!is_array($arEvent['FIELDS']))
-			throw new Main\ArgumentTypeException("FIELDS" );
+		if (!is_array($arEvent['FIELDS']))
+		{
+			throw new Main\ArgumentTypeException("FIELDS");
+		}
 
 		$flag = static::SEND_RESULT_TEMPLATE_NOT_FOUND; // no templates
-		$arResult = array(
+		$arResult = [
 			"Success" => false,
 			"Fail" => false,
 			"Was" => false,
 			"Skip" => false,
-		);
+		];
 
 		$trackRead = null;
 		$trackClick = null;
-		if(array_key_exists('TRACK_READ', $arEvent))
+		if (array_key_exists('TRACK_READ', $arEvent))
+		{
 			$trackRead = $arEvent['TRACK_READ'];
-		if(array_key_exists('TRACK_CLICK', $arEvent))
+		}
+		if (array_key_exists('TRACK_CLICK', $arEvent))
+		{
 			$trackClick = $arEvent['TRACK_CLICK'];
+		}
 
 		$arSites = explode(",", $arEvent["LID"]);
-		if(empty($arSites))
+		if (empty($arSites))
 		{
 			return $flag;
 		}
@@ -148,76 +200,76 @@ class Event
 		$charset = false;
 		$serverName = null;
 
-		static $sites = array();
+		static $sites = [];
 		$infoSite = reset($arSites);
 
-		if(!isset($sites[$infoSite]))
+		if (!isset($sites[$infoSite]))
 		{
-			$siteDb = Main\SiteTable::getList(array(
-				'select' => array('SERVER_NAME', 'CULTURE_CHARSET'=>'CULTURE.CHARSET'),
-				'filter' => array('=LID' => $infoSite)
-			));
+			$siteDb = Main\SiteTable::getList([
+				'select' => ['SERVER_NAME', 'CULTURE_CHARSET' => 'CULTURE.CHARSET'],
+				'filter' => ['=LID' => $infoSite],
+			]);
 			$sites[$infoSite] = $siteDb->fetch();
 		}
 
-		if(is_array($sites[$infoSite]))
+		if (is_array($sites[$infoSite]))
 		{
 			$charset = $sites[$infoSite]['CULTURE_CHARSET'];
 			$serverName = $sites[$infoSite]['SERVER_NAME'];
 		}
 
-		if(!$charset)
+		if (!$charset)
 		{
 			return $flag;
 		}
 
 		// get filter for list of message templates
-		$arEventMessageFilter = array();
-		$MESSAGE_ID = intval($arEvent["MESSAGE_ID"]);
-		if($MESSAGE_ID > 0)
+		$arEventMessageFilter = [];
+		$MESSAGE_ID = intval($arEvent["MESSAGE_ID"] ?? 0);
+		if ($MESSAGE_ID > 0)
 		{
-			$eventMessageDb = MailInternal\EventMessageTable::getById($MESSAGE_ID);
-			if($eventMessageDb->Fetch())
+			$eventMessageDb = Internal\EventMessageTable::getById($MESSAGE_ID);
+			if ($eventMessageDb->Fetch())
 			{
 				$arEventMessageFilter['=ID'] = $MESSAGE_ID;
 				$arEventMessageFilter['=ACTIVE'] = 'Y';
 			}
 		}
-		if(empty($arEventMessageFilter))
+		if (empty($arEventMessageFilter))
 		{
-			$arEventMessageFilter = array(
+			$arEventMessageFilter = [
 				'=ACTIVE' => 'Y',
 				'=EVENT_NAME' => $arEvent["EVENT_NAME"],
 				'=EVENT_MESSAGE_SITE.SITE_ID' => $arSites,
-			);
+			];
 
-			if($arEvent["LANGUAGE_ID"] <> '')
+			if ($arEvent["LANGUAGE_ID"] <> '')
 			{
-				$arEventMessageFilter[] = array(
+				$arEventMessageFilter[] = [
 					"LOGIC" => "OR",
-					array("=LANGUAGE_ID" => $arEvent["LANGUAGE_ID"]),
-					array("=LANGUAGE_ID" => null),
-				);
+					["=LANGUAGE_ID" => $arEvent["LANGUAGE_ID"]],
+					["=LANGUAGE_ID" => null],
+				];
 			}
 		}
 
 		// get list of message templates of event
-		$messageDb = MailInternal\EventMessageTable::getList(array(
-			'select' => array('ID'),
+		$messageDb = Internal\EventMessageTable::getList([
+			'select' => ['ID'],
 			'filter' => $arEventMessageFilter,
-			'group' => array('ID')
-		));
+			'group' => ['ID'],
+		]);
 
-		while($arMessage = $messageDb->fetch())
+		while ($arMessage = $messageDb->fetch())
 		{
-			$eventMessage = MailInternal\EventMessageTable::getRowById($arMessage['ID']);
+			$eventMessage = Internal\EventMessageTable::getRowById($arMessage['ID']);
 
-			$eventMessage['FILE'] = array();
-			$attachmentDb = MailInternal\EventMessageAttachmentTable::getList(array(
-				'select' => array('FILE_ID'),
-				'filter' => array('=EVENT_MESSAGE_ID' => $arMessage['ID']),
-			));
-			while($arAttachmentDb = $attachmentDb->fetch())
+			$eventMessage['FILE'] = [];
+			$attachmentDb = Internal\EventMessageAttachmentTable::getList([
+				'select' => ['FILE_ID'],
+				'filter' => ['=EVENT_MESSAGE_ID' => $arMessage['ID']],
+			]);
+			while ($arAttachmentDb = $attachmentDb->fetch())
 			{
 				$eventMessage['FILE'][] = $arAttachmentDb['FILE_ID'];
 			}
@@ -227,26 +279,26 @@ class Event
 
 			foreach (GetModuleEvents("main", "OnBeforeEventSend", true) as $event)
 			{
-				if(ExecuteModuleEventEx($event, array(&$arFields, &$eventMessage, $context, &$arResult)) === false)
+				if (ExecuteModuleEventEx($event, [&$arFields, &$eventMessage, $context, &$arResult]) === false)
 				{
 					continue 2;
 				}
 			}
 
 			// get message object for send mail
-			$arMessageParams = array(
+			$arMessageParams = [
 				'EVENT' => $arEvent,
 				'FIELDS' => $arFields,
 				'MESSAGE' => $eventMessage,
 				'SITE' => $arSites,
 				'CHARSET' => $charset,
-			);
+			];
 			$message = EventMessageCompiler::createInstance($arMessageParams);
 			try
 			{
 				$message->compile();
 			}
-			catch(StopException $e)
+			catch (StopException)
 			{
 				$arResult["Was"] = true;
 				$arResult["Fail"] = true;
@@ -254,7 +306,7 @@ class Event
 			}
 
 			// send mail
-			$result = Main\Mail\Mail::send(array(
+			$result = Main\Mail\Mail::send([
 				'TO' => $message->getMailTo(),
 				'SUBJECT' => $message->getMailSubject(),
 				'BODY' => $message->getMailBody(),
@@ -265,36 +317,50 @@ class Event
 				'ATTACHMENT' => $message->getMailAttachment(),
 				'TRACK_READ' => $trackRead,
 				'TRACK_CLICK' => $trackClick,
-				'LINK_PROTOCOL' => Config\Option::get("main", "mail_link_protocol", ''),
+				'LINK_PROTOCOL' => Config\Option::get("main", "mail_link_protocol"),
 				'LINK_DOMAIN' => $serverName,
 				'CONTEXT' => $context,
-			));
-			if($result)
+			]);
+			if ($result)
+			{
 				$arResult["Success"] = true;
+			}
 			else
+			{
 				$arResult["Fail"] = true;
+			}
 
 			$arResult["Was"] = true;
 		}
 
-		if($arResult["Was"])
+		if ($arResult["Was"])
 		{
-			if($arResult["Success"])
+			if ($arResult["Success"])
 			{
-				if($arResult["Fail"])
-					$flag = static::SEND_RESULT_PARTLY; // partly sent
+				if ($arResult["Fail"])
+				{
+					// partly sent
+					$flag = static::SEND_RESULT_PARTLY;
+				}
 				else
-					$flag = static::SEND_RESULT_SUCCESS; // all sent
+				{
+					// all sent
+					$flag = static::SEND_RESULT_SUCCESS;
+				}
 			}
 			else
 			{
-				if($arResult["Fail"])
-					$flag = static::SEND_RESULT_ERROR; // all templates failed
+				if ($arResult["Fail"])
+				{
+					// all templates failed
+					$flag = static::SEND_RESULT_ERROR;
+				}
 			}
 		}
-		elseif($arResult["Skip"])
+		elseif ($arResult["Skip"])
 		{
-			$flag = static::SEND_RESULT_NONE; // skip this event
+			// skip this event
+			$flag = static::SEND_RESULT_NONE;
 		}
 
 		return $flag;

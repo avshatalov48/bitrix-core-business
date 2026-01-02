@@ -14,3 +14,6 @@ $MESS['MAIN_UI_SELECTOR_DIRECTOR_DESCRIPTION'] = 'Руководители ко�
 
 $MESS['MAIN_UI_SELECTOR_EMPLOYEE_NAME'] = 'Моя компания: Сотрудники';
 $MESS['MAIN_UI_SELECTOR_EMPLOYEE_DESCRIPTION'] = 'Все сотрудники компании.';
+
+$MESS['MAIN_UI_SELECTOR_DEPUTY_NAME'] = 'Моя компания: Заместители';
+$MESS['MAIN_UI_SELECTOR_DEPUTY_DESCRIPTION'] = 'Все заместители в компании.';

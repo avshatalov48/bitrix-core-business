@@ -2,6 +2,9 @@
 
 use Bitrix\Bizproc\FieldType;
 use Bitrix\Iblock\BizprocType;
+use Bitrix\Iblock\PropertyEnumerationTable;
+use Bitrix\Iblock\PropertyTable;
+use Bitrix\Main\Config\Option;
 
 if (!CModule::IncludeModule("iblock") || !class_exists("CIBlockDocument"))
 	return;
@@ -1262,17 +1265,43 @@ class CBPVirtualDocument extends CIBlockDocument
 
 	public static function getDocument($documentId)
 	{
-		$documentId = intval($documentId);
+		$args = func_get_args();
+		$select = $args[2] ?? [];
+		$documentId = (int)$documentId;
 		if ($documentId <= 0)
-			throw new CBPArgumentNullException("documentId");
+		{
+			throw new CBPArgumentNullException('documentId');
+		}
 
 		$arResult = null;
+		if (!empty($select))
+		{
+			$select = array_filter($select, fn($field) => !str_starts_with($field, 'PROPERTY_'));
+			$select = array_merge(['ID', 'IBLOCK_ID'], $select);
 
-		$dbDocumentList = CIBlockElement::GetList(
-			array(),
-			array("ID" => $documentId, "SHOW_NEW" => "Y")
+			if (in_array('CREATED_BY', $select) && !in_array('CREATED_USER_NAME', $select))
+			{
+				$select[] = 'CREATED_USER_NAME';
+			}
+			if (in_array('MODIFIED_BY', $select) && !in_array('USER_NAME', $select))
+			{
+				$select[] = 'USER_NAME';
+			}
+		}
+
+		$userNameFields = [
+			'CREATED_BY_PRINTABLE' => 'CREATED_USER_NAME',
+			'MODIFIED_BY_PRINTABLE' => 'USER_NAME',
+		];
+
+		$select = array_map(static fn($selectField) => $userNameFields[$selectField] ?? $selectField, $select);
+
+		$iterator = CIBlockElement::GetList(
+			[],
+			['ID' => $documentId, 'SHOW_NEW' => 'Y'],
+			arSelectFields: $select,
 		);
-		if ($objDocument = $dbDocumentList->GetNextElement(false, true))
+		if ($objDocument = $iterator->GetNextElement(false, true))
 		{
 			$arDocumentFields = $objDocument->GetFields();
 			$arDocumentProperties = $objDocument->GetProperties();
@@ -1569,16 +1598,33 @@ class CBPVirtualDocument extends CIBlockDocument
 		foreach ($arKeys as $key)
 			$arResult[$key]["Multiple"] = false;
 
-		$dbProperties = CIBlockProperty::GetList(
-			array("sort" => "asc", "name" => "asc"),
-			array("IBLOCK_ID" => $iblockId)
-		);
-		while ($arProperty = $dbProperties->Fetch())
+		$employeeNotCompatible = Option::get('bizproc', 'employee_compatible_mode', 'N') !== 'Y';
+
+		$iterator = PropertyTable::getList([
+			'select' => ['*'],
+			'filter' => [
+				'=IBLOCK_ID' => $iblockId,
+				'=ACTIVE' => 'Y',
+			],
+			'order' => [
+				'SORT' => 'ASC',
+				'NAME' => 'ASC',
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		]);
+		PropertyTable::fillOldCoreFetchModifiers($iterator);
+		while ($arProperty = $iterator->fetch())
 		{
-			if (trim($arProperty["CODE"]) <> '')
-				$key = "PROPERTY_".$arProperty["CODE"];
-			else
-				$key = "PROPERTY_".$arProperty["ID"];
+			$arProperty['CODE'] = (string)$arProperty['CODE'];
+			$arProperty['USER_TYPE'] = (string)$arProperty['USER_TYPE'];
+
+			$key =
+				$arProperty['CODE']
+					? 'PROPERTY_'.$arProperty['CODE']
+					: 'PROPERTY_'.$arProperty['ID']
+			;
 
 			$arResult[$key] = array(
 				"Name" => $arProperty["NAME"],
@@ -1587,14 +1633,19 @@ class CBPVirtualDocument extends CIBlockDocument
 				"Required" => ($arProperty["IS_REQUIRED"] == "Y"),
 				"Multiple" => ($arProperty["MULTIPLE"] == "Y"),
 				"Type" => $arProperty["PROPERTY_TYPE"],
+				'IblockPropertyId' => (int)$arProperty['ID'],
 			);
 
-			if ($arProperty["USER_TYPE"] <> '')
+			if ($arProperty["USER_TYPE"] !== '')
 			{
 				$arResult[$key]["Type"] = "S:".$arProperty["USER_TYPE"];
 
-				if ($arProperty["USER_TYPE"] == "UserID"
-					|| $arProperty["USER_TYPE"] == "employee" && (COption::GetOptionString("bizproc", "employee_compatible_mode", "N") != "Y"))
+				if (
+					$arProperty['USER_TYPE'] === PropertyTable::USER_TYPE_USER
+					|| (
+						$arProperty['USER_TYPE'] === PropertyTable::USER_TYPE_EMPLOYEE && $employeeNotCompatible
+					)
+				)
 				{
 					$arResult[$key."_PRINTABLE"] = array(
 						"Name" => $arProperty["NAME"].GetMessage("BPVDX_FIELD_USERNAME_PROPERTY"),
@@ -1605,20 +1656,39 @@ class CBPVirtualDocument extends CIBlockDocument
 						"Type" => "S",
 					);
 				}
-				elseif ($arProperty["USER_TYPE"] == "EList")
+				elseif ($arProperty['USER_TYPE'] === PropertyTable::USER_TYPE_ELEMENT_LIST)
 				{
 					$arResult[$key]["Type"] = "E:EList";
 					$arResult[$key]["Options"] = $arProperty["LINK_IBLOCK_ID"];
 				}
 			}
-			elseif ($arProperty["PROPERTY_TYPE"] == "L")
+			elseif ($arProperty['PROPERTY_TYPE'] === PropertyTable::TYPE_LIST)
 			{
-				$arResult[$key]["Options"] = array();
-				$dbPropertyEnums = CIBlockProperty::GetPropertyEnum($arProperty["ID"]);
-				while ($arPropertyEnum = $dbPropertyEnums->GetNext())
-					$arResult[$key]["Options"][$arPropertyEnum["XML_ID"]] = $arPropertyEnum["VALUE"];
+				$enumList = [];
+				$enumIterator = PropertyEnumerationTable::getList([
+					'select' => [
+						'XML_ID',
+						'VALUE',
+					],
+					'filter' => [
+						'=PROPERTY_ID' => (int)$arProperty['ID'],
+					],
+					'cache' => [
+						'ttl' => 86400,
+					],
+				]);
+				while ($enumRow = $enumIterator->fetch())
+				{
+					$enumList[$enumRow['XML_ID']] = $enumRow['VALUE'];
+				}
+				$arResult[$key]['Options'] = $enumList;
+				unset(
+					$enumRow,
+					$enumIterator,
+					$enumList,
+				);
 			}
-			elseif ($arProperty["PROPERTY_TYPE"] == "F")
+			elseif ($arProperty['PROPERTY_TYPE'] === PropertyTable::TYPE_FILE)
 			{
 				$arResult[$key."_PRINTABLE"] = array(
 					"Name" => $arProperty["NAME"].GetMessage("BPVDX_FIELD_USERNAME_PROPERTY"),
@@ -1629,9 +1699,15 @@ class CBPVirtualDocument extends CIBlockDocument
 					"Type" => "S",
 				);
 			}
-			elseif ($arProperty["PROPERTY_TYPE"] == "S" && intval($arProperty["ROW_COUNT"]) > 1)
+			elseif ($arProperty['PROPERTY_TYPE'] === PropertyTable::TYPE_STRING && (int)$arProperty["ROW_COUNT"] > 1)
+			{
 				$arResult[$key]["Type"] = "T";
+			}
 		}
+		unset(
+			$arProperty,
+			$iterator,
+		);
 
 		$arKeys = array_keys($arResult);
 		foreach ($arKeys as $k)
@@ -1647,14 +1723,44 @@ class CBPVirtualDocument extends CIBlockDocument
 	{
 		$typesMap = FieldType::getBaseTypesMap();
 
-		$arResult = array(
-			"S" => array("Name" => GetMessage("BPVDX_STRING"), "BaseType" => "string", 'typeClass' => $typesMap[FieldType::STRING]),
-			"T" => array("Name" => GetMessage("BPVDX_TEXT"), "BaseType" => "text", 'typeClass' => $typesMap[FieldType::TEXT]),
-			"N" => array("Name" => GetMessage("BPVDX_NUM"), "BaseType" => "double", 'typeClass' => $typesMap[FieldType::DOUBLE]),
-			"L" => array("Name" => GetMessage("BPVDX_LIST"), "BaseType" => "select", "Complex" => true, 'typeClass' => $typesMap[FieldType::SELECT]),
-			"F" => array("Name" => GetMessage("BPVDX_FILE"), "BaseType" => "file", 'typeClass' => $typesMap[FieldType::FILE]),
-			"B" => array("Name" => GetMessage("BPVDX_YN"), "BaseType" => "bool", 'typeClass' => $typesMap[FieldType::BOOL]),
-		);
+		$arResult = [
+			"S" => [
+				"Name" => GetMessage("BPVDX_STRING"),
+				"BaseType" => "string",
+				'typeClass' => $typesMap[FieldType::STRING],
+				'Complex' => false,
+			],
+			"T" => [
+				"Name" => GetMessage("BPVDX_TEXT"),
+				"BaseType" => "text",
+				'typeClass' => $typesMap[FieldType::TEXT],
+				'Complex' => false,
+			],
+			"N" => [
+				"Name" => GetMessage("BPVDX_NUM"),
+				"BaseType" => "double",
+				'typeClass' => $typesMap[FieldType::DOUBLE],
+				'Complex' => false,
+			],
+			"L" => [
+				"Name" => GetMessage("BPVDX_LIST"),
+				"BaseType" => "select",
+				"Complex" => true,
+				'typeClass' => $typesMap[FieldType::SELECT],
+			],
+			"F" => [
+				"Name" => GetMessage("BPVDX_FILE"),
+				"BaseType" => "file",
+				'typeClass' => $typesMap[FieldType::FILE],
+				'Complex' => false,
+			],
+			"B" => [
+				"Name" => GetMessage("BPVDX_YN"),
+				"BaseType" => "bool",
+				'typeClass' => $typesMap[FieldType::BOOL],
+				'Complex' => false,
+			],
+		];
 
 		foreach (CIBlockProperty::GetUserType() as  $ar)
 		{

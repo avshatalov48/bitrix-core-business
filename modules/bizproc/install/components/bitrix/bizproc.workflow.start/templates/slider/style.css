@@ -48,7 +48,7 @@
 }
 
 .bizproc__ws_start {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	--bizproc-workflow-start-border-radius: var(--ui-border-radius-3xl);
 }
 

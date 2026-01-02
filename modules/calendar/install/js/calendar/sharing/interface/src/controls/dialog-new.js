@@ -72,6 +72,7 @@ export default class DialogNew
 				targetContainer: document.body,
 				className: 'calendar-sharing__dialog',
 				closeByEsc: true,
+				closeIcon: this.#isExternalSharing(),
 				autoHide: true,
 				padding: 0,
 				width: 470,

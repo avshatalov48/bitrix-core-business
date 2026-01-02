@@ -38,7 +38,6 @@ $arPath_m = array($site, $menufilename);
 $abs_path = $io->CombinePath($DOC_ROOT, $menufilename);
 
 $strWarning = "";
-$module_id = "fileman";
 
 //delete menu file
 if(isset($_REQUEST["action"]) && $_REQUEST["action"] == "delete" && check_bitrix_sessid())
@@ -68,19 +67,9 @@ if(isset($_REQUEST["action"]) && $_REQUEST["action"] == "delete" && check_bitrix
 		$f->MarkWritable();
 		$success = $io->Delete($abs_path);
 
-		if(COption::GetOptionString($module_id, "log_menu", "Y")=="Y")
+		if(COption::GetOptionString("fileman", "log_menu", "Y")=="Y")
 		{
-			$mt = COption::GetOptionString("fileman", "menutypes", "", $site);
-			$mt = unserialize(str_replace("\\", "", $mt), ['allowed_classes' => false]);
-			$res_log['menu_name'] = $mt[$name];
-			$res_log['path'] = mb_substr($path, 1);
-			CEventLog::Log(
-				"content",
-				"MENU_DELETE",
-				"main",
-				"",
-				serialize($res_log)
-			);
+			CEventLog::Log("content", "MENU_DELETE", "fileman",	$path);
 		}
 		if($success)
 		{
@@ -204,28 +193,9 @@ else
 
 			CFileMan::SaveMenu(Array($site, $menufilename), $aMenuLinksTmp, $res["sMenuTemplate"]);
 
-			if(COption::GetOptionString($module_id, "log_menu", "Y")=="Y")
+			if(COption::GetOptionString("fileman", "log_menu", "Y")=="Y")
 			{
-				$mt = COption::GetOptionString("fileman", "menutypes", false, $site);
-				$mt = unserialize(str_replace("\\", "", $mt), ['allowed_classes' => false]);
-				$res_log['menu_name'] = $mt[$name] ?? '';
-				$res_log['path'] = mb_substr($path, 1);
-				if ($bEdit)
-					CEventLog::Log(
-						"content",
-						"MENU_EDIT",
-						"main",
-						"",
-						serialize($res_log)
-					);
-				else
-					CEventLog::Log(
-						"content",
-						"MENU_ADD",
-						"main",
-						"",
-						serialize($res_log)
-					);
+				CEventLog::Log("content", ($bEdit ? "MENU_EDIT" : "MENU_ADD"), "fileman", $path);
 			}
 			if($e = $APPLICATION->GetException())
 				$strWarning = $e->GetString();

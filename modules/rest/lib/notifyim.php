@@ -21,13 +21,14 @@ class NotifyIm implements INotify
 		}
 	}
 
-	public function send($clientId, $userId, $token, $method, $message)
+	public function send($clientId, $userId, $token, $method, $message, $notifyEvent = 'admin_notification')
 	{
 		$messageFields = array(
 			"TO_USER_ID" => $userId,
 			"FROM_USER_ID" => '',
 			"NOTIFY_TYPE" => IM_NOTIFY_CONFIRM,
 			"NOTIFY_MODULE" => "rest",
+			"NOTIFY_EVENT" => $notifyEvent,
 			"NOTIFY_SUB_TAG" => "rest|".static::TOKEN_NOTIFY_TAG."|".$clientId."|".$token."|".$method,
 			"NOTIFY_MESSAGE" => $message,
 
@@ -90,6 +91,7 @@ class NotifyIm implements INotify
 							"FROM_USER_ID" => $notifyFields["AUTHOR_ID"],
 							"NOTIFY_TYPE" => IM_NOTIFY_FROM,
 							"NOTIFY_MODULE" => "rest",
+							"NOTIFY_EVENT" => "app_install_request",
 							"NOTIFY_TAG" => "REST|APP_INSTALL_LINK|".$notifyFields["AUTHOR_ID"]."|TO|".$notifyFields["RELATION_USER_ID"],
 							"NOTIFY_SUB_TAG" => "REST|APP_INSTALL_LINK|".$notifyFields["RELATION_USER_ID"],
 							"NOTIFY_MESSAGE" => GetMessage("REST_APP_INSTALL_REQUEST", array("#APP_URL#" => $notifyFields["NOTIFY_BUTTONS"][0]["APP_URL"], "#APP_NAME#" => $notifyFields["NOTIFY_BUTTONS"][0]["APP_NAME"]))

@@ -11,6 +11,7 @@ use Bitrix\Im\Model\EO_Chat;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Im\V2\Chat\Add\AddResult;
 
 class FavoriteChat extends PrivateChat
 {
@@ -24,7 +25,7 @@ class FavoriteChat extends PrivateChat
 		return User::getInstance($this->getAuthorId());
 	}
 
-	public function getDialogId(): ?string
+	public function getDialogId(?int $contextUserId = null): ?string
 	{
 		if ($this->dialogId || !$this->getChatId())
 		{
@@ -160,11 +161,11 @@ class FavoriteChat extends PrivateChat
 	/**
 	 * @param array $params
 	 * @param Context|null $context
-	 * @return Result
+	 * @return AddResult
 	 */
-	public function add(array $params, ?Context $context = null): Result
+	public function add(array $params, ?Context $context = null): AddResult
 	{
-		$result = new Result;
+		$result = new AddResult();
 
 		$paramsResult = $this->prepareParams($params);
 		if (!$paramsResult->isSuccess())
@@ -181,7 +182,7 @@ class FavoriteChat extends PrivateChat
 			$chat = new static($params);
 			$chat
 				->setTitle(Loc::getMessage('IM_CHAT_FAVORITE_TITLE_V3'))
-				->setDescription(Loc::getMessage('IM_CHAT_FAVORITE_DESCRIPTION_V2'))
+				->setDescription(Loc::getMessage('IM_CHAT_FAVORITE_DESCRIPTION_MSGVER_1'))
 				->save()
 			;
 
@@ -203,10 +204,7 @@ class FavoriteChat extends PrivateChat
 			}
 		}
 
-		$result->setResult([
-			'CHAT_ID' => $chat->getChatId(),
-			'CHAT' => $chat,
-		]);
+		$result->setChat($chat);
 		$chat->isFilledNonCachedData = false;
 
 		return $result;
@@ -219,7 +217,7 @@ class FavoriteChat extends PrivateChat
 
 	protected function sendBanner(): void
 	{
-		$messageText = Loc::getMessage('IM_CHAT_FAVORITE_CREATE_WELCOME');
+		$messageText = Loc::getMessage('IM_CHAT_FAVORITE_CREATE_WELCOME_MSGVER_1');
 		\CIMMessage::Add([
 			'MESSAGE_TYPE' => $this->getType(),
 			'TO_CHAT_ID' => $this->getChatId(),

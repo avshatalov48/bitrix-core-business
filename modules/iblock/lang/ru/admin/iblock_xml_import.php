@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_CML2_WRONG_FILE_ERROR"] = "Указанный файл не является xml файлом формата CommerceML второй редакции.";
 $MESS["IBLOCK_CML2_TABLE_PREPARE_ERROR"] = "Ошибка подготовки временных таблиц для импорта.";
 $MESS["IBLOCK_CML2_FILE_ERROR"] = "Ошибка открытия файла.";
@@ -47,4 +47,3 @@ $MESS["IBLOCK_CML2_LID_ERROR"] = "Не выбрано ни одного сайт
 $MESS["IBLOCK_CML2_IMAGE_RESIZE"] = "Использовать настройки инфоблока для обработки изображений";
 $MESS["IBLOCK_CML2_ELEMENTS_LIST"] = "Перейти к списку элементов.";
 $MESS["IBLOCK_CML2_ACCESS_DENIED"] = "Доступ запрещен.";
-?>

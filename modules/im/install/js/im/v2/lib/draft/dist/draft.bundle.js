@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core,main_core_events,im_v2_lib_logger,im_v2_application_core,ui_dexie,im_v2_lib_localStorage,im_v2_const) {
+(function (exports,main_core,main_core_events,im_v2_lib_logger,im_v2_application_core,im_v2_const,ui_dexie,im_v2_lib_localStorage) {
 	'use strict';
 
 	const DB_NAME = 'bx-im-drafts';
@@ -55,6 +55,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	const SHOW_DRAFT_IN_RECENT_TIMEOUT = 1500;
 	const STORAGE_KEY = 'recentDraft';
 	const NOT_AVAILABLE_CHAT_TYPES = new Set([im_v2_const.ChatType.comment]);
+	const STANDALONE_SECTION_CHAT_TYPES = new Set([im_v2_const.ChatType.taskComments]);
+	var _getChat = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getChat");
 	class DraftManager {
 	  static getInstance() {
 	    if (!DraftManager.instance) {
@@ -63,34 +65,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return DraftManager.instance;
 	  }
 	  constructor() {
+	    Object.defineProperty(this, _getChat, {
+	      value: _getChat2
+	    });
 	    this.inited = false;
 	    this.drafts = {};
-	    this.initPromise = new Promise(resolve => {
-	      this.initPromiseResolver = resolve;
-	    });
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.layout.onLayoutChange, this.onLayoutChange.bind(this));
 	  }
 	  async initDraftHistory() {
-	    if (this.inited) {
-	      return;
-	    }
-	    this.inited = true;
 	    let draftHistory = null;
 	    try {
-	      draftHistory = await IndexedDbManager.getInstance().get(this.getStorageKey(), {});
+	      draftHistory = await IndexedDbManager.getInstance().get(STORAGE_KEY, {});
 	    } catch (error) {
 	      // eslint-disable-next-line no-console
 	      console.error('DraftManager: error initing draft history', error);
-	      this.initPromiseResolver();
 	      return;
 	    }
 	    this.fillDraftsFromStorage(draftHistory);
 	    im_v2_lib_logger.Logger.warn('DraftManager: initDrafts:', this.drafts);
-	    this.initPromiseResolver();
 	    this.setRecentListDraftText();
-	  }
-	  ready() {
-	    return this.initPromise;
+	    this.inited = true;
 	  }
 	  fillDraftsFromStorage(draftHistory) {
 	    if (!main_core.Type.isPlainObject(draftHistory)) {
@@ -127,9 +121,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  async getDraft(dialogId) {
 	    var _this$drafts$dialogId;
-	    await this.initPromise;
-	    const draft = (_this$drafts$dialogId = this.drafts[dialogId]) != null ? _this$drafts$dialogId : {};
-	    return Promise.resolve(draft);
+	    if (!this.inited) {
+	      await this.initDraftHistory();
+	    }
+	    return (_this$drafts$dialogId = this.drafts[dialogId]) != null ? _this$drafts$dialogId : {};
 	  }
 	  clearDraft(dialogId) {
 	    delete this.drafts[dialogId];
@@ -145,19 +140,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!this.canSetRecentItemDraftText(dialogId)) {
 	      return;
 	    }
-	    void im_v2_application_core.Core.getStore().dispatch(this.getDraftMethodName(), {
+	    const {
+	      type: chatType
+	    } = babelHelpers.classPrivateFieldLooseBase(this, _getChat)[_getChat](dialogId);
+	    void im_v2_application_core.Core.getStore().dispatch('recent/setDraft', {
 	      id: dialogId,
-	      text
+	      text,
+	      addFakeItems: !STANDALONE_SECTION_CHAT_TYPES.has(chatType)
 	    });
 	  }
 	  onLayoutChange(event) {
 	    const {
 	      from
 	    } = event.getData();
-	    if (from.name !== this.getLayoutName() || from.entityId === '') {
+	    const dialogId = from.entityId;
+	    if (dialogId === '') {
 	      return;
 	    }
-	    const dialogId = from.entityId;
 	    setTimeout(async () => {
 	      const {
 	        text = ''
@@ -172,7 +171,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }, WRITE_TO_STORAGE_TIMEOUT);
 	  }
 	  saveToIndexedDb() {
-	    IndexedDbManager.getInstance().set(this.getStorageKey(), this.prepareDrafts());
+	    IndexedDbManager.getInstance().set(STORAGE_KEY, this.prepareDrafts());
 	  }
 	  prepareDrafts() {
 	    const result = {};
@@ -190,47 +189,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    return result;
 	  }
-	  getLayoutName() {
-	    return im_v2_const.Layout.chat.name;
-	  }
-	  getStorageKey() {
-	    return STORAGE_KEY;
-	  }
-	  getDraftMethodName() {
-	    return 'recent/setRecentDraft';
-	  }
 	  canSetRecentItemDraftText(dialogId) {
-	    const chat = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
+	    const chat = babelHelpers.classPrivateFieldLooseBase(this, _getChat)[_getChat](dialogId);
 	    if (!chat) {
 	      return false;
 	    }
 	    return !NOT_AVAILABLE_CHAT_TYPES.has(chat.type);
 	  }
 	}
+	function _getChat2(dialogId) {
+	  return im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
+	}
 	DraftManager.instance = null;
 
-	const STORAGE_KEY$1 = 'copilotDraft';
-	class CopilotDraftManager extends DraftManager {
-	  static getInstance() {
-	    if (!CopilotDraftManager.instance) {
-	      CopilotDraftManager.instance = new CopilotDraftManager();
-	    }
-	    return CopilotDraftManager.instance;
-	  }
-	  getLayoutName() {
-	    return im_v2_const.Layout.copilot.name;
-	  }
-	  getStorageKey() {
-	    return STORAGE_KEY$1;
-	  }
-	  getDraftMethodName() {
-	    return 'recent/setCopilotDraft';
-	  }
-	}
-	CopilotDraftManager.instance = null;
-
 	exports.DraftManager = DraftManager;
-	exports.CopilotDraftManager = CopilotDraftManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Dexie3,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.DexieExport,BX.Messenger.v2.Lib));
 //# sourceMappingURL=draft.bundle.js.map

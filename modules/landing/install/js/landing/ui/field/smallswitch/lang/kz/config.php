@@ -1,0 +1,3 @@
+<?php
+$MESS["LANDING_SMALL_SWITCHER_OFF"] = "ӨШІРУ";
+$MESS["LANDING_SMALL_SWITCHER_ON"] = "ҚОСУ";

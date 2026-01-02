@@ -1,0 +1,19 @@
+<?php
+$MESS["AUTH_A_INTERNAL"] = "Кіріктірілген авторландыру";
+$MESS["AUTH_A_LIVEID"] = "LiveID";
+$MESS["AUTH_A_OPENID"] = "OpenID";
+$MESS["AUTH_CAPTCHA_PROMT"] = "Суреттегі сөзді енгізіңіз";
+$MESS["AUTH_FORGOT_PASSWORD_2"] = "Құпиясөзді ұмытып қалдыңыз ба?";
+$MESS["AUTH_LIVEID_LOGIN"] = "Log In";
+$MESS["AUTH_LOGIN"] = "Логин";
+$MESS["AUTH_LOGIN_BUTTON"] = "Кіру";
+$MESS["AUTH_LOGOUT_BUTTON"] = "Шығу";
+$MESS["AUTH_NONSECURE_NOTE"] = "Құпиясөз ашық түрінде жіберіледі. Жібермес бұрын құпиясөзді шифрлау үшін браузерде JavaScript қосыңыз.";
+$MESS["AUTH_OPENID"] = "OpenID";
+$MESS["AUTH_PASSWORD"] = "Құпиясөз";
+$MESS["AUTH_PROFILE"] = "Менің профилім";
+$MESS["AUTH_REGISTER"] = "Тіркелу";
+$MESS["AUTH_REMEMBER_ME"] = "Мені осы компьютерде есте сақтау";
+$MESS["AUTH_REMEMBER_SHORT"] = "Мені есте сақтау";
+$MESS["AUTH_SECURE_NOTE"] = "Авторландыру нысанын жібермес бұрын құпиясөз браузерде шифрланады. Бұл құпиясөзді ашық түрінде жібермеуге мүмкіндік береді.";
+$MESS["socserv_as_user_form"] = "Пайдаланушы ретінде кіру:";

@@ -92,7 +92,7 @@ class AnnotateCommand extends Command implements AnnotationInterface
 		Loader::setRequireThrowException(false);
 	}
 
-	protected function execute(InputInterface $input, OutputInterface $output)
+	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
 		$output->writeln([
 			'Entity Scanner',

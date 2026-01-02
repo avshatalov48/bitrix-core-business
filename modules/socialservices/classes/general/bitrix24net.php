@@ -2,6 +2,7 @@
 
 use Bitrix\Bitrix24\Integration\Network\Broadcast;
 use Bitrix\Bitrix24\License;
+use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\HttpClient;
@@ -22,6 +23,10 @@ if(!defined('B24NETWORK_NODE'))
 	elseif(defined('B24NETWORK_URL'))
 	{
 		define('B24NETWORK_NODE', B24NETWORK_URL);
+	}
+	elseif (in_array(Application::getInstance()->getLicense()->getRegion(), ['ru','by','kz','uz']))
+	{
+		define('B24NETWORK_NODE', 'https://auth2.bitrix24.net');
 	}
 	else
 	{

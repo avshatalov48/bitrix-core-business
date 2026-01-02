@@ -11,21 +11,25 @@ const CheckDevices = {
 	data()
 	{
 		return {
+			isDestroyed: false,
 			noVideo: true,
 			selectedCamera: null,
 			selectedMic: null,
-			mediaStream: null,
+			videoStream: null,
+			audioStream: null,
+			videoStreamPromise: null,
+			audioStreamPromise: null,
 			showMic: true,
 			userDisabledCamera: false,
 			gettingVideo: false,
 			isFlippedVideo: BX.Call.Hardware.enableMirroring,
-		}
+		};
 	},
 	created()
 	{
 		this.$root.$on('setCameraState', (state) => {this.onCameraStateChange(state)});
 		this.$root.$on('setMicState', (state) => {this.onMicStateChange(state)});
-		this.$root.$on('callLocalMediaReceived', () => {this.stopLocalVideo()});
+		this.$root.$on('callLocalMediaReceived', () => { this.stopLocalVideo(); this.stopLocalAudio(); });
 		this.$root.$on('cameraSelected', (cameraId) => {this.onCameraSelected(cameraId)});
 		this.$root.$on('micSelected', (micId) => {this.onMicSelected(micId)});
 
@@ -38,11 +42,12 @@ const CheckDevices = {
 				buttons: MessageBoxButtons.OK
 			});
 		});
-
 	},
 	destroyed()
 	{
+		this.isDestroyed = true;
 		this.stopLocalVideo();
+		this.stopLocalAudio();
 	},
 	computed:
 	{
@@ -76,109 +81,111 @@ const CheckDevices = {
 	{
 		getDefaultDevices()
 		{
-			this.gettingVideo = true;
-			const constraints = {audio: true, video: true};
-
-			if (!Utils.device.isMobile())
-			{
-				constraints.video = {};
-				constraints.video.width = { ideal: 1280 };
-				constraints.video.height = { ideal: 720 };
-			}
-
 			if (BX.Call.Hardware.defaultCamera)
 			{
 				this.selectedCamera = BX.Call.Hardware.defaultCamera;
-				if (constraints.video)
-				{
-					constraints.video = { ...constraints.video, deviceId: { exact: this.selectedCamera } };
-				}
-				else
-				{
-					constraints.video = { deviceId: { exact: this.selectedCamera } };
-				}
-			}
-			else if (Object.keys(BX.Call.Hardware.cameraList).length === 0)
-			{
-				constraints.video = false;
 			}
 
 			if (BX.Call.Hardware.defaultMicrophone)
 			{
 				this.selectedMic = BX.Call.Hardware.defaultMicrophone;
-				constraints.audio = {deviceId: { exact: this.selectedMic }};
 			}
 
-			navigator.mediaDevices.getUserMedia(constraints)
-				.then(stream => {
-					this.gettingVideo = false;
-					this.setLocalStream(stream);
-					this.getApplication().updateMediaDevices();
-					if (stream.getVideoTracks().length > 0)
-					{
-						if (!this.selectedCamera)
-						{
-							this.selectedCamera = stream.getVideoTracks()[0].getSettings().deviceId;
-						}
-						this.noVideo = false;
-						this.playLocalVideo();
-						this.getApplication().setSelectedCamera(this.selectedCamera);
-					}
-					if (stream.getAudioTracks().length > 0)
-					{
-						if (!this.selectedMic)
-						{
-							this.selectedMic = stream.getAudioTracks()[0].getSettings().deviceId;
-						}
-						this.getApplication().setSelectedMic(this.selectedMic);
-					}
-				})
-				.catch(e => {
-					this.gettingVideo = false;
-					Logger.warn('Error getting default media stream', e);
-				});
-		},
-		getLocalStream()
-		{
-			this.gettingVideo = true;
-			if (Type.isNil(this.selectedCamera) && Type.isNil(this.selectedMic))
-			{
-				return false;
-			}
-
-			const constraints = {video: false, audio: false};
-			if (this.selectedCamera && !this.noVideo)
-			{
-				constraints.video = {deviceId: { exact: this.selectedCamera }};
-				if (!Utils.device.isMobile())
+			this.getLocalVideoStream().then(() => {
+				this.getApplication().updateMediaDevices();
+				if (!this.selectedCamera)
 				{
-					constraints.video.width = {ideal: 1280};
-					constraints.video.height = {ideal: 720};
+					this.selectedCamera = this.videoStream.getVideoTracks()[0].getSettings().deviceId;
 				}
-			}
-			if (this.selectedMic)
-			{
-				constraints.audio = { deviceId: { exact: this.selectedMic } };
-			}
-
-			navigator.mediaDevices.getUserMedia(constraints).then(stream => {
-				this.gettingVideo = false;
-				this.setLocalStream(stream);
-				if (stream.getVideoTracks().length > 0)
-				{
-					this.playLocalVideo();
-				}
-			}).catch(error => {
-				this.gettingVideo = false;
-				Logger.warn('Getting video from camera error', error);
-				this.noVideo = true;
-				this.getApplication().setCameraState(false);
+				this.getApplication().setSelectedCamera(this.selectedCamera);
+			}).catch((error) => {
+				Logger.warn('Error getting default video stream', error);
 			});
+
+			this.getLocalAudioStream().then(() => {
+				if (!this.selectedMic)
+				{
+					this.selectedMic = this.audioStream.getAudioTracks()[0].getSettings().deviceId;
+				}
+				this.getApplication().setSelectedMic(this.selectedMic);
+			}).catch((error) => {
+				Logger.warn('Error getting default audio stream', error);
+			});
+		},
+		getLocalVideoStream()
+		{
+			if (this.videoStreamPromise)
+			{
+				return this.videoStreamPromise;
+			}
+
+			this.videoStreamPromise = new Promise((resolve, reject) => {
+				this.gettingVideo = true;
+
+				const constraints = {
+					video: this.getVideoConstraints(),
+					audio: false,
+				};
+
+				navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+					this.setLocalStream(stream);
+					this.playLocalVideo();
+
+					if (this.isDestroyed)
+					{
+						this.stopLocalVideo();
+					}
+
+					resolve();
+				}).catch((error) => {
+					Logger.warn('Getting video from camera error', error);
+					this.noVideo = true;
+					this.getApplication().setCameraState(false);
+					reject(error);
+				}).finally(() => {
+					this.gettingVideo = false;
+					this.videoStreamPromise = null;
+				});
+			});
+
+			return this.videoStreamPromise;
+		},
+		getLocalAudioStream()
+		{
+			if (this.audioStreamPromise)
+			{
+				return this.audioStreamPromise;
+			}
+
+			this.audioStreamPromise = new Promise((resolve, reject) => {
+				const constraints = {
+					audio: { deviceId: { exact: this.selectedMic } },
+					video: false,
+				};
+
+				navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+					this.audioStream = stream;
+
+					if (this.isDestroyed)
+					{
+						this.stopLocalAudio();
+					}
+
+					resolve();
+				}).catch((error) => {
+					Logger.warn('Getting audio from microphone error', error);
+					reject(error);
+				}).finally(() => {
+					this.audioStreamPromise = null;
+				});
+			});
+
+			return this.audioStreamPromise;
 		},
 		setLocalStream(stream)
 		{
-			this.mediaStream = stream;
-			this.getApplication().setLocalVideoStream(this.mediaStream);
+			this.videoStream = stream;
+			this.getApplication().setLocalVideoStream(this.videoStream);
 		},
 		playLocalVideo()
 		{
@@ -186,25 +193,34 @@ const CheckDevices = {
 			this.noVideo = false;
 			this.userDisabledCamera = false;
 			this.getApplication().setCameraState(true);
-			this.$refs['video'].volume = 0;
-			this.$refs['video'].srcObject = this.mediaStream;
-			this.$refs['video'].play();
+			this.$refs.video.volume = 0;
+			this.$refs.video.srcObject = this.videoStream;
+			this.$refs.video.play();
 		},
 		stopLocalVideo()
 		{
-			if(!this.mediaStream)
+			if (!this.videoStream)
 			{
 				return;
 			}
-			this.mediaStream.getTracks().forEach(tr => tr.stop());
-			this.mediaStream = null;
+			this.videoStream.getTracks().forEach((track) => track.stop());
+			this.videoStream = null;
 			this.getApplication().stopLocalVideoStream();
+		},
+		stopLocalAudio()
+		{
+			if (!this.audioStream)
+			{
+				return;
+			}
+			this.audioStream.getTracks().forEach((track) => track.stop());
+			this.audioStream = null;
 		},
 		onCameraSelected(cameraId)
 		{
 			this.stopLocalVideo();
 			this.selectedCamera = cameraId;
-			this.getLocalStream();
+			this.getLocalVideoStream();
 		},
 		onMicSelected(micId)
 		{
@@ -217,7 +233,7 @@ const CheckDevices = {
 			if (state)
 			{
 				this.noVideo = false;
-				this.getLocalStream();
+				this.getLocalVideoStream();
 			}
 			else
 			{
@@ -231,7 +247,11 @@ const CheckDevices = {
 		{
 			if (state)
 			{
-				this.getLocalStream();
+				this.getLocalAudioStream();
+			}
+			else
+			{
+				this.stopLocalAudio();
 			}
 
 			this.showMic = state;
@@ -243,6 +263,23 @@ const CheckDevices = {
 		getApplication()
 		{
 			return this.$Bitrix.Application.get();
+		},
+		getVideoConstraints()
+		{
+			const videoConstraints = {};
+
+			if (this.selectedCamera)
+			{
+				videoConstraints.deviceId = { exact: this.selectedCamera };
+			}
+
+			if (!Utils.device.isMobile())
+			{
+				videoConstraints.width = { ideal: 1280 };
+				videoConstraints.height = { ideal: 720 };
+			}
+
+			return videoConstraints;
 		},
 	},
 	components:
@@ -262,7 +299,7 @@ const CheckDevices = {
 				</div>
 			</div>
 			<template v-if="!isMobile()">
-				<mic-level v-show="showMic" :localStream="mediaStream"/>
+				<mic-level v-show="showMic" :localStream="audioStream"/>
 			</template>
 		</div>
 	</div>

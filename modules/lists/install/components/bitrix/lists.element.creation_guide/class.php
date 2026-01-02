@@ -67,7 +67,7 @@ class ListsElementCreationGuide extends CBitrixComponent implements Errorable
 			'fields' => $this->iBlockFields,
 			'elementData' => $this->getElementData(),
 			'signedParameters' => $this->getSign(),
-
+			'iBlockId' => $this->iBlock['ID'],
 			'bizproc' => [
 				'parameterDocumentType' => $this->getWorkflowService()->getComplexDocumentType(),
 				'averageDuration' => $this->getAverageTemplateDuration(),
@@ -327,7 +327,6 @@ class ListsElementCreationGuide extends CBitrixComponent implements Errorable
 				new GetAverageIBlockTemplateDurationRequest(
 					$this->getIBlockId(),
 					CBPDocumentEventType::Create,
-					false,
 					false,
 				)
 			);

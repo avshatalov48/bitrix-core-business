@@ -69,7 +69,7 @@ if($arResult["SERVER_NAME"] == '' && defined("SITE_SERVER_NAME"))
 }
 		
 if($arResult["SERVER_NAME"] == '')
-	$arResult["SERVER_NAME"] = COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
+	$arResult["SERVER_NAME"] = COption::GetOptionString("main", "server_name");
 
 if ($arParams["ENTITY_TYPE"] == SONET_ENTITY_GROUP)
 {

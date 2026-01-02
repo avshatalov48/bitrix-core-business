@@ -11,6 +11,7 @@ return [
 		'main.core',
 		'main.date',
 		'main.popup',
+		'ui.alerts',
 		'ui.dialogs.messagebox',
 		'ui.notification',
 	],

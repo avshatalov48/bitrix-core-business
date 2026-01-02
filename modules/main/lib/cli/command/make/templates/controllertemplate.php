@@ -9,6 +9,9 @@ final class ControllerTemplate implements Template
 	public function __construct(
 		private readonly string $name,
 		private readonly string $namespace,
+		private readonly ?string $module,
+		private readonly ?string $alias,
+		private readonly array $actions = [],
 	)
 	{}
 
@@ -20,7 +23,6 @@ final class ControllerTemplate implements Template
 namespace {$this->namespace};
 
 use Bitrix\Main\Engine\Controller;
-use Bitrix\Main\Error;
 
 final class {$this->name} extends Controller
 {
@@ -28,32 +30,88 @@ final class {$this->name} extends Controller
 	{
 		parent::init();
 
-		# initialize services and/or load modules
+		// initialize services and/or load modules
 	}
+{$this->renderAutoWiredParameters()}
 
-	public function configureActions()
-	{
-		return [
-			'index' => [],
-		];
-	}
+{$this->renderActionsConfig()}
 
-	public function indexAction(string \$inputArg): bool
-	{
-		if (empty(\$inputArg))
-		{
-			\$this->addError(
-				new Error('Invalid argument')
-			);
-
-			return false;
-		}
-
-		# ...
-
-		return true;
-	}
+{$this->renderActions()}
 }
 PHP;
+	}
+
+	private function renderAutoWiredParameters(): string
+	{
+		return <<<PHP
+	public function getAutoWiredParameters(): array
+	{
+		return [];
+	}
+PHP;
+	}
+
+	private function renderActionsConfig(): string
+	{
+		if (empty($this->actions))
+		{
+			return <<<PHP
+	public function configureActions(): array
+	{
+		return [];
+	}
+PHP;
+		}
+		$code = [];
+		foreach ($this->actions as $action)
+		{
+			$code []= "'{$action}' => [],";
+		}
+
+		$code = implode("\n\t\t\t", $code);
+
+		return <<<PHP
+	public function configureActions(): array 
+	{
+		return [
+			{$code}
+		];
+	}
+PHP;
+	}
+
+	private function renderActions(): string
+	{
+		if (empty($this->actions))
+		{
+			return '';
+		}
+
+		$module = $this->module ?? 'module';
+		$alias = $this->alias ?? 'alias';
+
+		$code = [];
+		if ($this->alias === null)
+		{
+			$code[] = "\t// replace aliases with alias form settings";
+		}
+
+		if ($this->module === null)
+		{
+			$code[] = "\t// replace module your module";
+		}
+
+		foreach ($this->actions as $action)
+		{
+			$code[] = <<<PHP
+	/** @ajaxAction {$module}.{$alias}.{$this->name}.{$action} */
+	public function {$action}Action(): ?array
+	{
+		return null;
+	}
+PHP;
+		}
+
+		return implode("\n\n", $code);
 	}
 }

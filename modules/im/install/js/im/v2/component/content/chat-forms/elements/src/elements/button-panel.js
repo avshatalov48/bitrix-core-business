@@ -1,10 +1,10 @@
-import { Button as MessengerButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
+import { ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements.button';
 
 import './css/button-panel.css';
 
 // @vue/component
 export const ButtonPanel = {
-	components: { MessengerButton },
+	components: { ChatButton },
 	props:
 	{
 		isCreating: {
@@ -36,7 +36,7 @@ export const ButtonPanel = {
 	},
 	template: `
 		<div class="bx-im-chat-forms-button-panel__container">
-			<MessengerButton
+			<ChatButton
 				:size="ButtonSize.XL"
 				:color="ButtonColor.Success"
 				:customColorScheme="createButtonColorScheme"
@@ -46,7 +46,7 @@ export const ButtonPanel = {
 				@click="$emit('create')"
 				class="bx-im-chat-forms-button-panel__create-button"
 			/>
-			<MessengerButton
+			<ChatButton
 				:size="ButtonSize.XL"
 				:color="ButtonColor.Link"
 				:text="loc('IM_CREATE_CHAT_CANCEL')"

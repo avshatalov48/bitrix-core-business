@@ -1,20 +1,14 @@
 <?php
 
-#############################################
-# Bitrix Site Manager Forum					#
-# Copyright (c) 2002-2009 Bitrix			#
-# https://www.bitrixsoft.com					#
-# mailto:admin@bitrixsoft.com				#
-#############################################
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
 
 class CAllVoteEvent
 {
-	public static function err_mess()
-	{
-		$module_id = "vote";
-		return "<br>Module: ".$module_id."<br>Class: CAllVoteEvent<br>File: ".__FILE__;
-	}
-
 	public static function GetByID($ID)
 	{
 		$ID = intval($ID);
@@ -25,8 +19,8 @@ class CAllVoteEvent
 
 	public static function GetAnswer($EVENT_ID, $ANSWER_ID)
 	{
-		$err_mess = (self::err_mess())."<br>Function: GetAnswer<br>Line: ";
 		global $DB;
+
 		$EVENT_ID = intval($EVENT_ID);
 		$ANSWER_ID = intval($ANSWER_ID);
 		$strSql = "
@@ -43,7 +37,7 @@ class CAllVoteEvent
 			and A.EVENT_QUESTION_ID = Q.ID
 			and	A.ANSWER_ID = '$ANSWER_ID'
 			";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		if ($zr = $z->Fetch())
 		{
 			if ($zr["MESSAGE"] <> '') return $zr["MESSAGE"]; else return $zr["ANSWER_ID"];
@@ -63,8 +57,8 @@ class CAllVoteEvent
 
 	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [], $is_filtered = null, $get_user = "N")
 	{
-		$err_mess = (self::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB;
+
 		$arSqlSearch = Array();
 		if (is_array($arFilter))
 		{
@@ -178,7 +172,7 @@ class CAllVoteEvent
 			$strSqlSearch
 			$strSqlOrder
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}

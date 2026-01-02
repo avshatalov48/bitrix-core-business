@@ -1,11 +1,9 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_core,main_core_events) {
+(function (exports,main_core,main_core_events,ui_buttons,ui_switcher) {
 	'use strict';
 
-	let _ = t => t,
-	  _t;
 	class ShortView extends main_core_events.EventEmitter {
 	  constructor(params) {
 	    super(params);
@@ -20,20 +18,28 @@ this.BX.UI = this.BX.UI || {};
 	    main_core.Dom.append(this.render(), container);
 	  }
 	  render() {
-	    const checked = this.getShortView() === 'Y' ? 'checked' : '';
-	    this.node = main_core.Tag.render(_t || (_t = _`
-			<div class="tasks-scrum__switcher--container tasks-scrum__scope-switcher" title="${0}">
-				<label class="tasks-scrum__switcher--label">
-				<div class="tasks-scrum__switcher--label-text">
-					${0}
-				</div>
-				<input type="checkbox" class="tasks-scrum__switcher--checkbox" ${0}>
-				<span class="tasks-scrum__switcher-cursor"></span>
-				</label>
-			</div>
-		`), main_core.Loc.getMessage('UI_SHORT_VIEW_LABEL'), main_core.Loc.getMessage('UI_SHORT_VIEW_LABEL'), checked);
-	    main_core.Event.bind(this.node, 'change', this.onChange.bind(this));
-	    return this.node;
+	    const checked = this.getShortView() === 'Y';
+	    this.node = new ui_buttons.SplitButton({
+	      text: main_core.Loc.getMessage('UI_SHORT_VIEW_LABEL'),
+	      round: true,
+	      size: ui_buttons.ButtonSize.SMALL,
+	      color: ui_buttons.ButtonColor.LIGHT_BORDER,
+	      className: 'ui-btn-themes',
+	      mainButton: {
+	        onclick: (button, event) => {
+	          event.preventDefault();
+	          this.node.getSwitcher().toggle();
+	        }
+	      },
+	      switcher: {
+	        checked,
+	        color: ui_switcher.SwitcherColor.primary,
+	        handlers: {
+	          toggled: () => this.onChange()
+	        }
+	      }
+	    });
+	    return this.node.render();
 	  }
 	  setShortView(value) {
 	    this.shortView = value === 'Y' ? 'Y' : 'N';
@@ -42,13 +48,12 @@ this.BX.UI = this.BX.UI || {};
 	    return this.shortView;
 	  }
 	  onChange() {
-	    const checkboxNode = this.node.querySelector('input[type="checkbox"]');
-	    this.setShortView(checkboxNode.checked ? 'Y' : 'N');
+	    this.setShortView(this.node.getSwitcher().isChecked() ? 'Y' : 'N');
 	    this.emit('change', this.getShortView());
 	  }
 	}
 
 	exports.ShortView = ShortView;
 
-}((this.BX.UI.ShortView = this.BX.UI.ShortView || {}),BX,BX.Event));
+}((this.BX.UI.ShortView = this.BX.UI.ShortView || {}),BX,BX.Event,BX.UI,BX.UI));
 //# sourceMappingURL=short.view.bundle.js.map

@@ -2,33 +2,38 @@
 
 namespace Bitrix\Im\V2\Application;
 
-use Bitrix\Im\Promotion;
+use Bitrix\Call\Call;
+use Bitrix\Im\V2\Anchor\DI\AnchorContainer;
 use Bitrix\Im\V2\Common\ContextCustomer;
-use Bitrix\ImOpenLines\V2\Queue\Queue;
+use Bitrix\Im\V2\Integration\AI\Transcription\TranscribeManager;
+use Bitrix\Im\V2\Promotion\Internals\DeviceType;
+use Bitrix\Im\V2\Integration\AI\EngineManager;
 use Bitrix\ImOpenLines\V2\Status\Status;
 use Bitrix\Im\V2\TariffLimit\Limit;
+use Bitrix\Main\Application;
+use Bitrix\Main\DI\ServiceLocator;
+use Bitrix\Main\Loader;
 
 class Config implements \JsonSerializable
 {
 	use ContextCustomer;
 
 	private const NODE = '#bx-im-external-recent-list';
+	private const RU_REGIONS = ['ru', 'by', 'kz', 'uz'];
 
-	private bool $isDesktop = false;
+	private Context $applicationContext;
 
-	public function setDesktopFlag(bool $isDesktop): self
+	public function __construct(?Context $applicationContext = null)
 	{
-		$this->isDesktop = $isDesktop;
-
-		return $this;
+		$this->applicationContext = $applicationContext ?? Context::getCurrent();
 	}
-
 
 	public function jsonSerialize(): array
 	{
 		return [
 			'node' => self::NODE,
 			'preloadedList' => $this->getPreloadedList(),
+			'activeCalls' => $this->getActiveCalls(),
 			'permissions' => $this->getPermissions(),
 			'marketApps' => $this->getMarketApps(),
 			'currentUser' => $this->getCurrentUser(),
@@ -41,7 +46,45 @@ class Config implements \JsonSerializable
 			'featureOptions' => $this->getFeatureOptions(),
 			'sessionStatusMap' => $this->getSessionStatusMap(),
 			'tariffRestrictions' => $this->getTariffRestrictions(),
+			'anchors' => $this->getAnchors(),
+			'copilot' => $this->getCopilotData(),
+			'serviceHealthUrl' => $this->getServiceHealthUrl(),
+			'aiSettings' => $this->getAiSettings(),
 		];
+	}
+
+	public function getDesktopDownloadLink(): string
+	{
+		$region = Application::getInstance()->getLicense()->getRegion();
+
+		return
+			in_array($region, self::RU_REGIONS, true)
+				? 'https://www.bitrix24.ru/features/desktop.php'
+				: 'https://www.bitrix24.com/apps/desktop.php'
+			;
+	}
+
+	public function getInternetCheckLink(): string
+	{
+		$region = Application::getInstance()->getLicense()->getRegion();
+
+		return
+			in_array($region, self::RU_REGIONS, true)
+				? '//www.1c-bitrix.ru/200.ok'
+				: '//www.bitrixsoft.com/200.ok'
+			;
+	}
+
+	protected function getServiceHealthUrl(): string
+	{
+		$license = Application::getInstance()->getLicense();
+
+		$baseUrl = $license->isCis()
+			? 'https://status.bitrix24.ru/json_status.php?reg='
+			: 'https://status.bitrix24.com/json_status.php?reg='
+		;
+
+		return $baseUrl . $license->getRegion();
 	}
 
 	protected function getPreloadedList(): array
@@ -53,6 +96,16 @@ class Config implements \JsonSerializable
 			'GET_ORIGINAL_TEXT' => 'Y',
 			'SHORT_INFO' => 'Y',
 		]) ?: [];
+	}
+
+	protected function getActiveCalls(): array
+	{
+		if (!Loader::includeModule('call'))
+		{
+			return [];
+		}
+
+		return Call::getActiveCalls();
 	}
 
 	protected function getPermissions(): array
@@ -106,9 +159,10 @@ class Config implements \JsonSerializable
 
 	protected function getPromoList(): array
 	{
-		$promoType = $this->isDesktop ? Promotion::DEVICE_TYPE_DESKTOP : Promotion::DEVICE_TYPE_BROWSER;
+		$promoService = ServiceLocator::getInstance()->get('Im.Services.Promotion');
+		$promoType = $this->applicationContext->isDesktop() ? DeviceType::DESKTOP : DeviceType::BROWSER;
 
-		return Promotion::getActive($promoType);
+		return $promoService->getActive($promoType)->toRestFormat();
 	}
 
 	protected function getPhoneSettings(): array
@@ -139,5 +193,28 @@ class Config implements \JsonSerializable
 	protected function getTariffRestrictions(): array
 	{
 		return Limit::getInstance()->getRestrictions();
+	}
+
+	protected function getAnchors(): array
+	{
+		$anchorProvider = AnchorContainer::getInstance()
+			->getAnchorProvider()
+			->setContext($this->getContext());
+
+		return $anchorProvider->getUserAnchors();
+	}
+
+	protected function getCopilotData(): array
+	{
+		return [
+			'availableEngines' => (new EngineManager())->getAvailableEnginesForRest(),
+		];
+	}
+
+	protected function getAiSettings(): array
+	{
+		return [
+			'maxTranscribableFileSize' => TranscribeManager::MAX_TRANSCRIBABLE_FILE_SIZE,
+		];
 	}
 }

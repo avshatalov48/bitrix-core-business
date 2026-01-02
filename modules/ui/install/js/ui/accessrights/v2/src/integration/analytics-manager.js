@@ -21,31 +21,6 @@ export class AnalyticsManager
 		this.#isEnabled = Object.hasOwn(this.#data, 'tool') && Object.hasOwn(this.#data, 'category');
 	}
 
-	onSaveAttempt(): void
-	{
-		if (!this.#isEnabled)
-		{
-			return;
-		}
-
-		const { createdRoles, editedRoles, deletedRoles } = this.#analyzeRoles();
-
-		for (let i = 0; i < createdRoles; i++)
-		{
-			this.#registerRoleCreateEvent('attempt');
-		}
-
-		for (let i = 0; i < editedRoles; i++)
-		{
-			this.#registerRoleEditEvent('attempt');
-		}
-
-		for (let i = 0; i < deletedRoles; i++)
-		{
-			this.#registerRoleDeleteEvent('attempt');
-		}
-	}
-
 	onSaveSuccess(): void
 	{
 		if (!this.#isEnabled)

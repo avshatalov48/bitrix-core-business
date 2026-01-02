@@ -1,7 +1,11 @@
 import 'sidepanel';
+import { Loc, Text, Uri } from 'main.core';
+import { EditConstantParams } from './types/edit-constant-params';
 
 export class Router
 {
+	static #startSliderWidth: Number = 970;
+
 	static init()
 	{
 		if (top !== window)
@@ -99,5 +103,74 @@ export class Router
 			loader: 'bizproc:workflow-info',
 		};
 		this.#openSlider(url, options);
+	}
+
+	static openUserProcessesStart(options: Object): void
+	{
+		const sliderOptions = {
+			width: this.#startSliderWidth,
+			cacheable: false,
+			loader: 'bizproc:start-process-page',
+			...options,
+		};
+
+		let url = '/bizproc/start/';
+		if (options && options.requestMethod === 'get' && options.requestParams)
+		{
+			url = BX.Uri.addParam(url, options.requestParams);
+		}
+
+		this.#openSlider(url, sliderOptions);
+	}
+
+	static openWorkflowStartList(options: Object): void
+	{
+		const sliderOptions = {
+			width: this.#startSliderWidth,
+			cacheable: false,
+			loader: 'bizproc:start-process-page',
+			...options,
+		};
+
+		let url = '/bitrix/components/bitrix/bizproc.workflow.start.list/';
+		if (options && options.requestMethod === 'get' && options.requestParams)
+		{
+			url = BX.Uri.addParam(url, options.requestParams);
+		}
+
+		this.#openSlider(url, sliderOptions);
+	}
+
+	static openWorkflowChangeConstants(params: EditConstantParams): void
+	{
+		const url = Router.#createEditConstantSlider(params);
+		const sliderOptions = {
+			width: 900,
+			cacheable: false,
+			allowChangeHistory: false,
+		};
+
+		this.#openSlider(url, sliderOptions);
+	}
+
+	static #createEditConstantSlider(params: EditConstantParams): string
+	{
+		let url = Uri.addParam(
+			'/bitrix/components/bitrix/bizproc.workflow.start/',
+			{ sessid: Loc.getMessage('bitrix_sessid'), action: 'CHANGE_CONSTANTS' },
+		);
+
+		const templateId = Text.toInteger(params.templateId);
+		if (templateId > 0)
+		{
+			url = Uri.addParam(url, { templateId });
+		}
+
+		if (params.signedDocumentType)
+		{
+			url = Uri.addParam(url, { signedDocumentType: params.signedDocumentType });
+		}
+
+		return url;
 	}
 }

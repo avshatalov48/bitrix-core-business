@@ -3372,8 +3372,8 @@ abstract class Base extends \CBitrixComponent
 						);
 						$fullPrices[$priceType]['RATIO_'.$fieldName] = $fullPrices[$priceType][$fieldName]*$ratio;
 						$fullPrices[$priceType]['PRINT_RATIO_'.$fieldName] = \CCurrencyLang::CurrencyFormat(
-							$minimalPrice['RATIO_'.$fieldName],
-							$minimalPrice['CURRENCY'],
+							$fullPrices['RATIO_'.$fieldName],
+							$fullPrices['CURRENCY'],
 							true
 						);
 					}

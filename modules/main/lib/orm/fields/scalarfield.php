@@ -34,6 +34,9 @@ abstract class ScalarField extends Field implements IStorable, ITypeHintable
 	/** @var bool  */
 	protected $is_binary = false;
 
+	/** @var bool  */
+	protected $is_fulltext = false;
+
 	protected $column_name = '';
 
 	/** @var null|callable|mixed  */
@@ -58,6 +61,7 @@ abstract class ScalarField extends Field implements IStorable, ITypeHintable
 		$this->is_private = (isset($parameters['private']) && $parameters['private']);
 		$this->is_nullable = (isset($parameters['nullable']) && $parameters['nullable']);
 		$this->is_binary = (isset($parameters['binary']) && $parameters['binary']);
+		$this->is_fulltext = (isset($parameters['fulltext']) && $parameters['fulltext']);
 
 		$this->column_name = $parameters['column_name'] ?? $this->name;
 		$this->default_value = $parameters['default_value'] ?? null;
@@ -191,6 +195,25 @@ abstract class ScalarField extends Field implements IStorable, ITypeHintable
 	public function isBinary()
 	{
 		return $this->is_binary;
+	}
+
+	/**
+	 * @param bool $value
+	 *
+	 * @return ScalarField
+	 */
+	public function configureFulltext($value = true)
+	{
+		$this->is_fulltext = (bool) $value;
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isFulltext()
+	{
+		return $this->is_fulltext;
 	}
 
 	/**

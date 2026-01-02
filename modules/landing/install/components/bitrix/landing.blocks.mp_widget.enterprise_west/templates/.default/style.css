@@ -1,0 +1,28 @@
+.block-mp-widget-ent-0 .landing-widget-wrapper {
+
+}
+
+.landing-widget-ent {
+	cursor: default;
+}
+
+.landing-widget-view-main.--enterprise-west {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	background: #f3f9ff url(https://cdn.bitrix24.site/bitrix/images/landing/widget/ent_trial/bg.svg) center no-repeat;
+}
+
+.landing-widget-view-main.--enterprise-west .g-btn-primary {
+	padding: 0 24px;
+	border: none;
+	background-color: var(--primary);
+	font-size: 19px;
+	color: var(--theme-color-strict-inverse);
+	transition: background-color .3s;
+}
+
+.landing-widget-view-main.--enterprise-west .g-btn-primary:hover {
+	background-color: var(--primary-lighten-1);
+}

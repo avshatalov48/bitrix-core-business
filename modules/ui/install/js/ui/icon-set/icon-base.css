@@ -1,16 +1,57 @@
+.ui-icon-set__scope {
+	--ui-icon-set__icon-base-size: 24px;
+	--ui-icon-set__icon-base-color: var(--ui-color-base-90);
+	--ui-icon-set__icon-path: url('');
+}
+
 .ui-icon-set {
-	--ui-icon-set__icon-size: 24px;
+	--ui-icon-set__icon-base-size: 24px;
 	--ui-icon-set__icon-base-color: var(--ui-color-base-90);
 	--ui-icon-set__icon-path: url('');
 
 	display: inline-block;
-	width: var(--ui-icon-set__icon-size);
-	height: var(--ui-icon-set__icon-size);
+	width: var(--ui-icon-set__icon-size, var(--ui-icon-set__icon-base-size));
+	height: var(--ui-icon-set__icon-size, var(--ui-icon-set__icon-base-size));
 	flex-shrink: 0;
 	-webkit-mask-image: var(--ui-icon-set__icon-path);
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 	-webkit-mask-size: contain;
-	background-color: var(--ui-icon-set__icon-color, var(--ui-icon-set__icon-base-color));
-	transition: .2s;
+	background: var(--ui-icon-set__icon-color, var(--ui-icon-set__icon-base-color));
+	transition: 150ms ease-in-out background;
+}
+
+.ui-icon-set.--fixed-color {
+	-webkit-mask-image: none;
+	background: var(--ui-icon-set__icon-path);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	transition: 150ms ease-in-out background;
+}
+
+.ui-icon-set:hover {
+	transition-duration: 0s;
+}
+
+.ui-icon-set.--hoverable-default:hover {
+	background: color-mix(in srgb, var(--ui-icon-set__icon-color, var(--ui-icon-set__icon-base-color)) 100%, var(--ui-color-bg-state-hover-default-overlay-hex) var(--ui-color-bg-state-hover-default-overlay-opacity));
+}
+
+.ui-icon-set.--hoverable-default:active {
+	background: color-mix(in srgb, var(--ui-icon-set__icon-color, var(--ui-icon-set__icon-base-color)) 100%, var(--ui-color-bg-state-click-default-overlay-hex) var(--ui-color-bg-state-click-default-overlay-opacity));
+}
+
+.ui-icon-set.--hoverable-alt:hover {
+	background: color-mix(in srgb, var(--ui-icon-set__icon-color, var(--ui-icon-set__icon-base-color)) 100%, var(--ui-color-bg-state-hover-alt-overlay-hex) var(--ui-color-bg-state-hover-alt-overlay-opacity));
+}
+
+.ui-icon-set.--hoverable-alt:active {
+	background: color-mix(in srgb, var(--ui-icon-set__icon-color, var(--ui-icon-set__icon-base-color)) 100%, var(--ui-color-bg-state-click-alt-overlay-hex) var(--ui-color-bg-state-click-alt-overlay-opacity));
+}
+
+.ui-icon-set.--responsive {
+	width: 100%;
+	height: 100%;
+	aspect-ratio: 1 / 1;
 }

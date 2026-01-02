@@ -1,12 +1,4 @@
 <?php
-/*
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2002-2016 Bitrix             #
-# https://www.bitrixsoft.com          #
-# mailto:admin@bitrix.ru                     #
-##############################################
-*/
 
 /**
  * @global CUser $USER

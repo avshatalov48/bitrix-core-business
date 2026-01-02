@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Diag;
@@ -36,14 +36,17 @@ class FileLogger extends Logger
 		{
 			if (flock($fp, LOCK_EX))
 			{
-				// need it for filesize()
-				clearstatcache();
-				$logSize = filesize($this->fileName);
-
-				if ($this->maxSize > 0 && $logSize > $this->maxSize)
+				if ($this->maxSize > 0)
 				{
-					$this->rotateLog();
-					ftruncate($fp, 0);
+					// need it for filesize()
+					clearstatcache();
+					$logSize = filesize($this->fileName);
+
+					if ($logSize > $this->maxSize)
+					{
+						$this->rotateLog();
+						ftruncate($fp, 0);
+					}
 				}
 
 				fwrite($fp, $message);

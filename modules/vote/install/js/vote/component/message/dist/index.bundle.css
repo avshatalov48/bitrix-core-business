@@ -1,0 +1,62 @@
+.bx-im-chat-title__vote {
+	padding: 10px 6px 0 14px;
+	max-width: 410px;
+	width: 89%;
+}
+
+.bx-im-chat-title__vote-icon {
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 42px;
+	height: 42px;
+	z-index: 1;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' fill='none'%3E%3Crect width='10' height='3' x='12' y='18' fill='%2392C5FF' fill-opacity='.4' rx='1.5'/%3E%3Crect width='14' height='3' x='12' y='12' fill='%2392C5FF' fill-opacity='.4' rx='1.5'/%3E%3Crect width='18' height='3' x='12' y='24' fill='%2392C5FF' fill-opacity='.4' rx='1.5'/%3E%3C/svg%3E");
+}
+
+.bx-im-message-base__wrap.--self .bx-im-chat-title__vote-icon {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' fill='none'%3E%3Crect width='10' height='3' x='12' y='18' fill='%23A4E548' fill-opacity='.4' rx='1.5'/%3E%3Crect width='14' height='3' x='12' y='12' fill='%23A4E548' fill-opacity='.4' rx='1.5'/%3E%3Crect width='18' height='3' x='12' y='24' fill='%23A4E548' fill-opacity='.4' rx='1.5'/%3E%3C/svg%3E");
+}
+
+.bx-im-chat__vote-container {
+	position: relative;
+	min-width: 410px;
+	max-width: 500px;
+	border-radius: 6px;
+	background: var(--ui-color-background-primary);
+}
+
+.bx-im-message-base__wrap.--self .bx-im-chat__vote-container {
+	background: #edfecb;
+}
+
+.bx-im-content-chat__container.--left-align .bx-im-message-base__wrap.--self .bx-im-chat__vote-container,
+.bx-im-content-chat__container .bx-im-message-base__wrap.--opponent .bx-im-chat__vote-container {
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+}
+
+.bx-im-content-chat__container.--center-align .bx-im-chat__vote-container {
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 10px;
+}
+
+.bx-im-message-base__wrap.--opponent:last-child .bx-im-chat__vote-container,
+.bx-im-content-chat__container.--left-align .bx-im-message-base__wrap.--self:last-child .bx-im-chat__vote-container {
+	border-bottom-left-radius: 0;
+}
+
+.bx-im-content-chat__container.--center-align .bx-im-message-base__wrap.--self:last-child .bx-im-chat__vote-container {
+	border-bottom-right-radius: 0;
+}
+
+.bx-im-message-default-content__vote {
+	padding: 0 14px 12px;
+}
+
+.bx-im-message-base__wrap.--has-error .bx-im-chat-title__vote-icon {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' fill='none'%3E%3Crect width='10' height='3' x='12' y='18' fill='%23000' fill-opacity='.4' rx='1.5'/%3E%3Crect width='14' height='3' x='12' y='12' fill='%23000' fill-opacity='.4' rx='1.5'/%3E%3Crect width='18' height='3' x='12' y='24' fill='%23000' fill-opacity='.4' rx='1.5'/%3E%3C/svg%3E")
+}

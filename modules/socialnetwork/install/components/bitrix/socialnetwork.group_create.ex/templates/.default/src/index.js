@@ -54,6 +54,9 @@ class WorkgroupForm extends EventEmitter
 			focus: string,
 			culture: Object,
 			currentUserType: string,
+			isScrumForm: boolean,
+			isScrumTrialEnabled: boolean,
+			isProjectsTrialEnabled: boolean,
 		}
 	)
 	{
@@ -78,6 +81,9 @@ class WorkgroupForm extends EventEmitter
 		this.avatarUploaderId = params.avatarUploaderId;
 		this.themePickerData = params.themePickerData;
 		this.projectOptions = params.projectOptions;
+		this.isScrumForm = params.isScrumForm;
+		this.isScrumTrialEnabled = params.isScrumTrialEnabled;
+		this.isProjectsTrialEnabled = params.isProjectsTrialEnabled;
 
 		this.projectTypes = params.projectTypes;
 		this.confidentialityTypes = params.confidentialityTypes;

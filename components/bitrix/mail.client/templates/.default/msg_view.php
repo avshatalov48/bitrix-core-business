@@ -1,6 +1,8 @@
 <?php
-
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+
+/** @var \CMain $APPLICATION */
+/** @var array $arResult */
 
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
@@ -9,7 +11,7 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_NAME' => 'bitrix:mail.client.message.view',
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => $arResult,
-		'USE_UI_TOOLBAR' => 'N',
+		'USE_UI_TOOLBAR' => 'Y',
 		'USE_PADDING' => false,
 		'PLAIN_VIEW' => false,
 		'PAGE_MODE' => false,

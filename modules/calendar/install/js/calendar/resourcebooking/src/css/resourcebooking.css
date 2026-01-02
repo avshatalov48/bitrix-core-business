@@ -2138,7 +2138,3 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 .popup-window-resource-select .menu-popup .menu-popup-items .main-buttons-submenu-item.main-buttons-submenu-separator .menu-popup-item-text {
 	height: auto;
 }
-
-.menu-popup-no-icon .menu-popup-item-text {
-	padding: 0 30px 0 15px;
-}

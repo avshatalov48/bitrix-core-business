@@ -18,6 +18,12 @@ if (
 	die();
 }
 
+if (!\Bitrix\Socialnetwork\ComponentHelper::getModuleUsed())
+{
+	echo CUtil::PhpToJsObject(Array('ERROR' => 'ACCESS_ERROR'));
+	CMain::FinalActions();
+}
+
 if (check_bitrix_sessid())
 {
 	if (

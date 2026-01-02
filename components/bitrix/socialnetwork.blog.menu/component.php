@@ -89,7 +89,7 @@ $arResult["PostPerm"] = BLOG_PERMS_DENY;
 
 if (($arParams["SET_TITLE"] ?? '') !== "N")
 {
-	$APPLICATION->SetTitle(Loc::getMessage("BM_BLOG_POST"));
+	$APPLICATION->SetTitle(Loc::getMessage("BM_BLOG_POST_MSGVER_1"));
 }
 
 if ($arParams["USER_ID"] > 0)
@@ -117,18 +117,18 @@ if ($arParams["USER_ID"] > 0)
 
 		if($arParams["USER_ID"] === $userId)
 		{
-			$APPLICATION->SetTitle(Loc::getMessage("BM_BLOG_POST"));
+			$APPLICATION->SetTitle(Loc::getMessage("BM_BLOG_POST_MSGVER_1"));
 		}
 		else
 		{
 			if ($arParams["HIDE_OWNER_IN_TITLE"] === "Y")
 			{
-				$APPLICATION->SetPageProperty("title", $strTitleFormatted.": ".Loc::getMessage("BM_BLOG_POST"));
-				$APPLICATION->SetTitle(Loc::getMessage("BM_BLOG_POST"));
+				$APPLICATION->SetPageProperty("title", $strTitleFormatted.": ".Loc::getMessage("BM_BLOG_POST_MSGVER_1"));
+				$APPLICATION->SetTitle(Loc::getMessage("BM_BLOG_POST_MSGVER_1"));
 			}
 			else
 			{
-				$APPLICATION->SetTitle($strTitleFormatted.": ".Loc::getMessage("BM_BLOG_POST"));
+				$APPLICATION->SetTitle($strTitleFormatted.": ".Loc::getMessage("BM_BLOG_POST_MSGVER_1"));
 			}
 		}
 	}
@@ -169,7 +169,7 @@ if($groupMode)
 
 		if (($arParams["SET_TITLE"] ?? '') !== "N")
 		{
-			$APPLICATION->SetTitle(Loc::getMessage("BM_BLOG_POST"));
+			$APPLICATION->SetTitle(Loc::getMessage("BM_BLOG_POST_MSGVER_1"));
 		}
 
 		$arResult["PATH_TO_4ME_ALL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], [
@@ -345,4 +345,3 @@ elseif(($arResult["forme"] ?? null) === "Y")
 }
 
 $this->IncludeComponentTemplate();
-?>

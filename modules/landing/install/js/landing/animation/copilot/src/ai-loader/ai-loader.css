@@ -1,0 +1,32 @@
+.landing-ui-ai-loader {
+	display: flex;
+	align-items: center;
+	position: fixed;
+	padding: 10px 14px 10px 10px;
+	left: 50%;
+	bottom: 47px;
+	transform: translate(-50%, 0);
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: 0 9px 18px 0 rgba(0, 0, 0, .12);
+	z-index: 9;
+	opacity: 1;
+	transition: .15s;
+}
+
+.landing-ui-ai-loader.--close {
+	opacity: 0;
+	transform: translateY(7px);
+}
+
+.landing-ui-ai-loader__animate {
+	display: inline-block;
+	width: 30px;
+	height: 30px;
+}
+
+.landing-ui-ai-loader__text {
+	padding: 0 10px;
+	color: var(--ui-color-base-90);
+	font-size: var(--ui-font-size-xl);
+}

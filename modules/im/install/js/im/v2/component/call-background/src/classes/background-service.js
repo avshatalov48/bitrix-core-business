@@ -1,9 +1,9 @@
-import {rest as RestClient} from 'rest.client';
+import { rest as RestClient } from 'rest.client';
 
-import {Logger} from 'im.v2.lib.logger';
-import {RestMethod} from 'im.v2.const';
+import { Logger } from 'im.v2.lib.logger';
+import { RestMethod } from 'im.v2.const';
 
-import type {BackgroundListRestResult} from '../types/rest';
+import type { BackgroundListRestResult } from '../types/rest';
 
 type ElementsListRestResult = {
 	[RestMethod.imCallBackgroundGet]: RestResult,
@@ -16,7 +16,7 @@ export class BackgroundService
 	{
 		const query = {
 			[RestMethod.imCallBackgroundGet]: [RestMethod.imCallBackgroundGet],
-			[RestMethod.imCallMaskGet]: [RestMethod.imCallMaskGet]
+			[RestMethod.imCallMaskGet]: [RestMethod.imCallMaskGet],
 		};
 
 		return new Promise((resolve, reject) => {
@@ -27,33 +27,38 @@ export class BackgroundService
 				if (backgroundResult.error())
 				{
 					console.error('BackgroundService: error getting background list', backgroundResult.error());
-					return reject('Error getting background list');
+
+					return reject(backgroundResult.error());
 				}
+
 				if (maskResult.error())
 				{
 					console.error('BackgroundService: error getting mask list', maskResult.error());
-					return reject('Error getting mask list');
+
+					return reject(maskResult.error());
 				}
 
 				return resolve({
 					backgroundResult: backgroundResult.data(),
-					maskResult: maskResult.data()
+					maskResult: maskResult.data(),
 				});
 			});
 		});
 	}
 
-	commitBackground(fileId: string): Promise
+	commitBackground(fileId: string): void
 	{
-		return RestClient.callMethod(RestMethod.imCallBackgroundCommit, {
-			fileId
-		});
+		RestClient.callMethod(RestMethod.imCallBackgroundCommit, { fileId })
+			.catch((result: RestResult) => {
+				console.error('BackgroundService: commitBackground error', result.error());
+			});
 	}
 
-	deleteFile(fileId: string): Promise
+	deleteFile(fileId: string): void
 	{
-		return RestClient.callMethod(RestMethod.imCallBackgroundDelete, {
-			fileId
-		});
+		RestClient.callMethod(RestMethod.imCallBackgroundDelete, { fileId })
+			.catch((result: RestResult) => {
+				console.error('BackgroundService: deleteFile error', result.error());
+			});
 	}
 }

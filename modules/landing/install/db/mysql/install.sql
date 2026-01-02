@@ -490,6 +490,16 @@ create table if not exists b_landing_block_last_used
 	INDEX IX_B_BLOCK_LU_USER_CODE (USER_ID, CODE)
 );
 
+create table if not exists b_landing_block_favourite
+(
+	ID int(18) not null auto_increment,
+	USER_ID int(18) not null,
+	CODE varchar(255) not null,
+	DATE_CREATE timestamp not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(ID),
+	INDEX IX_B_BLOCK_LU_USER (USER_ID)
+);
+
 create table if not exists b_landing_history
 (
     ID int(18) not null auto_increment,
@@ -512,4 +522,79 @@ create table if not exists b_landing_history_step
     STEP int(18) not null,
     PRIMARY KEY(ID),
     INDEX IX_HISTORY_STEP (ENTITY_ID, ENTITY_TYPE)
+);
+
+create table if not exists b_landing_copilot_generations
+(
+    ID int not null auto_increment,
+	SCENARIO varchar(255) not null,
+    STEP int null,
+    CHAT_ID int null,
+    SITE_ID int null,
+    SITE_DATA mediumtext default null,
+    DATA mediumtext default null,
+	CREATED_BY_ID int not null,
+    DATE_CREATE datetime not null,
+	DATE_FINISHED datetime default null,
+    PRIMARY KEY(ID),
+	INDEX IX_LANDING_COPILOT_GENERATION_SITE (SITE_ID)
+);
+
+create table if not exists b_landing_copilot_requests
+(
+	ID int not null auto_increment,
+	GENERATION_ID int not null,
+	HASH varchar(255) null,
+	RESULT mediumtext default null,
+	ERROR text default null,
+	DELETED char(1) not null default 'N',
+	DATE_CREATE datetime not null,
+	DATE_RECEIVE datetime default null,
+	PRIMARY KEY (ID),
+	INDEX IX_LANDING_COPILOT_REQUEST_STEP (GENERATION_ID),
+	INDEX IX_LANDING_COPILOT_REQUEST_HASH (HASH)
+);
+
+create table if not exists b_landing_copilot_steps
+(
+	ID int not null auto_increment,
+	GENERATION_ID int not null,
+	STEP_ID int not null,
+	CLASS varchar(255) not null,
+	STATUS int not null,
+	PRIMARY KEY (ID),
+	INDEX IX_LANDING_COPILOT_STEPS_GENERATION_ID (GENERATION_ID)
+);
+
+create table if not exists b_landing_copilot_request_to_entities
+(
+	ID int not null auto_increment,
+	REQUEST_ID int not null,
+	ENTITY_TYPE char(1) not null,
+	LANDING_ID int null,
+	BLOCK_ID int null,
+	NODE_CODE varchar(255) null,
+	POSITION int null,
+	PRIMARY KEY (ID),
+	INDEX IX_LANDING_COPILOT_REQUEST_TO_ENTITIES (REQUEST_ID)
+);
+
+create table if not exists b_landing_copilot_request_to_step
+(
+	ID int not null auto_increment,
+	REQUEST_ID int not null,
+	GENERATION_ID int not null,
+	STEP int not null,
+	APPLIED boolean default false,
+	PRIMARY KEY (ID),
+	INDEX IX_IX_LANDING_COPILOT_REQUEST_TO_STEPS_REQUEST_GENERATION_STEPS (REQUEST_ID, GENERATION_ID, STEP)
+);
+
+create table if not exists b_landing_copilot_site_to_chat
+(
+	CHAT_ID int not null,
+	SITE_ID int not null,
+	USER_ID int not null,
+	PRIMARY KEY (SITE_ID, CHAT_ID, USER_ID),
+	INDEX IX_IX_LANDING_COPILOT_SITE_TO_CHAT_SITE_ID (SITE_ID)
 );

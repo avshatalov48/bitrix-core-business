@@ -9,6 +9,12 @@
 	line-height: var(--im-font-line-height-2xs);
 }
 
+.bx-im-base-file-item__viewer-container {
+	display: flex;
+	flex: 1;
+	overflow: hidden;
+}
+
 .bx-im-base-file-item__icon-container {
 	width: 44px;
 	height: 44px;

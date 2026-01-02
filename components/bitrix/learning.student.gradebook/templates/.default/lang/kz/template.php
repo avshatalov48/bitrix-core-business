@@ -1,0 +1,23 @@
+<?php
+$MESS["LEARNING_ATTEMPTS_TITLE"] = "Әрекеттер";
+$MESS["LEARNING_ATTEMPT_NOT_FINISHED"] = "Әрекет аяқталған жоқ";
+$MESS["LEARNING_BACK_TO_GRADEBOOK"] = "Тесттер тізіміне оралу";
+$MESS["LEARNING_PROFILE_ACTION"] = "Әрекеттер";
+$MESS["LEARNING_PROFILE_ATTEMPTS"] = "Әрекеттер";
+$MESS["LEARNING_PROFILE_BEST_SCORE"] = "Үздік нәтиже";
+$MESS["LEARNING_PROFILE_COURSE"] = "Курс";
+$MESS["LEARNING_PROFILE_DATE_END"] = "Тапсыру күні";
+$MESS["LEARNING_PROFILE_LAST_RESULT"] = "Соңғы тест өтілді";
+$MESS["LEARNING_PROFILE_LAST_SCORE"] = "Соңғы тестілеудің нәтижесі";
+$MESS["LEARNING_PROFILE_MARK"] = "Бағалау";
+$MESS["LEARNING_PROFILE_NO"] = "Жоқ";
+$MESS["LEARNING_PROFILE_NO_DATA"] = "Деректер жоқ";
+$MESS["LEARNING_PROFILE_QUESTIONS"] = "Сұрақтар";
+$MESS["LEARNING_PROFILE_RESULT"] = "Өтілген";
+$MESS["LEARNING_PROFILE_SCORE"] = "Ұпай";
+$MESS["LEARNING_PROFILE_TEST"] = "Тест";
+$MESS["LEARNING_PROFILE_TEST_DETAIL"] = "Әрекеттер тізімі";
+$MESS["LEARNING_PROFILE_TIME_DURATION"] = "Жұмсалған уақыт";
+$MESS["LEARNING_PROFILE_TRY"] = "Тағы бір рет өту";
+$MESS["LEARNING_PROFILE_YES"] = "Иә";
+$MESS["LEARNING_TEST_CHECKED_MANUALLY_SO_NOT_ALL_RESULTS_CAN_BE_ACTUAL"] = "Тест қолмен тексеріледі және әлі тексерілмеген болуы мүмкін.";

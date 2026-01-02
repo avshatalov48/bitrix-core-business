@@ -11,8 +11,6 @@ use Bitrix\Main\DB\SqlExpression;
 
 class CDatabasePgSql extends CAllDatabase
 {
-	const FULLTEXT_MAXIMUM_LENGTH = 900000;
-
 	/** @var \PgSql\Connection */
 	var $db_Conn;
 
@@ -179,24 +177,7 @@ class CDatabasePgSql extends CAllDatabase
 						$type = "bytes";
 						break;
 					default:
-						$type = "string";
-						if (!$field['CHARACTER_MAXIMUM_LENGTH'])
-						{
-							if (array_key_exists($fieldName, $fullTextColumns))
-							{
-								$field['CHARACTER_MAXIMUM_LENGTH'] = static::FULLTEXT_MAXIMUM_LENGTH;
-							}
-						}
-						else
-						{
-							if (
-								array_key_exists($fieldName, $fullTextColumns)
-								&& $field['CHARACTER_MAXIMUM_LENGTH'] > static::FULLTEXT_MAXIMUM_LENGTH
-							)
-							{
-								$field['CHARACTER_MAXIMUM_LENGTH'] = static::FULLTEXT_MAXIMUM_LENGTH;
-							}
-						}
+						$type = array_key_exists($fieldName, $fullTextColumns) ? "fulltext" : "string";
 						break;
 				}
 
@@ -276,6 +257,9 @@ class CDatabasePgSql extends CAllDatabase
 							break;
 						case "bytes":
 							$strInsert2 .= "decode('".bin2hex($value)."', 'hex')";
+							break;
+						case "fulltext":
+							$strInsert2 .= "safe_text_for_tsvector('".$sqlHelper->forSql($value, (int)$arColumnInfo['MAX_LENGTH'])."')";
 							break;
 						default:
 							if ($arColumnInfo['MAX_LENGTH'])
@@ -376,6 +360,9 @@ class CDatabasePgSql extends CAllDatabase
 							break;
 						case "bytes":
 							$value = "decode('".bin2hex($value)."', 'hex')";
+							break;
+						case "fulltext":
+							$value = "safe_text_for_tsvector('".$sqlHelper->forSql($value, (int)$arColumnInfo['MAX_LENGTH'])."')";
 							break;
 						default:
 							if ($arColumnInfo['MAX_LENGTH'])

@@ -1,0 +1,19 @@
+<?php
+$MESS["CC_BLEE_ACCESS_DENIED"] = "Тізімді қарау және редакциялау құқығы жоқ.";
+$MESS["CC_BLEE_ACCESS_DENIED_STATUS"] = "Бұл жазбаны ағымдағы мәртебеде өңдеуге рұқсатыңыз жоқ";
+$MESS["CC_BLEE_DELETE_ERROR"] = "Жою қатесі.";
+$MESS["CC_BLEE_ELEMENT_LOCKED"] = "Жазба уақытша бұғатталған";
+$MESS["CC_BLEE_FIELD_NAME_DEFAULT"] = "Атауы";
+$MESS["CC_BLEE_INTERNAL_ERROR_ELEMENT_ADD"] = "Элементті жасау мүмкін болмады. Қайталап көріңіз.";
+$MESS["CC_BLEE_INTERNAL_ERROR_ELEMENT_UPDATE"] = "Элементті жасау мүмкін болмады. Қайталап көріңіз.";
+$MESS["CC_BLEE_IS_CONSTANTS_TUNED"] = "Бизнес-процестің константаларын баптау қажет.";
+$MESS["CC_BLEE_IS_CONSTANTS_TUNED_NEW"] = "Бизнес-процестің параметрлерін баптау қажет.";
+$MESS["CC_BLEE_LISTS_FOR_SONET_GROUP_DISABLED"] = "Бұл топ үшін тізім функционалы өшірілген.";
+$MESS["CC_BLEE_MODULE_NOT_INSTALLED"] = "Әмбебап тізім модулі орнатылмаған.";
+$MESS["CC_BLEE_SONET_DEL_LOG_TITLE_TEMPLATE"] = "\"#TITLE#\" тізім элементі жойылды";
+$MESS["CC_BLEE_SONET_LOG_TITLE_TEMPLATE"] = "\"#TITLE#\" тізім элементі қосылды немесе өзгертілді";
+$MESS["CC_BLEE_UNKNOWN_ERROR"] = "Белгісіз қате.";
+$MESS["CC_BLEE_UPPER_LEVEL"] = "Жоғарғы деңгей";
+$MESS["CC_BLEE_VALIDATE_FIELD_ERROR"] = "#NAME#' өрісінің мәні дұрыс емес";
+$MESS["CC_BLEE_WRONG_IBLOCK"] = "Қате тізім көрсетілген.";
+$MESS["CC_BLEE_WRONG_IBLOCK_TYPE"] = "Қате ақпараттық блок коды.";

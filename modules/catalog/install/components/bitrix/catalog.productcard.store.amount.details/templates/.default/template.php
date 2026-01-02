@@ -1,43 +1,33 @@
 <?php
-/**
- * @var $component
- * @var $this \CBitrixComponentTemplate
- * @var \CMain $APPLICATION
- * @var array $arParams
- * @var array $arResult
- */
-
-use Bitrix\Main\Localization\Loc;
-use Bitrix\UI\Toolbar\Facade\Toolbar;
-use Bitrix\Main\Web\Json;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
-\Bitrix\Main\UI\Extension::load([
+/**
+ * @var \CatalogProductStoreAmountDetailsComponent $component
+ * @var \CBitrixComponentTemplate $this
+ * @global \CMain $APPLICATION
+ * @var array $arParams
+ * @var array $arResult
+ */
+
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
+use Bitrix\Main\Web\Json;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
+
+Loader::includeModule('ui');
+
+Extension::load([
 	'ui.design-tokens',
 	'catalog.access-denied-input',
 ]);
 
 Toolbar::deleteFavoriteStar();
-
-ob_start();
-?>
-<div class="pagetitle-container pagetitle-flexible-space">
-	<?php
-		$APPLICATION->includeComponent(
-			'bitrix:main.ui.filter',
-			'',
-			$arResult['FILTER_PARAMS'],
-			false,
-			['HIDE_ICONS' => true]
-		);
-	?>
-</div>
-<?php
-$APPLICATION->AddViewContent('inside_pagetitle', ob_get_clean(), 600);
+Toolbar::addFilter($arResult['FILTER_PARAMS']);
 
 $APPLICATION->IncludeComponent(
 	'bitrix:main.ui.grid',
@@ -85,7 +75,7 @@ $APPLICATION->IncludeComponent(
 	BX.message(<?= Json::encode(Loc::loadLanguageFile(__FILE__)) ?>);
 	BX.ready(function(){
 		BX.message(<?=Json::encode(Loc::loadLanguageFile(__FILE__))?>);
-		BX.Catalog.StoreAmountDetails.Instance = new BX.Catalog.StoreAmountDetails(<?=CUtil::PhpToJSObject([
+		BX.Catalog.StoreAmountDetails.Instance = new BX.Catalog.StoreAmountDetails(<?=Json::encode([
 			'gridId' => $arResult['GRID']['GRID_ID'],
 			'productId' => $arParams['PRODUCT_ID'],
 			'allowPurchasingPrice' => $arResult['ALLOW_PURCHASING_PRICE'],

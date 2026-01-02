@@ -1,9 +1,11 @@
 import type { RelationData } from '../type/data';
-import type { BarOptions } from '../type/constructor-options';
-import { Tag, Dom, Loc, Event, Text } from 'main.core';
+import type { BarOptions, BarEntityLinkOptions } from '../type/constructor-options';
+import { Tag, Dom, Loc, Event } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { Loader } from 'main.loader';
 import { Messenger } from 'im.public';
+import { Icon, Outline } from 'ui.icon-set.api.core';
+import 'ui.icon-set.main';
 
 export default class Bar
 {
@@ -57,33 +59,47 @@ export default class Bar
 		this.loader.show();
 	}
 
-	render(relationData: RelationData): HTMLElement
+	render(relationData: RelationData, entityLink: ?HTMLElement): HTMLElement
 	{
 		Dom.clean(this.bar);
-		Dom.append(this.getEntityLink(relationData), this.bar);
+		Dom.append(entityLink, this.bar);
 		Dom.append(this.getOwnerData(relationData), this.bar);
 
 		return this.bar;
 	}
 
-	getEntityLink(relationData: RelationData): HTMLElement
+	getEntityLink({ link = '#', text, title }: BarEntityLinkOptions): ?HTMLElement
 	{
+		const arrowIcon = new Icon({
+			icon: Outline.CHEVRON_RIGHT_M,
+			size: 20,
+			color: 'rgb(130, 139, 149)',
+		});
+
 		return Tag.render`
 			<a
 				class="calendar-relation-entity-link"
-				href="${relationData.entity.link}"
-				title="${Loc.getMessage('CALENDAR_RELATION_OPEN_ENTITY_HINT_DEAL')}"
+				href="${link}"
+				title="${title}"
 			>
 				<div class="calendar-relation-entity-link-text">
-					${Loc.getMessage('CALENDAR_RELATION_ENTITY_LINK_DEAL')}
+					${text}
 				</div>
-				<div class="calendar-relation-entity-link-arrow"></div>
+				<div class="calendar-relation-entity-link-arrow">
+					${arrowIcon.render()}
+				</div>
 			</a>
 		`;
 	}
 
 	getOwnerData(relationData: RelationData): HTMLElement
 	{
+		const chatIcon = new Icon({
+			icon: Outline.MESSAGES,
+			size: 22,
+			color: 'rgb(0, 117, 255)',
+		});
+
 		const { root, chatButton } = Tag.render`
 			<div class="calendar-relation-owner">
 				<div class="calendar-relation-owner-role">${Loc.getMessage('CALENDAR_RELATION_OWNER_ROLE_DEAL')}</div>
@@ -94,7 +110,9 @@ export default class Bar
 						ref="chatButton"
 						class="calendar-relation-owner-chat"
 						title="${Loc.getMessage('CALENDAR_RELATION_CHAT_BUTTON_HINT')}"
-					/>
+					>
+						${chatIcon.render()}
+					</div>
 				</div>
 			</div>
 		`;

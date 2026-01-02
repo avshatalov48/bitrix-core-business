@@ -1,14 +1,7 @@
 .bitrix-einvoice-installer-wrapper {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-orient: vertical;
-	-webkit-box-direction: normal;
-	    -ms-flex-direction: column;
-	        flex-direction: column;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	flex-direction: column;
+	align-items: center;
 	min-height: 100vh;
 }
 
@@ -79,12 +72,8 @@
 
 .bitrix-einvoice-installer-more-information-wrapper {
 	margin-top: 22px;
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-pack: center;
-	    -ms-flex-pack: center;
-	        justify-content: center;
+	justify-content: center;
 }
 
 .bitrix-einvoice-installer-more-information-link {
@@ -113,15 +102,9 @@
 	min-height: 58px;
 	padding: 0 20px;
 	cursor: pointer;
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
-	-webkit-box-pack: center;
-	    -ms-flex-pack: center;
-	        justify-content: center;
+	align-items: center;
+	justify-content: center;
 }
 
 .bitrix-einvoice-installer-app-name {
@@ -130,8 +113,7 @@
 	color: var(--ui-color-palette-gray-90, #525C69);
 	overflow: hidden;
 	white-space: nowrap;
-	-o-text-overflow: ellipsis;
-	   text-overflow: ellipsis;
+	text-overflow: ellipsis;
 }
 
 .bitrix-einvoice-installer-app-wrapper.--form {
@@ -160,37 +142,20 @@
 }
 
 .bitrix-einvoice-installer-content {
-	-webkit-box-flex: 1;
-	    -ms-flex: 1 0 50vh;
-	        flex: 1 0 50vh;
-	display: -webkit-box;
-	display: -ms-flexbox;
+	flex: 1 0 50vh;
 	display: flex;
-	-webkit-box-orient: vertical;
-	-webkit-box-direction: normal;
-	    -ms-flex-direction: column;
-	        flex-direction: column;
-	-webkit-box-pack: center;
-	    -ms-flex-pack: center;
-	        justify-content: center;
+	flex-direction: column;
+	justify-content: center;
 }
 
 .bitrix-einvoice-installer-content.--error-content {
-	-webkit-box-flex: 0;
-	    -ms-flex: 0 0 80vh;
-	        flex: 0 0 80vh;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	flex: 0 0 80vh;
+	align-items: center;
 }
 
 .bitrix-einvoice-installer-notification-wrapper {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	align-items: center;
 	color: var(--ui-color-palette-white-base, #ffffff);
 }
 
@@ -207,15 +172,9 @@
 }
 
 .bitrix-einvoice-installer-main-icon-wrapper {
-	-webkit-box-flex: 1;
-	    -ms-flex: 1 1;
-	        flex: 1 1;
-	display: -webkit-box;
-	display: -ms-flexbox;
+	flex: 1 1;
 	display: flex;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	align-items: center;
 }
 
 .bitrix-einvoice-installer-title__wrapper {

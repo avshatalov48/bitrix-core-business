@@ -1,0 +1,21 @@
+<?php
+$MESS["LEARNING_COUNTRY_NONE"] = "(белгісіз)";
+$MESS["LEARNING_DELETE_FILE"] = "Файлды жою";
+$MESS["LEARNING_EDIT_PROFILE"] = "Профиль баптаулары";
+$MESS["LEARNING_PERSONAL_DATA"] = "Жеке деректер";
+$MESS["LEARNING_PUBLIC_PROFILE"] = "Студенттің түйіндемесіне  барлығының қол жеткізуіне рұқсат беру";
+$MESS["LEARNING_RESUME"] = "Түйіндеме";
+$MESS["LEARNING_SAVE"] = "Сақтау";
+$MESS["LEARNING_TRANSCRIPT"] = "Түйіндеме бетіне сілтеме";
+$MESS["LEARNING_USER_ADDRESS"] = "Пошта мекенжайы";
+$MESS["LEARNING_USER_EMAIL"] = "E-mail";
+$MESS["LEARNING_USER_LAST_NAME"] = "Тегі";
+$MESS["LEARNING_USER_NAME"] = "Аты";
+$MESS["LEARNING_USER_PERSONAL_CITY"] = "Қала";
+$MESS["LEARNING_USER_PERSONAL_COUNTRY"] = "Мемлекет";
+$MESS["LEARNING_USER_PERSONAL_ICQ"] = "ICQ";
+$MESS["LEARNING_USER_PERSONAL_STATE"] = "Облыс / өлке";
+$MESS["LEARNING_USER_PERSONAL_STREET"] = "Көше, үй";
+$MESS["LEARNING_USER_PERSONAL_WWW"] = "WWW-парақша";
+$MESS["LEARNING_USER_PERSONAL_ZIP"] = "Пошта индексі";
+$MESS["LEARNING_USER_PHOTO"] = "Фото";

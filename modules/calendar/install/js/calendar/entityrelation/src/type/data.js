@@ -1,6 +1,8 @@
+export type EntityType = 'deal' | 'booking';
+
 export type EntityData = {
 	id: number,
-	type: string,
+	type: EntityType,
 	link: string,
 };
 

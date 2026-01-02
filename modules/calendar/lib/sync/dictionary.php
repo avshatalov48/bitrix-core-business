@@ -30,11 +30,14 @@ class Dictionary
 		'inactive'  => 'inactive',
 	];
 
+	/**
+	 * @deprecated Use \Bitrix\Calendar\Synchronization\Entity\Push\ProcessingStatus
+	 */
 	public const PUSH_STATUS_PROCESS = [
 		'block'       => 'B',
 		'unprocessed' => 'U',
 		'unblocked' => 'N',
-		'process' => 'Y',
+		'process' => 'Y', // @todo Unused?
 	];
 
 	public const SYNC_SECTION_ACTION = [

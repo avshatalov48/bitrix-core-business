@@ -3,13 +3,15 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2018 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 namespace Bitrix\Main\Controller;
 
 use Bitrix\Main;
 use Bitrix\Main\Component;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Authentication;
+use Bitrix\Main\Authentication\Method;
 
 class PhoneAuth extends Main\Engine\Controller
 {
@@ -90,7 +92,11 @@ class PhoneAuth extends Main\Engine\Controller
 		{
 			if($phoneRecord->getUser()->getActive() && !$USER->IsAuthorized())
 			{
-				$USER->Authorize($userId);
+				$context = (new Authentication\Context())
+					->setUserId($userId)
+					->setMethod(Method::PhoneCode)
+				;
+				$USER->Authorize($context);
 			}
 
 			return true;

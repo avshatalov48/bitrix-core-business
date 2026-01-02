@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_PROP_ELEMENT_LIST_SETTING_SIZE"] = "List Height";
 $MESS["IBLOCK_PROP_ELEMENT_LIST_SETTING_WIDTH"] = "Maximum Width (use \"0\" for unlimited width)";
 $MESS["IBLOCK_PROP_ELEMENT_LIST_NO_VALUE"] = "(not set)";
@@ -7,4 +7,3 @@ $MESS["IBLOCK_PROP_ELEMENT_LIST_SETTING_SECTION_GROUP"] = "Group By Section";
 $MESS["IBLOCK_PROP_ELEMENT_LIST_SETTING_MULTIPLE"] = "Show As Multiselect List";
 $MESS["IBLOCK_PROP_ELEMENT_LIST_ADD"] = "Add";
 $MESS["IBLOCK_PROP_ELIST_DESC"] = "Link to elements (drop-down list)";
-?>

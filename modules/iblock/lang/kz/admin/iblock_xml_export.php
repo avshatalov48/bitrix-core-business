@@ -1,0 +1,28 @@
+<?php
+$MESS["IBLOCK_CML2_ACCESS_DENIED"] = "Қолжетімділікке тыйым салынған.";
+$MESS["IBLOCK_CML2_DONE"] = "Экспорттау аяқталды";
+$MESS["IBLOCK_CML2_DONE_ELEMENTS"] = "Элементтер: #COUNT#";
+$MESS["IBLOCK_CML2_DONE_SECTIONS"] = "Бөлімдер: #COUNT#";
+$MESS["IBLOCK_CML2_DOWNLOAD_CLOUD_FILES"] = "Бұлтты қордан файлдарды көшіру";
+$MESS["IBLOCK_CML2_ELEMENTS"] = "Каталог элементтерін экспорттау.";
+$MESS["IBLOCK_CML2_ELEMENTS_FILTER"] = "Элементтер";
+$MESS["IBLOCK_CML2_ELEMENTS_PROGRESS"] = "#COUNT# каталог элементтері экспортталды.";
+$MESS["IBLOCK_CML2_FILE_ERROR"] = "Файлды ашу қатесі.";
+$MESS["IBLOCK_CML2_FILE_NAME_ERROR"] = "Файлдың (папканың) атауы тек латын әліпбиінің таңбаларынан, сандардан, бос орыннан, сондай-ақ таңбалардан тұруы мүмкін: !#\$%&()[]{}+-.;=@^_~";
+$MESS["IBLOCK_CML2_FILTER_ACTIVE"] = "тек белсенді заттарды жүктеу";
+$MESS["IBLOCK_CML2_FILTER_ALL"] = "барлығын жүктеу";
+$MESS["IBLOCK_CML2_FILTER_NONE"] = "жүктеуге болмайды";
+$MESS["IBLOCK_CML2_IBLOCK_ERROR"] = "Ақпараттық блокты оқу қатесі.";
+$MESS["IBLOCK_CML2_IBLOCK_ID"] = "Ақпараттық блок";
+$MESS["IBLOCK_CML2_INTERVAL"] = "Секундтардағы қадам ұзақтығы (0 - бір қадамда экспорттау)";
+$MESS["IBLOCK_CML2_METADATA_DONE"] = "Каталог метадеректері экспортталды.";
+$MESS["IBLOCK_CML2_OPEN"] = "Ашу...";
+$MESS["IBLOCK_CML2_SECTIONS"] = "Каталог бөлімдерін экспорттау.";
+$MESS["IBLOCK_CML2_SECTIONS_FILTER"] = "Бөлімдер";
+$MESS["IBLOCK_CML2_SECTIONS_PROGRESS"] = "#COUNT# каталог бөлімдері экспортталды.";
+$MESS["IBLOCK_CML2_START_EXPORT"] = "Экспорттау";
+$MESS["IBLOCK_CML2_STOP_EXPORT"] = "Экспортты тоқтату";
+$MESS["IBLOCK_CML2_TAB"] = "Экспорт";
+$MESS["IBLOCK_CML2_TAB_TITLE"] = "Экспортты баптау";
+$MESS["IBLOCK_CML2_TITLE"] = "XML экспорты";
+$MESS['IBLOCK_CML2_URL_DATA_FILE'] = "Жүктеуге арналған файл";

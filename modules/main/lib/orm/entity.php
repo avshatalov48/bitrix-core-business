@@ -723,6 +723,9 @@ class Entity
 		return $this->primary;
 	}
 
+	/**
+	 * @return string|null - null if entity has no autoincrement
+	 */
 	public function getAutoIncrement()
 	{
 		return $this->autoIncrement;

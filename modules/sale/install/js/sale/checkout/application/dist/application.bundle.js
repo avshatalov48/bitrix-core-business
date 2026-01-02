@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
 (function (exports,sale_checkout_lib,ui_vue_vuex,sale_checkout_controller,sale_checkout_model,ui_vue,main_core_events,main_core,sale_checkout_const) {
@@ -16,27 +17,21 @@ this.BX.Sale = this.BX.Sale || {};
 	    checkoutButtonEnabled: function checkoutButtonEnabled() {
 	      var properties = [];
 	      var list = this.$store.getters['property/getProperty'];
-
 	      for (var listKey in list) {
 	        if (!main_core.Type.isStringFilled(list[listKey].value) && list[listKey].required === 'Y') {
 	          return false;
 	        }
-
 	        if (!main_core.Type.isStringFilled(list[listKey].value)) {
 	          continue;
 	        }
-
 	        if (list[listKey].type === sale_checkout_const.Property.type.checkbox && list[listKey].required === 'Y' && list[listKey].value !== 'Y') {
 	          return false;
 	        }
-
 	        if (list[listKey].type === sale_checkout_const.Property.type.checkbox) {
 	          continue;
 	        }
-
 	        properties.push(list[listKey].value);
 	      }
-
 	      return properties.length > 0;
 	    },
 	    hasPS: function hasPS() {
@@ -50,7 +45,7 @@ this.BX.Sale = this.BX.Sale || {};
 	      return result.length > 0;
 	    },
 	    needCheckConsent: function needCheckConsent() {
-	      return this.getConsent.id > 0;
+	      return this.getConsent.items.length > 0;
 	    },
 	    getBasket: function getBasket() {
 	      return this.$store.getters['basket/getBasket'];
@@ -130,7 +125,6 @@ this.BX.Sale = this.BX.Sale || {};
 	  },
 	  created: function created() {
 	    var _this = this;
-
 	    main_core_events.EventEmitter.subscribe(sale_checkout_const.EventType.basket.backdropTotalOpen, function (event) {
 	      _this.totalIsShow = 'Y';
 	    });
@@ -150,7 +144,6 @@ this.BX.Sale = this.BX.Sale || {};
 	var Application = /*#__PURE__*/function () {
 	  function Application() {
 	    var _this = this;
-
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Application);
 	    this.wrapper = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"\"></div>"])));
@@ -161,20 +154,17 @@ this.BX.Sale = this.BX.Sale || {};
 	    }).then(function () {
 	      _this.initStore().then(function (result) {
 	        _this.setStore(result);
-
 	        _this.initController().then(function () {});
-
 	        _this.initTemplate().then(function () {});
 	      })["catch"](function (error) {
 	        return Application.showError(error);
 	      });
 	    });
 	  }
+
 	  /**
 	   * @private
 	   */
-
-
 	  babelHelpers.createClass(Application, [{
 	    key: "init",
 	    value: function init() {
@@ -183,7 +173,6 @@ this.BX.Sale = this.BX.Sale || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "prepareParams",
 	    value: function prepareParams(params) {
@@ -193,7 +182,6 @@ this.BX.Sale = this.BX.Sale || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "initStore",
 	    value: function initStore() {
@@ -213,7 +201,6 @@ this.BX.Sale = this.BX.Sale || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "layout",
 	    value: function layout() {
@@ -222,7 +209,6 @@ this.BX.Sale = this.BX.Sale || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "initController",
 	    value: function initController() {
@@ -236,12 +222,10 @@ this.BX.Sale = this.BX.Sale || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "initTemplate",
 	    value: function initTemplate() {
 	      var _this2 = this;
-
 	      return new Promise(function (resolve) {
 	        var context = _this2;
 	        _this2.templateEngine = ui_vue.BitrixVue.createApp({
@@ -254,7 +238,6 @@ this.BX.Sale = this.BX.Sale || {};
 	          },
 	          created: function created() {
 	            var data = {};
-
 	            if (context.options.basket.length > 0) {
 	              data = {
 	                order: this.options.order,
@@ -271,7 +254,6 @@ this.BX.Sale = this.BX.Sale || {};
 	                consentStatus: this.options.consentStatus
 	              };
 	            }
-
 	            data.stage = this.options.stage;
 	            context.setModelData(data);
 	          },
@@ -285,7 +267,6 @@ this.BX.Sale = this.BX.Sale || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "setStore",
 	    value: function setStore(data) {
@@ -294,27 +275,25 @@ this.BX.Sale = this.BX.Sale || {};
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "setModelData",
 	    value: function setModelData(data) {
 	      var _this3 = this;
-
 	      //region: application model
 	      if (main_core.Type.isString(data.stage)) {
 	        this.store.dispatch('application/setStage', {
 	          stage: data.stage
 	        });
-	      } //endregion
+	      }
+	      //endregion
+
 	      //region: order model
-
-
 	      if (main_core.Type.isObject(data.order)) {
 	        this.store.dispatch('order/set', data.order);
-	      } //endregion
+	      }
+	      //endregion
+
 	      //region: basket model
-
-
 	      if (main_core.Type.isObject(data.basket)) {
 	        data.basket.forEach(function (fields, index) {
 	          _this3.store.dispatch('basket/changeItem', {
@@ -323,23 +302,20 @@ this.BX.Sale = this.BX.Sale || {};
 	          });
 	        });
 	      }
-
 	      if (main_core.Type.isString(data.currency)) {
 	        this.store.dispatch('basket/setCurrency', {
 	          currency: data.currency
 	        });
 	      }
-
 	      if (main_core.Type.isObject(data.discount)) {
 	        this.store.dispatch('basket/setDiscount', data.discount);
 	      }
-
 	      if (main_core.Type.isObject(data.total)) {
 	        this.store.dispatch('basket/setTotal', data.total);
-	      } //endregion
+	      }
+	      //endregion
+
 	      //region: property model
-
-
 	      if (main_core.Type.isObject(data.property)) {
 	        data.property.forEach(function (fields, index) {
 	          _this3.store.dispatch('property/changeItem', {
@@ -347,10 +323,10 @@ this.BX.Sale = this.BX.Sale || {};
 	            fields: fields
 	          });
 	        });
-	      } //endregion
+	      }
+	      //endregion
+
 	      //region: variant model
-
-
 	      if (main_core.Type.isObject(data.variant)) {
 	        data.variant.forEach(function (fields, index) {
 	          _this3.store.dispatch('property-variant/changeItem', {
@@ -358,10 +334,10 @@ this.BX.Sale = this.BX.Sale || {};
 	            fields: fields
 	          });
 	        });
-	      } //endregion
+	      }
+	      //endregion
+
 	      //region: payment model
-
-
 	      if (main_core.Type.isObject(data.payment)) {
 	        data.payment.forEach(function (fields, index) {
 	          _this3.store.dispatch('payment/changeItem', {
@@ -369,10 +345,10 @@ this.BX.Sale = this.BX.Sale || {};
 	            fields: fields
 	          });
 	        });
-	      } //endregion
+	      }
+	      //endregion
+
 	      // region: check model
-
-
 	      if (main_core.Type.isObject(data.check)) {
 	        data.check.forEach(function (fields, index) {
 	          _this3.store.dispatch('check/changeItem', {
@@ -380,10 +356,10 @@ this.BX.Sale = this.BX.Sale || {};
 	            fields: fields
 	          });
 	        });
-	      } //endregion
+	      }
+	      //endregion
+
 	      // region: paySystem model
-
-
 	      if (main_core.Type.isObject(data.paySystem)) {
 	        data.paySystem.forEach(function (fields, index) {
 	          _this3.store.dispatch('pay-system/changeItem', {
@@ -391,29 +367,27 @@ this.BX.Sale = this.BX.Sale || {};
 	            fields: fields
 	          });
 	        });
-	      } //endregion
+	      }
+	      //endregion
+
 	      //region: consent
-
-
 	      if (main_core.Type.isString(data.consentStatus)) {
 	        this.store.dispatch('consent/setStatus', data.consentStatus);
 	      }
-
 	      if (main_core.Type.isObject(data.consent)) {
 	        this.store.dispatch('consent/set', data.consent);
-	      } //endregion
+	      }
+	      //endregion
+
 	      // region: errors
-
-
 	      if (main_core.Type.isObject(data.errors)) {
 	        this.store.commit('basket/setErrors', data.errors);
-	      } //endregion
-
+	      }
+	      //endregion
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }], [{
 	    key: "showError",
 	    value: function showError(error) {

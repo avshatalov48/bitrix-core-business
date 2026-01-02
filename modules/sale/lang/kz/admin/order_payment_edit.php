@@ -1,0 +1,21 @@
+<?php
+$MESS["EDIT_ORDER_PAYMENT"] = "№ #ID# төлемін редакциялау";
+$MESS["NEW_ORDER_PAYMENT"] = "Жаңа төлем";
+$MESS["SALE_BLOCK_TITLE_ADDITIONAL"] = "Қосымша ақпарат";
+$MESS["SALE_BLOCK_TITLE_BUYER"] = "Сатып алушы";
+$MESS["SALE_BLOCK_TITLE_DELIVERY"] = "Жеткізу";
+$MESS["SALE_BLOCK_TITLE_FINANCEINFO"] = "Қаржылық ақпарат";
+$MESS["SALE_BLOCK_TITLE_PAYMENT"] = "Төлем";
+$MESS["SALE_BLOCK_TITLE_STATUSORDER"] = "Тапсырыс мәртебесі";
+$MESS["SOPE_PAYMENT_DELETE"] = "Жою";
+$MESS["SOPE_PAYMENT_DELETE_MESSAGE"] = "Бұл төлемді шынымен жойғыңыз келе ме?";
+$MESS["SOPE_PAYMENT_DELETE_TITLE"] = "Жою";
+$MESS["SOPE_PAYMENT_LIST"] = "Төлемдер тізімі";
+$MESS["SOPE_PAYMENT_LIST_TITLE"] = "Төлемдер тізімі";
+$MESS["SOPE_PAYMENT_PRINT"] = "Басып шығару";
+$MESS["SOPE_PAYMENT_PRINT_TITLE"] = "Басып шығару";
+$MESS["SOPE_PAYMENT_TRANSITION"] = "Тапсырысқа өту";
+$MESS["SOPE_PAYMENT_TRANSITION_TITLE"] = "Тапсырысқа өту";
+$MESS["SOP_TAB_ANALYSIS"] = "Құжаттар байланыстары";
+$MESS["SOP_TAB_HISTORY"] = "Өзгертулер тарихы";
+$MESS["SOP_TAB_PAYMENT"] = "Төлем";

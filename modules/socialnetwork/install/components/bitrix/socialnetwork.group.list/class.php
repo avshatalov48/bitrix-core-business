@@ -23,6 +23,7 @@ use Bitrix\Main\Filter;
 use Bitrix\Socialnetwork\Component\WorkgroupList\EntityManager;
 use Bitrix\Socialnetwork\EO_Workgroup;
 use Bitrix\Socialnetwork\Helper;
+use Bitrix\Socialnetwork\Helper\Analytics\ProjectAnalytics;
 use Bitrix\Socialnetwork\Internals\EventService\Push\PullDictionary;
 use Bitrix\Socialnetwork\Item\Workgroup\Type;
 use Bitrix\Socialnetwork\UserToGroupTable;
@@ -1434,6 +1435,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		$this->subscribePull();
 
 		$this->includeComponentTemplate();
+		$this->sendAnalytics();
 	}
 
 	private function setTitle(): void
@@ -2058,20 +2060,26 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 						$value = '';
 						if ($relationItem !== null)
 						{
-							$value = Helper\UI\Grid\Workgroup\Role::getRoleValue([
-								'RELATION' => [
-									'USER_ID' => $this->arParams['USER_ID'],
-									'ROLE' => $relationItem->getRole(),
-									'AUTO_MEMBER' => $relationItem->getAutoMember(),
-									'INITIATED_TYPE' => $relationItem->getInitiatedByType(),
-								],
-								'GROUP' => [
-									'ID' => $group->getId(),
-									'PROJECT' => $group->getProject(),
-									'SCRUM_MASTER_ID' => $group->getScrumMasterId(),
-								],
-								'GRID_ID' => $this->gridId,
-							]);
+							if (
+								$this->arParams['USER_ID'] === $this->currentUserId
+								|| in_array($relationItem->getRole(), UserToGroupTable::getRolesMember(), true)
+							)
+							{
+								$value = Helper\UI\Grid\Workgroup\Role::getRoleValue([
+									'RELATION' => [
+										'USER_ID' => $this->arParams['USER_ID'],
+										'ROLE' => $relationItem->getRole(),
+										'AUTO_MEMBER' => $relationItem->getAutoMember(),
+										'INITIATED_TYPE' => $relationItem->getInitiatedByType(),
+									],
+									'GROUP' => [
+										'ID' => $group->getId(),
+										'PROJECT' => $group->getProject(),
+										'SCRUM_MASTER_ID' => $group->getScrumMasterId(),
+									],
+									'GRID_ID' => $this->gridId,
+								]);
+							}
 						}
 						elseif (
 							$this->arParams['USER_ID'] ===  $this->currentUserId
@@ -2285,5 +2293,23 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		}
 
 		return Type::getDefault()->value;
+	}
+
+	private function sendAnalytics(): void
+	{
+		$analytics = ProjectAnalytics::getInstance();
+		if (($this->arParams['MODE'] ?? '') === WorkgroupList::MODE_TASKS_SCRUM)
+		{
+			$analytics->onProjectListOpened(
+				eventName: $analytics::EVENT_SCRUM_VIEW,
+				category: $analytics::CATEGORY_SCRUM,
+				section: $analytics::SECTION_SCRUM,
+				subSection: $analytics::SUBSECTION_SCRUM_GRID,
+			);
+		}
+		else
+		{
+			$analytics->onProjectListOpened();
+		}
 	}
 }

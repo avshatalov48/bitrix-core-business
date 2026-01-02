@@ -1,0 +1,25 @@
+.ui-block-diagram-delete-connection-btn {
+	display: block;
+	width: 22px;
+	height: 22px;
+	padding: 0;
+	border: none;
+	background-color: var(--ui-color-background-transparent, transparent);
+	cursor: pointer;
+}
+
+.ui-block-diagram-delete-connection-btn__icon-wrap {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 4px;
+	background-color: var(--ui-color-palette-white-base, white);
+	box-shadow: 0 1px 2px 0 rgba(var(--ui-color-palette-black-solid-rgb), 0.13);
+	pointer-events: none;
+}
+
+.ui-block-diagram-delete-connection-btn__icon {
+	background-color: var(--ui-color-gray-60);
+}

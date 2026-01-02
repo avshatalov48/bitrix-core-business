@@ -40,18 +40,18 @@ if (isset($_GET['clear_nav']) && $_GET['clear_nav'] == 'Y')
 }
 elseif (isset($_GET['grid_action']) && $_GET['grid_action'] === 'more' && $_GET['grid_id'] === $grid_options->getId())
 {
-	$nav->setCurrentPage($_GET['report_list']);
+	$nav->setCurrentPage($_GET['xscan_htaccess']);
 }
 elseif (isset($_GET['grid_action']) && $_GET['grid_action'] === 'pagination')
 {
 	$nav->initFromUri();
 }
-elseif ($session->has('xscan_htacess_page'))
+elseif ($session->has('xscan_htaccess_page'))
 {
-	$nav->setCurrentPage($session['xscan_htacess_page']);
+	$nav->setCurrentPage($session['xscan_htaccess_page']);
 }
 
-$session['xscan_htacess_page'] = $nav->getCurrentPage();
+$session['xscan_htaccess_page'] = $nav->getCurrentPage();
 
 $path = rtrim($_SERVER['DOCUMENT_ROOT'], '/');
 $files = [];
@@ -112,7 +112,7 @@ if ($ts + 3600 < time()){
 
 if (isset($_REQUEST['renew']) && check_bitrix_sessid())
 {
-	$session['xscan_htacess_page'] = 1;
+	$session['xscan_htaccess_page'] = 1;
 	foreach ($files as $value)
 	{
 		unlink($value);

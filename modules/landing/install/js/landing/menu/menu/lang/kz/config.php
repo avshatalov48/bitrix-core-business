@@ -1,0 +1,5 @@
+<?php
+$MESS["LANDING_MENU_APPLY_BUTTON_LABEL"] = "Қолдану";
+$MESS["LANDING_MENU_CLOSE_BUTTON_LABEL"] = "Өрісті жасыру";
+$MESS["LANDING_MENU_CREATE_NEW_PAGE"] = "Жаңа парақша";
+$MESS["LANDING_MENU_TITLE"] = "Мәзір";

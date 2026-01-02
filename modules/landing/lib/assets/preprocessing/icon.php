@@ -371,7 +371,7 @@ class Icon
 	 * @param string $vendorName Vendor folder code.
 	 * @return string|null
 	 */
-	protected static function getIconContentByClass(string $className, string $vendorName): ?string
+	public static function getIconContentByClass(string $className, string $vendorName): ?string
 	{
 		$contentAll = self::getIconsContentByVendor($vendorName);
 

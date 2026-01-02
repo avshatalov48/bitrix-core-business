@@ -22,3 +22,32 @@
 	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
 }
+
+.bx-im-messenger__scope .--line-clamp-4 {
+	display: -webkit-box;
+	text-overflow: ellipsis;
+	word-break: break-word;
+	overflow: hidden;
+	-webkit-line-clamp: 4;
+	-webkit-box-orient: vertical;
+}
+
+.bx-im-messenger__scope .--brand-accent-with-icon {
+	position: relative;
+	margin: 0 1px;
+	padding-right: 15px;
+	color: var(--im-color-accent-main-primary);
+}
+
+.bx-im-messenger__scope .--brand-accent-with-icon::after {
+	box-sizing: border-box;
+	content: '';
+	position: absolute;
+	top: 4px;
+	width: 15px;
+	height: 15px;
+	padding: 0 1px;
+	background-image: url('./images/clock.svg');
+	background-repeat: no-repeat;
+	background-position: center;
+}

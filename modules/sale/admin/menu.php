@@ -1,4 +1,4 @@
-<?
+<?php
 
 /** @global CUser $USER
  * @global CMain $APPLICATION
@@ -9,6 +9,7 @@ use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Main\Application;
 use Bitrix\Sale\Cashbox\Internals\CashboxTable;
 use Bitrix\Sale\Location;
+use Bitrix\Main\Analytics;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\ModuleManager;
@@ -158,7 +159,8 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 
 	$isBigDataOptionEnabled = Option::get("main", "gather_catalog_stat", "Y") === "Y";
 	if (
-		$isBigDataOptionEnabled
+		Analytics\SiteSpeed::isOn() && Analytics\Catalog::isOn()
+		&& $isBigDataOptionEnabled
 		&& Loader::includeModule('sale')
 		&& \Bitrix\Sale\Configuration::isCanUsePersonalization()
 	)
@@ -455,7 +457,7 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 /* Discounts Begin*/
 if ($APPLICATION->GetGroupRight("sale") == "W" || $discountView || $bViewAll)
 {
-	$useSaleDiscountOnly = (string)Option::get('sale', 'use_sale_discount_only') == 'Y';
+	$useSaleDiscountOnly = Option::get('sale', 'use_sale_discount_only') === 'Y';
 	$arMenu = array(
 		"parent_menu" => "global_menu_marketing",
 		"sort" => 500,
@@ -1147,7 +1149,7 @@ EventManager::getInstance()->addEventHandler(
 	"OnBuildGlobalMenu",
 	function (&$arGlobalMenu, &$arModuleMenu)
 	{
-		if (in_array(Application::getInstance()->getContext()->getLanguage(), ["ru", "ua"])
+		if (Application::getInstance()->getLicense()->getRegion() === 'ru'
 			&&
 			(
 				!ModuleManager::isModuleInstalled("intranet")

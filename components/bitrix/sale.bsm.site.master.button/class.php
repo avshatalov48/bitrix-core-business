@@ -58,7 +58,7 @@ class SaleBsmSiteMasterButton extends \CBitrixComponent
 			(
 				ModuleManager::isModuleInstalled('extranet')
 				&& !ModuleManager::isModuleInstalled('bitrix24')
-				&& $this->isAvailableZone(Application::getInstance()->getContext()->getLanguage())
+				&& Application::getInstance()->getLicense()->getRegion() === 'ru'
 			)
 		);
 	}
@@ -71,14 +71,5 @@ class SaleBsmSiteMasterButton extends \CBitrixComponent
 	private function isSaleCrmSiteMasterFinish(): bool
 	{
 		return (Option::get("sale", self::IS_SALE_CRM_SITE_MASTER_FINISH, "N") === "Y");
-	}
-
-	/**
-	 * @param $zone
-	 * @return bool
-	 */
-	private function isAvailableZone($zone): bool
-	{
-		return in_array($zone, ["ru", "ua"]);
 	}
 }

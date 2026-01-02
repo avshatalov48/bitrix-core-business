@@ -51,7 +51,7 @@
 	border: 1px solid var(--ui-color-background-transparent);
 	background: var(--ui-color-background-transparent);
 	color: var(--widget-color-button);
-	font: var(--ui-font-weight-medium) var(--ui-font-size-xs) / 20px var(--ui-font-family-system);
+	font: var(--ui-font-weight-medium) var(--ui-font-size-xs) / 20px var(--ui-font-family-primary, var(--ui-font-family-system));
 	transition: color .3s;
 	cursor: pointer;
 }

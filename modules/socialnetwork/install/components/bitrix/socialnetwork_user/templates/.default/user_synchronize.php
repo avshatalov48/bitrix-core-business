@@ -10,7 +10,7 @@ if (isset($arResult["VARIABLES"]["user_id"]) && $USER->GetID() !== $arResult["VA
 
 if (
 	\Bitrix\Main\ModuleManager::isModuleInstalled("intranet")
-	&& SITE_TEMPLATE_ID == "bitrix24"
+	&& (SITE_TEMPLATE_ID == "bitrix24" || SITE_TEMPLATE_ID === 'air')
 	&& \Bitrix\Main\Context::getCurrent()->getRequest()->get('IFRAME') === 'Y'
 )
 {

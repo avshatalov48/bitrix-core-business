@@ -1,0 +1,4 @@
+<?php
+$MESS["LANDING_DEMO_STORE_CHATS_CATALOG_HEADER-NAME"] = "Каталог шапкасы";
+$MESS["LANDING_DEMO_STORE_CHATS_CATALOG_HEADER-TEXT_1"] = "Таңдаңыз және сатып алыңыз!";
+$MESS["LANDING_DEMO_STORE_CHATS_CATALOG_HEADER-TEXT_2"] = "Оңай. Тез. Жеке";

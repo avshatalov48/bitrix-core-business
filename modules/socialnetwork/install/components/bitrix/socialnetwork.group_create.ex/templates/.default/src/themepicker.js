@@ -51,7 +51,7 @@ export class ThemePicker
 		const previewImageNode = this.getNode('image');
 		if (previewImageNode)
 		{
-			previewImageNode.style.backgroundImage = (Type.isStringFilled(theme.previewImage) ? `url('${theme.previewImage}')` : '');
+			previewImageNode.style.backgroundImage = (Type.isStringFilled(theme.previewImage) ? `url('${encodeURI(theme.previewImage)}')` : '');
 			previewImageNode.style.backgroundColor = (Type.isStringFilled(theme.previewColor) ? theme.previewColor : 'transparent');
 		}
 

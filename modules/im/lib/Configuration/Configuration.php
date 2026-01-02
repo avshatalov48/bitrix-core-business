@@ -833,24 +833,17 @@ class Configuration
 	 */
 	protected static function createPersonalGroup(int $creator)
 	{
-		$userAccessCode =
-			UserAccessTable::query()
-				->addSelect('ACCESS_CODE')
-				->where('USER_ID', $creator)
-				->whereLike('ACCESS_CODE', 'U%')
-				->fetch()['ACCESS_CODE']
-		;
-
 		$newGroupId =
 			OptionGroupTable::add([
 				'USER_ID' => $creator,
-			  	'SORT' => self::USER_PRESET_SORT,
-				'CREATE_BY_ID' => $creator
+				'SORT' => self::USER_PRESET_SORT,
+				'CREATE_BY_ID' => $creator,
 			])->getId()
 		;
+
 		OptionAccessTable::add([
-		   'GROUP_ID' => $newGroupId,
-		   'ACCESS_CODE' => $userAccessCode
+			'GROUP_ID' => $newGroupId,
+			'ACCESS_CODE' => 'U' . $creator,
 		]);
 
 		return $newGroupId;

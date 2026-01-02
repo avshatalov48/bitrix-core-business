@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * @global \CMain $APPLICATION
+ */
+
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/header.php');
 
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();

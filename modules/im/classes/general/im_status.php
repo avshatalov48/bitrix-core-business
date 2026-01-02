@@ -7,6 +7,11 @@ class CIMStatus
 	public static $CACHE_USERS = null;
 	public static $CACHE_RECENT = null;
 
+	/**
+	 * @var array<int, array> $status
+	 */
+	protected static array $status = [];
+
 	const CACHE_TTL = 31536000;
 	const CACHE_PATH = '/bx/im/status/';
 
@@ -86,6 +91,7 @@ class CIMStatus
 
 		$cache = \Bitrix\Main\Data\Cache::createInstance();
 		$cache->cleanDir(self::CACHE_PATH.$userId.'/');
+		unset(self::$status[$userId]);
 
 		if ($needToUpdate && self::Enable())
 		{
@@ -444,6 +450,12 @@ class CIMStatus
 
 		$userStatus = null;
 		$cache = \Bitrix\Main\Data\Cache::createInstance();
+
+		if (isset(self::$status[$userId]))
+		{
+			return self::getStatusFromStaticCache($userId);
+		}
+
 		if($cache->initCache(self::CACHE_TTL, 'list_v2', self::CACHE_PATH.$userId.'/'))
 		{
 			$userStatus = $cache->getVars();
@@ -476,12 +488,24 @@ class CIMStatus
 			}
 		}
 
+		self::$status[$userId] = $userStatus ?? [];
+
 		if ($userStatus)
 		{
 			$userStatus = CIMStatus::prepareLastDate($userStatus);
 		}
 
 		return $userStatus;
+	}
+
+	protected static function getStatusFromStaticCache(int $userId): ?array
+	{
+		if (!empty(self::$status[$userId]))
+		{
+			return self::prepareLastDate(self::$status[$userId]);
+		}
+
+		return null;
 	}
 
 	public static function OnUserOnlineStatusGetCustomStatus($userId, $lastseen, $now, $mode)

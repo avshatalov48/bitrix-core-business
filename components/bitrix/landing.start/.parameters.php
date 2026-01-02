@@ -195,7 +195,12 @@ $arComponentParameters = Array(
 				'NAME' => getMessage('LANDING_CMP_PAR_SM_FOLDER_EDIT'),
 				'DEFAULT' => 'folder/edit/#folder_edit#/',
 				'VARIABLES' => array('folder_edit')
-			)
+			),
+			'ai' => array(
+				'NAME' => getMessage('LANDING_CMP_PAR_SM_AI'),
+				'DEFAULT' => 'ai/',
+				'VARIABLES' => array()
+			),
 		)
 	)
 );

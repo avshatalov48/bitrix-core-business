@@ -6,6 +6,8 @@ require_once __DIR__.'/autoload.php';
 
 class CRestEventHandlers
 {
+	private const ACTIVATE_DEMO_MARKET_PARAM = 'activate_demo_market';
+
 	public static function OnBeforeProlog()
 	{
 		if(isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS')
@@ -21,6 +23,21 @@ class CRestEventHandlers
 				die();
 			}
 		}
+
+		$context = \Bitrix\Main\Application::getInstance()->getContext();
+		$request = $context->getRequest();
+
+		$needToActivateDemoMarket = $request->getQuery(self::ACTIVATE_DEMO_MARKET_PARAM);
+
+		if (
+			isset($needToActivateDemoMarket)
+			&& $needToActivateDemoMarket === 'Y'
+			&& Loader::includeModule('rest')
+		)
+		{
+			$subscription = new \Bitrix\Rest\Internal\Integration\Market\Subscription();
+			$subscription->activateDemo();
+		}
 	}
 }
 
@@ -31,10 +48,12 @@ CJSCore::registerExt('marketplace', array(
 	'css' => '/bitrix/js/rest/css/marketplace.css',
 	'lang' => BX_ROOT.'/modules/rest/lang/'.LANGUAGE_ID.'/jsmarketplace.php',
 	'lang_additional' => array(
+		'IS_RENAMED_MARKET' => \Bitrix\Rest\Integration\Market\Label::isRenamedMarket() ? 'Y' : 'N',
 		'REST_MARKETPLACE_CATEGORY_URL' => '/marketplace/',
 		'REST_BUY_SUBSCRIPTION_URL' => \Bitrix\Rest\Marketplace\Url::getSubscriptionBuyUrl(),
 		'CAN_BUY_SUBSCRIPTION' => \Bitrix\Rest\Marketplace\Client::canBuySubscription() ? 'Y' : 'N',
 		'CAN_ACTIVATE_DEMO_SUBSCRIPTION' => \Bitrix\Rest\Marketplace\Client::isSubscriptionDemoAvailable() ? 'Y' : 'N',
+		'REST_MARKETPLACE_EULA_URL' => \Bitrix\Rest\Infrastructure\Market\MarketUrl::createByDefault()->getEulaUrl(),
 	),
 	'rel' => array('ajax', 'popup', 'access', 'sidepanel', 'ui.notification'),
 ));

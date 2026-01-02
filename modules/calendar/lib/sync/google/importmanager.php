@@ -481,7 +481,9 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 		// $this->pageToken = $result['nextPageToken'];
 		// $this->etag = $result['etag'];
 		$this->syncSectionConnection->setVersionId($result['etag'] ?? null);
+		// @todo Not used?
 		$this->defaultRemind = $result['defaultReminders'][0] ?? null;
+		// @todo Not used?
 		$this->modified = ($result['updated'] ?? null)
 			? Date::createDateTimeFromFormat($result['updated'], Helper::DATE_TIME_FORMAT_WITH_MICROSECONDS)
 			: new Date()

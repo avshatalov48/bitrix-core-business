@@ -73,12 +73,27 @@ class Uri implements \JsonSerializable, UriInterface
 		}
 
 		$authority = $this->getAuthority();
+		$path = $this->getPath();
 		if ($authority != '')
 		{
 			$uri .= '//' . $authority;
+
+			if (!str_starts_with($path, '/'))
+			{
+				$uri .= '/';
+			}
+			$uri .= $path;
+		}
+		else
+		{
+			$uri .= $path;
 		}
 
-		$uri .= $this->getPathQuery();
+		$query = $this->getQuery();
+		if ($query != '')
+		{
+			$uri .= '?' . $query;
+		}
 
 		return $uri;
 	}
@@ -168,7 +183,7 @@ class Uri implements \JsonSerializable, UriInterface
 	}
 
 	/**
-	 * Returns the path with the query.
+	 * Returns the path with the query. Empty path is treated as a root (/)
 	 * @return string
 	 */
 	public function getPathQuery()

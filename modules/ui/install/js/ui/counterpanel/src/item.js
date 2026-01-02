@@ -1,34 +1,71 @@
-import { Dom, Tag, Type } from 'main.core';
-import { Counter } from 'ui.cnt';
-import { EventEmitter } from "main.core.events";
+import { Dom, Tag, Type, Event } from 'main.core';
+import { Counter, CounterColor, CounterStyle } from 'ui.cnt';
+import { EventEmitter } from 'main.core.events';
 import 'ui.design-tokens';
+import 'ui.icon-set.api.core';
+import 'ui.icon-set.outline';
+
+import { CounterPanel } from './index';
+
+export type CounterItemOptions = {
+	id?: string;
+	panel: CounterPanel;
+	title: string | { value: number, order: number };
+	parentId: string;
+	collapsedIcon?: string;
+	collapsed?: string;
+	locked?: boolean;
+	dataAttributes?: { [key: string]: string };
+	color?: CounterColor;
+	value?: number;
+	isActive: boolean;
+	separator?: boolean;
+	items?: CounterItemOptions[];
+	type?: string;
+	eventsForActive: Object;
+	eventsForUnActive: Object;
+	hideValue: boolean;
+	isRestricted?: boolean;
+	useAirDesign?: boolean;
+}
 
 export default class CounterItem
 {
-	constructor(args)
+	#collapsedIcon: ?string;
+	#collapsed: ?boolean;
+	counter: ?Counter;
+	#dataAttributes: ?{ [key: string]: string };
+	#useAirDesign: boolean = false;
+
+	constructor(args: CounterItemOptions)
 	{
-		this.id = args.id ? args.id : null;
+		this.id = args.id ?? null;
 		this.separator = Type.isBoolean(args.separator) ? args.separator : true;
 		this.items = Type.isArray(args.items) ? args.items : [];
 		this.popupMenu = null;
 		this.isActive = Type.isBoolean(args.isActive) ? args.isActive : false;
 		this.isRestricted = Type.isBoolean(args.isRestricted) ? args.isRestricted : false;
-		this.panel = args.panel ? args.panel : null;
-		this.title = args.title ? args.title : null;
+		this.panel = args.panel ?? null;
+		this.title = args.title ?? null;
 		this.value = (Type.isNumber(args.value) && args.value !== undefined) ? args.value : null;
 		this.titleOrder = null;
 		this.valueOrder = null;
-		this.color = args.color ? args.color : null;
+		this.color = args.color ?? null;
 		this.parent = Type.isBoolean(args.parent) ? args.parent : null;
-		this.parentId = args.parentId ? args.parentId : null;
-		this.locked = false;
+		this.parentId = args.parentId ?? null;
+		this.locked = args.locked === true;
 		this.type = Type.isString(args.type) ? args.type.toLowerCase() : null;
 		this.eventsForActive = Type.isObject(args.eventsForActive) ? args.eventsForActive : {};
 		this.eventsForUnActive = Type.isObject(args.eventsForUnActive) ? args.eventsForUnActive : {};
+		this.hideValue = Type.isBoolean(args.hideValue) ? args.hideValue : false;
+		this.#collapsedIcon = args.collapsedIcon ?? null;
+		this.#collapsed = args.collapsed === true;
+		this.#dataAttributes = Type.isPlainObject(args.dataAttributes) ? args.dataAttributes : {};
+		this.#useAirDesign = args.useAirDesign === true;
 
 		if (Type.isObject(args.title))
 		{
-			this.title = args.title.value ? args.title.value : null;
+			this.title = args.title.value ?? null;
 			this.titleOrder = Type.isNumber(args.title.order) ? args.title.order : null;
 		}
 
@@ -44,7 +81,7 @@ export default class CounterItem
 			title: null,
 			cross: null,
 			dropdownArrow: null,
-			menuItem: null
+			menuItem: null,
 		};
 
 		this.counter = this.#getCounter();
@@ -55,17 +92,22 @@ export default class CounterItem
 		}
 	}
 
-	getItems()
+	getItems(): (CounterItemOptions | CounterItem)[]
 	{
 		return this.items;
 	}
 
-	hasParentId()
+	getId(): ?string
+	{
+		return this.id;
+	}
+
+	hasParentId(): ?string
 	{
 		return this.parentId;
 	}
 
-	#bindEvents()
+	#bindEvents(): void
 	{
 		EventEmitter.subscribe('BX.UI.CounterPanel.Item:activate', (item) => {
 			const isLinkedItems = item.data.parentId === this.id;
@@ -76,7 +118,7 @@ export default class CounterItem
 		});
 	}
 
-	updateValue(param: Number)
+	updateValue(param: number): void
 	{
 		if (Type.isNumber(param))
 		{
@@ -86,6 +128,11 @@ export default class CounterItem
 			if (param === 0)
 			{
 				this.updateColor(this.parentId ? 'GRAY' : 'THEME');
+				Dom.addClass(this.layout.container, this.#getZeroItemClassModifier());
+			}
+			else
+			{
+				Dom.removeClass(this.layout.container, this.#getZeroItemClassModifier());
 			}
 		}
 	}
@@ -100,7 +147,10 @@ export default class CounterItem
 
 			if (param === 0)
 			{
-				this.updateColor(this.parentId ? 'GRAY' : 'THEME');
+				const color = this.parentId ? 'GRAY' : 'THEME';
+
+				this.updateColor(color);
+				this.#getCounter().setStyle(this.#getCounterStyleByColor(Counter.Color[color]));
 			}
 		}
 	}
@@ -111,6 +161,7 @@ export default class CounterItem
 		{
 			this.color = param;
 			this.#getCounter().setColor(Counter.Color[param]);
+			this.#getCounter().setStyle(this.#getCounterStyleByColor(Counter.Color[param]));
 		}
 	}
 
@@ -122,18 +173,18 @@ export default class CounterItem
 			const target = BX.findParent(
 				this.getContainerMenu(),
 				{
-					'className': 'ui-counter-panel__popup-item'
-				}
+					className: 'ui-counter-panel__popup-item',
+				},
 			);
 
 			if (target)
 			{
-				target.classList.add('--active');
+				Dom.addClass(target, '-active');
 			}
 		}
 		else
 		{
-			this.getContainer().classList.add('--active');
+			Dom.addClass(this.getContainer(), '--active');
 		}
 
 		if (isEmitEvent)
@@ -150,20 +201,20 @@ export default class CounterItem
 			const target = BX.findParent(
 				this.getContainerMenu(),
 				{
-					'className': 'ui-counter-panel__popup-item'
-				}
+					className: 'ui-counter-panel__popup-item',
+				},
 			);
 
 			if (target)
 			{
-				target.classList.remove('--active');
-				target.classList.remove('--hover');
+				Dom.removeClass(target, '--active');
+				Dom.removeClass(target, '--hover');
 			}
 		}
 		else
 		{
-			this.getContainer().classList.remove('--active');
-			this.getContainer().classList.remove('--hover');
+			Dom.removeClass(this.getContainer(), '--active');
+			Dom.removeClass(this.getContainer(), '--hover');
 		}
 
 		if (isEmitEvent)
@@ -172,31 +223,53 @@ export default class CounterItem
 		}
 	}
 
+	collapse(): void
+	{
+		Dom.addClass(this.getContainer(), '--collapsed');
+	}
+
+	expand(): void
+	{
+		Dom.removeClass(this.getContainer(), '--collapsed');
+	}
+
 	getSeparator()
 	{
 		return this.separator;
 	}
 
-	#getPanel()
+	#getPanel(): CounterPanel
 	{
 		return this.panel;
 	}
 
-	#getCounter(value: Number, color: String)
+	#getCounter(): Counter
 	{
 		if (!this.counter)
 		{
+			const counterColor = this.color
+				? Counter.Color[this.color.toUpperCase()]
+				: (this.parentId ? Counter.Color.GRAY : Counter.Color.THEME)
+			;
+
 			this.counter = new Counter({
+				color: counterColor,
 				value: this.value,
-				color: this.color ? Counter.Color[this.color.toUpperCase()] : (this.parentId ? Counter.Color.GRAY : Counter.Color.THEME),
-				animation: false
+				animation: false,
+				useAirDesign: this.#useAirDesign,
+				style: this.#getCounterStyleByColor(counterColor),
 			});
 		}
 
 		return this.counter;
 	}
 
-	#getValue()
+	getCounterContainer(): ?HTMLElement
+	{
+		return this.layout.value;
+	}
+
+	#getValue(): HTMLElement
 	{
 		if (!this.layout.value)
 		{
@@ -210,13 +283,13 @@ export default class CounterItem
 				</div>
 			`;
 
-			this.layout.value.style.setProperty('order', this.valueOrder);
+			Dom.style(this.layout.value, 'order', this.valueOrder);
 		}
 
 		return this.layout.value;
 	}
 
-	#getTitle()
+	#getTitle(): HTMLElement
 	{
 		if (!this.layout.title)
 		{
@@ -224,13 +297,20 @@ export default class CounterItem
 				<div class="ui-counter-panel__item-title">${this.title}</div>
 			`;
 
-			this.layout.title.style.setProperty('order', this.titleOrder);
+			Dom.style(this.layout.title, 'order', this.titleOrder);
 		}
 
 		return this.layout.title;
 	}
 
-	#getCross()
+	#getCollapsedIcon(): HTMLElement
+	{
+		return Tag.render`
+			<div class="ui-counter-panel__item-collapsed-icon ui-icon-set__scope --icon-${this.#collapsedIcon}"></div>
+		`;
+	}
+
+	#getCross(): HTMLElement
 	{
 		if (!this.layout.cross)
 		{
@@ -246,24 +326,23 @@ export default class CounterItem
 
 	setEvents(container)
 	{
-		if (!container) 
+		if (!container)
 		{
 			container = this.getContainer();
 		}
-		
+
 		if (this.eventsForActive)
 		{
 			const eventKeys = Object.keys(this.eventsForActive);
 
-			for (let i = 0; i < eventKeys.length; i++)
+			for (const event of eventKeys)
 			{
-				let event = eventKeys[i];
-				container.addEventListener(event, () => {
+				Event.bind(container, event, () => {
 					if (this.isActive)
 					{
 						this.eventsForActive[event]();
 					}
-				})
+				});
 			}
 		}
 
@@ -271,37 +350,36 @@ export default class CounterItem
 		{
 			const eventKeys = Object.keys(this.eventsForUnActive);
 
-			for (let i = 0; i < eventKeys.length; i++)
+			for (const event of eventKeys)
 			{
-				let event = eventKeys[i];
-				container.addEventListener(event, () => {
+				Event.bind(container, event, () => {
 					if (!this.isActive)
 					{
 						this.eventsForUnActive[event]();
 					}
-				})
+				});
 			}
 		}
 	}
 
-	isLocked()
+	isLocked(): boolean
 	{
 		return this.locked;
 	}
 
-	lock()
+	lock(): void
 	{
 		this.locked = true;
-		this.getContainer().classList.add('--locked');
+		Dom.addClass(this.getContainer(), '--locked');
 	}
 
-	unLock()
+	unLock(): void
 	{
 		this.locked = false;
-		this.getContainer().classList.remove('--locked');
+		Dom.removeClass(this.getContainer(), '--locked');
 	}
 
-	getArrowDropdown()
+	getArrowDropdown(): HTMLElement
 	{
 		if (!this.layout.dropdownArrow)
 		{
@@ -315,7 +393,7 @@ export default class CounterItem
 		return this.layout.dropdownArrow;
 	}
 
-	getContainerMenu()
+	getContainerMenu(): HTMLElement
 	{
 		if (!this.layout.menuItem)
 		{
@@ -331,7 +409,7 @@ export default class CounterItem
 		return this.layout.menuItem;
 	}
 
-	getContainer()
+	getContainer(): HTMLElement
 	{
 		if (!this.layout.container)
 		{
@@ -339,8 +417,9 @@ export default class CounterItem
 			const isValue = Type.isNumber(this.value);
 
 			this.layout.container = Tag.render`
-				<div ${type} class="ui-counter-panel__item">
-					${isValue ? this.#getValue() : ''}
+				<div ${type} class="ui-counter-panel__item ${this.#getItemClassModifierByValue(this.value)}">
+					${this.#collapsedIcon ? this.#getCollapsedIcon() : ''}
+					${isValue && !this.hideValue ? this.#getValue() : ''}
 					${this.title ? this.#getTitle() : ''}
 					${isValue ? this.#getCross() : ''}
 				</div>
@@ -356,7 +435,7 @@ export default class CounterItem
 					</div>
 				`;
 
-				this.#getCross().addEventListener('click', (ev) => {
+				Event.bind(this.#getCross(), 'click', (ev) => {
 					this.deactivate();
 					ev.stopPropagation();
 				});
@@ -366,22 +445,22 @@ export default class CounterItem
 
 			if (!isValue)
 			{
-				this.layout.container.classList.add('--string');
+				Dom.addClass(this.layout.container, '--string');
 			}
 
 			if (!isValue && !this.eventsForActive && !this.eventsForUnActive)
 			{
-				this.layout.container.classList.add('--title');
+				Dom.addClass(this.layout.container, '--title');
 			}
 
 			if (!this.separator)
 			{
-				this.layout.container.classList.add('--without-separator');
+				Dom.addClass(this.layout.container, '--without-separator');
 			}
 
 			if (this.locked)
 			{
-				this.layout.container.classList.add('--locked');
+				Dom.addClass(this.layout.container, '--locked');
 			}
 
 			if (this.isActive)
@@ -391,35 +470,54 @@ export default class CounterItem
 
 			if (this.isRestricted)
 			{
-				this.layout.container.classList.add('--restricted');
+				Dom.addClass(this.layout.container, '--restricted');
+			}
+
+			if (this.#collapsed)
+			{
+				this.collapse();
+			}
+
+			if (this.locked)
+			{
+				this.lock();
 			}
 
 			this.setEvents(this.layout.container);
+			this.#setElementDataAttributes(this.layout.container);
 
-			if (isValue && this.items.length === 0)
+			Event.bind(this.layout.container, 'click', () => {
+				EventEmitter.emit('BX.UI.CounterPanel.Item:click', {
+					item: this,
+				});
+			});
+
+			if (isValue && this.items.length === 0 && !this.parent)
 			{
-				if (!this.parent)
-				{
-					this.layout.container.addEventListener('mouseenter', () => {
-						if (!this.isActive)
-						{
-							this.layout.container.classList.add('--hover');
-						}
-					});
+				Event.bind(this.layout.container, 'mouseenter', () => {
+					if (!this.isActive)
+					{
+						Dom.addClass(this.layout.container, '--hover');
+					}
+				});
 
-					this.layout.container.addEventListener('mouseleave', () => {
-						if (!this.isActive)
-						{
-							this.layout.container.classList.remove('--hover');
-						}
-					});
+				Event.bind(this.layout.container, 'mouseleave', () => {
+					if (!this.isActive)
+					{
+						Dom.removeClass(this.layout.container, '--hover');
+					}
+				});
 
-					this.layout.container.addEventListener('click', () => {
-						this.isActive
-							? this.deactivate()
-							: this.activate();
-					});
-				}
+				Event.bind(this.layout.container, 'click', () => {
+					if (this.isActive)
+					{
+						this.deactivate();
+					}
+					else
+					{
+						this.activate();
+					}
+				});
 			}
 
 			if (this.parent)
@@ -429,5 +527,48 @@ export default class CounterItem
 		}
 
 		return this.layout.container;
+	}
+
+	setDataAttributes(attributes: Object): void
+	{
+		this.#dataAttributes = Type.isPlainObject(attributes) || {};
+		this.#setElementDataAttributes(this.getContainer());
+	}
+
+	#setElementDataAttributes(element?: HTMLElement): void
+	{
+		if (!element)
+		{
+			return;
+		}
+
+		Object.entries(this.#dataAttributes).forEach(([key, value]) => {
+			Dom.attr(element, `data-${key}`, value);
+		});
+	}
+
+	#getCounterStyleByColor(color: string): string
+	{
+		if (color === CounterColor.DANGER)
+		{
+			return CounterStyle.FILLED_ALERT;
+		}
+
+		if (color === CounterColor.SUCCESS)
+		{
+			return CounterStyle.FILLED_SUCCESS;
+		}
+
+		return CounterStyle.OUTLINE_NO_ACCENT;
+	}
+
+	#getItemClassModifierByValue(value: number): string
+	{
+		return value === 0 ? this.#getZeroItemClassModifier() : '';
+	}
+
+	#getZeroItemClassModifier(): string
+	{
+		return '--zero';
 	}
 }

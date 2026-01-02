@@ -224,6 +224,7 @@ class MainUserConsentConsentListComponent extends CBitrixComponent
 				"name" => Loc::getMessage('MAIN_USER_CONSENTS_COMP_UI_COLUMN_AGREEMENT_ID'),
 				"default" => true,
 				"type" => "list",
+				'params' => ['multiple' => 'Y'],
 				"items" => $agreements
 			],
 			[

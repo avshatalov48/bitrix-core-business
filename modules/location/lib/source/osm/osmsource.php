@@ -8,6 +8,7 @@ use Bitrix\Location\Source\Osm\Api\Api;
 use Bitrix\Location\StaticMap\ISourceStaticMapService;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Context;
+use Bitrix\Main\Config\Option;
 
 /**
  * Class OsmSource
@@ -63,7 +64,7 @@ final class OsmSource extends Source
 		return [
 			'serviceUrl' => $this->getOsmApiUrl(),
 			'mapServiceUrl' => $this->getOsmMapServiceUrl(),
-			'token' => $token ? $token->getToken() : null,
+			'token' => $token?->getToken(),
 			'useGeocodingService' => true,
 			'hostName' => $this->getOsmHostName()
 		];
@@ -121,22 +122,12 @@ final class OsmSource extends Source
 
 	public function getOsmServiceUrl(): ?string
 	{
-		if (defined('LOCATION_OSM_SERVICE_URL') && LOCATION_OSM_SERVICE_URL)
-		{
-			return (string)LOCATION_OSM_SERVICE_URL;
-		}
-
-		return $this->getConfig()?->getValue('SERVICE_URL');
+		return Option::get('location', 'osm_service_url');
 	}
 
 	public function getOsmMapServiceUrl(): ?string
 	{
-		if (defined('LOCATION_OSM_MAP_SERVICE_URL') && LOCATION_OSM_MAP_SERVICE_URL)
-		{
-			return (string)LOCATION_OSM_MAP_SERVICE_URL;
-		}
-
-		return $this->getConfig()?->getValue('MAP_SERVICE_URL');
+		return Option::get('location', 'osm_map_service_url');
 	}
 
 	public function getOsmToken(): ?Token

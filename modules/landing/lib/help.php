@@ -29,7 +29,8 @@ class Help
 		'it' => 'bitrix24.it',
 		'id' => 'bitrix24.id',
 		'vn' => 'bitrix24.vn',
-		'jp' => 'bitrix24.jp'
+		'jp' => 'bitrix24.jp',
+		'uz' => 'bitrix24.uz',
 	];
 
 	/**
@@ -140,7 +141,7 @@ class Help
 			$myZone = Manager::getZone();
 		}
 
-		if ($myZone === 'by' || $myZone === 'kz')
+		if ($myZone === 'by' || $myZone === 'kz' || $myZone === 'uz')
 		{
 			$myZone = 'ru';
 		}

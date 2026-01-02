@@ -21,7 +21,7 @@ class AttendeeCollection extends PropertyCollection
 	{
 		return array_merge(parent::getFields(), [
 			'attendeesIdCollection' => $this->attendeesIdCollection,
-			'attendeesCodesCollection' => $this->attendeesCodesCollection
+			'attendeesCodesCollection' => $this->attendeesCodesCollection,
 		]);
 	}
 
@@ -70,6 +70,19 @@ class AttendeeCollection extends PropertyCollection
 		return $this;
 	}
 
+	/**
+	 * @return int[]
+	 */
+	public function getAttendeesIdCollection(): array
+	{
+		return $this->attendeesIdCollection;
+	}
+
+	public function hasAttendeeId(int $userId): bool
+	{
+		return in_array($userId, $this->attendeesIdCollection, true);
+	}
+
 	public function setAttendeesCodes(array $attendeesCodes): AttendeeCollection
 	{
 		$this->attendeesCodesCollection = $attendeesCodes;
@@ -80,6 +93,26 @@ class AttendeeCollection extends PropertyCollection
 	public function getAttendeesCodes(): array
 	{
 		return $this->attendeesCodesCollection;
+	}
+
+	public function hasAttendeeCode(int $userId): bool
+	{
+		$userCode = 'U' . $userId;
+
+		return in_array($userCode, $this->attendeesCodesCollection, true);
+	}
+
+	public function addAttendee(int $userId): void
+	{
+		if (!$this->hasAttendeeId($userId))
+		{
+			$this->attendeesIdCollection[$userId] = $userId;
+		}
+
+		if (!$this->hasAttendeeCode($userId))
+		{
+			$this->attendeesCodesCollection[] = 'U' . $userId;
+		}
 	}
 
 	/**
@@ -97,10 +130,6 @@ class AttendeeCollection extends PropertyCollection
 				continue;
 			}
 
-			// if (mb_strpos($attendee, 'U') === 0)
-			// {
-			// 	$attendee = mb_substr($attendee, 1);
-			// }
 			if ((int)$attendee)
 			{
 				$this->add(
@@ -125,13 +154,5 @@ class AttendeeCollection extends PropertyCollection
 		}
 
 		return parent::toString($separator);
-	}
-
-	/**
-	 * @return int[]
-	 */
-	public function getAttendeesIdCollection(): array
-	{
-		return $this->attendeesIdCollection;
 	}
 }

@@ -180,16 +180,6 @@ this.BX = this.BX || {};
 	              this.getDirectoryDropdownMenu().close();
 	              form.reloadDirectory(this.directoryValue);
 	            },
-	            normalizeName: function normalizeName(e) {
-	              var input = e.target;
-	              if (input) {
-	                input.value = BX.translit(input.value, {
-	                  change_case: 'L',
-	                  replace_space: '',
-	                  delete_repeat_replace: true
-	                });
-	              }
-	            },
 	            addNewRow: function addNewRow() {
 	              form.gridController.prependRowEditor();
 	            }

@@ -1,0 +1,24 @@
+<?php
+$MESS["CONTRACTOR_ADDRESS"] = "Мекенжай";
+$MESS["CONTRACTOR_ADDRESS_JURIDICAL"] = "Заңды мекенжайы";
+$MESS["CONTRACTOR_COMPANY"] = "Компания атауы";
+$MESS["CONTRACTOR_DELETE"] = "Жою";
+$MESS["CONTRACTOR_DELETE_CONFIRM"] = "Сіз бұл жеткізушіні жойғыңыз келетініне сенімдісіз бе?";
+$MESS["CONTRACTOR_EMAIL"] = "E-mail";
+$MESS["CONTRACTOR_INN"] = "СТН";
+$MESS["CONTRACTOR_KPP"] = "ЕСК";
+$MESS["CONTRACTOR_LAST_NAME"] = "Тегі";
+$MESS["CONTRACTOR_LIST"] = "Жеткізушілер тізімі";
+$MESS["CONTRACTOR_NAME"] = "Аты";
+$MESS["CONTRACTOR_NEW"] = "Қосу";
+$MESS["CONTRACTOR_PHONE"] = "Телефон";
+$MESS["CONTRACTOR_POSTINDEX"] = "Индекс";
+$MESS["CONTRACTOR_SECOND_NAME"] = "Әкесінің аты";
+$MESS["CONTRACTOR_TAB"] = "Жеткізушілер";
+$MESS["CONTRACTOR_TAB_DESCR"] = "Жеткізуші";
+$MESS["CONTRACTOR_TITLE"] = "Т.А.Ә.";
+$MESS["CONTRACTOR_TITLE_ADD"] = "Жаңа жеткізуші";
+$MESS["CONTRACTOR_TITLE_JURIDICAL"] = "Байланысушы тұлға";
+$MESS["CONTRACTOR_TITLE_UPDATE"] = "#ID# жеткізушіні редакциялау";
+$MESS["CONTRACTOR_TYPE"] = "Жеткізуші түрі";
+$MESS["CVAT_SORT"] = "Сұрыптау";

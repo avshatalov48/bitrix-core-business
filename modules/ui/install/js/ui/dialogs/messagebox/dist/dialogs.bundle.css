@@ -19,6 +19,10 @@
 	font-size: var(--ui-font-size-md);
 }
 
+.ui-message-box.--air:has(.popup-window-buttons) {
+	padding-bottom: 0;
+}
+
 .ui-message-box .popup-window-titlebar + .popup-window-content {
 	padding-top: 10px;
 	text-align: left;
@@ -33,4 +37,11 @@
 	padding: 18px 40px 0 20px;
 	line-height: normal;
 	white-space: normal;
+}
+
+.ui-message-box.--air .popup-window-buttons
+{
+	display: flex;
+	justify-content: center;
+	gap: 6px;
 }

@@ -1,6 +1,7 @@
 export type Options = {
 	moduleId: string;
 	pullTag?: string;
+	additionalPullTags?: string[];
 	userId: number;
 	config?: Config;
 	additionalData?: Object<string, any>;

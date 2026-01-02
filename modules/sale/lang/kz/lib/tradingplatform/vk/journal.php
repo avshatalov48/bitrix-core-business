@@ -1,0 +1,27 @@
+<?php
+$MESS["VK_JOURNAL_ALBUMS"] = "Тауар топтамалары";
+$MESS["VK_JOURNAL_BUTTON_CLEAR_LOG"] = "Мен оқыдым";
+$MESS["VK_JOURNAL_BUTTON_CLEAR_LOG_ALERT"] = "Қателер логы тазартылады. Жалғастыру керек пе?";
+$MESS["VK_JOURNAL_BUTTON_STOP_PROCESS"] = "Тоқтату";
+$MESS["VK_JOURNAL_BUTTON_STOP_PROCESS_ALERT"] = "Экспорттау тоқтатылады. Жалғастыру керек пе?";
+$MESS["VK_JOURNAL_COUNT_NOW"] = "#C1 элемент өңделді.";
+$MESS["VK_JOURNAL_COUNT_WAS"] = "#C1 элемент өңделді.";
+$MESS["VK_JOURNAL_EXPORT_ABORT"] = "Экспорттау тоқтатылды";
+$MESS["VK_JOURNAL_EXPORT_FININSH"] = "Экспорттау аяқталды.";
+$MESS["VK_JOURNAL_EXPORT_NOW"] = "Экспорттау кәзір орындалуда.";
+$MESS["VK_JOURNAL_LAST_EXPORT"] = "Соңғы рет #D1 #D2-ге экспортталды.";
+$MESS["VK_JOURNAL_LAST_EXPORT_ABORTED"] = "Эспорттау тоқтатылды.";
+$MESS["VK_JOURNAL_NEVER"] = "Экспорттау бірде бір рет іске қосылмады.";
+$MESS["VK_JOURNAL_NOW_EXPORT_ALBUMS"] = "Альбомдар экспортталуда:";
+$MESS["VK_JOURNAL_NOW_EXPORT_ALBUMS_DELETE"] = "Альбомдар жойылуда:";
+$MESS["VK_JOURNAL_NOW_EXPORT_ALBUMS_DELETE_ALL"] = "Альбомдар жойылуда:";
+$MESS["VK_JOURNAL_NOW_EXPORT_ALL"] = "Альбомдар экспортталуда:";
+$MESS["VK_JOURNAL_NOW_EXPORT_PRODUCTS"] = "Тауарлар экспортталуда:";
+$MESS["VK_JOURNAL_NOW_EXPORT_PRODUCTS_DELETE"] = "Тауарлар жойылуда:";
+$MESS["VK_JOURNAL_NOW_EXPORT_PRODUCTS_DELETE_ALL"] = "Тауарлар жойылуда:";
+$MESS["VK_JOURNAL_PROCESSING_COUNT"] = "#C1 элемент өңделді...";
+$MESS["VK_JOURNAL_PRODUCTS"] = "Тауарлар";
+$MESS["VK_JOURNAL_RUNNING_NOTIFY_1"] = "Тауарлар мен альбомдардың санына, сондай-ақ сервердің жұмысына және интернет байланысының сапасына байланысты экспорттау бірнеше сағатқа дейін созылуы мүмкін.";
+$MESS["VK_JOURNAL_RUNNING_NOTIFY_2"] = "Ағымдағы процесс бітпегенше, жаңасын іске қоса алмайсыз.";
+$MESS["VK_JOURNAL_TOO_MUCH_TIMES_NOTIFY_1"] = "Экспорттау тым баяу жүріп жатыр.";
+$MESS["VK_JOURNAL_TOO_MUCH_TIMES_NOTIFY_2"] = "Бір қадамның орындалу уақытын көбейтіңіз немесе әр қадамға элементтер санын азайтыңыз.";

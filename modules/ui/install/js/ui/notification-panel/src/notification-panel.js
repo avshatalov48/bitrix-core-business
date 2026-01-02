@@ -25,7 +25,7 @@ export type NotificationPanelOptions = {
 
 export class NotificationPanel extends EventEmitter
 {
-	#panel: ?HTMLElement = null;
+	#content: ?HTMLElement = null;
 	#popup: ?Popup = null;
 	#container: HTMLElement;
 	options: NotificationPanelOptions;
@@ -83,34 +83,39 @@ export class NotificationPanel extends EventEmitter
 
 	getContent(): HTMLElement
 	{
-		const content = Tag.render`<div class="ui-notification-panel__content"></div>`;
+		if (this.#content)
+		{
+			return this.#content;
+		}
+
+		this.#content = Tag.render`<div class="ui-notification-panel__content"></div>`;
 
 		if (this.options.leftIcon)
 		{
 			this.options.leftIcon.size = 28;
-			this.options.leftIcon.renderTo(content);
+			this.options.leftIcon.renderTo(this.#content);
 			Dom.append(
 				Tag.render`<div class="ui-notification-panel__left-icon-divider"></div>`,
-				content,
+				this.#content,
 			);
 		}
 
 		if (Type.isElementNode(this.options.content))
 		{
-			Dom.append(this.options.content, content);
+			Dom.append(this.options.content, this.#content);
 		}
 		else if (Type.isString(this.options.content))
 		{
 			const textColor = this.options.textColor;
 			Dom.append(
-				Tag.render`<div class="ui-notification-panel__text" ${textColor ? 'style="color: ' + textColor + '"' : ''}>${this.options.content}</div>`,
-				content,
+				Tag.render`<div class="ui-notification-panel__text" ${textColor ? `style="color: ${textColor}"` : ''}>${this.options.content}</div>`,
+				this.#content,
 			);
 		}
 
-		Dom.append(this.getFooter(), content);
+		Dom.append(this.getFooter(), this.#content);
 
-		return content;
+		return this.#content;
 	}
 
 	getFooter(): HTMLElement
@@ -133,11 +138,12 @@ export class NotificationPanel extends EventEmitter
 	getCloseButton(): HTMLElement
 	{
 		const crossColor = this.options.crossColor;
+
 		return Tag.render`
 			<div 
 				class="ui-notification-panel__close-button ui-icon-set --cross-45"
 				onclick="${this.hideByButton.bind(this)}"
-				${crossColor ? 'style="--ui-icon-set__icon-color: ' + crossColor + '"' : ''}
+				${crossColor ? `style="--ui-icon-set__icon-color: ${crossColor}"` : ''}
 			>
 			</div>
 		`;
@@ -149,8 +155,12 @@ export class NotificationPanel extends EventEmitter
 			id: this.options.id,
 			content: this.getContent(),
 			background: this.options.backgroundColor,
-			targetContainer: this.#panel,
-			className: 'ui-notification-panel__container',
+			fixed: true,
+			bindElement: {
+				left: 0,
+				top: 0,
+			},
+			className: `ui-notification-panel__container ${this.options.styleClass}`,
 			animation: {
 				showClassName: 'ui-notification-panel__show',
 				closeClassName: 'ui-notification-panel__hide',
@@ -160,9 +170,6 @@ export class NotificationPanel extends EventEmitter
 				onShow: this.#handlePopupShow.bind(this),
 				onClose: this.#handlePopupClose.bind(this),
 			},
-			zIndexOptions: {
-				alwaysOnTop: true,
-			},
 		});
 
 		return this.#popup;
@@ -170,13 +177,9 @@ export class NotificationPanel extends EventEmitter
 
 	show(): void
 	{
-		if (!this.#panel)
-		{
-			this.#createPanel();
-		}
-
 		const popup = this.getPopup();
 		popup.show();
+
 		if (this.options.zIndex)
 		{
 			popup.getZIndexComponent().setZIndex(this.options.zIndex);
@@ -195,19 +198,21 @@ export class NotificationPanel extends EventEmitter
 		this.hide();
 	}
 
-	#createPanel(): void
+	#adjustPopupPosition(): void
 	{
-		this.#panel = Tag.render`<div class="ui-notification-panel ${this.options.styleClass}" id="notification-panel-${this.options.id}"></div>`;
-		let mainTable = document.body.querySelector('.bx-layout-table');
-		if (!mainTable)
-		{
-			mainTable = document.body.querySelector('.ui-slider-page');
-		}
-		Dom.insertBefore(this.#panel, mainTable);
+		const containerWidth = this.getContent().offsetWidth;
+		const windowWidth = window.innerWidth;
+		const offsetLeft = (windowWidth - containerWidth) / 2;
+
+		this.getPopup().setOffset({
+			offsetLeft,
+			offsetTop: 0,
+		});
 	}
 
 	#handlePopupShow(): void
 	{
+		this.#adjustPopupPosition();
 		this.options.events?.onShow?.();
 		this.emit('onShow');
 	}

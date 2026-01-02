@@ -1,4 +1,9 @@
-<?
+<?php
+/**
+ * Bitrix vars
+ * @global CUser $USER
+ * @global CMain $APPLICATION
+ */
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
@@ -49,13 +54,7 @@ if($strWarning == "")
 		
 		$arComponent["DATA"]["FUNCTION_PARAMS"]["ACTIVE_COMPONENT"] = ($_GET['active'] == 'N'? 'N':'Y');
 
-		$code =  ($arComponent["DATA"]["VARIABLE"]? $arComponent["DATA"]["VARIABLE"]."=":"").
-			"\$APPLICATION->IncludeComponent(\"".$arComponent["DATA"]["COMPONENT_NAME"]."\", ".
-			"\"".$arComponent["DATA"]["TEMPLATE_NAME"]."\", ".
-			"array(\r\n\t".PHPParser::ReturnPHPStr2($arComponent["DATA"]["PARAMS"])."\r\n\t)".
-			",\r\n\t".($arComponent["DATA"]["PARENT_COMP"] <> ''? $arComponent["DATA"]["PARENT_COMP"] : "false").
-			",\r\n\t"."array(\r\n\t".PHPParser::ReturnPHPStr2($arComponent["DATA"]["FUNCTION_PARAMS"])."\r\n\t)".
-			"\r\n);";
+		$code = PHPParser::buildComponentCode($arComponent);
 
 		$filesrc_for_save = mb_substr($filesrc, 0, $arComponent["START"]).$code.mb_substr($filesrc, $arComponent["END"]);
 
@@ -81,4 +80,3 @@ if($strWarning <> "")
 	echo "<script>alert('".CUtil::JSEscape($strWarning)."')</script>";
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
-?>

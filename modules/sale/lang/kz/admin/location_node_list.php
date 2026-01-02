@@ -1,0 +1,21 @@
+<?php
+$MESS["SALE_LOCATION_L_ADD_ITEM"] = "Орналасуды қосу";
+$MESS["SALE_LOCATION_L_ANY"] = "кез келген";
+$MESS["SALE_LOCATION_L_CONFIRM_DELETE_ITEM"] = "Орналасуын жойғыңыз келетініне сенімдісіз бе? Барлық еншілес орналасулар да жойылады.";
+$MESS["SALE_LOCATION_L_COPY_ITEM"] = "Орналасуды көшіру";
+$MESS["SALE_LOCATION_L_CURRENT"] = "тек ағымдағыны";
+$MESS["SALE_LOCATION_L_CURRENT_AND_LOWER"] = "ағымдағы және төмен";
+$MESS["SALE_LOCATION_L_DELETE_ITEM"] = "Орналасқан жерін жою";
+$MESS["SALE_LOCATION_L_EDIT_CURRENT"] = "Ағымдағыны редакциялау";
+$MESS["SALE_LOCATION_L_EDIT_ITEM"] = "Орналасуды редакциялау";
+$MESS["SALE_LOCATION_L_EDIT_PAGE_TITLE"] = "Орналасулар тізімі";
+$MESS["SALE_LOCATION_L_ERROR"] = "Орналасуды импорттау сәтсіз өткен сияқты. Орналасуды импорттауды тағы бір рет қайталау қажет.";
+$MESS["SALE_LOCATION_L_FROM_AND_TO"] = "басынан аяғына дейін";
+$MESS["SALE_LOCATION_L_ITEM"] = "Орналасқан жері";
+$MESS["SALE_LOCATION_L_ITEM_DELETE_ERROR"] = "Орналасуды жою қатесі";
+$MESS["SALE_LOCATION_L_ITEM_NOT_FOUND"] = "Көрсетілген идентификаторы бар орналасқан жер табылмады";
+$MESS["SALE_LOCATION_L_ITEM_SAVE_ERROR"] = "#ITEM# орналасқан жерін жаңарту мүмкін болмады";
+$MESS["SALE_LOCATION_L_LEVEL"] = "Деңгей";
+$MESS["SALE_LOCATION_L_PAGES"] = "Орналасқан жерлері";
+$MESS["SALE_LOCATION_L_VIEW_CHILDREN"] = "Еншілес орналасуларды қарау";
+$MESS["SALE_MODULE_ACCES_DENIED"] = "Модульге кіруге тыйым салынған";

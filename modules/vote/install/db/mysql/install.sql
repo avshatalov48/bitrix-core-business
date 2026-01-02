@@ -49,6 +49,7 @@ create table if not exists b_vote (
 	OPTIONS int(18) default '1',
 	TEMPLATE varchar(255),
 	RESULT_TEMPLATE varchar(255),
+	STOP_EVENT_HANDLED smallint null default null,
 	primary key (ID),
 	index IX_CHANNEL_ID (CHANNEL_ID));
 
@@ -86,6 +87,7 @@ create table if not exists b_vote_answer (
 	FIELD_HEIGHT int(18),
 	FIELD_PARAM varchar(255),
 	COLOR varchar(7),
+	REACTION varchar(50) null default null,
 	primary key (ID),
 	index IX_QUESTION_ID (QUESTION_ID));
 
@@ -116,6 +118,7 @@ create table if not exists b_vote_event_answer (
 	ANSWER_ID int(18) not null default '0',
 	MESSAGE text,
 	primary key (ID),
+	index IX_VOTE_EVENT_ANSWER_ANSWER_ID (ANSWER_ID),
 	index IX_EVENT_QUESTION_ID (EVENT_QUESTION_ID));
 
 create table if not exists b_vote_user (
@@ -140,8 +143,10 @@ create table if not exists b_vote_attached_object (
 
 	CREATE_TIME datetime not null,
 	CREATED_BY int(11),
+	UID varchar(255) null default null,
 
 	PRIMARY KEY (ID),
 
 	KEY IX_VOTE_AO_1 (OBJECT_ID),
+	unique index UX_VOTE_ATTACHED_OBJECT_UID (UID),
 	KEY IX_VOTE_AO_2 (MODULE_ID, ENTITY_TYPE, ENTITY_ID));

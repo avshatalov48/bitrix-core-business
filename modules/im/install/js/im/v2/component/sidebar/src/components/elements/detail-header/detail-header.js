@@ -1,5 +1,6 @@
-import { SearchInput, Button as ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
-import { ChatType, Layout } from 'im.v2.const';
+import { SearchInput } from 'im.v2.component.elements.search-input';
+import { ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements.button';
+import { ChatType } from 'im.v2.const';
 
 import './detail-header.css';
 
@@ -45,12 +46,6 @@ export const DetailHeader = {
 	{
 		ButtonSize: () => ButtonSize,
 		ButtonColor: () => ButtonColor,
-		isCopilotLayout(): boolean
-		{
-			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
-
-			return currentLayoutName === Layout.copilot.name;
-		},
 		dialog(): ImModelChat
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
@@ -61,11 +56,6 @@ export const DetailHeader = {
 		},
 		addButtonColor(): ButtonColor
 		{
-			if (this.isCopilotLayout)
-			{
-				return this.ButtonColor.Copilot;
-			}
-
 			if (this.isCollab)
 			{
 				return this.ButtonColor.Collab;
@@ -110,6 +100,7 @@ export const DetailHeader = {
 						:delayForFocusOnStart="delayForFocusOnStart"
 						@queryChange="$emit('changeQuery', $event)"
 						@close="$emit('toggleSearchPanelOpened', $event)"
+						@closeByEsc="$emit('toggleSearchPanelOpened', $event)"
 						class="bx-im-sidebar-search-header__input"
 					/>
 					<div v-else @click="$emit('toggleSearchPanelOpened', $event)" class="bx-im-sidebar-detail-header__search__icon --search"></div>

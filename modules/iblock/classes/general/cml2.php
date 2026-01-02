@@ -1,4 +1,5 @@
 <?php
+
 use Bitrix\Main;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
@@ -295,50 +296,73 @@ class CIBlockCMLImport
 		$this->arTempFiles = array();
 	}
 
-	function MakeFileArray($file, $fields = array())
+	public function MakeFileArray($file, $fields = [])
 	{
-		if(is_array($file))
+		if (is_array($file))
 		{
-			if(
-				array_key_exists($this->mess["IBLOCK_XML2_BX_URL"], $file)
-				&& $file[$this->mess["IBLOCK_XML2_BX_URL"]] <> ''
-			)
+			$url = (string)($file[$this->mess['IBLOCK_XML2_BX_URL']] ?? '');
+			if ($url !== '')
 			{
 				if (Loader::includeModule('clouds'))
 				{
-					$bucket = CCloudStorage::FindBucketByFile($file[$this->mess["IBLOCK_XML2_BX_URL"]]);
-					if(is_object($bucket) && $bucket->READ_ONLY === "Y")
+					$bucket = CCloudStorage::FindBucketByFile($url);
+					if (is_object($bucket) && $bucket->READ_ONLY === 'Y')
 					{
-						return array(
-							"name" => $file[$this->mess["IBLOCK_XML2_BX_ORIGINAL_NAME"]],
-							"description" => $file[$this->mess["IBLOCK_XML2_DESCRIPTION"]],
-							"tmp_name" => $file[$this->mess["IBLOCK_XML2_BX_URL"]],
-							"file_size" => $file[$this->mess["IBLOCK_XML2_BX_FILE_SIZE"]],
-							"width" => $file[$this->mess["IBLOCK_XML2_BX_FILE_WIDTH"]],
-							"height" => $file[$this->mess["IBLOCK_XML2_BX_FILE_HEIGHT"]],
-							"type" => $file[$this->mess["IBLOCK_XML2_BX_FILE_CONTENT_TYPE"]],
-							"content" => "", //Fake field in order to avoid warning
-							"bucket" => $bucket,
-						);
+						return [
+							'name' => $file[$this->mess['IBLOCK_XML2_BX_ORIGINAL_NAME']],
+							'description' => $file[$this->mess['IBLOCK_XML2_DESCRIPTION']],
+							'tmp_name' => $url,
+							'file_size' => $file[$this->mess['IBLOCK_XML2_BX_FILE_SIZE']],
+							'width' => $file[$this->mess['IBLOCK_XML2_BX_FILE_WIDTH']],
+							'height' => $file[$this->mess['IBLOCK_XML2_BX_FILE_HEIGHT']],
+							'type' => $file[$this->mess['IBLOCK_XML2_BX_FILE_CONTENT_TYPE']],
+							'content' => '', //Fake field in order to avoid warning
+							'bucket' => $bucket,
+						];
 					}
 				}
-				return CFile::MakeFileArray($this->URLEncode($file[$this->mess["IBLOCK_XML2_BX_URL"]])); //Download from the cloud
+
+				return CFile::MakeFileArray($this->URLEncode($url)); //Download from the cloud
 			}
 		}
 		else
 		{
-			if ($file <> '')
+			$file = (string)$file;
+			if ($file !== '')
 			{
-				$external_id = md5($file);
-				if (is_file($this->files_dir.$file))
-					return CFile::MakeFileArray($this->files_dir.$file, false, false, $external_id);
-				$fileId = $this->CheckFileByName($external_id, $fields);
-				if ($fileId > 0)
-					return CFile::MakeFileArray($fileId);
+				try
+				{
+					$filePath = Main\IO\Path::normalize($file);
+				}
+				catch (Main\IO\InvalidPathException)
+				{
+					$filePath = '';
+				}
+				if ($filePath === '/')
+				{
+					$filePath = '';
+				}
+				if ($filePath !== '')
+				{
+					$externalId = md5($filePath);
+					$fullPath = Main\IO\Path::combine($this->files_dir, $filePath);
+					if (is_file($fullPath))
+					{
+						return CFile::MakeFileArray($fullPath, false, false, $externalId);
+					}
+					$fileId = (int)$this->CheckFileByName($externalId, $fields);
+					if ($fileId > 0)
+					{
+						return CFile::MakeFileArray($fileId);
+					}
+				}
 			}
 		}
 
-		return array("tmp_name"=>"", "del"=>"Y");
+		return [
+			'tmp_name' => '',
+			'del' => 'Y',
+		];
 	}
 
 	function URLEncode($str)

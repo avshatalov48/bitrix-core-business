@@ -917,7 +917,7 @@ class CSocNetTextParser
 				if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 					$arParams["SERVER_NAME"] = SITE_SERVER_NAME;
 				else
-					$arParams["SERVER_NAME"] = COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
+					$arParams["SERVER_NAME"] = COption::GetOptionString("main", "server_name");
 			}
 		}
 

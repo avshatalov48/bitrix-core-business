@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SOA_YES"] = "да";
 $MESS["SOA_NO"] = "нет";
 $MESS["SOA_DO_SOC_SERV"] = "Войти с помощью соцсетей";
@@ -17,19 +17,19 @@ $MESS["SOA_PICKUP_DESC"] = "Описание";
 $MESS["SOA_MAP_COORDS"] = "Координаты на карте";
 $MESS["SOA_DISTANCE_KM"] = "км";
 $MESS["SOA_ORDER_PROPS"] = "Свойства заказа";
-$MESS["SOA_FIELD"] = "Поле";
-$MESS["SOA_REQUIRED"] = "обязательно для заполнения";
+$MESS["SOA_REQUIRED_FIELD"] = "Заполните обязательное поле";
+$MESS["SOA_REQUIRED_FIELD_WITH_NAME"] = "Заполните обязательное поле \"#NAME#\"";
 $MESS["SOA_INVALID_EMAIL"] = "Введен неверный e-mail";
-$MESS["SOA_MIN_LENGTH"] = "Минимальная длина поля";
-$MESS["SOA_MAX_LENGTH"] = "Максимальная длина поля";
-$MESS["SOA_NOT_NUMERIC"] = "должно быть числовым";
-$MESS["SOA_MIN_VALUE"] = "Минимальное значение поля";
-$MESS["SOA_MAX_VALUE"] = "Максимальное значение поля";
-$MESS["SOA_NUM_STEP"] = "не соответствует шагу";
-$MESS["SOA_LESS"] = "не менее";
-$MESS["SOA_MORE"] = "не более";
-$MESS["SOA_SYMBOLS"] = "символов";
-$MESS["SOA_INVALID_PATTERN"] = "не соответствует шаблону";
+$MESS["SOA_MIN_LENGTH_FIELD_WITH_NAME"] = "В поле \"#NAME#\" должно быть не меньше #LENGTH# символов";
+$MESS["SOA_MAX_LENGTH_FIELD_WITH_NAME"] = "В поле \"#NAME#\" должно быть не больше #LENGTH# символов";
+$MESS["SOA_NOT_NUMERIC_FIELD"] = "В поле должны быть только числа";
+$MESS["SOA_NOT_NUMERIC_FIELD_WITH_TITLE"] = "В поле \"#NAME#\" должны быть только числа";
+$MESS["SOA_MIN_VALUE_FIELD_WITH_NAME"] = "Минимальное значение поля \"#NAME#\" #VALUE#";
+$MESS["SOA_MAX_VALUE_FIELD_WITH_NAME"] = "Максимальное значение поля \"#NAME#\" #VALUE#";
+$MESS["SOA_NUM_STEP_FIELD"] = "В поле должно быть число, кратное \"#STEP#\"";
+$MESS["SOA_NUM_STEP_FIELD_WITH_NAME"] = "В поле \"#NAME#\" должно быть число, кратное \"#STEP#\"";
+$MESS["SOA_INVALID_PATTERN_FIELD"] = "В поле есть недопустимые символы";
+$MESS["SOA_INVALID_PATTERN_FIELD_WITH_NAME"] = "В поле \"#NAME#\" есть недопустимые символы";
 $MESS["SOA_PROP_NEW_PROFILE"] = "Новый профиль";
 $MESS["SOA_PAY_SYSTEM"] = "Платежная система";
 $MESS["SOA_PAY_ACCOUNT3"] = "Средств достаточно для полной оплаты заказа.";
@@ -134,7 +134,6 @@ $MESS["DELIVERY_CALC_ERROR_TITLE_DEFAULT"] = "Не удалось рассчит
 $MESS["DELIVERY_CALC_ERROR_TEXT_DEFAULT"] = "Вы можете продолжить оформление заказа, а чуть позже менеджер магазина свяжется с вами и уточнит информацию по доставке.";
 $MESS["EMPTY_BASKET_TITLE"] = "Ваша корзина пуста";
 $MESS["EMPTY_BASKET_HINT"] = "#A1#Нажмите здесь#A2#, чтобы продолжить покупки";
-$MESS["SOA_BAD_EXTENSION"] = "Неверный тип файла";
-$MESS["SOA_MAX_SIZE"] = "Превышен максимальный размер файла";
+$MESS["SOA_BAD_EXTENSION_NAME_AND_ACCEPT"] = "Неверный тип файла \"#NAME#\" (#ACCEPT#)";
+$MESS["SOA_MAX_SIZE_NAME_AND_SIZE"] = "Превышен максимальный размер файла \"#NAME#\" (#SIZE#)";
 $MESS["PAY_SYSTEM_PAYABLE_ERROR_DEFAULT"] = "Вы сможете оплатить заказ после того, как менеджер проверит наличие полного комплекта товаров на складе. Сразу после проверки вы получите письмо с инструкциями по оплате. Оплатить заказ можно будет в персональном разделе сайта.";
-?>

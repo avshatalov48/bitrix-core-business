@@ -24,9 +24,30 @@ Loc::loadMessages(__FILE__);
  */
 class AudioCall
 {
-	const AUDIO_DIR = 'http://dl.bitrix24.com/sender/audiocall/';
-	const METADATA_FILE = 'http://dl.bitrix24.com/sender/audiocall/metadata.json';
+	const AUDIO_DIR = 'https://dl.bitrix24.com/sender/audiocall/';
+	const RU_AUDIO_DIR = 'https://repos.1c-bitrix.ru/sender/audiocall/';
+	const METADATA_FILE = 'https://dl.bitrix24.com/sender/audiocall/metadata.json';
+	const RU_METADATA_FILE = 'https://repos.1c-bitrix.ru/sender/audiocall/metadata.json';
 
+	public static function getAudioDir()
+	{
+		if (\Bitrix\Sender\Integration\Bitrix24\Service::isRegionRussian(true))
+		{
+			return self::RU_AUDIO_DIR;
+		}
+
+		return static::AUDIO_DIR;
+	}
+
+	public static function getMetadataFile()
+	{
+		if (\Bitrix\Sender\Integration\Bitrix24\Service::isRegionRussian(true))
+		{
+			return self::RU_METADATA_FILE;
+		}
+
+		return static::METADATA_FILE;
+	}
 	/**
 	 * Get supported lang codes
 	 * @return array
@@ -70,7 +91,7 @@ class AudioCall
 		{
 			return false;
 		}
-		$filePath = static::AUDIO_DIR . static::getCodeWithLang($code) . '.mp3';
+		$filePath = static::getAudioDir() . static::getCodeWithLang($code) . '.mp3';
 		return $filePath;
 	}
 
@@ -174,7 +195,7 @@ class AudioCall
 					'AUDIO_FILE' => [
 						'CODE' => 'AUDIO_FILE',
 						'VALUE' => static::getAudioFileUrlByCode($code),
-					]
+					],
 				),
 			);
 		}
@@ -211,9 +232,9 @@ class AudioCall
 
 			$request = new HttpClient([
 				"socketTimeout" => 5,
-				"streamTimeout" => 5
+				"streamTimeout" => 5,
 			]);
-			$request->get(static::METADATA_FILE);
+			$request->get(static::getMetadataFile());
 			if($request->getStatus() == 200)
 			{
 				try

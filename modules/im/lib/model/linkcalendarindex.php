@@ -107,7 +107,7 @@ class LinkCalendarIndexTable extends DataManager
 			->fetchCollection()
 		;
 		$links = new CalendarCollection($linkWithoutIndex);
-		$links->fillCalendarData();
+		$links->fillEntities();
 		$inserts = [];
 		foreach ($links as $link)
 		{

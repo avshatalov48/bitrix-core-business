@@ -42,15 +42,17 @@ class BaseIblockRule extends AbstractRule
 	{
 		$groups = $this->user->getRightGroups();
 
-		$groupData = GroupTable::getList([
-				'filter' => ['STRING_ID' => $this->getShopIblockTypes()],
-				'select' => ['ID']
-			])
-			->fetchAll()
-		;
+		$shopGroupIds = [];
+		foreach ($this->getShopIblockTypes() as $groupCode)
+		{
+			$groupId = \CGroup::GetIDByCode($groupCode);
+			if ($groupId)
+			{
+				$shopGroupIds[] = $groupId;
+			}
+		}
 
-		$shopGroupIds = array_column($groupData, 'ID');
-		if (!$shopGroupIds)
+		if (empty($shopGroupIds))
 		{
 			return false;
 		}

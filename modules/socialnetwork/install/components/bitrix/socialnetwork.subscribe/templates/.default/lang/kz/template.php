@@ -1,0 +1,24 @@
+<?php
+$MESS["SONET_C3_CREATED_BY"] = "Әдепкі бойынша";
+$MESS["SONET_C3_CREATED_BY_TITLE"] = "Осы пайдаланушы жасаған оқиғалар";
+$MESS["SONET_C3_ENTITY_TITLE_G"] = "Топтағы оқиғалар";
+$MESS["SONET_C3_ENTITY_TITLE_U"] = "Пайдаланушы профиліндегі оқиғалар";
+$MESS["SONET_C3_INHERITED"] = "Әдепкі бойынша";
+$MESS["SONET_C3_NOWHERE"] = "жоқ";
+$MESS["SONET_C3_ON_MAIL"] = "сайтта және пошта арқылы";
+$MESS["SONET_C3_ON_SITE"] = "тек сайтта";
+$MESS["SONET_C3_SHOW_IN_LIST"] = "Жанды лентада көрсету";
+$MESS["SONET_C3_TRANSPORT_DIGEST"] = "Күнделікті дайджест";
+$MESS["SONET_C3_TRANSPORT_DIGEST_WEEK"] = "Апта сайынғы дайджест";
+$MESS["SONET_C3_TRANSPORT_MAIL"] = "e-mail бойынша мәлімдеме";
+$MESS["SONET_C3_TRANSPORT_NONE"] = "Мәлімдемеу";
+$MESS["SONET_C3_TRANSPORT_XMPP"] = "Жедел хабарлама";
+$MESS["SONET_C3_VISIBLE_N"] = "Жасыру";
+$MESS["SONET_C3_VISIBLE_Y"] = "Көрсету";
+$MESS["SONET_C4_FUNC_TITLE"] = "\"#NAME#\" жаңартулары";
+$MESS["SONET_C4_GR_SUCCESS"] = "Топ жаңартуларына жазылу сәтті өзгертілді.";
+$MESS["SONET_C4_SUBMIT"] = "Жазылымды өзгерту";
+$MESS["SONET_C4_T_CANCEL"] = "Болдырмау";
+$MESS["SONET_C4_T_MY_SUBSCR"] = "Менің жазылымымды басқару";
+$MESS["SONET_C4_US_SUCCESS"] = "Пайдаланушы жаңартуларына жазылу сәтті өзгертілді.";
+$MESS["SONET_FEATURES_NAME"] = "Атауы";

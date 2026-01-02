@@ -1,0 +1,5 @@
+<?php
+$MESS["CATALOG_IBLOCKSECTIONFIELD_IS_EMPTY_SUBTITLE"] = "Жаңа бөлім жасау керек пе?";
+$MESS["CATALOG_IBLOCKSECTIONFIELD_IS_EMPTY_TITLE"] = "Бөлім табылмады";
+$MESS["CATALOG_IBLOCKSECTIONFIELD_PLACEHOLDER"] = "Жаңа бөлімді табу немесе жасау";
+$MESS["CATALOG_IBLOCKSECTIONFIELD_SELECT"] = "бөлімді таңдау";

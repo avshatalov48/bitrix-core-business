@@ -6,7 +6,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 return [
 	'js' => [
-		'/bitrix/js/ui/dexie/dist/dexie3.bundle.js',
+		'/bitrix/js/ui/dexie/dist/dexie.bundle.js',
 	],
 	'skip_core' => true,
 	'rel' => [

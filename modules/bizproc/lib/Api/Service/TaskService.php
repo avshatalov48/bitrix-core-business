@@ -314,19 +314,30 @@ class TaskService
 		$response = new GetUserTaskByWorkflowIdResponse();
 		$renderer = new \Bitrix\Bizproc\Controller\Response\RenderControlCollectionContent();
 		$task = false;
+		$taskQuery = null;
 
 		if ($request->workflowId)
 		{
-			$task = \Bitrix\Bizproc\Workflow\Task\TaskTable::query()
-				->setSelect(['*'])
-				->setFilter([
-					'=WORKFLOW_ID' => $request->workflowId,
-					'=TASK_USERS.USER_ID' => $request->userId,
-					'=TASK_USERS.STATUS' => \CBPTaskUserStatus::Waiting,
-				])
-				->setOrder(['ID' => 'DESC'])
-				->fetch()
+			$taskQuery =
+				\Bitrix\Bizproc\Workflow\Task\TaskTable::query()
+					->setSelect([
+						'ID',
+						'ACTIVITY',
+						'ACTIVITY_NAME',
+						'NAME',
+						'DESCRIPTION',
+						'PARAMETERS',
+						'TEMPLATE_ID' => 'WORKFLOW_STATE.WORKFLOW_TEMPLATE_ID',
+					])
+					->setFilter([
+						'=WORKFLOW_ID' => $request->workflowId,
+						'=TASK_USERS.USER_ID' => $request->userId,
+						'=TASK_USERS.STATUS' => \CBPTaskUserStatus::Waiting,
+					])
+					->setOrder(['ID' => 'DESC'])
+					->exec()
 			;
+			$task = $taskQuery->fetch();
 		}
 
 		if (!$task)
@@ -336,6 +347,7 @@ class TaskService
 			return $response;
 		}
 
+		$task['saveVariables'] = $task['PARAMETERS']['SaveVariables'] ?? false;
 		$controls = \CBPDocument::getTaskControls($task, $request->userId);
 
 		$task['BUTTONS'] = $controls['BUTTONS'] ?? null;
@@ -346,6 +358,20 @@ class TaskService
 				\CBPHelper::convertBBtoText(
 					preg_replace('|\n+|', "\n", trim($task['DESCRIPTION']))
 				)
+			);
+		}
+
+		if ($taskQuery?->fetch())
+		{
+			$task['IS_LAST_TASK_FOR_USER'] = false;
+		}
+		else
+		{
+			$task['IS_LAST_TASK_FOR_USER'] = \CBPTaskService::isLastTaskForUserByActivity(
+				$task['ACTIVITY_NAME'],
+				$request->userId,
+				$task['TEMPLATE_ID'],
+				$task['ACTIVITY']
 			);
 		}
 		$response->setTask($task);

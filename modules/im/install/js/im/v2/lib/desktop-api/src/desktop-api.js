@@ -13,6 +13,7 @@ import { callBackgroundFunctions } from './functions/call/background';
 import { accountFunctions } from './functions/account';
 import { diskFunctions } from './functions/disk';
 import { debugFunctions } from './functions/debug';
+import { mediaCompressorFunctions } from './functions/media-compressor';
 
 export { DesktopFeature } from './features';
 export { DesktopSettingsKey } from './functions/settings';
@@ -33,6 +34,7 @@ export const DesktopApi = {
 	...accountFunctions,
 	...diskFunctions,
 	...debugFunctions,
+	...mediaCompressorFunctions,
 };
 
 export type { DesktopAccount } from './types/account';

@@ -47,7 +47,7 @@ export function text(content = '')
 
 export function link(content = '', url = 'https://example.com')
 {
-	return `<a href="${url}" target="_blank" class="${defaultTheme.link}">${
+	return `<a href="${url}" target="_blank" class="${defaultTheme.link}" data-slider-ignore-autobinding="true">${
 		isHtml(content) ? content : text(content)}</a>`
 	;
 }

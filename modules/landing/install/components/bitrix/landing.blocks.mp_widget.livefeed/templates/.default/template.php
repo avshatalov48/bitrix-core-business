@@ -129,17 +129,13 @@ $phraseNavigatorButtonExtend = $arResult['PHRASES']['NAVIGATOR_BUTTON']['EXTEND'
 			<button class="landing-widget-button extend-list-button">
 				<?= $phraseNavigatorButtonExtend ?>
 			</button>
-			<button class="landing-widget-button view-all-button hide">
-				<?php if (!$useDemoData): ?>
+			<?php if (!$useDemoData): ?>
+				<button class="landing-widget-button view-all-button hide">
 					<a href="<?= $groupLink ?>" target="_blank">
 						<?= $phraseNavigatorButtonViewAll ?>
 					</a>
-				<?php else: ?>
-					<div>
-						<?= $phraseNavigatorButtonViewAll ?>
-					</div>
-				<?php endif; ?>
-			</button>
+				</button>
+			<?php endif; ?>
 		</div>
 	</div>
 

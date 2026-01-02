@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_TYPE_ADMIN_ERR_SAVE"] = "Ошибка сохранения типа";
 $MESS["IBLOCK_TYPE_ADMIN_ERR_DEL"] = "Ошибка удаления типа";
 $MESS["IBLOCK_TYPE_ADMIN_NAV"] = "Типы";
@@ -20,4 +20,3 @@ $MESS["MAIN_ADMIN_LIST_SELECTED"] = "Выбрано:";
 $MESS["MAIN_ADMIN_LIST_CHECKED"] = "Отмечено:";
 $MESS["MAIN_ADMIN_LIST_DELETE"] = "удалить";
 $MESS["MAIN_ADMIN_LIST_FILTER_1ST"] = "Введите строку для поиска";
-?>

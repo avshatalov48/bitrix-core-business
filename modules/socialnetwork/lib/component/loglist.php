@@ -332,7 +332,7 @@ class LogList extends \Bitrix\Socialnetwork\Component\LogListCommon
 		$result['PATH_TO_LOG_TAG'] = $pathsProcessorInstance->getFolderUsersValue().'log/?TAG=#tag#';
 		if (
 			defined('SITE_TEMPLATE_ID')
-			&& SITE_TEMPLATE_ID === 'bitrix24'
+			&& (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 		)
 		{
 			$result['PATH_TO_LOG_TAG'] .= '&apply_filter=Y';

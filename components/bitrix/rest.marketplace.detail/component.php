@@ -218,10 +218,9 @@ if($request->isPost() && $request['install'] && check_bitrix_sessid())
 				}
 			}
 		}
-		if(Loader::IncludeModule('bitrix24')
-			&& !in_array(\CBitrix24::getLicensePrefix(), array('ru', 'ua', 'kz', 'by')))
+		if(Loader::IncludeModule('bitrix24'))
 		{
-			$arResult['TERMS_OF_SERVICE_LINK'] = Loc::getMessage('REST_MARKETPLACE_TERMS_OF_SERVICE_LINK');
+			$arResult['TERMS_OF_SERVICE_LINK'] = (string)\Bitrix\Rest\Infrastructure\Market\MarketUrl::createByDefault()->getTermsUrl();
 		}
 		$arResult['IS_HTTPS'] = \Bitrix\Main\Context::getCurrent()->getRequest()->isHttps();
 

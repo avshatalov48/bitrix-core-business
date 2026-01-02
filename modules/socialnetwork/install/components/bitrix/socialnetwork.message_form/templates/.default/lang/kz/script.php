@@ -1,0 +1,27 @@
+<?php
+$MESS["FORUM_ERROR_NO_TITLE"] = "Атауын енгізуіңіз керек";
+$MESS["FORUM_ERROR_NO_URL"] = "Мекенжайды (URL) енгізуіңіз керек";
+$MESS["FORUM_HELP_BOLD"] = "Қалың мәтін (alt + b)";
+$MESS["FORUM_HELP_CLICK_CLOSE"] = "Жабу үшін батырманы басыңыз";
+$MESS["FORUM_HELP_CLOSE"] = "Барлық ашық тегтерді жабу";
+$MESS["FORUM_HELP_CODE"] = "Кодты енгізу (alt + p)";
+$MESS["FORUM_HELP_COLOR"] = "Қаріп түсін таңдау";
+$MESS["FORUM_HELP_FONT"] = "Қаріп түрін таңдау";
+$MESS["FORUM_HELP_IMG"] = "Кескінді қосу (alt + g)";
+$MESS["FORUM_HELP_ITALIC"] = "Көлбеу мәтін (alt + i)";
+$MESS["FORUM_HELP_LIST"] = "Тізім жасау (alt + l)";
+$MESS["FORUM_HELP_QUOTE"] = "Дәйексөзді енгізу (alt + q)";
+$MESS["FORUM_HELP_TRANSLIT"] = "Транслит / латын әріптерін транскодтау (alt + t)";
+$MESS["FORUM_HELP_UNDER"] = "Асты сызылған мәтін (alt + u)";
+$MESS["FORUM_HELP_URL"] = "Гиперсілтемені енгізу (alt + h)";
+$MESS["FORUM_LIST_PROMPT"] = "Тізім тармағын енгізіңіз. 'Болдырмау' -ды басыңыз немесе тізімді аяқтау үшін бос орын қалдырыңыз";
+$MESS["FORUM_TEXT_ENTER_IMAGE"] = "Кескіннің толық мекенжайын (URL) енгізіңіз";
+$MESS["FORUM_TEXT_ENTER_URL"] = "Толық мекенжайды енгізіңіз (URL)";
+$MESS["FORUM_TEXT_ENTER_URL_NAME"] = "Сайт атауын енгізіңіз";
+$MESS["FORUM_TRANSLIT_EN"] = "Ru->En";
+$MESS["JERROR_MAX_LEN1"] = "Хабарламаның максималды ұзындығы ";
+$MESS["JERROR_MAX_LEN2"] = "символ. Барлық символ: ";
+$MESS["JERROR_NO_MESSAGE"] = "Сіз хабарлама енгізуіңіз керек. ";
+$MESS["JERROR_NO_RECIPIENT"] = "Сіз адресатты көрсетуіңіз керек. ";
+$MESS["JERROR_NO_TOPIC_NAME"] = "Тақырып атауын енгізуіңіз керек. ";
+$MESS["JQOUTE_AUTHOR_WRITES"] = "жазып жатыр";

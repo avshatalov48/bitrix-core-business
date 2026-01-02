@@ -1,0 +1,15 @@
+.bx-im-input-action-indicator__container {
+	--im-input-action-indicator__background-color: var(--im-color-palette-white-base);
+
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 16px;
+	width: 16px;
+	top: 32px;
+	left: 32px;
+	background-color: var(--im-input-action-indicator__background-color);
+	border: 1px solid var(--im-input-action-indicator__background-color);
+	border-radius: 50%;
+}

@@ -1,6 +1,6 @@
 import { PopupOptions } from 'main.popup';
 
-import { MessengerPopup } from 'im.v2.component.elements';
+import { MessengerPopup } from 'im.v2.component.elements.popup';
 
 import { ForwardContent } from './forward-content';
 
@@ -14,6 +14,10 @@ export const ForwardPopup = {
 	{
 		messagesIds: {
 			type: Array,
+			required: true,
+		},
+		dialogId: {
+			type: String,
 			required: true,
 		},
 	},
@@ -33,6 +37,7 @@ export const ForwardPopup = {
 				autoHide: false,
 				contentPadding: 0,
 				contentBackground: '#fff',
+				overlay: true,
 				className: 'bx-im-entity-selector-forward__scope',
 			};
 		},
@@ -56,7 +61,11 @@ export const ForwardPopup = {
 			:config="config"
 			@close="$emit('close')"
 		>
-			<ForwardContent :messagesIds="messagesIds" @close="$emit('close')" />
+			<ForwardContent
+				:dialogId="dialogId"
+				:messagesIds="messagesIds" 
+				@close="$emit('close')"
+			/>
 		</MessengerPopup>
 	`,
 };

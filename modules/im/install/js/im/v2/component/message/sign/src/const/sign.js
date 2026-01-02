@@ -1,4 +1,4 @@
-import { ButtonColor } from 'im.v2.component.elements';
+import { ButtonColor } from 'im.v2.component.elements.button';
 
 export const Await = Object.freeze({
 	// initiated by company
@@ -47,6 +47,7 @@ export const Failure = Object.freeze({
 	employeeStoppedToCompanyV2: 'employeeStoppedToCompanyV2',
 	employeeStoppedToCompanyV2M: 'employeeStoppedToCompanyV2M',
 	employeeStoppedToCompanyV2F: 'employeeStoppedToCompanyV2F',
+	documentExpiredToCompany: 'documentExpiredToCompany',
 	documentStoppedToInitiator: 'documentStoppedToInitiator',
 	documentStoppedToInitiatorM: 'documentStoppedToInitiatorM',
 	documentStoppedToInitiatorF: 'documentStoppedToInitiatorF',
@@ -73,6 +74,7 @@ export const Failure = Object.freeze({
 	byEmployeeStoppedToEmployee: 'byEmployeeStoppedToEmployee',
 	byEmployeeStoppedToEmployeeM: 'byEmployeeStoppedToEmployeeM',
 	byEmployeeStoppedToEmployeeF: 'byEmployeeStoppedToEmployeeF',
+	byEmployeeExpiredToEmployee: 'byEmployeeExpiredToEmployee',
 });
 
 export type SignButtonParams = {

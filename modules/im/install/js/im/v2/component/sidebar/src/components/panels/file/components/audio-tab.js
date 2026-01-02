@@ -1,5 +1,5 @@
-import { SidebarDetailBlock, SidebarFileTypes } from 'im.v2.const';
-import { Loader } from 'im.v2.component.elements';
+import { SidebarDetailBlock, SidebarFileGroups } from 'im.v2.const';
+import { Loader } from 'im.v2.component.elements.loader';
 
 import { File } from '../../../../classes/panels/file';
 import { FileSearch } from '../../../../classes/panels/search/file-search';
@@ -60,10 +60,10 @@ export const AudioTab = {
 		{
 			if (this.isSearch)
 			{
-				return this.$store.getters['sidebar/files/getSearchResultCollection'](this.chatId, SidebarFileTypes.audio);
+				return this.$store.getters['sidebar/files/getSearchResultCollection'](this.chatId, SidebarFileGroups.audio);
 			}
 
-			return this.$store.getters['sidebar/files/get'](this.chatId, SidebarFileTypes.audio);
+			return this.$store.getters['sidebar/files/get'](this.chatId, SidebarFileGroups.audio);
 		},
 		formattedCollection(): Array
 		{
@@ -120,7 +120,7 @@ export const AudioTab = {
 			const target = event.target;
 			const isAtThreshold = target.scrollTop + target.clientHeight >= target.scrollHeight - target.clientHeight;
 			const nameGetter = this.searchQuery.length > 0 ? 'sidebar/files/hasNextPageSearch' : 'sidebar/files/hasNextPage';
-			const hasNextPage = this.$store.getters[nameGetter](this.chatId, SidebarFileTypes.audio);
+			const hasNextPage = this.$store.getters[nameGetter](this.chatId, SidebarFileGroups.audio);
 
 			return isAtThreshold && hasNextPage;
 		},
@@ -136,11 +136,11 @@ export const AudioTab = {
 			this.isLoading = true;
 			if (this.isSearchQueryMinimumSize)
 			{
-				await this.service.loadNextPage(SidebarFileTypes.audio);
+				await this.service.loadNextPage(SidebarFileGroups.audio);
 			}
 			else
 			{
-				await this.serviceSearch.loadNextPage(SidebarFileTypes.audio, this.searchQuery);
+				await this.serviceSearch.loadNextPage(SidebarFileGroups.audio, this.searchQuery);
 			}
 			this.isLoading = false;
 		},
@@ -175,7 +175,7 @@ export const AudioTab = {
 				</template>
 				<DetailEmptyState
 					v-else-if="isEmptyState"
-					:title="loc('IM_SIDEBAR_FILES_EMPTY')"
+					:title="loc('IM_SIDEBAR_AUDIO_EMPTY')"
 					:iconType="SidebarDetailBlock.audio"
 				/>
 			</template>

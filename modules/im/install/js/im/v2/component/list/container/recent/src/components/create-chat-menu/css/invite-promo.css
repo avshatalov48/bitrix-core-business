@@ -1,0 +1,72 @@
+.bx-im-recent-invite-promo__container {
+	--im-recent-invite-promo__background-color_container: #edf7ff;
+	--im-recent-invite-promo__background-color_container-hover: #e6f4ff;
+	--im-recent-invite-promo__font-color_title: #1f86ff;
+	--im-recent-invite-promo__font-color_title-hover: #0075ff;
+	--im-recent-invite-promo__font-color_subtitle: rgba(var(--im-color-palette-black-base-rgb), 0.5);
+	--im-recent-invite-promo__font-color_subtitle-hover: rgba(var(--im-color-palette-black-solid-rgb), 0.7);
+
+	position: relative;
+	display: flex;
+	align-items: center;
+	width: 100%;
+	margin-top: 8px;
+	margin-bottom: 9px;
+	padding: 8px 6px;
+	background-color: var(--im-recent-invite-promo__background-color_container);
+	border-radius: 8px;
+	cursor: pointer;
+
+	transition: background-color 0.2s;
+}
+
+.bx-im-recent-invite-promo__icon {
+	width: 20px;
+	height: 20px;
+	margin-right: 6px;
+	background-image: url('../css/images/invite-users.svg');
+}
+
+.bx-im-recent-invite-promo__title {
+	margin-bottom: 2px;
+	font: var(--im-font-size-xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-recent-invite-promo__font-color_title);
+
+	transition: color 0.2s;
+}
+
+.bx-im-recent-invite-promo__subtitle {
+	font: var(--im-font-size-3xs)/14px var(--im-font-family-system);
+	color: var(--im-recent-invite-promo__font-color_subtitle);
+
+	transition: color 0.2s;
+}
+
+.bx-im-recent-invite-promo__close-icon {
+	position: absolute;
+	top: 6px;
+	right: 4px;
+	width: 17px;
+	height: 17px;
+	background-image: url('../css/images/close-icon.svg');
+	opacity: 0.35;
+	cursor: pointer;
+}
+
+.bx-im-recent-invite-promo__close-icon:hover {
+	opacity: 0.7;
+}
+
+/* Hover */
+.bx-im-recent-invite-promo__container:hover {
+	background-color: var(--im-recent-invite-promo__background-color_container-hover);
+}
+
+.bx-im-recent-invite-promo__container:hover .bx-im-recent-invite-promo__title {
+	color: var(--im-recent-invite-promo__font-color_title-hover);
+}
+
+.bx-im-recent-invite-promo__container:hover .bx-im-recent-invite-promo__subtitle {
+	color: var(--im-recent-invite-promo__font-color_subtitle-hover);
+}

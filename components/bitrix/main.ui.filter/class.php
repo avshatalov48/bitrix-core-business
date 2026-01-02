@@ -637,7 +637,7 @@ class CMainUiFilter extends CBitrixComponent
 							{
 								$field["YEARS_SWITCHER"]["VALUE"] = self::prepareSelectValue(
 									$field["YEARS_SWITCHER"]["ITEMS"],
-									$presetFields[$field["NAME"]."_allow_year"],
+									$presetFields[$field["NAME"]."_allow_year"] ?? null,
 									$field["STRICT"]
 								);
 							}
@@ -959,11 +959,11 @@ class CMainUiFilter extends CBitrixComponent
 			{
 				if ($presetId !== "default_filter")
 				{
-					$rows = is_array($presetFields["fields"]) ? array_keys($presetFields["fields"]) : array();
+					$rows = isset($presetFields["fields"]) && is_array($presetFields["fields"]) ? array_keys($presetFields["fields"]) : array();
 					$preset["ID"] = $presetId;
 					$preset["TITLE"] = $presetFields["name"];
 					$preset["SORT"] = $sort;
-					$preset["FIELDS"] = $this->preparePresetFields($rows, $presetFields["fields"]);
+					$preset["FIELDS"] = $this->preparePresetFields($rows, $presetFields["fields"] ?? []);
 					$preset["IS_DEFAULT"] = true;
 					$preset["FOR_ALL"] = !isset($presetFields["disallow_for_all"]) || !$presetFields["disallow_for_all"];
 					$preset["IS_PINNED"] = isset($presetFields["default"]) && $presetFields["default"] == true;

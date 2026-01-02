@@ -38,9 +38,9 @@ use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Relation_Query query()
- * @method static EO_Relation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Relation_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Relation_Result getById($id)
- * @method static EO_Relation_Result getList(array $parameters = array())
+ * @method static EO_Relation_Result getList(array $parameters = [])
  * @method static EO_Relation_Entity getEntity()
  * @method static \Bitrix\Im\Model\EO_Relation createObject($setDefaultValues = true)
  * @method static \Bitrix\Im\Model\EO_Relation_Collection createCollection()
@@ -116,6 +116,11 @@ class RelationTable extends Entity\DataManager
 				'data_type' => 'string',
 				'default_value' => '',
 				'validation' => array(__CLASS__, 'validateReason'),
+			),
+			'IS_HIDDEN' => array(
+				'data_type' => 'boolean',
+				'values' => array('N', 'Y'),
+				'default_value' => 'N',
 			),
 			'LAST_FILE_ID' => array(
 				'data_type' => 'integer',

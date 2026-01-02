@@ -7,42 +7,40 @@ use Bitrix\Main\Cli\Helper\PathGenerator;
 use Bitrix\Main\Cli\Helper\NamespaceGenerator;
 use Bitrix\Main\Cli\Helper\Renderer;
 use Bitrix\Main\Cli\Command\Make\Templates\ControllerTemplate;
+use Bitrix\Main\Cli\Helper\Renderer\Template;
 use InvalidArgumentException;
 
 final class ControllerService
 {
 	private Renderer $renderer;
-	private PathGenerator $PathGenerator;
-	private NamespaceGenerator $NamespaceGenerator;
+	private NamespaceGenerator $namespaceGenerator;
 	private string $defaultRootFolder;
 
 	public function __construct()
 	{
 		$this->renderer = new Renderer();
-		$this->NamespaceGenerator = new NamespaceGenerator();
+		$this->namespaceGenerator = new NamespaceGenerator();
 		$this->defaultRootFolder = (string)$_SERVER['DOCUMENT_ROOT'];
 	}
 
 	public function generateContent(GenerateDto $dto): string
 	{
-		$namespace = $this->generateNamespace($dto);
-		$className = $this->normalizeControllerName($dto->name);
-		$fileTemplate = new ControllerTemplate($className, $namespace);
-
-		return $fileTemplate->getContent();
+		return $this->getTemplate($dto)->getContent();
 	}
 
 	public function generateFile(GenerateDto $dto): void
 	{
-		$namespace = $this->generateNamespace($dto);
-		$className = $this->normalizeControllerName($dto->name);
-		$fileTemplate = new ControllerTemplate($className, $namespace);
+		$fileTemplate = $this->getTemplate($dto);
 
-		$this->PathGenerator = new PathGenerator(
+		$pathGenerator = new PathGenerator(
 			$dto->psr4,
 			$dto->rootFolder ?: $this->defaultRootFolder,
 		);
-		$filePath = $this->PathGenerator->generatePathToClass($namespace, $className);
+
+		$namespace = $this->generateNamespace($dto);
+		$className = $this->normalizeControllerName($dto->name);
+
+		$filePath = $pathGenerator->generatePathToClass($namespace, $className);
 
 		$this->renderer->renderToFile($filePath, $fileTemplate);
 	}
@@ -60,7 +58,7 @@ final class ControllerService
 				throw new InvalidArgumentException('If namespace option is not set, module argument MUST BE set!');
 			}
 
-			$namespace = $this->NamespaceGenerator->generateNamespaceForModule($moduleId, 'Controller');
+			$namespace = $this->namespaceGenerator->generateNamespaceForModule($moduleId, 'Controller');
 		}
 
 		return $namespace;
@@ -74,7 +72,15 @@ final class ControllerService
 			throw new InvalidArgumentException('Invalid controller name');
 		}
 
-		return ucfirst($name) . 'Controller';
+		return ucfirst($name);
+	}
+
+	private function getTemplate(GenerateDto $dto): Template
+	{
+		$namespace = $this->generateNamespace($dto);
+		$className = $this->normalizeControllerName($dto->name);
+
+		return new ControllerTemplate($className, $namespace, $dto->moduleId, $dto->alias, $dto->actions);
 	}
 
 	#endregion internal

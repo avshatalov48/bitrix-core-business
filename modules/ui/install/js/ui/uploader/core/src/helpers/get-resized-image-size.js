@@ -78,8 +78,8 @@ const getResizedImageSize = (imageData: ImageData, options: ResizeImageOptions):
 	*/
 
 	return {
-		targetWidth: Math.round(width),
-		targetHeight: Math.round(height),
+		targetWidth: Math.floor(width),
+		targetHeight: Math.floor(height),
 		useOriginalSize: false,
 	};
 };

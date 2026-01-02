@@ -1,0 +1,45 @@
+.bx-im-dialog-chat__pin-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.bx-im-dialog-chat__pin-header_wrapper {
+	flex: 1;
+	cursor: pointer;
+	overflow: hidden;
+}
+
+.bx-im-dialog-chat__pin-header_controls {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-dialog-chat__pin-header_title {
+	font-size: var(--im-font-size-sm);
+	color: var(--im-dialog-chat__font-color_pinned-title);
+	line-height: 16px;
+}
+
+.bx-im-dialog-chat__pin-header_content {
+	display: flex;
+}
+
+.bx-im-dialog-chat__pin-header_user {
+	color: var(--im-dialog-chat__font-color_pinned-author);
+	font-weight: var(--im-font-weight-medium);
+	font-size: var(--im-font-size-sm);
+	line-height: 18px;
+	margin-right: 2px;
+	white-space: nowrap;
+}
+
+.bx-im-dialog-chat__pin-header_text {
+	display: block;
+	color: var(--im-dialog-chat__font-color_pinned-text);
+	font-weight: var(--im-font-weight-normal);
+	font-size: var(--im-font-size-sm);
+	line-height: 18px;
+	margin-right: 18px;
+}

@@ -1,4 +1,4 @@
-import { Loc, Text, Type } from 'main.core';
+import { ajax as Ajax, Loc, Text, Type } from 'main.core';
 import type { AccessRightItem, Variable, VariableCollection } from './store/model/access-rights-model';
 
 export function shouldRowBeRendered(accessRightItem: AccessRightItem): boolean
@@ -139,4 +139,14 @@ export function normalizeAliasKey(key: string, separator = DEFAULT_ALIAS_SEPARAT
 	const parsed = parseAliasKey(key, separator);
 
 	return compileAliasKey(parsed, separator);
+}
+
+export function saveSortConfigForAllUserGroups(categoryName: string, sortConfig: Record<string, number>): Promise
+{
+	return Ajax.runAction('ui.accessrights.setUserSortConfig', {
+		data: {
+			name: categoryName,
+			userSortConfig: sortConfig,
+		},
+	});
 }

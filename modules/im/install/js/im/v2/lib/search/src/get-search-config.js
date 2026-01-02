@@ -1,26 +1,6 @@
 import { Type } from 'main.core';
 
-type EntitySelectorProviderEntity = {
-	id: string,
-	options: Object,
-	dynamicLoad: boolean,
-	dynamicSearch: boolean,
-};
-
-type EntitySelectorRequestConfig = {
-	dialog: {
-		entities: EntitySelectorProviderEntity[],
-		preselectedItems: [],
-		clearUnavailableItems: boolean,
-		context: string,
-		id: string,
-	}
-};
-
-export type SearchConfig = {
-	chats: boolean,
-	users: boolean,
-};
+import type { SearchConfig, EntitySelectorRequestConfig } from './types/types';
 
 export const EntityId = 'im-recent-v2';
 const ContextId = 'IM_CHAT_SEARCH';

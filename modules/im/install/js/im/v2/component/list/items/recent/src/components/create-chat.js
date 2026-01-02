@@ -1,9 +1,11 @@
 import { Loc, type JsonObject } from 'main.core';
 import { BaseEvent } from 'main.core.events';
+import { BIcon, Outline as OutlineIcons } from 'ui.icon-set.api.vue';
 
+import { Messenger } from 'im.public';
 import { CreateChatManager } from 'im.v2.lib.create-chat';
-import { EmptyAvatar, EmptyAvatarType, AvatarSize } from 'im.v2.component.elements';
-import { Layout, ChatType } from 'im.v2.const';
+import { EmptyAvatar, EmptyAvatarType, AvatarSize } from 'im.v2.component.elements.avatar';
+import { Layout, ChatType, Color } from 'im.v2.const';
 
 import '../css/create-chat.css';
 
@@ -21,10 +23,12 @@ const SubtitleByChatType = {
 	[ChatType.collab]: Loc.getMessage('IM_LIST_RECENT_CREATE_COLLAB_SUBTITLE'),
 };
 
+const CLOSE_ICON_SIZE = 20;
+
 // @vue/component
 export const CreateChat = {
 	name: 'CreateChat',
-	components: { EmptyAvatar },
+	components: { EmptyAvatar, BIcon },
 	data(): JsonObject
 	{
 		return {
@@ -36,11 +40,14 @@ export const CreateChat = {
 	computed:
 	{
 		AvatarSize: () => AvatarSize,
+		OutlineIcons: () => OutlineIcons,
+		Color: () => Color,
+		CLOSE_ICON_SIZE: () => CLOSE_ICON_SIZE,
 		chatCreationIsOpened(): boolean
 		{
 			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
 
-			return currentLayoutName === Layout.createChat.name;
+			return currentLayoutName === Layout.createChat;
 		},
 		preparedTitle(): string
 		{
@@ -77,6 +84,10 @@ export const CreateChat = {
 			}
 
 			return EmptyAvatarType.squared;
+		},
+		closeIconColor(): string
+		{
+			return this.chatCreationIsOpened ? Color.white : Color.black;
 		},
 	},
 	created()
@@ -125,6 +136,18 @@ export const CreateChat = {
 				clearCurrentCreation: false,
 			});
 		},
+		onCancel()
+		{
+			CreateChatManager.getInstance().clearExternalFields();
+			CreateChatManager.getInstance().setCreationStatus(false);
+
+			if (!this.chatCreationIsOpened)
+			{
+				return;
+			}
+
+			void Messenger.openChat();
+		},
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
@@ -154,6 +177,13 @@ export const CreateChat = {
 							</div>
 						</div>
 					</div>
+					<BIcon
+						:name="OutlineIcons.CROSS_M"
+						:size="CLOSE_ICON_SIZE"
+						:color="closeIconColor"
+						class="bx-im-list-recent-create-chat__icon-close"
+						@click.stop="onCancel"
+					/>
 				</div>
 			</div>
 		</div>

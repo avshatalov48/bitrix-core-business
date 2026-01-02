@@ -5,9 +5,15 @@ namespace Bitrix\Im;
 use Bitrix\Im\Model\MessageParamTable;
 use Bitrix\Im\Model\MessageUnreadTable;
 use Bitrix\Im\Model\RecentTable;
+use Bitrix\Im\V2\Chat\Background\Background;
 use Bitrix\Im\V2\Chat\Copilot\CopilotPopupItem;
+use Bitrix\Im\V2\Chat\CopilotChat;
 use Bitrix\Im\V2\Chat\EntityLink;
-use Bitrix\Im\V2\Message\Counter\CounterType;
+use Bitrix\Im\V2\Chat\Param\Params;
+use Bitrix\Im\V2\Chat\MessagesAutoDelete\MessagesAutoDeleteConfigs;
+use Bitrix\Im\V2\Chat\TextField\TextFieldEnabled;
+use Bitrix\Im\V2\Integration\Socialnetwork\Collab\Collab;
+use Bitrix\Im\V2\Entity\User\NullUser;
 use Bitrix\Im\V2\Permission;
 use Bitrix\Im\V2\Integration\AI\RoleManager;
 use Bitrix\Im\V2\Integration\Socialnetwork\Group;
@@ -19,6 +25,8 @@ use Bitrix\Im\V2\Message\Param;
 use Bitrix\Im\V2\Message\MessagePopupItem;
 use Bitrix\Im\V2\Message\ReadService;
 use Bitrix\Im\V2\Message\Send\PushService;
+use Bitrix\Im\V2\Recent\Config\RecentConfigManager;
+use Bitrix\Im\V2\Relation;
 use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Rest\RestAdapter;
 use Bitrix\Im\V2\Settings\UserConfiguration;
@@ -119,7 +127,6 @@ class Recent
 		}
 		elseif (!$byChatIds)
 		{
-			$skipTypes[] = \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT;
 			if ($options['SKIP_OPENLINES'] === 'Y')
 			{
 				$skipTypes[] = IM_MESSAGE_OPEN_LINE;
@@ -247,7 +254,7 @@ class Recent
 		$canManageMessagesOption = $options['CAN_MANAGE_MESSAGES'] ?? null;
 		$skipChatOption = $options['SKIP_CHAT'] ?? null;
 		$skipDialogOption = $options['SKIP_DIALOG'] ?? null;
-		$skipCollabOption = $options['SKIP_COLLAB'] ?? null;
+		$skipCollabOption = Collab::isAvailable() ? ($options['SKIP_COLLAB'] ?? null) : 'Y';
 		$lastMessageDateOption = $options['LAST_MESSAGE_DATE'] ?? null;
 		$withoutCommonUsers = !$viewCommonUsers || $onlyOpenlinesOption === 'Y';
 		$unreadOnly = isset($options['UNREAD_ONLY']) && $options['UNREAD_ONLY'] === 'Y';
@@ -291,7 +298,6 @@ class Recent
 		else
 		{
 			$skipTypes = [];
-			$skipTypes[] = \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT;
 			if ($options['SKIP_OPENLINES'] === 'Y')
 			{
 				$skipTypes[] = IM_MESSAGE_OPEN_LINE;
@@ -308,6 +314,14 @@ class Recent
 			if ($skipCollabOption === 'Y')
 			{
 				$skipTypes[] = \Bitrix\Im\V2\Chat::IM_TYPE_COLLAB;
+			}
+			if (!RecentConfigManager::EXTERNAL_CHAT_USE_DEFAULT_RECENT_SECTION)
+			{
+				$skipTypes[] = \Bitrix\Im\V2\Chat::IM_TYPE_EXTERNAL;
+			}
+			if (!CopilotChat::isActive())
+			{
+				$skipTypes[] = \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT;
 			}
 			if (!empty($skipTypes))
 			{
@@ -354,7 +368,7 @@ class Recent
 
 		if ($canManageMessagesOption === 'Y')
 		{
-			$ormParams = Permission::getRoleGetListFilter($ormParams, Permission\ActionGroup::ManageMessages, 'RELATION', 'CHAT');
+			$ormParams = Permission\Filter::getRoleGetListFilter($ormParams, Permission\ActionGroup::ManageMessages, 'RELATION', 'CHAT');
 		}
 
 		$orm = \Bitrix\Im\Model\RecentTable::getList($ormParams);
@@ -363,6 +377,8 @@ class Recent
 		$result = [];
 		$messageIdsWithCopilotRole = [];
 		$copilotData = [];
+		$chatsIds = [];
+		$messagesAutoDeleteConfigs = [];
 
 		$rows = $orm->fetchAll();
 		$rows = self::prepareRows($rows, $userId, $shortInfo);
@@ -396,13 +412,18 @@ class Recent
 				continue;
 			}
 
-			if (!$shortInfo && $onlyCopilotOption === 'Y')
+			if ($row['ITEM_TYPE'] === \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT)
 			{
 				$copilotChatRole = (new RoleManager())->getMainRole((int)$item['CHAT_ID']);
 				if (isset($copilotChatRole))
 				{
 					$copilotData['chats'][$item['ID']] = $copilotChatRole;
 				}
+			}
+
+			if (!$shortInfo)
+			{
+				$chatsIds[] = (int)$item['CHAT_ID'];
 			}
 
 			if (
@@ -440,10 +461,7 @@ class Recent
 			}
 		}
 
-		if (!$shortInfo && $onlyCopilotOption === 'Y')
-		{
-			$copilotData = self::prepareCopilotData($copilotData, $userId);
-		}
+		$copilotData = self::prepareCopilotData($copilotData, $userId, $shortInfo);
 
 		if ($showOpenlines && !$onlyCopilotOption && Loader::includeModule('imopenlines'))
 		{
@@ -456,6 +474,11 @@ class Recent
 					$result = array_merge($result, $recentOpenLines);
 				}
 			}
+		}
+
+		if (!$shortInfo)
+		{
+			$messagesAutoDeleteConfigs = (new MessagesAutoDeleteConfigs($chatsIds))->toRestFormat();
 		}
 
 		$result = array_values($result);
@@ -475,6 +498,7 @@ class Recent
 				'hasMorePages' => $ormParams['limit'] == $counter, // TODO remove this later
 				'hasMore' => $ormParams['limit'] == $counter,
 				'copilot' => !empty($copilotData) ? $copilotData : null,
+				'messagesAutoDeleteConfigs' => $messagesAutoDeleteConfigs,
 			];
 
 			if (!isset($options['LAST_MESSAGE_DATE']))
@@ -492,6 +516,7 @@ class Recent
 			'HAS_MORE_PAGES' => $ormParams['limit'] == $counter, // TODO remove this later
 			'HAS_MORE' => $ormParams['limit'] == $counter,
 			'COPILOT' => !empty($copilotData) ? $converter->process($copilotData) : null,
+			'MESSAGES_AUTO_DELETE_CONFIGS' => $converter->process($messagesAutoDeleteConfigs) ?? [],
 		];
 	}
 
@@ -514,16 +539,23 @@ class Recent
 		return $copilotMessageRoles;
 	}
 
-	private static function prepareCopilotData(array $copilotData, int $userId): array
+	private static function prepareCopilotData(array $copilotData, int $userId, bool $shortInfo): array
 	{
-		$roleManager = new RoleManager();
-		$recentCopilotRoles = $roleManager->getRecentKeyRoles((int)$userId);
-		$copilotRoles = array_merge($copilotData['chats'] ?? [], $copilotData['messages'] ?? [], $recentCopilotRoles);
+		$roleManager = (new RoleManager())->setContextUser($userId);
+		$recentCopilotRoles = !$shortInfo ? $roleManager->getRecentKeyRoles() : [];
+		$copilotRoles = array_values(array_merge(
+			$copilotData['chats'] ?? [],
+			$copilotData['messages'] ?? [],
+			$recentCopilotRoles
+		));
 
-		$chats = CopilotPopupItem::convertArrayData($copilotData['chats'] ?? [], CopilotPopupItem::ENTITIES['chat']);
-		$messages = CopilotPopupItem::convertArrayData($copilotData['messages'] ?? [], CopilotPopupItem::ENTITIES['messageCollection']);
-		$roles = $roleManager->getRoles(array_unique($copilotRoles), $userId);
-
+		$chats = CopilotPopupItem::convertArrayDataForChats($copilotData['chats'] ?? []);
+		$messages = CopilotPopupItem::convertArrayDataForMessages($copilotData['messages'] ?? []);
+		$roles =
+			$shortInfo
+				? $roleManager->getRolesShort($copilotRoles)
+				: $roleManager->getRoles($copilotRoles)
+		;
 		return [
 			'chats' => !empty($chats) ? $chats : null,
 			'messages' => !empty($messages) ? $messages : null,
@@ -804,6 +836,16 @@ class Recent
 			$item['USER'] = [
 				'ID' => (int)$row['ITEM_ID'],
 			];
+
+			$muteList = [];
+			if ($row['RELATION_NOTIFY_BLOCK'] == 'Y')
+			{
+				$muteList = [$row['RELATION_USER_ID'] => true];
+			}
+
+			$item['CHAT']['TEXT_FIELD_ENABLED'] = self::getTextFieldEnabled((int)$row['ITEM_CID']);
+			$item['CHAT']['BACKGROUND_ID'] = self::getBackgroundId((int)$row['ITEM_CID']);
+			$item['CHAT']['MUTE_LIST'] = $muteList;
 		}
 		else
 		{
@@ -842,7 +884,11 @@ class Recent
 
 			$item['USER'] = $user;
 
-			if (!$shortInfo && $item['TYPE'] == 'user')
+			if (
+				!$shortInfo
+				&& $item['TYPE'] == 'user'
+				&& !empty($user)
+			)
 			{
 				$item['AVATAR'] = [
 					'URL' => $user['AVATAR'],
@@ -926,7 +972,7 @@ class Recent
 		}
 		elseif ($getOriginalTextOption === 'Y')
 		{
-			$text = Text::populateUserBbCode($text);
+			$text = preg_replace_callback("/\[USER=([0-9]+|all)\]\[\/USER\]/i",['\Bitrix\Im\Text', 'modifyShortUserTag'], $text);
 		}
 		else
 		{
@@ -1017,16 +1063,25 @@ class Recent
 				'ID' => (int)$row['ITEM_CID'],
 				'NAME' => $row['CHAT_TITLE'],
 				'EXTRANET' => $row['CHAT_EXTRANET'] == 'Y',
+				'CONTAINS_COLLABER' => self::containsCollaber((int)$row['ITEM_CID']),
 				'AVATAR' => $avatar,
 				'COLOR' => $color,
 				'TYPE' => $chatType,
 				'ENTITY_TYPE' => (string)$row['CHAT_ENTITY_TYPE'],
 				'MUTE_LIST' => $muteList,
 				'ROLE' => self::getRole($row),
+				'TEXT_FIELD_ENABLED' => self::getTextFieldEnabled((int)$row['ITEM_CID']),
+				'BACKGROUND_ID' => self::getBackgroundId((int)$row['ITEM_CID']),
 				'PERMISSIONS' => [
 					'MANAGE_MESSAGES' => mb_strtolower($row['CHAT_CAN_POST'] ?? ''),
 				],
 			];
+		}
+
+		$publicOption = null;
+		if ($row["CHAT_ENTITY_TYPE"] === \Bitrix\Im\V2\Chat::ENTITY_TYPE_VIDEOCONF)
+		{
+			$publicOption = \Bitrix\Im\V2\Chat::getInstance((int)$row['ITEM_CID'])->getPublicOption();
 		}
 
 		$managerList = [];
@@ -1049,6 +1104,7 @@ class Recent
 			'NAME' => $row['CHAT_TITLE'],
 			'OWNER' => (int)$row['CHAT_AUTHOR_ID'],
 			'EXTRANET' => $row['CHAT_EXTRANET'] == 'Y',
+			'CONTAINS_COLLABER' => self::containsCollaber((int)$row['ITEM_CID']),
 			'AVATAR' => $avatar,
 			'COLOR' => $color,
 			'TYPE' => $chatType,
@@ -1064,6 +1120,8 @@ class Recent
 			'USER_COUNTER' => (int)$row['CHAT_USER_COUNT'],
 			'RESTRICTIONS' => $restrictions,
 			'ROLE' => self::getRole($row),
+			'TEXT_FIELD_ENABLED' => self::getTextFieldEnabled((int)$row['ITEM_CID']),
+			'BACKGROUND_ID' => self::getBackgroundId((int)$row['ITEM_CID']),
 			'ENTITY_LINK' => EntityLink::getInstance(\CIMChat::initChatByArray($row))->toArray(),
 			'PERMISSIONS' => [
 				'MANAGE_USERS_ADD' => mb_strtolower($row['CHAT_MANAGE_USERS_ADD'] ?? ''),
@@ -1073,12 +1131,47 @@ class Recent
 				'MANAGE_MESSAGES' => mb_strtolower($row['CHAT_CAN_POST'] ?? ''),
 				'CAN_POST' => mb_strtolower($row['CHAT_CAN_POST'] ?? ''),
 			],
+			'PUBLIC' => $publicOption ?? '',
 		];
+	}
+
+	private static function containsCollaber(int $chatId): bool
+	{
+		if ($chatId <= 0)
+		{
+			return false;
+		}
+
+		$paramsService = Params::getInstance($chatId);
+
+		return (bool)$paramsService->get(Params::CONTAINS_COLLABER)?->getValue();
+	}
+
+	private static function getTextFieldEnabled(int $chatId): bool
+	{
+		return (new TextFieldEnabled($chatId))->get();
+	}
+
+	private static function getBackgroundId(int $chatId): ?string
+	{
+		return (new Background($chatId))->get();
+	}
+
+	private static function getChatMessagesAutoDeleteConfigs(int $chatId): array
+	{
+		$config = (new MessagesAutoDeleteConfigs([$chatId]))->toRestFormat();
+
+		return (new Converter(Converter::TO_SNAKE | Converter::TO_UPPER | Converter::KEYS))->process($config);
 	}
 
 	private static function formatUser(array $row, array $item, bool $shortInfo): ?array
 	{
 		$userObject = \Bitrix\Im\V2\Entity\User\User::getInstance($item['USER']['ID']);
+		if ($userObject instanceof NullUser)
+		{
+			return [];
+		}
+
 		$user = $userObject->getArray(['WITHOUT_ONLINE' => true, 'USER_SHORT_FORMAT' => $shortInfo]);
 
 		if ($shortInfo)
@@ -1307,10 +1400,11 @@ class Recent
 
 		$connection->unlock("PIN_SORT_CHAT_{$userId}");
 
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 		Sync\Logger::getInstance()->add(
 			new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $chatId),
 			$userId,
-			$element['ITEM_TYPE']
+			$chat
 		);
 
 		self::clearCache($element['USER_ID']);
@@ -1530,7 +1624,7 @@ class Recent
 		Sync\Logger::getInstance()->add(
 			new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $chat->getId()),
 			$userIds,
-			$chat->getType()
+			$chat
 		);
 
 		static::sendPullRecentUpdate($chat, $userIds, $dateCreate);
@@ -1547,6 +1641,7 @@ class Recent
 		$pull['chat'] = $chat->toPullFormat();
 		$pull['lastActivityDate'] = $lastCommentDate;
 		$pull['counterType'] = $chat->getCounterType()->value;
+		$pull['recentConfig'] = $chat->getRecentConfig()->toPullFormat();
 
 		$event = [
 			'module_id' => 'im',
@@ -1569,7 +1664,10 @@ class Recent
 
 	public static function getUsersOutOfRecent(\Bitrix\Im\V2\Chat $chat): array
 	{
-		$relations = $chat->getRelations()->filterActive();
+		$relations = $chat
+			->getRelationsForSendMessage()
+			->filter(fn (Relation $relation): bool => !$relation->isHidden())
+		;
 		$users = $relations->getUserIds();
 		$usersAlreadyInRecentRows = RecentTable::query()
 			->setSelect(['USER_ID'])
@@ -1636,18 +1734,18 @@ class Recent
 		//\Bitrix\Im\Counter::clearCache($element['USER_ID']);
 		CounterService::clearCache((int)$element['USER_ID']);
 		$chatId = (int)$element['ITEM_CID'];
+		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 		Sync\Logger::getInstance()->add(
 			new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $chatId),
 			$userId,
-			$element['ITEM_TYPE']
+			$chat
 		);
 
 		$pullInclude = \Bitrix\Main\Loader::includeModule("pull");
 		if ($pullInclude)
 		{
 			$readService = new ReadService($userId);
-			$counter = $readService->getCounterService()->getByChat($chatId);
-			//$readService->sendPush($chatId, [$userId], $counter, $time);
+			$counter = $readService->getCounterService()->getByChatWithOverflow($chatId);
 
 			\Bitrix\Pull\Event::add(
 				$userId,
@@ -1663,7 +1761,8 @@ class Recent
 						'counter' => $counter,
 						'markedId' => $markedId ?? $element['MARKED_ID'],
 						'lines' => $element['ITEM_TYPE'] === IM_MESSAGE_OPEN_LINE,
-						'counterType' => CounterType::tryFromType($element['ITEM_TYPE'])->value,
+						'counterType' => $chat->getCounterType()->value,
+						'recentConfig' => $chat->getRecentConfig()->toPullFormat(),
 					],
 					'extra' => \Bitrix\Im\Common::getPullExtra()
 				]
@@ -1696,7 +1795,16 @@ class Recent
 		}
 
 		self::$unreadElementCache[$userId][$dialogId] = \Bitrix\Im\Model\RecentTable::getList([
-			'select' => ['USER_ID', 'ITEM_TYPE', 'ITEM_ID', 'UNREAD', 'MUTED' => 'RELATION.NOTIFY_BLOCK', 'ITEM_CID', 'MARKED_ID'],
+			'select' => [
+				'USER_ID',
+				'ITEM_TYPE',
+				'ITEM_ID',
+				'UNREAD',
+				'MUTED' => 'RELATION.NOTIFY_BLOCK',
+				'ITEM_CID',
+				'MARKED_ID',
+				'ENTITY_TYPE' => 'CHAT.ENTITY_TYPE',
+			],
 			'filter' => [
 				'=USER_ID' => $userId,
 				'=ITEM_TYPE' => $itemTypes,

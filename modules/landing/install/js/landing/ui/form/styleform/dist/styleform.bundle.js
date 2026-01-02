@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
@@ -161,10 +162,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      BX.UI.InfoHelper.show('limit_crm_forms_templates');
 	      return;
 	    }
-
-	    // todo: migrate to new analytics?
-	    var metrika = new BX.Landing.Metrika(true);
-	    metrika.sendLabel(null, 'templateMarket', 'open&replaceLid=' + landingParams['LANDING_ID']);
 	    var templatesMarketUrl = landingParams['PAGE_URL_LANDING_REPLACE_FROM_STYLE'];
 	    if (templatesMarketUrl) {
 	      BX.SidePanel.Instance.open(templatesMarketUrl, {

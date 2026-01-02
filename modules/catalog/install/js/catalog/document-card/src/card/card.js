@@ -5,6 +5,8 @@ import { type BaseEvent, EventEmitter } from 'main.core.events';
 import { MenuManager, Popup } from 'main.popup';
 import { Button } from 'ui.buttons';
 import { Dialog } from 'ui.entity-selector';
+import { Label, LabelOptions, LabelSize } from 'ui.label';
+import LabelColor from '../../../../../../../ui/install/js/ui/label/src/label-color';
 import StoreDocumentFieldConfigurationManager from '../configurator/store-document-field-configurator-manager';
 import ControllersFactory from '../controllers-factory';
 import FieldsFactory from '../editor-fields/fields-factory';
@@ -34,8 +36,14 @@ class DocumentCard extends BaseCard
 		this.inventoryManagementSource = settings.inventoryManagementSource;
 		this.lockedCancellation = settings.lockedCancellation || false;
 		this.activeTabId = 'main';
+		this.insidePageTitleConfig = settings.insidePageTitleConfig || {};
 
 		this.isTabAnalyticsSent = false;
+
+		if (Type.isPlainObject(this.insidePageTitleConfig))
+		{
+			this.appendInsidePageTitle(this.insidePageTitleConfig);
+		}
 
 		this.setSliderText();
 		this.addCopyLinkPopup();
@@ -57,6 +65,63 @@ class DocumentCard extends BaseCard
 	static getInstance()
 	{
 		return DocumentCard.#instance;
+	}
+
+	appendInsidePageTitle(config: Object): void
+	{
+		const toolbar = BX.UI?.ToolbarManager?.getDefaultToolbar();
+		const titleContainer = toolbar?.titleContainer.querySelector('.ui-toolbar-title-item-box');
+
+		if (!titleContainer)
+		{
+			return;
+		}
+
+		let editButton = null;
+		let pageLink = null;
+		if (config.enableEditTitle)
+		{
+			editButton = Tag.render`
+				<span id="pagetitle_edit" class="pagetitle-edit-button"></span>
+			`;
+		}
+		if (config.enablePageLink)
+		{
+			pageLink = Tag.render`
+				<span id="${this.settings.copyLinkButtonId}" class="page-link-btn"></span>
+			`;
+		}
+		if (editButton || pageLink)
+		{
+			const buttonContainer = Tag.render`
+				<span id="pagetitle_btn_wrapper" class="pagetitile-button-container"></span>
+			`;
+			if (editButton)
+			{
+				Dom.append(editButton, buttonContainer);
+			}
+			if (pageLink)
+			{
+				Dom.append(pageLink, buttonContainer);
+			}
+			Dom.append(buttonContainer, titleContainer);
+		}
+
+		if (config.enableStatusLabel)
+		{
+			const labelOptions: LabelOptions = {
+				text: config.statusLabel.text,
+				color: config.statusLabel.color,
+				size: LabelSize.LG,
+				link: '',
+				fill: true,
+				customClass: 'document-status-label',
+			};
+
+			const label = new Label(labelOptions);
+
+			Dom.append(label.render(), titleContainer);
+		}
 	}
 
 	initDocumentTypeSelector()

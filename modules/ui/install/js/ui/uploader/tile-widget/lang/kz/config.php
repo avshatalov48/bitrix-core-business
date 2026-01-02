@@ -1,0 +1,9 @@
+<?php
+$MESS["TILE_UPLOADER_DROP_FILES_HERE"] = "Файлды осы жерге көшіруіңізге болады";
+$MESS["TILE_UPLOADER_ERROR_STATUS"] = "Қате";
+$MESS["TILE_UPLOADER_FILE_SIZE"] = "Файл өлшемі: #filesize#";
+$MESS["TILE_UPLOADER_INSERT_INTO_THE_TEXT"] = "Мәтінге қою";
+$MESS["TILE_UPLOADER_MENU_DOWNLOAD"] = "Жүктеу";
+$MESS["TILE_UPLOADER_MENU_REMOVE"] = "Жою";
+$MESS["TILE_UPLOADER_MORE_BUTTON_CAPTION"] = "Тағы да #COUNT#";
+$MESS["TILE_UPLOADER_WAITING_STATUS"] = "Күтудеміз";

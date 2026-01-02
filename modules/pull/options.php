@@ -309,7 +309,7 @@ $arExcludeSites = CPullOptions::GetExcludeSites();
 						<? endforeach ?>
 					</select>
 				<? else: ?>
-					<span style="color:red;"><?=Loc::getMessage("PULL_OPTIONS_CLOUD_SERVER_ADDRESS_LIST_ERROR", ["#HOST#" => SharedServer\Config::DEFAULT_SERVER])?></span>
+					<span style="color:red;"><?=Loc::getMessage("PULL_OPTIONS_CLOUD_SERVER_ADDRESS_LIST_ERROR", ["#HOST#" => SharedServer\Config::getDefaultServer()])?></span>
 				<? endif ?>
 			</td>
 		</tr>

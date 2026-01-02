@@ -27,6 +27,7 @@ $MESS["BPWI_OWNED_UNTIL"] = "Gesperrt bis";
 $MESS["BPWI_PAGE_TITLE"] = "Gestartete Workflows";
 $MESS["BPWI_TERMINATE_LABEL"] = "Stoppen";
 $MESS["BPWI_WORKFLOW_ID_ANY"] = "(beliebig)";
+$MESS["BPWI_WS_DOCUMENT_ID"] = "CRM-Element";
 $MESS["BPWI_WS_MODULE_ID"] = "Modul";
 $MESS["BPWI_WS_STARTED"] = "Gestartet am";
 $MESS["BPWI_WS_STARTED_BY"] = "Gestartet von";

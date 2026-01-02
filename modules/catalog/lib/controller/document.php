@@ -6,9 +6,12 @@ use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\Model\StoreDocument;
 use Bitrix\Catalog\Config\Feature;
 use Bitrix\Catalog\Config\State;
+use Bitrix\Catalog\Internal\Service\RestValidator\Entity;
+use Bitrix\Catalog\StoreDocumentElementTable;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Main\Engine\Response\DataType\Page;
+use Bitrix\Main\Engine;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
@@ -20,6 +23,68 @@ use CMain;
 class Document extends Controller
 {
 	use ListAction; // default listAction realization
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function processBeforeAction(Engine\Action $action): ?bool
+	{
+		$result = new Result();
+
+		switch ($action->getName())
+		{
+			case 'add':
+			case 'update':
+				$result = $this->processBeforeModify($action);
+				break;
+			case 'list':
+				$result = $this->processBeforeList($action);
+				break;
+		}
+
+		if (!$result->isSuccess())
+		{
+			$this->addErrors($result->getErrors());
+
+			return null;
+		}
+
+		return parent::processBeforeAction($action);
+	}
+
+	protected function processBeforeModify(Engine\Action $action): Result
+	{
+		$arguments = $action->getArguments();
+		$fields = $arguments['fields'] ?? null;
+		if (is_array($fields))
+		{
+			$validator = new Entity\DocumentValidator();
+			$result = $validator->run($fields);
+			if (!$result->isSuccess())
+			{
+				return $result;
+			}
+		}
+
+		return new Result();
+	}
+
+	protected function processBeforeList(Engine\Action $action): Result
+	{
+		$arguments = $action->getArguments();
+		$filter = $arguments['filter'] ?? [];
+		if (!is_array($filter))
+		{
+			$result = new Result();
+			$result->addError(new Error('Incorrect filter format'));
+
+			return $result;
+		}
+
+		$validator = new Entity\DocumentFilterValidator();
+
+		return $validator->run($filter);
+	}
 
 	//region Actions
 	/**
@@ -172,7 +237,7 @@ class Document extends Controller
 			$documentTitle = $document['TITLE'] ?: StoreDocumentTable::getTypeList(true)[$document['DOC_TYPE']];
 
 			$can = $this->accessController->check(
-				ActionDictionary::ACTION_STORE_DOCUMENT_CONDUCT,
+				ActionDictionary::ACTION_STORE_DOCUMENT_CANCEL,
 				StoreDocument::createFromArray($document)
 			);
 			if (!$can)
@@ -384,6 +449,8 @@ class Document extends Controller
 
 		$documentData = $this->getDocumentData($documentIds);
 
+		$storeList = $this->getDocumentStoreList($documentIds);
+
 		foreach ($documentIds as $documentId)
 		{
 			$exception = null;
@@ -407,6 +474,12 @@ class Document extends Controller
 				ActionDictionary::ACTION_STORE_DOCUMENT_DELETE,
 				StoreDocument::createFromArray($document)
 			);
+
+			if ($storeList[$documentId])
+			{
+				$can = $can && $this->checkAllStoreAccess($storeList[$documentId]);
+			}
+
 			if ($can)
 			{
 				\CCatalogDocs::delete($documentId);
@@ -415,9 +488,18 @@ class Document extends Controller
 			}
 			else
 			{
-				$exception = new CApplicationException(
-					Loc::getMessage('DOCUMENT_CONTROLLER_NO_RIGHTS_ERROR')
+				$documentTitle = $document['TITLE'] ?: StoreDocumentTable::getTypeList(true)[$document['DOC_TYPE']];
+
+				$this->addError(
+					new Error(Loc::getMessage(
+						'DOCUMENT_CONTROLLER_NO_RIGHTS_TO_DELETE_ERROR',
+						[
+							'#DOC_TITLE#' => htmlspecialcharsbx($documentTitle),
+						],
+					))
 				);
+
+				return null;
 			}
 
 			if ($exception)
@@ -470,6 +552,13 @@ class Document extends Controller
 		}
 
 		if (!$this->checkDocumentAccess(ActionDictionary::ACTION_STORE_DOCUMENT_DELETE, $id))
+		{
+			return null;
+		}
+
+		$storeList = $this->getDocumentStoreList([$id]);
+
+		if (isset($storeList[$id]) && !$this->checkAllStoreAccess($storeList[$id]))
 		{
 			return null;
 		}
@@ -629,7 +718,7 @@ class Document extends Controller
 			return null;
 		}
 
-		if (!$this->checkDocumentAccess(ActionDictionary::ACTION_STORE_DOCUMENT_CONDUCT, $id))
+		if (!$this->checkDocumentAccess(ActionDictionary::ACTION_STORE_DOCUMENT_CANCEL, $id))
 		{
 			return null;
 		}
@@ -753,6 +842,59 @@ class Document extends Controller
 		return $documentTitles;
 	}
 
+	private function getDocumentStoreList(array $documentIds): array
+	{
+		$documentRawList = StoreDocumentElementTable::getList([
+			'select' => [
+				'DOC_ID',
+				'STORE_FROM',
+				'STORE_TO',
+			],
+			'filter' => [
+				'@DOC_ID' => $documentIds,
+			],
+		]);
+
+		$storeList = [];
+
+		while ($document = $documentRawList->fetch())
+		{
+			$documentId = (int)$document['DOC_ID'];
+			$storeList[$documentId] ??= [];
+
+			$storeFrom = (int)$document['STORE_FROM'];
+			$storeTo = (int)$document['STORE_TO'];
+
+			if ($document['STORE_FROM'] > 0)
+			{
+				$storeList[$documentId][$storeFrom] = $storeFrom;
+			}
+			if ($document['STORE_TO'] > 0)
+			{
+				$storeList[$documentId][$storeTo] = $storeTo;
+			}
+		}
+
+		return $storeList;
+	}
+
+	private function checkAllStoreAccess(array $documentIds): bool
+	{
+		$can = true;
+
+		foreach ($documentIds as $storeId)
+		{
+			if (!$this->accessController->checkByValue(ActionDictionary::ACTION_STORE_VIEW, $storeId))
+			{
+				$can = false;
+
+				break;
+			}
+		}
+
+		return $can;
+	}
+
 	/**
 	 * Check access to document store and add error to controller.
 	 *
@@ -804,6 +946,14 @@ class Document extends Controller
 				$accessFilter,
 				$filter,
 			];
+		}
+		$accessStoreFilter = $this->accessController->getEntityFilter(
+			ActionDictionary::ACTION_STORE_VIEW,
+			StoreDocumentTable::class
+		);
+		if ($accessStoreFilter)
+		{
+			$filter[] = $accessStoreFilter;
 		}
 
 		$params['filter'] = $filter;

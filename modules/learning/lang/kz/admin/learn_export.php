@@ -1,0 +1,20 @@
+<?php
+$MESS["LEARNING_2_1_STEP"] = "Бірінші қадамға оралу";
+$MESS["LEARNING_ADMIN_TAB1"] = "Курс";
+$MESS["LEARNING_ADMIN_TAB1_EX"] = "Экспорттау үшін курсты таңдау";
+$MESS["LEARNING_ADMIN_TAB2"] = "Экспорттау параметрлері";
+$MESS["LEARNING_ADMIN_TAB2_EX"] = "Экспорттау параметрлерінің баптаулары";
+$MESS["LEARNING_ADMIN_TAB3"] = "Нәтижесі";
+$MESS["LEARNING_ADMIN_TAB3_EX"] = "Экспорттау нәтижесі";
+$MESS["LEARNING_BACK"] = "Артқа";
+$MESS["LEARNING_DATA_FILE_NAME"] = "Деректер файлын келесідей сақтау...";
+$MESS["LEARNING_DATA_FILE_NAME1"] = "Деректер файлының атауы";
+$MESS["LEARNING_DATA_FILE_NAME1_DESC"] = "Егер мұндай файл болса, ол қайта жазылады";
+$MESS["LEARNING_DATA_FILE_NAME1_T"] = "(сайттың түбіріне қатысты)";
+$MESS["LEARNING_NEXT_STEP"] = "Әрі қарай";
+$MESS["LEARNING_NEXT_STEP_F"] = "Жүктеуді бастау";
+$MESS["LEARNING_NO_DATA_FILE"] = "Нәтижені сақтау үшін файлды көрсетіңіз.";
+$MESS["LEARNING_PAGE_TITLE"] = "Курсты жүктеу: қадам";
+$MESS["LEARNING_SUCCESS"] = "Жүктеу аяқталды";
+$MESS["LEARNING_SU_ALL"] = "Жүктелген жолдардың жалпы саны:";
+$MESS["LEARNING_SU_ALL1"] = "Өз компьютеріне %DATA_URL% файлын жүктеу";

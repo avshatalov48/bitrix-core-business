@@ -48,7 +48,11 @@ trait InitSkuCollectionFromParams
 			}
 
 
-			$form = $isServiceForm ? new GridServiceForm($sku) : new GridVariationForm($sku);
+			$form =
+				$isServiceForm
+					? new GridServiceForm($sku)
+					: new GridVariationForm($sku)
+			;
 			$fields = $form->prepareFieldsValues($row);
 
 			$sku->setFields($fields);

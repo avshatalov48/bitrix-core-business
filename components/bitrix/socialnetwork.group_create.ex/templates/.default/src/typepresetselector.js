@@ -1,8 +1,9 @@
-import {Type} from 'main.core';
-import {Util} from './util';
-import {Buttons} from './buttons';
+import { Type } from 'main.core';
+import { Limit } from 'socialnetwork.limit';
+import { Util } from './util';
+import { Buttons } from './buttons';
 
-import {WorkgroupForm} from './index';
+import { WorkgroupForm } from './index';
 
 export class TypePresetSelector
 {
@@ -32,6 +33,14 @@ export class TypePresetSelector
 				const selector = e.currentTarget;
 				if (selector.classList.contains(Util.cssClass.selectorDisabled))
 				{
+					return;
+				}
+
+				const limitFeature = selector.getAttribute('data-bx-project-limit');
+				if (limitFeature?.length > 0)
+				{
+					Limit.showInstance({ featureId: limitFeature });
+
 					return;
 				}
 
@@ -75,6 +84,4 @@ export class TypePresetSelector
 		});
 		WorkgroupForm.getInstance().wizardManager.setProjectType(projectType);
 	}
-
-
 }

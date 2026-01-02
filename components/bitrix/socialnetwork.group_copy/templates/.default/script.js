@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,ui_buttons,main_core) {
 	'use strict';
@@ -1558,13 +1559,13 @@ this.BX = this.BX || {};
 	    options = _objectSpread$f(_objectSpread$f({}, {
 	      isProject: false,
 	      isExtranetGroup: false,
-	      isExtranetInstalled: false,
+	      isAllowCreateExtranetGroup: false,
 	      isIntranetInstalled: false,
 	      isLandingInstalled: false
 	    }), options);
 	    _this.isProject = options.isProject;
 	    _this.isExtranetGroup = options.isExtranetGroup;
-	    _this.isExtranetInstalled = options.isExtranetInstalled;
+	    _this.isAllowCreateExtranetGroup = options.isAllowCreateExtranetGroup;
 	    _this.isIntranetInstalled = options.isIntranetInstalled;
 	    _this.isLandingInstalled = options.isLandingInstalled;
 	    _this.promoId = "types";
@@ -1601,7 +1602,7 @@ this.BX = this.BX || {};
 	      result.push(main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["", ""])), openField.render()));
 	      var closeField = this.createCloseField(data);
 	      result.push(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["", ""])), closeField.render()));
-	      if (this.isExtranetInstalled) {
+	      if (this.isAllowCreateExtranetGroup) {
 	        var extranetField = this.createExtranetField(data);
 	        result.push(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["", ""])), extranetField.render()));
 	      }
@@ -1618,12 +1619,13 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createVisibleField",
 	    value: function createVisibleField(data) {
+	      var isCreatingExtranetGroup = this.isExtranetGroup && this.isAllowCreateExtranetGroup;
 	      var visibleField = new CheckboxField({
 	        fieldTitle: this.isProject ? main_core.Loc.getMessage("SGCG_OPTIONS_PROJECT_TYPE_VISIBLE") : main_core.Loc.getMessage("SGCG_OPTIONS_GROUP_TYPE_VISIBLE"),
 	        fieldName: "visible",
 	        validators: [],
-	        checked: data["VISIBLE"] === "Y" && !this.isExtranetGroup,
-	        disabled: this.isExtranetGroup
+	        checked: data["VISIBLE"] === "Y" && !isCreatingExtranetGroup,
+	        disabled: isCreatingExtranetGroup
 	      });
 	      this.fields.add(visibleField);
 	      this.subscribeToField(this.checkboxEventName + ":project:onChange", function (baseEvent) {
@@ -1637,12 +1639,13 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createOpenedField",
 	    value: function createOpenedField(data) {
+	      var isCreatingExtranetGroup = this.isExtranetGroup && this.isAllowCreateExtranetGroup;
 	      var openField = new CheckboxField({
 	        fieldTitle: this.isProject ? main_core.Loc.getMessage("SGCG_OPTIONS_PROJECT_TYPE_OPEN") : main_core.Loc.getMessage("SGCG_OPTIONS_GROUP_TYPE_OPEN"),
 	        fieldName: "opened",
 	        validators: [],
-	        checked: data["OPENED"] === "Y" && !this.isExtranetGroup,
-	        disabled: data["VISIBLE"] !== "Y" || this.isExtranetGroup
+	        checked: data["OPENED"] === "Y" && !isCreatingExtranetGroup,
+	        disabled: data["VISIBLE"] !== "Y" || isCreatingExtranetGroup
 	      });
 	      this.fields.add(openField);
 	      this.subscribeToField(this.checkboxEventName + ":project:onChange", function (baseEvent) {
@@ -1659,12 +1662,13 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createCloseField",
 	    value: function createCloseField(data) {
+	      var isCreatingExtranetGroup = this.isExtranetGroup && this.isAllowCreateExtranetGroup;
 	      var closeField = new CheckboxField({
 	        fieldTitle: this.isProject ? main_core.Loc.getMessage("SGCG_OPTIONS_PROJECT_TYPE_CLOSED") : main_core.Loc.getMessage("SGCG_OPTIONS_GROUP_TYPE_CLOSED"),
 	        fieldName: "closed",
 	        validators: [],
 	        checked: data["CLOSED"] === "Y",
-	        disabled: this.isExtranetGroup
+	        disabled: isCreatingExtranetGroup
 	      });
 	      this.fields.add(closeField);
 	      this.subscribeToField(this.checkboxEventName + ":project:onChange", function (baseEvent) {
@@ -1734,7 +1738,7 @@ this.BX = this.BX || {};
 	      isProject: "N",
 	      isExtranet: "N",
 	      isExtranetGroup: "N",
-	      isExtranetInstalled: "N",
+	      isAllowCreateExtranetGroup: "N",
 	      isIntranetInstalled: "N",
 	      groupData: {},
 	      imageFieldContainerId: "",
@@ -1750,7 +1754,7 @@ this.BX = this.BX || {};
 	    this.isProject = options.isProject === "Y";
 	    this.isExtranet = options.isExtranet === "Y";
 	    this.isExtranetGroup = options.isExtranetGroup === "Y";
-	    this.isExtranetInstalled = options.isExtranetInstalled === "Y";
+	    this.isAllowCreateExtranetGroup = options.isAllowCreateExtranetGroup === "Y";
 	    this.isIntranetInstalled = options.isIntranetInstalled === "Y";
 	    this.isLandingInstalled = options.isLandingInstalled === "Y";
 	    this.groupData = options.groupData;
@@ -1830,7 +1834,7 @@ this.BX = this.BX || {};
 	        switcher: switcher,
 	        isProject: this.isProject,
 	        isExtranetGroup: this.isExtranetGroup,
-	        isExtranetInstalled: this.isExtranetInstalled,
+	        isAllowCreateExtranetGroup: this.isAllowCreateExtranetGroup,
 	        isIntranetInstalled: this.isIntranetInstalled,
 	        isLandingInstalled: this.isLandingInstalled
 	      });

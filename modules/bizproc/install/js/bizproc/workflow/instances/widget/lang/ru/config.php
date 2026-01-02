@@ -8,5 +8,5 @@ $MESS['BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TITLE'] = 'В работе';
 $MESS['BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TEXT_P1'] = 'Вы можете оценить нагрузку на исполнителей и время выполнения бизнес-процессов.';
 $MESS['BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TEXT_P2'] = 'Время рассчитывается с момента запуска';
 $MESS['BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_AUTHOR'] = 'От кого';
-$MESS['BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_IN_PROGRESS'] = 'Сейчас выполняет';
+$MESS['BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_IN_PROGRESS_MSGVER_1'] = 'Выполняет';
 $MESS['BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TIME'] = 'Время';

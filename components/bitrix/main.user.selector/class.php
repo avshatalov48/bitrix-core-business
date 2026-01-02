@@ -48,7 +48,7 @@ class MainUserSelectorComponent extends CBitrixComponent
 		$this->arParams['BUTTON_SELECT_CAPTION'] = $this->arParams['BUTTON_SELECT_CAPTION'] ?? null;
 		$this->arParams['BUTTON_SELECT_CAPTION_MORE'] = $this->arParams['BUTTON_SELECT_CAPTION_MORE'] ?? $this->arParams['BUTTON_SELECT_CAPTION'];
 		$this->arParams['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ? CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);
-		$this->arParams['SELECTOR_OPTIONS'] = is_array($this->arParams['SELECTOR_OPTIONS']) ? $this->arParams['SELECTOR_OPTIONS'] : [];
+		$this->arParams['SELECTOR_OPTIONS'] = isset($this->arParams['SELECTOR_OPTIONS']) && is_array($this->arParams['SELECTOR_OPTIONS']) ? $this->arParams['SELECTOR_OPTIONS'] : [];
 		$this->arParams['FIRE_CLICK_EVENT'] = isset($this->arParams['FIRE_CLICK_EVENT']) && $this->arParams['FIRE_CLICK_EVENT'] == 'Y' ? 'Y' : 'N';
 		$this->arParams['LOCK'] = isset($this->arParams['LOCK']) ? (bool) $this->arParams['LOCK'] : false;
 

@@ -1,0 +1,7 @@
+<?php
+$MESS["LANDING_BLOCK_WIDGET_72_1_NAME"] = "Оң жақта батырмасы мен суреті бар тақырыпаты";
+$MESS["LANDING_BLOCK_WIDGET_72_1_NODE_BUTTON"] = "Батырма";
+$MESS["LANDING_BLOCK_WIDGET_72_1_NODE_CONTAINER"] = "Контейнер";
+$MESS["LANDING_BLOCK_WIDGET_72_1_NODE_CONTAINERS"] = "Контейнерлер";
+$MESS["LANDING_BLOCK_WIDGET_72_1_NODE_IMG"] = "Сурет";
+$MESS["LANDING_BLOCK_WIDGET_72_1_NODE_TITLE"] = "Тақырыпаты";

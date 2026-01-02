@@ -31,7 +31,7 @@ else
 ?>
 <label data-bx-user-consent="<?=htmlspecialcharsbx($config)?>" class="main-user-consent-request">
 	<input type="checkbox" value="Y" <?=($arParams['IS_CHECKED'] ? 'checked' : '')?> name="<?=htmlspecialcharsbx($arParams['INPUT_NAME'])?>">
-	<span class="<?=$linkClassName?>"><?=$label?></span>
+	<span class="<?=$linkClassName?>"><?=$label?><?php if ($arParams['REQUIRED']): ?> <span class="main-user-consent-request-announce-required">*</span><?php endif; ?></span>
 </label>
 <div data-bx-template="main-user-consent-request-loader" style="display: none;">
 	<div class="main-user-consent-request-popup">

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Bizproc\Workflow\Entity;
 
+use Bitrix\Bizproc\Workflow\Task\TaskSearchContentTable;
 use Bitrix\Main\Application;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Fields\IntegerField;
@@ -78,6 +79,17 @@ class WorkflowUserTable extends DataManager
 				Join::on('this.WORKFLOW_ID', 'ref.WORKFLOW_ID')
 					->whereColumn('this.USER_ID', 'ref.USER_ID')
 			)),
+			(new Reference('WORKFLOW_STATE',
+				WorkflowStateTable::class,
+				Join::on('this.WORKFLOW_ID', 'ref.ID')
+			)),
+			(new Reference(
+				'SEARCH_CONTENT',
+				TaskSearchContentTable::class,
+				Join::on('this.WORKFLOW_ID', 'ref.WORKFLOW_ID')
+			))
+				->configureJoinType(Join::TYPE_INNER)
+			,
 		];
 	}
 

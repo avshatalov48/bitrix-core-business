@@ -1,5 +1,12 @@
 import 'ui.forms';
+import { EventEmitter } from 'main.core.events';
+
+import { EscEventAction } from 'im.v2.lib.esc-manager';
+import { EventType } from 'im.v2.const';
+
 import '../css/notification-search-panel.css';
+
+import type { JsonObject } from 'main.core';
 
 // @vue/component
 export const NotificationSearchPanel = {
@@ -7,11 +14,11 @@ export const NotificationSearchPanel = {
 	props: {
 		schema: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
-	emits: ['search'],
-	data: function()
+	emits: ['search', 'close'],
+	data(): JsonObject
 	{
 		return {
 			searchQuery: '',
@@ -21,16 +28,16 @@ export const NotificationSearchPanel = {
 	},
 	computed:
 	{
-		filterTypes()
+		filterTypes(): JsonObject[]
 		{
-			const originalSchema = {...this.schema};
+			const originalSchema = { ...this.schema };
 
 			// get rid of some subcategories
 			const modulesToRemove = [
 				'timeman', 'mail', 'disk', 'bizproc', 'voximplant', 'sender', 'blog', 'vote', 'socialnetwork',
-				'imopenlines', 'photogallery', 'intranet', 'forum'
+				'imopenlines', 'photogallery', 'intranet', 'forum',
 			];
-			modulesToRemove.forEach(moduleId => {
+			modulesToRemove.forEach((moduleId) => {
 				if (originalSchema[moduleId])
 				{
 					delete originalSchema[moduleId].LIST;
@@ -42,30 +49,34 @@ export const NotificationSearchPanel = {
 			{
 				originalSchema.calendar.NAME = this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_CALENDAR');
 			}
+
 			if (originalSchema.sender)
 			{
-				originalSchema['sender'].NAME = this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_SENDER');
+				originalSchema.sender.NAME = this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_SENDER');
 			}
+
 			if (originalSchema.blog)
 			{
 				originalSchema.blog.NAME = this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_BLOG');
 			}
+
 			if (originalSchema.socialnetwork)
 			{
-				originalSchema['socialnetwork'].NAME = this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_SOCIALNETWORK');
-			}
-			if (originalSchema.intranet)
-			{
-				originalSchema['intranet'].NAME = this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_INTRANET');
+				originalSchema.socialnetwork.NAME = this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_SOCIALNETWORK');
 			}
 
-			// we need only this modules in this order!
+			if (originalSchema.intranet)
+			{
+				originalSchema.intranet.NAME = this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_INTRANET');
+			}
+
+			// we need only these modules in this order!
 			const modulesToShowInFilter = [
 				'tasks', 'calendar', 'crm', 'timeman', 'mail', 'disk', 'bizproc', 'voximplant', 'sender',
-				'blog', 'vote', 'socialnetwork', 'imopenlines', 'photogallery', 'intranet', 'forum'
+				'blog', 'vote', 'socialnetwork', 'imopenlines', 'photogallery', 'intranet', 'forum',
 			];
 			const notificationFilterTypes = [];
-			modulesToShowInFilter.forEach(moduleId => {
+			modulesToShowInFilter.forEach((moduleId) => {
 				if (originalSchema[moduleId])
 				{
 					notificationFilterTypes.push(originalSchema[moduleId]);
@@ -73,6 +84,14 @@ export const NotificationSearchPanel = {
 			});
 
 			return notificationFilterTypes;
+		},
+		isEmptyQuery(): boolean
+		{
+			return this.searchQuery.trim() === '';
+		},
+		hasFocus(): boolean
+		{
+			return document.activeElement === this.$refs.searchInput;
 		},
 	},
 	watch:
@@ -90,6 +109,14 @@ export const NotificationSearchPanel = {
 			this.search();
 		},
 	},
+	created()
+	{
+		EventEmitter.subscribe(EventType.key.onBeforeEscape, this.onBeforeEscape);
+	},
+	beforeUnmount()
+	{
+		EventEmitter.unsubscribe(EventType.key.onBeforeEscape, this.onBeforeEscape);
+	},
 	methods:
 	{
 		search()
@@ -97,7 +124,7 @@ export const NotificationSearchPanel = {
 			this.$emit('search', {
 				searchQuery: this.searchQuery,
 				searchType: this.searchType,
-				searchDate: this.searchDate
+				searchDate: this.searchDate,
 			});
 		},
 		onDateFilterClick(event)
@@ -107,18 +134,34 @@ export const NotificationSearchPanel = {
 				BX.calendar.get().popup.close();
 			}
 
-			// eslint-disable-next-line bitrix-rules/no-bx
+			// eslint-disable-next-line @bitrix24/bitrix24-rules/no-bx
 			BX.calendar({
 				node: event.target,
 				field: event.target,
 				bTime: false,
 				callback_after: () => {
 					this.searchDate = event.target.value;
-				}
+				},
 			});
+		},
+		onBeforeEscape(): $Values<typeof EscEventAction>
+		{
+			if (!this.hasFocus)
+			{
+				return EscEventAction.ignored;
+			}
 
-			return false;
-		}
+			if (this.isEmptyQuery)
+			{
+				this.$emit('close');
+			}
+			else
+			{
+				this.searchQuery = '';
+			}
+
+			return EscEventAction.handled;
+		},
 	},
 	template: `
 		<div class="bx-im-notifications-header-filter-box">
@@ -148,6 +191,7 @@ export const NotificationSearchPanel = {
 				<button class="ui-ctl-after ui-ctl-icon-clear" @click.prevent="searchQuery=''"></button>
 				<input
 					autofocus
+					ref="searchInput"
 					type="text"
 					class="ui-ctl-element"
 					v-model="searchQuery"
@@ -168,5 +212,5 @@ export const NotificationSearchPanel = {
 				<button class="ui-ctl-after ui-ctl-icon-clear" @click.prevent="searchDate=''"></button>
 			</div>
 		</div>
-	`
+	`,
 };

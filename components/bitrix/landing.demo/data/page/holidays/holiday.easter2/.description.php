@@ -22,7 +22,7 @@ return [
 	],
 	'available' => true,
 	'active' => \LandingSiteDemoComponent::checkActive([
-		'ONLY_IN' => ['ru', 'by', 'kz', 'ua'],
+		'ONLY_IN' => ['ru', 'by', 'kz', 'ua', 'uz'],
 		'EXCEPT' => []
 	]),
 	'items' => [

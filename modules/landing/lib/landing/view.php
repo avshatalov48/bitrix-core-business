@@ -140,6 +140,42 @@ class View
 		return 0;
 	}
 
+	/**
+	 * Returns the total number of views (sum of VIEWS field) for the given landing.
+	 * @param int $lid Landing id.
+	 *
+	 * @return int
+	 */
+	public static function getNumberTotalViews(int $lid): int
+	{
+		$lid = (int)$lid;
+		$res = ViewTable::getList([
+			'select' => [
+				'SUM'
+			],
+			'filter' => [
+				'LID' => $lid
+			],
+			'runtime' => [
+				new Entity\ExpressionField(
+					'SUM', 'SUM(%s)', ['VIEWS']
+				)
+			]
+		]);
+
+		if ($row = $res->fetch())
+		{
+			$totalViews = (int)$row['SUM'];
+		}
+
+		if (isset($totalViews) && is_int($totalViews))
+		{
+			return $totalViews;
+		}
+
+		return 0;
+	}
+
 	public static function getUniqueUserData(int $lid): array
 	{
 		$res = ViewTable::getList([

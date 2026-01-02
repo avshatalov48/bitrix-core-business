@@ -141,7 +141,7 @@ this.BX = this.BX || {};
 	function _getFrameBody2() {
 	  let frameContent = `
 			<script>
-				console.log('test message', BX.message('LANDING_WIDGETVUE_ERROR_PAYMENT'));	
+				console.log('test message', BX.message('LANDING_WIDGETVUE_ERROR_PAYMENT_MSGVER_1'));	
 			</script>
 		`;
 

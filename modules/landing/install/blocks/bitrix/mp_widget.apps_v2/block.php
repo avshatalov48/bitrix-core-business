@@ -5,15 +5,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Main\Localization\Loc;
-
 /**
  * @var \CMain $APPLICATION
  */
 ?>
 
 <section
-	class="landing-block g-bg"
+	class="landing-block g-bg g-font-roboto"
 	style="--bg: #ffffff;"
 >
 	<?php

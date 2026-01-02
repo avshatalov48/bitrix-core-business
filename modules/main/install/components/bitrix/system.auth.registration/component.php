@@ -15,6 +15,9 @@
  * @var CBitrixComponent $this
  */
 
+use Bitrix\Main\Authentication;
+use Bitrix\Main\Authentication\Method;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 global $USER_FIELD_MANAGER;
@@ -162,7 +165,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_REQUEST["code_submit_button
 					$user->Update($userId, ["ACTIVE" => "Y"]);
 				}
 				// authorize user
-				$USER->Authorize($userId);
+				$context = (new Authentication\Context())
+					->setUserId($userId)
+					->setMethod(Method::Registration)
+				;
+				$USER->Authorize($context);
 				LocalRedirect($APPLICATION->GetCurPageParam("", $arParamsToDelete));
 			}
 			else

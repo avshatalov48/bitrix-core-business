@@ -49,8 +49,6 @@ Extension::load([
 
 $messages = Loc::loadLanguageFile(__FILE__);
 
-$classList = [];
-
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->setPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : ''));
 
@@ -187,17 +185,13 @@ if ($isTasksScope)
 }
 else
 {
-	if (SITE_TEMPLATE_ID === 'bitrix24')
+	if (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 	{
 		$this->SetViewTarget('below_pagetitle');
 	}
 
-	$classList = [
-		'sonet-group-list-toolbar-container',
-		'--group-actions',
-	];
-
-	?><div class="<?= implode(' ', $classList)?>">
+	?>
+	<div class="ui-actions-bar sonet-interface-toolbar">
 		<?php
 			$counters = [
 				CounterDictionary::COUNTER_WORKGROUP_LIST_LIVEFEED,
@@ -222,7 +216,7 @@ else
 		?>
 	</div><?php
 
-	if (SITE_TEMPLATE_ID === 'bitrix24')
+	if (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 	{
 		$this->EndViewTarget();
 	}
@@ -230,7 +224,7 @@ else
 }
 
 
-if (SITE_TEMPLATE_ID === 'bitrix24')
+if (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 {
 //	echo \Bitrix\Main\Update\Stepper::getHtml([ 'socialnetwork' => [ WorkgroupDeptSync::class ] ], Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_STEPPER_TITLE'));
 }
@@ -392,10 +386,14 @@ $removeButton = [
 			'EDITABLE' => false,
 			'MESSAGES' => $arResult['ACTION_MESSAGES'],
 			'TOP_ACTION_PANEL_RENDER_TO' => (
+				// Temporary fix for air template
 				$arResult['HAS_ACCESS_TO_TASKS_COUNTERS'] === true
-					? '.task-interface-toolbar'
-					: '.sonet-interface-toolbar'
+					? (defined('AIR_SITE_TEMPLATE') ? '.page__actions,.ui-side-panel-toolbar' : '.task-interface-toolbar,.page-navigation,.ui-side-panel-toolbar')
+					: (defined('AIR_SITE_TEMPLATE') ? '.page__actions,.ui-side-panel-toolbar' : '.sonet-interface-toolbar,.page-navigation,.ui-side-panel-toolbar')
 			),
+			'ACTION_PANEL_OPTIONS' => [
+				'MAX_HEIGHT' => 58,
+			],
 			'TOP_ACTION_PANEL_PINNED_MODE' => false,
 			'CURRENT_PAGE' => $arResult['CURRENT_PAGE'],
 		],
@@ -411,7 +409,8 @@ $removeButton = [
 			componentName: '<?= $component->getName() ?>',
 			signedParameters: '<?= $component->getSignedParameters() ?>',
 			useSlider: <?= (
-				ModuleManager::isModuleInstalled('intranet') && SITE_TEMPLATE_ID === 'bitrix24'
+				ModuleManager::isModuleInstalled('intranet')
+				&& (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 					? 'true'
 					: 'false'
 			) ?>,

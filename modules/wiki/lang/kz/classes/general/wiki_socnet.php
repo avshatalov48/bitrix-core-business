@@ -1,0 +1,26 @@
+<?php
+$MESS["F_FORUM_MESSAGE_CNT"] = "Элементке пікірлер саны";
+$MESS["F_FORUM_TOPIC_ID"] = "Пікірлер форумының тақырыбы";
+$MESS["SOCNET_LOG_WIKI_DEL_GROUP"] = "Wiki (жою)";
+$MESS["SOCNET_LOG_WIKI_GROUP"] = "Wiki";
+$MESS["SOCNET_LOG_WIKI_GROUP_SETTINGS"] = "Бұл топтың Wiki-дегі барлық өзгерістер";
+$MESS["SOCNET_LOG_WIKI_GROUP_SETTINGS_1"] = "#TITLE# тобының wiki";
+$MESS["SOCNET_LOG_WIKI_GROUP_SETTINGS_2"] = "#TITLE# тобының wiki хабарламалары";
+$MESS["SONET_ADD_COMMENT_SOURCE_ERROR"] = "Оқиға көзіне пікір қосу мүмкін болмады";
+$MESS["WIKI_DEL_SOCNET_LOG_TITLE"] = "#TITLE# Wiki мақаласы жойылды ";
+$MESS["WIKI_DEL_SOCNET_LOG_TITLE_24"] = "\"#TITLE#\" Wiki хабарламасы жойылды";
+$MESS["WIKI_DEL_SOCNET_LOG_TITLE_MAIL"] = "\"#ENTITY#\" тобында #CREATED_BY# \"#TITLE#\" Wiki мақаласын жойды";
+$MESS["WIKI_PERM_DELETE"] = "Парақшалар мен тарихты жою";
+$MESS["WIKI_PERM_READ"] = "Парақшаларды оқу";
+$MESS["WIKI_PERM_WRITE"] = "Парақшаларды құру / өзгерту";
+$MESS["WIKI_PERM_WRITE_W"] = "Көркем редакторда парақшаларды құру / өзгерту";
+$MESS["WIKI_SOCNET_LOG_ANONYMOUS_USER"] = "авторландырылмаған пайдаланушы";
+$MESS["WIKI_SOCNET_LOG_COMMENT_TITLE"] = "#TITLE# Wiki мақаласына қатысты пікір";
+$MESS["WIKI_SOCNET_LOG_COMMENT_TITLE_MAIL"] = "\"#ENTITY#\" тобында #CREATED_BY# \"#TITLE#\" Wiki мақаласына қатысты жаңа пікір қосты";
+$MESS["WIKI_SOCNET_LOG_ENTITY_G"] = "топта";
+$MESS["WIKI_SOCNET_LOG_TITLE"] = "Wiki #TITLE# мақаласы";
+$MESS["WIKI_SOCNET_LOG_TITLE_24"] = "Wiki хабарламасы";
+$MESS["WIKI_SOCNET_LOG_TITLE_MAIL"] = "\"#ENTITY#\" тобында #CREATED_BY# \"#TITLE#\" Wiki мақаласын қосты немесе өзгертті";
+$MESS["WIKI_SOCNET_LOG_USER"] = "пайдаланушы";
+$MESS["WIKI_SOCNET_TAB"] = "Wiki";
+$MESS["WIKI_SONET_FROM_LOG_IM_COMMENT"] = "Сіздің \"#TITLE#\" Wiki мақаласына қатысты пікір қалдырды";

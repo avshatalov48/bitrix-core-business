@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBD_FIELD_ID"] = "ID элемента";
 $MESS["IBD_FIELD_TIMESTAMP_X"] = "Дата изменения элемента";
 $MESS["IBD_FIELD_MODYFIED"] = "Кем изменен";
@@ -45,4 +45,3 @@ $MESS["IBD_DOCUMENT_XFORMOPTIONS2"] = "По окончании заполнен�
 $MESS["IBD_DOCUMENT_XFORMOPTIONS3"] = "Установить";
 $MESS["IBD_DOCUMENT_MOPROMT"] = "Инфоблок";
 $MESS["IBD_DOCUMENT_ENTITY_NAME"] = "Инфоблоки";
-?>

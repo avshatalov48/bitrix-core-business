@@ -88,7 +88,7 @@ else
 			GUEGroupName: '<?=CUtil::JSEscape($arResult["Group"]["NAME"])?>',
 			GUEUseBan: '<?=CUtil::JSEscape($arParams["GROUP_USE_BAN"])?>',
 			GUEUseDepts: '<?=(IsModuleInstalled('intranet') ? 'Y' : 'N')?>',
-			GUEIsB24: '<?=(SITE_TEMPLATE_ID === "bitrix24" ? "Y" : "N")?>',
+			GUEIsB24: '<?=(SITE_TEMPLATE_ID === "bitrix24" || SITE_TEMPLATE_ID === 'air' ? "Y" : "N")?>',
 			GUEUserCanViewGroup: <?=($arResult["CurrentUserPerms"]["UserCanViewGroup"] ? "true" : "false")?>,
 			GUEUserCanModerateGroup: <?=($arResult["CurrentUserPerms"]["UserCanModerateGroup"] ? "true" : "false")?>,
 			GUEUserCanModifyGroup: <?=($arResult["CurrentUserPerms"]["UserCanModifyGroup"] ? "true" : "false")?>,
@@ -141,7 +141,7 @@ else
 
 	?><div class="socialnetwork-group-users-content"><?php
 
-		if (SITE_TEMPLATE_ID === "bitrix24")
+		if (SITE_TEMPLATE_ID === "bitrix24" || SITE_TEMPLATE_ID === 'air')
 		{
 			echo \Bitrix\Main\Update\Stepper::getHtml(array('socialnetwork' => array("Bitrix\Socialnetwork\Update\WorkgroupDeptSync")), Loc::getMessage('SONET_GUE_T_STEPPER_TITLE'));
 		}

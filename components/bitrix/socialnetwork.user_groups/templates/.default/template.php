@@ -89,7 +89,7 @@ else
 			)
 		)
 		{
-			if (SITE_TEMPLATE_ID != "bitrix24")
+			if (SITE_TEMPLATE_ID != "bitrix24" && SITE_TEMPLATE_ID !== 'air')
 			{
 				$APPLICATION->IncludeComponent(
 					"bitrix:socialnetwork.user_groups.link.add",
@@ -167,7 +167,7 @@ else
 		?><script>
 			BX.ready(function() {
 				oSUG.init({
-					keyboardPageNavigation: <?=(SITE_TEMPLATE_ID == 'bitrix24' ? 'true' : 'false')?>,
+					keyboardPageNavigation: <?=(SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air' ? 'true' : 'false')?>,
 					navId: '<?=CUtil::JSEscape($arResult["NAV_ID"])?>',
 					project: '<?=(isset($arResult["filter_project"]) && $arResult["filter_project"] == 'Y' ? 'Y' : 'N')?>',
 					refreshUrl: '<?=$APPLICATION->GetCurPageParam("refreshAjax=Y", array(
@@ -223,7 +223,7 @@ else
 
 		if (
 			!$arResult["AJAX_CALL"]
-			&& SITE_TEMPLATE_ID === "bitrix24"
+			&& (SITE_TEMPLATE_ID === "bitrix24" || SITE_TEMPLATE_ID === 'air')
 			&& (
 				(
 					Loader::includeModule('bitrix24')
@@ -297,7 +297,7 @@ else
 								?><span class="sonet-groups-group-title<?= ($group["IS_EXTRANET"] === "Y" ? " sonet-groups-group-title-extranet" : "") ?>"><?php
 									?><span class="sonet-groups-group-title-text"><?php
 										?><a href="<?=$group["GROUP_URL"]?>" class="sonet-groups-group-link" target="_top"><?= $group["GROUP_NAME"] ?></a><?php
-										?><?=($group["IS_EXTRANET"] === "Y" && SITE_TEMPLATE_ID !== "bitrix24" ? '<span class="sonet-groups-group-signature">'.GetMessage("SONET_C33_T_IS_EXTRANET").'</span>' : '')?><?php
+										?><?=($group["IS_EXTRANET"] === "Y" && SITE_TEMPLATE_ID !== "bitrix24" && SITE_TEMPLATE_ID !== 'air' ? '<span class="sonet-groups-group-signature">'.GetMessage("SONET_C33_T_IS_EXTRANET").'</span>' : '')?><?php
 									?></span><?php
 
 									$isFav = (isset($group['IN_FAVORITES']) && $group['IN_FAVORITES'] === 'Y');
@@ -426,7 +426,7 @@ else
 		?>
 	</div><?php
 	if (
-		SITE_TEMPLATE_ID === "bitrix24"
+		(SITE_TEMPLATE_ID === "bitrix24" || SITE_TEMPLATE_ID === 'air')
 		&& !empty($arResult["SIDEBAR_GROUPS"])
 		&& (
 			empty($_REQUEST['IFRAME'])
@@ -482,7 +482,7 @@ else
 	}
 
 	if (
-		SITE_TEMPLATE_ID === 'bitrix24'
+		(SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 		&& !empty($arParams['SLIDER_GROUP_ID'])
 		&& (int)$arParams['SLIDER_GROUP_ID'] > 0
 	)

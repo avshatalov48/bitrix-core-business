@@ -1,0 +1,22 @@
+<?php
+$MESS["SALE_BSM_WIZARD_SITESTEP_COPY_ACCESS_ERROR"] = "/.access.php файлын сайт түбіріне көшіру мүмкін емес";
+$MESS["SALE_BSM_WIZARD_SITESTEP_DANGER_BACK"] = "Нұсқаулыққа оралу";
+$MESS["SALE_BSM_WIZARD_SITESTEP_DANGER_DESCR"] = "Сіз алдыңғы қадамда бірдеңе жасауды ұмытып кеткен болуыңыз мүмкін";
+$MESS["SALE_BSM_WIZARD_SITESTEP_DOC_ROOT_ERROR"] = "\"Девелоперлік сайт\" үшін веб-сервердің түбірлік папкасының жолы ағымдағы түбір жолымен сәйкес келмеуі мүмкін";
+$MESS["SALE_BSM_WIZARD_SITESTEP_DOC_ROOT_NOT_EXISTS"] = "Веб-сервердің түбірлік папкасына жол табылмады";
+$MESS["SALE_BSM_WIZARD_SITESTEP_ID"] = "Сайт коды (екі латын әрпі немесе сандары)";
+$MESS["SALE_BSM_WIZARD_SITESTEP_INDEX_ACCESS_ERROR"] = "Шеберді іске қосу қатесі. Файл /іndex.php жазу үшін қолжетімсіз";
+$MESS["SALE_BSM_WIZARD_SITESTEP_MAIN_DOC_ROOT"] = "Осы сайт үшін Веб-Сервердің түбірлік папкасына жол";
+$MESS["SALE_BSM_WIZARD_SITESTEP_MAIN_DOC_ROOT_SET"] = "ағымдағыны кірістіру";
+$MESS["SALE_BSM_WIZARD_SITESTEP_MAIN_SERVER_URL"] = "Домендік атау";
+$MESS["SALE_BSM_WIZARD_SITESTEP_MAIN_SITE_WIZARD_REWRITE"] = "Қажет болса, бар шешімді ауыстыру";
+$MESS["SALE_BSM_WIZARD_SITESTEP_NAME"] = "Сайт атауы";
+$MESS["SALE_BSM_WIZARD_SITESTEP_NEXT"] = "Жалғастыру";
+$MESS["SALE_BSM_WIZARD_SITESTEP_PREV"] = "Артқа";
+$MESS["SALE_BSM_WIZARD_SITESTEP_REQUIRED_FILE_ERROR"] = "Қажетті файлдар жоқ: #REQUIRED_FILES#";
+$MESS["SALE_BSM_WIZARD_SITESTEP_REWRITE_ERROR"] = "Шешімді орнатуға арналған папка бос емес. Басқа папканы көрсетіңіз немесе шешімді ауыстыруға мүмкіндік беретін жалаушаны орнатыңыз.";
+$MESS["SALE_BSM_WIZARD_SITESTEP_SITE_CREATE_ERROR"] = "Бірдеңе дұрыс емес сияқты...";
+$MESS["SALE_BSM_WIZARD_SITESTEP_SITE_DIR_ERROR"] = "\"Девелоперлік сайт\" орнату тек сайттың түбіріне қолжетімді, сайт баптауларында \"Сайт папкасы\" көрсетілген";
+$MESS["SALE_BSM_WIZARD_SITESTEP_SITE_SELECT_NEW"] = "Жаңа сайтты қосу";
+$MESS["SALE_BSM_WIZARD_SITESTEP_SITE_SELECT_TITLE"] = "Девелоперлік сайт орнатылатын сайтты таңдаңыз немесе жаңасын қосыңыз:";
+$MESS["SALE_BSM_WIZARD_SITESTEP_TITLE"] = "Келесі деректерді нақтылаңыз";

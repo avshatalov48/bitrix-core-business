@@ -1,0 +1,20 @@
+<?php
+$MESS["CP_BSF_CACHE_GROUPS"] = "Қолжетімділік құқықтарын ескеру";
+$MESS["PATH_TO_USER"] = "Пайдаланушы парақшасына жол қалыбы";
+$MESS["RATING_TYPE"] = "Рейтинг батырмаларының түрі";
+$MESS["RATING_TYPE_CONFIG"] = "әдепкі бойынша";
+$MESS["RATING_TYPE_LIKE_GRAPHIC"] = "Маған ұнайды (графикалық)";
+$MESS["RATING_TYPE_LIKE_TEXT"] = "Маған ұнайды (мәтінді)";
+$MESS["RATING_TYPE_STANDART_GRAPHIC"] = "Ұнайды / Ұнамайды (графикалық)";
+$MESS["RATING_TYPE_STANDART_TEXT"] = "Ұнайды / Ұнамайды (мәтінді)";
+$MESS["SEF_PAGE_FAQ"] = "Жалпы тізім парақшасы";
+$MESS["SEF_PAGE_FAQ_DETAIL"] = "Егжей-тегжейлі қарау парақшасы";
+$MESS["SEF_PAGE_FAQ_SECTION"] = "Бөлім парақшасы";
+$MESS["SHOW_RATING"] = "Рейтингті қосу";
+$MESS["SHOW_RATING_CONFIG"] = "әдепкі бойынша";
+$MESS["SUPPORT_FAQ_GROUP_SETTINGS"] = "Компонент баптаулары";
+$MESS["SUPPORT_FAQ_SETTING_EXPAND_LIST"] = "Ендірілген бөлімдерді көрсету";
+$MESS["SUPPORT_FAQ_SETTING_IBLIST"] = "Ақпараттық блок тізімдері";
+$MESS["SUPPORT_FAQ_SETTING_IBTYPES"] = "Ақпараттық блок түрлері";
+$MESS["SUPPORT_FAQ_SETTING_SECTIONS_LIST"] = "Секциялар тізімі";
+$MESS["SUPPORT_RATING_SETTINGS"] = "Рейтинг баптаулары";

@@ -143,6 +143,7 @@ this.BX = this.BX || {};
 	    back = {},
 	    next = {},
 	    complete = {},
+	    cancel = {},
 	    swapButtons = false
 	  } = (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _options)[_options]) != null ? _babelHelpers$classPr : {};
 	  const {
@@ -150,14 +151,31 @@ this.BX = this.BX || {};
 	    onComplete,
 	    className: completeClassName
 	  } = complete;
+	  const {
+	    title: cancelTitle,
+	    onCancel,
+	    className: cancelClassName
+	  } = cancel;
 	  const backClassList = ((_back$className = back.className) != null ? _back$className : '').split(' ');
 	  const nextClassList = ((_next$className = next.className) != null ? _next$className : '').split(' ');
 	  const completeClassList = (completeClassName != null ? completeClassName : '').split(' ');
+	  const cancelClassList = (cancelClassName != null ? cancelClassName : '').split(' ');
 	  const backButton = {
 	    id: 'back',
 	    title: main_core.Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_BACK'),
 	    method: () => babelHelpers.classPrivateFieldLooseBase(this, _onPrevStep)[_onPrevStep](),
 	    buttonClassList: [...classList, ...backClassList]
+	  };
+	  const cancelButton = {
+	    id: 'cancel',
+	    title: cancelTitle != null ? cancelTitle : main_core.Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_CANCEL'),
+	    method: async () => {
+	      const canceled = await babelHelpers.classPrivateFieldLooseBase(this, _tryCompleteStep)[_tryCompleteStep]('cancel');
+	      if (canceled && onCancel) {
+	        onCancel();
+	      }
+	    },
+	    buttonClassList: [...classList, ...cancelClassList]
 	  };
 	  const buttons = [{
 	    id: 'next',
@@ -175,6 +193,9 @@ this.BX = this.BX || {};
 	    },
 	    buttonClassList: [...classList, ...completeClassList]
 	  }];
+	  if (Object.keys(cancel).length > 0) {
+	    buttons.push(cancelButton);
+	  }
 	  if (swapButtons) {
 	    buttons.push(backButton);
 	  } else {
@@ -223,6 +244,9 @@ this.BX = this.BX || {};
 	  const {
 	    beforeCompletion
 	  } = (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _metadata)[_metadata][stepName]) != null ? _babelHelpers$classPr2 : {};
+	  if (buttonId === 'cancel') {
+	    return true;
+	  }
 	  this.toggleBtnLoadingState(buttonId, true);
 	  const shouldComplete = (_await$beforeCompleti = await (beforeCompletion == null ? void 0 : beforeCompletion())) != null ? _await$beforeCompleti : true;
 	  this.toggleBtnLoadingState(buttonId, false);
@@ -253,7 +277,8 @@ this.BX = this.BX || {};
 	  const {
 	    back: backButton,
 	    next: nextButton,
-	    complete: completeButton
+	    complete: completeButton,
+	    cancel: cancelButton
 	  } = babelHelpers.classPrivateFieldLooseBase(this, _navigationButtons)[_navigationButtons];
 	  const isFirstStep = babelHelpers.classPrivateFieldLooseBase(this, _stepIndex)[_stepIndex] === 0;
 	  const isLastStep = babelHelpers.classPrivateFieldLooseBase(this, _stepIndex)[_stepIndex] + 1 === babelHelpers.classPrivateFieldLooseBase(this, _order)[_order].length;
@@ -273,6 +298,13 @@ this.BX = this.BX || {};
 	    main_core.Dom.addClass(nextButton, '--hide');
 	    main_core.Dom.removeClass(completeButton, '--hide');
 	  }
+	  if (cancelButton) {
+	    if (isFirstStep) {
+	      main_core.Dom.removeClass(cancelButton, '--hide');
+	    } else {
+	      main_core.Dom.addClass(cancelButton, '--hide');
+	    }
+	  }
 	}
 	function _renderActiveStage2() {
 	  babelHelpers.classPrivateFieldLooseBase(this, _stages)[_stages].forEach(stageNode => {
@@ -283,13 +315,21 @@ this.BX = this.BX || {};
 	  main_core.Dom.addClass(stageNode, '--active');
 	}
 	function _renderStep2() {
-	  var _babelHelpers$classPr4;
 	  const stepName = babelHelpers.classPrivateFieldLooseBase(this, _order)[_order][babelHelpers.classPrivateFieldLooseBase(this, _stepIndex)[_stepIndex]];
+	  const stepMetaData = babelHelpers.classPrivateFieldLooseBase(this, _metadata)[_metadata][stepName];
 	  const {
-	    content
-	  } = (_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _metadata)[_metadata][stepName]) != null ? _babelHelpers$classPr4 : {};
+	    content,
+	    events: stepEvents
+	  } = stepMetaData != null ? stepMetaData : {};
 	  if (!content) {
 	    return;
+	  }
+	  if (main_core.Type.isFunction(stepEvents == null ? void 0 : stepEvents.onBeforeRenderStep)) {
+	    try {
+	      stepEvents.onBeforeRenderStep();
+	    } catch (e) {
+	      console.error('Error onBeforeRenderStep', e);
+	    }
 	  }
 	  main_core.Dom.clean(babelHelpers.classPrivateFieldLooseBase(this, _stepNode)[_stepNode]);
 	  if (main_core.Type.isArrayFilled(content)) {

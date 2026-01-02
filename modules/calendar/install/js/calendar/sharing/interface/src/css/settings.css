@@ -22,12 +22,12 @@
 
 .calendar-sharing__settings-title {
 	color: var(--ui-color-palette-black-base);
-	font: var(--ui-typography-text-md-font-size)/var(--ui-typography-text-md-line-height) var(--ui-font-family-system);
+	font: var(--ui-typography-text-md-font-size)/var(--ui-typography-text-md-line-height) var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .calendar-sharing__settings-subtitle {
 	color: var(--ui-color-palette-gray-60);
-	font: var(--ui-typography-text-xs-font-size)/var(--ui-typography-text-xs-line-height) var(--ui-font-family-system);
+	font: var(--ui-typography-text-xs-font-size)/var(--ui-typography-text-xs-line-height) var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .calendar-sharing__settings-rule {
@@ -186,7 +186,7 @@
 
 .calendar-sharing__settings-duration {
 	color: #828B95;
-	font: var(--ui-typography-text-sm-font-size)/var(--ui-typography-text-sm-line-height) var(--ui-font-family-system);
+	font: var(--ui-typography-text-sm-font-size)/var(--ui-typography-text-sm-line-height) var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .calendar-sharing__settings-select-link {
@@ -325,7 +325,7 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	width: 30px;
+	width: 35px;
 	height: 60px;
 	margin-right: 2px;
 	border-radius: 8px;

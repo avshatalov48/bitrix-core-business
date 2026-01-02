@@ -1,0 +1,5 @@
+<?php
+$MESS["LANDING_DEMO_STORE_FOOTER_NAME"] = "Төменгі бөлік";
+$MESS["LANDING_DEMO_STORE_FOOTER_TEXT1"] = "Байланыс";
+$MESS["LANDING_DEMO_STORE_FOOTER_TEXT2"] = "Жеткізу және төлеу";
+$MESS["LANDING_DEMO_STORE_FOOTER_TEXT3"] = "Қоңырау шалу";

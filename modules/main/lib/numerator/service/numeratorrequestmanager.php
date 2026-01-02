@@ -1,7 +1,8 @@
 <?php
 namespace Bitrix\Main\Numerator\Service;
 
-use Bitrix\Main\Entity\ReferenceField;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Data;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Numerator\Generator\SequentNumberGenerator;
@@ -29,7 +30,7 @@ class NumeratorRequestManager
 	}
 
 	/**
-	 * @return \Bitrix\Main\Entity\AddResult|\Bitrix\Main\Entity\UpdateResult|Result
+	 * @return Data\AddResult|Data\UpdateResult|Result
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\NotImplementedException
 	 * @throws \Bitrix\Main\ObjectException
@@ -39,7 +40,7 @@ class NumeratorRequestManager
 	public function saveFromRequest()
 	{
 		$numeratorConfig = $this->request->getPost(Numerator::getType());
-		$id = $numeratorConfig ['id'];
+		$id = $numeratorConfig ['id'] ?? null;
 		if ($id)
 		{
 			$result = $this->updateNextSequentialNumber($id);
@@ -79,7 +80,7 @@ class NumeratorRequestManager
 			{
 				$sequence = NumeratorTable::query()
 					->registerRuntimeField('',
-						new ReferenceField(
+						new Reference(
 							'ref',
 							NumeratorSequenceTable::class,
 							['=this.ID' => 'ref.NUMERATOR_ID']

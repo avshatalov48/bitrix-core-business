@@ -166,7 +166,7 @@ class PersonType
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Person type is legal entity
 	 *
@@ -196,5 +196,50 @@ class PersonType
 		Internals\BusinessValuePersonDomainTable::deleteByPersonTypeId($id);
 
 		return true;
+	}
+
+	/**
+	 * Returns list of person type id for domain.
+	 *
+	 * @param string $domain Domain Id.
+	 * @return array
+	 */
+	public static function getIdsByDomain(string $domain): array
+	{
+		if (
+			$domain !== BusinessValue::ENTITY_DOMAIN
+			&& $domain !== BusinessValue::INDIVIDUAL_DOMAIN
+		)
+		{
+			return [];
+		}
+
+		$result = [];
+		$iterator = PersonType::getList([
+			'filter' => [
+				'=BIZVAL.DOMAIN' => $domain,
+			],
+			'select' => [
+				'ID',
+			],
+			'runtime' => [
+				new \Bitrix\Main\ORM\Fields\Relations\Reference(
+					'BIZVAL',
+					'Bitrix\Sale\Internals\BusinessValuePersonDomainTable',
+					[
+						'=this.ID' => 'ref.PERSON_TYPE_ID',
+					],
+					[
+						'join_type' => 'INNER',
+					]
+				),
+			],
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$result[] = (int)$row['ID'];
+		}
+
+		return $result;
 	}
 }

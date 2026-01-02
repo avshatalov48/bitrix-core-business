@@ -33,6 +33,7 @@ Vue.component(
 			EventEmitter.subscribe('BX.Catalog.ProductSelector:onProductSelect', this.onProductSelect.bind(this));
 			EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.onProductChange.bind(this));
 			EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.onProductClear.bind(this));
+			EventEmitter.subscribe('ProductSelector::onNameChange', this.onNameChange.bind(this));
 			EventEmitter.subscribe(
 				this.$root.$app,
 				'onChangeCompilationMode',
@@ -187,6 +188,20 @@ Vue.component(
 				if (Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId())
 				{
 					this.$emit('onProductClear');
+				}
+			},
+			onNameChange(event: BaseEvent)
+			{
+				const data = event.getData();
+
+				if (
+					Type.isStringFilled(data.rowId)
+					&& data.rowId === this.productSelector.getId()
+					&& !this.productSelector.getModel().getProductId()
+				)
+				{
+					const fields = { NAME: data.fields.NAME };
+					this.$emit('onProductChange', fields);
 				}
 			},
 		},

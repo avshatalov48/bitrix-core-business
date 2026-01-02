@@ -180,6 +180,7 @@ class GroupMemberService extends AbstractMemberService
 			$command->getGroupId(),
 			$command->getInitiatorId(),
 			UserToGroupTable::ROLE_MODERATOR,
+			UserToGroupTable::INITIATED_BY_GROUP,
 			...$memberIds,
 		);
 	}

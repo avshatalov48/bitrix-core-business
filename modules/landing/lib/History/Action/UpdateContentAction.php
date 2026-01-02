@@ -26,7 +26,6 @@ class UpdateContentAction extends BaseAction
 	{
 		return [
 			'block' => $params['block'],
-			'lid' => $params['contentAfter'],
 			'contentAfter' => $params['contentAfter'] ?: '',
 			'contentBefore' => $params['contentBefore'] ?: '',
 			'designed' => (bool)$params['designed'],

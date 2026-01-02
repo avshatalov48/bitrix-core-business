@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2024 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Web;
@@ -61,6 +61,7 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 	protected $useCurl = false;
 	protected $curlLogFile = null;
 	protected $shouldFetchBody = null;
+	protected $sendEvents = true;
 	protected Http\ResponseBuilderInterface $responseBuilder;
 
 	protected HttpHeaders $headers;
@@ -93,6 +94,7 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 	 * 		"headers" array of headers for HTTP request.
 	 * 		"useCurl" bool Enable CURL (default false).
 	 *		"curlLogFile" string Full path to CURL log file.
+	 *      "sendEvents" bool Send events (default true).
 	 *      "responseBuilder" Http\ResponseBuilderInterface Response builder.
 	 * 	Almost all options can be set separately with setters.
 	 */
@@ -176,6 +178,10 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 			if (isset($options['curlLogFile']))
 			{
 				$this->curlLogFile = $options['curlLogFile'];
+			}
+			if (isset($options['sendEvents']))
+			{
+				$this->sendEvents = (bool)$options['sendEvents'];
 			}
 			if (isset($options['responseBuilder']))
 			{
@@ -880,13 +886,16 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 			}
 		}
 
-		// Here's the chance to tune up the client and to rebuild the request.
-		$event = new Http\RequestEvent($this, $request, 'OnHttpClientBuildRequest');
-		$event->send();
-
-		foreach ($event->getResults() as $eventResult)
+		if ($this->sendEvents)
 		{
-			$request = $eventResult->getRequest();
+			// Here's the chance to tune up the client and to rebuild the request.
+			$event = new Http\RequestEvent($this, $request, 'OnHttpClientBuildRequest');
+			$event->send();
+
+			foreach ($event->getResults() as $eventResult)
+			{
+				$request = $eventResult->getRequest();
+			}
 		}
 
 		return new Http\Request(
@@ -949,15 +958,9 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 
 		$this->request = $this->buildRequest($request);
 
-		$queue = $this->createQueue(false);
-
 		$handler = $this->createHandler($this->request);
 
-		$promise = $this->createPromise($handler, $queue);
-
-		$queue->add($promise);
-
-		$this->response = $promise->wait();
+		$this->response = $handler->execute();
 
 		return $this->response;
 	}
@@ -1060,16 +1063,15 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 	}
 
 	/**
-	 * @param bool $backgroundJob
 	 * @return Http\Curl\Queue | Http\Socket\Queue
 	 */
-	protected function createQueue(bool $backgroundJob = true)
+	protected function createQueue()
 	{
 		if ($this->useCurl)
 		{
-			return new Http\Curl\Queue($backgroundJob);
+			return new Http\Curl\Queue();
 		}
-		return new Http\Socket\Queue($backgroundJob);
+		return new Http\Socket\Queue();
 	}
 
 	/**

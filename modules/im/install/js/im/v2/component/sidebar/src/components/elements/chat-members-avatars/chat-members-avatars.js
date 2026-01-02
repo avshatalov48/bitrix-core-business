@@ -1,16 +1,11 @@
 import { Analytics } from 'im.v2.lib.analytics';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { AddToChat, AddToCollab } from 'im.v2.component.entity-selector';
-import { ActionByRole, ChatType, EventType, Layout, SidebarDetailBlock } from 'im.v2.const';
+import { ActionByRole, ChatType, EventType, SidebarDetailBlock } from 'im.v2.const';
 
 import { EventEmitter } from 'main.core.events';
-import {
-	ChatAvatar,
-	AvatarSize,
-	Button as MessengerButton,
-	ButtonSize,
-	ButtonColor,
-} from 'im.v2.component.elements';
+import { ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements.button';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 
 import './chat-members-avatars.css';
 
@@ -21,7 +16,7 @@ import type { BitrixVueComponentProps } from 'ui.vue3';
 // @vue/component
 export const ChatMembersAvatars = {
 	name: 'ChatMembersAvatars',
-	components: { ChatAvatar, MessengerButton, AddToChat },
+	components: { ChatAvatar, ChatButton, AddToChat },
 	props:
 	{
 		dialogId: {
@@ -78,23 +73,12 @@ export const ChatMembersAvatars = {
 		{
 			return Math.max(this.usersInChatCount - this.dialogIds.length, 0);
 		},
-		isCopilotLayout(): boolean
-		{
-			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
-
-			return currentLayoutName === Layout.copilot.name;
-		},
 		isCollab(): boolean
 		{
 			return this.dialog.type === ChatType.collab;
 		},
 		addUsersButtonColor(): ButtonColor
 		{
-			if (this.isCopilotLayout)
-			{
-				return this.ButtonColor.Copilot;
-			}
-
 			if (this.isCollab)
 			{
 				return this.ButtonColor.Collab;
@@ -143,7 +127,7 @@ export const ChatMembersAvatars = {
 				</div>
 			</div>
 			<div ref="add-members">
-				<MessengerButton
+				<ChatButton
 					v-if="canInviteMembers"
 					:text="loc('IM_SIDEBAR_ADD_BUTTON_TEXT')"
 					:size="ButtonSize.S"

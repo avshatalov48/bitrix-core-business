@@ -29,7 +29,7 @@ class MessageParam
 	{
 		if ($this->isEnabled)
 		{
-			return \CIMMessageParam::Get($messageId, false, $withDefault);
+			return \CIMMessageParam::Get($messageId, false, $withDefault) ?: null;
 		}
 
 		return null;
@@ -48,7 +48,7 @@ class MessageParam
 	{
 		if ($this->isEnabled)
 		{
-			return \CIMMessageParam::Get($messageId, $name, $withDefault);
+			return \CIMMessageParam::Get($messageId, $name, $withDefault) ?: null;
 		}
 
 		return null;

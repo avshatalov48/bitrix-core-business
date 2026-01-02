@@ -1899,6 +1899,7 @@ this.BX = this.BX || {};
 						<span
 							class="calendar-planner-entry-name${0}"
 							bx-tooltip-user-id="${0}"
+							bx-tooltip-context="b24"
 							bx-tooltip-classname="calendar-planner-user-tooltip"
 						>
 							${0}
@@ -1998,9 +1999,28 @@ this.BX = this.BX || {};
 	      if (entry.sharingUser) {
 	        defaultAvatarClass += ' ui-icon-common-user-sharing';
 	      }
-	      imageNode = main_core.Tag.render(_t46 || (_t46 = _$1`<div bx-tooltip-user-id="${0}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${0}" class="ui-icon calendar-planner-user-image-icon ${0}"><i></i></div>`), entry.id, main_core.Text.encode(entry.name), defaultAvatarClass);
+	      imageNode = main_core.Tag.render(_t46 || (_t46 = _$1`
+				<div 
+					bx-tooltip-user-id="${0}"
+					bx-tooltip-context="b24"
+					bx-tooltip-classname="calendar-planner-user-tooltip" 
+					title="${0}" class="ui-icon calendar-planner-user-image-icon ${0}"
+				>
+					<i></i>
+				</div>
+			`), entry.id, main_core.Text.encode(entry.name), defaultAvatarClass);
 	    } else {
-	      imageNode = main_core.Tag.render(_t47 || (_t47 = _$1`<div bx-tooltip-user-id="${0}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${0}" class="ui-icon calendar-planner-user-image-icon"><i style="background-image: url('${0}')"></i></div>`), entry.id, main_core.Text.encode(entry.name), encodeURI(entry.avatar));
+	      imageNode = main_core.Tag.render(_t47 || (_t47 = _$1`
+				<div 
+					bx-tooltip-user-id="${0}" 
+					bx-tooltip-context="b24"
+					bx-tooltip-classname="calendar-planner-user-tooltip" 
+					title="${0}" 
+					class="ui-icon calendar-planner-user-image-icon"
+				>
+					<i style="background-image: url('${0}')"></i>
+				</div>
+			`), entry.id, main_core.Text.encode(entry.name), encodeURI(entry.avatar));
 	    }
 	    return imageNode;
 	  }

@@ -2,7 +2,8 @@
 
 namespace Bitrix\Calendar\Sync\Icloud;
 
-use Bitrix\Calendar\Sync\Util\RequestLogger;
+use Bitrix\Calendar\Synchronization\Internal\Service\Logger\RequestLogger;
+use Bitrix\Main\DI\ServiceLocator;
 
 class ApiClient
 {
@@ -10,8 +11,8 @@ class ApiClient
 	protected Helper $helper;
 	/** @var \CDavGroupdavClientCalendar $davClient*/
 	protected \CDavGroupdavClientCalendar $davClient;
-	/** @var ?RequestLogger $logger*/
-	protected ?RequestLogger $logger = null;
+
+	protected RequestLogger $logger;
 	/** @var ?int $userId */
 	protected ?int $userId = null;
 
@@ -27,10 +28,12 @@ class ApiClient
 		$this->davClient = $davClient;
 		$this->userId = $userId;
 
-		if ($this->userId && RequestLogger::isEnabled())
-		{
-			$this->logger = new RequestLogger($this->userId, $this->helper::ACCOUNT_TYPE);
-		}
+		$this->logger = ServiceLocator::getInstance()->get(RequestLogger::class);
+
+		$this->logger
+			->setUserId($userId)
+			->setType($this->helper::ACCOUNT_TYPE)
+		;
 	}
 
 	/**

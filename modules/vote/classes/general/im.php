@@ -1,10 +1,12 @@
-<?
-#############################################
-# Bitrix Site Manager Forum					#
-# Copyright (c) 2002-2013 Bitrix			#
-# https://www.bitrixsoft.com					#
-# mailto:admin@bitrixsoft.com				#
-#############################################
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage vote
+ * @copyright 2001-2025 Bitrix
+ */
+
 IncludeModuleLangFile(__FILE__);
 
 class CVoteNotifySchema

@@ -7,9 +7,11 @@ use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Socialnetwork\FeatureTable;
 use Bitrix\Socialnetwork\Helper\Workgroup;
 use Bitrix\Socialnetwork\Helper\Path;
 use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
+use Bitrix\Socialnetwork\Item\Workgroup\AvatarType;
 use Bitrix\Socialnetwork\Item\Workgroup\Type;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ProjectLimit;
@@ -198,12 +200,23 @@ class CAllSocNetGroup
 			}
 		}
 
+		$avatarType = $arFields['AVATAR_TYPE'] ?? null;
 		if (
 			is_set($arFields, 'AVATAR_TYPE')
 			&& !array_key_exists($arFields['AVATAR_TYPE'], Workgroup::getAvatarTypes())
 		)
 		{
 			unset($arFields['AVATAR_TYPE']);
+		}
+
+		$canSetEmptyAvatarType =
+			($arFields['TYPE'] ?? null) === Type::Collab->value
+			&& $avatarType === AvatarType::None->value
+		;
+
+		if ($canSetEmptyAvatarType)
+		{
+			$arFields['AVATAR_TYPE'] = '';
 		}
 
 		if (!$USER_FIELD_MANAGER->CheckFields("SONET_GROUP", $ID, $arFields))
@@ -247,6 +260,11 @@ class CAllSocNetGroup
 			}
 
 			$arFields['TYPE'] = Type::getValue($arFields['TYPE']);
+		}
+
+		if (!is_string($arFields['KEYWORDS'] ?? ''))
+		{
+			unset($arFields['KEYWORDS']);
 		}
 
 		return true;
@@ -422,6 +440,7 @@ class CAllSocNetGroup
 			unset($sonetGroupCache[$ID]);
 			self::setStaticCache($sonetGroupCache);
 			GroupRegistry::getInstance()->invalidate($ID);
+			FeatureTable::cleanCache();
 		}
 
 		if ($bSuccess)
@@ -1545,16 +1564,17 @@ class CAllSocNetGroup
 				$arIDs[] = $arRequests["ID"];
 			}
 
-			$userId = \Bitrix\Socialnetwork\Helper\User::getCurrentUserId();
-			if ($userId)
+			if (!$currentUserId)
 			{
-				CSocNetUserToGroup::ConfirmRequestToBeMember(
-					$userId,
-					$groupId,
-					$arIDs,
-					$bAutoSubscribe,
-				);
+				$currentUserId = \Bitrix\Socialnetwork\Helper\User::getCurrentUserId();
 			}
+
+			CSocNetUserToGroup::ConfirmRequestToBeMember(
+				$currentUserId,
+				$groupId,
+				$arIDs,
+				$bAutoSubscribe,
+			);
 		}
 	}
 

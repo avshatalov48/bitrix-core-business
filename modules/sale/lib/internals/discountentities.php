@@ -1,9 +1,12 @@
 <?php
+
 namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main;
 use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
+
 Loc::loadMessages(__FILE__);
 
 /**
@@ -35,7 +38,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Sale\Internals\EO_DiscountEntities_Collection wakeUpCollection($rows)
  */
 
-class DiscountEntitiesTable extends Main\Entity\DataManager
+class DiscountEntitiesTable extends DataManager
 {
 	/**
 	 * Returns DB table name for entity.

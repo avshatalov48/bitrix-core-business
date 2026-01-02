@@ -1,14 +1,16 @@
-import {Type, Dom, Event, Tag, Loc} from 'main.core';
-//import {ViewSelector} from './viewselector';
-import {EventEmitter} from 'main.core.events';
+import { Type, Loc } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { NavigationPanel } from 'ui.navigationpanel';
 
-export class LineViewSelector extends  EventEmitter
+export class LineViewSelector extends EventEmitter
 {
 	views = [];
 	created = false;
 	currentValue = null;
 	currentViewMode = null;
 	DOM = {};
+	target: ?HTMLElement = null;
+	navigationPanel: ?NavigationPanel = null;
 
 	constructor(params = {})
 	{
@@ -20,10 +22,10 @@ export class LineViewSelector extends  EventEmitter
 			this.views = params.views;
 		}
 
-		this.viewsMap = new WeakMap();
+		this.target = params.target;
 
 		this.zIndex = params.zIndex || 3200;
-		this.popupId = params.id || 'view-selector-' + Math.round(Math.random() * 10000);
+		this.popupId = params.id || `view-selector-${Math.round(Math.random() * 10000)}`;
 		this.create();
 
 		if (params.currentView)
@@ -34,59 +36,58 @@ export class LineViewSelector extends  EventEmitter
 
 	create()
 	{
-		this.DOM.wrap = Tag.render`<div class="calendar-view-switcher-list"></div>`;
-
-		this.views.forEach((view) =>
+		if (Type.isDomNode(this.target) && !this.navigationPanel)
 		{
-			if (view.type === 'base')
-			{
-				this.viewsMap.set(view, {
-					wrap: this.DOM.wrap.appendChild(Tag.render`<span 
-						class="calendar-view-switcher-list-item"
-						onclick="${()=>{
-							this.emit('onChange', {
-								name: view.name,
-								type: view.type,
-								dataset: view.dataset
-							});
-					}}"
-					>${view.text}</span>`)
-				});
-			}
-		});
+			const items = [];
+			this.views.forEach((view) => {
+				if (view.type === 'base')
+				{
+					items.push(this.getItem(view));
+				}
+			});
 
-		this.created = true;
+			this.navigationPanel = new NavigationPanel({
+				target: this.target,
+				items,
+			});
+
+			this.navigationPanel.init();
+		}
 	}
 
-	getOuterWrap()
+	getItem(view): Object
 	{
-		if (!this.created)
-		{
-			this.create();
-		}
+		const click = () => {
+			this.emit('onChange', {
+				name: view.name,
+				type: view.type,
+				dataset: view.dataset,
+			});
+		};
 
-		return this.DOM.wrap;
+		return {
+			id: view.name,
+			title: view.text,
+			active: false,
+			events: {
+				click,
+			},
+		};
 	}
 
 	setValue(value)
 	{
-		this.currentValue = this.views.find(function(view)
-		{
+		this.currentValue = this.views.find((view) => {
 			return value.name === view.name;
-		}, this);
+		});
 
 		if (this.currentValue)
 		{
-			let viewData = this.viewsMap.get(this.currentValue);
-			let currentActiveWrap = this.DOM.wrap.querySelector('.calendar-view-switcher-list-item-active');
-			if (Type.isDomNode(currentActiveWrap))
-			{
-				Dom.removeClass(currentActiveWrap, 'calendar-view-switcher-list-item-active');
-			}
+			const targetWrap = this.navigationPanel.getItemById(this.currentValue.name);
 
-			if (Type.isDomNode(viewData.wrap))
+			if (targetWrap)
 			{
-				Dom.addClass(viewData.wrap, 'calendar-view-switcher-list-item-active');
+				targetWrap.activate();
 			}
 		}
 	}
@@ -95,37 +96,29 @@ export class LineViewSelector extends  EventEmitter
 	{
 		if (value)
 		{
-			this.currentViewMode = this.views.find(function(view)
-			{
+			this.currentViewMode = this.views.find((view) => {
 				return value === view.name && view.type === 'additional';
-			}, this);
-
-			// if (this.currentViewMode)
-			// {
-			// 	Dom.adjust(this.DOM.viewModeTextInner, {text: '(' + this.currentViewMode.text + ')'});
-			// }
-			//this.DOM.viewModeTextInner.style.display = this.currentViewMode ? '' : 'block';
+			});
 		}
 	}
 
 	getMenuItems()
 	{
-		let menuItems = [];
-		this.views.forEach((view) =>
-		{
+		const menuItems = [];
+		this.views.forEach((view) => {
 			if (view.type === 'base')
 			{
 				menuItems.push({
-					html: '<span>' + view.text + '</span>' + (view.hotkey ? '<span class="calendar-item-hotkey">' + view.hotkey + '</span>' : ''),
+					html: `<span>${view.text}</span>${view.hotkey ? `<span class="calendar-item-hotkey">${view.hotkey}</span>` : ''}`,
 					className: this.currentValue.name === view.name ? 'menu-popup-item-accept' : ' ',
 					onclick: () => {
 						this.emit('onChange', {
 							name: view.name,
 							type: view.type,
-							dataset: view.dataset
+							dataset: view.dataset,
 						});
 						this.menuPopup.close();
-					}
+					},
 				});
 			}
 		});
@@ -133,8 +126,8 @@ export class LineViewSelector extends  EventEmitter
 		if (menuItems.length < this.views.length)
 		{
 			menuItems.push({
-				html: '<span>' + Loc.getMessage('EC_VIEW_MODE_SHOW_BY') + '</span>',
-				className: 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label'
+				html: `<span>${Loc.getMessage('EC_VIEW_MODE_SHOW_BY')}</span>`,
+				className: 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label',
 			});
 
 			this.views.forEach(function(view)
@@ -144,14 +137,14 @@ export class LineViewSelector extends  EventEmitter
 					menuItems.push({
 						text: view.text,
 						className: this.currentViewMode.name === view.name ? 'menu-popup-item-accept' : ' ',
-						onclick: function(){
+						onclick: function() {
 							this.emit('onChange', {
 								name: view.name,
 								type: view.type,
-								dataset: view.dataset
+								dataset: view.dataset,
 							});
 							this.menuPopup.close();
-						}.bind(this)
+						}.bind(this),
 					});
 				}
 			}, this);
@@ -159,38 +152,4 @@ export class LineViewSelector extends  EventEmitter
 
 		return menuItems;
 	}
-
-	// showPopup()
-	// {
-	// 	this.closePopup();
-	//
-	// 	this.menuPopup = MenuManager.create(
-	// 		this.popupId,
-	// 		this.DOM.selectorText,
-	// 		this.getMenuItems(),
-	// 		{
-	// 			className: "calendar-view-switcher-popup",
-	// 			closeByEsc : true,
-	// 			autoHide : true,
-	// 			zIndex: this.zIndex,
-	// 			offsetTop: -3,
-	// 			offsetLeft: this.DOM.selectorText.offsetWidth - 6,
-	// 			angle: true,
-	// 			cacheable: false
-	// 		}
-	// 	);
-	//
-	// 	this.menuPopup.show();
-	// }
-	//
-	// closePopup()
-	// {
-	// 	if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown())
-	// 	{
-	// 		return this.menuPopup.close();
-	// 	}
-	// }
 }
-
-
-

@@ -10,7 +10,6 @@ export const SidebarDetailBlock = Object.freeze({
 	audio: 'audio',
 	document: 'document',
 	fileUnsorted: 'fileUnsorted',
-	other: 'other',
 	meeting: 'meeting',
 	market: 'market',
 	messageSearch: 'messageSearch',
@@ -19,19 +18,39 @@ export const SidebarDetailBlock = Object.freeze({
 	none: '',
 });
 
-export const SidebarFileTypes = Object.freeze({
+export const SidebarFileGroups = Object.freeze({
 	media: 'media',
 	audio: 'audio',
-	document: 'document',
-	other: 'other',
+	file: 'file',
 	brief: 'brief',
 	fileUnsorted: 'fileUnsorted',
 });
 
-export const SidebarFileTabTypes = Object.freeze({
-	[SidebarFileTypes.media]: SidebarFileTypes.media,
-	[SidebarFileTypes.audio]: SidebarFileTypes.audio,
-	[SidebarFileTypes.document]: SidebarFileTypes.document,
-	[SidebarFileTypes.brief]: SidebarFileTypes.brief,
-	[SidebarFileTypes.other]: SidebarFileTypes.other,
+export const SidebarFileTabGroups = Object.freeze({
+	[SidebarFileGroups.media]: SidebarFileGroups.media,
+	[SidebarFileGroups.file]: SidebarFileGroups.file,
+	[SidebarFileGroups.audio]: SidebarFileGroups.audio,
+	[SidebarFileGroups.brief]: SidebarFileGroups.brief,
 });
+
+export const SidebarMainPanelBlock = {
+	support: 'support',
+	chat: 'chat',
+	notes: 'notes',
+	user: 'user',
+	copilot: 'copilot',
+	copilotInfo: 'copilotInfo',
+	info: 'info',
+	post: 'post',
+	fileList: 'fileList',
+	fileUnsortedList: 'fileUnsortedList',
+	task: 'task',
+	taskList: 'taskList',
+	meetingList: 'meetingList',
+	marketAppList: 'marketAppList',
+	multidialog: 'multidialog',
+	tariffLimit: 'tariffLimit',
+	collabHelpdesk: 'collabHelpdesk',
+};
+
+export type SidebarMainPanelBlockType = $Keys<typeof SidebarMainPanelBlock>;

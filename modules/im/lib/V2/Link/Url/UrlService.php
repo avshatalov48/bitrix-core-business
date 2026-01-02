@@ -88,6 +88,20 @@ class UrlService
 		return $this->deleteUrls($urls);
 	}
 
+	public function deleteUrlsByMessages(MessageCollection $messages): Result
+	{
+		$result = new Result();
+
+		$urls = $this->getUrlsByMessages($messages);
+
+		if (count($urls) === 0)
+		{
+			return $result;
+		}
+
+		return $this->deleteUrls($urls);
+	}
+
 	public function deleteUrls(UrlCollection $urls): Result
 	{
 		$deleteResult = $urls->delete();
@@ -156,6 +170,15 @@ class UrlService
 			->fetchCollection();
 
 		return (new UrlCollection($urlEntities))->fillMetadata();
+	}
+
+	protected function getUrlsByMessages(MessageCollection $messages): UrlCollection
+	{
+		$urlEntities = LinkUrlTable::query()
+			->setSelect(['*'])
+			->whereIn('MESSAGE_ID', $messages->getIds())
+			->fetchCollection();
+		return (new UrlCollection($urlEntities));
 	}
 
 	protected function initUrlsByMessage(Message $message): UrlCollection

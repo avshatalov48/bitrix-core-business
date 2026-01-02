@@ -43,7 +43,7 @@ class SendCollabLeaveMessageStepper extends Stepper
 		foreach ($collabSlice as $collabId)
 		{
 			$factory->getActionMessage(ActionType::ExcludeUser, $collabId, $whoFiredId)
-				->runAction([$firedId]);
+				->send([$firedId]);
 		}
 
 		return static::CONTINUE_EXECUTION;

@@ -89,6 +89,11 @@ class CPerfomanceSQL
 			case 'MODULE_NAME':
 			case 'COMPONENT_NAME':
 			case 'NODE_ID':
+			case 'SELECTED_ROWS':
+			case 'SELECTED_FIELDS':
+			case 'FETCHED_ROWS':
+			case 'FETCHED_LENGTH':
+			case 'HAS_BIG_FIELDS':
 				if ($bGroup)
 				{
 					$arQueryGroup[$strColumn] = 's.' . $strColumn;
@@ -112,10 +117,10 @@ class CPerfomanceSQL
 				}
 				break;
 			case 'COUNT':
-				if ($bGroup)
-				{
+				// if ($bGroup)
+				// {
 					$arQuerySelect[$strColumn] = 'COUNT(s.ID) ' . $strColumn;
-				}
+				// }
 				break;
 			}
 		}
@@ -159,9 +164,39 @@ class CPerfomanceSQL
 				'FIELD_TYPE' => 'int',
 				'JOIN' => false,
 			],
+			'SELECTED_ROWS' => [
+				'TABLE_ALIAS' => 's',
+				'FIELD_NAME' => 's.SELECTED_ROWS',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+			'SELECTED_FIELDS' => [
+				'TABLE_ALIAS' => 's',
+				'FIELD_NAME' => 's.SELECTED_FIELDS',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+			'FETCHED_ROWS' => [
+				'TABLE_ALIAS' => 's',
+				'FIELD_NAME' => 's.FETCHED_ROWS',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+			'FETCHED_LENGTH' => [
+				'TABLE_ALIAS' => 's',
+				'FIELD_NAME' => 's.FETCHED_LENGTH',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+			'HAS_BIG_FIELDS' => [
+				'TABLE_ALIAS' => 's',
+				'FIELD_NAME' => 's.HAS_BIG_FIELDS',
+				'FIELD_TYPE' => 'string',
+				'JOIN' => false,
+			],
 		]);
 
-		if (count($arQuerySelect) < 1)
+		if (empty($arQuerySelect))
 		{
 			$arQuerySelect = ['ID' => 's.ID'];
 		}
@@ -172,7 +207,23 @@ class CPerfomanceSQL
 		}
 		$strQueryWhere = $obQueryWhere->GetQuery($arFilter);
 
-		if (is_array($arNavStartParams) && ($arNavStartParams['nTopCount'] ?? 0) > 0)
+		if (is_array($arNavStartParams) && isset($arNavStartParams['nOffset']) && isset($arNavStartParams['nTopCount']))
+		{
+			$connection = \Bitrix\Main\Application::getConnection();
+			$sqlHelper = $connection->getSqlHelper();
+			$strSql = '
+				SELECT ' . implode(', ', $arQuerySelect) . '
+				FROM b_perf_sql s
+				' . $obQueryWhere->GetJoins() . '
+				' . ($strQueryWhere ? 'WHERE ' . $strQueryWhere : '') . '
+				' . ($bGroup ? 'GROUP BY ' . implode(', ', $arQueryGroup) : '') . '
+				' . (count($arQueryOrder) ? 'ORDER BY ' . implode(', ', $arQueryOrder) : '') . '
+			';
+			$strSql = $sqlHelper->getTopSql($strSql, $arNavStartParams['nTopCount'], $arNavStartParams['nOffset']);
+
+			$res = $DB->Query($strSql);
+		}
+		elseif (is_array($arNavStartParams) && ($arNavStartParams['nTopCount'] ?? 0) > 0)
 		{
 			$strSql = $DB->TopSQL('
 				SELECT ' . implode(', ', $arQuerySelect) . '

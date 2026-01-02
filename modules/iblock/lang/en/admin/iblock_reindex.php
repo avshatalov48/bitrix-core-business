@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_REINDEX_IN_PROGRESS"] = "Reindexing...";
 $MESS["IBLOCK_REINDEX_TOTAL"] = "Items reindexed:";
 $MESS["IBLOCK_REINDEX_COMPLETE"] = "Index has been created.";
@@ -13,4 +13,3 @@ $MESS["IBLOCK_REINDEX_CONTINUE_BUTTON"] = "Continue";
 $MESS["IBLOCK_REINDEX_STOP_BUTTON"] = "Stop";
 $MESS["IBLOCK_REINDEX_TOTAL_COMPLETE"] = "All indexes have been created.";
 $MESS["IBLOCK_REINDEX_DEACTIVE"] = "deactivated";
-?>

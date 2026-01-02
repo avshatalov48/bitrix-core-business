@@ -46,10 +46,13 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 	public function executeComponent()
 	{
+		$this->arResult['PATH_TO'] = $this->arParams['PATH_TO'] ?? [];
+
 		if (!$this->checkStoreAccessRights())
 		{
 			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('STORE_LIST_NO_VIEW_RIGHTS_ERROR');
 			$this->includeComponentTemplate();
+
 			return;
 		}
 
@@ -60,7 +63,6 @@ class CatalogStoreAdminList extends CBitrixComponent
 		$this->arResult['GRID'] = $this->prepareGrid();
 		$this->prepareToolbar();
 
-		$this->arResult['PATH_TO'] = $this->arParams['PATH_TO'] ?? [];
 		$this->arResult['TARIFF_HELP_LINK'] = Catalog\Config\Feature::getMultiStoresHelpLink();
 
 		$this->includeComponentTemplate();
@@ -354,24 +356,25 @@ class CatalogStoreAdminList extends CBitrixComponent
 		$button = null;
 		if ($this->checkStoreModifyRights())
 		{
-			$buttonConfig = null;
+			$buttonConfig = [
+				'text' => Loc::getMessage('STORE_LIST_ADD_STORE_BUTTON'),
+			];
+
 			if (Catalog\Config\State::isAllowedNewStore())
 			{
-				$buttonConfig = [
-					'onclick' => 'BX.Catalog.Store.Grid.openStoreCreation',
-				];
+				$buttonConfig['onclick'] = 'BX.Catalog.Store.Grid.openStoreCreation';
 			}
 			else
 			{
 				$helpLink = Catalog\Config\Feature::getMultiStoresHelpLink();
+
 				if (!empty($helpLink))
 				{
 					\Bitrix\Main\Loader::includeModule('ui');
 					\Bitrix\Main\UI\Extension::load(['ui.info-helper']);
-					$buttonConfig = [
-						'click' => 'BX.Catalog.Store.Grid.openTariffHelp',
-					];
+					$buttonConfig['click'] = 'BX.Catalog.Store.Grid.openTariffHelp';
 				}
+
 				unset($helpLink);
 			}
 
@@ -469,7 +472,7 @@ class CatalogStoreAdminList extends CBitrixComponent
 		return $siteTitle;
 	}
 
-	private function getListFilter()
+	private function getListFilter(): array
 	{
 		$filterOptions = new \Bitrix\Main\UI\Filter\Options($this->filter->getID());
 		$filterFields = $this->filter->getFieldArrays();
@@ -485,7 +488,21 @@ class CatalogStoreAdminList extends CBitrixComponent
 		$allowedStores = $this->accessController->getPermissionValue(ActionDictionary::ACTION_STORE_VIEW) ?? [];
 		if (!in_array(PermissionDictionary::VALUE_VARIATION_ALL, $allowedStores, true))
 		{
-			$filter['=ID'] = $allowedStores;
+			$innerFilter = [
+				'LOGIC' => 'OR',
+			];
+
+			if (!empty($allowedStores))
+			{
+				$innerFilter[] = ['@ID' => $allowedStores];
+			}
+
+			if ($this->checkStoreModifyRights())
+			{
+				$innerFilter[] = ['=USER_ID' => $this->accessController->getUser()->getUserId()];
+			}
+
+			$filter[] = $innerFilter;
 		}
 
 		return $filter;
@@ -493,12 +510,12 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 	private function processAction()
 	{
-		$this->arResult['ERROR_MESSAGES'] = [];
-		if (!$this->checkStoreAccessRights())
+		if (!check_bitrix_sessid())
 		{
-			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('STORE_LIST_NO_VIEW_RIGHTS_ERROR');
-			$this->endResponseWithErrors();
+			return;
 		}
+
+		$this->arResult['ERROR_MESSAGES'] = [];
 
 		$action = $this->request->get('action');
 		if ($action)
@@ -520,7 +537,21 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 	private function processSingleAction($action)
 	{
-		if (!$this->checkStoreModifyRights())
+		$rawStoreId = $this->request->get('storeId');
+
+		if (!is_string($rawStoreId))
+		{
+			return;
+		}
+
+		$storeId = (int)$rawStoreId;
+
+		if (!$storeId)
+		{
+			return;
+		}
+
+		if (!$this->checkSpecificStoreModifyRights($storeId))
 		{
 			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('STORE_LIST_NO_VIEW_RIGHTS_ERROR');
 
@@ -529,21 +560,10 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 		if ($action === 'delete')
 		{
-			$storeId = $this->request->get('storeId');
-			if (!$storeId)
-			{
-				return;
-			}
-
-			$isDefaultStore = StoreTable::getList([
-				'select' => ['IS_DEFAULT'],
-				'filter' => ['=ID' => $storeId],
-				'limit' => 1,
-			])->fetch()['IS_DEFAULT'] === 'Y';
-
-			if ($isDefaultStore)
+			if ($this->isDefaultStore($storeId))
 			{
 				$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('STORE_LIST_ACTION_DEFAULT_STORE_DELETE_ERROR');
+
 				return;
 			}
 
@@ -569,12 +589,6 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 		if ($action === 'activate')
 		{
-			$storeId = $this->request->get('storeId');
-			if (!$storeId)
-			{
-				return;
-			}
-
 			global $APPLICATION;
 			$APPLICATION->ResetException();
 
@@ -597,21 +611,10 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 		if ($action === 'deactivate')
 		{
-			$storeId = $this->request->get('storeId');
-			if (!$storeId)
-			{
-				return;
-			}
-
-			$isDefaultStore = StoreTable::getList([
-				'select' => ['IS_DEFAULT'],
-				'filter' => ['=ID' => $storeId],
-				'limit' => 1,
-			])->fetch()['IS_DEFAULT'] === 'Y';
-
-			if ($isDefaultStore)
+			if ($this->isDefaultStore($storeId))
 			{
 				$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('STORE_LIST_ACTION_DEFAULT_STORE_DEACTIVATE_ERROR');
+
 				return;
 			}
 
@@ -637,14 +640,8 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 		if ($action === 'setdefault')
 		{
-			$storeId = $this->request->get('storeId');
-			if (!$storeId)
-			{
-				return;
-			}
-
 			$defaultStoreId = (int)StoreTable::getDefaultStoreId();
-			if ((int)$storeId === $defaultStoreId)
+			if ($storeId === $defaultStoreId)
 			{
 				return;
 			}
@@ -713,22 +710,32 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 	private function processGroupAction($action)
 	{
-		if (!$this->checkStoreModifyRights())
-		{
-			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('STORE_LIST_NO_VIEW_RIGHTS_ERROR');
-
-			return;
-		}
-
 		if ($action === 'delete' && is_array($this->request->get('ID')))
 		{
 			global $APPLICATION;
 
 			$defaultStoreId = StoreTable::getDefaultStoreId();
 
-			foreach ($this->request->get('ID') as $storeId)
+			foreach ($this->request->get('ID') as $rawStoreId)
 			{
-				$isDefaultStore = $defaultStoreId === (int)$storeId;
+				if (!is_string($rawStoreId))
+				{
+					return;
+				}
+
+				$storeId = (int)$rawStoreId;
+
+				if (!$storeId)
+				{
+					return;
+				}
+
+				if (!$this->checkSpecificStoreModifyRights($storeId))
+				{
+					continue;
+				}
+
+				$isDefaultStore = $defaultStoreId === $storeId;
 				if ($isDefaultStore)
 				{
 					$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('STORE_LIST_ACTION_DEFAULT_STORE_DELETE_ERROR');
@@ -767,14 +774,37 @@ class CatalogStoreAdminList extends CBitrixComponent
 	private function checkStoreAccessRights(): bool
 	{
 		return
-			$this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)
-			&& $this->accessController->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS)
-			&& $this->accessController->check(ActionDictionary::ACTION_STORE_VIEW)
+			$this->checkStoreModifyRights()
+			|| (
+				$this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+				&& $this->accessController->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS)
+				&& $this->accessController->check(ActionDictionary::ACTION_STORE_VIEW)
+			)
 		;
 	}
 
 	private function checkStoreModifyRights(): bool
 	{
-		return AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_MODIFY);
+		return $this->accessController->check(ActionDictionary::ACTION_STORE_MODIFY);
+	}
+
+	private function checkSpecificStoreModifyRights(int $storeId): bool
+	{
+		$creatorId = StoreTable::getStoreCreatorId($storeId);
+
+		return
+			$this->accessController->check(ActionDictionary::ACTION_STORE_MODIFY)
+			&& (
+				$this->accessController->checkByValue(ActionDictionary::ACTION_STORE_VIEW, (string)$storeId)
+				|| $creatorId === $this->accessController->getUser()->getUserId()
+			)
+		;
+	}
+
+	private function isDefaultStore(int $storeId): bool
+	{
+		$defaultStoreId = StoreTable::getDefaultStoreId();
+
+		return $defaultStoreId === $storeId;
 	}
 }

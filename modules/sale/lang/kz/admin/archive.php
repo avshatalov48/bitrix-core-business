@@ -1,0 +1,22 @@
+<?php
+$MESS["ARCHIVE_ALL"] = "(барлығы)";
+$MESS["ARCHIVE_ARCHIVE_BUTTON"] = "Мұрағаттау";
+$MESS["ARCHIVE_BLOCKED_ORDER_ACCEPT"] = "Бұғатталған тапсырыстарды мұрағаттауға рұқсат беру";
+$MESS["ARCHIVE_CANCELED"] = "Тапсырыс күйі \"Болдырылмады\"";
+$MESS["ARCHIVE_COMPLETE"] = "Мұрағаттау аяқталды";
+$MESS["ARCHIVE_CONTINUE"] = "Жалғастыру";
+$MESS["ARCHIVE_DEDUCTED"] = "Тапсырыс күйі \"Жөнелтілді\"";
+$MESS["ARCHIVE_IN_PROGRESS"] = "Мұрағаттау процесі жүріп жатыр";
+$MESS["ARCHIVE_NEXT_STEP"] = "Келесі қадам";
+$MESS["ARCHIVE_NO"] = "жоқ";
+$MESS["ARCHIVE_PAYED"] = "Тапсырыс күйі \"Төленген\"";
+$MESS["ARCHIVE_PERIOD"] = "Қанша уақыттан (күн) кейін мұрағатқа жіберу керек";
+$MESS["ARCHIVE_SITE"] = "Сайт";
+$MESS["ARCHIVE_STATUS"] = "Тапсырыс мәртебелері";
+$MESS["ARCHIVE_STEP"] = "Қадам";
+$MESS["ARCHIVE_STEP_ORDER"] = "секунд";
+$MESS["ARCHIVE_STOP"] = "Тоқтату";
+$MESS["ARCHIVE_TAB"] = "Тапсырыстарды мұрағаттау";
+$MESS["ARCHIVE_TITLE"] = "Тапсырыстарды мұрағаттау";
+$MESS["ARCHIVE_TOTAL"] = "Тапсырыстар мұрағатына ауыстырылды:";
+$MESS["ARCHIVE_YES"] = "иә";

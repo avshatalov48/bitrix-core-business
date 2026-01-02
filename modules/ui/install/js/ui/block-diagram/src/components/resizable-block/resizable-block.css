@@ -1,0 +1,107 @@
+.ui-block-diagram-resizable-block {
+	position: absolute;
+	box-sizing: border-box;
+	z-index: -1;
+}
+
+.ui-block-diagram-resizable-block__container {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.ui-block-diagram-resizable-block__left-side {
+	position: absolute;
+	top: 2px;
+	bottom: 2px;
+	left: -2px;
+	z-index: 1;
+	width: 4px;
+	background-color: transparent;
+	cursor: ew-resize;
+	user-select: none;
+}
+
+.ui-block-diagram-resizable-block__top-side {
+	position: absolute;
+	left: 2px;
+	right: 2px;
+	top: -2px;
+	z-index: 1;
+	height: 4px;
+	background-color: transparent;
+	cursor: ns-resize;
+	user-select: none;
+}
+
+.ui-block-diagram-resizable-block__right-side {
+	position: absolute;
+	top: 2px;
+	bottom: 2px;
+	right: -2px;
+	z-index: 1;
+	width: 4px;
+	background-color: transparent;
+	cursor: ew-resize;
+	user-select: none;
+}
+
+.ui-block-diagram-resizable-block__bottom-side {
+	position: absolute;
+	left: 2px;
+	right: 2px;
+	bottom: -2px;
+	z-index: 1;
+	height: 4px;
+	background-color: transparent;
+	cursor: ns-resize;
+	user-select: none;
+}
+
+.ui-block-diagram-resizable-block__top-left-corner {
+	position: absolute;
+	top: -2px;
+	left: -2px;
+	z-index: 1;
+	width: 10px;
+	height: 10px;
+	background-color: transparent;
+	cursor: nwse-resize;
+	user-select: none;
+}
+
+.ui-block-diagram-resizable-block__top-right-corner {
+	position: absolute;
+	top: -2px;
+	right: -2px;
+	z-index: 1;
+	width: 10px;
+	height: 10px;
+	background-color: transparent;
+	cursor: nesw-resize;
+	user-select: none;
+}
+
+.ui-block-diagram-resizable-block__bottom-right-corner {
+	position: absolute;
+	bottom: -2px;
+	right: -2px;
+	z-index: 1;
+	width: 10px;
+	height: 10px;
+	background-color: transparent;
+	cursor: nwse-resize;
+	user-select: none;
+}
+
+.ui-block-diagram-resizable-block__bottom-left-corner {
+	position: absolute;
+	bottom: -2px;
+	left: -2px;
+	z-index: 1;
+	width: 10px;
+	height: 10px;
+	background-color: transparent;
+	cursor: nesw-resize;
+	user-select: none;
+}

@@ -105,6 +105,13 @@ class CBPSchedulerService extends CBPRuntimeService
 					self::addAgent($workflowId, $eventName, $expiresAt, $counter);
 				}
 			}
+			elseif (
+				$e->getCode() !== \CBPRuntime::EXCEPTION_CODE_INSTANCE_NOT_FOUND
+				&& $e->getCode() !== \CBPRuntime::EXCEPTION_CODE_INSTANCE_TARIFF_LIMIT_EXCEED
+			)
+			{
+				self::logUnknownException($e);
+			}
 		}
 	}
 
@@ -272,6 +279,10 @@ class CBPSchedulerService extends CBPRuntimeService
 					$lastEvent['TO_METHOD_ARG']
 				);
 			}
+			elseif ($e->getCode() !== \CBPRuntime::EXCEPTION_CODE_INSTANCE_NOT_FOUND)
+			{
+				self::logUnknownException($e);
+			}
 		}
 	}
 
@@ -350,13 +361,20 @@ class CBPSchedulerService extends CBPRuntimeService
 		}
 		catch (Exception $e)
 		{
-			if ($e->getCode() === \CBPRuntime::EXCEPTION_CODE_INSTANCE_NOT_FOUND)
+			if (
+				$e->getCode() === \CBPRuntime::EXCEPTION_CODE_INSTANCE_NOT_FOUND
+				|| $e->getCode() === \CBPRuntime::EXCEPTION_CODE_INSTANCE_TARIFF_LIMIT_EXCEED
+			)
 			{
 				SchedulerEventTable::delete($event['ID']);
 			}
 			elseif ($e->getCode() === \CBPRuntime::EXCEPTION_CODE_INSTANCE_LOCKED)
 			{
 				self::addEventRepeatAgent($event, $counter);
+			}
+			else
+			{
+				self::logUnknownException($e);
 			}
 		}
 	}
@@ -421,5 +439,10 @@ class CBPSchedulerService extends CBPRuntimeService
 			return time() + [0 => (1 * $minute), 1 => (5 * $minute), 2 => (10 * $minute)][$counter];
 		}
 		return false;
+	}
+
+	private static function logUnknownException(Throwable $exception): void
+	{
+		\Bitrix\Main\Application::getInstance()->getExceptionHandler()->writeToLog($exception);
 	}
 }

@@ -53,11 +53,10 @@
 								<p>Chef</p>
 							</div>
 							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
-								George
-								Freeman</h2>
+								George Freeman
+							</h2>
 							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
-								<p>
-									Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 							</div>
 						</div>
 					</figcaption>
@@ -76,12 +75,10 @@
 								<p>Chef</p>
 							</div>
 							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
-								Hilary
-								Johnson</h2>
+								Hilary Johnson
+							</h2>
 							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
-								<p>
-									Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-								</p>
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 							</div>
 						</div>
 					</figcaption>
@@ -100,12 +97,10 @@
 								<p>Chef</p>
 							</div>
 							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
-								Alice
-								Regen</h2>
+								Alice Regen
+							</h2>
 							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
-								<p>
-									Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-								</p>
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 							</div>
 						</div>
 					</figcaption>
@@ -124,12 +119,10 @@
 								<p>Chef</p>
 							</div>
 							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
-								Kate
-								Dolli</h2>
+								Kate Dolli
+							</h2>
 							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
-								<p>
-									Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-								</p>
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 							</div>
 						</div>
 					</figcaption>
@@ -148,12 +141,10 @@
 								<p>Chef</p>
 							</div>
 							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
-								Mona
-								Watson</h2>
+								Mona Watson
+							</h2>
 							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
-								<p>
-									Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-								</p>
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 							</div>
 						</div>
 					</figcaption>
@@ -172,12 +163,9 @@
 								<p>Chef</p>
 							</div>
 							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
-								Edward
-								Luma</h2>
+								Edward Luma</h2>
 							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
-								<p>
-									Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-								</p>
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 							</div>
 						</div>
 					</figcaption>
@@ -196,12 +184,10 @@
 								<p>Chef</p>
 							</div>
 							<h2 class="landing-block-node-member-name text-uppercase g-font-weight-700 g-color-white g-mb-15">
-								Shadiah
-								Dolumn</h2>
+								Shadiah Dolumn
+							</h2>
 							<div class="landing-block-node-member-text g-color-white-opacity-0_7 g-mb-20 g-px-10">
-								<p>
-									Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-								</p>
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 							</div>
 						</div>
 					</figcaption>

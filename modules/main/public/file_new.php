@@ -10,8 +10,6 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_bef
  * @global CMain $APPLICATION
  */
 
-$module_id = "fileman";
-
 //Functions
 function BXCreateSection(&$fileContent, &$sectionFileContent, &$absoluteFilePath, &$sectionPath)
 {
@@ -44,14 +42,7 @@ function BXCreateSection(&$fileContent, &$sectionFileContent, &$absoluteFilePath
 	{
 		if(COption::GetOptionString("fileman", "log_page", "Y")=="Y")
 		{
-			$res_log['path'] = $sectionPath."/index.php";
-			CEventLog::Log(
-				"content",
-				"PAGE_ADD",
-				"main",
-				"",
-				serialize($res_log)
-			);
+			CEventLog::Log("content", "PAGE_ADD", "fileman", $sectionPath . "/index.php");
 		}
 	}
 
@@ -391,25 +382,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 	}
 	else
 	{
-		if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
+		if(COption::GetOptionString("fileman", "log_page", "Y")=="Y")
 		{
-			$res_log['path'] = mb_substr($arUndoParams['arContent']['path'], 1);
-			if (!$createNewFolder)
-				CEventLog::Log(
-					"content",
-					"PAGE_ADD",
-					"main",
-					"",
-					serialize($res_log)
-				);
-			else
-				CEventLog::Log(
-					"content",
-					"SECTION_ADD",
-					"main",
-					"",
-					serialize($res_log)
-				);
+			CEventLog::Log("content", ($createNewFolder ? "SECTION_ADD" : "PAGE_ADD"), "fileman", $arUndoParams['arContent']['path']);
 		}
 		// Limit access
 		if (isset($_REQUEST["limitAccess"]) && $_REQUEST["limitAccess"] == "Y")
@@ -475,19 +450,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 				'menuPath' => $relativePath
 			);
 
-			if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
+			if(COption::GetOptionString("fileman", "log_page", "Y")=="Y")
 			{
-				$mt = COption::GetOptionString("fileman", "menutypes", $default_value, $site);
-				$mt = unserialize(str_replace("\\", "", $mt), ['allowed_classes' => false]);
-				$res_log['menu_name'] = $mt[$menuType];
-				$res_log['path'] = mb_substr(dirname($arUndoParams['arContent']['path']), 1);
-				CEventLog::Log(
-					"content",
-					"MENU_EDIT",
-					"main",
-					"",
-					serialize($res_log)
-				);
+				CEventLog::Log("content", "MENU_EDIT", "fileman", $menuFile);
 			}
 		}
 

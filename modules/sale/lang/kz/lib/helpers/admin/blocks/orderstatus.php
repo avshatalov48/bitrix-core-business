@@ -1,0 +1,23 @@
+<?php
+$MESS["SALE_ORDER_GUEST_PATH"] = "Тапсырыс ID(#ID#) | №#ACCOUNT_NUMBER#";
+$MESS["SALE_ORDER_GUEST_VIEW"] = "Жария сілтеме";
+$MESS["SALE_ORDER_STATUS"] = "Тапсырыс мәртебесі";
+$MESS["SALE_ORDER_STATUS_AFFILIATE"] = "Аффилиат";
+$MESS["SALE_ORDER_STATUS_ARCHIVED"] = "Мұрағатқа ауыстырылды";
+$MESS["SALE_ORDER_STATUS_CANCEL"] = "Тапсырысты болдырмау";
+$MESS["SALE_ORDER_STATUS_CANCELED"] = "Тапсырыстан бас тартылды";
+$MESS["SALE_ORDER_STATUS_CANCELING"] = "Тапсырысты болдырмау";
+$MESS["SALE_ORDER_STATUS_CANCELING_REASON"] = "Болдырмау себебі";
+$MESS["SALE_ORDER_STATUS_CANCEL_CANCEL"] = "Тапсырысты болдырмауды болдырмау";
+$MESS["SALE_ORDER_STATUS_CANCEL_ERROR"] = "Тапсырысты болдырмау қатесі";
+$MESS["SALE_ORDER_STATUS_CHANGED_SUCCESS"] = "Тапсырыс мәртебесі сәтті өзгертілді";
+$MESS["SALE_ORDER_STATUS_CHANGE_ERROR"] = "Тапсырыс мәртебесін өзгерту қатесі";
+$MESS["SALE_ORDER_STATUS_COMMENT"] = "Түсініктеме";
+$MESS["SALE_ORDER_STATUS_CREATED"] = "Жасалды";
+$MESS["SALE_ORDER_STATUS_LAST_MODIF"] = "Соңғы өзгеріс";
+$MESS["SALE_ORDER_STATUS_SAVE"] = "Сақтау";
+$MESS["SALE_ORDER_STATUS_SITE"] = "Сайт";
+$MESS["SALE_ORDER_STATUS_SOURCE"] = "Тапсырыс көзі";
+$MESS["SALE_ORDER_STATUS_TOGGLE"] = "орау";
+$MESS["SALE_ORDER_STATUS_USER_CAN_VIEW"] = "сатып алушы көре алады";
+$MESS["SALE_ORDER_WRONG_GUEST_PATH"] = "Тапсырыс парақшасына жол қалыбы дұрыс емес. Модуль баптауларында <a target=\"_blank\" href=\"/bitrix/admin/settings.php?lang=#LANGUAGE_ID#&mid=sale#guest_order_view_block\"> жолын тексеріңіз";

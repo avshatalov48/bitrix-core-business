@@ -550,27 +550,31 @@ abstract class DataManager extends Entity\DataManager
 
 	protected static function convertValuesBeforeSave($data, $userfields)
 	{
-		$multiValues = array();
+		$multiValues = [];
 
 		foreach ($data as $k => $v)
 		{
-			if ($k == 'ID')
+			if ($k === 'ID')
 			{
 				continue;
 			}
 
 			$userfield = $userfields[$k];
 
-			if ($userfield['MULTIPLE'] == 'N')
+			if ($userfield['MULTIPLE'] === 'N')
 			{
-				$inputValue = array($v);
+				$inputValue = [$v];
 			}
 			else
 			{
 				$inputValue = $v;
 			}
+			if (!is_array($inputValue))
+			{
+				$inputValue = [$inputValue];
+			}
 
-			$tmpValue = array();
+			$tmpValue = [];
 
 			foreach ($inputValue as $singleValue)
 			{
@@ -578,7 +582,7 @@ abstract class DataManager extends Entity\DataManager
 			}
 
 			// write value back
-			if ($userfield['MULTIPLE'] == 'N')
+			if ($userfield['MULTIPLE'] === 'N')
 			{
 				$data[$k] = $tmpValue[0];
 			}
@@ -592,7 +596,7 @@ abstract class DataManager extends Entity\DataManager
 			}
 		}
 
-		return array($data, $multiValues);
+		return [$data, $multiValues];
 	}
 
 	/**
@@ -605,7 +609,7 @@ abstract class DataManager extends Entity\DataManager
 	{
 		if (!isset($userfield['USER_TYPE']) || !is_array($userfield['USER_TYPE']))
 		{
-			$userfield['USER_TYPE'] = array();
+			$userfield['USER_TYPE'] = [];
 		}
 
 		if (
@@ -614,7 +618,8 @@ abstract class DataManager extends Entity\DataManager
 		)
 		{
 			$value = call_user_func_array(
-				array($userfield['USER_TYPE']['CLASS_NAME'], 'onbeforesave'), array($userfield, $value)
+				[$userfield['USER_TYPE']['CLASS_NAME'], 'onbeforesave'],
+				[$userfield, $value]
 			);
 		}
 

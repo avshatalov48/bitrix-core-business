@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Calendar\Controller;
 
+use Bitrix\Bitrix24\Feature;
 use Bitrix\Calendar\Access\EventAccessController;
 use Bitrix\Calendar\Access\Model\SectionModel;
 use Bitrix\Calendar\Access\Model\TypeModel;
@@ -323,7 +324,10 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 			if (Loader::includeModule('socialnetwork'))
 			{
-				$sections = \CCalendarSect::getSuperposedList(['GROUPS' => $groupIds]);
+				if (!empty($groupIds))
+				{
+					$sections = \CCalendarSect::getSuperposedList(['GROUPS' => $groupIds]);
+				}
 
 				foreach ($groupIds as $groupId)
 				{
@@ -398,15 +402,6 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			$sections = [];
 		}
 
-		if ($type === 'groups')
-		{
-			UserSettings::setTrackingGroups($userId, $request->get('groupIdList'));
-		}
-		else if ($type === 'collabs')
-		{
-			UserSettings::setTrackingCollabs($userId, $request->get('collabIdList'));
-		}
-
 		\CCalendar::setDisplayedSuperposed($userId, $sections);
 
 		return [];
@@ -438,8 +433,12 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 		if ($entryId > 0)
 		{
-			$fromTs = !empty($_REQUEST['date_from_offset']) ? \CCalendar::Timestamp($_REQUEST['date_from'])
-				- $_REQUEST['date_from_offset'] : \CCalendar::Timestamp($_REQUEST['date_from']);
+			$fromTs = \CCalendar::Timestamp($_REQUEST['date_from']);
+			if (!empty($_REQUEST['date_from_offset']))
+			{
+				$fromTs -= $_REQUEST['date_from_offset'];
+			}
+
 			$entry = \CCalendarEvent::getEventForEditInterface($entryId, ['eventDate' => \CCalendar::Date($fromTs)]);
 			$entryId = is_array($entry) && isset($entry['ID']) ? (int)$entry['ID'] : $entryId;
 		}
@@ -456,6 +455,10 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			$responseParams['entry'] = $entry;
 			$responseParams['timezoneHint'] = !empty($entry) ? Util::getTimezoneHint($userId, $entry) : '';
 			$responseParams['timezoneList'] = \CCalendar::GetTimezoneList();
+			$responseParams['absenceAvailable'] = (!\CCalendar::IsBitrix24()
+				|| \COption::GetOptionString("bitrix24",  "absence_limits_enabled", "") !== "Y"
+				|| Feature::isFeatureEnabled("absence"))
+			;
 			$responseParams['formSettings'] = UserSettings::getFormSettings($formType);
 			$isOpenEvent = $type === Dictionary::CALENDAR_TYPE['open_event'];
 			$isCollabUser = Util::isCollabUser($userId);
@@ -558,6 +561,20 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 				{
 					$responseParams['sections'][] = $section;
 				}
+			}
+
+			if (
+				empty($responseParams['sections'])
+				&& $type === Dictionary::CALENDAR_TYPE['user']
+				&& !empty($ownerId)
+			)
+			{
+				$responseParams['sections'][] = \CCalendarSect::createDefault([
+					'type' => $type,
+					'ownerId' => $ownerId
+				]);
+
+				\CCalendarSect::setClearOperationCache();
 			}
 
 			$responseParams['dayOfWeekMonthFormat'] = (

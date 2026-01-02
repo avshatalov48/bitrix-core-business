@@ -7,19 +7,19 @@
  */
 namespace Bitrix\Main\Access\Role;
 
-use Bitrix\Main\Entity;
 use Bitrix\Main\Access\Entity\DataManager;
+use Bitrix\Main\ORM\Fields;
 
 abstract class AccessRoleTable extends DataManager
 {
 	public static function getMap()
 	{
 		return [
-			new Entity\IntegerField('ID', [
+			new Fields\IntegerField('ID', [
 				'autocomplete' => true,
 				'primary' => true
 			]),
-			new Entity\StringField('NAME', [
+			new Fields\StringField('NAME', [
 				'required' => true,
 			])
 		];

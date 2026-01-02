@@ -31,6 +31,9 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 			<option value="random"<?= ($arCurrentValues['user_type'] == "random") ? " selected" : "" ?>><?= GetMessage("BPCRU_PD_TYPE_RANDOM") ?></option>
 			<option value="sequent"<?= ($arCurrentValues['user_type'] === "sequent") ? " selected" : "" ?>><?= GetMessage('BPCRU_PD_TYPE_ORDER') ?></option>
 			<option value="boss"<?= ($arCurrentValues['user_type'] == "boss") ? " selected" : "" ?>><?= GetMessage("BPCRU_PD_TYPE_BOSS") ?></option>
+			<?php if ($showLeadType): ?>
+			<option value="lead"<?= ($arCurrentValues['user_type'] === "lead") ? " selected" : "" ?>><?= GetMessage("BPCRU_PD_TYPE_LEAD") ?></option>
+			<?php endif; ?>
 		</select>
 	</td>
 </tr>

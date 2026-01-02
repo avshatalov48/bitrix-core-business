@@ -1,0 +1,17 @@
+<?php
+$MESS["MESSAGE_ENTITY_AUTHOR_ID_FIELD"] = "Автор";
+$MESS["MESSAGE_ENTITY_CHAT_ID_FIELD"] = "Чат идентификаторы";
+$MESS["MESSAGE_ENTITY_DATE_CREATE_FIELD"] = "Жасау уақыты";
+$MESS["MESSAGE_ENTITY_EMAIL_TEMPLATE_FIELD"] = "Пошталық қалып";
+$MESS["MESSAGE_ENTITY_ID_FIELD"] = "Бірегей идентификатор";
+$MESS["MESSAGE_ENTITY_IMPORT_ID_FIELD"] = "Сыртқы идентификатор";
+$MESS["MESSAGE_ENTITY_MESSAGE_FIELD"] = "Хабарлама";
+$MESS["MESSAGE_ENTITY_MESSAGE_OUT_FIELD"] = "Пішімделген хабарлама";
+$MESS["MESSAGE_ENTITY_NOTIFY_BUTTONS_FIELD"] = "Батырмалар";
+$MESS["MESSAGE_ENTITY_NOTIFY_EVENT_FIELD"] = "Оқиға өрісі";
+$MESS["MESSAGE_ENTITY_NOTIFY_MODULE_FIELD"] = "Нотификация модулі";
+$MESS["MESSAGE_ENTITY_NOTIFY_READ_FIELD"] = "Оқылды";
+$MESS["MESSAGE_ENTITY_NOTIFY_SUB_TAG_FIELD"] = "Қосымша нотификация тегі";
+$MESS["MESSAGE_ENTITY_NOTIFY_TAG_FIELD"] = "Нотификация тегі";
+$MESS["MESSAGE_ENTITY_NOTIFY_TITLE_FIELD"] = "Тақырыпаты";
+$MESS["MESSAGE_ENTITY_NOTIFY_TYPE_FIELD"] = "Нотификация түрі";

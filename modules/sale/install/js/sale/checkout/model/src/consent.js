@@ -1,176 +1,168 @@
-import {VuexBuilderModel} from 'ui.vue.vuex';
-import {Type} from 'main.core';
-import {Consent as Const} from 'sale.checkout.const';
+import { VuexBuilderModel } from 'ui.vue.vuex';
+import { Type } from 'main.core';
+import { Consent as Const } from 'sale.checkout.const';
 
 export class Consent extends VuexBuilderModel
 {
-    getName()
-    {
-        return 'consent';
-    }
+	getName()
+	{
+		return 'consent';
+	}
 
-    getState()
-    {
-        return {
-            status: Const.status.init,
-            consent: Consent.getBaseItem(),
-            errors: []
-        }
-    }
+	getState()
+	{
+		return {
+			status: Const.status.init,
+			consent: Consent.getBaseItem(),
+			errors: [],
+		};
+	}
 
-    static getBaseItem()
-    {
-        return {
-            id: 0,
-            title: '',
-            isLoaded: '',
-            autoSave: '',
-            isChecked: '',
-            submitEventName: '',
-            params: []
-        };
-    }
+	static getBaseItem()
+	{
+		return {
+			items: [],
+			title: '',
+			isLoaded: '',
+			autoSave: '',
+			submitEventName: '',
+			params: [],
+		};
+	}
 
-    validate(fields)
-    {
-        const result = {};
+	validate(fields)
+	{
+		const result = {};
 
-        if (Type.isString(fields.status))
-        {
-            result.status = fields.status.toString()
-        }
+		if (Type.isString(fields.status))
+		{
+			result.status = fields.status.toString();
+		}
 
-        if (Type.isObject(fields.consent))
-        {
-            result.consent = this.validateConsent(fields.consent);
-        }
+		if (Type.isObject(fields.consent))
+		{
+			result.consent = this.validateConsent(fields.consent);
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    validateConsent(fields)
-    {
-        const result = {};
+	validateConsent(fields)
+	{
+		const result = {};
 
-        if (Type.isNumber(fields.id) || Type.isString(fields.id))
-        {
-            result.id = parseInt(fields.id);
-        }
+		result.items = fields.items;
 
-        if (Type.isString(fields.title))
-        {
-            result.title = fields.title.toString();
-        }
+		if (Type.isString(fields.title))
+		{
+			result.title = fields.title.toString();
+		}
 
-        if (Type.isString(fields.isLoaded))
-        {
-            result.isLoaded = fields.isLoaded.toString();
-        }
+		if (Type.isString(fields.isLoaded))
+		{
+			result.isLoaded = fields.isLoaded.toString();
+		}
 
-        if (Type.isString(fields.autoSave))
-        {
-            result.autoSave = fields.autoSave.toString();
-        }
+		if (Type.isString(fields.autoSave))
+		{
+			result.autoSave = fields.autoSave.toString();
+		}
 
-        if (Type.isString(fields.isChecked))
-        {
-            result.isChecked = fields.isChecked.toString();
-        }
+		if (Type.isString(fields.submitEventName))
+		{
+			result.submitEventName = fields.submitEventName.toString();
+		}
 
-        if (Type.isString(fields.submitEventName))
-        {
-            result.submitEventName = fields.submitEventName.toString();
-        }
+		if (Type.isArrayFilled(fields.params))
+		{
+			result.params = this.validateParams(fields.params);
+		}
 
-        if (Type.isArrayFilled(fields.params))
-        {
-            result.params = this.validateParams(fields.params);
-        }
+		return result;
+	}
 
-        return result;
-    }
+	validateParams(fields)
+	{
+		const result = [];
+		try
+		{
+			for (const key in fields)
+			{
+				if (!fields.hasOwnProperty(key))
+				{
+					continue;
+				}
 
-    validateParams(fields)
-    {
-        const result = [];
-        try
-        {
-            for (let key in fields)
-            {
-                if (!fields.hasOwnProperty(key))
-                {
-                    continue;
-                }
+				if (Type.isNumber(fields[key]) || Type.isString(fields[key]))
+				{
+					result[key] = fields[key];
+				}
+			}
+		}
+		catch
+		{}
 
-                if (Type.isNumber(fields[key]) || Type.isString(fields[key]))
-                {
-                    result[key] = fields[key];
-                }
-            }
-        }
-        catch (e) {}
+		return result;
+	}
 
-        return result;
-    }
+	getActions()
+	{
+		return {
+			setStatus: ({ commit }, payload) => {
+				payload = this.validate({ status: payload });
 
-    getActions()
-    {
-        return {
-            setStatus: ({ commit }, payload) =>
-            {
-                payload = this.validate({status: payload});
+				const status = Object.values(Const.status);
 
-                const status = Object.values(Const.status);
+				payload.status = status.includes(payload.status) ? payload.status : Const.status.init;
 
-                payload.status = status.includes(payload.status) ? payload.status : Const.status.init;
+				commit('setStatus', payload);
+			},
 
-                commit('setStatus', payload);
-            },
+			set: ({ commit }, payload) => {
+				payload = this.validate({ consent: payload });
+				commit('set', payload);
+			},
 
-            set: ({ commit }, payload) =>
-            {
-                payload = this.validate({consent: payload});
-                commit('set', payload);
-            }
-        }
-    }
+			setChecked: ({ commit }, payload) => {
+				commit('setChecked', payload);
+			},
+		};
+	}
 
-    getGetters()
-    {
-        return {
-            getStatus: state =>
-            {
-                return state.status;
-            },
-            get: state =>
-            {
-                return state.consent;
-            },
-        }
-    }
+	getGetters()
+	{
+		return {
+			getStatus: (state) => {
+				return state.status;
+			},
+			get: (state) => {
+				return state.consent;
+			},
+		};
+	}
 
-    getMutations()
-    {
-        return {
-            setStatus: (state, payload) =>
-            {
-                state.status = payload.status;
-            },
+	getMutations()
+	{
+		return {
+			setStatus: (state, payload) => {
+				state.status = payload.status;
+			},
 
-            set: (state, payload) =>
-            {
-                let item = Consent.getBaseItem();
+			set: (state, payload) => {
+				const item = Consent.getBaseItem();
 
-                state.consent = Object.assign(item, payload.consent);
-            },
-            setErrors: (state, payload) =>
-            {
-                state.errors = payload;
-            },
-            clearErrors: (state) =>
-            {
-                state.errors = [];
-            }
-        }
-    }
+				state.consent = Object.assign(item, payload.consent);
+			},
+			setChecked: (state, payload) => {
+				const currentItem = state.consent.items.find((item) => parseInt(item.id, 10) === payload.id);
+				currentItem.checked = payload.checked;
+			},
+			setErrors: (state, payload) => {
+				state.errors = payload;
+			},
+			clearErrors: (state) => {
+				state.errors = [];
+			},
+		};
+	}
 }

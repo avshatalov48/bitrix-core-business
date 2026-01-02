@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2024 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 IncludeModuleLangFile(__FILE__);
@@ -15,24 +15,28 @@ class CFavorites extends CDBResult
 	{
 		global $USER;
 
-		if($url == "")
+		if ($url == "")
+		{
 			return 0;
+		}
 
 		$paresedUrl = CBXFavUrls::ParseDetail($url);
-		if($paresedUrl !== false)
+		if ($paresedUrl !== false)
 		{
 			$pathInfo = pathinfo($paresedUrl["path"]);
 
-			$dbFav = CFavorites::GetList(array(), array(
-				"URL" => "'%".$pathInfo["basename"]."%'",
+			$dbFav = CFavorites::GetList([], [
+				"URL" => "'%" . $pathInfo["basename"] . "%'",
 				"MENU_FOR_USER" => $USER->GetID(),
 				"LANGUAGE_ID" => LANGUAGE_ID,
-			));
-			while($arFav = $dbFav->Fetch())
-				if(CBXFavUrls::Compare($paresedUrl, $arFav["URL"]))
+			]);
+			while ($arFav = $dbFav->Fetch())
+			{
+				if (CBXFavUrls::Compare($paresedUrl, $arFav["URL"]))
 				{
 					return $arFav["ID"];
 				}
+			}
 		}
 
 		return 0;
@@ -43,15 +47,17 @@ class CFavorites extends CDBResult
 		global $DB;
 
 		$ID = intval($ID);
-		if($ID <= 0)
+		if ($ID <= 0)
+		{
 			return false;
+		}
 
 		return $DB->Query("
 			SELECT F.*,
-				".$DB->DateToCharFunction("F.TIMESTAMP_X")." as TIMESTAMP_X,
-				".$DB->DateToCharFunction("F.DATE_CREATE")." as	DATE_CREATE
+				" . $DB->DateToCharFunction("F.TIMESTAMP_X") . " as TIMESTAMP_X,
+				" . $DB->DateToCharFunction("F.DATE_CREATE") . " as	DATE_CREATE
 			FROM b_favorite F
-			WHERE ID=".$ID
+			WHERE ID=" . $ID
 		);
 	}
 
@@ -59,39 +65,47 @@ class CFavorites extends CDBResult
 	{
 		global $APPLICATION;
 
-		$aMsg = array();
-		if(is_set($arFields, "NAME") && trim($arFields["NAME"])=="")
-			$aMsg[] = array("id"=>"NAME", "text"=>GetMessage("fav_general_err_name"));
-		if(is_set($arFields, "URL") && trim($arFields["URL"])=="")
-			$aMsg[] = array("id"=>"URL", "text"=>GetMessage("fav_general_err_url"));
-		if(is_set($arFields, "USER_ID"))
+		$aMsg = [];
+		if (is_set($arFields, "NAME") && trim($arFields["NAME"]) == "")
 		{
-			if(intval($arFields["USER_ID"]) > 0)
+			$aMsg[] = ["id" => "NAME", "text" => GetMessage("fav_general_err_name")];
+		}
+		if (is_set($arFields, "URL") && trim($arFields["URL"]) == "")
+		{
+			$aMsg[] = ["id" => "URL", "text" => GetMessage("fav_general_err_url")];
+		}
+		if (is_set($arFields, "USER_ID"))
+		{
+			if (intval($arFields["USER_ID"]) > 0)
 			{
 				$res = CUser::GetByID(intval($arFields["USER_ID"]));
-				if(!$res->Fetch())
-					$aMsg[] = array("id"=>"USER_ID", "text"=>GetMessage("fav_general_err_user"));
+				if (!$res->Fetch())
+				{
+					$aMsg[] = ["id" => "USER_ID", "text" => GetMessage("fav_general_err_user")];
+				}
 			}
-			elseif($arFields["COMMON"] == "N")
+			elseif ($arFields["COMMON"] == "N")
 			{
-				$aMsg[] = array("id"=>"USER_ID", "text"=>GetMessage("fav_general_err_user1"));
+				$aMsg[] = ["id" => "USER_ID", "text" => GetMessage("fav_general_err_user1")];
 			}
 		}
-		if(is_set($arFields, "LANGUAGE_ID"))
+		if (is_set($arFields, "LANGUAGE_ID"))
 		{
-			if($arFields["LANGUAGE_ID"] <> "")
+			if ($arFields["LANGUAGE_ID"] <> "")
 			{
 				$res = CLanguage::GetByID($arFields["LANGUAGE_ID"]);
-				if(!$res->Fetch())
-					$aMsg[] = array("id"=>"LANGUAGE_ID", "text"=>GetMessage("fav_general_err_lang"));
+				if (!$res->Fetch())
+				{
+					$aMsg[] = ["id" => "LANGUAGE_ID", "text" => GetMessage("fav_general_err_lang")];
+				}
 			}
 			else
 			{
-				$aMsg[] = array("id"=>"LANGUAGE_ID", "text"=>GetMessage("fav_general_err_lang1"));
+				$aMsg[] = ["id" => "LANGUAGE_ID", "text" => GetMessage("fav_general_err_lang1")];
 			}
 		}
 
-		if(!empty($aMsg))
+		if (!empty($aMsg))
 		{
 			$e = new CAdminException($aMsg);
 			$APPLICATION->ThrowException($e);
@@ -102,8 +116,10 @@ class CFavorites extends CDBResult
 
 	public static function IsExistDuplicate($arFields)
 	{
-		if(!isset($arFields["MENU_ID"]) && !isset($arFields["URL"]) && !isset($arFields["NAME"]))
+		if (!isset($arFields["MENU_ID"]) && !isset($arFields["URL"]) && !isset($arFields["NAME"]))
+		{
 			return false;
+		}
 
 		global $USER, $DB;
 
@@ -111,22 +127,32 @@ class CFavorites extends CDBResult
 
 		$strSql = "SELECT MENU_ID, URL, ID FROM b_favorite  WHERE ( ";
 
-		if(isset($arFields["MENU_ID"]))
-			$strSql .= "MENU_ID = '".$DB->ForSql($arFields["MENU_ID"])."' AND ";
+		if (isset($arFields["MENU_ID"]))
+		{
+			$strSql .= "MENU_ID = '" . $DB->ForSql($arFields["MENU_ID"]) . "' AND ";
+		}
 
-		if(isset($arFields["URL"]))
-			$strSql .= "URL = '".$DB->ForSql($arFields["URL"])."' AND ";
+		if (isset($arFields["URL"]))
+		{
+			$strSql .= "URL = '" . $DB->ForSql($arFields["URL"]) . "' AND ";
+		}
 
-		if(isset($arFields["NAME"]))
-			$strSql .= "NAME = '".$DB->ForSql($arFields["NAME"])."' AND ";
+		if (isset($arFields["NAME"]))
+		{
+			$strSql .= "NAME = '" . $DB->ForSql($arFields["NAME"]) . "' AND ";
+		}
 
-		$strSql .="( USER_ID=".$uid." OR COMMON='Y' ))";
+		$strSql .= "( USER_ID=" . $uid . " OR COMMON='Y' ))";
 
 		$dbFav = $DB->Query($strSql);
 
 		while ($arFav = $dbFav->GetNext())
-			if($arFields["MENU_ID"] == $arFav["MENU_ID"] || $arFields["URL"] == $arFav["URL"] || $arFields["NAME"] == $arFav["NAME"])
+		{
+			if ($arFields["MENU_ID"] == $arFav["MENU_ID"] || $arFields["URL"] == $arFav["URL"] || $arFields["NAME"] == $arFav["NAME"])
+			{
 				return $arFav["ID"];
+			}
+		}
 
 		return false;
 	}
@@ -136,30 +162,34 @@ class CFavorites extends CDBResult
 	{
 		global $DB;
 
-		if(!CFavorites::CheckFields($arFields))
+		if (!CFavorites::CheckFields($arFields))
+		{
 			return false;
+		}
 
-		if($checkDuplicate)
+		if ($checkDuplicate)
 		{
 			$duplicate = CFavorites::IsExistDuplicate($arFields);
 
-			if($duplicate)
+			if ($duplicate)
+			{
 				return $duplicate;
+			}
 		}
 
 		$codes = new CHotKeysCode;
-		$codeID=$codes->Add(array(
-			"CODE"=>"location.href='".$arFields["URL"]."';",
-			"NAME"=>$arFields["NAME"],
-			"COMMENTS"=>"FAVORITES",
-		));
+		$codeID = $codes->Add([
+			"CODE" => "location.href='" . $arFields["URL"] . "';",
+			"NAME" => $arFields["NAME"],
+			"COMMENTS" => "FAVORITES",
+		]);
 
-		$codes->Update($codeID,array(
-			"CLASS_NAME"=>"FAV-".$codeID,
-			"TITLE_OBJ"=>"FAV-".$codeID,
-		));
+		$codes->Update($codeID, [
+			"CLASS_NAME" => "FAV-" . $codeID,
+			"TITLE_OBJ" => "FAV-" . $codeID,
+		]);
 
-		$arFields["CODE_ID"]=intval($codeID);
+		$arFields["CODE_ID"] = intval($codeID);
 
 		$ID = $DB->Add("b_favorite", $arFields);
 		return $ID;
@@ -171,15 +201,19 @@ class CFavorites extends CDBResult
 		global $DB;
 		$ID = intval($ID);
 
-		if(!CFavorites::CheckFields($arFields))
+		if (!CFavorites::CheckFields($arFields))
+		{
 			return false;
+		}
 
 		$strUpdate = $DB->PrepareUpdate("b_favorite", $arFields);
-		if($strUpdate!="")
+		if ($strUpdate != "")
 		{
-			$strSql = "UPDATE b_favorite SET ".$strUpdate." WHERE ID=".$ID;
-			if(!$DB->Query($strSql))
+			$strSql = "UPDATE b_favorite SET " . $strUpdate . " WHERE ID=" . $ID;
+			if (!$DB->Query($strSql))
+			{
 				return false;
+			}
 		}
 		return true;
 	}
@@ -192,73 +226,72 @@ class CFavorites extends CDBResult
 
 		$res = CFavorites::GetByID($ID);
 
-		while($arFav = $res->Fetch())
+		while ($arFav = $res->Fetch())
+		{
 			$codes->Delete($arFav["CODE_ID"]);
+		}
 
-		return $DB->Query("DELETE FROM b_favorite WHERE ID='".intval($ID)."'");
+		return $DB->Query("DELETE FROM b_favorite WHERE ID='" . intval($ID) . "'");
 	}
 
-	//*****************************
-	// Events
-	//*****************************
-
-	//user deletion event
 	public static function OnUserDelete($user_id)
 	{
 		global $DB;
-		return $DB->Query("DELETE FROM b_favorite WHERE USER_ID=". intval($user_id));
+		return $DB->Query("DELETE FROM b_favorite WHERE USER_ID=" . intval($user_id));
 	}
 
-	//interface language delete event
 	public static function OnLanguageDelete($language_id)
 	{
 		global $DB;
-		return $DB->Query("DELETE FROM b_favorite WHERE LANGUAGE_ID='".$DB->ForSQL($language_id, 2)."'");
+		return $DB->Query("DELETE FROM b_favorite WHERE LANGUAGE_ID='" . $DB->ForSQL($language_id, 2) . "'");
 	}
 
-	public static function GetList($aSort=array(), $arFilter=Array())
+	public static function GetList($aSort = [], $arFilter = [])
 	{
 		global $DB;
-		$arSqlSearch = Array();
+		$arSqlSearch = [];
 		if (is_array($arFilter))
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				if ((string)$val == '' || $val=="NOT_REF") continue;
-				switch(mb_strtoupper($key))
+				if ((string)$val == '' || $val == "NOT_REF")
+				{
+					continue;
+				}
+				switch (mb_strtoupper($key))
 				{
 					case "ID":
 						$arSqlSearch[] = GetFilterQuery("F.ID", $val, "N");
 						break;
 					case "USER_ID":
-						$arSqlSearch[] = "F.USER_ID = ".intval($val);
+						$arSqlSearch[] = "F.USER_ID = " . intval($val);
 						break;
 					case "MENU_FOR_USER":
-						$arSqlSearch[] = "(F.USER_ID=".intval($val)." OR F.COMMON='Y')";
+						$arSqlSearch[] = "(F.USER_ID=" . intval($val) . " OR F.COMMON='Y')";
 						break;
 					case "COMMON":
-						$arSqlSearch[] = "F.COMMON = '".$DB->ForSql($val, 1)."'";
+						$arSqlSearch[] = "F.COMMON = '" . $DB->ForSql($val, 1) . "'";
 						break;
 					case "LANGUAGE_ID":
-						$arSqlSearch[] = "F.LANGUAGE_ID = '".$DB->ForSql($val, 2)."'";
+						$arSqlSearch[] = "F.LANGUAGE_ID = '" . $DB->ForSql($val, 2) . "'";
 						break;
 					case "DATE1":
-						$arSqlSearch[] = "F.TIMESTAMP_X >= FROM_UNIXTIME('".MkDateTime(FmtDate($val, "D.M.Y"), "d.m.Y")."')";
+						$arSqlSearch[] = "F.TIMESTAMP_X >= FROM_UNIXTIME('" . MkDateTime(FmtDate($val, "D.M.Y"), "d.m.Y") . "')";
 						break;
 					case "DATE2":
-						$arSqlSearch[] = "F.TIMESTAMP_X <= FROM_UNIXTIME('".MkDateTime(FmtDate($val, "D.M.Y")." 23:59:59", "d.m.Y")."')";
+						$arSqlSearch[] = "F.TIMESTAMP_X <= FROM_UNIXTIME('" . MkDateTime(FmtDate($val, "D.M.Y") . " 23:59:59", "d.m.Y") . "')";
 						break;
 					case "MODIFIED":
 						$arSqlSearch[] = GetFilterQuery("UM.ID, UM.LOGIN, UM.LAST_NAME, UM.NAME", $val);
 						break;
 					case "MODIFIED_ID":
-						$arSqlSearch[] = "F.MODIFIED_BY = ".intval($val);
+						$arSqlSearch[] = "F.MODIFIED_BY = " . intval($val);
 						break;
 					case "CREATED":
 						$arSqlSearch[] = GetFilterQuery("UC.ID, UC.LOGIN, UC.LAST_NAME, UC.NAME", $val);
 						break;
 					case "CREATED_ID":
-						$arSqlSearch[] = "F.CREATED_BY = ".intval($val);
+						$arSqlSearch[] = "F.CREATED_BY = " . intval($val);
 						break;
 					case "KEYWORDS":
 						$arSqlSearch[] = GetFilterQuery("F.COMMENTS", $val);
@@ -270,57 +303,80 @@ class CFavorites extends CDBResult
 						$arSqlSearch[] = GetFilterQuery("F.URL", $val);
 						break;
 					case "MODULE_ID":
-						$arSqlSearch[] = "F.MODULE_ID='".$DB->ForSql($val, 50)."'";
+						$arSqlSearch[] = "F.MODULE_ID='" . $DB->ForSql($val, 50) . "'";
 						break;
 					case "MENU_ID":
-						$arSqlSearch[] = "F.MENU_ID='".$DB->ForSql($val, 255)."'";
+						$arSqlSearch[] = "F.MENU_ID='" . $DB->ForSql($val, 255) . "'";
 						break;
-
 				}
 			}
 		}
 
 		$sOrder = "";
-		foreach($aSort as $key=>$val)
+		foreach ($aSort as $key => $val)
 		{
-			$ord = (mb_strtoupper($val) <> "ASC"? "DESC":"ASC");
+			$ord = (mb_strtoupper($val) <> "ASC" ? "DESC" : "ASC");
 			switch (mb_strtoupper($key))
 			{
-				case "ID":		$sOrder .= ", F.ID ".$ord; break;
-				case "LANGUAGE_ID":	$sOrder .= ", F.LANGUAGE_ID ".$ord; break;
-				case "COMMON":	$sOrder .= ", F.COMMON ".$ord; break;
-				case "USER_ID":	$sOrder .= ", F.USER_ID ".$ord; break;
-				case "TIMESTAMP_X":	$sOrder .= ", F.TIMESTAMP_X ".$ord; break;
-				case "MODIFIED_BY":	$sOrder .= ", F.MODIFIED_BY ".$ord; break;
-				case "NAME":	$sOrder .= ", F.NAME ".$ord; break;
-				case "URL":	$sOrder .= ", F.URL ".$ord; break;
-				case "SORT":		$sOrder .= ", F.C_SORT ".$ord; break;
-				case "MODULE_ID":		$sOrder .= ", F.MODULE_ID ".$ord; break;
-				case "MENU_ID":		$sOrder .= ", F.MENU_ID ".$ord; break;
+				case "ID":
+					$sOrder .= ", F.ID " . $ord;
+					break;
+				case "LANGUAGE_ID":
+					$sOrder .= ", F.LANGUAGE_ID " . $ord;
+					break;
+				case "COMMON":
+					$sOrder .= ", F.COMMON " . $ord;
+					break;
+				case "USER_ID":
+					$sOrder .= ", F.USER_ID " . $ord;
+					break;
+				case "TIMESTAMP_X":
+					$sOrder .= ", F.TIMESTAMP_X " . $ord;
+					break;
+				case "MODIFIED_BY":
+					$sOrder .= ", F.MODIFIED_BY " . $ord;
+					break;
+				case "NAME":
+					$sOrder .= ", F.NAME " . $ord;
+					break;
+				case "URL":
+					$sOrder .= ", F.URL " . $ord;
+					break;
+				case "SORT":
+					$sOrder .= ", F.C_SORT " . $ord;
+					break;
+				case "MODULE_ID":
+					$sOrder .= ", F.MODULE_ID " . $ord;
+					break;
+				case "MENU_ID":
+					$sOrder .= ", F.MENU_ID " . $ord;
+					break;
 			}
 		}
 		if ($sOrder == '')
+		{
 			$sOrder = "F.ID DESC";
-		$strSqlOrder = " ORDER BY ".trim($sOrder, ", ");
+		}
+		$strSqlOrder = " ORDER BY " . trim($sOrder, ", ");
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 		$strSql = "
 			SELECT
 				F.ID, F.C_SORT, F.NAME, F.MENU_ID, F.URL, F.MODIFIED_BY, F.CREATED_BY, F.MODULE_ID, F.LANGUAGE_ID,
 				F.COMMENTS, F.COMMON, F.USER_ID, UM.LOGIN AS M_LOGIN, UC.LOGIN as C_LOGIN, U.LOGIN, F.CODE_ID,
-				".$DB->DateToCharFunction("F.TIMESTAMP_X")."	TIMESTAMP_X,
-				".$DB->DateToCharFunction("F.DATE_CREATE")."	DATE_CREATE,
-				".$DB->Concat($DB->IsNull("UM.NAME", "''"), "' '", $DB->IsNull("UM.LAST_NAME", "''"))." as M_USER_NAME,
-				".$DB->Concat($DB->IsNull("UC.NAME", "''"), "' '", $DB->IsNull("UC.LAST_NAME", "''"))." as C_USER_NAME,
-				".$DB->Concat($DB->IsNull("U.NAME", "''"), "' '", $DB->IsNull("U.LAST_NAME", "''"))." as USER_NAME
+				" . $DB->DateToCharFunction("F.TIMESTAMP_X") . "	TIMESTAMP_X,
+				" . $DB->DateToCharFunction("F.DATE_CREATE") . "	DATE_CREATE,
+				" . $DB->Concat($DB->IsNull("UM.NAME", "''"), "' '", $DB->IsNull("UM.LAST_NAME", "''")) . " as M_USER_NAME,
+				" . $DB->Concat($DB->IsNull("UC.NAME", "''"), "' '", $DB->IsNull("UC.LAST_NAME", "''")) . " as C_USER_NAME,
+				" . $DB->Concat($DB->IsNull("U.NAME", "''"), "' '", $DB->IsNull("U.LAST_NAME", "''")) . " as USER_NAME
 			FROM
 				b_favorite F
 				LEFT JOIN b_user UM ON (UM.ID = F.MODIFIED_BY)
 				LEFT JOIN b_user UC ON (UC.ID = F.CREATED_BY)
 				LEFT JOIN b_user U ON (U.ID = F.USER_ID)
 			WHERE
-			".$strSqlSearch."
-			".$strSqlOrder;
+			" . $strSqlSearch . "
+			" . $strSqlOrder;
 
 		$res = $DB->Query($strSql);
 
@@ -330,7 +386,7 @@ class CFavorites extends CDBResult
 
 class CBXFavAdmMenu
 {
-	private $arItems = array();
+	private $arItems = [];
 
 	public function __construct()
 	{
@@ -341,19 +397,19 @@ class CBXFavAdmMenu
 		$adminMenu->Init($adminPage->aModules);
 
 		$dbFav = CFavorites::GetList(
-			array(
+			[
 				"COMMON" => "ASC",
 				"SORT" => "ASC",
 				"NAME" => "ASC",
-			), array(
+			], [
 				"MENU_FOR_USER" => $USER->GetID(),
 				"LANGUAGE_ID" => LANGUAGE_ID,
-			)
+			]
 		);
 
 		while ($arFav = $dbFav->GetNext())
 		{
-			if($arFav["COMMON"] == "Y" && $arFav["MODULE_ID"] <> "" && $APPLICATION->GetGroupRight($arFav["MODULE_ID"]) < "R")
+			if ($arFav["COMMON"] == "Y" && $arFav["MODULE_ID"] <> "" && $APPLICATION->GetGroupRight($arFav["MODULE_ID"]) < "R")
 			{
 				continue;
 			}
@@ -364,23 +420,27 @@ class CBXFavAdmMenu
 
 	public function GetMenuItem($itemsID, $arMenu)
 	{
-		if(!is_array($arMenu))
+		if (!is_array($arMenu))
+		{
 			return false;
+		}
 
 		foreach ($arMenu as $arItem)
 		{
-			if( isset($arItem["items_id"]) && $arItem["items_id"] == $itemsID)
+			if (isset($arItem["items_id"]) && $arItem["items_id"] == $itemsID)
 			{
 				return $arItem;
 			}
 			else
 			{
-				if(is_array($arItem) && !empty($arItem))
+				if (is_array($arItem) && !empty($arItem))
 				{
 					$arFindItem = $this->GetMenuItem($itemsID, $arItem);
 
-					if(is_array($arFindItem) && !empty($arFindItem))
+					if (is_array($arFindItem) && !empty($arFindItem))
+					{
 						return $arFindItem;
+					}
 				}
 			}
 		}
@@ -392,41 +452,49 @@ class CBXFavAdmMenu
 	{
 		global $adminMenu;
 
-		$favOptions = CUserOptions::GetOption('favorite', 'favorite_menu', array("stick" => "N"));
+		$favOptions = CUserOptions::GetOption('favorite', 'favorite_menu', ["stick" => "N"]);
 
-		$aMenu = array();
+		$aMenu = [];
 
 		foreach ($this->arItems as $arItem)
 		{
-			$tmpMenu = array();
+			$tmpMenu = [];
 
-			if($arItem["MENU_ID"])
-				$tmpMenu = $this->GetMenuItem($arItem["MENU_ID"], $adminMenu->aGlobalMenu);
-
-			if(!$arItem["MENU_ID"] || !is_array($tmpMenu) || empty($tmpMenu))
+			if ($arItem["MENU_ID"])
 			{
-				$tmpMenu = array(
+				$tmpMenu = $this->GetMenuItem($arItem["MENU_ID"], $adminMenu->aGlobalMenu);
+			}
+
+			if (!$arItem["MENU_ID"] || !is_array($tmpMenu) || empty($tmpMenu))
+			{
+				$tmpMenu = [
 					"text" => $arItem["NAME"],
 					"url" => $arItem["URL"],
 					"dynamic" => false,
-					"items_id" => "menu_favorite_".$arItem["ID"],
+					"items_id" => "menu_favorite_" . $arItem["ID"],
 					"title" => $arItem["NAME"],
 					"icon" => "fav_menu_icon",
-					"page_icon" => "fav_page_icon"
-				);
+					"page_icon" => "fav_page_icon",
+				];
 			}
 
 			$tmpMenu["fav_id"] = $arItem["ID"];
 			$tmpMenu["parent_menu"] = "global_menu_desktop";
 
 			if (!isset($tmpMenu['icon']) || $tmpMenu['icon'] == '')
+			{
 				$tmpMenu['icon'] = 'fav_menu_icon';
+			}
 
-			if($this->CheckItemActivity($tmpMenu))
+			if ($this->CheckItemActivity($tmpMenu))
+			{
 				$tmpMenu["_active"] = true;
+			}
 
-			if((isset($tmpMenu["_active"]) && $tmpMenu["_active"] || $this->CheckSubItemActivity($tmpMenu)) && $favOptions["stick"] == "Y")
+			if ((isset($tmpMenu["_active"]) && $tmpMenu["_active"] || $this->CheckSubItemActivity($tmpMenu)) && $favOptions["stick"] == "Y")
+			{
 				$GLOBALS["BX_FAVORITE_MENU_ACTIVE_ID"] = true;
+			}
 
 			$aMenu[] = $tmpMenu;
 		}
@@ -436,16 +504,22 @@ class CBXFavAdmMenu
 
 	private function CheckSubItemActivity($arMenu)
 	{
-		if(!isset($arMenu["items"]) || !is_array($arMenu["items"]))
+		if (!isset($arMenu["items"]) || !is_array($arMenu["items"]))
+		{
 			return false;
+		}
 
 		foreach ($arMenu["items"] as $menu)
 		{
-			if(isset($menu["_active"]) && $menu["_active"] == true)
+			if (!empty($menu["_active"]))
+			{
 				return true;
+			}
 
-			if($this->CheckSubItemActivity($menu))
+			if ($this->CheckSubItemActivity($menu))
+			{
 				return true;
+			}
 		}
 
 		return false;
@@ -453,43 +527,59 @@ class CBXFavAdmMenu
 
 	private function CheckItemActivity($arMenu)
 	{
-		if(isset($arMenu["_active"]) && $arMenu["_active"])
+		if (!empty($arMenu["_active"]))
+		{
 			return true;
+		}
 
 		global $adminMenu, $APPLICATION;
 
-		if(empty($adminMenu->aActiveSections))
+		if (empty($adminMenu->aActiveSections))
+		{
 			return false;
+		}
 
 		$currentUrl = $APPLICATION->GetCurPageParam();
 		$menuUrl = htmlspecialcharsback($arMenu["url"] ?? '');
 
-		if(CBXFavUrls::Compare($menuUrl, $currentUrl))
+		if (CBXFavUrls::Compare($menuUrl, $currentUrl))
+		{
 			return true;
+		}
 
 		$activeSectUrl = htmlspecialcharsback($adminMenu->aActiveSections["_active"]["url"] ?? '');
 
-		if(CBXFavUrls::Compare($menuUrl, $activeSectUrl))
+		if (CBXFavUrls::Compare($menuUrl, $activeSectUrl))
+		{
 			return true;
+		}
 
 		return $this->CheckFilterActivity($currentUrl, $menuUrl, $activeSectUrl);
 	}
 
 	private function CheckFilterActivity($currentUrl, $menuUrl, $activeSectUrl)
 	{
-		if(!CBXFavUrls::Compare($menuUrl, $activeSectUrl))
+		if (!CBXFavUrls::Compare($menuUrl, $activeSectUrl))
+		{
 			return false;
+		}
 
 		$curUrlFilterId = CBXFavUrls::GetFilterId($currentUrl);
 
-		if($curUrlFilterId == CBXFavUrls::GetFilterId($menuUrl))
+		if ($curUrlFilterId == CBXFavUrls::GetFilterId($menuUrl))
+		{
 			return true;
+		}
 
-		if($curUrlFilterId && $curUrlFilterId == CBXFavUrls::GetPresetId($menuUrl))
+		if ($curUrlFilterId && $curUrlFilterId == CBXFavUrls::GetPresetId($menuUrl))
+		{
 			return true;
+		}
 
-		if(CBXFavUrls::GetPresetId($currentUrl) && CBXFavUrls::GetFilterId($menuUrl) == CBXFavUrls::GetPresetId($currentUrl))
+		if (CBXFavUrls::GetPresetId($currentUrl) && CBXFavUrls::GetFilterId($menuUrl) == CBXFavUrls::GetPresetId($currentUrl))
+		{
 			return true;
+		}
 
 		return false;
 	}
@@ -501,7 +591,7 @@ class CBXFavAdmMenu
 
 		$menuItems = $this->GenerateItems();
 
-		if(empty($menuItems))
+		if (empty($menuItems))
 		{
 			$buff .= self::GetEmptyMenuHTML();
 		}
@@ -509,19 +599,21 @@ class CBXFavAdmMenu
 		{
 			ob_start();
 
-			echo '<script bxrunfirst="true">BX.adminFav.setLastId('.intval($id).');</script>';
+			echo '<script bxrunfirst="true">BX.adminFav.setLastId(' . intval($id) . ');</script>';
 
 			$menuScripts = '';
 			foreach ($menuItems as $arItem)
+			{
 				$menuScripts .= $adminMenu->Show($arItem);
+			}
 
-			echo '<script>'.$menuScripts.'</script>';
+			echo '<script>' . $menuScripts . '</script>';
 
 			$buff .= ob_get_contents();
 			ob_end_clean();
 		}
 
-		$buff.= self::GetMenuHintHTML(empty($menuItems));
+		$buff .= self::GetMenuHintHTML(empty($menuItems));
 
 		return $buff;
 	}
@@ -530,38 +622,40 @@ class CBXFavAdmMenu
 	{
 		return '
 <div class="adm-favorites-cap-text">
-	'.GetMessage("fav_main_menu_nothing").'
+	' . GetMessage("fav_main_menu_nothing") . '
 </div>';
 	}
 
 	public static function GetMenuHintHTML($IsMenuEmpty)
 	{
-		$favHintOptions = CUserOptions::GetOption('favorites_menu', "hint", array("hide" => "N"));
+		$favHintOptions = CUserOptions::GetOption('favorites_menu', "hint", ["hide" => "N"]);
 
-		if(!$IsMenuEmpty && $favHintOptions["hide"] == "Y")
+		if (!$IsMenuEmpty && $favHintOptions["hide"] == "Y")
+		{
 			return false;
+		}
 
 		$retHtml = '
 <div id="adm-favorites-cap-hint-block" class="adm-favorites-cap-hint-block">
 	<div class="adm-favorites-cap-hint-icon icon-1"></div>
 	<div class="adm-favorites-cap-hint-text">
-		'.GetMessage("fav_main_menu_add_icon").'
+		' . GetMessage("fav_main_menu_add_icon") . '
 	</div>
 	<div class="adm-favorites-cap-hint-icon icon-2"></div>
 	<div class="adm-favorites-cap-hint-text">
-		'.GetMessage("fav_main_menu_add_dd").'
+		' . GetMessage("fav_main_menu_add_dd") . '
 	</div>';
 
-
-		if(!$IsMenuEmpty)
-			$retHtml .='
-	<a class="adm-favorites-cap-remove" href="javascript:void(0);" onclick="BX.adminFav.closeHint(this);">'.GetMessage("fav_main_menu_close_hint").'</a>';
+		if (!$IsMenuEmpty)
+		{
+			$retHtml .= '
+	<a class="adm-favorites-cap-remove" href="javascript:void(0);" onclick="BX.adminFav.closeHint(this);">' . GetMessage("fav_main_menu_close_hint") . '</a>';
+		}
 
 		$retHtml .= '
 </div>';
 
 		return $retHtml;
-
 	}
 }
 
@@ -570,26 +664,34 @@ class CBXFavUrls
 	const FILTER_ID_VALUE = "adm_filter_applied";
 	const PRESET_ID_VALUE = "adm_filter_preset";
 
-	public static function Compare($url1, $url2, $arReqVals=array(), $arSkipVals=array())
+	public static function Compare($url1, $url2, $arReqVals = [], $arSkipVals = [])
 	{
-		if($url1=='' && $url2 == '')
+		if ($url1 == '' && $url2 == '')
+		{
 			return false;
+		}
 
-		if(is_array($url1))
+		if (is_array($url1))
+		{
 			$arUrl1 = $url1;
-		elseif(is_string($url1))
+		}
+		elseif (is_string($url1))
+		{
 			$arUrl1 = self::ParseDetail($url1);
+		}
 		else
+		{
 			return false;
+		}
 
 		$arUrl2 = self::ParseDetail($url2);
 
-		if(isset($arUrl1["path"]) && isset($arUrl2["path"]) && $arUrl1["path"] != $arUrl2["path"])
+		if (isset($arUrl1["path"]) && isset($arUrl2["path"]) && $arUrl1["path"] != $arUrl2["path"])
 		{
 			$urlPath1 = pathinfo($arUrl1["path"]);
 			$urlPath2 = pathinfo($arUrl2["path"]);
 
-			if(
+			if (
 				isset($urlPath1["dirname"])
 				&& $urlPath1["dirname"] != '.'
 				&& isset($urlPath2["dirname"])
@@ -600,33 +702,43 @@ class CBXFavUrls
 				return false;
 			}
 
-			if(isset($urlPath1["basename"]) && isset($urlPath2["basename"]) && $urlPath1["basename"] != $urlPath2["basename"])
+			if (isset($urlPath1["basename"]) && isset($urlPath2["basename"]) && $urlPath1["basename"] != $urlPath2["basename"])
+			{
 				return false;
+			}
 		}
 
-		if(isset($arUrl1["host"]) && isset($arUrl2["host"]) && $arUrl1["host"]!=$arUrl2["host"])
+		if (isset($arUrl1["host"]) && isset($arUrl2["host"]) && $arUrl1["host"] != $arUrl2["host"])
+		{
 			return false;
+		}
 
-		if(isset($arUrl1["query"]) && isset($arUrl2["query"]) && $arUrl1["query"] == $arUrl2["query"])
+		if (isset($arUrl1["query"]) && isset($arUrl2["query"]) && $arUrl1["query"] == $arUrl2["query"])
+		{
 			return true;
+		}
 
-		if(is_array($arUrl1["ar_query"]) && is_array($arUrl2["ar_query"]))
+		if (is_array($arUrl1["ar_query"]) && is_array($arUrl2["ar_query"]))
 		{
 			foreach ($arUrl1["ar_query"] as $valName => $value)
 			{
 				if (!isset($arUrl2["ar_query"][$valName]) || $arUrl1["ar_query"][$valName] != $arUrl2["ar_query"][$valName])
 				{
-					if(!empty($arReqVals))
+					if (!empty($arReqVals))
 					{
-						if(in_array($valName,$arReqVals))
+						if (in_array($valName, $arReqVals))
+						{
 							return false;
+						}
 
 						continue;
 					}
-					if(!empty($arSkipVals))
+					if (!empty($arSkipVals))
 					{
-						if(in_array($valName,$arSkipVals))
+						if (in_array($valName, $arSkipVals))
+						{
 							continue;
+						}
 
 						return false;
 					}
@@ -635,20 +747,23 @@ class CBXFavUrls
 				}
 			}
 
-			if(!empty($arReqVals))
+			if (!empty($arReqVals))
 			{
 				foreach ($arReqVals as $valName => $value)
 				{
-					if(isset($arUrl2["ar_query"][$valName]))
+					if (isset($arUrl2["ar_query"][$valName]))
 					{
-						if(!isset($arUrl1["ar_query"][$valName]))
+						if (!isset($arUrl1["ar_query"][$valName]))
+						{
 							return false;
+						}
 
-						if($arUrl1["ar_query"][$valName] != $arUrl2["ar_query"][$valName])
+						if ($arUrl1["ar_query"][$valName] != $arUrl2["ar_query"][$valName])
+						{
 							return false;
+						}
 					}
 				}
-
 			}
 		}
 
@@ -659,8 +774,10 @@ class CBXFavUrls
 	{
 		$parts = parse_url($url);
 
-		if(isset($parts['query']))
+		if (isset($parts['query']))
+		{
 			parse_str(urldecode($parts['query']), $parts['ar_query']);
+		}
 
 		return $parts;
 	}
@@ -669,8 +786,10 @@ class CBXFavUrls
 	{
 		$urlParams = self::ParseDetail($url);
 
-		if(isset($urlParams["ar_query"][self::FILTER_ID_VALUE]) && $urlParams["ar_query"][self::FILTER_ID_VALUE]!="")
+		if (isset($urlParams["ar_query"][self::FILTER_ID_VALUE]) && $urlParams["ar_query"][self::FILTER_ID_VALUE] != "")
+		{
 			return $urlParams["ar_query"][self::FILTER_ID_VALUE];
+		}
 
 		return false;
 	}
@@ -679,8 +798,10 @@ class CBXFavUrls
 	{
 		$urlParams = self::ParseDetail($url);
 
-		if(isset($urlParams["ar_query"][self::PRESET_ID_VALUE]) && $urlParams["ar_query"][self::PRESET_ID_VALUE]!="")
+		if (isset($urlParams["ar_query"][self::PRESET_ID_VALUE]) && $urlParams["ar_query"][self::PRESET_ID_VALUE] != "")
+		{
 			return $urlParams["ar_query"][self::PRESET_ID_VALUE];
+		}
 
 		return false;
 	}

@@ -1,6 +1,5 @@
 .bx-im-sidebar-mute-chat__container {
 	--im-sidebar-main-preview-settings__color_title: #008dba;
-	--im-sidebar-main-preview-settings__color_copilot-title: #8e52ec;
 
 	display: flex;
 	flex-direction: column;
@@ -39,16 +38,4 @@
 	left: -30px;
 	background-repeat: no-repeat;
 	background-image: url("./images/icon.svg");
-}
-
-.bx-im-sidebar-mute-chat__container.--copilot .bx-im-toggle__enabled {
-	background-color: var(--im-sidebar-main-preview-settings__color_copilot-title);
-}
-
-.bx-im-sidebar-mute-chat__container.--copilot .bx-im-sidebar-mute-chat__title-text {
-	color: var(--im-sidebar-main-preview-settings__color_copilot-title);
-}
-
-.bx-im-sidebar-mute-chat__container.--copilot .bx-im-sidebar-mute-chat__icon::before {
-	background: url("./images/copilot-icon.svg") no-repeat center;
 }

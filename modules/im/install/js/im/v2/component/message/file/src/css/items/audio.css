@@ -1,5 +1,6 @@
 .bx-im-media-audio__container {
 	position: relative;
+	max-width: 318px;
 }
 
 .bx-im-media-audio__container .ui-vue-audioplayer-timers-container {

@@ -1,0 +1,7 @@
+.bx-im-ai-assistant-chat-opener__container {
+	height: 100%;
+}
+
+.bx-im-ai-assistant-chat-opener__container .bx-im-content-chat__textarea_container {
+	padding: 6px 10px 10px 10px;
+}

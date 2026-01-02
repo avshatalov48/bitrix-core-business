@@ -26,13 +26,16 @@ Loader::includeModule("mobileapp");
 
 if ($type == "component")
 {
-	$APPLICATION->IncludeComponent('bitrix:mobileapp.jnrouter', '', [
-		'componentName' => $componentName,
-		'namespace' => $namespace,
-		'clientVersion' => $version,
-		'checkVersion' => isset($_REQUEST['check']),
-		'needAuth' => true,
-	], null, ['HIDE_ICONS' => 'Y']);
+	if ($componentName != null)
+	{
+		$APPLICATION->IncludeComponent('bitrix:mobileapp.jnrouter', '', [
+			'componentName' => $componentName,
+			'namespace' => $namespace,
+			'clientVersion' => $version,
+			'checkVersion' => isset($_REQUEST['check']),
+			'needAuth' => true,
+		], null, ['HIDE_ICONS' => 'Y']);
+	}
 }
 else
 {

@@ -53,18 +53,18 @@ $arClasses = array(
 	"CIBlockPropertyTools" => "classes/general/iblockproptools.php",
 	"CIBlockSectionPropertyLink" => "classes/general/section_property.php",
 	"CIBlockXmlImport" => "classes/general/iblockxmlimport.php",
-	'\Bitrix\Iblock\IblockFieldTable' => "lib/iblockfield.php",
-	'\Bitrix\Iblock\IblockGroupTable' => "lib/iblockgroup.php",
-	'\Bitrix\Iblock\IblockMessageTable' => "lib/iblockmessage.php",
-	'\Bitrix\Iblock\IblockRssTable' => "lib/iblockrss.php",
-	'\Bitrix\Iblock\IblockSiteTable' => "lib/iblocksite.php",
-	'\Bitrix\Iblock\InheritedPropertyTable' => "lib/inheritedproperty.php",
-	'\Bitrix\Iblock\PropertyEnumerationTable' => "lib/propertyenumeration.php",
-	'\Bitrix\Iblock\PropertyFeatureTable' => 'lib/propertyfeature.php',
-	'\Bitrix\Iblock\SequenceTable' => "lib/sequence.php",
-	'\Bitrix\Iblock\SiteTable' => "lib/site.php",
-	'\Bitrix\Iblock\TypeTable' => "lib/type.php",
-	'\Bitrix\Iblock\TypeLanguageTable' => "lib/typelanguage.php",
+	'\Bitrix\Iblock\IblockFieldTable' => "lib/iblockfieldtable.php",
+	'\Bitrix\Iblock\IblockGroupTable' => "lib/iblockgrouptable.php",
+	'\Bitrix\Iblock\IblockMessageTable' => "lib/iblockmessagetable.php",
+	'\Bitrix\Iblock\IblockRssTable' => "lib/iblockrsstable.php",
+	'\Bitrix\Iblock\IblockSiteTable' => "lib/iblocksitetable.php",
+	'\Bitrix\Iblock\InheritedPropertyTable' => "lib/inheritedpropertytable.php",
+	'\Bitrix\Iblock\PropertyEnumerationTable' => "lib/propertyenumerationtable.php",
+	'\Bitrix\Iblock\PropertyFeatureTable' => 'lib/propertyfeaturetable.php',
+	'\Bitrix\Iblock\SequenceTable' => "lib/sequencetable.php",
+	'\Bitrix\Iblock\SiteTable' => "lib/sitetable.php",
+	'\Bitrix\Iblock\TypeLanguageTable' => "lib/typelanguagetable.php",
+	'\Bitrix\Iblock\TypeTable' => "lib/typetable.php",
 	'\Bitrix\Iblock\BizprocType\UserTypeProperty' => "lib/bizproctype/usertypeproperty.php",
 	'\Bitrix\Iblock\BizprocType\ECrm' => "lib/bizproctype/ecrm.php",
 	'\Bitrix\Iblock\BizprocType\Money' => "lib/bizproctype/money.php",
@@ -160,9 +160,14 @@ $arClasses = array(
 );
 //if (\Bitrix\Main\ModuleManager::isModuleInstalled('bizproc'))
 if (Loader::includeModule('bizproc'))
-	$arClasses["CIBlockDocument"] = "classes/general/iblockdocument.php";
+{
+	$arClasses['CIBlockDocument'] = 'classes/general/iblockdocument.php';
+}
 
-Loader::registerAutoLoadClasses("iblock", $arClasses);
+Loader::registerAutoLoadClasses('iblock', $arClasses);
 
 // orm autoloader
 Loader::registerHandler([\Bitrix\Iblock\ORM\Loader::class, 'autoLoad']);
+
+// old class names compatibility
+class_alias('Bitrix\Iblock\IblockSiteTable', 'Bitrix\Iblock\SiteTable');

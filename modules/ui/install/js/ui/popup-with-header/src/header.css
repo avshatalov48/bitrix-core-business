@@ -1,11 +1,11 @@
 .ui-popupcomponentmaker {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 }
 
 .ui-popupcomponentsmaker-header-tariff__wrapper {
 	padding: 12px;
 	color: var(--ui-color-on-primary);
-	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system)) !important;
 }
 
 .ui-popupcomponentsmaker-header-tariff__title-section {
@@ -46,14 +46,14 @@
 
 .ui-popupcomponentsmaker-header-tariff__title {
 	margin-top: -1px;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-weight: var( --ui-font-weight-medium);
 	font-size: var(--ui-font-size-lg);
 	line-height: 19px;
 }
 
 .ui-popupcomponentsmaker-header-tariff__subtitle {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-weight: var(--ui-font-weight-regular);
 	font-size: var(--ui-font-size-md);
 	line-height: 17px;
@@ -84,7 +84,7 @@
 }
 
 .ui-popupcomponentsmaker-header-tariff__message-wrapper .ui-popupcomponentsmaker-header-tariff__text {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-weight: var(--ui-font-weight-regular);
 	font-size: var(--ui-font-size-3xs);
 	line-height: 14px;
@@ -94,7 +94,7 @@
 
 .ui-popupcomponentsmaker-header-tariff__more {
 	display: inline-flex;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	line-height: 13px;
 	font-size: var(--ui-font-size-3xs);
 	font-weight: var(--ui-font-weight-regular);

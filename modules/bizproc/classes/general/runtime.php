@@ -20,11 +20,12 @@ use Bitrix\Bizproc\RestActivityTable;
  */
 class CBPRuntime
 {
-	const EXCEPTION_CODE_INSTANCE_NOT_FOUND = 404;
-	const EXCEPTION_CODE_INSTANCE_LOCKED = 423;
-	const EXCEPTION_CODE_INSTANCE_TERMINATED = 499;
+	public const EXCEPTION_CODE_INSTANCE_TARIFF_LIMIT_EXCEED = 402;
+	public const EXCEPTION_CODE_INSTANCE_NOT_FOUND = 404;
+	public const EXCEPTION_CODE_INSTANCE_LOCKED = 423;
+	public const EXCEPTION_CODE_INSTANCE_TERMINATED = 499;
 
-	const REST_ACTIVITY_PREFIX = 'rest_';
+	public const REST_ACTIVITY_PREFIX = 'rest_';
 
 	public const ACTIVITY_API_VERSION = 1;
 
@@ -170,12 +171,6 @@ class CBPRuntime
 			return;
 		}
 
-		/** @var CBPWorkflow $workflow */
-		foreach ($this->workflows as $key => $workflow)
-		{
-			$workflow->OnRuntimeStopped();
-		}
-
 		foreach ($this->services as $serviceId => $service)
 		{
 			$service->stop();
@@ -246,11 +241,11 @@ class CBPRuntime
 		{
 			if (!array_key_exists($parameterName, $workflowParameters))
 			{
-				$workflowParameters[$parameterName] = $parametersProperty['Default'];
+				$workflowParameters[$parameterName] = $parametersProperty['Default'] ?? null;
 			}
 		}
 
-		if ($rootActivity == null)
+		if (!$rootActivity)
 		{
 			throw new Exception("EmptyRootActivity");
 		}
@@ -260,15 +255,15 @@ class CBPRuntime
 			ExecuteModuleEventEx($arEvent, [$workflowTemplateId, $documentId, &$workflowParameters, $workflowId]);
 		}
 
-		$workflow->Initialize($rootActivity, $arDocumentId, $workflowParameters, $workflowVariablesTypes, $workflowParametersTypes, $workflowTemplateId);
+		$workflow->initialize($rootActivity, $arDocumentId, $workflowParameters, $workflowVariablesTypes, $workflowParametersTypes, $workflowTemplateId);
 
 		$starterUserId = 0;
 		if (isset($workflowParameters[CBPDocument::PARAM_TAGRET_USER]))
 		{
-			$starterUserId = intval(mb_substr($workflowParameters[CBPDocument::PARAM_TAGRET_USER], mb_strlen("user_")));
+			$starterUserId = (int)CBPHelper::stripUserPrefix($workflowParameters[CBPDocument::PARAM_TAGRET_USER]);
 		}
 
-		$this->GetService("StateService")->AddWorkflow($workflowId, $workflowTemplateId, $arDocumentId, $starterUserId);
+		$this->getStateService()->addWorkflow($workflowId, $workflowTemplateId, $arDocumentId, $starterUserId);
 
 		$this->workflows[$workflowId] = $workflow;
 
@@ -362,6 +357,11 @@ class CBPRuntime
 		}
 
 		return array_key_exists($workflowId, $this->workflows);
+	}
+
+	public function getWorkflows(): array
+	{
+		return $this->workflows;
 	}
 
 	protected function getWorkflowInstance(string $workflowId): CBPWorkflow
@@ -463,10 +463,10 @@ class CBPRuntime
 	* @param mixed $eventName - Event name.
 	* @param mixed $arEventParameters - Event parameters.
 	*/
-	public static function sendExternalEvent($workflowId, $eventName, $arEventParameters = array())
+	public static function sendExternalEvent($workflowId, $eventName, $arEventParameters = [])
 	{
 		$runtime = CBPRuntime::GetRuntime();
-		$workflow = $runtime->GetWorkflow($workflowId);
+		$workflow = $runtime->getWorkflow($workflowId);
 		if ($workflow)
 		{
 			//check if state exists
@@ -481,12 +481,12 @@ class CBPRuntime
 
 			if (!$stateExists || !$documentExists)
 			{
-				$workflow->Terminate();
+				$workflow->terminate();
 
 				return false;
 			}
 
-			$workflow->SendExternalEvent($eventName, $arEventParameters);
+			$workflow->sendExternalEvent($eventName, (array)$arEventParameters);
 		}
 	}
 

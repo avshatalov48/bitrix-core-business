@@ -1,5 +1,5 @@
 import { Core } from 'im.v2.application.core';
-import { ChatType, OwnMessageStatus, UserType } from 'im.v2.const';
+import { ChatType, OwnMessageStatus, UserType, AnchorType } from 'im.v2.const';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelChat, ImModelRecentItem, ImModelUser, ImModelMessage } from 'im.v2.model';
@@ -43,6 +43,17 @@ export const MessageStatus = {
 		{
 			return this.$store.getters['recent/getMessage'](this.recentItem.dialogId);
 		},
+		isChatWithReactions(): boolean
+		{
+			return this.$store.getters['messages/anchors/isChatHasAnchorsWithType'](this.dialog.chatId, AnchorType.reaction);
+		},
+		showLike(): boolean
+		{
+			/*
+			* 'this.recent Item.liked' is left to allow work without anchors
+			* */
+			return this.isChatWithReactions || this.recentItem.liked;
+		},
 		messageStatus(): $Values<typeof OwnMessageStatus>
 		{
 			if (this.message.sending)
@@ -59,19 +70,19 @@ export const MessageStatus = {
 		},
 		statusIcon(): $Values<typeof StatusIcon>
 		{
-			if (!this.isLastMessageAuthor || this.isBot || this.needsBirthdayPlaceholder || this.hasDraft)
+			if (this.isSelfChat || this.isBot)
 			{
 				return StatusIcon.none;
 			}
 
-			if (this.isSelfChat)
-			{
-				return StatusIcon.none;
-			}
-
-			if (this.recentItem.liked)
+			if (this.showLike)
 			{
 				return StatusIcon.like;
+			}
+
+			if (!this.isLastMessageAuthor || this.needsBirthdayPlaceholder || this.hasDraft)
+			{
+				return StatusIcon.none;
 			}
 
 			return this.messageStatus;

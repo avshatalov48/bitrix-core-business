@@ -1,0 +1,6 @@
+<?php
+$MESS["IM_VIEW_POPUP_CONTENT_GROUP_CHAT"] = "Топтық чат";
+$MESS["IM_VIEW_POPUP_CONTENT_NO_ACCESS"] = "Қолжетімділік жоқ.";
+$MESS["IM_VIEW_POPUP_CONTENT_OPEN_CHAT"] = "Чатқа өту";
+$MESS["IM_VIEW_POPUP_CONTENT_OPEN_HISTORY"] = "Тарих";
+$MESS["IM_VIEW_POPUP_USER_OPEN_CHAT"] = "Хабарлама жазу";

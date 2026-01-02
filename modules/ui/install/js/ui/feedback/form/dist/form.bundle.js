@@ -7,7 +7,10 @@ this.BX.UI = this.BX.UI || {};
 	var _list = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("list");
 	var _loadedList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadedList");
 	var _opened = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("opened");
+	var _loadInline = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadInline");
 	var _appendFormToSlider = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("appendFormToSlider");
+	var _getContainerNode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getContainerNode");
+	var _appendPresets = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("appendPresets");
 	var _appendFormScript = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("appendFormScript");
 	var _handleB24FormInit = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleB24FormInit");
 	class Form {
@@ -37,41 +40,49 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  /**
 	   * @deprecated use static method open
-	   * @param formOptions
+	   * @param options
 	   */
-	  constructor(formOptions) {
+	  constructor(options) {
 	    Object.defineProperty(this, _handleB24FormInit, {
 	      value: _handleB24FormInit2
 	    });
 	    Object.defineProperty(this, _appendFormScript, {
 	      value: _appendFormScript2
 	    });
+	    Object.defineProperty(this, _appendPresets, {
+	      value: _appendPresets2
+	    });
+	    Object.defineProperty(this, _getContainerNode, {
+	      value: _getContainerNode2
+	    });
 	    Object.defineProperty(this, _appendFormToSlider, {
 	      value: _appendFormToSlider2
 	    });
-	    this.init(formOptions);
+	    Object.defineProperty(this, _loadInline, {
+	      value: _loadInline2
+	    });
+	    this.init(options);
 	    babelHelpers.classPrivateFieldLooseBase(Form, _list)[_list].push(this);
 	  }
-	  init(formOptions) {
+	  init(options) {
 	    this.cached = false;
-	    if (formOptions.map !== undefined) {
-	      this.map = formOptions.map;
+	    if (options.map !== undefined) {
+	      this.map = options.map;
 	      return;
 	    }
-	    this.id = formOptions.id;
-	    this.portal = formOptions.portal;
-	    this.presets = formOptions.presets || {};
-	    this.form = formOptions.form || {};
-	    this.title = formOptions.title || '';
-	    if (formOptions.button) {
-	      this.button = BX(formOptions.button);
+	    this.id = options.id;
+	    this.portal = options.portal;
+	    this.presets = options.presets || {};
+	    this.form = options.form || {};
+	    this.title = options.title || '';
+	    this.showTitle = main_core.Type.isBoolean(options.showTitle) ? options.showTitle : true;
+	    if (options.button) {
+	      this.button = BX(options.button);
 	      main_core.Event.bind(this.button, 'click', this.openPanel.bind(this));
+	    } else if (options.node) {
+	      this.node = BX(options.node);
+	      babelHelpers.classPrivateFieldLooseBase(this, _loadInline)[_loadInline]();
 	    }
-	  }
-	  appendPresets(presets) {
-	    Object.entries(presets).forEach(([key, value]) => {
-	      this.presets[key] = value;
-	    });
 	  }
 	  openPanel() {
 	    babelHelpers.classPrivateFieldLooseBase(Form, _opened)[_opened] = true;
@@ -134,13 +145,13 @@ this.BX.UI = this.BX.UI || {};
 	      slider.closeLoader();
 	    }, 100);
 	  }
-	  loadForm(callback) {
+	  loadForm(callback = null) {
 	    const form = this.form;
 	    if (!form || !form.id || !form.lang || !form.sec) {
 	      return;
 	    }
 	    if (form.presets) {
-	      this.appendPresets(form.presets);
+	      babelHelpers.classPrivateFieldLooseBase(this, _appendPresets)[_appendPresets](form.presets);
 	    }
 	    const objectId = `b24form${this.id}`;
 	    babelHelpers.classPrivateFieldLooseBase(this, _appendFormScript)[_appendFormScript](`${this.portal}/bitrix/js/crm/form_loader.js`, objectId);
@@ -153,15 +164,28 @@ this.BX.UI = this.BX.UI || {};
 	      node: this.formNode,
 	      presets: this.presets,
 	      handlers: {
-	        load: callback
+	        load: callback || (() => {})
 	      }
 	    });
 	  }
+	}
+	function _loadInline2() {
+	  if (!this.node) {
+	    return;
+	  }
+
+	  // todo: loader
+
+	  main_core.Dom.append(babelHelpers.classPrivateFieldLooseBase(this, _getContainerNode)[_getContainerNode](true), this.node);
+	  this.loadForm();
 	}
 	function _appendFormToSlider2(slider) {
 	  if (!slider) {
 	    return;
 	  }
+	  main_core.Dom.append(babelHelpers.classPrivateFieldLooseBase(this, _getContainerNode)[_getContainerNode](), slider.layout.content);
+	}
+	function _getContainerNode2(inline = false) {
 	  this.formNode = main_core.Dom.create('div');
 	  const titleNode = main_core.Dom.create('div', {
 	    style: {
@@ -171,14 +195,19 @@ this.BX.UI = this.BX.UI || {};
 	    },
 	    text: this.title
 	  });
-	  const containerNode = main_core.Dom.create('div', {
-	    style: {
-	      padding: '20px',
-	      overflowY: 'auto'
-	    },
-	    children: [titleNode, this.formNode]
+	  const style = inline ? null : {
+	    padding: '20px',
+	    overflowY: 'auto'
+	  };
+	  return main_core.Dom.create('div', {
+	    style,
+	    children: [this.showTitle ? titleNode : null, this.formNode]
 	  });
-	  main_core.Dom.append(containerNode, slider.layout.content);
+	}
+	function _appendPresets2(presets) {
+	  Object.entries(presets).forEach(([key, value]) => {
+	    this.presets[key] = value;
+	  });
 	}
 	function _appendFormScript2(u, b) {
 	  top.Bitrix24FormObject = b;

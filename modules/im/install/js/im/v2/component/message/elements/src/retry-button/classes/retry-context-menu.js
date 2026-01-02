@@ -2,9 +2,12 @@ import { Loc } from 'main.core';
 
 import { Core } from 'im.v2.application.core';
 import { BaseMenu } from 'im.v2.lib.menu';
-import { SendingService, MessageService } from 'im.v2.provider.service';
+import { SendingService } from 'im.v2.provider.service.sending';
+import { MessageService } from 'im.v2.provider.service.message';
+import { UploadingService } from 'im.v2.provider.service.uploading';
+import { MenuItemDesign } from 'ui.system.menu';
 
-import type { MenuItem } from 'im.v2.lib.menu';
+import type { MenuItemOptions } from 'ui.system.menu';
 import type { ImModelMessage } from 'im.v2.model';
 
 export class RetryContextMenu extends BaseMenu
@@ -18,7 +21,7 @@ export class RetryContextMenu extends BaseMenu
 		this.id = 'bx-im-message-retry-context-menu';
 	}
 
-	getMenuItems(): MenuItem[]
+	getMenuItems(): MenuItemOptions | null[]
 	{
 		return [
 			this.getRetryItem(),
@@ -26,7 +29,7 @@ export class RetryContextMenu extends BaseMenu
 		];
 	}
 
-	getRetryItem(): MenuItem
+	getRetryItem(): MenuItemOptions
 	{
 		if (!this.#isOwnMessage() || !this.#hasError())
 		{
@@ -34,28 +37,27 @@ export class RetryContextMenu extends BaseMenu
 		}
 
 		return {
-			text: Loc.getMessage('IM_MESSENGER_MESSAGE_CONTEXT_MENU_RETRY'),
-			onclick: () => {
+			title: Loc.getMessage('IM_MESSENGER_MESSAGE_CONTEXT_MENU_RETRY'),
+			onClick: () => {
 				this.#retrySend();
 				this.menuInstance.close();
 			},
 		};
 	}
 
-	getDeleteItem(): ?MenuItem
+	getDeleteItem(): ?MenuItemOptions
 	{
 		if (!this.#isOwnMessage() || !this.#hasError())
 		{
 			return null;
 		}
 
-		const phrase = Loc.getMessage('IM_MESSENGER_MESSAGE_CONTEXT_MENU_DELETE');
-
 		return {
-			html: `<span class="bx-im-message-retry-button__context-menu-delete">${phrase}</span>`,
-			onclick: () => {
+			title: Loc.getMessage('IM_MESSENGER_MESSAGE_CONTEXT_MENU_DELETE'),
+			design: MenuItemDesign.Alert,
+			onClick: () => {
 				const messageService = new MessageService({ chatId: this.context.chatId });
-				messageService.deleteMessage(this.context.id);
+				messageService.deleteMessages([this.context.id]);
 				this.menuInstance.close();
 			},
 		};
@@ -71,11 +73,20 @@ export class RetryContextMenu extends BaseMenu
 		return this.context.error;
 	}
 
+	#hasFiles(): boolean
+	{
+		return this.context.files.length > 0;
+	}
+
 	#retrySend()
 	{
-		const hasFiles = this.context.files.length > 0;
-		if (hasFiles)
+		if (this.#hasFiles())
 		{
+			const uploadingService: UploadingService = UploadingService.getInstance();
+			const uploaderId: string = uploadingService.getUploaderIdByFileId(this.context.files[0]);
+
+			uploadingService.retry(uploaderId);
+
 			return;
 		}
 
@@ -84,7 +95,7 @@ export class RetryContextMenu extends BaseMenu
 
 	#retrySendMessage()
 	{
-		(new SendingService()).retrySendMessage({
+		void (new SendingService()).retrySendMessage({
 			tempMessageId: this.context.id,
 			dialogId: this.context.dialogId,
 		});

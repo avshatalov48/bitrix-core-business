@@ -99,6 +99,7 @@ final class MessageInternalDateHandler
 					[
 						'=MAILBOX_ID' => $mailboxId,
 						'=MESSAGE_UID.DIR_MD5' => $dirMd5,
+						'!=MESSAGE_UID.INTERNALDATE' => NULL,
 					],
 					$filter
 				),

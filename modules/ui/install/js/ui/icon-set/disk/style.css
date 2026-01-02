@@ -1,0 +1,356 @@
+.ui-icon-set,
+.ui-icon-set__scope {
+	--ui-icon-set__path_doc: url('/bitrix/js/ui/icon-set/disk/images/default/doc.svg');
+	--ui-icon-set__path_docx: url('/bitrix/js/ui/icon-set/disk/images/default/docx.svg');
+	--ui-icon-set__path_pdf: url('/bitrix/js/ui/icon-set/disk/images/default/pdf.svg');
+	--ui-icon-set__path_xls: url('/bitrix/js/ui/icon-set/disk/images/default/xls.svg');
+	--ui-icon-set__path_xlsx: url('/bitrix/js/ui/icon-set/disk/images/default/xlsx.svg');
+	--ui-icon-set__path_ppt: url('/bitrix/js/ui/icon-set/disk/images/default/ppt.svg');
+	--ui-icon-set__path_pptx: url('/bitrix/js/ui/icon-set/disk/images/default/pptx.svg');
+	--ui-icon-set__path_zip: url('/bitrix/js/ui/icon-set/disk/images/default/zip.svg');
+	--ui-icon-set__path_rar: url('/bitrix/js/ui/icon-set/disk/images/default/rar.svg');
+	--ui-icon-set__path_archive: url('/bitrix/js/ui/icon-set/disk/images/default/archive.svg');
+	--ui-icon-set__path_psd: url('/bitrix/js/ui/icon-set/disk/images/default/psd.svg');
+	--ui-icon-set__path_txt: url('/bitrix/js/ui/icon-set/disk/images/default/txt.svg');
+	--ui-icon-set__path_php: url('/bitrix/js/ui/icon-set/disk/images/default/php.svg');
+	--ui-icon-set__path_board: url('/bitrix/js/ui/icon-set/disk/images/default/board.svg');
+	--ui-icon-set__path_odf: url('/bitrix/js/ui/icon-set/disk/images/default/odf.svg');
+	--ui-icon-set__path_odt: url('/bitrix/js/ui/icon-set/disk/images/default/odt.svg');
+	--ui-icon-set__path_ods: url('/bitrix/js/ui/icon-set/disk/images/default/ods.svg');
+	--ui-icon-set__path_odp: url('/bitrix/js/ui/icon-set/disk/images/default/odp.svg');
+	--ui-icon-set__path_audio: url('/bitrix/js/ui/icon-set/disk/images/default/audio.svg');
+	--ui-icon-set__path_image: url('/bitrix/js/ui/icon-set/disk/images/default/image.svg');
+	--ui-icon-set__path_video: url('/bitrix/js/ui/icon-set/disk/images/default/video.svg');
+	--ui-icon-set__path_complex-graphic: url('/bitrix/js/ui/icon-set/disk/images/default/complex-graphic.svg');
+	--ui-icon-set__path_sign: url('/bitrix/js/ui/icon-set/disk/images/default/sign.svg');
+	--ui-icon-set__path_scripts: url('/bitrix/js/ui/icon-set/disk/images/default/scripts.svg');
+	--ui-icon-set__path_text: url('/bitrix/js/ui/icon-set/disk/images/default//text.svg');
+	--ui-icon-set__path_add: url('/bitrix/js/ui/icon-set/disk/images/default/add.svg');
+	--ui-icon-set__path_photo: url('/bitrix/js/ui/icon-set/disk/images/default/photo.svg');
+	--ui-icon-set__path_empty: url('/bitrix/js/ui/icon-set/disk/images/default/empty.svg');
+	--ui-icon-set__path_loading: url('/bitrix/js/ui/icon-set/disk/images/default/loading.svg');
+	--ui-icon-set__path_folder: url('/bitrix/js/ui/icon-set/disk/images/default/folder.svg');
+	--ui-icon-set__path_folder-group: url('/bitrix/js/ui/icon-set/disk/images/default/folder-group.svg');
+	--ui-icon-set__path_folder-shared: url('/bitrix/js/ui/icon-set/disk/images/default/folder-shared.svg');
+	--ui-icon-set__path_folder-collab: url('/bitrix/js/ui/icon-set/disk/images/default/folder-collab.svg');
+	--ui-icon-set__path_folder-24: url('/bitrix/js/ui/icon-set/disk/images/default/folder-24.svg');
+	--ui-icon-set__path_folder-person: url('/bitrix/js/ui/icon-set/disk/images/default/folder-person.svg');
+
+	--ui-icon-set__path_compact-doc: url('/bitrix/js/ui/icon-set/disk/images/compact/doc.svg');
+	--ui-icon-set__path_compact-docx: url('/bitrix/js/ui/icon-set/disk/images/compact/docx.svg');
+	--ui-icon-set__path_compact-pdf: url('/bitrix/js/ui/icon-set/disk/images/compact/pdf.svg');
+	--ui-icon-set__path_compact-xls: url('/bitrix/js/ui/icon-set/disk/images/compact/xls.svg');
+	--ui-icon-set__path_compact-xlsx: url('/bitrix/js/ui/icon-set/disk/images/compact/xlsx.svg');
+	--ui-icon-set__path_compact-ppt: url('/bitrix/js/ui/icon-set/disk/images/compact/ppt.svg');
+	--ui-icon-set__path_compact-pptx: url('/bitrix/js/ui/icon-set/disk/images/compact/pptx.svg');
+	--ui-icon-set__path_compact-zip: url('/bitrix/js/ui/icon-set/disk/images/compact/zip.svg');
+	--ui-icon-set__path_compact-rar: url('/bitrix/js/ui/icon-set/disk/images/compact/rar.svg');
+	--ui-icon-set__path_compact-archive: url('/bitrix/js/ui/icon-set/disk/images/compact/archive.svg');
+	--ui-icon-set__path_compact-psd: url('/bitrix/js/ui/icon-set/disk/images/compact/psd.svg');
+	--ui-icon-set__path_compact-txt: url('/bitrix/js/ui/icon-set/disk/images/compact/txt.svg');
+	--ui-icon-set__path_compact-php: url('/bitrix/js/ui/icon-set/disk/images/compact/php.svg');
+	--ui-icon-set__path_compact-board: url('/bitrix/js/ui/icon-set/disk/images/compact/board.svg');
+	--ui-icon-set__path_compact-odf: url('/bitrix/js/ui/icon-set/disk/images/compact/odf.svg');
+	--ui-icon-set__path_compact-odt: url('/bitrix/js/ui/icon-set/disk/images/compact/odt.svg');
+	--ui-icon-set__path_compact-ods: url('/bitrix/js/ui/icon-set/disk/images/compact/ods.svg');
+	--ui-icon-set__path_compact-odp: url('/bitrix/js/ui/icon-set/disk/images/compact/odp.svg');
+	--ui-icon-set__path_compact-audio: url('/bitrix/js/ui/icon-set/disk/images/compact/audio.svg');
+	--ui-icon-set__path_compact-image: url('/bitrix/js/ui/icon-set/disk/images/compact/image.svg');
+	--ui-icon-set__path_compact-video: url('/bitrix/js/ui/icon-set/disk/images/compact/video.svg');
+	--ui-icon-set__path_compact-complex-graphic: url('/bitrix/js/ui/icon-set/disk/images/compact/complex-graphic.svg');
+	--ui-icon-set__path_compact-sign: url('/bitrix/js/ui/icon-set/disk/images/compact/sign.svg');
+	--ui-icon-set__path_compact-scripts: url('/bitrix/js/ui/icon-set/disk/images/compact/scripts.svg');
+	--ui-icon-set__path_compact-text: url('/bitrix/js/ui/icon-set/disk/images/compact/text.svg');
+	--ui-icon-set__path_compact-add: url('/bitrix/js/ui/icon-set/disk/images/compact/add.svg');
+	--ui-icon-set__path_compact-photo: url('/bitrix/js/ui/icon-set/disk/images/compact/photo.svg');
+	--ui-icon-set__path_compact-empty: url('/bitrix/js/ui/icon-set/disk/images/compact/empty.svg');
+	--ui-icon-set__path_compact-loading: url('/bitrix/js/ui/icon-set/disk/images/compact/loading.svg');
+	--ui-icon-set__path_compact-folder: url('/bitrix/js/ui/icon-set/disk/images/compact/folder.svg');
+	--ui-icon-set__path_compact-folder-group: url('/bitrix/js/ui/icon-set/disk/images/compact/folder-group.svg');
+	--ui-icon-set__path_compact-folder-shared: url('/bitrix/js/ui/icon-set/disk/images/compact/folder-shared.svg');
+	--ui-icon-set__path_compact-folder-collab: url('/bitrix/js/ui/icon-set/disk/images/compact/folder-collab.svg');
+	--ui-icon-set__path_compact-folder-24: url('/bitrix/js/ui/icon-set/disk/images/compact/folder-24.svg');
+	--ui-icon-set__path_compact-folder-person: url('/bitrix/js/ui/icon-set/disk/images/compact/folder-person.svg');
+}
+
+.ui-icon-set.--doc {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_doc);
+}
+
+.ui-icon-set.--docx {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_docx);
+}
+
+.ui-icon-set.--pdf {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_pdf);
+}
+
+.ui-icon-set.--xls {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_xls);
+}
+
+.ui-icon-set.--xlsx {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_xlsx);
+}
+
+.ui-icon-set.--ppt {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_ppt);
+}
+
+.ui-icon-set.--pptx {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_pptx);
+}
+
+.ui-icon-set.--zip {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_zip);
+}
+
+.ui-icon-set.--rar {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_rar);
+}
+
+.ui-icon-set.--archive {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_archive);
+}
+
+.ui-icon-set.--psd {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_psd);
+}
+
+.ui-icon-set.--txt {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_txt);
+}
+
+.ui-icon-set.--php {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_php);
+}
+
+.ui-icon-set.--board {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_board);
+}
+
+.ui-icon-set.--odf {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_odf);
+}
+
+.ui-icon-set.--odt {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_odt);
+}
+
+.ui-icon-set.--ods {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_ods);
+}
+
+.ui-icon-set.--odp {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_odp);
+}
+
+.ui-icon-set.--audio {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_audio);
+}
+
+.ui-icon-set.--image {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_image);
+}
+
+.ui-icon-set.--video {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_video);
+}
+
+.ui-icon-set.--complex-graphic {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_complex-graphic);
+}
+
+.ui-icon-set.--sign {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_sign);
+}
+
+.ui-icon-set.--scripts {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_scripts);
+}
+
+.ui-icon-set.--text {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_text);
+}
+
+.ui-icon-set.--add {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_add);
+}
+
+.ui-icon-set.--photo {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_photo);
+}
+
+.ui-icon-set.--empty {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_empty);
+}
+
+.ui-icon-set.--loading {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_loading);
+}
+
+.ui-icon-set.--folder {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_folder);
+}
+
+.ui-icon-set.--folder-group {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_folder-group);
+}
+
+.ui-icon-set.--folder-shared {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_folder-shared);
+}
+
+.ui-icon-set.--folder-collab {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_folder-collab);
+}
+
+.ui-icon-set.--folder-24 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_folder-24);
+}
+
+.ui-icon-set.--folder-person {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_folder-person);
+}
+
+
+/* Compact */
+.ui-icon-set.--doc-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-doc);
+}
+
+.ui-icon-set.--docx-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-docx);
+}
+
+.ui-icon-set.--pdf-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-pdf);
+}
+
+.ui-icon-set.--xls-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-xls);
+}
+
+.ui-icon-set.--xlsx-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-xlsx);
+}
+
+.ui-icon-set.--ppt-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-ppt);
+}
+
+.ui-icon-set.--pptx-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-pptx);
+}
+
+.ui-icon-set.--zip-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-zip);
+}
+
+.ui-icon-set.--rar-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-rar);
+}
+
+.ui-icon-set.--archive-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-archive);
+}
+
+.ui-icon-set.--psd-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-psd);
+}
+
+.ui-icon-set.--txt-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-txt);
+}
+
+.ui-icon-set.--php-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-php);
+}
+
+.ui-icon-set.--board-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-board);
+}
+
+.ui-icon-set.--odf-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-odf);
+}
+
+.ui-icon-set.--odt-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-odt);
+}
+
+.ui-icon-set.--ods-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-ods);
+}
+
+.ui-icon-set.--odp-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-odp);
+}
+
+.ui-icon-set.--audio-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-audio);
+}
+
+.ui-icon-set.--image-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-image);
+}
+
+.ui-icon-set.--video-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-video);
+}
+
+.ui-icon-set.--complex-graphic-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-complex-graphic);
+}
+
+.ui-icon-set.--sign-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-sign);
+}
+
+.ui-icon-set.--scripts-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-scripts);
+}
+
+.ui-icon-set.--text-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-text);
+}
+
+.ui-icon-set.--add-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-add);
+}
+
+.ui-icon-set.--photo-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-photo);
+}
+
+.ui-icon-set.--empty-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-empty);
+}
+
+.ui-icon-set.--loading-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-loading);
+}
+
+.ui-icon-set.--folder-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-folder);
+}
+
+.ui-icon-set.--folder-group-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-folder-group);
+}
+
+.ui-icon-set.--folder-shared-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-folder-shared);
+}
+
+.ui-icon-set.--folder-collab-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-folder-collab);
+}
+
+.ui-icon-set.--folder-24-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-folder-24);
+}
+
+.ui-icon-set.--folder-person-compact {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_compact-folder-person);
+}

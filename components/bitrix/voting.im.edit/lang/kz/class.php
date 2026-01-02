@@ -1,0 +1,4 @@
+<?php
+$MESS["VOTE_IM_EDIT_COMPONENT_FEATURE_NOT_AVAILABLE"] = "Сауалнама құру мүмкін емес";
+$MESS["VOTE_IM_EDIT_COMPONENT_MODULE_NOT_INSTALLED"] = "Im модулін орнатыңыз";
+$MESS["VOTE_IM_EDIT_COMPONENT_MODULE_VOTE_NOT_INSTALLED"] = "Vote модулін орнатыңыз";

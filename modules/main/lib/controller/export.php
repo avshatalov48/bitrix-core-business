@@ -924,15 +924,19 @@ class Export extends Main\Engine\Controller
 		$avgRowsPerStep = $this->getRowsPerPage();
 		if ($this->stepCount > 0 && $this->timeStart > 0)
 		{
-			$avgStepDuration = round((time() - $this->timeStart) / $this->stepCount);
+			$avgStepDuration = ceil((time() - $this->timeStart) / $this->stepCount);
 			if ($this->processedItems > 0)
 			{
-				$avgRowsPerStep = round($this->processedItems / $this->stepCount);
+				$avgRowsPerStep = ceil($this->processedItems / $this->stepCount);
+			}
+			if ($avgRowsPerStep < 1)
+			{
+				$avgRowsPerStep = 1;
 			}
 		}
 		if ($this->totalItems > 0)
 		{
-			$predictedStepCount = round(($this->totalItems - $this->processedItems) / $avgRowsPerStep);
+			$predictedStepCount = ceil(($this->totalItems - $this->processedItems) / $avgRowsPerStep);
 			if ($this->useCloud === true)
 			{
 				$predictedStepCount *= 2;
@@ -957,7 +961,7 @@ class Export extends Main\Engine\Controller
 			}
 			else
 			{
-				$predictedTimeDurationMinutes = round($predictedTimeDuration / 60);
+				$predictedTimeDurationMinutes = ceil($predictedTimeDuration / 60);
 				$message =
 					Loc::getMessage('MAIN_EXPORT_EXPECTED_DURATION').' '.
 					Loc::getMessage('MAIN_EXPORT_EXPECTED_DURATION_MINUTES', array(

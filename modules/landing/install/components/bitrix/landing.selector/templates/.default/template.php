@@ -34,12 +34,17 @@ $currentLanding = $arResult['LANDINGS'][$arParams['LANDING_ID']] ?? null;
 	{
 		BX.UI.Hint.init(BX('landing-selector'));
 
-		if (typeof BX.SidePanel !== 'undefined' && typeof BX.SidePanel.Instance !== 'undefined')
+		const condition = <?= \CUtil::PhpToJSObject(str_replace(['?', '&'], ['\?', '\&'], $arParams['PAGE_URL_FOLDER_ADD']))?>;
+		if (
+			typeof BX.SidePanel !== 'undefined'
+			&& typeof BX.SidePanel.Instance !== 'undefined'
+			&& condition !== ''
+		)
 		{
 			BX.SidePanel.Instance.bindAnchors({
 				rules: [
 					{
-						condition: [<?= \CUtil::PhpToJSObject(str_replace(['?', '&'], ['\?', '\&'], $arParams['PAGE_URL_FOLDER_ADD']))?>],
+						condition: [condition],
 						validate: function(link)
 						{
 							if (

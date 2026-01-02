@@ -160,6 +160,7 @@ export class SpoilerPlugin extends BasePlugin
 			bbcodeMap: {
 				spoiler: 'spoiler',
 				'spoiler-content': 'spoiler',
+				'spoiler-title': 'spoiler',
 			},
 		};
 	}

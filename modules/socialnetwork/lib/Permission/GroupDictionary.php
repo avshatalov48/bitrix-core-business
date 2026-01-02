@@ -29,6 +29,8 @@ class GroupDictionary implements AccessDictionaryInterface
 	public const SET_OWNER = 'group_set_owner';
 	public const SET_SCRUM_MASTER = 'group_set_scrum_master';
 
+	public const CONVERT = 'group_convert';
+
 	public function create(): string
 	{
 		return static::CREATE;

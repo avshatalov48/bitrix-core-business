@@ -38,7 +38,6 @@ import {
 import { $setBlocksType } from 'ui.lexical.selection';
 import { $findMatchingParent, $insertNodeToNearestRoot } from 'ui.lexical.utils';
 
-import { trimLineBreaks } from '../../bbcode';
 import { getSelectedNode } from '../../helpers/get-selected-node';
 
 import BasePlugin from '../base-plugin';
@@ -97,8 +96,8 @@ export class CodePlugin extends BasePlugin
 					return {
 						node: $createCodeNode(),
 						after: (childLexicalNodes: Array<LexicalNode>): Array<LexicalNode> => {
-							const childNodes = trimLineBreaks(childLexicalNodes);
-							const content = childNodes.map(
+							// const childNodes = trimLineBreaks(childLexicalNodes);
+							const content = childLexicalNodes.map(
 								(childNode: LexicalNode) => childNode.getTextContent(),
 							).join('');
 

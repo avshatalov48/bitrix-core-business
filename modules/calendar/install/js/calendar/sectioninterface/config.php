@@ -20,6 +20,7 @@ return [
 		'calendar.util',
 		'calendar.sectionmanager',
 		'ui.dialogs.messagebox',
+		'ui.buttons',
 	],
 	'skip_core' => false,
 	'lang' => '/bitrix/modules/calendar/classes/general/calendar_js.php'

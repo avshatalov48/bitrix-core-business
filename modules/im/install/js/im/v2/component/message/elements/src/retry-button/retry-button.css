@@ -29,7 +29,3 @@
 .bx-im-message-retry-button__arrow:hover {
 	background-color: var(--im-message-retry-button__background-color_button-hover);
 }
-
-.bx-im-message-retry-button__context-menu-delete {
-	color: var(--im-color-palette-red-50, #ff5752);
-}

@@ -4,10 +4,13 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main;
+
+use Bitrix\Main\ORM\Fields;
+use Bitrix\Main\ORM\Query\Join;
 
 /**
  * Class GroupTable
@@ -35,41 +38,53 @@ class GroupTable extends ORM\Data\DataManager
 	public static function getMap()
 	{
 		return [
-			'ID' => [
-				'data_type' => 'integer',
-				'primary' => true,
-				'autocomplete' => true,
-			],
-			'TIMESTAMP_X' => [
-				'data_type' => 'datetime',
-			],
-			'ACTIVE' => [
-				'data_type' => 'boolean',
-				'values' => ['N', 'Y'],
-			],
-			'C_SORT' => [
-				'data_type' => 'integer',
-			],
-			'IS_SYSTEM' => [
-				'data_type' => 'boolean',
-				'values' => ['N', 'Y'],
-			],
-			'ANONYMOUS' => [
-				'data_type' => 'boolean',
-				'values' => ['N', 'Y'],
-			],
-			'NAME' => [
-				'data_type' => 'string',
-			],
-			'DESCRIPTION' => [
-				'data_type' => 'string',
-			],
-			'SECURITY_POLICY' => [
-				'data_type' => 'text',
-			],
-			'STRING_ID' => [
-				'data_type' => 'string',
-			],
+			(new Fields\IntegerField('ID'))
+				->configurePrimary()
+				->configureAutocomplete()
+				->configureNullable(false)
+			,
+			(new Fields\DatetimeField('TIMESTAMP_X'))
+				->configureDefaultValueNow()
+				->configureNullable()
+			,
+			(new Fields\BooleanField('ACTIVE'))
+				->configureValues('N', 'Y')
+				->configureDefaultValue('Y')
+				->configureNullable(false)
+			,
+			(new Fields\IntegerField('C_SORT'))
+				->configureDefaultValue(100)
+				->configureNullable(false)
+			,
+			(new Fields\BooleanField('ANONYMOUS'))
+				->configureValues('N', 'Y')
+				->configureDefaultValue('N')
+				->configureNullable(false)
+			,
+			(new Fields\BooleanField('IS_SYSTEM'))
+				->configureValues('N', 'Y')
+				->configureDefaultValue('Y')
+				->configureNullable(false)
+			,
+			(new Fields\StringField('NAME'))
+				->configureNullable(false)
+			,
+			(new Fields\StringField('DESCRIPTION'))
+				->configureNullable()
+			,
+			(new Fields\TextField('SECURITY_POLICY'))
+				->configureNullable()
+			,
+			(new Fields\StringField('STRING_ID'))
+				->configureNullable()
+			,
+			(new Fields\Relations\Reference(
+				'USER_GROUP',
+				UserGroupTable::class,
+				Join::on('this.ID', 'ref.GROUP_ID')
+			))
+				->configureJoinType(Join::TYPE_LEFT)
+			,
 		];
 	}
 }

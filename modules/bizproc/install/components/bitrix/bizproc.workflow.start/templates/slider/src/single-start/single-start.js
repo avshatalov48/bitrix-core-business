@@ -63,6 +63,11 @@ export class SingleStart
 		});
 
 		this.#errorNotifier = new ErrorNotifier({});
+		if (config.errors)
+		{
+			this.#errorNotifier.errors = config.errors;
+			this.#errorNotifier.show();
+		}
 
 		Object.entries(composedData)
 			.forEach(([key, data]) => {
@@ -74,13 +79,26 @@ export class SingleStart
 			})
 		;
 		this.#sequenceSteps = Object.keys(composedData);
-		this.#currentStepId = this.#sequenceSteps.at(0);
+		this.#currentStepId = config.workflowId ? this.#sequenceSteps.at(-1) : this.#sequenceSteps.at(0);
+
+		if (config.workflowId)
+		{
+			const slider = BX.SidePanel.Instance.getSliderByWindow(window);
+			if (slider)
+			{
+				const dictionary: BX.SidePanel.Dictionary = slider.getData();
+				dictionary.set('data', { workflowId: config.workflowId });
+			}
+
+			this.#canExit = true;
+		}
 
 		this.#buttons = new Buttons({
 			buttons: Object.fromEntries(
 				Object.entries(composedData).map(([key, data]) => [key, data.buttons]),
 			),
 			wrapper: document.getElementById(`${HTML_ELEMENT_ID}-buttons`).querySelector('.ui-button-panel'),
+			currentStepId: this.#currentStepId,
 		});
 
 		this.#signedDocumentType = config.signedDocumentType;
@@ -144,6 +162,11 @@ export class SingleStart
 		if (this.#steps.has('recommendation'))
 		{
 			this.#steps.get('recommendation').onAfterRender();
+		}
+
+		if (this.#currentStepId === 'start')
+		{
+			this.#steps.get('start').onAfterRender();
 		}
 
 		this.#buttons.show();

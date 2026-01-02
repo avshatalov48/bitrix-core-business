@@ -42,7 +42,8 @@ if ($adminSidePanelHelper->isSidePanel())
 			'POPUP_COMPONENT_PARAMS' => $componentParameters,
 			'RELOAD_GRID_AFTER_SAVE' => true,
 			'CLOSE_AFTER_SAVE' => true,
-		]
+			'USE_UI_TOOLBAR' => 'Y',
+		],
 	);
 }
 else

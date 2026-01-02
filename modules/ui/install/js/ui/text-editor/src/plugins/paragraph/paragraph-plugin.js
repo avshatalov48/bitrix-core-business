@@ -25,7 +25,6 @@ import {
 
 import { $setBlocksType } from 'ui.lexical.selection';
 import { $findMatchingParent } from 'ui.lexical.utils';
-import { trimLineBreaks } from '../../bbcode';
 
 import type {
 	BBCodeConversion,
@@ -358,8 +357,8 @@ function convertParagraphNode(bbcodeNode: BBCodeNode): BBCodeConversionOutput
 {
 	return {
 		node: $createParagraphNode(),
-		after: (childLexicalNodes: Array<LexicalNode>): Array<LexicalNode> => {
-			return trimLineBreaks(childLexicalNodes);
-		},
+		// after: (childLexicalNodes: Array<LexicalNode>): Array<LexicalNode> => {
+		// 	return trimLineBreaks(childLexicalNodes);
+		// },
 	};
 }

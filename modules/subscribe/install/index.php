@@ -42,7 +42,7 @@ class subscribe extends CModule
 		$this->errors = false;
 
 		// Database tables creation
-		if (!$DB->Query("SELECT 'x' FROM b_list_rubric WHERE 1=0", true))
+		if (!$DB->TableExists('b_list_rubric'))
 		{
 			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/install/db/' . $connection->getType() . '/install.sql');
 		}
@@ -141,12 +141,9 @@ class subscribe extends CModule
 
 	public function InstallFiles($arParams = [])
 	{
-		if ($_ENV['COMPUTERNAME'] != 'BX')
-		{
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/install/admin', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin');
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/install/themes', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/themes', false, true);
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/install/components', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/components', true, true);
-		}
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/install/admin', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin');
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/install/themes', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/themes', false, true);
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/install/components', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/components', true, true);
 
 		if (array_key_exists('install_auto_templates', $arParams) && $arParams['install_auto_templates'] == 'Y')
 		{
@@ -206,13 +203,10 @@ class subscribe extends CModule
 
 	public function UnInstallFiles()
 	{
-		if ($_ENV['COMPUTERNAME'] != 'BX')
-		{
-			//admin files
-			DeleteDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/install/admin', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin');
-			//css
-			DeleteDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/install/themes/.default/', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/themes/.default');
-		}
+		//admin files
+		DeleteDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/install/admin', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin');
+		//css
+		DeleteDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/install/themes/.default/', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/themes/.default');
 		return true;
 	}
 

@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Im\Model\MessageParamTable;
+
 IncludeModuleLangFile(__FILE__);
 
 class CIMMail
@@ -11,6 +14,7 @@ class CIMMail
 		$arGroupNotify = array();
 		$arGroupNotifyUser = array();
 		$arUnsendNotify = CIMNotify::GetUnsendNotify();
+		$attachList = self::getAttachList(array_keys($arUnsendNotify));
 		$maxId = 0;
 
 		foreach($arUnsendNotify as $id => $arNotify)
@@ -54,7 +58,10 @@ class CIMMail
 				}
 			}
 			if ($arNotify["MESSAGE_OUT"] == '')
-				$arNotify["MESSAGE_OUT"] = $arNotify["MESSAGE"];
+			{
+				$arNotify["MESSAGE_OUT"] = self::getMessageTextWithAttach($arNotify["MESSAGE"], $attachList[$arNotify['ID']] ?? null);
+			}
+
 
 			if (!(isset($arNotify["EMAIL_TEMPLATE"]) && $arNotify["EMAIL_TEMPLATE"] <> ''))
 				$arNotify["EMAIL_TEMPLATE"] = "IM_NEW_NOTIFY";
@@ -164,6 +171,7 @@ class CIMMail
 
 		$arMark = array();
 		$arUnsendMessage = CIMMessage::GetUnsendMessage();
+		$attachList = self::getAttachList(array_keys($arUnsendMessage));
 
 		$arToUser = Array();
 		$arFromUser = Array();
@@ -202,7 +210,9 @@ class CIMMail
 			}
 
 			if ($arMessage["MESSAGE_OUT"] == '')
-				$arMessage["MESSAGE_OUT"] = $arMessage["MESSAGE"];
+			{
+				$arMessage["MESSAGE_OUT"] = self::getMessageTextWithAttach($arMessage["MESSAGE"], $attachList[$arMessage['ID']] ?? null);
+			}
 
 			if (!isset($arToUser[$arMessage["TO_USER_ID"]]))
 			{
@@ -341,6 +351,46 @@ class CIMMail
 		return __METHOD__. '();';
 	}
 
+	private static function getAttachList(array $messageIds): array
+	{
+		if (empty($messageIds))
+		{
+			return [];
+		}
+
+		$query = MessageParamTable::query()
+			->setSelect(['MESSAGE_ID', 'PARAM_JSON'])
+			->whereIn('MESSAGE_ID', $messageIds)
+			->where('PARAM_NAME', 'ATTACH')
+			->exec()
+		;
+
+		$attachList = [];
+		while ($row = $query->fetch())
+		{
+			$attachList[(int)$row['MESSAGE_ID']] = CIMMessageParamAttach::GetAttachByJson($row['PARAM_JSON'] ?? []);
+		}
+
+		return $attachList;
+	}
+
+	private static function getMessageTextWithAttach(?string $message, ?CIMMessageParamAttach $attach): ?string
+	{
+		if ($attach === null)
+		{
+			return $message;
+		}
+
+		$description = ($attach->GetArray()['DESCRIPTION'] ?? null) ?: GetMessage('IM_MAIL_DEFAULT_ATTACH_DESCRIPTION');
+
+		if ($message === null || $message === '')
+		{
+			return $description;
+		}
+
+		return $message . "\n" . $description;
+	}
+
 	/**
 	 * duplicate CIntranetUtils::IsExternalMailAvailable()
 	 * for performance reasons
@@ -398,46 +448,8 @@ class CIMMail
 		return true;
 	}
 
-	public static function GetUserOffset($params)
+	public static function GetUserOffset(array $params): int
 	{
-		$userOffset = 0;
-		$localOffset = 0;
-
-		if (!CTimeZone::OptionEnabled())
-			return 0;
-
-		try //possible DateTimeZone incorrect timezone
-		{
-			$localTime = new DateTime();
-			$localOffset = $localTime->getOffset();
-
-			$autoTimeZone = trim($params["AUTO_TIME_ZONE"]);
-			$userZone = $params["TIME_ZONE"];
-			$factOffset = $params["TIME_ZONE_OFFSET"];
-
-			if($autoTimeZone === "N")
-			{
-				$userTime = ($userZone !== ""? new DateTime(null, new DateTimeZone($userZone)) : $localTime);
-				$userOffset = $userTime->getOffset();
-			}
-			else
-			{
-				if(CTimeZone::IsAutoTimeZone($autoTimeZone))
-				{
-					return (int)$factOffset;
-				}
-
-				$serverZone = COption::GetOptionString("main", "default_time_zone", "");
-				$serverTime = ($serverZone !== ""? new DateTime(null, new DateTimeZone($serverZone)) : $localTime);
-				$userOffset = $serverTime->getOffset();
-			}
-		}
-		catch(Exception $e)
-		{
-			return 0;
-		}
-		return $userOffset - $localOffset;
+		return CTimeZone::getTimezoneOffset($params['TIME_ZONE'] ?? '');
 	}
 }
-
-?>

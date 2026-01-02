@@ -21,8 +21,9 @@ class Notification
 	/** @var array $to */
 	protected $to = array();
 
-	/** @var string $message */
-	protected $message;
+	protected ?\Closure $message = null;
+
+	protected ?\Closure $title = null;
 
 	/**
 	 * Can use.
@@ -112,15 +113,17 @@ class Notification
 		return $this;
 	}
 
-	/**
-	 * With message.
-	 *
-	 * @param string $message Text.
-	 * @return $this
-	 */
-	public function withMessage($message)
+	public function withMessage(\Closure $message): Notification
 	{
 		$this->message = $message;
+
+		return $this;
+	}
+
+	public function setTitle(\Closure $title): Notification
+	{
+		$this->title = $title;
+
 		return $this;
 	}
 
@@ -143,15 +146,19 @@ class Notification
 
 		foreach ($this->to as $userId)
 		{
-			$fields = array(
+			$fields = [
 				"TO_USER_ID" => $userId,
 				"FROM_USER_ID" => 0,
 				"NOTIFY_TYPE" => IM_NOTIFY_SYSTEM,
 				"NOTIFY_MODULE" => "sender",
-				//"NOTIFY_EVENT" => $imNotifyEvent,
-				//"NOTIFY_TAG" => $notifyTag,
 				"NOTIFY_MESSAGE" => $this->message
-			);
+			];
+
+			if ($this->title)
+			{
+				$fields["NOTIFY_TITLE"] = $this->title;
+			}
+
 			\CIMNotify::Add($fields);
 		}
 	}

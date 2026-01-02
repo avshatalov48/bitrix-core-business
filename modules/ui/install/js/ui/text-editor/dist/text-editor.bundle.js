@@ -46,6 +46,21 @@ this.BX.UI = this.BX.UI || {};
 	const DETAIL_PREDICATES = [node => node.isDirectionless() && 'Directionless', node => node.isUnmergeable() && 'Unmergeable'];
 	const MODE_PREDICATES = [node => node.isToken() && 'Token', node => node.isSegmented() && 'Segmented'];
 
+	function getSelectedNode(selection) {
+	  const anchor = selection.anchor;
+	  const focus = selection.focus;
+	  const anchorNode = selection.anchor.getNode();
+	  const focusNode = selection.focus.getNode();
+	  if (anchorNode === focusNode) {
+	    return anchorNode;
+	  }
+	  const isBackward = selection.isBackward();
+	  if (isBackward) {
+	    return ui_lexical_selection.$isAtNodeEnd(focus) ? anchorNode : focusNode;
+	  }
+	  return ui_lexical_selection.$isAtNodeEnd(anchor) ? anchorNode : focusNode;
+	}
+
 	const nodeNameToTextFormat = {
 	  b: 'bold',
 	  strong: 'bold',
@@ -227,9 +242,6 @@ this.BX.UI = this.BX.UI || {};
 	function convertTextNode(textNode) {
 	  let textContent = textNode.getContent();
 	  textContent = textContent.replaceAll(/\r?\n|\t/gm, ' ').replace('\r', '');
-	  if (textNode.getParent().getName() !== 'code') {
-	    textContent = textContent.replaceAll(/\s+/g, ' ');
-	  }
 	  if (textContent === '') {
 	    return {
 	      node: null
@@ -364,34 +376,6 @@ this.BX.UI = this.BX.UI || {};
 	  });
 	  elementNode.appendChild(node);
 	  return elementNode;
-	}
-
-	function trimLineBreaks(nodes) {
-	  const trimmedNodes = [...nodes];
-	  const firstNode = trimmedNodes[0];
-	  const lastNode = trimmedNodes[trimmedNodes.length - 1];
-	  if (ui_lexical_core.$isLineBreakNode(firstNode) || ui_lexical_core.$isParagraphNode(firstNode) && firstNode.isEmpty()) {
-	    trimmedNodes.splice(0, 1);
-	  }
-	  if (ui_lexical_core.$isLineBreakNode(lastNode) || ui_lexical_core.$isParagraphNode(lastNode) && lastNode.isEmpty()) {
-	    trimmedNodes.splice(-1, 1);
-	  }
-	  return trimmedNodes;
-	}
-
-	function getSelectedNode(selection) {
-	  const anchor = selection.anchor;
-	  const focus = selection.focus;
-	  const anchorNode = selection.anchor.getNode();
-	  const focusNode = selection.focus.getNode();
-	  if (anchorNode === focusNode) {
-	    return anchorNode;
-	  }
-	  const isBackward = selection.isBackward();
-	  if (isBackward) {
-	    return ui_lexical_selection.$isAtNodeEnd(focus) ? anchorNode : focusNode;
-	  }
-	  return ui_lexical_selection.$isAtNodeEnd(anchor) ? anchorNode : focusNode;
 	}
 
 	var _textEditor = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("textEditor");
@@ -1199,7 +1183,8 @@ this.BX.UI = this.BX.UI || {};
 	      }],
 	      bbcodeMap: {
 	        spoiler: 'spoiler',
-	        'spoiler-content': 'spoiler'
+	        'spoiler-content': 'spoiler',
+	        'spoiler-title': 'spoiler'
 	      }
 	    };
 	  }
@@ -2048,10 +2033,10 @@ this.BX.UI = this.BX.UI || {};
 	}
 	function convertParagraphNode(bbcodeNode) {
 	  return {
-	    node: ui_lexical_core.$createParagraphNode(),
-	    after: childLexicalNodes => {
-	      return trimLineBreaks(childLexicalNodes);
-	    }
+	    node: ui_lexical_core.$createParagraphNode()
+	    // after: (childLexicalNodes: Array<LexicalNode>): Array<LexicalNode> => {
+	    // 	return trimLineBreaks(childLexicalNodes);
+	    // },
 	  };
 	}
 
@@ -2487,8 +2472,8 @@ this.BX.UI = this.BX.UI || {};
 	          return {
 	            node: $createCodeNode(),
 	            after: childLexicalNodes => {
-	              const childNodes = trimLineBreaks(childLexicalNodes);
-	              const content = childNodes.map(childNode => childNode.getTextContent()).join('');
+	              // const childNodes = trimLineBreaks(childLexicalNodes);
+	              const content = childLexicalNodes.map(childNode => childNode.getTextContent()).join('');
 
 	              // return getCodeTokenNodes(parse(content));
 	              return [ui_lexical_core.$createTextNode(content)];
@@ -4263,7 +4248,7 @@ this.BX.UI = this.BX.UI || {};
 
 	          // [FILE ID=5b87ba3b-edb1-49df-a840-50d17b6c3e8c.fbbdd477d5ff19d61...a875e731fa89cfd1e1]
 	          // [FILE ID=14194]
-	          const serverFileId = node.getAttribute('id');
+	          let serverFileId = node.getAttribute('id');
 	          const createTextNode = () => {
 	            return {
 	              node: ui_lexical_core.$createTextNode(node.toString())
@@ -4275,6 +4260,9 @@ this.BX.UI = this.BX.UI || {};
 	          const info = this.getFile(serverFileId);
 	          if (info === null) {
 	            return createTextNode();
+	          }
+	          if (info.serverFileId.toString() !== serverFileId.toString()) {
+	            serverFileId = info.serverFileId.toString();
 	          }
 	          const fileType = this.getFileType(info);
 	          if (fileType === FileType.IMAGE) {
@@ -4391,7 +4379,16 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getFile(serverFileId) {
 	    if (main_core.Type.isStringFilled(serverFileId) || main_core.Type.isNumber(serverFileId)) {
-	      return babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].get(serverFileId.toString()) || null;
+	      const file = babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].get(serverFileId.toString()) || null;
+	      if (file) {
+	        return file;
+	      }
+	      for (const item of babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].values()) {
+	        var _item$customData;
+	        if (item.serverFileId.toString() === serverFileId.toString() || (_item$customData = item.customData) != null && _item$customData.objectId && `n${item.customData.objectId.toString()}` === serverFileId.toString()) {
+	          return item;
+	        }
+	      }
 	    }
 	    return null;
 	  }
@@ -4861,6 +4858,23 @@ this.BX.UI = this.BX.UI || {};
 	  return node instanceof ImageNode;
 	}
 
+	const paddings = new WeakMap();
+	function getEditorPaddings(editor) {
+	  if (paddings.has(editor)) {
+	    return paddings.get(editor);
+	  }
+	  const scrollerContainer = editor.getEditableContainer();
+	  const computedStyle = window.getComputedStyle(scrollerContainer);
+	  const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
+	  const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
+	  const result = {
+	    left: paddingLeft,
+	    right: paddingRight
+	  };
+	  paddings.set(editor, result);
+	  return result;
+	}
+
 	function $getSelectionPosition(editor, selection, scrollerContainer) {
 	  // const range: Range = window.getSelection().getRangeAt(0);
 	  const range = createRange(selection, editor);
@@ -4970,7 +4984,6 @@ this.BX.UI = this.BX.UI || {};
 	}
 
 	const lastPositionMap = new WeakMap();
-	const editorPadding = 16;
 	function $adjustDialogPosition(popup, editor, initPosition) {
 	  const selection = ui_lexical_core.$getSelection();
 	  if (!ui_lexical_core.$isRangeSelection(selection)) {
@@ -4992,15 +5005,16 @@ this.BX.UI = this.BX.UI || {};
 	  const popupRect = main_core.Dom.getPosition(popup.getPopupContainer());
 	  const popupWidth = popupRect.width;
 	  let offsetLeft = popupWidth / 2;
+	  const editorPaddings = getEditorPaddings(editor);
 
 	  // Try to fit a popup within a scroll area
 	  if (left - offsetLeft < scrollerRect.left) {
 	    // Left boundary
 	    const overflow = scrollerRect.left - (left - offsetLeft);
-	    offsetLeft -= overflow + editorPadding;
+	    offsetLeft -= overflow + editorPaddings.left;
 	  } else if (scrollerRect.right < left + popupWidth - offsetLeft) {
 	    // Right boundary
-	    offsetLeft += left + popupWidth - offsetLeft - scrollerRect.right + editorPadding;
+	    offsetLeft += left + popupWidth - offsetLeft - scrollerRect.right + editorPaddings.right;
 	  }
 	  popup.setOffset({
 	    offsetLeft: -offsetLeft
@@ -5883,9 +5897,10 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	    return true;
 	  }, ui_lexical_core.COMMAND_PRIORITY_LOW), this.getEditor().registerCommand(HIDE_DIALOG_COMMAND, payload => {
-	    if (!payload || payload.sender !== 'mention') {
-	      babelHelpers.classPrivateFieldLooseBase(this, _hideDialog)[_hideDialog]();
+	    if ((payload == null ? void 0 : payload.sender) === 'mention' || (payload == null ? void 0 : payload.context) === 'resize' && babelHelpers.classPrivateFieldLooseBase(this, _mentionListening)[_mentionListening]) {
+	      return false;
 	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _hideDialog)[_hideDialog]();
 	    return false;
 	  }, ui_lexical_core.COMMAND_PRIORITY_LOW), this.getEditor().registerCommand(DIALOG_VISIBILITY_COMMAND, () => {
 	    return this.isDialogVisible();
@@ -6154,14 +6169,15 @@ this.BX.UI = this.BX.UI || {};
 	    } = selectionPosition;
 	    const scrollerRect = main_core.Dom.getPosition(this.getEditor().getScrollerContainer());
 	    const popupWidth = 400;
+	    const editorPaddings = getEditorPaddings(this.getEditor());
 	    let offsetLeft = 10;
 	    if (left - offsetLeft < scrollerRect.left) {
 	      // Left boundary
 	      const overflow = scrollerRect.left - (left - offsetLeft);
-	      offsetLeft -= overflow + 16;
+	      offsetLeft -= overflow + editorPaddings.left;
 	    } else if (scrollerRect.right < left + popupWidth - offsetLeft) {
 	      // Right boundary
-	      offsetLeft += left + popupWidth - offsetLeft - scrollerRect.right + 16;
+	      offsetLeft += left + popupWidth - offsetLeft - scrollerRect.right + editorPaddings.right;
 	    }
 	    if (bottom < scrollerRect.top || top > scrollerRect.bottom) {
 	      main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog].getPopup().getPopupContainer(), 'ui-text-editor-mention-popup__hidden');
@@ -7657,7 +7673,8 @@ this.BX.UI = this.BX.UI || {};
 	  list: {
 	    listitem: 'ui-typography-li',
 	    nested: {
-	      listitem: 'ui-text-editor__nestedListItem'
+	      list: '--nested',
+	      listitem: 'ui-text-editor__nestedListItem --nested'
 	    },
 	    olDepth: ['ui-typography-ol ui-text-editor__ol1', 'ui-typography-ol ui-text-editor__ol2', 'ui-typography-ol ui-text-editor__ol3', 'ui-typography-ol ui-text-editor__ol4', 'ui-typography-ol ui-text-editor__ol5'],
 	    ul: 'ui-typography-ul'
@@ -8646,7 +8663,45 @@ this.BX.UI = this.BX.UI || {};
 	  this.emit('onUnlink');
 	}
 
-	function validateUrl(url) {
+	/* eslint-disable no-underscore-dangle */
+	class CustomLinkNode extends ui_lexical_link.LinkNode {
+	  constructor(url = '', attributes = {}, key = null) {
+	    super(url, attributes, key);
+	  }
+	  static getType() {
+	    return 'custom-link';
+	  }
+	  static clone(node) {
+	    return new CustomLinkNode(node.__url, {
+	      rel: node.__rel,
+	      target: node.__target,
+	      title: node.__title
+	    }, node.__key);
+	  }
+	  static importJSON(serializedLinkNode) {
+	    return super.importJSON(serializedLinkNode);
+	  }
+	  exportJSON() {
+	    return {
+	      ...super.exportJSON(),
+	      type: 'custom-link',
+	      version: 1
+	    };
+	  }
+	  createDOM(config) {
+	    const element = super.createDOM(config);
+	    element.setAttribute('data-slider-ignore-autobinding', 'true');
+	    return element;
+	  }
+	}
+	function $createCustomLinkNode(url = '', attributes = {}) {
+	  return ui_lexical_core.$applyNodeReplacement(new CustomLinkNode(url, attributes));
+	}
+
+	function validateUrl(url, allowDomainRelativeUrl = true) {
+	  if (allowDomainRelativeUrl) {
+	    return /^(http:|https:|mailto:|tel:|sms:|\/)/i.test(url);
+	  }
 	  return /^(http:|https:|mailto:|tel:|sms:)/i.test(url);
 	}
 
@@ -8730,7 +8785,17 @@ this.BX.UI = this.BX.UI || {};
 	    return 'Link';
 	  }
 	  static getNodes(editor) {
-	    return [ui_lexical_link.LinkNode];
+	    return [ui_lexical_link.LinkNode, CustomLinkNode, {
+	      replace: ui_lexical_link.LinkNode,
+	      with: node => {
+	        return $createCustomLinkNode(node.__url, {
+	          rel: node.__rel,
+	          target: node.__target,
+	          title: node.__title
+	        });
+	      },
+	      withClass: CustomLinkNode
+	    }];
 	  }
 	  importBBCode() {
 	    return {
@@ -8759,34 +8824,18 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  exportBBCode() {
 	    return {
-	      link: lexicalNode => {
-	        const url = lexicalNode.getURL();
-	        const children = lexicalNode.getChildren();
-	        const isSimpleText = children.length === 1 && ui_lexical_core.$isTextNode(children[0]) && children[0].getFormat() === 0;
-	        const scheme = this.getEditor().getBBCodeScheme();
-	        if (isSimpleText && children[0].getTextContent() === url) {
-	          return {
-	            node: scheme.createElement({
-	              name: 'url'
-	            })
-	          };
-	        }
-	        return {
-	          node: scheme.createElement({
-	            name: 'url',
-	            value: url
-	          })
-	        };
-	      }
+	      link: lexicalNode => exportLinkNode(lexicalNode, this.getEditor()),
+	      'custom-link': lexicalNode => exportLinkNode(lexicalNode, this.getEditor())
 	    };
 	  }
 	  validateScheme() {
 	    return {
 	      nodes: [{
-	        nodeClass: ui_lexical_link.LinkNode
+	        nodeClass: CustomLinkNode
 	      }],
 	      bbcodeMap: {
-	        link: 'url'
+	        link: 'url',
+	        'custom-link': 'url'
 	      }
 	    };
 	  }
@@ -9024,16 +9073,22 @@ this.BX.UI = this.BX.UI || {};
 	function _registerPasteCommand2() {
 	  return this.getEditor().registerCommand(ui_lexical_core.PASTE_COMMAND, event => {
 	    const selection = ui_lexical_core.$getSelection();
-	    if (!ui_lexical_core.$isRangeSelection(selection) || selection.isCollapsed() || !(event instanceof ClipboardEvent) || event.clipboardData === null) {
+	    if (!ui_lexical_core.$isRangeSelection(selection) || !(event instanceof ClipboardEvent) || event.clipboardData === null) {
 	      return false;
 	    }
 	    const clipboardText = event.clipboardData.getData('text');
-	    if (!validateUrl(clipboardText)) {
+	    if (!validateUrl(clipboardText, false)) {
 	      return false;
 	    }
-
-	    // If we select nodes that are elements then avoid applying the link.
-	    if (!selection.getNodes().some(node => ui_lexical_core.$isElementNode(node))) {
+	    if (selection.isCollapsed()) {
+	      const success = this.getEditor().dispatchCommand(ui_lexical_link.TOGGLE_LINK_COMMAND, {
+	        url: clipboardText
+	      });
+	      if (success) {
+	        event.preventDefault();
+	        return true;
+	      }
+	    } else if (!selection.getNodes().some(node => ui_lexical_core.$isElementNode(node))) {
 	      ui_lexical_link.$toggleLink(clipboardText);
 	      event.preventDefault();
 	      return true;
@@ -9106,14 +9161,71 @@ this.BX.UI = this.BX.UI || {};
 	    return button;
 	  });
 	}
+	function exportLinkNode(lexicalNode, editor) {
+	  const url = lexicalNode.getURL();
+	  const children = lexicalNode.getChildren();
+	  const isSimpleText = children.length === 1 && ui_lexical_core.$isTextNode(children[0]) && children[0].getFormat() === 0;
+	  const scheme = editor.getBBCodeScheme();
+	  if (isSimpleText && children[0].getTextContent() === url) {
+	    return {
+	      node: scheme.createElement({
+	        name: 'url'
+	      })
+	    };
+	  }
+	  return {
+	    node: scheme.createElement({
+	      name: 'url',
+	      value: url
+	    })
+	  };
+	}
 
 
 
 	var Link = /*#__PURE__*/Object.freeze({
 		INSERT_LINK_DIALOG_COMMAND: INSERT_LINK_DIALOG_COMMAND,
-		LinkPlugin: LinkPlugin
+		LinkPlugin: LinkPlugin,
+		exportLinkNode: exportLinkNode
 	});
 
+	/* eslint-disable no-underscore-dangle */
+	class CustomAutoLinkNode extends ui_lexical_link.AutoLinkNode {
+	  constructor(url = '', attributes = {}, key = null) {
+	    super(url, attributes, key);
+	  }
+	  static getType() {
+	    return 'custom-autolink';
+	  }
+	  static clone(node) {
+	    return new CustomAutoLinkNode(node.__url, {
+	      isUnlinked: node.__isUnlinked,
+	      rel: node.__rel,
+	      target: node.__target,
+	      title: node.__title
+	    }, node.__key);
+	  }
+	  static importJSON(serializedLinkNode) {
+	    return super.importJSON(serializedLinkNode);
+	  }
+	  exportJSON() {
+	    return {
+	      ...super.exportJSON(),
+	      type: 'custom-autolink',
+	      version: 1
+	    };
+	  }
+	  createDOM(config) {
+	    const element = super.createDOM(config);
+	    element.setAttribute('data-slider-ignore-autobinding', 'true');
+	    return element;
+	  }
+	}
+	function $createCustomAutoLinkNode(url = '', attributes = {}) {
+	  return ui_lexical_core.$applyNodeReplacement(new CustomAutoLinkNode(url, attributes));
+	}
+
+	/* eslint-disable no-underscore-dangle */
 	const URL_REGEX = /((https?:\/\/(www\.)?)|(www\.))[\w#%+.:=@~-]{1,256}\.[\d()A-Za-z]{1,6}\b([\w#%&()+./:=?@[\]~-]*)(?<![%()+.:\]-])/;
 	const EMAIL_REGEX = /(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z-]+\.)+[A-Za-z]{2,}))/;
 	const MATCHERS = [createLinkMatcherWithRegExp(URL_REGEX, text => {
@@ -9134,27 +9246,33 @@ this.BX.UI = this.BX.UI || {};
 	    return 'AutoLink';
 	  }
 	  static getNodes(editor) {
-	    return [ui_lexical_link.AutoLinkNode];
+	    return [ui_lexical_link.AutoLinkNode, CustomAutoLinkNode, {
+	      replace: ui_lexical_link.AutoLinkNode,
+	      with: node => {
+	        return $createCustomAutoLinkNode(node.__url, {
+	          isUnlinked: node.__isUnlinked,
+	          rel: node.__rel,
+	          target: node.__target,
+	          title: node.__title
+	        });
+	      },
+	      withClass: CustomAutoLinkNode
+	    }];
 	  }
 	  exportBBCode() {
 	    return {
-	      autolink: () => {
-	        const scheme = this.getEditor().getBBCodeScheme();
-	        return {
-	          node: scheme.createElement({
-	            name: 'url'
-	          })
-	        };
-	      }
+	      autolink: lexicalNode => exportLinkNode(lexicalNode, this.getEditor()),
+	      'custom-autolink': lexicalNode => exportLinkNode(lexicalNode, this.getEditor())
 	    };
 	  }
 	  validateScheme() {
 	    return {
 	      nodes: [{
-	        nodeClass: ui_lexical_link.AutoLinkNode
+	        nodeClass: CustomAutoLinkNode
 	      }],
 	      bbcodeMap: {
-	        autolink: 'url'
+	        autolink: 'url',
+	        'custom-autolink': 'url'
 	      }
 	    };
 	  }
@@ -9168,7 +9286,12 @@ this.BX.UI = this.BX.UI || {};
 	      handleLinkEdit(parent, MATCHERS, onChange);
 	    } else if (!ui_lexical_link.$isLinkNode(parent)) {
 	      if (textNode.isSimpleText() && (startsWithSeparator(textNode.getTextContent()) || !ui_lexical_link.$isAutoLinkNode(previous))) {
-	        handleLinkCreation(textNode, MATCHERS, onChange);
+	        const $isUnformatted = ui_lexical_utils.$findMatchingParent(textNode, parentNode => {
+	          return (parentNode.__flags & UNFORMATTED) !== 0;
+	        });
+	        if (!$isUnformatted) {
+	          handleLinkCreation(textNode, MATCHERS, onChange);
+	        }
 	      }
 	      handleBadNeighbors(textNode, MATCHERS, onChange);
 	    }
@@ -9371,14 +9494,16 @@ this.BX.UI = this.BX.UI || {};
 	    if (!ui_lexical_core.$isRangeSelection(selection)) {
 	      return false;
 	    }
-	    event.preventDefault();
-	    return this.getEditor().dispatchCommand(event.shiftKey ? ui_lexical_core.OUTDENT_CONTENT_COMMAND : ui_lexical_core.INDENT_CONTENT_COMMAND);
+	    return this.getEditor().dispatchCommand(event.shiftKey ? ui_lexical_core.OUTDENT_CONTENT_COMMAND : ui_lexical_core.INDENT_CONTENT_COMMAND, {
+	      event,
+	      triggerByTab: true
+	    });
 	  }, ui_lexical_core.COMMAND_PRIORITY_EDITOR),
 	  // Turn off RichText built-in indents
-	  this.getEditor().registerCommand(ui_lexical_core.INDENT_CONTENT_COMMAND, event => {
+	  this.getEditor().registerCommand(ui_lexical_core.INDENT_CONTENT_COMMAND, () => {
 	    const selection = ui_lexical_core.$getSelection();
 	    return !$isSelectionInList(selection);
-	  }, ui_lexical_core.COMMAND_PRIORITY_LOW), this.getEditor().registerCommand(ui_lexical_core.OUTDENT_CONTENT_COMMAND, event => {
+	  }, ui_lexical_core.COMMAND_PRIORITY_LOW), this.getEditor().registerCommand(ui_lexical_core.OUTDENT_CONTENT_COMMAND, () => {
 	    const selection = ui_lexical_core.$getSelection();
 	    return !$isSelectionInList(selection);
 	  }, ui_lexical_core.COMMAND_PRIORITY_LOW));
@@ -10476,14 +10601,15 @@ this.BX.UI = this.BX.UI || {};
 	    } = selectionPosition;
 	    const scrollerRect = main_core.Dom.getPosition(this.getEditor().getScrollerContainer());
 	    const popupWidth = Math.min(scrollerRect.width, 600);
+	    const editorPaddings = getEditorPaddings(this.getEditor());
 	    let offsetLeft = popupWidth / 2;
 	    if (left - offsetLeft < scrollerRect.left) {
 	      // Left boundary
 	      const overflow = scrollerRect.left - (left - offsetLeft);
-	      offsetLeft -= overflow + 16;
+	      offsetLeft -= overflow + editorPaddings.left;
 	    } else if (scrollerRect.right < left + popupWidth - offsetLeft) {
 	      // Right boundary
-	      offsetLeft += left + popupWidth - offsetLeft - scrollerRect.right + 16;
+	      offsetLeft += left + popupWidth - offsetLeft - scrollerRect.right + editorPaddings.right;
 	    }
 	    if (bottom < scrollerRect.top || top > scrollerRect.bottom) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _copilot)[_copilot].adjust({
@@ -10560,6 +10686,13 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  });
 	}
+
+
+
+	var Copilot = /*#__PURE__*/Object.freeze({
+		INSERT_COPILOT_DIALOG_COMMAND: INSERT_COPILOT_DIALOG_COMMAND,
+		CopilotPlugin: CopilotPlugin
+	});
 
 	var _registerComponents$g = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("registerComponents");
 	class HistoryPlugin extends BasePlugin {
@@ -11547,15 +11680,11 @@ this.BX.UI = this.BX.UI || {};
 	  if (!selection.isCollapsed() && rawTextContent === '') {
 	    return false;
 	  }
-	  const node = getSelectedNode(selection);
-	  const parent = node.getParent();
-	  if (ui_lexical_link.$isLinkNode(parent) || ui_lexical_link.$isLinkNode(node)) {
-	    return false;
-	  }
 	  const isSomeDialogVisible = this.getEditor().dispatchCommand(DIALOG_VISIBILITY_COMMAND);
 	  if (isSomeDialogVisible) {
 	    return false;
 	  }
+	  const node = getSelectedNode(selection);
 	  return ui_lexical_core.$isTextNode(node);
 	}
 
@@ -12902,7 +13031,8 @@ this.BX.UI = this.BX.UI || {};
 	  Smiley,
 	  Table,
 	  Hashtag,
-	  File
+	  File,
+	  Copilot
 	};
 
 	/**

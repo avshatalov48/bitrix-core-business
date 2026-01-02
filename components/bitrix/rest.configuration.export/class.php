@@ -65,7 +65,8 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 	{
 		return [
 			'MANIFEST_CODE',
-			'ITEM_CODE'
+			'ITEM_CODE',
+			'ADDITIONAL',
 		];
 	}
 
@@ -142,6 +143,7 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 			$setting = new Setting($context);
 			$setting->deleteFull();
 			$setting->set(Setting::MANIFEST_CODE, $this->arParams['MANIFEST_CODE']);
+			$setting->set(Setting::SETTING_ACTION_ADDITIONAL_OPTION, $this->arParams['ADDITIONAL'] ?? []);
 
 			$structure = new Structure($context);
 			if($structure->getFolder())
@@ -373,7 +375,8 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 				'CODE' => $manifest['CODE'],
 				'VERSION' => Setting::VERSION,
 				'MANIFEST_VERSION' => $manifest['VERSION'],
-				'USES' => $manifest['USES']
+				'USES' => $manifest['USES'],
+				'COMPATIBILITY_TAGS' => $manifest['COMPATIBILITY_TAGS'] ?? [],
 			];
 			$context = $this->getContext();
 			$structure = new Structure($context);
@@ -390,7 +393,9 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 					'MANIFEST_CODE' => $manifest['CODE'],
 					'IMPORT_MANIFEST' => [],//TODO: delete this after fix crm
 					'MANIFEST' => $manifest,
-					'ITEM_CODE' => $this->arParams['ITEM_CODE']
+					'ITEM_CODE' => $this->arParams['ITEM_CODE'] ?? '',
+					'SETTING' => $setting->get(Setting::SETTING_MANIFEST),
+					'ADDITIONAL_OPTION' => $setting->get(Setting::SETTING_ACTION_ADDITIONAL_OPTION),
 				]
 			);
 			$result = true;
@@ -424,7 +429,7 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 			$code = preg_replace('/[^a-zA-Z0-9_]/', '', $request->getPost("code"));
 			$step = intval($request->getPost("step"));
 			$next = htmlspecialcharsbx($request->getPost("next"));
-			if($code)
+			if ($code)
 			{
 				$structure = new Structure($this->getContext());
 				$items = Controller::callEventExport(
@@ -432,7 +437,7 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 					$code,
 					$step,
 					$next,
-					$this->arParams['ITEM_CODE'],
+					$this->arParams['ITEM_CODE'] ?? '',
 					$this->getContext()
 				);
 				foreach ($items as $item)
@@ -464,11 +469,22 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 					}
 					if (isset($item['FILES']) && is_array($item['FILES']))
 					{
+						$fileList = $structure->getFileList() ?? [];
+						$existingFileIds = array_map('intval', array_column($fileList, 'ID'));
 						foreach ($item['FILES'] as $file)
 						{
-							if(isset($file['ID']))
+							$fileId = isset($file['ID']) ? (int)$file['ID'] : 0;
+
+							if ($fileId === 0)
 							{
 								$structure->saveFile($file['ID'], $file);
+								continue;
+							}
+
+							if (!in_array($fileId, $existingFileIds, true))
+							{
+								$structure->saveFile($fileId, $file);
+								$existingFileIds[] = $fileId;
 							}
 						}
 					}
@@ -503,8 +519,9 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 					'TYPE' => 'EXPORT',
 					'STEP' => $step,
 					'NEXT' => $next,
-					'ITEM_CODE' => $this->arParams['ITEM_CODE'],
-					'CONTEXT_USER' => $this->getContext()
+					'ITEM_CODE' => $this->arParams['ITEM_CODE'] ?? '',
+					'CONTEXT_USER' => $this->getContext(),
+					'ADDITIONAL_OPTION' => $this->arParams['ADDITIONAL'] ?? [],
 				]
 			);
 			foreach ($items as $item)

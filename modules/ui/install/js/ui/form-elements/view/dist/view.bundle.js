@@ -1,15 +1,37 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,ui_infoHelper,main_core_events,ui_section,main_popup,ui_switcher,main_core,ui_entitySelector) {
+(function (exports,main_core_events,ui_section,main_popup,ui_switcher,ui_entitySelector,ui_infoHelper,ui_formElements_view,main_core) {
 	'use strict';
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
+	var _templateObject;
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _text = /*#__PURE__*/new WeakMap();
+	var Badge = /*#__PURE__*/function () {
+	  function Badge(options) {
+	    babelHelpers.classCallCheck(this, Badge);
+	    _classPrivateFieldInitSpec(this, _text, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldSet(this, _text, main_core.Type.isStringFilled(options.text) ? options.text : '');
+	  }
+	  babelHelpers.createClass(Badge, [{
+	    key: "render",
+	    value: function render() {
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-section__field-badge ui-counter ui-counter-md --air --style-filled-extra\">\n\t\t\t\t<div class=\"ui-counter-inner\">", "</div>\n\t\t\t</div>\n\t\t"])), babelHelpers.classPrivateFieldGet(this, _text));
+	    }
+	  }]);
+	  return Badge;
+	}();
+
+	var _templateObject$1, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
 	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	var _id = /*#__PURE__*/new WeakMap();
 	var _inputName = /*#__PURE__*/new WeakMap();
 	var _isEnable = /*#__PURE__*/new WeakMap();
@@ -20,51 +42,56 @@ this.BX.UI = this.BX.UI || {};
 	var _helpMessage = /*#__PURE__*/new WeakMap();
 	var _errorContainer = /*#__PURE__*/new WeakMap();
 	var _isFieldDisabled = /*#__PURE__*/new WeakMap();
+	var _badge = /*#__PURE__*/new WeakMap();
 	var BaseField = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(BaseField, _EventEmitter);
 	  function BaseField(params) {
 	    var _this;
 	    babelHelpers.classCallCheck(this, BaseField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BaseField).call(this));
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _id, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _id, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _inputName, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _inputName, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _isEnable, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _isEnable, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _bannerCode, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _bannerCode, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _helpDeskCode, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _helpDeskCode, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _label, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _label, {
 	      writable: true,
 	      value: ''
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _helpMessageProvider, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _helpMessageProvider, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _helpMessage, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _helpMessage, {
 	      writable: true,
 	      value: null
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _errorContainer, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _errorContainer, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _isFieldDisabled, {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _isFieldDisabled, {
 	      writable: true,
 	      value: false
+	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _badge, {
+	      writable: true,
+	      value: null
 	    });
 	    _this.setEventNamespace('UI.Section');
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _label, main_core.Type.isStringFilled(params.label) ? params.label : '');
@@ -83,6 +110,12 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _helpDeskCode, main_core.Type.isStringFilled(params.helpDesk) ? params.helpDesk : null);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _helpMessageProvider, params.helpMessageProvider);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _isFieldDisabled, main_core.Type.isBoolean(params.isFieldDisabled) ? params.isFieldDisabled : false);
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _badge, main_core.Type.isStringFilled(params.badge) ? new Badge({
+	      text: params.badge
+	    }) : null);
+	    main_core_events.EventEmitter.subscribe(main_core_events.EventEmitter.GLOBAL_TARGET, 'BX.Intranet.Settings:onBeforeSave', function () {
+	      _this.cleanError();
+	    });
 	    return _this;
 	  }
 	  babelHelpers.createClass(BaseField, [{
@@ -104,19 +137,21 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setErrors",
 	    value: function setErrors(errorMessages) {
 	      this.cleanError();
-	      main_core.Dom.addClass(this.getErrorBox(), '--error');
-	      var _iterator = _createForOfIteratorHelper(errorMessages),
-	        _step;
-	      try {
-	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-	          var message = _step.value;
-	          var error = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-section__error-message\">\n\t\t\t\t\t<span class=\"ui-icon-set --warning\"></span>\n\t\t\t\t\t<span>", "</span>\n\t\t\t\t</div>\n\t\t\t"])), message);
-	          main_core.Dom.append(error, this.renderErrors());
+	      if (main_core.Type.isArray(errorMessages) && errorMessages.length > 0) {
+	        main_core.Dom.addClass(this.getErrorBox(), '--error');
+	        var _iterator = _createForOfIteratorHelper(errorMessages),
+	          _step;
+	        try {
+	          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	            var message = _step.value;
+	            var error = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-section__error-message\">\n\t\t\t\t\t<span class=\"ui-icon-set --warning\"></span>\n\t\t\t\t\t<span>", "</span>\n\t\t\t\t</div>\n\t\t\t"])), message);
+	            main_core.Dom.append(error, this.renderErrors());
+	          }
+	        } catch (err) {
+	          _iterator.e(err);
+	        } finally {
+	          _iterator.f();
 	        }
-	      } catch (err) {
-	        _iterator.e(err);
-	      } finally {
-	        _iterator.f();
 	      }
 	    }
 	  }, {
@@ -218,6 +253,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "renderLockElement",
 	    value: function renderLockElement() {
 	      var _this2 = this;
+	      if (!this.getBannerCode()) {
+	        return '';
+	      }
 	      var lockElement = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-icon-set --lock field-has-lock\"></span>"])));
 	      lockElement.addEventListener('click', function () {
 	        _this2.showBanner();
@@ -239,14 +277,19 @@ this.BX.UI = this.BX.UI || {};
 	    value: function isFieldDisabled() {
 	      return babelHelpers.classPrivateFieldGet(this, _isFieldDisabled);
 	    }
+	  }, {
+	    key: "getBadge",
+	    value: function getBadge() {
+	      return babelHelpers.classPrivateFieldGet(this, _badge);
+	    }
 	  }]);
 	  return BaseField;
 	}(main_core_events.EventEmitter);
 
-	var _templateObject$1, _templateObject2$1;
-	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
-	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _templateObject$2, _templateObject2$1;
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$2(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _renderMore = /*#__PURE__*/new WeakMap();
 	var _moreElement = /*#__PURE__*/new WeakMap();
@@ -261,11 +304,11 @@ this.BX.UI = this.BX.UI || {};
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Checker).call(this, params));
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _renderHint);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getMore);
-	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _renderMore, {
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderMore, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _moreElement, {
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _moreElement, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -282,7 +325,8 @@ this.BX.UI = this.BX.UI || {};
 	      attributeName: params.attributeName,
 	      handlers: params.handlers,
 	      color: params.colors,
-	      size: params.size
+	      size: params.size,
+	      disabled: !_this.isEnable()
 	    });
 	    if (_this.isFieldDisabled()) {
 	      _this.switcher.disable(true);
@@ -303,6 +347,11 @@ this.BX.UI = this.BX.UI || {};
 	    return _this;
 	  }
 	  babelHelpers.createClass(Checker, [{
+	    key: "setHideSeparator",
+	    value: function setHideSeparator(isHide) {
+	      this.hideSeparator = isHide;
+	    }
+	  }, {
 	    key: "getValue",
 	    value: function getValue() {
 	      return this.switcher.inputNode.value;
@@ -334,8 +383,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "renderContentField",
 	    value: function renderContentField() {
+	      var _this$getBadge;
 	      var lockElement = !this.isEnable() ? this.renderLockElement() : null;
-	      return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div\n\t\t\t\tid=\"", "\" \n\t\t\t\tclass=\"\n\t\t\t\t\tui-section__field-switcher\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\"\n\t\t\t>\n\t\t\t\t<div class=\"ui-section__field\">\n\t\t\t\t\t<div class=\"ui-section__switcher\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-section__field-inner\">\n\t\t\t\t\t\t<div class=\"ui-section__title\">\n\t\t\t\t\t\t\t", " ", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getId(), this.hideSeparator ? '--hide-separator' : '', this.alignCenter ? '--align-center --gray-title' : '', this.noMarginBottom ? '--no-margin-bottom' : '', this.size ? "--".concat(this.size) : '', this.getInputNode(), this.getLabel(), lockElement, _classPrivateMethodGet(this, _renderHint, _renderHint2).call(this, this.isChecked()), this.renderErrors());
+	      return main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div\n\t\t\t\tid=\"", "\" \n\t\t\t\tclass=\"\n\t\t\t\t\tui-section__field-switcher\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\"\n\t\t\t>\n\t\t\t\t<div class=\"ui-section__field\">\n\t\t\t\t\t<div class=\"ui-section__switcher\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-section__field-inner\">\n\t\t\t\t\t\t<div class=\"ui-section__title\">\n\t\t\t\t\t\t\t", " ", " ", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getId(), this.hideSeparator ? '--hide-separator' : '', this.alignCenter ? '--align-center --gray-title' : '', this.noMarginBottom ? '--no-margin-bottom' : '', this.size ? "--".concat(this.size) : '', this.getInputNode(), this.getLabel(), (_this$getBadge = this.getBadge()) === null || _this$getBadge === void 0 ? void 0 : _this$getBadge.render(), lockElement, _classPrivateMethodGet(this, _renderHint, _renderHint2).call(this, this.isChecked()), this.renderErrors());
 	    }
 	  }, {
 	    key: "getHint",
@@ -373,9 +423,9 @@ this.BX.UI = this.BX.UI || {};
 	  return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-section__hint\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), result);
 	}
 
-	var _templateObject$2, _templateObject2$2;
-	function _classPrivateFieldInitSpec$2(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _templateObject$3, _templateObject2$2;
+	function _classPrivateFieldInitSpec$3(obj, privateMap, value) { _checkPrivateRedeclaration$3(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	var _hintDescElement = /*#__PURE__*/new WeakMap();
 	var InlineChecker = /*#__PURE__*/function (_Checker) {
 	  babelHelpers.inherits(InlineChecker, _Checker);
@@ -383,12 +433,12 @@ this.BX.UI = this.BX.UI || {};
 	    var _this;
 	    babelHelpers.classCallCheck(this, InlineChecker);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(InlineChecker).call(this, params));
-	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _hintDescElement, {
+	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _hintDescElement, {
 	      writable: true,
 	      value: void 0
 	    });
 	    _this.hintTitle = main_core.Type.isStringFilled(params.hintTitle) ? params.hintTitle : '';
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _hintDescElement, main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-section__description\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), _this.isChecked() ? _this.hintOn : _this.hintOff));
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _hintDescElement, main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-section__description\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), _this.isChecked() ? _this.hintOn : _this.hintOff));
 	    return _this;
 	  }
 	  babelHelpers.createClass(InlineChecker, [{
@@ -412,13 +462,13 @@ this.BX.UI = this.BX.UI || {};
 	  return InlineChecker;
 	}(Checker);
 
-	var _templateObject$3, _templateObject2$3, _templateObject3$1;
+	var _templateObject$4, _templateObject2$3, _templateObject3$1;
 	function _createForOfIteratorHelper$1(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$1(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 	function _unsupportedIterableToArray$1(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$1(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$1(o, minLen); }
 	function _arrayLikeToArray$1(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$3(obj, privateSet); privateSet.add(obj); }
-	function _classPrivateFieldInitSpec$3(obj, privateMap, value) { _checkPrivateRedeclaration$3(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$4(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$4(obj, privateMap, value) { _checkPrivateRedeclaration$4(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$4(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _items = /*#__PURE__*/new WeakMap();
 	var _selectNode = /*#__PURE__*/new WeakMap();
@@ -434,19 +484,19 @@ this.BX.UI = this.BX.UI || {};
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ItemPicker).call(this, params));
 	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _buildItems);
 	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _buildSelector);
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _items, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _items, {
 	      writable: true,
 	      value: []
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _selectNode, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _selectNode, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _isMulti, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _isMulti, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _current, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _current, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -467,7 +517,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "renderContentField",
 	    value: function renderContentField() {
-	      return main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t<div class=\"ui-section__picker-wrapper\" id=\"", "\">\n\t\t\t<div class=\"ui-section__field-label\">", "</div>\n\t\t\t", "\n\t\t\t", "\n\t\t\t", "\n\t\t</div>\n\t\t"])), this.getId(), this.getLabel(), _classPrivateMethodGet$1(this, _buildItems, _buildItems2).call(this), this.renderErrors(), this.getInputNode());
+	      return main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t<div class=\"ui-section__picker-wrapper\" id=\"", "\">\n\t\t\t<div class=\"ui-section__field-label\">", "</div>\n\t\t\t", "\n\t\t\t", "\n\t\t\t", "\n\t\t</div>\n\t\t"])), this.getId(), this.getLabel(), _classPrivateMethodGet$1(this, _buildItems, _buildItems2).call(this), this.renderErrors(), this.getInputNode());
 	    }
 	  }, {
 	    key: "getInputNode",
@@ -628,13 +678,13 @@ this.BX.UI = this.BX.UI || {};
 	  return collectionNode;
 	}
 
-	var _templateObject$4, _templateObject2$4, _templateObject3$2, _templateObject4$1, _templateObject5$1, _templateObject6;
+	var _templateObject$5, _templateObject2$4, _templateObject3$2, _templateObject4$1, _templateObject5$1, _templateObject6;
 	function _createForOfIteratorHelper$2(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$2(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 	function _unsupportedIterableToArray$2(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$2(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$2(o, minLen); }
 	function _arrayLikeToArray$2(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$4(obj, privateSet); privateSet.add(obj); }
-	function _classPrivateFieldInitSpec$4(obj, privateMap, value) { _checkPrivateRedeclaration$4(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$4(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$5(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$5(obj, privateMap, value) { _checkPrivateRedeclaration$5(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$5(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _items$1 = /*#__PURE__*/new WeakMap();
 	var _hintTitle = /*#__PURE__*/new WeakMap();
@@ -653,35 +703,35 @@ this.BX.UI = this.BX.UI || {};
 	    params.inputName = params.name;
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Selector).call(this, params));
 	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _buildSelector$1);
-	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _items$1, {
+	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _items$1, {
 	      writable: true,
 	      value: []
 	    });
-	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _hintTitle, {
+	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _hintTitle, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _hints, {
+	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _hints, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _hintTitleElement, {
+	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _hintTitleElement, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _hintDescElement$1, {
+	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _hintDescElement$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _inputNode, {
+	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _inputNode, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _selectorNode, {
+	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _selectorNode, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _hintSeparatorElement, {
+	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _hintSeparatorElement, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -689,7 +739,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _hintTitle, main_core.Type.isString(params.hintTitle) ? params.hintTitle : '');
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _hints, main_core.Type.isObject(params.hints) ? params.hints : {});
 	    _this.defaultValue = params.current;
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _hintTitleElement, main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-section__title\"></div>"]))));
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _hintTitleElement, main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-section__title\"></div>"]))));
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _hintDescElement$1, main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-section__description\"></div>"]))));
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _hintSeparatorElement, main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-section__field-inline-separator\"></div>"]))));
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _inputNode, _classPrivateMethodGet$2(babelHelpers.assertThisInitialized(_this), _buildSelector$1, _buildSelector2$1).call(babelHelpers.assertThisInitialized(_this)));
@@ -824,9 +874,9 @@ this.BX.UI = this.BX.UI || {};
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-	function _classPrivateMethodInitSpec$3(obj, privateSet) { _checkPrivateRedeclaration$5(obj, privateSet); privateSet.add(obj); }
-	function _classPrivateFieldInitSpec$5(obj, privateMap, value) { _checkPrivateRedeclaration$5(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$5(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodInitSpec$3(obj, privateSet) { _checkPrivateRedeclaration$6(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$6(obj, privateMap, value) { _checkPrivateRedeclaration$6(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$6(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$3(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _menu = /*#__PURE__*/new WeakMap();
 	var _showMenu = /*#__PURE__*/new WeakSet();
@@ -848,7 +898,7 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SelectorMenu).call(this, params));
 	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _showMenu);
-	    _classPrivateFieldInitSpec$5(babelHelpers.assertThisInitialized(_this), _menu, {
+	    _classPrivateFieldInitSpec$6(babelHelpers.assertThisInitialized(_this), _menu, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -928,10 +978,10 @@ this.BX.UI = this.BX.UI || {};
 	  return SingleChecker;
 	}(BaseField);
 
-	var _templateObject$5, _templateObject2$5;
-	function _classPrivateMethodInitSpec$4(obj, privateSet) { _checkPrivateRedeclaration$6(obj, privateSet); privateSet.add(obj); }
-	function _classPrivateFieldInitSpec$6(obj, privateMap, value) { _checkPrivateRedeclaration$6(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$6(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _templateObject$6, _templateObject2$5;
+	function _classPrivateMethodInitSpec$4(obj, privateSet) { _checkPrivateRedeclaration$7(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$7(obj, privateMap, value) { _checkPrivateRedeclaration$7(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$7(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$4(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _inputNode$1 = /*#__PURE__*/new WeakMap();
 	var _maxlength = /*#__PURE__*/new WeakMap();
@@ -943,11 +993,11 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classCallCheck(this, TextInput);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TextInput).call(this, params));
 	    _classPrivateMethodInitSpec$4(babelHelpers.assertThisInitialized(_this), _renderInputNode);
-	    _classPrivateFieldInitSpec$6(babelHelpers.assertThisInitialized(_this), _inputNode$1, {
+	    _classPrivateFieldInitSpec$7(babelHelpers.assertThisInitialized(_this), _inputNode$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$6(babelHelpers.assertThisInitialized(_this), _maxlength, {
+	    _classPrivateFieldInitSpec$7(babelHelpers.assertThisInitialized(_this), _maxlength, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -993,7 +1043,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "renderContentField",
 	    value: function renderContentField() {
 	      var lockElement = !this.isEnable ? this.renderLockElement() : null;
-	      return main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"ui-section__field-selector\">\n\t\t\t\t<div class=\"ui-section__field-container\">\n\t\t\t\t\t<div class=\"ui-section__field-label_box\">\n\t\t\t\t\t\t<label for=\"", "\" class=\"ui-section__field-label\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</label> \n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-block ", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-section__hint\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.getId(), this.getName(), this.getLabel(), lockElement, this.inputDefaultWidth ? '' : 'ui-ctl-w100', this.getInputNode(), this.renderErrors(), this.hintTitle);
+	      return main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"ui-section__field-selector\">\n\t\t\t\t<div class=\"ui-section__field-container\">\n\t\t\t\t\t<div class=\"ui-section__field-label_box\">\n\t\t\t\t\t\t<label for=\"", "\" class=\"ui-section__field-label\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</label> \n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-block ", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-section__hint\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.getId(), this.getName(), this.getLabel(), lockElement, this.inputDefaultWidth ? '' : 'ui-ctl-w100', this.getInputNode(), this.renderErrors(), this.hintTitle);
 	    }
 	  }]);
 	  return TextInput;
@@ -1002,10 +1052,10 @@ this.BX.UI = this.BX.UI || {};
 	  return main_core.Tag.render(_templateObject2$5 || (_templateObject2$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input\n\t\t\t\tvalue=\"", "\" \n\t\t\t\tname=\"", "\" \n\t\t\t\ttype=\"", "\" \n\t\t\t\tclass=\"ui-ctl-element ", "\" \n\t\t\t\tplaceholder=\"", "\"\n\t\t\t\tmaxlength=\"", "\"\n\t\t\t\t", "\n\t\t\t>\n\t\t"])), main_core.Text.encode(this.defaultValue), main_core.Text.encode(this.getName()), this.inputType, this.isEnable() ? '' : '--readonly', main_core.Text.encode(this.placeholder), parseInt(babelHelpers.classPrivateFieldGet(this, _maxlength), 10), this.isEnable() ? '' : 'readonly');
 	}
 
-	var _templateObject$6, _templateObject2$6;
-	function _classPrivateMethodInitSpec$5(obj, privateSet) { _checkPrivateRedeclaration$7(obj, privateSet); privateSet.add(obj); }
-	function _classPrivateFieldInitSpec$7(obj, privateMap, value) { _checkPrivateRedeclaration$7(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$7(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _templateObject$7, _templateObject2$6;
+	function _classPrivateMethodInitSpec$5(obj, privateSet) { _checkPrivateRedeclaration$8(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$8(obj, privateMap, value) { _checkPrivateRedeclaration$8(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$8(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$5(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _defaultValue = /*#__PURE__*/new WeakMap();
 	var _hintTitle$1 = /*#__PURE__*/new WeakMap();
@@ -1022,31 +1072,31 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classCallCheck(this, TextArea);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TextArea).call(this, params));
 	    _classPrivateMethodInitSpec$5(babelHelpers.assertThisInitialized(_this), _renderNode);
-	    _classPrivateFieldInitSpec$7(babelHelpers.assertThisInitialized(_this), _defaultValue, {
+	    _classPrivateFieldInitSpec$8(babelHelpers.assertThisInitialized(_this), _defaultValue, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$7(babelHelpers.assertThisInitialized(_this), _hintTitle$1, {
+	    _classPrivateFieldInitSpec$8(babelHelpers.assertThisInitialized(_this), _hintTitle$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$7(babelHelpers.assertThisInitialized(_this), _placeholder, {
+	    _classPrivateFieldInitSpec$8(babelHelpers.assertThisInitialized(_this), _placeholder, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$7(babelHelpers.assertThisInitialized(_this), _inputDefaultWidth, {
+	    _classPrivateFieldInitSpec$8(babelHelpers.assertThisInitialized(_this), _inputDefaultWidth, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$7(babelHelpers.assertThisInitialized(_this), _resizeOnlyY, {
+	    _classPrivateFieldInitSpec$8(babelHelpers.assertThisInitialized(_this), _resizeOnlyY, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$7(babelHelpers.assertThisInitialized(_this), _resizeOnlyX, {
+	    _classPrivateFieldInitSpec$8(babelHelpers.assertThisInitialized(_this), _resizeOnlyX, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$7(babelHelpers.assertThisInitialized(_this), _node, {
+	    _classPrivateFieldInitSpec$8(babelHelpers.assertThisInitialized(_this), _node, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -1078,7 +1128,7 @@ this.BX.UI = this.BX.UI || {};
 	        resizeUiClass = babelHelpers.classPrivateFieldGet(this, _resizeOnlyX) ? 'ui-ctl-resize-x' : '';
 	      }
 	      var defaultWidthUIClass = babelHelpers.classPrivateFieldGet(this, _inputDefaultWidth) ? '' : 'ui-ctl-w100';
-	      return main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"ui-section__field-selector\">\n\t\t\t\t<div class=\"ui-section__field-container\">\n\t\t\t\t\t<div class=\"ui-section__field-label_box\">\n\t\t\t\t\t\t<label for=\"", "\" class=\"ui-section__field-label\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</label> \n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-ctl ui-ctl-textarea ui-form-textarea ", " ", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-section__hint\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.getId(), this.getName(), this.getLabel(), lockElement, resizeUiClass, defaultWidthUIClass, this.getNode(), this.renderErrors(), babelHelpers.classPrivateFieldGet(this, _hintTitle$1));
+	      return main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"ui-section__field-selector\">\n\t\t\t\t<div class=\"ui-section__field-container\">\n\t\t\t\t\t<div class=\"ui-section__field-label_box\">\n\t\t\t\t\t\t<label for=\"", "\" class=\"ui-section__field-label\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</label> \n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-ctl ui-ctl-textarea ui-form-textarea ", " ", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-section__hint\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.getId(), this.getName(), this.getLabel(), lockElement, resizeUiClass, defaultWidthUIClass, this.getNode(), this.renderErrors(), babelHelpers.classPrivateFieldGet(this, _hintTitle$1));
 	    }
 	  }, {
 	    key: "getNode",
@@ -1096,9 +1146,9 @@ this.BX.UI = this.BX.UI || {};
 	  return node;
 	}
 
-	var _templateObject$7, _templateObject2$7, _templateObject3$3;
-	function _classPrivateFieldInitSpec$8(obj, privateMap, value) { _checkPrivateRedeclaration$8(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$8(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _templateObject$8, _templateObject2$7, _templateObject3$3;
+	function _classPrivateFieldInitSpec$9(obj, privateMap, value) { _checkPrivateRedeclaration$9(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$9(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	var _hintDesc = /*#__PURE__*/new WeakMap();
 	var _hintBlock = /*#__PURE__*/new WeakMap();
 	var TextInputInline = /*#__PURE__*/function (_TextInput) {
@@ -1107,17 +1157,17 @@ this.BX.UI = this.BX.UI || {};
 	    var _this;
 	    babelHelpers.classCallCheck(this, TextInputInline);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TextInputInline).call(this, params));
-	    _classPrivateFieldInitSpec$8(babelHelpers.assertThisInitialized(_this), _hintDesc, {
+	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _hintDesc, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$8(babelHelpers.assertThisInitialized(_this), _hintBlock, {
+	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _hintBlock, {
 	      writable: true,
 	      value: void 0
 	    });
 	    _this.valueColor = main_core.Type.isBoolean(params.valueColor) === true ? '--color-blue' : '';
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _hintDesc, main_core.Type.isStringFilled(params.hintDesc) ? params.hintDesc : '');
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _hintBlock, main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["<div></div>"]))));
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _hintBlock, main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["<div></div>"]))));
 	    _this.getInputNode().addEventListener('keyup', function (event) {
 	      main_core.Dom.clean(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _hintBlock));
 	      main_core.Dom.append(_this.renderHint(), babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _hintBlock));
@@ -1146,13 +1196,15 @@ this.BX.UI = this.BX.UI || {};
 	  return TextInputInline;
 	}(TextInput);
 
-	var _templateObject$8, _templateObject2$8;
+	var _templateObject$9, _templateObject2$8;
 	function _createForOfIteratorHelper$3(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$3(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 	function _unsupportedIterableToArray$3(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$3(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$3(o, minLen); }
 	function _arrayLikeToArray$3(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-	function _classPrivateMethodInitSpec$6(obj, privateSet) { _checkPrivateRedeclaration$9(obj, privateSet); privateSet.add(obj); }
-	function _classPrivateFieldInitSpec$9(obj, privateMap, value) { _checkPrivateRedeclaration$9(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$9(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function _classPrivateMethodInitSpec$6(obj, privateSet) { _checkPrivateRedeclaration$a(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$a(obj, privateMap, value) { _checkPrivateRedeclaration$a(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$a(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$6(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _entitySelector = /*#__PURE__*/new WeakMap();
 	var _defaultValues = /*#__PURE__*/new WeakMap();
@@ -1164,6 +1216,7 @@ this.BX.UI = this.BX.UI || {};
 	var _enableUsers = /*#__PURE__*/new WeakMap();
 	var _enableAll = /*#__PURE__*/new WeakMap();
 	var _enableDepartments = /*#__PURE__*/new WeakMap();
+	var _dialogEvents = /*#__PURE__*/new WeakMap();
 	var _getDepartamentsSelectMode = /*#__PURE__*/new WeakSet();
 	var _createInputElement = /*#__PURE__*/new WeakSet();
 	var _initInput = /*#__PURE__*/new WeakSet();
@@ -1178,53 +1231,58 @@ this.BX.UI = this.BX.UI || {};
 	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _initInput);
 	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _createInputElement);
 	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _getDepartamentsSelectMode);
-	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _entitySelector, {
+	    _classPrivateFieldInitSpec$a(babelHelpers.assertThisInitialized(_this), _entitySelector, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _defaultValues, {
+	    _classPrivateFieldInitSpec$a(babelHelpers.assertThisInitialized(_this), _defaultValues, {
 	      writable: true,
 	      value: []
 	    });
-	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _inputContainer, {
+	    _classPrivateFieldInitSpec$a(babelHelpers.assertThisInitialized(_this), _inputContainer, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _encode, {
+	    _classPrivateFieldInitSpec$a(babelHelpers.assertThisInitialized(_this), _encode, {
 	      writable: true,
 	      value: null
 	    });
-	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _decode, {
+	    _classPrivateFieldInitSpec$a(babelHelpers.assertThisInitialized(_this), _decode, {
 	      writable: true,
 	      value: null
 	    });
-	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _defaultTags, {
+	    _classPrivateFieldInitSpec$a(babelHelpers.assertThisInitialized(_this), _defaultTags, {
 	      writable: true,
 	      value: []
 	    });
-	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _className, {
+	    _classPrivateFieldInitSpec$a(babelHelpers.assertThisInitialized(_this), _className, {
 	      writable: true,
 	      value: ''
 	    });
-	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _enableUsers, {
+	    _classPrivateFieldInitSpec$a(babelHelpers.assertThisInitialized(_this), _enableUsers, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _enableAll, {
+	    _classPrivateFieldInitSpec$a(babelHelpers.assertThisInitialized(_this), _enableAll, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$9(babelHelpers.assertThisInitialized(_this), _enableDepartments, {
+	    _classPrivateFieldInitSpec$a(babelHelpers.assertThisInitialized(_this), _enableDepartments, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$a(babelHelpers.assertThisInitialized(_this), _dialogEvents, {
 	      writable: true,
 	      value: void 0
 	    });
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _encode, main_core.Type.isFunction(params.encodeValue) ? params.encodeValue : null);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _decode, main_core.Type.isFunction(params.decodeValue) ? params.decodeValue : null);
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _inputContainer, main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-section__input-container\"></div>"]))));
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _inputContainer, main_core.Tag.render(_templateObject$9 || (_templateObject$9 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-section__input-container\"></div>"]))));
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _className, params.className);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _enableUsers, params.enableUsers !== false);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _enableAll, babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _enableUsers) && params.enableAll !== false);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _enableDepartments, params.enableDepartments === true);
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _dialogEvents, main_core.Type.isObject(params.dialogEvents) ? params.dialogEvents : null);
 	    _classPrivateMethodGet$6(babelHelpers.assertThisInitialized(_this), _initInput, _initInput2).call(babelHelpers.assertThisInitialized(_this), params.values);
 	    var entities = [];
 	    if (babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _enableUsers)) {
@@ -1258,6 +1316,12 @@ this.BX.UI = this.BX.UI || {};
 	      entities.push.apply(entities, babelHelpers.toConsumableArray(params.entities));
 	    }
 	    var multiple = params.multiple !== false;
+	    var onChangeSelector = _this.onChangeSelector.bind(babelHelpers.assertThisInitialized(_this));
+	    var baseEvents = {
+	      'Item:onSelect': onChangeSelector,
+	      'Item:onDeselect': onChangeSelector
+	    };
+	    var events = _objectSpread$1(_objectSpread$1({}, baseEvents), babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _dialogEvents));
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _entitySelector, new ui_entitySelector.TagSelector({
 	      id: _this.getId(),
 	      textBoxAutoHide: false,
@@ -1268,10 +1332,7 @@ this.BX.UI = this.BX.UI || {};
 	        preselectedItems: babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _defaultValues),
 	        multiple: multiple,
 	        hideOnDeselect: !multiple,
-	        events: {
-	          'Item:onSelect': _this.onChangeSelector.bind(babelHelpers.assertThisInitialized(_this)),
-	          'Item:onDeselect': _this.onChangeSelector.bind(babelHelpers.assertThisInitialized(_this))
-	        },
+	        events: events,
 	        entities: entities
 	      },
 	      multiple: multiple
@@ -1464,6 +1525,51 @@ this.BX.UI = this.BX.UI || {};
 	  form.dispatchEvent(new Event('change'));
 	}
 
+	var FieldFactory = /*#__PURE__*/function () {
+	  function FieldFactory() {
+	    babelHelpers.classCallCheck(this, FieldFactory);
+	  }
+	  babelHelpers.createClass(FieldFactory, null, [{
+	    key: "createUserSelector",
+	    value: function createUserSelector(userSelectorParams) {
+	      // eslint-disable-next-line no-param-reassign
+	      userSelectorParams.encodeValue = function (value) {
+	        if (!main_core.Type.isNil(value.id)) {
+	          return value.id === 'all-users' ? 'UA' : value.type + value.id.toString().split(':')[0];
+	        }
+	        return null;
+	      };
+
+	      // eslint-disable-next-line no-param-reassign
+	      userSelectorParams.decodeValue = function (value) {
+	        if (value === 'UA') {
+	          return {
+	            type: 'AU',
+	            id: ''
+	          };
+	        }
+	        var arr = userSelectorParams.enableDepartments ? value.match(/^(U|DR|D)(\d+)/) : value.match(/^(U)(\d+)/);
+	        if (!main_core.Type.isArray(arr)) {
+	          return {
+	            type: null,
+	            id: null
+	          };
+	        }
+	        return {
+	          type: arr[1],
+	          id: arr[2]
+	        };
+	      };
+	      if (main_core.Type.isObject(userSelectorParams.values)) {
+	        // eslint-disable-next-line no-param-reassign
+	        userSelectorParams.values = Object.values(userSelectorParams.values);
+	      }
+	      return new ui_formElements_view.UserSelector(userSelectorParams);
+	    }
+	  }]);
+	  return FieldFactory;
+	}();
+
 	exports.Checker = Checker;
 	exports.InlineChecker = InlineChecker;
 	exports.ItemPicker = ItemPicker;
@@ -1475,6 +1581,7 @@ this.BX.UI = this.BX.UI || {};
 	exports.TextInputInline = TextInputInline;
 	exports.UserSelector = UserSelector;
 	exports.BaseField = BaseField;
+	exports.FieldFactory = FieldFactory;
 
-}((this.BX.UI.FormElements = this.BX.UI.FormElements || {}),BX.UI,BX.Event,BX.UI,BX.Main,BX.UI,BX,BX.UI.EntitySelector));
+}((this.BX.UI.FormElements = this.BX.UI.FormElements || {}),BX.Event,BX.UI,BX.Main,BX.UI,BX.UI.EntitySelector,BX.UI,BX.UI.FormElements,BX));
 //# sourceMappingURL=view.bundle.js.map

@@ -574,11 +574,11 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 			(
 				(
 					defined('SITE_TEMPLATE_ID')
-					&& SITE_TEMPLATE_ID === 'bitrix24'
+					&& (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 				)
 				|| (
 					isset($params['siteTemplateId'])
-					&& in_array($params['siteTemplateId'], [ 'bitrix24', 'landing24' ])
+					&& in_array($params['siteTemplateId'], [ 'bitrix24', 'landing24', 'air' ])
 				)
 			)
 			&& (int)$params['LOG_ID'] <= 0
@@ -763,7 +763,7 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 		elseif (
 			(
 				defined('SITE_TEMPLATE_ID')
-				&& SITE_TEMPLATE_ID === 'bitrix24'
+				&& (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 			)
 			|| $params['MODE'] === 'LANDING'
 		)

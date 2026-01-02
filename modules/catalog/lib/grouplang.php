@@ -1,10 +1,10 @@
 <?php
+
 namespace Bitrix\Catalog;
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\ORM\Data\DataManager;
 
 /**
  * Class GroupLangTable
@@ -34,14 +34,14 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Catalog\EO_GroupLang_Collection wakeUpCollection($rows)
  */
 
-class GroupLangTable extends Main\Entity\DataManager
+class GroupLangTable extends DataManager
 {
 	/**
 	 * Returns DB table name for entity.
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_group_lang';
 	}
@@ -51,7 +51,7 @@ class GroupLangTable extends Main\Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return array(
 			'ID' => new Main\Entity\IntegerField('ID', array(

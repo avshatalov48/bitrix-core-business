@@ -9,9 +9,9 @@ return [
 	'css' => 'dist/deleted.bundle.css',
 	'js' => 'dist/deleted.bundle.js',
 	'rel' => [
-		'main.core',
+		'main.polyfill.core',
 		'im.v2.component.message.base',
 		'im.v2.component.message.elements',
 	],
-	'skip_core' => false,
+	'skip_core' => true,
 ];

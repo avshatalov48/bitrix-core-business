@@ -622,10 +622,13 @@ class CAllSocNetFeaturesPerms
 				return false;
 			}
 
-			$arGroupTmp = CSocNetGroup::GetByID($id);
+			$arGroupTmp = WorkgroupTable::getList([
+				'select' => ['CLOSED', 'VISIBLE'],
+				'filter' => ['ID' => $id],
+			])->fetch();
 
 			if (
-				$arGroupTmp["CLOSED"] === "Y"
+				($arGroupTmp["CLOSED"] ?? null) === "Y"
 				&& !in_array($operation, $arSocNetFeaturesSettings[$feature]["minoperation"])
 			)
 			{
@@ -1163,8 +1166,8 @@ class CAllSocNetFeaturesPerms
 					])->fetch();
 
 					$arSonetGroupCache[$id] = [
-						'OPENED' => $sonetGroup['OPENED'],
-						'VISIBLE' => $sonetGroup['VISIBLE']
+						'OPENED' => $sonetGroup['OPENED'] ?? null,
+						'VISIBLE' => $sonetGroup['VISIBLE'] ?? null,
 					];
 				}
 

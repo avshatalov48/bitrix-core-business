@@ -3,8 +3,8 @@
 namespace Bitrix\Main\Mail\Internal;
 
 use Bitrix\Main\Application;
-use Bitrix\Main\Entity;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\ORM\Data\DataManager;
 
 /**
  * Class BlacklistTable
@@ -24,7 +24,7 @@ use Bitrix\Main\Type\DateTime;
  * @method static \Bitrix\Main\Mail\Internal\EO_Blacklist wakeUpObject($row)
  * @method static \Bitrix\Main\Mail\Internal\EO_Blacklist_Collection wakeUpCollection($rows)
  */
-class BlacklistTable extends Entity\DataManager
+class BlacklistTable extends DataManager
 {
 	const CategoryAuto = 0;
 	const CategoryManual = 1;

@@ -5,14 +5,9 @@ namespace Bitrix\Calendar\Sync\Managers;
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Core\Role\Role;
-use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromDM;
 use Bitrix\Calendar\Sync\Connection\Connection;
-use Bitrix\Calendar\Internals\PushTable;
-use Bitrix\Calendar\Internals\SectionConnectionTable;
-use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Util\Result;
-use Bitrix\Calendar\Util;
 use Bitrix\Dav\Internals\DavConnectionTable;
 use Bitrix\Dav\Internals\EO_DavConnection_Collection;
 use Bitrix\Main\ArgumentException;
@@ -27,6 +22,7 @@ use Bitrix\Socialservices\UserTable;
 use CDavConnection;
 use Exception;
 
+// @todo Move to Integration
 class ConnectionManager
 {
 	public const INIT_STATUS = [
@@ -38,9 +34,14 @@ class ConnectionManager
 	/** @var Factory */
 	private $mapperFactory;
 
+	private \Bitrix\Calendar\Integration\Dav\Service\ConnectionManager $connectionManager;
+
 	public function __construct()
 	{
 		$this->mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
+		$this->connectionManager = ServiceLocator::getInstance()->get(
+			\Bitrix\Calendar\Integration\Dav\Service\ConnectionManager::class
+		);
 	}
 
 	/**
@@ -280,81 +281,12 @@ class ConnectionManager
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
 	 * @throws Exception
+	 *
+	 * @deprecated Use \Bitrix\Calendar\Integration\Dav\Service\ConnectionManager::deactivateConnection
 	 */
 	public function deactivateConnection(Connection $connection): Result
 	{
-		$result = new Result();
-
-		if (!Loader::includeModule('dav'))
-		{
-			$result->addError(new Error('Module dav required'));
-		}
-
-		$updateResult = DavConnectionTable::update($connection->getId(), [
-			'IS_DELETED' => 'Y',
-			'SYNC_TOKEN' => null,
-		]);
-		if ($updateResult->isSuccess())
-		{
-			$this->unsubscribeConnection($connection);
-
-			$accountType = $connection->getAccountType() === Sync\Google\Helper::GOOGLE_ACCOUNT_TYPE_API
-				? 'google'
-				: $connection->getAccountType()
-			;
-
-			Util::addPullEvent(
-				PushCommand::DeleteSyncConnection,
-				$connection->getOwner()->getId(),
-				[
-					'syncInfo' => [
-						$accountType => [
-							'type' => $accountType,
-						],
-					],
-					'connectionId' => $connection->getId()
-				]
-			);
-		}
-		else
-		{
-			$result->addErrors($updateResult->getErrors());
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param Connection $connection
-	 *
-	 * @return void
-	 *
-	 * @throws ArgumentException
-	 * @throws ObjectPropertyException
-	 * @throws SystemException
-	 * @throws Exception
-	 *
-	 * @TODO: move it into PushManager
-	 */
-	public function unsubscribeConnection(Connection $connection)
-	{
-		$links = SectionConnectionTable::query()
-			->addFilter('CONNECTION_ID', $connection->getId())
-			->setSelect(['ID'])
-			->exec()
-		;
-
-		while ($link = $links->fetchObject())
-		{
-			SectionConnectionTable::update($link->getId(), [
-				'SYNC_TOKEN' => '',
-				'PAGE_TOKEN' => '',
-			]);
-			PushTable::delete([
-				'ENTITY_TYPE' => 'SECTION_CONNECTION',
-				'ENTITY_ID' => $link->getId(),
-			]);
-		}
+		return $this->connectionManager->deactivateConnection($connection);
 	}
 
 	public function disableConnection(Connection $connection)

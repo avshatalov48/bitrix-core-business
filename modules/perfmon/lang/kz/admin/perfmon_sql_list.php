@@ -1,0 +1,26 @@
+<?php
+$MESS['PERFMON_SQL_BIG_FIELDS_NO'] = "Жоқ";
+$MESS['PERFMON_SQL_BIG_FIELDS_YES'] = "Иә";
+$MESS['PERFMON_SQL_COMPONENT_ID'] = "Компонент";
+$MESS['PERFMON_SQL_COMPONENT_NAME'] = "Компонент";
+$MESS['PERFMON_SQL_EXPLAIN'] = "Орындау жоспары";
+$MESS['PERFMON_SQL_FIELD_FETCHED_LENGTH'] = "Өңделген өлшем";
+$MESS['PERFMON_SQL_FIELD_FETCHED_ROWS'] = "Жолдар пайдаланылды";
+$MESS['PERFMON_SQL_FIELD_HAS_BIG_FIELDS'] = "Үлкен өрістер бар";
+$MESS['PERFMON_SQL_FIELD_SELECTED_FIELDS'] = "Өрістер таңдалды";
+$MESS['PERFMON_SQL_FIELD_SELECTED_ROWS'] = "Жолдар таңдалды";
+$MESS['PERFMON_SQL_FILE'] = "Файл";
+$MESS['PERFMON_SQL_FIND'] = "Табу";
+$MESS['PERFMON_SQL_FUNCTION'] = "Функция";
+$MESS['PERFMON_SQL_HIT_ID'] = "Хит";
+$MESS['PERFMON_SQL_ID'] = "ID";
+$MESS['PERFMON_SQL_LINE_NUMBER'] = "Жол";
+$MESS['PERFMON_SQL_MODULE_NAME'] = "Модуль";
+$MESS['PERFMON_SQL_NN'] = "#";
+$MESS['PERFMON_SQL_NODE_ID'] = "Кластер дерекқоры";
+$MESS['PERFMON_SQL_PAGE'] = "Сұраулар";
+$MESS['PERFMON_SQL_QUERY_STAT'] = "Сұрау статистикасы";
+$MESS['PERFMON_SQL_QUERY_TIME'] = "Уақыт";
+$MESS['PERFMON_SQL_SQL_TEXT'] = "Сұрау";
+$MESS['PERFMON_SQL_TITLE'] = "Өнімділік мониторы: сұраулар";
+$MESS['PERFMON_SQL_WRONG_LIMIT'] = "Барлық жолдар өңделмеген";

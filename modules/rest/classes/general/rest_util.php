@@ -1,13 +1,15 @@
 <?php
+
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Security;
+use Bitrix\Rest\Public;
 
 IncludeModuleLangFile(__FILE__);
 
 class CRestUtil
 {
-	const GLOBAL_SCOPE = '_global';
+	public const GLOBAL_SCOPE = '_global';
 	const EVENTS = '_events';
 	const PLACEMENTS = '_placements';
 
@@ -235,6 +237,7 @@ class CRestUtil
 					"NOTIFY_MODULE" => "rest",
 					"NOTIFY_TAG" => "REST|APP_INSTALL_NOTIFY|".$USER->GetID()."|TO|".$id,
 					"NOTIFY_SUB_TAG" => "REST|APP_INSTALL_NOTIFY",
+					"NOTIFY_EVENT" => "app_install",
 					"NOTIFY_MESSAGE" => GetMessage(
 						"REST_APP_INSTALL_NOTIFY_TEXT",
 						array(
@@ -526,45 +529,32 @@ class CRestUtil
 		// compatibility fix: other modules use checkAuth instead of /rest/download
 		if(!is_array($query))
 		{
-			$query = array('auth' => $query);
+			$query = ['auth' => $query];
 		}
 
 		foreach(GetModuleEvents('rest', 'OnRestCheckAuth', true) as $eventHandler)
 		{
-			$eventResult = ExecuteModuleEventEx($eventHandler, array($query, $scope, &$res));
-			if($eventResult !== null)
+			$eventResult = ExecuteModuleEventEx($eventHandler, [$query, $scope, &$res]);
+			if ($eventResult !== null)
 			{
 				return $eventResult;
 			}
 		}
 
-		$res = array(
-			"error" => "NO_AUTH_FOUND",
-			"error_description" => "Wrong authorization data",
-		);
+		$res = [
+			'error' => 'NO_AUTH_FOUND',
+			'error_description' => 'Wrong authorization data',
+		];
 
 		return false;
 	}
 
 	public static function makeAuth($res, $application_id = null)
 	{
-		global $USER;
-
-		if($res['user_id'] > 0)
-		{
-			if($USER->Authorize($res['user_id'], false, false, $application_id))
-			{
-				setSessionExpired(true);
-				return true;
-			}
-		}
-		elseif($res['user_id'] === 0)
-		{
-			setSessionExpired(true);
-			return true;
-		}
-
-		return false;
+		return (new Public\Command\Auth\AuthorizeUserCommand((int)($res['user_id'] ?? 0), $application_id))
+			->run()
+			->isSuccess()
+		;
 	}
 
 	public static function checkAppAccess($appId, $appInfo = null)

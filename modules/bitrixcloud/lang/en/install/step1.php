@@ -1,3 +1,2 @@
-<?
-$MESS["BCL_INSTALL"] = "Install Module";
-?>
+<?php
+$MESS['BCL_INSTALL'] = "Install Module";

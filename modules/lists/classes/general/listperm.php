@@ -190,7 +190,7 @@ class CListPermissions
 			if($iblock_type_id === $iblock_type)
 				return 0;
 			else
-				return CListPermissions::WRONG_IBLOCK;
+				return CListPermissions::WRONG_IBLOCK_TYPE;
 		}
 		else
 		{

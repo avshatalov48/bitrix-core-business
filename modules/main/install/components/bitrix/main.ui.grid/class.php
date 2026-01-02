@@ -2039,7 +2039,7 @@ class CMainUIGrid extends CBitrixComponent
 				$isCellActionsEnabled = true;
 				foreach ($row['cellActions'][$columnId] as $action)
 				{
-					$buttonClass = $action['class'];
+					$buttonClass = $action['class'] ?? '';
 					if (is_array($buttonClass))
 					{
 						$buttonClass = implode(' ', $buttonClass);

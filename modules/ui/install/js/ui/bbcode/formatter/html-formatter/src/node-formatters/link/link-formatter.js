@@ -13,6 +13,8 @@ import {
 	BBCodeScheme,
 } from 'ui.bbcode.model';
 
+import { validateUrl } from '../../helpers/validate-url';
+
 export class LinkNodeFormatter extends NodeFormatter
 {
 	constructor(options: NodeFormatterOptions = {})
@@ -22,7 +24,7 @@ export class LinkNodeFormatter extends NodeFormatter
 			validate({ node }: ValidateCallbackOptions): boolean {
 				const nodeValue: string = LinkNodeFormatter.fetchNodeValue(node);
 
-				return !LinkNodeFormatter.startsWithJavascriptScheme(nodeValue);
+				return validateUrl(nodeValue);
 			},
 			before({ node, formatter }: AfterCallbackOptions): BBCodeElementNode {
 				if (formatter.isShortLinkEnabled())
@@ -116,18 +118,5 @@ export class LinkNodeFormatter extends NodeFormatter
 		}
 
 		return node.toPlainText();
-	}
-
-	static startsWithJavascriptScheme(sourceHref: string): boolean
-	{
-		if (Type.isStringFilled(sourceHref))
-		{
-			// eslint-disable-next-line no-control-regex
-			const regexp = /^[\u0000-\u001F ]*j[\t\n\r]*a[\t\n\r]*v[\t\n\r]*a[\t\n\r]*s[\t\n\r]*c[\t\n\r]*r[\t\n\r]*i[\t\n\r]*p[\t\n\r]*t[\t\n\r]*:/i;
-
-			return regexp.test(sourceHref);
-		}
-
-		return false;
 	}
 }

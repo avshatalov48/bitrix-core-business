@@ -21,6 +21,7 @@ use Bitrix\Main\ORM\Objectify\Values;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\ORM\Query\Result as QueryResult;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\AddStrategy\Contract\AddStrategy;
 use Bitrix\Main\ORM\Query\Filter\ConditionTree as Filter;
 use Bitrix\Main\ORM\Objectify\EntityObject;
 use Bitrix\Main\ORM\Objectify\Collection;
@@ -369,15 +370,16 @@ abstract class DataManager
 	 * Returns one row (or null) by entity's primary key
 	 *
 	 * @param mixed $id Primary key of the entity
+	 * @param array $parameters Additional parameters for getList()
 	 *
 	 * @return array|null
 	 * @throws Main\ArgumentException
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
-	public static function getRowById($id)
+	public static function getRowById($id, array $parameters = [])
 	{
-		$result = static::getByPrimary($id);
+		$result = static::getByPrimary($id, $parameters);
 		$row = $result->fetch();
 
 		return (is_array($row)? $row : null);
@@ -403,12 +405,14 @@ abstract class DataManager
 	}
 
 	/**
-	 * Executes the query and returns selection by parameters of the query. This function is an alias to the Query object functions
+	 * Executes the query and returns selection by parameters of the query. This function is an alias to the Query
+	 * object functions
 	 *
 	 * @param array $parameters An array of query parameters, available keys are:<br>
-	 * 		"select" => array of fields in the SELECT part of the query, aliases are possible in the form of "alias"=>"field";<br>
-	 * 		"filter" => array of filters in the WHERE/HAVING part of the query in the form of "(condition)field"=>"value";
-	 * 			also could be an instance of Filter;<br>
+	 * 		"select" => array of fields in the SELECT part of the query, aliases are possible in the form of
+	 *     "alias"=>"field";<br>
+	 * 		"filter" => array of filters in the WHERE/HAVING part of the query in the form of
+	 *     "(condition)field"=>"value"; also could be an instance of Filter;<br>
 	 * 		"group" => array of fields in the GROUP BY part of the query;<br>
 	 * 		"order" => array of fields in the ORDER BY part of the query in the form of "field"=>"asc|desc";<br>
 	 * 		"limit" => integer indicating maximum number of rows in the selection (like LIMIT n in MySql);<br>
@@ -821,9 +825,15 @@ abstract class DataManager
 			? $object->authContext->getUserId()
 			: false;
 
-		$ufPrimary = ($object->sysGetState() === Main\ORM\Objectify\State::RAW)
-			? false
-			: end($object->primary);
+		if ($object->sysGetState() === Main\ORM\Objectify\State::RAW)
+		{
+			$ufPrimary = false;
+		}
+		else
+		{
+			$ufPrimary = $object->primary;
+			$ufPrimary = end($ufPrimary);
+		}
 
 		if (!$USER_FIELD_MANAGER->CheckFields($object->entity->getUfId(), $ufPrimary, $ufdata, $userId))
 		{
@@ -840,6 +850,11 @@ abstract class DataManager
 		}
 	}
 
+	protected static function getAddStrategy(): AddStrategy
+	{
+		return new Main\ORM\Data\AddStrategy\Insert(static::getEntity());
+	}
+
 	/**
 	 * Adds row to entity table
 	 *
@@ -853,11 +868,25 @@ abstract class DataManager
 	 *	)
 	 *	or just a plain array of fields.
 	 *
+	 * This method uses the default strategy defined in the class.
+	 *
 	 * @return AddResult Contains ID of inserted row
 	 *
 	 * @throws \Exception
 	 */
 	public static function add(array $data)
+	{
+		return self::sysAddInternal(static::getAddStrategy(), $data);
+	}
+
+	/**
+	 * @internal For internal system usage only.
+	 */
+	final protected static function sysAddInternal(
+		AddStrategy $strategy,
+		array $data,
+		bool $ignoreEvents = false,
+	): AddResult
 	{
 		global $USER_FIELD_MANAGER;
 
@@ -872,7 +901,10 @@ abstract class DataManager
 
 		try
 		{
-			static::callOnBeforeAddEvent($object, $fields, $result);
+			if (!$ignoreEvents)
+			{
+				static::callOnBeforeAddEvent($object, $fields, $result);
+			}
 
 			// actualize old-style fields array from object
 			$fields = $object->collectValues(Values::CURRENT, FieldTypeMask::SCALAR);
@@ -892,7 +924,7 @@ abstract class DataManager
 			// check if there is still some data
 			if (empty($fields) && empty($ufdata))
 			{
-				$result->addError(new EntityError("There is no data to add."));
+				$result->addError(new EntityError('There is no data to add.'));
 			}
 
 			// return if any error
@@ -901,8 +933,11 @@ abstract class DataManager
 				return $result;
 			}
 
-			//event on adding
-			self::callOnAddEvent($object, $fields, $ufdata);
+			if (!$ignoreEvents)
+			{
+				//event on adding
+				self::callOnAddEvent($object, $fields, $ufdata);
+			}
 
 			// use save modifiers
 			$fieldsToDb = $fields;
@@ -918,14 +953,8 @@ abstract class DataManager
 				$fieldsToDb[$fieldName] = $field->modifyValueBeforeSave($value, $fields);
 			}
 
-			// save data
-			$connection = $entity->getConnection();
-
-			$tableName = $entity->getDBTableName();
-			$identity = $entity->getAutoIncrement();
-
-			$dataReplacedColumn = static::replaceFieldName($fieldsToDb);
-			$id = $connection->add($tableName, $dataReplacedColumn, $identity);
+			$addedData = $strategy->add(static::replaceFieldName($fieldsToDb));
+			$id = $addedData->id;
 
 			// build standard primary
 			$primary = null;
@@ -933,15 +962,15 @@ abstract class DataManager
 
 			if (!empty($id))
 			{
-				if($entity->getAutoIncrement() <> '')
+				if (!empty($entity->getAutoIncrement()))
 				{
-					$primary = array($entity->getAutoIncrement() => $id);
+					$primary = [$entity->getAutoIncrement() => $id];
 					static::normalizePrimary($primary);
 				}
 				else
 				{
 					// for those who did not set 'autocomplete' flag but wants to get id from result
-					$primary = array('ID' => $id);
+					$primary = ['ID' => $id];
 					$isGuessedPrimary = true;
 				}
 			}
@@ -976,9 +1005,15 @@ abstract class DataManager
 				$USER_FIELD_MANAGER->update($entity->getUfId(), end($primary), $ufdata, $ufUserId);
 			}
 
-			static::cleanCache();
+			if ($addedData->isDBChanged)
+			{
+				static::cleanCache();
+			}
 
-			static::callOnAfterAddEvent($object, $fields + $ufdata, $id);
+			if (!$ignoreEvents)
+			{
+				static::callOnAfterAddEvent($object, $fields + $ufdata, $id);
+			}
 		}
 		catch (\Exception $e)
 		{
@@ -992,6 +1027,10 @@ abstract class DataManager
 	}
 
 	/**
+	 * Adds several rows to entity table.
+	 *
+	 * This method uses the default strategy defined in the class.
+	 *
 	 * @param      $rows
 	 * @param bool $ignoreEvents
 	 *
@@ -1001,22 +1040,34 @@ abstract class DataManager
 	 */
 	public static function addMulti($rows, $ignoreEvents = false)
 	{
+		return self::sysAddMultiInternal(
+			static::getAddStrategy(),
+			(array)$rows,
+			(bool)$ignoreEvents,
+		);
+	}
+
+	/**
+	 * @internal For internal system usage only.
+	 */
+	final protected static function sysAddMultiInternal(
+		AddStrategy $strategy,
+		array $multiData,
+		bool $ignoreEvents = false,
+	): AddResult
+	{
+		if (count($multiData) <= 0)
+		{
+			return (new AddResult())->addError(new EntityError('There is no data to add.'));
+		}
+		if (count($multiData) === 1)
+		{
+			return self::sysAddInternal($strategy, reset($multiData), $ignoreEvents);
+		}
+
 		global $USER_FIELD_MANAGER;
 
-		$rows = array_values($rows);
-		$forceSeparateQueries = false;
-
-		if (!$ignoreEvents && count($rows) > 1 && strlen(static::getEntity()->getAutoIncrement()))
-		{
-			$forceSeparateQueries = true;
-
-			// change to warning
-			trigger_error(
-				'Multi-insert doesn\'t work with events as far as we can not get last inserted IDs that we need for the events. '.
-				'Insert query was forced to multiple separate queries.',
-				E_USER_NOTICE
-			);
-		}
+		$rows = array_values($multiData);
 
 		// prepare objects
 		$objects = [];
@@ -1071,7 +1122,7 @@ abstract class DataManager
 				// check if there is still some data
 				if (empty($fields) && empty($ufdata))
 				{
-					$result->addError(new EntityError("There is no data to add."));
+					$result->addError(new EntityError('There is no data to add.'));
 				}
 			}
 
@@ -1093,8 +1144,7 @@ abstract class DataManager
 				}
 			}
 
-			// prepare sql
-			$allSqlData = [];
+			$allFieldsToDb = [];
 
 			foreach ($allFields as $k => $fields)
 			{
@@ -1109,65 +1159,36 @@ abstract class DataManager
 
 				$dataReplacedColumn = static::replaceFieldName($fieldsToDb);
 
-				$allSqlData[$k] = $dataReplacedColumn;
+				$allFieldsToDb[$k] = $dataReplacedColumn;
 			}
 
-			// save data
-			$connection = $entity->getConnection();
-
-			$tableName = $entity->getDBTableName();
-			$identity = $entity->getAutoIncrement();
-			$ids = [];
-
-			// multi insert on db level
-			if ($forceSeparateQueries)
+			if (!$ignoreEvents && !empty($entity->getAutoIncrement()))
 			{
-				foreach ($allSqlData as $k => $sqlData)
+				// change to warning
+				trigger_error(
+					'Multi-insert doesn\'t work with events as far as we can not get last inserted IDs that we need for the events. '.
+					'Insert query was forced to multiple separate queries.',
+					E_USER_NOTICE
+				);
+
+				$forcedSeparateQueries = true;
+				$isDBChanged = false;
+
+				$ids = [];
+				foreach ($allFieldsToDb as $key => $dbFields)
 				{
-					// remember all ids
-					$ids[$k] = $connection->add($tableName, $sqlData, $identity);
+					$addedData = $strategy->add($dbFields);
+					$ids[$key] = $addedData->id;
+					$isDBChanged = $isDBChanged || $addedData->isDBChanged;
 				}
 			}
 			else
 			{
-				$id = $connection->addMulti($tableName, $allSqlData, $identity);
-			}
+				$addedData = $strategy->addMulti($allFieldsToDb);
 
-			if (count($allSqlData) > 1)
-			{
-				// id doesn't make sense when multiple inserts
-				$id = null;
-			}
-			else
-			{
-				$object = $objects[0];
-				$fields = $allFields[0];
-
-				// build standard primary
-				$primary = null;
-
-				if (!empty($id))
-				{
-					if($entity->getAutoIncrement() <> '')
-					{
-						$primary = array($entity->getAutoIncrement() => $id);
-						static::normalizePrimary($primary);
-					}
-					else
-					{
-						// for those who did not set 'autocomplete' flag but want to get id from result
-						$primary = array('ID' => $id);
-					}
-				}
-				else
-				{
-					static::normalizePrimary($primary, $fields);
-				}
-
-				// fill result
-				$result->setPrimary($primary);
-				$result->setData($fields);
-				$result->setObject($object);
+				$forcedSeparateQueries = false;
+				$isDBChanged = $addedData->isDBChanged;
+				$ids = null;
 			}
 
 			// save uf data
@@ -1186,7 +1207,10 @@ abstract class DataManager
 				}
 			}
 
-			static::cleanCache();
+			if ($isDBChanged)
+			{
+				static::cleanCache();
+			}
 
 			// after event
 			if (!$ignoreEvents)
@@ -1194,7 +1218,7 @@ abstract class DataManager
 				foreach ($objects as $k => $object)
 				{
 					$fields = $allFields[$k] + $allUfData[$k];
-					$id = $forceSeparateQueries ? $ids[$k] : null;
+					$id = $forcedSeparateQueries ? $ids[$k] : null;
 
 					static::callOnAfterAddEvent($object, $fields, $id);
 				}
@@ -1359,6 +1383,8 @@ abstract class DataManager
 	 */
 	public static function updateMulti($primaries, $data, $ignoreEvents = false)
 	{
+		global $USER_FIELD_MANAGER;
+
 		$entity = static::getEntity();
 		$primaries = array_values($primaries);
 
@@ -1573,12 +1599,12 @@ abstract class DataManager
 			}
 
 			// save uf data
-			foreach ($allUfData as $ufdata)
+			foreach ($allUfData as $k => $ufdata)
 			{
 				if (!empty($ufdata))
 				{
-					global $USER_FIELD_MANAGER;
-					$USER_FIELD_MANAGER->update($entity->getUfId(), end($primary), $ufdata);
+					$ufPrimary = $objects[$k]->primary;
+					$USER_FIELD_MANAGER->update($entity->getUfId(), end($ufPrimary), $ufdata);
 				}
 			}
 
@@ -1704,7 +1730,7 @@ abstract class DataManager
 		//event before adding
 		$event = new Event($object->entity, self::EVENT_ON_BEFORE_ADD, [
 			'fields' => $fields,
-			'object' => $object
+			'object' => $object,
 		]);
 
 		$event->send();
@@ -1714,7 +1740,7 @@ abstract class DataManager
 		//event before adding (modern with namespace)
 		$event = new Event($object->entity, self::EVENT_ON_BEFORE_ADD, [
 			'fields' => $fields,
-			'object' => $object
+			'object' => $object,
 		], true);
 
 		$event->send();
@@ -1731,14 +1757,14 @@ abstract class DataManager
 	{
 		$event = new Event($object->entity, self::EVENT_ON_ADD, [
 			'fields' => $fields + $ufdata,
-			'object' => clone $object
+			'object' => clone $object,
 		]);
 		$event->send();
 
 		//event on adding (modern with namespace)
 		$event = new Event($object->entity, self::EVENT_ON_ADD, [
 			'fields' => $fields + $ufdata,
-			'object' => clone $object
+			'object' => clone $object,
 		], true);
 		$event->send();
 	}
@@ -1754,7 +1780,7 @@ abstract class DataManager
 		$event = new Event($object->entity, self::EVENT_ON_AFTER_ADD, [
 			'id' => $id,
 			'fields' => $fields,
-			'object' => clone $object
+			'object' => clone $object,
 		]);
 		$event->send();
 
@@ -1763,7 +1789,7 @@ abstract class DataManager
 			'id' => $id,
 			'primary' => $object->primary,
 			'fields' => $fields,
-			'object' => clone $object
+			'object' => clone $object,
 		], true);
 		$event->send();
 	}
@@ -1778,7 +1804,7 @@ abstract class DataManager
 		$event = new Event($object->entity, self::EVENT_ON_BEFORE_UPDATE, [
 			'id' => $object->primary,
 			'fields' => $fields,
-			'object' => $object
+			'object' => $object,
 		]);
 
 		$event->send();
@@ -1790,7 +1816,7 @@ abstract class DataManager
 			'id' => $object->primary,
 			'primary' => $object->primary,
 			'fields' => $fields,
-			'object' => $object
+			'object' => $object,
 		], true);
 
 		$event->send();
@@ -1808,7 +1834,7 @@ abstract class DataManager
 		$event = new Event($object->entity, self::EVENT_ON_UPDATE, [
 			'id' => $object->primary,
 			'fields' => $fields + $ufdata,
-			'object' => clone $object
+			'object' => clone $object,
 		]);
 		$event->send();
 
@@ -1817,7 +1843,7 @@ abstract class DataManager
 			'id' => $object->primary,
 			'primary' => $object->primary,
 			'fields' => $fields + $ufdata,
-			'object' => clone $object
+			'object' => clone $object,
 		], true);
 		$event->send();
 	}
@@ -1831,7 +1857,7 @@ abstract class DataManager
 		$event = new Event($object->entity, self::EVENT_ON_AFTER_UPDATE, [
 			'id' => $object->primary,
 			'fields' => $fields,
-			'object' => clone $object
+			'object' => clone $object,
 		]);
 		$event->send();
 
@@ -1840,7 +1866,7 @@ abstract class DataManager
 			'id' => $object->primary,
 			'primary' => $object->primary,
 			'fields' => $fields,
-			'object' => clone $object
+			'object' => clone $object,
 		], true);
 		$event->send();
 	}

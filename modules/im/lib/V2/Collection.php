@@ -144,6 +144,11 @@ abstract class Collection extends Registry implements ActiveRecordCollection
 				continue;
 			}
 
+			if ($resultFill->getData()['SKIP_SAVE'] ?? false)
+			{
+				continue;
+			}
+
 			$dataEntity->add($entity->getDataEntity());
 		}
 
@@ -329,6 +334,11 @@ abstract class Collection extends Registry implements ActiveRecordCollection
 		}
 
 		return false;
+	}
+
+	public function isEmpty(): bool
+	{
+		return $this->count() === 0;
 	}
 
 	/**

@@ -1880,5 +1880,4 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		}
 	}
 }
-
 ?>

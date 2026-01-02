@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
 this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
@@ -27,15 +28,12 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  methods: {
 	    animated: function animated() {
 	      var _this = this;
-
 	      clearInterval(this.interval);
-
 	      if (this.sum !== this.displaySum) {
 	        this.interval = window.setInterval(function () {
 	          if (_this.displaySum !== _this.sum) {
 	            var diff = (_this.sum - _this.displaySum) / 5;
 	            diff = diff >= 0 ? Math.ceil(diff) : Math.floor(diff);
-
 	            if (diff > 0 && _this.displaySum + diff > _this.sum) {
 	              _this.displaySum = _this.sum;
 	            } else {

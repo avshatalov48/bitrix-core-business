@@ -76,7 +76,7 @@ class AccessCodeConverter
 		foreach ($nodeCollection as $node)
 		{
 			$departmentId = $this->getEntityIdByAccessCode($node->accessCode);
-			$withAllChildNodes = in_array("DR${departmentId}", $this->accessCodes, true);
+			$withAllChildNodes = in_array("DR{$departmentId}", $this->accessCodes, true);
 
 			$memberCollectionByNode = Container::getNodeMemberService()->getAllEmployees(
 				$node->id,

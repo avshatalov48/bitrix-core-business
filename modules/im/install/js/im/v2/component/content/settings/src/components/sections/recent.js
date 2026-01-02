@@ -1,5 +1,5 @@
 import { Settings } from 'im.v2.const';
-import { SettingsService } from 'im.v2.provider.service';
+import { SettingsService } from 'im.v2.provider.service.settings';
 
 import { CheckboxOption } from '../elements/checkbox';
 
@@ -7,10 +7,6 @@ import { CheckboxOption } from '../elements/checkbox';
 export const RecentSection = {
 	name: 'RecentSection',
 	components: { CheckboxOption },
-	data()
-	{
-		return {};
-	},
 	computed:
 	{
 		showBirthday(): boolean
@@ -59,17 +55,17 @@ export const RecentSection = {
 			<div class="bx-im-settings-section-content__block">
 				<CheckboxOption
 					:value="showBirthday"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_BIRTHDAY')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_BIRTHDAY_MSGVER_1')"
 					@change="onShowBirthdayChange"
 				/>
 				<CheckboxOption
 					:value="showInvited"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_INVITED')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_INVITED_MSGVER_1')"
 					@change="onShowInvitedChange"
 				/>
 				<CheckboxOption
 					:value="showLastMessage"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_TEXT')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_TEXT_MSGVER_1')"
 					@change="onShowLastMessageChange"
 				/>
 			</div>

@@ -647,228 +647,44 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('*', '#void'));
 	});
 					
+	it('* allowed #inlineBlock', () => {
+		assert.ok(scheme.isChildAllowed('*', '#inlineBlock'));
+	});
+					
 	it('* allowed img', () => {
 		assert.ok(scheme.isChildAllowed('*', 'img'));
 	});
 					
-	it('table allowed tr', () => {
-		assert.ok(scheme.isChildAllowed('table', 'tr'));
+	it('* allowed video', () => {
+		assert.ok(scheme.isChildAllowed('*', 'video'));
 	});
 					
-	it('tr allowed th', () => {
-		assert.ok(scheme.isChildAllowed('tr', 'th'));
+	it('* allowed #block', () => {
+		assert.ok(scheme.isChildAllowed('*', '#block'));
 	});
 					
-	it('tr allowed td', () => {
-		assert.ok(scheme.isChildAllowed('tr', 'td'));
+	it('* allowed p', () => {
+		assert.ok(scheme.isChildAllowed('*', 'p'));
 	});
 					
-	it('th allowed #text', () => {
-		assert.ok(scheme.isChildAllowed('th', '#text'));
+	it('* allowed list', () => {
+		assert.ok(scheme.isChildAllowed('*', 'list'));
 	});
 					
-	it('th allowed #linebreak', () => {
-		assert.ok(scheme.isChildAllowed('th', '#linebreak'));
+	it('* allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('*', '#shadowRoot'));
 	});
 					
-	it('th allowed #inline', () => {
-		assert.ok(scheme.isChildAllowed('th', '#inline'));
+	it('* allowed quote', () => {
+		assert.ok(scheme.isChildAllowed('*', 'quote'));
 	});
 					
-	it('th allowed b', () => {
-		assert.ok(scheme.isChildAllowed('th', 'b'));
+	it('* allowed code', () => {
+		assert.ok(scheme.isChildAllowed('*', 'code'));
 	});
 					
-	it('th allowed u', () => {
-		assert.ok(scheme.isChildAllowed('th', 'u'));
-	});
-					
-	it('th allowed i', () => {
-		assert.ok(scheme.isChildAllowed('th', 'i'));
-	});
-					
-	it('th allowed s', () => {
-		assert.ok(scheme.isChildAllowed('th', 's'));
-	});
-					
-	it('th allowed #format', () => {
-		assert.ok(scheme.isChildAllowed('th', '#format'));
-	});
-					
-	it('th allowed url', () => {
-		assert.ok(scheme.isChildAllowed('th', 'url'));
-	});
-					
-	it('th allowed user', () => {
-		assert.ok(scheme.isChildAllowed('th', 'user'));
-	});
-					
-	it('th allowed project', () => {
-		assert.ok(scheme.isChildAllowed('th', 'project'));
-	});
-					
-	it('th allowed department', () => {
-		assert.ok(scheme.isChildAllowed('th', 'department'));
-	});
-					
-	it('th allowed #mention', () => {
-		assert.ok(scheme.isChildAllowed('th', '#mention'));
-	});
-					
-	it('th allowed disk', () => {
-		assert.ok(scheme.isChildAllowed('th', 'disk'));
-	});
-					
-	it('th allowed #void', () => {
-		assert.ok(scheme.isChildAllowed('th', '#void'));
-	});
-					
-	it('th allowed #inlineBlock', () => {
-		assert.ok(scheme.isChildAllowed('th', '#inlineBlock'));
-	});
-					
-	it('th allowed img', () => {
-		assert.ok(scheme.isChildAllowed('th', 'img'));
-	});
-					
-	it('th allowed video', () => {
-		assert.ok(scheme.isChildAllowed('th', 'video'));
-	});
-					
-	it('th allowed #block', () => {
-		assert.ok(scheme.isChildAllowed('th', '#block'));
-	});
-					
-	it('th allowed p', () => {
-		assert.ok(scheme.isChildAllowed('th', 'p'));
-	});
-					
-	it('th allowed list', () => {
-		assert.ok(scheme.isChildAllowed('th', 'list'));
-	});
-					
-	it('th allowed table', () => {
-		assert.ok(scheme.isChildAllowed('th', 'table'));
-	});
-					
-	it('th allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('th', '#shadowRoot'));
-	});
-					
-	it('th allowed quote', () => {
-		assert.ok(scheme.isChildAllowed('th', 'quote'));
-	});
-					
-	it('th allowed code', () => {
-		assert.ok(scheme.isChildAllowed('th', 'code'));
-	});
-					
-	it('th allowed spoiler', () => {
-		assert.ok(scheme.isChildAllowed('th', 'spoiler'));
-	});
-					
-	it('td allowed #text', () => {
-		assert.ok(scheme.isChildAllowed('td', '#text'));
-	});
-					
-	it('td allowed #linebreak', () => {
-		assert.ok(scheme.isChildAllowed('td', '#linebreak'));
-	});
-					
-	it('td allowed #inline', () => {
-		assert.ok(scheme.isChildAllowed('td', '#inline'));
-	});
-					
-	it('td allowed b', () => {
-		assert.ok(scheme.isChildAllowed('td', 'b'));
-	});
-					
-	it('td allowed u', () => {
-		assert.ok(scheme.isChildAllowed('td', 'u'));
-	});
-					
-	it('td allowed i', () => {
-		assert.ok(scheme.isChildAllowed('td', 'i'));
-	});
-					
-	it('td allowed s', () => {
-		assert.ok(scheme.isChildAllowed('td', 's'));
-	});
-					
-	it('td allowed #format', () => {
-		assert.ok(scheme.isChildAllowed('td', '#format'));
-	});
-					
-	it('td allowed url', () => {
-		assert.ok(scheme.isChildAllowed('td', 'url'));
-	});
-					
-	it('td allowed user', () => {
-		assert.ok(scheme.isChildAllowed('td', 'user'));
-	});
-					
-	it('td allowed project', () => {
-		assert.ok(scheme.isChildAllowed('td', 'project'));
-	});
-					
-	it('td allowed department', () => {
-		assert.ok(scheme.isChildAllowed('td', 'department'));
-	});
-					
-	it('td allowed #mention', () => {
-		assert.ok(scheme.isChildAllowed('td', '#mention'));
-	});
-					
-	it('td allowed disk', () => {
-		assert.ok(scheme.isChildAllowed('td', 'disk'));
-	});
-					
-	it('td allowed #void', () => {
-		assert.ok(scheme.isChildAllowed('td', '#void'));
-	});
-					
-	it('td allowed #inlineBlock', () => {
-		assert.ok(scheme.isChildAllowed('td', '#inlineBlock'));
-	});
-					
-	it('td allowed img', () => {
-		assert.ok(scheme.isChildAllowed('td', 'img'));
-	});
-					
-	it('td allowed video', () => {
-		assert.ok(scheme.isChildAllowed('td', 'video'));
-	});
-					
-	it('td allowed #block', () => {
-		assert.ok(scheme.isChildAllowed('td', '#block'));
-	});
-					
-	it('td allowed p', () => {
-		assert.ok(scheme.isChildAllowed('td', 'p'));
-	});
-					
-	it('td allowed list', () => {
-		assert.ok(scheme.isChildAllowed('td', 'list'));
-	});
-					
-	it('td allowed table', () => {
-		assert.ok(scheme.isChildAllowed('td', 'table'));
-	});
-					
-	it('td allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('td', '#shadowRoot'));
-	});
-					
-	it('td allowed quote', () => {
-		assert.ok(scheme.isChildAllowed('td', 'quote'));
-	});
-					
-	it('td allowed code', () => {
-		assert.ok(scheme.isChildAllowed('td', 'code'));
-	});
-					
-	it('td allowed spoiler', () => {
-		assert.ok(scheme.isChildAllowed('td', 'spoiler'));
+	it('* allowed spoiler', () => {
+		assert.ok(scheme.isChildAllowed('*', 'spoiler'));
 	});
 					
 	it('#shadowRoot allowed #text', () => {
@@ -971,6 +787,226 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('#shadowRoot', 'spoiler'));
 	});
 					
+	it('table allowed tr', () => {
+		assert.ok(scheme.isChildAllowed('table', 'tr'));
+	});
+					
+	it('tr allowed th', () => {
+		assert.ok(scheme.isChildAllowed('tr', 'th'));
+	});
+					
+	it('tr allowed td', () => {
+		assert.ok(scheme.isChildAllowed('tr', 'td'));
+	});
+					
+	it('th allowed #text', () => {
+		assert.ok(scheme.isChildAllowed('th', '#text'));
+	});
+					
+	it('th allowed #linebreak', () => {
+		assert.ok(scheme.isChildAllowed('th', '#linebreak'));
+	});
+					
+	it('th allowed #inline', () => {
+		assert.ok(scheme.isChildAllowed('th', '#inline'));
+	});
+					
+	it('th allowed b', () => {
+		assert.ok(scheme.isChildAllowed('th', 'b'));
+	});
+					
+	it('th allowed u', () => {
+		assert.ok(scheme.isChildAllowed('th', 'u'));
+	});
+					
+	it('th allowed i', () => {
+		assert.ok(scheme.isChildAllowed('th', 'i'));
+	});
+					
+	it('th allowed s', () => {
+		assert.ok(scheme.isChildAllowed('th', 's'));
+	});
+					
+	it('th allowed #format', () => {
+		assert.ok(scheme.isChildAllowed('th', '#format'));
+	});
+					
+	it('th allowed url', () => {
+		assert.ok(scheme.isChildAllowed('th', 'url'));
+	});
+					
+	it('th allowed user', () => {
+		assert.ok(scheme.isChildAllowed('th', 'user'));
+	});
+					
+	it('th allowed project', () => {
+		assert.ok(scheme.isChildAllowed('th', 'project'));
+	});
+					
+	it('th allowed department', () => {
+		assert.ok(scheme.isChildAllowed('th', 'department'));
+	});
+					
+	it('th allowed #mention', () => {
+		assert.ok(scheme.isChildAllowed('th', '#mention'));
+	});
+					
+	it('th allowed disk', () => {
+		assert.ok(scheme.isChildAllowed('th', 'disk'));
+	});
+					
+	it('th allowed #void', () => {
+		assert.ok(scheme.isChildAllowed('th', '#void'));
+	});
+					
+	it('th allowed #inlineBlock', () => {
+		assert.ok(scheme.isChildAllowed('th', '#inlineBlock'));
+	});
+					
+	it('th allowed img', () => {
+		assert.ok(scheme.isChildAllowed('th', 'img'));
+	});
+					
+	it('th allowed video', () => {
+		assert.ok(scheme.isChildAllowed('th', 'video'));
+	});
+					
+	it('th allowed #block', () => {
+		assert.ok(scheme.isChildAllowed('th', '#block'));
+	});
+					
+	it('th allowed p', () => {
+		assert.ok(scheme.isChildAllowed('th', 'p'));
+	});
+					
+	it('th allowed list', () => {
+		assert.ok(scheme.isChildAllowed('th', 'list'));
+	});
+					
+	it('th allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('th', '#shadowRoot'));
+	});
+					
+	it('th allowed table', () => {
+		assert.ok(scheme.isChildAllowed('th', 'table'));
+	});
+					
+	it('th allowed quote', () => {
+		assert.ok(scheme.isChildAllowed('th', 'quote'));
+	});
+					
+	it('th allowed code', () => {
+		assert.ok(scheme.isChildAllowed('th', 'code'));
+	});
+					
+	it('th allowed spoiler', () => {
+		assert.ok(scheme.isChildAllowed('th', 'spoiler'));
+	});
+					
+	it('td allowed #text', () => {
+		assert.ok(scheme.isChildAllowed('td', '#text'));
+	});
+					
+	it('td allowed #linebreak', () => {
+		assert.ok(scheme.isChildAllowed('td', '#linebreak'));
+	});
+					
+	it('td allowed #inline', () => {
+		assert.ok(scheme.isChildAllowed('td', '#inline'));
+	});
+					
+	it('td allowed b', () => {
+		assert.ok(scheme.isChildAllowed('td', 'b'));
+	});
+					
+	it('td allowed u', () => {
+		assert.ok(scheme.isChildAllowed('td', 'u'));
+	});
+					
+	it('td allowed i', () => {
+		assert.ok(scheme.isChildAllowed('td', 'i'));
+	});
+					
+	it('td allowed s', () => {
+		assert.ok(scheme.isChildAllowed('td', 's'));
+	});
+					
+	it('td allowed #format', () => {
+		assert.ok(scheme.isChildAllowed('td', '#format'));
+	});
+					
+	it('td allowed url', () => {
+		assert.ok(scheme.isChildAllowed('td', 'url'));
+	});
+					
+	it('td allowed user', () => {
+		assert.ok(scheme.isChildAllowed('td', 'user'));
+	});
+					
+	it('td allowed project', () => {
+		assert.ok(scheme.isChildAllowed('td', 'project'));
+	});
+					
+	it('td allowed department', () => {
+		assert.ok(scheme.isChildAllowed('td', 'department'));
+	});
+					
+	it('td allowed #mention', () => {
+		assert.ok(scheme.isChildAllowed('td', '#mention'));
+	});
+					
+	it('td allowed disk', () => {
+		assert.ok(scheme.isChildAllowed('td', 'disk'));
+	});
+					
+	it('td allowed #void', () => {
+		assert.ok(scheme.isChildAllowed('td', '#void'));
+	});
+					
+	it('td allowed #inlineBlock', () => {
+		assert.ok(scheme.isChildAllowed('td', '#inlineBlock'));
+	});
+					
+	it('td allowed img', () => {
+		assert.ok(scheme.isChildAllowed('td', 'img'));
+	});
+					
+	it('td allowed video', () => {
+		assert.ok(scheme.isChildAllowed('td', 'video'));
+	});
+					
+	it('td allowed #block', () => {
+		assert.ok(scheme.isChildAllowed('td', '#block'));
+	});
+					
+	it('td allowed p', () => {
+		assert.ok(scheme.isChildAllowed('td', 'p'));
+	});
+					
+	it('td allowed list', () => {
+		assert.ok(scheme.isChildAllowed('td', 'list'));
+	});
+					
+	it('td allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('td', '#shadowRoot'));
+	});
+					
+	it('td allowed table', () => {
+		assert.ok(scheme.isChildAllowed('td', 'table'));
+	});
+					
+	it('td allowed quote', () => {
+		assert.ok(scheme.isChildAllowed('td', 'quote'));
+	});
+					
+	it('td allowed code', () => {
+		assert.ok(scheme.isChildAllowed('td', 'code'));
+	});
+					
+	it('td allowed spoiler', () => {
+		assert.ok(scheme.isChildAllowed('td', 'spoiler'));
+	});
+					
 	it('quote allowed #text', () => {
 		assert.ok(scheme.isChildAllowed('quote', '#text'));
 	});
@@ -1055,12 +1091,12 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('quote', 'list'));
 	});
 					
-	it('quote allowed table', () => {
-		assert.ok(scheme.isChildAllowed('quote', 'table'));
-	});
-					
 	it('quote allowed #shadowRoot', () => {
 		assert.ok(scheme.isChildAllowed('quote', '#shadowRoot'));
+	});
+					
+	it('quote allowed table', () => {
+		assert.ok(scheme.isChildAllowed('quote', 'table'));
 	});
 					
 	it('quote allowed quote', () => {
@@ -1163,12 +1199,12 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('spoiler', 'list'));
 	});
 					
-	it('spoiler allowed table', () => {
-		assert.ok(scheme.isChildAllowed('spoiler', 'table'));
-	});
-					
 	it('spoiler allowed #shadowRoot', () => {
 		assert.ok(scheme.isChildAllowed('spoiler', '#shadowRoot'));
+	});
+					
+	it('spoiler allowed table', () => {
+		assert.ok(scheme.isChildAllowed('spoiler', 'table'));
 	});
 					
 	it('spoiler allowed quote', () => {
@@ -1327,12 +1363,12 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('#root', 'list'));
 	});
 					
-	it('#root allowed table', () => {
-		assert.ok(scheme.isChildAllowed('#root', 'table'));
-	});
-					
 	it('#root allowed #shadowRoot', () => {
 		assert.ok(scheme.isChildAllowed('#root', '#shadowRoot'));
+	});
+					
+	it('#root allowed table', () => {
+		assert.ok(scheme.isChildAllowed('#root', 'table'));
 	});
 					
 	it('#root allowed quote', () => {
@@ -1421,6 +1457,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('b', '*') === false);
 	});
 					
+	it('b not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('b', '#shadowRoot') === false);
+	});
+					
 	it('b not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('b', 'table') === false);
 	});
@@ -1435,10 +1475,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('b not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('b', 'td') === false);
-	});
-					
-	it('b not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('b', '#shadowRoot') === false);
 	});
 					
 	it('b not allowed quote', () => {
@@ -1493,6 +1529,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('u', '*') === false);
 	});
 					
+	it('u not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('u', '#shadowRoot') === false);
+	});
+					
 	it('u not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('u', 'table') === false);
 	});
@@ -1507,10 +1547,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('u not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('u', 'td') === false);
-	});
-					
-	it('u not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('u', '#shadowRoot') === false);
 	});
 					
 	it('u not allowed quote', () => {
@@ -1565,6 +1601,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('i', '*') === false);
 	});
 					
+	it('i not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('i', '#shadowRoot') === false);
+	});
+					
 	it('i not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('i', 'table') === false);
 	});
@@ -1579,10 +1619,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('i not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('i', 'td') === false);
-	});
-					
-	it('i not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('i', '#shadowRoot') === false);
 	});
 					
 	it('i not allowed quote', () => {
@@ -1637,6 +1673,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('s', '*') === false);
 	});
 					
+	it('s not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('s', '#shadowRoot') === false);
+	});
+					
 	it('s not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('s', 'table') === false);
 	});
@@ -1651,10 +1691,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('s not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('s', 'td') === false);
-	});
-					
-	it('s not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('s', '#shadowRoot') === false);
 	});
 					
 	it('s not allowed quote', () => {
@@ -1705,6 +1741,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('#inline', '*') === false);
 	});
 					
+	it('#inline not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('#inline', '#shadowRoot') === false);
+	});
+					
 	it('#inline not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('#inline', 'table') === false);
 	});
@@ -1719,10 +1759,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('#inline not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('#inline', 'td') === false);
-	});
-					
-	it('#inline not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('#inline', '#shadowRoot') === false);
 	});
 					
 	it('#inline not allowed quote', () => {
@@ -1777,6 +1813,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('#format', '*') === false);
 	});
 					
+	it('#format not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('#format', '#shadowRoot') === false);
+	});
+					
 	it('#format not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('#format', 'table') === false);
 	});
@@ -1791,10 +1831,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('#format not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('#format', 'td') === false);
-	});
-					
-	it('#format not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('#format', '#shadowRoot') === false);
 	});
 					
 	it('#format not allowed quote', () => {
@@ -1877,6 +1913,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('img', '*') === false);
 	});
 					
+	it('img not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('img', '#shadowRoot') === false);
+	});
+					
 	it('img not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('img', 'table') === false);
 	});
@@ -1891,10 +1931,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('img not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('img', 'td') === false);
-	});
-					
-	it('img not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('img', '#shadowRoot') === false);
 	});
 					
 	it('img not allowed quote', () => {
@@ -2005,6 +2041,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('#inlineBlock', '*') === false);
 	});
 					
+	it('#inlineBlock not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('#inlineBlock', '#shadowRoot') === false);
+	});
+					
 	it('#inlineBlock not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('#inlineBlock', 'table') === false);
 	});
@@ -2019,10 +2059,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('#inlineBlock not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('#inlineBlock', 'td') === false);
-	});
-					
-	it('#inlineBlock not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('#inlineBlock', '#shadowRoot') === false);
 	});
 					
 	it('#inlineBlock not allowed quote', () => {
@@ -2109,6 +2145,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('url', '*') === false);
 	});
 					
+	it('url not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('url', '#shadowRoot') === false);
+	});
+					
 	it('url not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('url', 'table') === false);
 	});
@@ -2123,10 +2163,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('url not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('url', 'td') === false);
-	});
-					
-	it('url not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('url', '#shadowRoot') === false);
 	});
 					
 	it('url not allowed quote', () => {
@@ -2201,6 +2237,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('p', '*') === false);
 	});
 					
+	it('p not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('p', '#shadowRoot') === false);
+	});
+					
 	it('p not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('p', 'table') === false);
 	});
@@ -2215,10 +2255,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('p not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('p', 'td') === false);
-	});
-					
-	it('p not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('p', '#shadowRoot') === false);
 	});
 					
 	it('p not allowed quote', () => {
@@ -2321,6 +2357,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('list', 'list') === false);
 	});
 					
+	it('list not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('list', '#shadowRoot') === false);
+	});
+					
 	it('list not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('list', 'table') === false);
 	});
@@ -2335,10 +2375,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('list not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('list', 'td') === false);
-	});
-					
-	it('list not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('list', '#shadowRoot') === false);
 	});
 					
 	it('list not allowed quote', () => {
@@ -2401,22 +2437,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('list', '#void') === false);
 	});
 					
-	it('* not allowed #inlineBlock', () => {
-		assert.ok(scheme.isChildAllowed('*', '#inlineBlock') === false);
-	});
-					
-	it('* not allowed p', () => {
-		assert.ok(scheme.isChildAllowed('*', 'p') === false);
-	});
-					
-	it('* not allowed #block', () => {
-		assert.ok(scheme.isChildAllowed('*', '#block') === false);
-	});
-					
-	it('* not allowed list', () => {
-		assert.ok(scheme.isChildAllowed('*', 'list') === false);
-	});
-					
 	it('* not allowed *', () => {
 		assert.ok(scheme.isChildAllowed('*', '*') === false);
 	});
@@ -2437,26 +2457,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('*', 'td') === false);
 	});
 					
-	it('* not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('*', '#shadowRoot') === false);
-	});
-					
-	it('* not allowed quote', () => {
-		assert.ok(scheme.isChildAllowed('*', 'quote') === false);
-	});
-					
-	it('* not allowed code', () => {
-		assert.ok(scheme.isChildAllowed('*', 'code') === false);
-	});
-					
-	it('* not allowed video', () => {
-		assert.ok(scheme.isChildAllowed('*', 'video') === false);
-	});
-					
-	it('* not allowed spoiler', () => {
-		assert.ok(scheme.isChildAllowed('*', 'spoiler') === false);
-	});
-					
 	it('* not allowed #root', () => {
 		assert.ok(scheme.isChildAllowed('*', '#root') === false);
 	});
@@ -2467,6 +2467,38 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('* not allowed #tab', () => {
 		assert.ok(scheme.isChildAllowed('*', '#tab') === false);
+	});
+					
+	it('#shadowRoot not allowed *', () => {
+		assert.ok(scheme.isChildAllowed('#shadowRoot', '*') === false);
+	});
+					
+	it('#shadowRoot not allowed table', () => {
+		assert.ok(scheme.isChildAllowed('#shadowRoot', 'table') === false);
+	});
+					
+	it('#shadowRoot not allowed tr', () => {
+		assert.ok(scheme.isChildAllowed('#shadowRoot', 'tr') === false);
+	});
+					
+	it('#shadowRoot not allowed th', () => {
+		assert.ok(scheme.isChildAllowed('#shadowRoot', 'th') === false);
+	});
+					
+	it('#shadowRoot not allowed td', () => {
+		assert.ok(scheme.isChildAllowed('#shadowRoot', 'td') === false);
+	});
+					
+	it('#shadowRoot not allowed #root', () => {
+		assert.ok(scheme.isChildAllowed('#shadowRoot', '#root') === false);
+	});
+					
+	it('#shadowRoot not allowed #fragment', () => {
+		assert.ok(scheme.isChildAllowed('#shadowRoot', '#fragment') === false);
+	});
+					
+	it('#shadowRoot not allowed #tab', () => {
+		assert.ok(scheme.isChildAllowed('#shadowRoot', '#tab') === false);
 	});
 					
 	it('table not allowed b', () => {
@@ -2521,6 +2553,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('table', '*') === false);
 	});
 					
+	it('table not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('table', '#shadowRoot') === false);
+	});
+					
 	it('table not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('table', 'table') === false);
 	});
@@ -2531,10 +2567,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('table not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('table', 'td') === false);
-	});
-					
-	it('table not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('table', '#shadowRoot') === false);
 	});
 					
 	it('table not allowed quote', () => {
@@ -2649,16 +2681,16 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('tr', '*') === false);
 	});
 					
+	it('tr not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('tr', '#shadowRoot') === false);
+	});
+					
 	it('tr not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('tr', 'table') === false);
 	});
 					
 	it('tr not allowed tr', () => {
 		assert.ok(scheme.isChildAllowed('tr', 'tr') === false);
-	});
-					
-	it('tr not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('tr', '#shadowRoot') === false);
 	});
 					
 	it('tr not allowed quote', () => {
@@ -2777,38 +2809,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('td', '#tab') === false);
 	});
 					
-	it('#shadowRoot not allowed *', () => {
-		assert.ok(scheme.isChildAllowed('#shadowRoot', '*') === false);
-	});
-					
-	it('#shadowRoot not allowed table', () => {
-		assert.ok(scheme.isChildAllowed('#shadowRoot', 'table') === false);
-	});
-					
-	it('#shadowRoot not allowed tr', () => {
-		assert.ok(scheme.isChildAllowed('#shadowRoot', 'tr') === false);
-	});
-					
-	it('#shadowRoot not allowed th', () => {
-		assert.ok(scheme.isChildAllowed('#shadowRoot', 'th') === false);
-	});
-					
-	it('#shadowRoot not allowed td', () => {
-		assert.ok(scheme.isChildAllowed('#shadowRoot', 'td') === false);
-	});
-					
-	it('#shadowRoot not allowed #root', () => {
-		assert.ok(scheme.isChildAllowed('#shadowRoot', '#root') === false);
-	});
-					
-	it('#shadowRoot not allowed #fragment', () => {
-		assert.ok(scheme.isChildAllowed('#shadowRoot', '#fragment') === false);
-	});
-					
-	it('#shadowRoot not allowed #tab', () => {
-		assert.ok(scheme.isChildAllowed('#shadowRoot', '#tab') === false);
-	});
-					
 	it('quote not allowed *', () => {
 		assert.ok(scheme.isChildAllowed('quote', '*') === false);
 	});
@@ -2889,6 +2889,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('video', '*') === false);
 	});
 					
+	it('video not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('video', '#shadowRoot') === false);
+	});
+					
 	it('video not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('video', 'table') === false);
 	});
@@ -2903,10 +2907,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('video not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('video', 'td') === false);
-	});
-					
-	it('video not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('video', '#shadowRoot') === false);
 	});
 					
 	it('video not allowed quote', () => {
@@ -3025,6 +3025,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('user', '*') === false);
 	});
 					
+	it('user not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('user', '#shadowRoot') === false);
+	});
+					
 	it('user not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('user', 'table') === false);
 	});
@@ -3039,10 +3043,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('user not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('user', 'td') === false);
-	});
-					
-	it('user not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('user', '#shadowRoot') === false);
 	});
 					
 	it('user not allowed quote', () => {
@@ -3133,6 +3133,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('project', '*') === false);
 	});
 					
+	it('project not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('project', '#shadowRoot') === false);
+	});
+					
 	it('project not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('project', 'table') === false);
 	});
@@ -3147,10 +3151,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('project not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('project', 'td') === false);
-	});
-					
-	it('project not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('project', '#shadowRoot') === false);
 	});
 					
 	it('project not allowed quote', () => {
@@ -3241,6 +3241,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('department', '*') === false);
 	});
 					
+	it('department not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('department', '#shadowRoot') === false);
+	});
+					
 	it('department not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('department', 'table') === false);
 	});
@@ -3255,10 +3259,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('department not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('department', 'td') === false);
-	});
-					
-	it('department not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('department', '#shadowRoot') === false);
 	});
 					
 	it('department not allowed quote', () => {
@@ -3349,6 +3349,10 @@ describe('Parent <-> child rules (auto-generated)', () => {
 		assert.ok(scheme.isChildAllowed('#mention', '*') === false);
 	});
 					
+	it('#mention not allowed #shadowRoot', () => {
+		assert.ok(scheme.isChildAllowed('#mention', '#shadowRoot') === false);
+	});
+					
 	it('#mention not allowed table', () => {
 		assert.ok(scheme.isChildAllowed('#mention', 'table') === false);
 	});
@@ -3363,10 +3367,6 @@ describe('Parent <-> child rules (auto-generated)', () => {
 					
 	it('#mention not allowed td', () => {
 		assert.ok(scheme.isChildAllowed('#mention', 'td') === false);
-	});
-					
-	it('#mention not allowed #shadowRoot', () => {
-		assert.ok(scheme.isChildAllowed('#mention', '#shadowRoot') === false);
 	});
 					
 	it('#mention not allowed quote', () => {

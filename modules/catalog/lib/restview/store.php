@@ -50,9 +50,15 @@ final class Store extends Base
 			],
 			'USER_ID' => [
 				'TYPE' => DataType::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::READONLY,
+				],
 			],
 			'MODIFIED_BY' => [
 				'TYPE' => DataType::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::READONLY,
+				],
 			],
 			'PHONE' => [
 				'TYPE' => DataType::TYPE_STRING,

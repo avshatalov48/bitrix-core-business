@@ -30,6 +30,11 @@ class Factory
 			$oauthService = new AccountYookassa();
 		}
 
+		if ($type === AccountTBankBusiness::TYPE_CODE)
+		{
+			$oauthService = new AccountTBankBusiness();
+		}
+
 		if ($oauthService)
 		{
 			$oauthService->setService(Seo\Checkout\Service::getInstance());

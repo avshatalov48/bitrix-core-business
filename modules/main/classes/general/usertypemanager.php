@@ -2,7 +2,7 @@
 
 use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlExpression;
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Fields;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UI\FileInputUtility;
@@ -98,7 +98,7 @@ class CUserTypeManager
 		if ($arUserField['MULTIPLE'] == 'Y')
 		{
 			$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
-			return $sqlHelper->getColumnTypeByField(new Entity\TextField('TMP'));
+			return $sqlHelper->getColumnTypeByField(new Fields\TextField('TMP'));
 		}
 		else
 		{
@@ -2148,7 +2148,7 @@ class CUserTypeManager
 						$arFields[$FIELD_NAME] = call_user_func_array([$arUserField["USER_TYPE"]["CLASS_NAME"], "onbeforesave"], [$arUserField, $arFields[$FIELD_NAME], $user_id]);
 					}
 
-					$modified = (!array_key_exists('VALUE_RAW', $arUserField) || $arFields[$FIELD_NAME] != $arUserField['VALUE_RAW']);
+					$modified = (!array_key_exists('VALUE_RAW', $arUserField) || $arFields[$FIELD_NAME] !== $arUserField['VALUE_RAW']);
 					if ($modified)
 					{
 						if ((string)$arFields[$FIELD_NAME] !== '')
@@ -2218,7 +2218,7 @@ class CUserTypeManager
 						$serialized = serialize($arInsert[$arUserField["ID"]]);
 					}
 
-					$modified = (!array_key_exists('VALUE_RAW', $arUserField) || $serialized != $arUserField['VALUE_RAW']);
+					$modified = (!array_key_exists('VALUE_RAW', $arUserField) || $serialized !== $arUserField['VALUE_RAW']);
 					if ($modified)
 					{
 						$arUpdate[$FIELD_NAME] = $serialized;
@@ -2478,7 +2478,7 @@ class CUserTypeManager
 	 * @param null|string $fieldName
 	 * @param array $fieldParameters
 	 *
-	 * @return Entity\DatetimeField|Entity\FloatField|Entity\IntegerField|Entity\StringField|mixed
+	 * @return Fields\DatetimeField|Fields\FloatField|Fields\IntegerField|Fields\StringField|mixed
 	 * @throws Bitrix\Main\ArgumentException
 	 */
 	public function getEntityField($arUserField, $fieldName = null, $fieldParameters = [])
@@ -2494,7 +2494,7 @@ class CUserTypeManager
 		}
 		elseif ($arUserField['USER_TYPE']['USER_TYPE_ID'] == 'date')
 		{
-			$field = new Entity\DateField($fieldName, $fieldParameters);
+			$field = new Fields\DateField($fieldName, $fieldParameters);
 		}
 		else
 		{
@@ -2503,22 +2503,22 @@ class CUserTypeManager
 				case 'int':
 				case 'enum':
 				case 'file':
-					$field = (new Entity\IntegerField($fieldName, $fieldParameters))
+					$field = (new Fields\IntegerField($fieldName, $fieldParameters))
 						->configureNullable()
 					;
 					break;
 				case 'double':
-					$field = (new Entity\FloatField($fieldName, $fieldParameters))
+					$field = (new Fields\FloatField($fieldName, $fieldParameters))
 						->configureNullable()
 					;
 					break;
 				case 'string':
-					$field = (new Entity\StringField($fieldName, $fieldParameters))
+					$field = (new Fields\StringField($fieldName, $fieldParameters))
 						->configureNullable()
 					;
 					break;
 				case 'datetime':
-					$field = (new Entity\DatetimeField($fieldName, $fieldParameters))
+					$field = (new Fields\DatetimeField($fieldName, $fieldParameters))
 						->configureNullable()
 						->configureUseTimezone(isset($arUserField['SETTINGS']['USE_TIMEZONE']) && $arUserField['SETTINGS']['USE_TIMEZONE'] == 'Y')
 					;
@@ -2542,12 +2542,12 @@ class CUserTypeManager
 	}
 
 	/**
-	 * @param                    $arUserField
-	 * @param Entity\ScalarField $entityField
+	 * @param $arUserField
+	 * @param Fields\ScalarField $entityField
 	 *
-	 * @return Entity\ReferenceField[]
+	 * @return Fields\Relations\Reference[]
 	 */
-	public function getEntityReferences($arUserField, Entity\ScalarField $entityField)
+	public function getEntityReferences($arUserField, Fields\ScalarField $entityField)
 	{
 		if (is_callable([$arUserField['USER_TYPE']['CLASS_NAME'], 'getEntityReferences']))
 		{

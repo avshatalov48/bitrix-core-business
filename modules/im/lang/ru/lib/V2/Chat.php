@@ -11,13 +11,14 @@ $MESS["IM_CHAT_JOIN_M"] = "#USER_1_NAME# пригласил в чат #USER_2_NA
 $MESS["IM_CHAT_JOIN_F"] = "#USER_1_NAME# пригласила в чат #USER_2_NAME#";
 $MESS["IM_CHANNEL_JOIN_M"] = "#USER_1_NAME# пригласил в канал #USER_2_NAME#";
 $MESS["IM_CHANNEL_JOIN_F"] = "#USER_1_NAME# пригласила в канал #USER_2_NAME#";
-$MESS["IM_CHAT_KICK_M"] = "#USER_1_NAME# исключил #USER_2_NAME# из чата";
-$MESS["IM_CHAT_KICK_F"] = "#USER_1_NAME# исключила #USER_2_NAME# из чата";
+$MESS["IM_CHAT_KICK_M_MSGVER_1"] = "[USER=#CURRENT_USER_ID#][/USER] исключил [USER=#DELETED_USER_ID#][/USER] из чата";
+$MESS["IM_CHAT_KICK_F_MSGVER_1"] = "[USER=#CURRENT_USER_ID#][/USER] исключила [USER=#DELETED_USER_ID#][/USER] из чата";
 $MESS["IM_CHAT_KICK_NOTIFICATION_M"] = "#USER_NAME# исключил вас из чата";
 $MESS["IM_CHAT_KICK_NOTIFICATION_F"] = "#USER_NAME# исключила вас из чата";
-$MESS["IM_CHAT_LEAVE_F"] = "#USER_NAME# покинула чат";
-$MESS["IM_CHAT_LEAVE_M"] = "#USER_NAME# покинул чат";
+$MESS["IM_CHAT_LEAVE_F_MSGVER_1"] = "[USER=#USER_ID#][/USER] вышла из чата";
+$MESS["IM_CHAT_LEAVE_M_MSGVER_1"] = "[USER=#USER_ID#][/USER] вышел из чата";
 $MESS["IM_CHAT_AVATAR_CHANGE_M"] = "#USER_NAME# изменил иконку чата";
 $MESS["IM_CHAT_AVATAR_CHANGE_F"] = "#USER_NAME# изменила иконку чата";
 $MESS["IM_CHANNEL_AVATAR_CHANGE_M"] = "#USER_NAME# изменил иконку канала";
 $MESS["IM_CHANNEL_AVATAR_CHANGE_F"] = "#USER_NAME# изменила иконку канала";
+$MESS["IM_CHAT_OVERFLOW_DELETE_MESSAGE"] = "Сообщения об исключении и выходе из чата отключены, потому что в чате больше #USER_COUNT# участников. Это поможет сократить количество уведомлений";

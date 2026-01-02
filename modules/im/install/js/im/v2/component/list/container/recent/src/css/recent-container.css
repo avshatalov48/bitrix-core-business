@@ -52,15 +52,33 @@
 	height: 34px;
 	border-radius: 80px;
 	background-color: var(--im-list-container-recent__background-color_create-chat);
-	background-image: url(./images/create-chat.svg);
-	background-position: center;
-	background-repeat: no-repeat;
 	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .bx-im-list-container-recent__create-chat_icon:hover,
 .bx-im-list-container-recent__create-chat_icon.--active {
 	background-color: var(--im-list-container-recent__background-color_create-chat-hover);
+}
+
+.bx-im-list-container-recent__create-chat_icon_status {
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.bx-im-list-container-recent__create-chat_icon_status.--default {
+	width: 22px;
+	height: 22px;
+	background-image: url(./images/create-chat.svg);
+}
+
+.bx-im-list-container-recent__create-chat_icon_status.--loading {
+	width: 34px;
+	height: 34px;
+	background-image: url('./images/spinner.svg');
+	animation: imRotate360 .8s linear infinite;
 }
 
 .bx-im-list-container-recent__elements_container {

@@ -8,7 +8,8 @@ class CAllFormResult extends CFormResult_old
 {
 	public static function GetFileByAnswerID($RESULT_ID, $ANSWER_ID)
 	{
-		global $DB, $strError;
+		global $DB;
+
 		$RESULT_ID = intval($RESULT_ID);
 		$ANSWER_ID = intval($ANSWER_ID);
 		$strSql = "
@@ -32,10 +33,13 @@ class CAllFormResult extends CFormResult_old
 	// return file data by file hash
 	public static function GetFileByHash($RESULT_ID, $HASH)
 	{
-		global $DB, $APPLICATION, $strError, $USER;
+		global $DB, $USER;
 
 		$RESULT_ID = intval($RESULT_ID);
-		if ($RESULT_ID<=0 || trim($HASH) == '') return;
+		if ($RESULT_ID<=0 || trim($HASH) == '')
+		{
+			return false;
+		}
 
 		$strSql = "
 SELECT
@@ -61,18 +65,12 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 			$F_RIGHT = CForm::GetPermission($zr['FORM_ID']);
 			if ($F_RIGHT >= 20 || ($F_RIGHT >= 15 && $USER->GetID() == $zr['USER_ID']))
 			{
-				unset($zr['FORM_ID']); unset($zr['USER_ID']);
+				unset($zr['FORM_ID']);
+				unset($zr['USER_ID']);
 				return $zr;
 			}
-			else
-			{
-				return false;
-			}
 		}
-		else
-		{
-			return false;
-		}
+		return false;
 	}
 
 	// create new event
@@ -125,7 +123,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	//returns data for questions and answers array
 	public static function GetDataByID($RESULT_ID, $arrFIELD_SID, &$arrRES, &$arrANSWER)
 	{
-		global $DB, $strError;
+		global $DB;
+
 		$arrReturn = array();
 		$RESULT_ID = intval($RESULT_ID);
 		$z = CFormResult::GetByID($RESULT_ID);
@@ -174,7 +173,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	// return array of result values for component
 	public static function GetDataByIDForHTML($RESULT_ID, $GET_ADDITIONAL="N")
 	{
-		global $DB, $strError;
+		global $DB;
+
 		$z = CFormResult::GetByID($RESULT_ID);
 		if ($zr=$z->Fetch())
 		{
@@ -187,14 +187,14 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 			$arrResultAnswers = $arrResultAnswers[$RESULT_ID];
 
 			$DB_VARS = array();
-			foreach ($arQuestions as $key => $arQuestion)
+			foreach ($arQuestions as $arQuestion)
 			{
 				if ($arQuestion["ADDITIONAL"]!="Y")
 				{
 					$FIELD_SID = $arQuestion["SID"];
 					if (is_array($arAnswers[$FIELD_SID]))
 					{
-						foreach ($arAnswers[$FIELD_SID] as $key => $arAnswer)
+						foreach ($arAnswers[$FIELD_SID] as $arAnswer)
 						{
 							$arrResultAnswer = $arrResultAnswers[$arQuestion["ID"]][$arAnswer["ID"]];
 							$FIELD_TYPE = $arAnswer["FIELD_TYPE"];
@@ -224,7 +224,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 										$arrResultAnswer["USER_TEXT"] = $DB->FormatDate(
 											$arrResultAnswer["USER_DATE"],
 											FORMAT_DATETIME,
-											(MakeTimeStamp($arrResultAnswer["USER_TEXT"])+date('Z'))%86400 == 0 ? FORMAT_DATE : FORMAT_DATETIME
+											(MakeTimeStamp($arrResultAnswer["USER_TEXT"])+(int)date('Z'))%86400 == 0 ? FORMAT_DATE : FORMAT_DATETIME
 										);
 
 										$fname = "form_".mb_strtolower($FIELD_TYPE)."_".$arAnswer["ID"];
@@ -287,6 +287,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 			}//endforeach
 			return $DB_VARS;
 		}
+		return null;
 	}
 
 	// add new form result
@@ -365,7 +366,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 								{
 									$rsFormResult = CFormResult::GetList($WEB_FORM_ID, "s_timestamp", "desc", $arFilter, null, "N", intval($arForm["RESTRICT_USER"]));
 									$num = 0;
-									while ($row = $rsFormResult->Fetch())
+									while ($rsFormResult->Fetch())
 									{
 										if (++$num >= $arForm["RESTRICT_USER"])
 										{
@@ -449,13 +450,12 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 							if (is_array($arAnswers[$FIELD_SID]))
 							{
 								// process answers
-								foreach ($arAnswers[$FIELD_SID] as $key => $arAnswer)
+								foreach ($arAnswers[$FIELD_SID] as $arAnswer)
 								{
-									$ANSWER_ID = 0;
 									$FIELD_TYPE = $arAnswer["FIELD_TYPE"];
-									$FIELD_PARAM = $arAnswer["FIELD_PARAM"];
-									switch ($FIELD_TYPE) :
 
+									switch ($FIELD_TYPE)
+									{
 										case "radio":
 										case "dropdown":
 
@@ -486,7 +486,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												}
 											}
 
-										break;
+											break;
 
 										case "checkbox":
 										case "multiselect":
@@ -524,7 +524,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												}
 											}
 
-										break;
+											break;
 
 										case "text":
 										case "hidden":
@@ -554,7 +554,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												CFormResult::AddAnswer($arFields);
 											}
 
-										break;
+											break;
 
 										case "date":
 
@@ -587,14 +587,14 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 										case "image":
 
 											$fname = "form_".$FIELD_TYPE."_".$arAnswer["ID"];
-											$ANSWER_ID = intval($arAnswer["ID"]);
-											$arIMAGE = isset($arrVALUES[$fname]) ? $arrVALUES[$fname] : $_FILES[$fname];
-											$arIMAGE["MODULE_ID"] = "form";
-											$fid = 0;
+											$arIMAGE = $arrVALUES[$fname] ?? $_FILES[$fname] ?? null;
+
 											if (CFile::CheckImageFile($arIMAGE) == '')
 											{
-												if ($arIMAGE["name"] <> '')
+												if (!empty($arIMAGE["name"]))
 												{
+													$ANSWER_ID = intval($arAnswer["ID"]);
+													$arIMAGE["MODULE_ID"] = "form";
 													$fid = CFile::SaveFile($arIMAGE, "form");
 													$fid = intval($fid);
 													if ($fid>0)
@@ -626,24 +626,21 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												}
 											}
 
-										break;
+											break;
 
 										case "file":
 
 											$fname = "form_".$FIELD_TYPE."_".$arAnswer["ID"];
-											$ANSWER_ID = intval($arAnswer["ID"]);
-											$arFILE = isset($arrVALUES[$fname]) ? $arrVALUES[$fname] : $_FILES[$fname];
-											$arFILE["MODULE_ID"] = "form";
+											$arFILE = $arrVALUES[$fname] ?? $_FILES[$fname] ?? null;
 
-											if ($arFILE["name"] <> '')
+											if (!empty($arFILE["name"]))
 											{
+												$ANSWER_ID = intval($arAnswer["ID"]);
+												$arFILE["MODULE_ID"] = "form";
 												$original_name = $arFILE["name"];
-												$fid = 0;
-												$max_size = COption::GetOptionString("form", "MAX_FILESIZE");
 												$upload_dir = COption::GetOptionString("form", "NOT_IMAGE_UPLOAD_DIR");
 
-												$fid = CFile::SaveFile($arFILE, $upload_dir);
-												$fid = intval($fid);
+												$fid = (int)CFile::SaveFile($arFILE, $upload_dir);
 												if ($fid>0)
 												{
 													$md5 = md5(uniqid(mt_rand(), true).time());
@@ -662,7 +659,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 															"USER_FILE_NAME"		=> $original_name,
 															"USER_FILE_IS_IMAGE"	=> "N",
 															"USER_FILE_HASH"		=> $md5,
-															"USER_FILE_SUFFIX"		=> $fes,
 															"USER_FILE_SIZE"		=> $arFILE["size"],
 														);
 														$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
@@ -673,9 +669,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												}
 											}
 
-										break;
-
-									endswitch;
+											break;
+									}
 								}
 								// update search fields
 								$arrANSWER_TEXT_upd = $arrANSWER_TEXT[$FIELD_ID];
@@ -748,7 +743,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 						$bUpdateStatus = false;
 						// if there's new status defined
-						if (intval($STATUS_ID)>0)
+						if ($STATUS_ID > 0)
 						{
 							// check new status rights
 							$arrNEW_STATUS_PERMISSION = ($CHECK_RIGHTS!="Y") ? CFormStatus::GetMaxPermissions() : CFormStatus::GetPermissions($STATUS_ID);
@@ -852,11 +847,10 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 									// trace answers
 									if (is_array($arAnswers[$FIELD_SID]))
 									{
-										foreach ($arAnswers[$FIELD_SID] as $key => $arAnswer)
+										foreach ($arAnswers[$FIELD_SID] as $arAnswer)
 										{
-											$ANSWER_ID = 0;
 											$FIELD_TYPE = $arAnswer["FIELD_TYPE"];
-											$FIELD_PARAM = $arAnswer["FIELD_PARAM"];
+
 											switch ($FIELD_TYPE) :
 
 												case "radio":
@@ -989,20 +983,24 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 													$fname = "form_".$FIELD_TYPE."_".$arAnswer["ID"];
 													$ANSWER_ID = intval($arAnswer["ID"]);
-													$arIMAGE = isset($arrVALUES[$fname]) ? $arrVALUES[$fname] : $_FILES[$fname];
-													$arIMAGE["old_file"] = $arrFILES[$ANSWER_ID]["USER_FILE_ID"];
-													$arIMAGE["del"] = $arrVALUES[$fname."_del"];
-													$arIMAGE["MODULE_ID"] = "form";
+													$arIMAGE = $arrVALUES[$fname] ?? $_FILES[$fname] ?? null;
 													$fid = 0;
-													if ($arIMAGE["name"] <> '' || $arIMAGE["del"] <> '')
+													$new_file = false;
+													if (!empty($arIMAGE["name"]) || !empty($arIMAGE["del"]))
 													{
-														$new_file="Y";
-														if ($arIMAGE["del"] <> '' || CFile::CheckImageFile($arIMAGE) == '')
+														$arIMAGE["old_file"] = $arrFILES[$ANSWER_ID]["USER_FILE_ID"];
+														$arIMAGE["del"] = $arrVALUES[$fname."_del"];
+														$arIMAGE["MODULE_ID"] = "form";
+														$new_file = true;
+														if (!empty($arIMAGE["del"]) || CFile::CheckImageFile($arIMAGE) == '')
 														{
 															$fid = CFile::SaveFile($arIMAGE, "form");
 														}
 													}
-													else $fid = $arrFILES[$ANSWER_ID]["USER_FILE_ID"];
+													else
+													{
+														$fid = $arrFILES[$ANSWER_ID]["USER_FILE_ID"];
+													}
 
 													$fid = intval($fid);
 													if ($fid>0)
@@ -1019,8 +1017,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 																"ANSWER_VALUE"			=> $zr["VALUE"],
 																"USER_FILE_ID"			=> $fid,
 																"USER_FILE_IS_IMAGE"	=> "Y"
-																);
-															if ($new_file=="Y")
+															);
+															if ($new_file)
 															{
 																$arFields["USER_FILE_NAME"] = $arIMAGE["name"];
 																$arFields["USER_FILE_SIZE"] = $arIMAGE["size"];
@@ -1042,28 +1040,30 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 														}
 													}
 
-												break;
+													break;
 
 												case "file":
 
 													$fname = "form_".$FIELD_TYPE."_".$arAnswer["ID"];
 													$ANSWER_ID = intval($arAnswer["ID"]);
-													$arFILE = isset($arrVALUES[$fname]) ? $arrVALUES[$fname] : $_FILES[$fname];
-													$arFILE["old_file"] = $arrFILES[$ANSWER_ID]["USER_FILE_ID"];
-													$arFILE["del"] = $arrVALUES[$fname."_del"];
-													$arFILE["MODULE_ID"] = "form";
-													$new_file="N";
-													$fid = 0;
-													if (trim($arFILE["name"]) <> '' || trim($arFILE["del"]) <> '')
+													$arFILE = $arrVALUES[$fname] ?? $_FILES[$fname] ?? null;
+													$new_file = false;
+
+													if (!empty($arFILE["name"]) || !empty($arFILE["del"]))
 													{
-														$new_file="Y";
+														$arFILE["old_file"] = $arrFILES[$ANSWER_ID]["USER_FILE_ID"];
+														$arFILE["del"] = $arrVALUES[$fname."_del"];
+														$arFILE["MODULE_ID"] = "form";
+														$new_file = true;
 														$original_name = $arFILE["name"];
-														$max_size = COption::GetOptionString("form", "MAX_FILESIZE");
 														$upload_dir = COption::GetOptionString("form", "NOT_IMAGE_UPLOAD_DIR");
 
-														$fid = CFile::SaveFile($arFILE, $upload_dir, $max_size);
+														$fid = CFile::SaveFile($arFILE, $upload_dir);
 													}
-													else $fid = $arrFILES[$ANSWER_ID]["USER_FILE_ID"];
+													else
+													{
+														$fid = $arrFILES[$ANSWER_ID]["USER_FILE_ID"];
+													}
 
 													$fid = intval($fid);
 
@@ -1081,12 +1081,11 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 																"ANSWER_VALUE"			=> $zr["VALUE"],
 																"USER_FILE_ID"			=> $fid,
 															);
-															if ($new_file=="Y")
+															if ($new_file)
 															{
 																$arFields["USER_FILE_NAME"] = $original_name;
 																$arFields["USER_FILE_IS_IMAGE"] = "N";
 																$arFields["USER_FILE_HASH"] = md5(uniqid(mt_rand(), true).time());
-																$arFields["USER_FILE_SUFFIX"] = $suffix;
 																$arFields["USER_FILE_SIZE"] = $arFILE["size"];
 															}
 															else
@@ -1203,9 +1202,10 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	// set question or field value in existed result
 	public static function SetField($RESULT_ID, $FIELD_SID, $VALUE=false)
 	{
-		global $DB, $strError;
+		global $DB;
+
 		$RESULT_ID = intval($RESULT_ID);
-		if (intval($RESULT_ID)>0)
+		if ($RESULT_ID > 0)
 		{
 			$strSql = "
 				SELECT
@@ -1235,7 +1235,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 				if ($arField = $q->Fetch())
 				{
 					$FIELD_ID = $arField["ID"];
-					$IS_FIELD = ($arField["ADDITIONAL"]=="Y") ? true : false;
+					$IS_FIELD = $arField["ADDITIONAL"]=="Y";
 
 					if ($IS_FIELD)
 					{
@@ -1321,7 +1321,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 								$rsAnswer = CFormAnswer::GetByID($ANSWER_ID);
 								if ($arAnswer = $rsAnswer->Fetch())
 								{
-									switch ($arAnswer["FIELD_TYPE"]) :
+									switch ($arAnswer["FIELD_TYPE"])
+									{
 
 										case "radio":
 										case "dropdown":
@@ -1340,7 +1341,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 											$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
 											$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
 
-										break;
+											break;
 
 										case "text":
 										case "textarea":
@@ -1363,7 +1364,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 											$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
 											$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 
-										break;
+											break;
 
 										case "date":
 
@@ -1385,7 +1386,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 											}
 
-										break;
+											break;
 
 										case "image":
 
@@ -1395,9 +1396,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												$arIMAGE["MODULE_ID"] = "form";
 												if (CFile::CheckImageFile($arIMAGE) == '')
 												{
-													if (!array_key_exists("MODULE_ID", $arIMAGE) || $arIMAGE["MODULE_ID"] == '')
-														$arIMAGE["MODULE_ID"] = "form";
-
 													$fid = CFile::SaveFile($arIMAGE, "form");
 													if (intval($fid)>0)
 													{
@@ -1422,7 +1420,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												}
 											}
 
-										break;
+											break;
 
 										case "file":
 
@@ -1431,9 +1429,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 											{
 												$arFILE["MODULE_ID"] = "form";
 												$original_name = $arFILE["name"];
-												$max_size = COption::GetOptionString("form", "MAX_FILESIZE");
 												$upload_dir = COption::GetOptionString("form", "NOT_IMAGE_UPLOAD_DIR");
-												$fid = CFile::SaveFile($arFILE, $upload_dir, $max_size);
+												$fid = CFile::SaveFile($arFILE, $upload_dir);
 												if (intval($fid)>0)
 												{
 													$arFields = array(
@@ -1448,9 +1445,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 														"USER_FILE_NAME"		=> $original_name,
 														"USER_FILE_HASH"		=> md5(uniqid(mt_rand(), true).time()),
 														"USER_FILE_SIZE"		=> $arFILE["size"],
-														"USER_FILE_SUFFIX"		=> $suffix,
 														"USER_TEXT"				=> $original_name,
-														);
+													);
 													CFormResult::AddAnswer($arFields);
 													$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
 													$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
@@ -1458,9 +1454,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												}
 											}
 
-										break;
-
-									endswitch;
+											break;
+									}
 								}
 							}
 							// update search fields
@@ -1558,7 +1553,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	// clear result
 	public static function Reset($RESULT_ID, $DELETE_FILES=true, $DELETE_ADDITIONAL="N", $arrException=array())
 	{
-		global $DB, $strError;
+		global $DB;
+
 		$RESULT_ID = intval($RESULT_ID);
 		$strExc = '';
 
@@ -1697,7 +1693,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	//send form event notification;
 	public static function Mail($RESULT_ID, $TEMPLATE_ID = false)
 	{
-		global $APPLICATION, $DB, $MESS, $strError;
+		global $APPLICATION, $MESS, $strError;
 
 		$RESULT_ID = intval($RESULT_ID);
 
@@ -1721,7 +1717,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 				$arrSites = array();
 				while ($ar = $rs->Fetch())
 				{
-					if ($ar["DEF"]=="Y") $def_site_id = $ar["ID"];
 					$arrSites[$ar["ID"]] = $ar;
 				}
 

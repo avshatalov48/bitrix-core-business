@@ -2,6 +2,7 @@
 $MESS["MAIN_ADMIN_GROUP_DESC"] = "Full access.";
 $MESS["MAIN_ADMIN_GROUP_NAME"] = "Administrators";
 $MESS["MAIN_DEFAULT_LANGUAGE_AM_VALUE"] = "am";
+$MESS["MAIN_DEFAULT_LANGUAGE_CODE"] = "en";
 $MESS["MAIN_DEFAULT_LANGUAGE_DAY_MONTH_FORMAT"] = "F j";
 $MESS["MAIN_DEFAULT_LANGUAGE_DAY_OF_WEEK_MONTH_FORMAT"] = "l, F j";
 $MESS["MAIN_DEFAULT_LANGUAGE_DAY_SHORT_MONTH_FORMAT"] = "M j";
@@ -13,7 +14,6 @@ $MESS["MAIN_DEFAULT_LANGUAGE_LONG_DATE_FORMAT"] = "F j, Y";
 $MESS["MAIN_DEFAULT_LANGUAGE_LONG_TIME_FORMAT"] = "g:i:s a";
 $MESS["MAIN_DEFAULT_LANGUAGE_MEDIUM_DATE_FORMAT"] = "M j, Y";
 $MESS["MAIN_DEFAULT_LANGUAGE_NAME"] = "English";
-$MESS["MAIN_DEFAULT_LANGUAGE_CODE"] = "en";
 $MESS["MAIN_DEFAULT_LANGUAGE_NUMBER_DECIMAL_SEPARATOR"] = ".";
 $MESS["MAIN_DEFAULT_LANGUAGE_NUMBER_THOUSANDS_SEPARATOR"] = ",";
 $MESS["MAIN_DEFAULT_LANGUAGE_PM_VALUE"] = "pm";
@@ -190,7 +190,7 @@ $MESS["MAIN_NEW_USER_TYPE_DESC"] = "
 
 #USER_ID# - User ID
 #LOGIN# - Login
-#EMAIL# - EMail
+#EMAIL# - Email
 #NAME# - Name
 #LAST_NAME# - Last Name
 #USER_IP# - User IP
@@ -233,7 +233,7 @@ $MESS["MAIN_USER_INFO_TYPE_DESC"] = "
 #MESSAGE# - Message for user
 #LOGIN# - Login
 #URL_LOGIN# - Encoded login for use in URL
-#CHECKWORD# - Check string for password change
+#CHECKWORD# - Checkword for password change
 #NAME# - Name
 #LAST_NAME# - Last Name
 #EMAIL# - User E-Mail
@@ -260,11 +260,11 @@ $MESS["MAIN_USER_INVITE_EVENT_NAME"] = "#SITE_NAME#: Invitation to site";
 $MESS["MAIN_USER_INVITE_TYPE_DESC"] = "#ID# - User ID
 #LOGIN# - Login
 #URL_LOGIN# - Encoded login for use in URL
-#EMAIL# - EMail
+#EMAIL# - Email
 #NAME# - Name
 #LAST_NAME# - Last Name
 #PASSWORD# - User password 
-#CHECKWORD# - Password check string
+#CHECKWORD# - Password checkword
 #XML_ID# - User ID to link with external data sources
 
 ";

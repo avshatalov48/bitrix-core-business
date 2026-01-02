@@ -1,6 +1,6 @@
 import { Messenger } from 'im.public';
 import { NotificationTypesCodes, UserType } from 'im.v2.const';
-import { ChatTitle } from 'im.v2.component.elements';
+import { ChatTitle } from 'im.v2.component.elements.chat-title';
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 
 import '../../css/notification-item-header.css';

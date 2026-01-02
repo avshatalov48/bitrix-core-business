@@ -1,0 +1,8 @@
+.bx-im-task-chat-opener__container {
+	width: 100%;
+	height: 100%;
+}
+
+.bx-im-task-chat-opener__container * {
+	box-sizing: border-box;
+}

@@ -7,6 +7,7 @@ $MESS["BPWI_OWNED_UNTIL"] = "Заблокирован до";
 $MESS["BPWI_WS_STARTED"] = "Дата начала";
 $MESS["BPWI_WS_STARTED_BY"] = "Запустил";
 $MESS["BPWI_WS_WORKFLOW_TEMPLATE_ID"] = "Бизнес-процесс";
+$MESS["BPWI_WS_DOCUMENT_ID"] = "Элемент CRM";
 $MESS["BPWI_WS_MODULE_ID"] = "Модуль";
 $MESS["BPWI_DOCUMENT_NAME"] = "Документ";
 $MESS["BPWI_NO_MATTER"] = "(не важно)";

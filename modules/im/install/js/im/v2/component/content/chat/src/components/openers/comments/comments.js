@@ -1,8 +1,6 @@
-import 'ui.notification';
-
 import { Analytics } from 'im.v2.lib.analytics';
 import { Logger } from 'im.v2.lib.logger';
-import { ChatService } from 'im.v2.provider.service';
+import { ChatService } from 'im.v2.provider.service.chat';
 
 import { CommentsContent } from '../../content/comments/comments';
 
@@ -69,25 +67,11 @@ export const CommentsOpener = {
 			Logger.warn(`CommentsContent: loading comments for post ${this.postId}`);
 
 			await this.getChatService().loadComments(this.postId)
-				.catch((error) => {
-					this.handleChatLoadError(error);
-					Logger.error(error);
+				.catch(() => {
 					this.$emit('close');
 				});
 
 			Logger.warn(`CommentsContent: comments for post ${this.postId} are loaded`);
-		},
-		handleChatLoadError(error: Error[]): void
-		{
-			const [firstError] = error;
-			if (firstError.code === 'ACCESS_DENIED')
-			{
-				this.showNotification(this.loc('IM_CONTENT_CHAT_ACCESS_ERROR_MSGVER_1'));
-			}
-		},
-		showNotification(text: string)
-		{
-			BX.UI.Notification.Center.notify({ content: text });
 		},
 		getChatService(): ChatService
 		{

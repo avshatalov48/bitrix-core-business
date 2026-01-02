@@ -4,6 +4,7 @@ namespace Bitrix\Im\V2\Integration\Extranet;
 
 use Bitrix\Extranet\Service\ServiceContainer;
 use Bitrix\Main\Loader;
+use Bitrix\Extranet\PortalSettings;
 
 class CollaberService
 {
@@ -29,5 +30,15 @@ class CollaberService
 		}
 
 		return ServiceContainer::getInstance()->getCollaberService()->isCollaberById($userId);
+	}
+
+	public function isEnabledCollabersInvitation(): bool
+	{
+		if (!Loader::includeModule('extranet'))
+		{
+			return false;
+		}
+
+		return PortalSettings::getInstance()->isEnabledCollabersInvitation();
 	}
 }

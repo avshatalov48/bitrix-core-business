@@ -1,0 +1,23 @@
+<?php
+$MESS["CEEN_2FLIST"] = "Үстемелер тізімі";
+$MESS["CEEN_ADDING"] = "Жаңа үстемені қосу";
+$MESS["CEEN_APPLY"] = "Қолдану";
+$MESS["CEEN_CANCEL"] = "Қалпына келтіру";
+$MESS["CEEN_DELETE_DISCOUNT"] = "Үстеме бағаны жою";
+$MESS["CEEN_DELETE_DISCOUNT_CONFIRM"] = "Сіз бұл үстемені жойғыңыз келетініне сенімдісіз бе?";
+$MESS["CEEN_DISCOUNT_VALUE"] = "Үстеме көлемі";
+$MESS["CEEN_ERROR_SAVING_EXTRA"] = "Үстеме бағаны сақтау қатесі";
+$MESS["CEEN_NAME"] = "Атауы";
+$MESS["CEEN_NEW_DISCOUNT"] = "Жаңа үстемені жасау";
+$MESS["CEEN_NO_DISCOUNT"] = "##ID# үстемесі табылмады";
+$MESS["CEEN_NO_PERMS2ADD"] = "Сізде жаңа үстеме қосу үшін құқықтар жеткіліксіз";
+$MESS["CEEN_PERCENTAGE"] = "Үстеме көлемі";
+$MESS["CEEN_RECALC"] = "Бағаларды қайта есептеу";
+$MESS["CEEN_SAVE"] = "Сақтау";
+$MESS["CEEN_SAVE_ADD"] = "Қосу";
+$MESS["CEEN_SORT"] = "Сұрыптау индексі";
+$MESS["CEEN_TAB_DISCOUNT"] = "Үстеме";
+$MESS["CEEN_TAB_DISCOUNT_DESCR"] = "Үстеме параметрлері";
+$MESS["CEEN_TIMESTAMP"] = "Соңғы өзгерту күні:";
+$MESS["CEEN_TO_LIST"] = "Үстемелер тізімі";
+$MESS["CEEN_UPDATING"] = "Үстеме параметрлерін өзгерту";

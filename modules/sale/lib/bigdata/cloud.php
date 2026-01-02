@@ -6,8 +6,6 @@ use Bitrix\Main\Analytics\Counter;
 
 class Cloud
 {
-	static protected $url = 'https://analytics.bitrix.info/crecoms/v1_0/recoms.php';
-
 	public static function getPersonalRecommendation($userId, $count = 10)
 	{
 		$params = array(
@@ -51,18 +49,6 @@ class Cloud
 
 	protected static function makeQuery($params)
 	{
-		// aid is always required
-		$params['aid'] = \Bitrix\Main\Analytics\Counter::getAccountId();
-
-		// send http query
-		$http = new \Bitrix\Main\Web\HttpClient();
-		$http->setHeader("User-Agent", "X-Bitrix-Sale");
-
-		$httpResult = $http->get(static::$url.'?'.http_build_query($params));
-
-		if ($http->getStatus() == 200)
-		{
-			return json_decode($httpResult, true);
-		}
+		return null;
 	}
 }

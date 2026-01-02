@@ -2,11 +2,35 @@
 
 namespace Bitrix\Bizproc\UI;
 
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\EO_User;
+use Bitrix\Main\UserTable;
 
 class UserView implements \JsonSerializable
 {
 	private EO_User $user;
+
+	public static function createFromId(int $userId): ?static
+	{
+		$currentUser = CurrentUser::get();
+		if ((int)$currentUser->getId() === $userId)
+		{
+			$user = UserTable::wakeUpObject([
+				'ID' => $currentUser->getId(),
+				'LOGIN' => $currentUser->getLogin(),
+				'NAME' => $currentUser->getFirstName(),
+				'SECOND_NAME' => $currentUser->getSecondName(),
+				'LAST_NAME' => $currentUser->getLastName(),
+				'EMAIL' => $currentUser->getEmail(),
+			]);
+		}
+		else
+		{
+			$user = UserTable::getByPrimary($userId)->fetchObject();
+		}
+
+		return $user ? new static($user): null;
+	}
 
 	public function __construct(EO_User $user)
 	{
@@ -27,6 +51,7 @@ class UserView implements \JsonSerializable
 				'NAME' => $this->user->getName(),
 				'LAST_NAME' => $this->user->getLastName(),
 				'SECOND_NAME' => $this->user->getSecondName(),
+				'EMAIL' => $this->user->getEmail(),
 			],
 			true,
 			false
@@ -57,7 +82,7 @@ class UserView implements \JsonSerializable
 						$originalFile,
 						[
 							'width' => $size,
-							'height' => $size
+							'height' => $size,
 						],
 						BX_RESIZE_IMAGE_EXACT,
 						false,

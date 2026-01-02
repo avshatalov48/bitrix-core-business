@@ -2,9 +2,9 @@ import { Extension, Runtime, Type, type JsonObject, Event, Dom } from 'main.core
 import { EventEmitter } from 'main.core.events';
 
 import { Utils } from 'im.v2.lib.utils';
-import { EventType, UserType } from 'im.v2.const';
-import { Core } from 'im.v2.application.core';
-import { ScrollWithGradient } from 'im.v2.component.elements';
+import { EventType } from 'im.v2.const';
+import { ScrollWithGradient } from 'im.v2.component.elements.scroll-with-gradient';
+import { getUsersFromRecentItems } from 'im.v2.lib.search';
 
 import { MentionItem } from './mention-item';
 import { MentionEmptyState } from './mention-empty-state';
@@ -13,8 +13,6 @@ import { MentionContentFooter } from './mention-content-footer';
 import { MentionSearchService } from '../classes/mention-search-service';
 
 import '../css/mention-popup-content.css';
-
-import type { ImModelRecentItem, ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const MentionPopupContent = {
@@ -80,24 +78,7 @@ export const MentionPopupContent = {
 		},
 		usersFromRecent(): string[]
 		{
-			const recentUsers = [];
-
-			this.$store.getters['recent/getSortedCollection'].forEach((recentItem: ImModelRecentItem) => {
-				if (this.isChat(recentItem.dialogId))
-				{
-					return;
-				}
-				const user: ImModelUser = this.$store.getters['users/get'](recentItem.dialogId, true);
-				const isBot = user.type === UserType.bot;
-				if (isBot || user.id === Core.getUserId())
-				{
-					return;
-				}
-
-				recentUsers.push(user);
-			});
-
-			return recentUsers.map((user: ImModelUser) => user.id.toString());
+			return getUsersFromRecentItems({ withFakeUsers: false }).map(({ dialogId }) => dialogId);
 		},
 		preparedQuery(): string
 		{
@@ -198,8 +179,7 @@ export const MentionPopupContent = {
 					return;
 				}
 
-				const sortedLocalResult = this.searchService.sortByDate(dialogIds);
-				this.searchResult = this.appendResult(sortedLocalResult);
+				this.searchResult = this.appendResult(dialogIds);
 			}
 
 			if (query.length >= this.minTokenSize)

@@ -10,6 +10,7 @@ final class CollabFeature
 	{
 		return Loader::includeModule('socialnetwork')
 			&& \Bitrix\Socialnetwork\Collab\CollabFeature::isOn()
+			&& \Bitrix\Socialnetwork\Collab\CollabFeature::isFeatureEnabledInPortalSettings()
 		;
 	}
 }

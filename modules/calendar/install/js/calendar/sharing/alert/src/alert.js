@@ -1,3 +1,4 @@
+import { Type } from 'main.core';
 import { BitrixVue } from 'ui.vue3';
 import { Application } from './components/application';
 
@@ -8,7 +9,10 @@ export class Alert
 		this.link = options.link;
 		this.rootNode = BX('calendar-sharing-alert');
 
-		this.buildView();
+		if (Type.isDomNode(this.rootNode))
+		{
+			this.buildView();
+		}
 	}
 
 	buildView()

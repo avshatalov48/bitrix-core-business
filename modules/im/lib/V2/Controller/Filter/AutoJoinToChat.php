@@ -2,7 +2,7 @@
 
 namespace Bitrix\Im\V2\Controller\Filter;
 
-use Bitrix\Im\V2\Chat\CommentChat;
+use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Message;
 use Bitrix\Main\Engine\ActionFilter\Base;
 use Bitrix\Main\Event;
@@ -11,36 +11,33 @@ class AutoJoinToChat extends Base
 {
 	public function onBeforeAction(Event $event)
 	{
-		$autoJoinFlag = $this->getAction()->getBinder()->getSourcesParametersToMap()[0]['autoJoin'] ?? 'N';
-		$autoJoin = $autoJoinFlag === 'Y';
-
-		if (!$autoJoin)
+		$chat = $this->getChat();
+		if ($chat === null)
 		{
 			return null;
 		}
 
-		$chat = $this->getAction()->getArguments()['chat'] ?? null;
-
-		if ($chat === null)
+		if (!$chat->canUserAutoJoin())
 		{
-			$message = $this->getAction()->getArguments()['message'] ?? null;
-			if ($message instanceof Message)
-			{
-				$chat = $message->getChat();
-			}
+			return null;
 		}
 
-		if ($chat instanceof CommentChat)
-		{
-			if ($chat->getParentChat()->getSelfRelation() === null)
-			{
-				return null;
-			}
+		$chat->join(false);
+	}
 
-			if ($chat->checkAccess()->isSuccess())
-			{
-				$chat->join(false);
-			}
+	private function getChat(): ?Chat
+	{
+		$chat = $this->getAction()->getArguments()['chat'] ?? null;
+
+		if ($chat instanceof Chat)
+		{
+			return $chat;
+		}
+
+		$message = $this->getAction()->getArguments()['message'] ?? null;
+		if ($message instanceof Message)
+		{
+			return $message->getChat();
 		}
 
 		return null;

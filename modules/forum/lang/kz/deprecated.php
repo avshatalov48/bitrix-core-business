@@ -1,0 +1,20 @@
+<?php
+$MESS['FDATE_LAST_MESSAGE'] = "соңғы хабарлама күні";
+$MESS['FMESSAGE_TOPIC'] = "хабарлама тақырыбы";
+$MESS['FNUM_ANSWERS'] = "жауаптар саны";
+$MESS['FNUM_VIEWS'] = "қаралымдар саны";
+$MESS['FSTART_DATE'] = "тақырыптың басталу күні";
+$MESS['FAUTHOR_TOPIC'] = "тақырып авторы";
+$MESS['FASC'] = "өсу бойынша";
+$MESS['FDESC'] = "кему бойынша";
+$MESS['FNO_ACCESS'] = "қолжетімсіз";
+$MESS['FREAD_ACCESS'] = "оқу";
+$MESS['FANSWER_ACCESS'] = "жауап";
+$MESS['FNEW_MESSAGE_ACCESS'] = "жаңа тақырып";
+$MESS['FMODERATE_ACCESS'] = "модерациялау";
+$MESS['FEDIT_ACCESS'] = "редакциялау";
+$MESS['FFULL_ACCESS'] = "толық қолжетімділік";
+$MESS['FSUBSC_NO_SPERMS'] = "Бұл жазылымды жоюға құқығыңыз жоқ";
+$MESS['FORUM_NO_MODULE'] = "Форум модулі орнатылмаған";
+$MESS['FR_VIDEO'] = "Видеоны орнату";
+$MESS['FR_VIDEO_P'] = "Видеоға жол";

@@ -34,11 +34,12 @@ class CashboxOrangeData
 
 	const CODE_VAT_0 = 5;
 	const CODE_VAT_10 = 2;
-	const CODE_VAT_20 = 1;
+	const CODE_VAT_22 = 1;
 	const CODE_CALC_VAT_10 = 4;
-	const CODE_CALC_VAT_20 = 3;
+	const CODE_CALC_VAT_22 = 3;
 
 	private const MAX_TEXT_LENGTH = 128;
+	protected const MAX_UUID_LENGTH = 64;
 
 	/**
 	 * @return string
@@ -128,13 +129,31 @@ class CashboxOrangeData
 					'taxationSystem' => $this->getValueFromSettings('TAX', 'SNO'),
 				],
 				'customerContact' => $this->getCustomerContact($checkData),
+				'isInternetStore' => $this->getField('USE_OFFLINE') === 'N',
 			],
 			'meta' => self::PARTNER_CODE_BITRIX
 		];
 
+		$hasVat20 = false;
+		$hasVat22 = false;
 		foreach ($checkData['items'] as $item)
 		{
-			$result['content']['positions'][] = $this->buildPosition($checkData, $item, $isSellReturn);
+			$position = $this->buildPosition($checkData, $item, $isSellReturn);
+			if (
+				(int)$position['tax'] === self::CODE_VAT_22
+				|| (int)$position['tax'] === self::CODE_CALC_VAT_22
+			)
+			{
+				$itemVatRate = $this->getVatRateByVatId((int)$item['vat']);
+				$hasVat22 = $hasVat22 || $itemVatRate === 22.0;
+				$hasVat20 = $hasVat20 || $itemVatRate === 20.0;
+			}
+			$result['content']['positions'][] = $position;
+		}
+
+		if ($hasVat20 && !$hasVat22)
+		{
+			$result['content']['useTax20'] = true;
 		}
 
 		$paymentTypeMap = $this->getPaymentTypeMap();
@@ -147,6 +166,28 @@ class CashboxOrangeData
 		}
 
 		return $result;
+	}
+
+	private function getVatRateByVatId(int $vatId): ?float
+	{
+		if (!Main\Loader::includeModule('catalog'))
+		{
+			return null;
+		}
+
+		$vatData = Catalog\VatTable::getRow([
+			'select' => ['ID', 'RATE'],
+			'filter' => ['=ID' => $vatId],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		]);
+		if (!$vatData)
+		{
+			return null;
+		}
+
+		return (float)$vatData['RATE'];
 	}
 
 	/**
@@ -329,7 +370,7 @@ class CashboxOrangeData
 	{
 		return [
 			self::CODE_VAT_10 => self::CODE_CALC_VAT_10,
-			self::CODE_VAT_20 => self::CODE_CALC_VAT_20,
+			self::CODE_VAT_22 => self::CODE_CALC_VAT_22,
 		];
 	}
 
@@ -1003,7 +1044,8 @@ class CashboxOrangeData
 		return [
 			0 => self::CODE_VAT_0,
 			10 => self::CODE_VAT_10,
-			20 => self::CODE_VAT_20,
+			20 => self::CODE_VAT_22,
+			22 => self::CODE_VAT_22,
 		];
 	}
 
@@ -1143,6 +1185,11 @@ class CashboxOrangeData
 			}
 		}
 
+		if ($this->useTax20ForCorrection($data))
+		{
+			$result['content']['useTax20'] = true;
+		}
+
 		$vats = $this->getVatsByCheckData($data);
 		if (is_array($vats))
 		{
@@ -1153,6 +1200,25 @@ class CashboxOrangeData
 		}
 
 		return $result;
+	}
+
+	protected function useTax20ForCorrection(array $data): bool
+	{
+		if (empty($data['vats']) || !is_array($data['vats']))
+		{
+			return false;
+		}
+
+		foreach ($data['vats'] as $vat)
+		{
+			$itemVatRate = $this->getVatRateByVatId((int)$vat['type']);
+			if ($itemVatRate === 20.0)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -1212,7 +1278,7 @@ class CashboxOrangeData
 				case self::CODE_VAT_10:
 					$vatKey = '2Sum';
 					break;
-				case self::CODE_VAT_20:
+				case self::CODE_VAT_22:
 					$vatKey = '1Sum';
 					break;
 				default:

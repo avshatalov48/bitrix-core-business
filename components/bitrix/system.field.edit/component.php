@@ -175,7 +175,7 @@ if($arUserField["USER_TYPE"])
 	}
 	else
 	{
-		if($this->initComponentTemplate() || $arParams['skip_manager'])
+		if($this->initComponentTemplate() || !empty($arParams['skip_manager']))
 		{
 			$APPLICATION->AddHeadScript($this->getPath() . "/script.js");
 

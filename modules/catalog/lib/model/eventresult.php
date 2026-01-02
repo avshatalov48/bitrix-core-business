@@ -1,9 +1,8 @@
 <?php
+
 namespace Bitrix\Catalog\Model;
 
-use Bitrix\Main;
-
-class EventResult extends Main\Entity\EventResult
+class EventResult extends \Bitrix\Main\ORM\EventResult
 {
 	public function __construct()
 	{
@@ -20,12 +19,12 @@ class EventResult extends Main\Entity\EventResult
 		];
 	}
 
-	public function modifyFields(array $fields)
+	public function modifyFields(array $fields): void
 	{
 		$this->modified['fields'] = $fields;
 	}
 
-	public function unsetFields(array $fields)
+	public function unsetFields(array $fields): void
 	{
 		$this->unset['fields'] = $fields;
 	}
@@ -33,27 +32,27 @@ class EventResult extends Main\Entity\EventResult
 	/**
 	 * @param string $fieldName
 	 */
-	public function unsetField($fieldName)
+	public function unsetField($fieldName): void
 	{
 		$this->unset['fields'][] = $fieldName;
 	}
 
-	public function modifyExternalFields(array $fields)
+	public function modifyExternalFields(array $fields): void
 	{
 		$this->modified['external_fields'] = $fields;
 	}
 
-	public function unsetExternalFields(array $fields)
+	public function unsetExternalFields(array $fields): void
 	{
 		$this->unset['external_fields'] = $fields;
 	}
 
-	public function modifyActions(array $actions)
+	public function modifyActions(array $actions): void
 	{
 		$this->modified['actions'] = $actions;
 	}
 
-	public function unsetActions(array $actions)
+	public function unsetActions(array $actions): void
 	{
 		$this->unset['actions'] = $actions;
 	}

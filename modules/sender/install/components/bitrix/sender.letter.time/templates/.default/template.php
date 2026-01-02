@@ -15,6 +15,7 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Integration\Bitrix24;
 use Bitrix\Sender\Internals\PrettyDate;
 use Bitrix\Main\UI\Extension;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 Extension::load("ui.buttons");
 Extension::load("ui.notification");
@@ -37,6 +38,11 @@ $enablePhoneVerification =
 	&& $arParams['IS_BX24_INSTALLED']
 	&& $arParams['IS_MAIL_TRANSPORT']
 ;
+
+if ($_REQUEST['IFRAME'] === 'Y')
+{
+	Toolbar::deleteFavoriteStar();
+}
 ?>
 <div id="<?= htmlspecialcharsbx($containerId) ?>" class="sender-letter-time">
 	<script>

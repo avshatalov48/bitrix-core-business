@@ -1,0 +1,24 @@
+<?php
+$MESS["FACEBOOK_CONVERSION_ERROR_ACCESS_DENIED"] = "Қолжетімділікке тыйым салынған";
+$MESS["FACEBOOK_CONVERSION_ERROR_EVENT_NAME"] = "Оқиға табылмады";
+$MESS["FACEBOOK_CONVERSION_ERROR_MODULE_SALE"] = "Sale модулі орнатылмаған";
+$MESS["FACEBOOK_CONVERSION_ERROR_MODULE_SEO"] = "seo модулі орнатылмаған";
+$MESS["FACEBOOK_CONVERSION_EVENT_TITLE_ADD_PAYMENT_INFO"] = "Іс-шараны жіберу: \"Төлем ақпаратын қосу\"";
+$MESS["FACEBOOK_CONVERSION_EVENT_TITLE_ADD_TO_CART"] = "Іс-шараны жіберу: \"Тауарды себетке қосу\"";
+$MESS["FACEBOOK_CONVERSION_EVENT_TITLE_CONTACT"] = "Іс-шараны жіберу: \"Пайдаланушының сіздің компанияңызға жүгінуі\"";
+$MESS["FACEBOOK_CONVERSION_EVENT_TITLE_CUSTOMIZE_PRODUCT"] = "Іс-шараны жіберу: \"Тауар туралы мәліметтерді нақтылау\"";
+$MESS["FACEBOOK_CONVERSION_EVENT_TITLE_INITIATE_CHECKOUT"] = "Іс-шараны жіберу: \"Тапсырысты рәсімдеу\"";
+$MESS["FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_GROUP"] = "Тауарлар тобын жіберу";
+$MESS["FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_NAME"] = "Тауардың атауын жіберу";
+$MESS["FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_PRICE"] = "Тауардың құны мен валютасын жіберу";
+$MESS["FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_QUANTITY"] = "Тауар санын жіберу";
+$MESS["FACEBOOK_CONVERSION_LABEL_CONTACT_SEND_EMAIL"] = "Email жіберу";
+$MESS["FACEBOOK_CONVERSION_LABEL_CONTACT_SEND_SOCIAL_NETWORK"] = "Әлеуметтік желі атауын жіберу";
+$MESS["FACEBOOK_CONVERSION_LABEL_CUSTOMIZE_PRODUCT_SEND_NAME_AND_PROPERTIES"] = "Тауардың атауы мен қасиеттерін жіберу";
+$MESS["FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ID"] = "Тауарлар ID жіберу";
+$MESS["FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ORDER_POSITIONS_QUANTITY"] = "Тапсырыстағы позициялар санын жіберу";
+$MESS["FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ORDER_PRICE"] = "Тапсырыстың құны мен валютасын жіберу";
+$MESS["FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ORDER_PRODUCTS_TOTAL_QUANTITY"] = "Тапсырыстағы тауарлардың санын жіберу";
+$MESS["FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_PRODUCTS_GROUP_AND_QUANTITY"] = "Әр тауардың саны мен тобын жіберу";
+$MESS["FACEBOOK_CONVERSION_LABEL_SEND_ID"] = "Тауардың ID-н жіберу";
+$MESS["FACEBOOK_CONVERSION_TITLE"] = "Facebook аудиториялар";

@@ -8,11 +8,13 @@
 namespace Bitrix\Main\UserConsent\Internals;
 
 use Bitrix\Main\Application;
-use Bitrix\Main\Entity;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\UserConsent\Agreement;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Event;
+use Bitrix\Main\ORM\EventResult;
 
 Loc::loadMessages(__FILE__);
 
@@ -32,7 +34,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Main\UserConsent\Internals\EO_Agreement wakeUpObject($row)
  * @method static \Bitrix\Main\UserConsent\Internals\EO_Agreement_Collection wakeUpCollection($rows)
  */
-class AgreementTable extends Entity\DataManager
+class AgreementTable extends DataManager
 {
 	/**
 	 * Get table name.
@@ -120,15 +122,15 @@ class AgreementTable extends Entity\DataManager
 	/**
 	 * After delete event handler.
 	 *
-	 * @param Entity\Event $event Event object.
-	 * @return Entity\EventResult
+	 * @param Event $event Event object.
+	 * @return EventResult
 	 */
-	public static function onAfterDelete(Entity\Event $event)
+	public static function onAfterDelete(Event $event)
 	{
-		$result = new Entity\EventResult;
+		$result = new EventResult;
 		$data = $event->getParameters();
 
-		$sql = /** @lang MySQL */ "DELETE FROM " . ConsentTable::getTableName() . " WHERE AGREEMENT_ID = " . intval($data['primary']['ID']);
+		$sql = "DELETE FROM " . ConsentTable::getTableName() . " WHERE AGREEMENT_ID = " . intval($data['primary']['ID']);
 		Application::getConnection()->query($sql);
 
 		return $result;

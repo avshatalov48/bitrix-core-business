@@ -33,4 +33,5 @@ export type UploaderFileInfo = {
 	serverPreviewHeight: ?number,
 	downloadUrl: ?string,
 	customData: Object<string, any>,
+	viewerAttrs: Object<string, string>,
 };

@@ -40,6 +40,7 @@ class AddInviteHandler implements AddHandlerInterface
 			$entity->getId(),
 			$command->getInitiatorId(),
 			UserToGroupTable::ROLE_REQUEST,
+			UserToGroupTable::INITIATED_BY_GROUP,
 			...$guestIds,
 		);
 

@@ -4,6 +4,7 @@
 namespace Bitrix\Main\Access\Auth;
 
 
+use Bitrix\HumanResources\Config\Storage;
 use Bitrix\Iblock\SectionTable;
 use Bitrix\Main\Access\AccessCode;
 use Bitrix\Main\Loader;
@@ -18,6 +19,7 @@ class AccessEventHandler
 			|| !array_key_exists('IBLOCK_ID', $fields)
 			|| !array_key_exists('UF_HEAD', $fields)
 			|| !array_key_exists('ID', $fields)
+			|| self::isHumanResourcesUsed()
 		)
 		{
 			return;
@@ -45,7 +47,7 @@ class AccessEventHandler
 	public static function onBeforeIBlockSectionDelete($sectionId)
 	{
 		$sectionId = (int) $sectionId;
-		if ($sectionId < 1)
+		if ($sectionId < 1 || self::isHumanResourcesUsed())
 		{
 			return;
 		}
@@ -83,6 +85,7 @@ class AccessEventHandler
 			|| !array_key_exists('IBLOCK_ID', $fields)
 			|| !array_key_exists('UF_HEAD', $fields)
 			|| !array_key_exists('IBLOCK_SECTION_ID', $fields)
+			|| self::isHumanResourcesUsed()
 		)
 		{
 			return;
@@ -111,5 +114,14 @@ class AccessEventHandler
 		{
 			$provider->DeleteByUser($row['USER_ID']);
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function isHumanResourcesUsed(): bool
+	{
+		return Loader::includeModule('humanresources')
+			&& Storage::instance()->isCompanyStructureConverted();
 	}
 }

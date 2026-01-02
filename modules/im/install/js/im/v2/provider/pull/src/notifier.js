@@ -1,12 +1,10 @@
 import { Core } from 'im.v2.application.core';
-import { DesktopApi } from 'im.v2.lib.desktop-api';
-import { SoundType, UserStatus, LocalStorageKey, Settings, RawSettings, UserType } from 'im.v2.const';
+import { UserStatus, LocalStorageKey, Settings, RawSettings, UserType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
-import { NotifierManager } from 'im.v2.lib.notifier';
+import { MessageNotifierManager } from 'im.v2.lib.message-notifier';
 import { DesktopManager } from 'im.v2.lib.desktop';
 import { CallManager } from 'im.v2.lib.call';
 import { LocalStorageManager } from 'im.v2.lib.local-storage';
-import { SoundNotificationManager } from 'im.v2.lib.sound-notification';
 
 import type { MessageAddParams } from './types/message';
 import type { NotifyAddParams } from './types/notification';
@@ -28,42 +26,28 @@ export class NotifierPullHandler
 		return 'im';
 	}
 
-	handleMessage(params, extraData)
+	handleMessage(params: MessageAddParams, extraData: PullExtraData)
 	{
 		this.handleMessageAdd(params, extraData);
 	}
 
-	handleMessageChat(params, extraData)
+	handleMessageChat(params: MessageAddParams, extraData: PullExtraData)
 	{
 		this.handleMessageAdd(params, extraData);
 	}
 
 	handleMessageAdd(params: MessageAddParams, extraData: PullExtraData)
 	{
-		if (!this.#shouldShowNotification(params, extraData))
+		if (!this.#shouldHandleMessageNotification(params, extraData))
 		{
 			return;
 		}
 
-		if (this.#isChatOpened(params.dialogId))
-		{
-			this.#playOpenedChatMessageSound(params);
-
-			return;
-		}
-
-		this.#playMessageSound(params);
-		this.#flashDesktopIcon();
-
-		const message = this.store.getters['messages/getById'](params.message.id);
-		const dialog = this.store.getters['chats/get'](params.dialogId, true);
-		const user = this.store.getters['users/get'](message.authorId);
-
-		NotifierManager.getInstance().showMessage({
-			message,
-			dialog,
-			user,
-			lines: Boolean(params.lines),
+		void MessageNotifierManager.getInstance().handleIncomingMessage({
+			dialogId: params.dialogId.toString(),
+			isImportant: this.#isImportantMessage(params),
+			messageId: params.message.id,
+			isLines: Boolean(params.lines),
 		});
 
 		this.#updateLastNotificationId(params.message.id);
@@ -71,71 +55,33 @@ export class NotifierPullHandler
 
 	handleNotifyAdd(params: NotifyAddParams, extraData: PullExtraData)
 	{
-		if (extraData.server_time_ago > 10)
-		{
-			Logger.warn('NotifierPullHandler: notification arrived to the user 30 seconds after it was actually sent, ignore notification');
-
-			return;
-		}
-
-		if (params.id <= this.lastNotificationId)
-		{
-			Logger.warn('NotifierPullHandler: new notification id is smaller than lastNotificationId');
-
-			return;
-		}
-
-		if (
-			params.onlyFlash === true
-			|| this.#isUserDnd()
-			|| this.#desktopWillShowNotification()
-			|| CallManager.getInstance().hasCurrentCall()
-		)
+		if (!this.#shouldHandleNotification(params, extraData))
 		{
 			return;
 		}
 
-		if (document.hasFocus())
-		{
-			const areNotificationsOpen = this.store.getters['application/areNotificationsOpen'];
-			if (areNotificationsOpen)
-			{
-				return;
-			}
-		}
-
-		const notification = this.store.getters['notifications/getById'](params.id);
-		const user = this.store.getters['users/get'](params.userId);
-
-		if (params.silent !== 'Y')
-		{
-			SoundNotificationManager.getInstance().playOnce(SoundType.reminder);
-		}
-
-		this.#flashDesktopIcon();
-
-		NotifierManager.getInstance().showNotification(notification, user);
+		MessageNotifierManager.getInstance().handleIncomingNotification({
+			notificationId: params.id,
+			userId: params.userId,
+			isSilent: params.silent === 'Y',
+		});
 
 		this.#updateLastNotificationId(params.id);
 	}
 
-	#shouldShowNotification(params: MessageAddParams, extraData: PullExtraData): boolean
+	#shouldHandleMessageNotification(params: MessageAddParams, extraData: PullExtraData): boolean
 	{
-		if (extraData.server_time_ago > 10)
+		if (this.#isExpired(extraData))
 		{
-			Logger.warn('NotifierPullHandler: message arrived to the user 30 seconds after it was actually sent, ignore message');
-
 			return false;
 		}
 
-		if (params.message.id <= this.lastNotificationId)
+		if (!this.#checkLastNotificationId(params.message.id))
 		{
-			Logger.warn('NotifierPullHandler: new message id is smaller than lastNotificationId');
-
 			return false;
 		}
 
-		if (Core.getUserId() === params.message.senderId)
+		if (this.#isCurrentUserSender(params))
 		{
 			return false;
 		}
@@ -158,9 +104,34 @@ export class NotifierPullHandler
 		}
 
 		const screenSharingIsActive = CallManager.getInstance().hasCurrentScreenSharing();
-		if (screenSharingIsActive)
+
+		return !screenSharingIsActive;
+	}
+
+	#shouldHandleNotification(params: NotifyAddParams, extraData: PullExtraData): boolean
+	{
+		if (this.#isExpired(extraData) || !this.#checkLastNotificationId(params.id))
 		{
 			return false;
+		}
+
+		if (
+			params.onlyFlash === true
+			|| this.#isUserDnd()
+			|| this.#desktopWillShowNotification()
+			|| CallManager.getInstance().hasCurrentCall()
+		)
+		{
+			return false;
+		}
+
+		if (document.hasFocus())
+		{
+			const areNotificationsOpen = this.store.getters['application/areNotificationsOpen'];
+			if (areNotificationsOpen)
+			{
+				return false;
+			}
 		}
 
 		return true;
@@ -182,13 +153,6 @@ export class NotifierPullHandler
 		const counter = this.store.getters['counters/getSpecificLinesCounter'](params.chatId);
 
 		return counter === 0;
-	}
-
-	#isChatOpened(dialogId: string): boolean
-	{
-		const isChatOpen = this.store.getters['application/isChatOpen'](dialogId);
-
-		return Boolean(document.hasFocus() && isChatOpen);
 	}
 
 	#isLinesChatOpened(dialogId: string): boolean
@@ -232,40 +196,6 @@ export class NotifierPullHandler
 		return !isDesktopChatWindow && DesktopManager.getInstance().isDesktopActive();
 	}
 
-	#flashDesktopIcon(): void
-	{
-		if (!DesktopManager.isDesktop())
-		{
-			return;
-		}
-
-		DesktopApi.flashIcon();
-	}
-
-	#playOpenedChatMessageSound(params: MessageAddParams)
-	{
-		if (this.#isImportantMessage(params))
-		{
-			SoundNotificationManager.getInstance().forcePlayOnce(SoundType.newMessage2);
-
-			return;
-		}
-
-		SoundNotificationManager.getInstance().playOnce(SoundType.newMessage2);
-	}
-
-	#playMessageSound(params: MessageAddParams)
-	{
-		if (this.#isImportantMessage(params))
-		{
-			SoundNotificationManager.getInstance().forcePlayOnce(SoundType.newMessage1);
-
-			return;
-		}
-
-		SoundNotificationManager.getInstance().playOnce(SoundType.newMessage1);
-	}
-
 	#restoreLastNotificationId()
 	{
 		const rawLastNotificationId = LocalStorageManager.getInstance().get(LocalStorageKey.lastNotificationId, 0);
@@ -295,5 +225,34 @@ export class NotifierPullHandler
 		Core.getStore().dispatch('application/settings/set', {
 			[Settings.user.status]: applicationData.settings.status,
 		});
+	}
+
+	#isExpired(extraData: PullExtraData): boolean
+	{
+		if (extraData.server_time_ago > 10)
+		{
+			Logger.warn('NotifierPullHandler: received notification 10 seconds after it was actually sent, ignore');
+
+			return true;
+		}
+
+		return false;
+	}
+
+	#checkLastNotificationId(id: number): boolean
+	{
+		if (id <= this.lastNotificationId)
+		{
+			Logger.warn('NotifierPullHandler: new message id is smaller than lastNotificationId');
+
+			return false;
+		}
+
+		return true;
+	}
+
+	#isCurrentUserSender(params: MessageAddParams): boolean
+	{
+		return Core.getUserId() === params.message.senderId;
 	}
 }

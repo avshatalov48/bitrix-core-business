@@ -4,6 +4,11 @@ const escape = (str) => String(str).replaceAll(/[\\^$*+?.()|[\]{}]/g, '\\$&');
 
 function getReplacementRegExp(placeholder: string): RegExp
 {
+	if (isClosedPlaceholder(placeholder))
+	{
+		return new RegExp(escape(placeholder), 'gmi');
+	}
+
 	const closePlaceholder = `${placeholder.slice(0, 1)}/${placeholder.slice(1)}`;
 
 	return new RegExp(`${escape(placeholder)}.*?${escape(closePlaceholder)}`, 'gmi');
@@ -30,5 +35,15 @@ export function getTemplateItems(text: string, placeholder: string | string[]): 
 
 export function unfoldTemplate(template: string, placeholder: string): string
 {
+	if (isClosedPlaceholder(placeholder))
+	{
+		return '';
+	}
+
 	return template.slice(placeholder.length, template.length - placeholder.length - 1);
+}
+
+function isClosedPlaceholder(placeholder: string): boolean
+{
+	return placeholder.at(-2) === '/';
 }

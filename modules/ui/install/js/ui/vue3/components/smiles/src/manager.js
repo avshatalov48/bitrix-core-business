@@ -1,109 +1,106 @@
-import {Dexie} from "ui.dexie";
-import {RestClient} from "rest.client";
+import { RestClient } from 'rest.client';
+import { Dexie } from 'ui.dexie';
 
 export class SmileManager
 {
 	constructor(restClient)
 	{
-		if (typeof restClient !== 'undefined')
+		// eslint-disable-next-line @bitrix24/bitrix24-rules/no-typeof
+		if (typeof restClient === 'undefined')
 		{
-			this.restClient = restClient;
+			this.restClient = new RestClient();
 		}
 		else
 		{
-			this.restClient = new RestClient;
+			this.restClient = restClient;
 		}
 
 		this.db = new Dexie('bx-ui-smiles');
 		this.db.version(1).stores({
-			sets: "id, parentId, name, type, image",
-			smiles: "id, setId, name, image, typing, width, height, originalWidth, originalHeight, definition",
+			sets: 'id, parentId, name, type, image',
+			smiles: 'id, setId, name, image, typing, width, height, originalWidth, originalHeight, definition',
 		});
 	}
 
-	loadFromCache()
+	loadFromCache(): BX.Promise
 	{
-		let promise = new BX.Promise();
+		const promise = new BX.Promise();
 
-		let sets = [];
-		let smiles = [];
+		const sets = [];
+		const smiles = [];
 
-		let timer = new Date();
-
-		this.db.transaction('r', this.db.sets, this.db.smiles, () =>
-		{
-			this.db.sets.each(set => {
-				return this.db.smiles.where('setId').equals(set.id).first().then(smile => {
-					sets.push({...set, image: smile.image});
-				}).catch(error => promise.reject(error));
+		this.db.transaction('r', this.db.sets, this.db.smiles, () => {
+			this.db.sets.each((set) => {
+				return this.db.smiles.where('setId').equals(set.id).first().then((smile) => {
+					sets.push({ ...set, image: smile.image });
+				})
+					.catch((error) => promise.reject(error));
 			}).then(() => {
-				return this.db.smiles.where('setId').equals(sets[0].id).each(smile => {
+				return this.db.smiles.where('setId').equals(sets[0].id).each((smile) => {
 					smiles.push(smile);
 				});
 			}).then(() => {
-				let promiseResult = {sets, smiles};
+				const promiseResult = { sets, smiles };
 				promise.resolve(promiseResult);
-			}).catch(error => promise.reject(error));
+			}).catch((error) => promise.reject(error));
 		});
 
 		return promise;
 	}
 
-	loadFromServer()
+	loadFromServer(): BX.Promise
 	{
-		let promise = new BX.Promise();
-		let timer = new Date();
+		const promise = new BX.Promise();
 
-		this.restClient.callMethod('smile.get').then(result =>
-		{
-			let sets = [];
-			let smiles = [];
+		this.restClient.callMethod('smile.get').then((result) => {
+			const sets = [];
+			const smiles = [];
 
-			let answer = result.data();
+			const answer = result.data();
 
-			let setImage = {};
+			const setImage = {};
 
-			answer.smiles = answer.smiles.map(function(smile){
+			answer.smiles = answer.smiles.map((smile) => {
 				if (!setImage[smile.setId])
 				{
 					setImage[smile.setId] = smile.image;
 				}
 
 				let originalWidth = smile.width;
-				if (smile.definition == 'HD')
+				if (smile.definition === 'HD')
 				{
-					originalWidth = originalWidth*2;
+					originalWidth *= 2;
 				}
-				else if (smile.definition == 'UHD')
+				else if (smile.definition === 'UHD')
 				{
-					originalWidth = originalWidth*4;
+					originalWidth *= 4;
 				}
 
 				let originalHeight = smile.height;
-				if (smile.definition == 'HD')
+				if (smile.definition === 'HD')
 				{
-					originalHeight = originalHeight*2;
+					originalHeight *= 2;
 				}
-				else if (smile.definition == 'UHD')
+				else if (smile.definition === 'UHD')
 				{
-					originalHeight = originalHeight*4;
+					originalHeight *= 4;
 				}
 
-				return {...smile, originalWidth, originalHeight}
+				return { ...smile, originalWidth, originalHeight };
 			});
 
-			answer.sets.forEach(set => {
-				sets.push({...set, image: setImage[set.id]});
+			answer.sets.forEach((set) => {
+				sets.push({ ...set, image: setImage[set.id] });
 			});
 
-			answer.smiles.forEach(smile => {
-				if (smile.setId == sets[0].id)
+			answer.smiles.forEach((smile) => {
+				if (parseInt(smile.setId, 10) === parseInt(sets[0].id, 10))
 				{
 					smiles.push(smile);
 				}
 			});
 
-			let promiseResult = {sets, smiles};
+			const promiseResult = { sets, smiles };
 
 			promise.resolve(promiseResult);
 
@@ -111,23 +108,21 @@ export class SmileManager
 				return this.db.sets.clear().then(() => {
 					this.db.sets.bulkAdd(sets);
 					this.db.smiles.bulkAdd(answer.smiles);
-				}).catch(error => promise.reject(error));
-			}).catch(error => promise.reject(error));
-
-		}).catch(error => promise.reject(error));
+				}).catch((error) => promise.reject(error));
+			}).catch((error) => promise.reject(error));
+		}).catch((error) => promise.reject(error));
 
 		return promise;
 	}
 
-	changeSet(setId)
+	changeSet(setId: number): BX.Promise
 	{
-		let promise = new BX.Promise();
+		const promise = new BX.Promise();
 
-		this.db.smiles.where('setId').equals(setId).toArray(smiles => {
+		this.db.smiles.where('setId').equals(setId).toArray((smiles) => {
 			promise.resolve(smiles);
-		}).catch(error => promise.reject(error));
+		}).catch((error) => promise.reject(error));
 
 		return promise;
 	}
 }
-

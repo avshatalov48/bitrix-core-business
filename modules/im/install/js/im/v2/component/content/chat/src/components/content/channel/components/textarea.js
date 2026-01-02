@@ -22,9 +22,7 @@ export const ChannelTextarea = {
 		<ChatTextarea
 			:dialogId="dialogId"
 			:placeholder="this.loc('IM_CONTENT_CHANNEL_TEXTAREA_PLACEHOLDER')"
-			:withCreateMenu="false"
 			:withMarket="false"
-			:withAudioInput="false"
 			class="bx-im-channel-send-panel__container"
 		/>
 	`,

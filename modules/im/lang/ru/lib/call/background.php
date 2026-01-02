@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IM_CALL_BG_VIDEO_STAR_SKY"] = "Звездное небо";
 $MESS["IM_CALL_BG_VIDEO_WAVES"] = "Волны";
 $MESS["IM_CALL_BG_VIDEO_JELLYFISHES"] = "Медузы";
@@ -39,4 +39,7 @@ $MESS["IM_CALL_BG_IMAGE_MOON"] = "Полнолуние";
 $MESS["IM_CALL_BG_IMAGE_SKELETONS"] = "Скелеты";
 $MESS["IM_CALL_BG_IMAGE_NEON_SPACE"] = "В неоновом пространстве";
 $MESS["IM_CALL_BG_IMAGE_CATHEDRAL"] = "В Соборе";
-?>
+$MESS["IM_CALL_BG_IMAGE_RESPONSIBLE_COLLEAGUE"] = "Самый ответственный коллега";
+$MESS["IM_CALL_BG_IMAGE_BUSINESS_LUNCH"] = "Комплексный обед";
+$MESS["IM_CALL_BG_IMAGE_UNDER_CONTROL"] = "У нас все под контролем";
+$MESS["IM_CALL_BG_IMAGE_LETS_SOLVE_PROBLEM"] = "Решим вопрос через задачу";

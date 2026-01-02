@@ -96,31 +96,25 @@ class b24connector extends CModule
 
 	function InstallFiles($arParams = array())
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/css", $_SERVER["DOCUMENT_ROOT"]."/bitrix/css", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/themes/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
-		}
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/css", $_SERVER["DOCUMENT_ROOT"]."/bitrix/css", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/themes/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
 
 		return true;
 	}
 
 	function UnInstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/components/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components");
-			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");
-			DeleteDirFilesEx("/bitrix/js/b24connector/");
-			DeleteDirFilesEx("/bitrix/css/b24connector/");
-			DeleteDirFilesEx("/bitrix/images/b24connector/");
-			DeleteDirFilesEx("/bitrix/themes/.default/icons/b24connector/");
-		}
+		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
+		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/components/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components");
+		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");
+		DeleteDirFilesEx("/bitrix/js/b24connector/");
+		DeleteDirFilesEx("/bitrix/css/b24connector/");
+		DeleteDirFilesEx("/bitrix/images/b24connector/");
+		DeleteDirFilesEx("/bitrix/themes/.default/icons/b24connector/");
 
 		return true;
 	}

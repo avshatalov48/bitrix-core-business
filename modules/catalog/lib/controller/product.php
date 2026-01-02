@@ -7,6 +7,7 @@ use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\Controller\Product\SkuDeferredCalculations;
 use Bitrix\Catalog\Model\Event;
 use Bitrix\Catalog\ProductTable;
+use Bitrix\Catalog\Internal\Service\RestValidator\Entity as ValidatorEntity;
 use Bitrix\Catalog\v2;
 use Bitrix\Iblock;
 use Bitrix\Main\Application;
@@ -48,26 +49,27 @@ class Product extends Controller implements EventBindInterface
 	 */
 	protected function processBeforeAction(Engine\Action $action)
 	{
-		$r = new Result();
+		$result = new Result();
 
-		if ($action->getName() === 'add')
+		switch ($action->getName())
 		{
-			$r = $this->processBeforeAdd($action);
-		}
-		else if ($action->getName() === 'update')
-		{
-			$r = $this->processBeforeUpdate($action);
-		}
-		else if ($action->getName() === 'getfieldsbyfilter')
-		{
-			$arguments = $action->getArguments();
-			$arguments['filter']['productType'] = static::TYPE;
-			$action->setArguments($arguments);
+			case 'add':
+				$result = $this->processBeforeAdd($action);
+				break;
+			case 'update':
+				$result = $this->processBeforeUpdate($action);
+				break;
+			case 'list':
+				$result = $this->processBeforeList($action);
+				break;
+			case 'getfieldsbyfilter':
+				$result = $this->processBeforeGetFieldsByFilter($action);
+				break;
 		}
 
-		if (!$r->isSuccess())
+		if (!$result->isSuccess())
 		{
-			$this->addErrors($r->getErrors());
+			$this->addErrors($result->getErrors());
 
 			return null;
 		}
@@ -120,9 +122,13 @@ class Product extends Controller implements EventBindInterface
 		$element = $result->getData();
 
 		$iblockIdOrigin = $fields['iblockId'] ?? null;
-		if ($iblockIdOrigin !== null)
+		if (is_scalar($iblockIdOrigin))
 		{
 			$iblockIdOrigin = (int)$iblockIdOrigin;
+		}
+		else
+		{
+			$iblockIdOrigin = null;
 		}
 
 		if ($iblockIdOrigin && $iblockIdOrigin !== $element['IBLOCK_ID'])
@@ -142,12 +148,88 @@ class Product extends Controller implements EventBindInterface
 			$action->setArguments($arguments);
 		}
 
+		if (is_array($fields))
+		{
+			$validator = new ValidatorEntity\ProductValidator($element['IBLOCK_ID']);
+			$result = $validator->run($fields);
+			if (!$result->isSuccess())
+			{
+				return $result;
+			}
+		}
+
 		return $result;
 	}
 
 	protected function processBeforeAdd(Engine\Action $action): Result
 	{
+		$arguments = $action->getArguments();
+		$fields = $arguments['fields'] ?? null;
+		if (is_array($fields))
+		{
+			$iblockId = $fields['iblockId'] ?? null;
+			if (!is_scalar($iblockId))
+			{
+				$iblockId = null;
+			}
+			$iblockId = (int)$iblockId;
+			$validator = new ValidatorEntity\ProductValidator($iblockId);
+			$result = $validator->run($fields);
+			if (!$result->isSuccess())
+			{
+				return $result;
+			}
+		}
+
 		return new Result();
+	}
+
+	protected function processBeforeList(Engine\Action $action): Result
+	{
+		$result = new Result();
+		$arguments = $action->getArguments();
+
+		$filter = $arguments['filter'] ?? [];
+		if (!is_array($filter))
+		{
+			$result->addError(new Error('Incorrect filter format'));
+
+			return $result;
+		}
+
+		$iblockId = $filter['iblockId'] ?? null;
+		if (!is_scalar($iblockId))
+		{
+			$iblockId = null;
+		}
+		$iblockId = (int)$iblockId;
+		$validator = new ValidatorEntity\ProductFilterValidator($iblockId);
+		$result = $validator->run($filter);
+		if (!$result->isSuccess())
+		{
+			return $result;
+		}
+
+		return $result;
+	}
+
+	protected function processBeforeGetFieldsByFilter(Engine\Action $action): Result
+	{
+		$result = new Result();
+		$arguments = $action->getArguments();
+
+		$filter = $arguments['filter'] ?? [];
+		if (!is_array($filter))
+		{
+			$result->addError(new Error('Incorrect filter format'));
+
+			return $result;
+		}
+		$filter['productType'] = static::TYPE;
+		$arguments['filter'] = $filter;
+		$action->setArguments($arguments);
+
+		return $result;
 	}
 
 	//region Actions
@@ -263,6 +345,8 @@ class Product extends Controller implements EventBindInterface
 			$propertyFields = $this->preparePropertyFields($propertyFields);
 			$propertyIds = array_keys($propertyFields);
 
+			$filter = $this->normalizePropertyFilter($filter);
+
 			$items = self::perfGetList(
 				array_merge($productFields, $elementFields),
 				$filter,
@@ -305,6 +389,29 @@ class Product extends Controller implements EventBindInterface
 
 			return null;
 		}
+	}
+
+	private function normalizePropertyFilter(array $filter): array
+	{
+		foreach (array_keys($filter) as $index)
+		{
+			$field = \CIBlock::MkOperationFilter($index);
+			$prepare = [];
+			if (!preg_match('/^PROPERTY_[0-9]*$/', $field['FIELD'], $prepare))
+			{
+				continue;
+			}
+			if (!is_array($filter[$index]))
+			{
+				continue;
+			}
+			if (isset($filter[$index]['VALUE']))
+			{
+				$filter[$index] = $filter[$index]['VALUE'];
+			}
+		}
+
+		return $filter;
 	}
 
 	public function getAction($id)
@@ -378,7 +485,6 @@ class Product extends Controller implements EventBindInterface
 		$elementFields = $groupFields['elementFields'];
 
 		$productFields = $this->prepareProductFields($productFields);
-		$propertyFields = $this->verifyPropertyFields($fields['IBLOCK_ID'], $propertyFields);
 		$propertyFields = $this->preparePropertyFields($propertyFields);
 		$elementFieldsAdd =
 			!empty($propertyFields)
@@ -452,6 +558,12 @@ class Product extends Controller implements EventBindInterface
 			}
 		}
 
+		$fields = $this->prepareFieldsForUpdate($fields);
+		if ($fields === null)
+		{
+			return null;
+		}
+
 		$groupFields = $this->splitFieldsByEntity($fields);
 
 		$productFields = $groupFields['productFields'];
@@ -459,7 +571,6 @@ class Product extends Controller implements EventBindInterface
 		$elementFields = $groupFields['elementFields'];
 
 		$productFields = $this->prepareProductFields($productFields);
-		$propertyFields = $this->verifyPropertyFields((int)$fields['IBLOCK_ID'], $propertyFields);
 		$propertyFields = $this->preparePropertyFields($propertyFields);
 
 		$propertyFields = $this->fillPropertyFieldsDefaultPropertyValues($id, $fields['IBLOCK_ID'], $propertyFields);
@@ -730,64 +841,6 @@ class Product extends Controller implements EventBindInterface
 		if (State::isUsedInventoryManagement())
 		{
 			unset($result['QUANTITY_TRACE']);
-		}
-
-		return $result;
-	}
-
-	private function verifyPropertyFields(int $iblockId, array $fields): array
-	{
-		$singleProperties = [];
-		$iterator = Iblock\PropertyTable::getList([
-			'select' => [
-				'ID',
-				'PROPERTY_TYPE',
-				'USER_TYPE',
-			],
-			'filter' => [
-				'=IBLOCK_ID' => $iblockId,
-				'@PROPERTY_TYPE' => [
-					Iblock\PropertyTable::TYPE_STRING,
-					iblock\PropertyTable::TYPE_NUMBER,
-				],
-				'=ACTIVE' => 'Y',
-				'=MULTIPLE' => 'N',
-			],
-			'order' => [
-				'ID' => 'ASC',
-			],
-			'cache' => [
-				'ttl' => 86400,
-			]
-		]);
-		while ($row = $iterator->Fetch())
-		{
-			if ((string)$row['USER_TYPE'] !== '')
-			{
-				continue;
-			}
-
-			$singleProperties['PROPERTY_' . $row['ID']] = true;
-		}
-		unset(
-			$row,
-			$iterator,
-		);
-
-		$result = [];
-
-		foreach ($fields as $name => $value)
-		{
-			if (
-				isset($singleProperties[$name])
-				&& isset($value['VALUE'])
-				&& is_array($value['VALUE'])
-			)
-			{
-				continue;
-			}
-
-			$result[$name] = $value;
 		}
 
 		return $result;

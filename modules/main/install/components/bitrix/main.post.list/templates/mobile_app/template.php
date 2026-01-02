@@ -270,7 +270,7 @@ else
 			?><div class="post-comments-link-cont">
 				<a href="<?=$arParams["NAV_STRING"]?>" id="<?=$prefixNode?>_page_nav" class="post-comments-link" bx-mpl-comments-count="<?=$arResult["NAV_STRING_COUNT_MORE"]?>"><?
 					?><?=Loc::getMessage("BLOG_C_VIEW")?><?
-					?><span class="post-comments-link-count"><?=$arResult["NAV_STRING_COUNT_MORE"]?></span><?
+					?> <span class="post-comments-link-count"><?=$arResult["NAV_STRING_COUNT_MORE"]?></span><?
 				?></a>
 				<span class="post-comments-link-loader-informer" id="<?=$prefixNode?>_page_nav_loader" style='display: none;'><?=Loc::getMessage("BLOG_C_LOADING")?></span>
 			</div><?

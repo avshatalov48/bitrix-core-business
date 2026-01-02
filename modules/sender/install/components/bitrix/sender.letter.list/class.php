@@ -205,7 +205,6 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			'filter' => $this->getDataFilter(),
 			'offset' => $nav->getOffset(),
 			'limit' => $nav->getLimit(),
-			'count_total' => true,
 			'order' => $this->getGridOrder(),
 			'select' => array_merge(
 				Entity\Letter::getDefaultSelectFields(),
@@ -216,6 +215,7 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 				]
 			)
 		);
+
 		if ($isExportMode)
 		{
 			unset($selectParameters['offset']);
@@ -359,13 +359,10 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 				$this->arResult['ROWS']
 			);
 		}
-
-		$this->arResult['TOTAL_ROWS_COUNT'] = $list->getCount();
+		$nav->setRecordCount($nav->getOffset() + count($this->arResult['ROWS'] ?? []) + 1);
 
 		// set rec count to nav
-		$nav->setRecordCount($list->getCount());
 		$this->arResult['NAV_OBJECT'] = $nav;
-
 
 		Integration\Bitrix24\Service::initLicensePopup();
 

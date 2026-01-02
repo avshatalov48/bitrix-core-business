@@ -1,0 +1,20 @@
+<?php
+$MESS["BT_CAT_CAT_DSC_SV_TYPE_FIX"] = "Тіркелген сома";
+$MESS["BT_CAT_CAT_DSC_SV_TYPE_PERCENT"] = "Пайызбен";
+$MESS["BT_MOD_CAT_DSC_SV_ERR_BAD_CURRENCY"] = "Жеңілдік валютасы қате";
+$MESS["BT_MOD_CAT_DSC_SV_ERR_BAD_RANGE"] = "Жинақтау ауқымы қате";
+$MESS["BT_MOD_CAT_DSC_SV_ERR_BAD_RANGE_FROM"] = "Ауқым шекарасының дұрыс емес мәні";
+$MESS["BT_MOD_CAT_DSC_SV_ERR_BAD_RANGE_VALUE"] = "Ауқым үшін жеңілдік шамасының дұрыс емес мәні";
+$MESS["BT_MOD_CAT_DSC_SV_ERR_BAD_SITE"] = "Қате сайт көрсетілген";
+$MESS["BT_MOD_CAT_DSC_SV_ERR_DUP_RANGE_FROM"] = "Ауқым шекаралары қайталанады";
+$MESS["BT_MOD_CAT_DSC_SV_ERR_EMPTY_CURRENCY"] = "Жеңілдік валютасы жоқ";
+$MESS["BT_MOD_CAT_DSC_SV_ERR_EMPTY_GROUP_IDS"] = "Жеңілдік қолданылатын топтар көрсетілмеген";
+$MESS["BT_MOD_CAT_DSC_SV_ERR_EMPTY_NAME"] = "Атауы жоқ";
+$MESS["BT_MOD_CAT_DSC_SV_ERR_EMPTY_RANGES"] = "Жинақтау диапазоны көрсетілмеген";
+$MESS["BT_MOD_CAT_DSC_SV_ERR_EMPTY_SITE"] = "Сайт көрсетілмеген";
+$MESS["BT_MOD_CAT_DSC_SV_MESS_PERIOD_DAY"] = "күн";
+$MESS["BT_MOD_CAT_DSC_SV_MESS_PERIOD_MONTH"] = "ай";
+$MESS["BT_MOD_CAT_DSC_SV_MESS_PERIOD_YEAR"] = "жыл";
+$MESS["BX_CAT_DISCSAVE_APPLY_MODE_A"] = "тауарға жеңілдіктерді толықтыру";
+$MESS["BX_CAT_DISCSAVE_APPLY_MODE_D"] = "егер тауарға жеңілдіктер болса, әрекет етпеу";
+$MESS["BX_CAT_DISCSAVE_APPLY_MODE_R"] = "егер жинақтаушы жеңілдік артық болса, тауарға жеңілдіктерден бас тарту";

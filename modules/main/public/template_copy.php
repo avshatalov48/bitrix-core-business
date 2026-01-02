@@ -1,9 +1,9 @@
-<?
+<?php
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 /**
@@ -100,21 +100,6 @@ if($strWarning == "")
 {
 	$arComponentDescription = CComponentUtil::GetComponentDescr($_GET["component_name"]);
 
-	$arComponentParameters = CComponentUtil::GetComponentProps($_GET["component_name"], $arComponent["DATA"]["PARAMS"]);
-	$arTemplateParameters = CComponentUtil::GetTemplateProps($_GET["component_name"], $_GET["component_template"], $_GET["template_id"], $arComponent["DATA"]["PARAMS"]);
-
-	$arParameterGroups = array();
-	if (isset($arComponentParameters["GROUPS"]) && is_array($arComponentParameters["GROUPS"]))
-		$arParameterGroups = $arParameterGroups + $arComponentParameters["GROUPS"];
-	if (isset($arTemplateParameters) && is_array($arTemplateParameters))
-		$arParameterGroups = $arParameterGroups + array("TEMPLATE" => array("NAME" => GetMessage("comp_templ_template")));
-
-	$arParameters = array();
-	if (isset($arComponentParameters["PARAMETERS"]) && is_array($arComponentParameters["PARAMETERS"]))
-		$arParameters = $arParameters + $arComponentParameters["PARAMETERS"];
-	if (isset($arTemplateParameters) && is_array($arTemplateParameters))
-		$arParameters = $arParameters + $arTemplateParameters;
-
 	$arTemplatesList = CComponentUtil::GetTemplatesList($_GET["component_name"], $_GET["template_id"]);
 	for ($i = 0, $cnt = count($arTemplatesList); $i < $cnt; $i++)
 	{
@@ -141,13 +126,7 @@ if($strWarning == "")
 		{
 			if (isset($_POST["USE_TEMPLATE"]) && $_POST["USE_TEMPLATE"] == "Y")
 			{
-				$code = ($arComponent["DATA"]["VARIABLE"]?$arComponent["DATA"]["VARIABLE"]."=":"").
-					"\$APPLICATION->IncludeComponent(\"".$arComponent["DATA"]["COMPONENT_NAME"]."\", ".
-					"\"".$sTemplateName."\", ".
-					"Array(\n\t".PHPParser::ReturnPHPStr2($arComponent["DATA"]["PARAMS"], $arParameters)."\n\t)".
-					",\n\t".($arComponent["DATA"]["PARENT_COMP"] <> ''? $arComponent["DATA"]["PARENT_COMP"] : "false").
-					(!empty($arComponent["DATA"]["FUNCTION_PARAMS"])? ",\n\t"."array(\n\t".PHPParser::ReturnPHPStr2($arComponent["DATA"]["FUNCTION_PARAMS"])."\n\t)" : "").
-					"\n);";
+				$code = PHPParser::buildComponentCode($arComponent, $sTemplateName);
 
 				$filesrc_for_save = mb_substr($filesrc, 0, $arComponent["START"]).$code.mb_substr($filesrc, $arComponent["END"]);
 
@@ -166,7 +145,7 @@ if($strWarning == "")
 					{
 						if ($component->InitComponentTemplate($_REQUEST["edit_file"], $_POST["SITE_TEMPLATE"]))
 						{
-							$template = & $component->GetTemplate();
+							$template = $component->GetTemplate();
 							if (!is_null($template))
 							{
 								$strJSText = $APPLICATION->GetPopupLink(
@@ -285,7 +264,7 @@ if(!$bParentComp):
 		if(mb_strpos($templ["NAME"], $def) === 0 && ($v = intval(mb_substr($templ["NAME"], mb_strlen($def))))>$max)
 			$max = $v;
 ?>
-			<input type="text" name="TEMPLATE_NAME" value="<?echo ($_REQUEST["TEMPLATE_NAME"] <> ''? htmlspecialcharsbx($_REQUEST["TEMPLATE_NAME"]) : htmlspecialcharsbx($def).($max+1)); ?>">
+			<input type="text" name="TEMPLATE_NAME" value="<?echo (!empty($_REQUEST["TEMPLATE_NAME"]) ? htmlspecialcharsbx($_REQUEST["TEMPLATE_NAME"]) : htmlspecialcharsbx($def).($max+1)); ?>">
 <?else:?>
 			<?echo $sCurrentTemplateName?>
 			<input type="hidden" name="TEMPLATE_NAME" value="<?echo $sCurrentTemplateName?>">
@@ -295,12 +274,12 @@ if(!$bParentComp):
 	<tr>
 		<td class="bx-popup-label bx-width50" valign="top"><?= GetMessage("comp_templ_new_template") ?>:</td>
 		<td>
-<input type="radio" name="SITE_TEMPLATE" value=".default" id="SITE_TEMPLATE_def"<?if($_REQUEST["SITE_TEMPLATE"] == "" || $_REQUEST["SITE_TEMPLATE"] == ".default") echo " checked"?> onclick="CheckSiteTemplate(this)"><label for="SITE_TEMPLATE_def"><?echo GetMessage("template_copy_def")?> / .default (<?echo GetMessage("comp_templ_def_templ")?>)</label><br>
+<input type="radio" name="SITE_TEMPLATE" value=".default" id="SITE_TEMPLATE_def"<?if(empty($_REQUEST["SITE_TEMPLATE"]) || $_REQUEST["SITE_TEMPLATE"] == ".default") echo " checked"?> onclick="CheckSiteTemplate(this)"><label for="SITE_TEMPLATE_def"><?echo GetMessage("template_copy_def")?> / .default (<?echo GetMessage("comp_templ_def_templ")?>)</label><br>
 <?if($_GET["template_id"] <> "" && $_GET["template_id"] <> ".default"):?>
-<input type="radio" name="SITE_TEMPLATE" value="<?echo htmlspecialcharsbx($_GET["template_id"])?>" id="SITE_TEMPLATE_cur"<?if($_REQUEST["SITE_TEMPLATE"] == $_GET["template_id"]) echo " checked"?> onclick="CheckSiteTemplate(this)"><label for="SITE_TEMPLATE_cur"><?echo GetMessage("template_copy_cur")?> / <?echo htmlspecialcharsbx($_GET["template_id"])?><?if($arSiteTemplates[$_GET["template_id"]] <> '') echo " (".$arSiteTemplates[$_GET["template_id"]].")"?></label><br>
+<input type="radio" name="SITE_TEMPLATE" value="<?echo htmlspecialcharsbx($_GET["template_id"])?>" id="SITE_TEMPLATE_cur"<?if(isset($_REQUEST["SITE_TEMPLATE"]) && $_REQUEST["SITE_TEMPLATE"] == $_GET["template_id"]) echo " checked"?> onclick="CheckSiteTemplate(this)"><label for="SITE_TEMPLATE_cur"><?echo GetMessage("template_copy_cur")?> / <?echo htmlspecialcharsbx($_GET["template_id"])?><?if($arSiteTemplates[$_GET["template_id"]] <> '') echo " (".$arSiteTemplates[$_GET["template_id"]].")"?></label><br>
 <?endif?>
 <?
-$bList = ($_REQUEST["SITE_TEMPLATE"] <> "" && $_REQUEST["SITE_TEMPLATE"] <> $_GET["template_id"] && $_REQUEST["SITE_TEMPLATE"] <> ".default")
+$bList = (!empty($_REQUEST["SITE_TEMPLATE"]) && $_REQUEST["SITE_TEMPLATE"] <> $_GET["template_id"] && $_REQUEST["SITE_TEMPLATE"] <> ".default")
 ?>
 <input type="radio" name="SITE_TEMPLATE" value="" id="SITE_TEMPLATE_sel"<?if($bList) echo " checked"?> onclick="CheckSiteTemplate(this)"><label for="SITE_TEMPLATE_sel"><?echo GetMessage("template_copy_sel")?></label>
 			<select name="SITE_TEMPLATE"<?if(!$bList) echo " disabled"?>>
@@ -309,7 +288,7 @@ $bList = ($_REQUEST["SITE_TEMPLATE"] <> "" && $_REQUEST["SITE_TEMPLATE"] <> $_GE
 					if($templ_id == ".default" || $templ_id == $_GET["template_id"])
 						continue;
 				?>
-				<option value="<?= htmlspecialcharsbx($templ_id) ?>"<?if (($_REQUEST["SITE_TEMPLATE"] <> '' && $_REQUEST["SITE_TEMPLATE"] == $templ_id) || ($_REQUEST["SITE_TEMPLATE"] == '' && $templ_id == $template_site_template)) echo " selected";?>><?= htmlspecialcharsbx($templ_id." (".$templ_name.")") ?></option>
+				<option value="<?= htmlspecialcharsbx($templ_id) ?>"<?if ((!empty($_REQUEST["SITE_TEMPLATE"]) && $_REQUEST["SITE_TEMPLATE"] == $templ_id) || (empty($_REQUEST["SITE_TEMPLATE"]) && $templ_id == $template_site_template)) echo " selected";?>><?= htmlspecialcharsbx($templ_id." (".$templ_name.")") ?></option>
 				<?endforeach;?>
 			</select>
 		</td>
@@ -318,7 +297,7 @@ $bList = ($_REQUEST["SITE_TEMPLATE"] <> "" && $_REQUEST["SITE_TEMPLATE"] <> $_GE
 	<tr>
 		<td class="bx-popup-label bx-width50"><?= GetMessage("comp_templ_use") ?>:</td>
 		<td>
-			<input type="checkbox" name="USE_TEMPLATE" value="Y"<?if (!($_REQUEST["action"] == "save" && $_REQUEST["USE_TEMPLATE"] <> "Y")) echo " checked";?><?if($bList) echo " disabled"?>>
+			<input type="checkbox" name="USE_TEMPLATE" value="Y"<?if (!(isset($_REQUEST["action"]) && $_REQUEST["action"] == "save" && $_REQUEST["USE_TEMPLATE"] <> "Y")) echo " checked";?><?if($bList) echo " disabled"?>>
 		</td>
 	</tr>
 <?endif?>
@@ -326,7 +305,7 @@ $bList = ($_REQUEST["SITE_TEMPLATE"] <> "" && $_REQUEST["SITE_TEMPLATE"] <> $_GE
 	<tr>
 		<td class="bx-popup-label bx-width50"><?= GetMessage("comp_templ_edit") ?>:</td>
 		<td>
-			<input type="checkbox" name="EDIT_TEMPLATE" value="Y"<?if (!($_REQUEST["action"] == "save" && $_REQUEST["EDIT_TEMPLATE"] <> "Y")) echo " checked";?>>
+			<input type="checkbox" name="EDIT_TEMPLATE" value="Y"<?if (!(isset($_REQUEST["action"]) && $_REQUEST["action"] == "save" && $_REQUEST["EDIT_TEMPLATE"] <> "Y")) echo " checked";?>>
 		</td>
 	</tr>
 <?endif?>

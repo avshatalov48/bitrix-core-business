@@ -58,6 +58,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.progressBar.setCancelDisable(true);
 	      this.progressBar.setIcon(ui_progressbarjs_uploader.Uploader.icon.cloud);
 	      this.progressBar.setProgressTitle(main_core.Loc.getMessage('IM_LIB_PROGRESSBAR_FILE_UPLOAD_SAVING'));
+	    } else if (this.uploadState.status === im_v2_const.FileStatus.preparing) {
+	      this.progressBar.setProgress(this.uploadState.progress > STARTING_PROGRESS ? this.uploadState.progress : STARTING_PROGRESS);
+	      this.progressBar.setCancelDisable(false);
+	      this.progressBar.setIcon(ui_progressbarjs_uploader.Uploader.icon.cancel);
+	      this.progressBar.setProgressTitle(main_core.Loc.getMessage('IM_LIB_PROGRESSBAR_FILE_UPLOAD_SAVING'));
 	    } else if (this.uploadState.progress === 100) {
 	      this.progressBar.setProgress(100);
 	    } else if (this.uploadState.progress === -1) {

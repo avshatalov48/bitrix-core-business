@@ -22,6 +22,7 @@ return [
 		'main.core',
 		'ui.forms',
 		'im.lib.cookie',
+		'call.core',
 		'im.component.call-feedback',
 		'im.lib.desktop',
 		'ui.vue',
